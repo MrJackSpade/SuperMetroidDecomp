@@ -101,7 +101,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         for (int offset = 0; offset < DescriptorCount * RecordBytes; offset += RecordBytes)
         {
-            var state = new BotwoonEnemyState(body: []) { Movement = BotwoonMovement.MoveTowardHole, PathComplete = true };
+            var state = new BotwoonEnemyState(body: []) { Movement = BotwoonMovement.Finished };
             BotwoonBehavior.StartBotwoonWalk(state, WalkOf(offset / RecordBytes));
             ushort pointer = ReadRomWord(rom, 0xb3e150 + offset);
             short direction = (short)ReadRomWord(rom, 0xb3e152 + offset);
@@ -112,8 +112,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                 "Botwoon production path direction");
             AssertEqual(ReadRomWord(rom, 0xb3e154 + offset), RecordBytes * Array.FindIndex(BotwoonNavigationDefinitions.Holes, hole => hole.Hole == state.TargetHole),
                 "Botwoon production destination");
-            AssertEqual(BotwoonMovement.FollowAuthoredPath, state.Movement, "Botwoon walk handoff");
-            AssertTrue(!state.PathComplete, "Botwoon walk starts incomplete");
+            AssertEqual(BotwoonMovement.FollowAuthoredPath, state.Movement, "Botwoon walk handoff, which starts unfinished");
         }
         Console.WriteLine("Botwoon path descriptors: all 32 path, first-step, direction and destination fields and production installations match native records.");
     }
@@ -266,7 +265,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                     int sign = traversal == BotwoonPathTraversal.Backward ? -1 : 1;
                     int nextAddress = terminates ? 0 : BotwoonPathCodec.AddressOf(separators, path, step + sign);
                     bool nextTerminates = !terminates && BotwoonPathCodec.IsMarker(cartridge, nextAddress);
-                    AssertEqual(terminates || nextTerminates, state.PathComplete, $"{context} completion");
+                    AssertEqual(terminates || nextTerminates, state.Movement == BotwoonMovement.Finished, $"{context} completion");
                     if (terminates || nextTerminates)
                     {
                         AssertEqual(terminates ? step : step + sign, state.PathStep, $"{context} terminating step");

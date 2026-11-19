@@ -91,4 +91,8 @@ internal static class IntroEggMotionDefinitions
         new(SignedSixteenSixteen.FromWholePixels(1), SteepSlimeFall),
         new(SignedSixteenSixteen.FromPixelFraction(1, 2), ShallowSlimeFall),
     ];
+
+
+    /// <summary>How much faster a piece of the egg falls each update once it has stopped rising: an eighth of a pixel an update.</summary>
+    internal static readonly SignedSixteenSixteen FallGravity = SignedSixteenSixteen.FromPixelFraction(1, 8);
 }

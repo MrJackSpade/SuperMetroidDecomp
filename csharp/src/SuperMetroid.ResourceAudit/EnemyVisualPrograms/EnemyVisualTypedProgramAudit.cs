@@ -188,8 +188,8 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(MotherBrainBabyAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
         RequireSegmentFrames(MotherBrainTubeAnimations.Segments, EnemyFrameCartridgeLookupTooling.Word, MotherBrainVisualToolingDefinitions.Bank,
             nameof(MotherBrainTubeAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainTubeAnimations.cs");
-        RequireSegmentFrames(ShitroidAnimations.Segments, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), ShitroidVisualDefinitions.Bank,
-            nameof(ShitroidAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ShitroidAnimations.cs");
+        RequireSegmentFrames(BabyMetroidAnimations.Segments, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), BabyMetroidSpritemapDefinitions.Bank,
+            nameof(BabyMetroidAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/BabyMetroidAnimations.cs");
         // The Zebetites show a picture their health chooses, not an animation (#2250).
         ushort[] zebetitePictures = ZebetiteVisualToolingDefinitions.Spritemaps();
         foreach (ushort frame in zebetitePictures)
@@ -277,8 +277,8 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(SparkAnimations), "csharp/src/SuperMetroid.Core/Enemies/Sparks/SparkAnimations.cs");
         RequireSegmentFrames(MetroidAnimations.Segments, MetroidFrameToolingDefinitions.Spritemap, MetroidFrameToolingDefinitions.Bank,
             nameof(MetroidAnimations), "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidAnimations.cs");
-        RequireSegmentFrames(MaridiaLargeSnailAnimations.Segments, MaridiaLargeSnailFrameToolingDefinitions.Spritemap, MaridiaLargeSnailFrameToolingDefinitions.Bank,
-            nameof(MaridiaLargeSnailAnimations), "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/MaridiaLargeSnailAnimations.cs");
+        RequireSegmentFrames(OumAnimations.Segments, OumFrameToolingDefinitions.Spritemap, OumFrameToolingDefinitions.Bank,
+            nameof(OumAnimations), "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/OumAnimations.cs");
         RequireSegmentFrames(PuyoAnimations.Segments, PuyoFrameToolingDefinitions.Spritemap, PuyoFrameToolingDefinitions.Bank,
             nameof(PuyoAnimations), "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoAnimations.cs");
         RequireSegmentFrames(RinkaAnimations.Segments, RinkaFrameToolingDefinitions.Spritemap, RinkaFrameToolingDefinitions.Bank,
@@ -291,10 +291,10 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(YappingMawAnimations), "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawAnimations.cs");
         RequireSegmentFrames(RioAnimations.Segments, RioFrameToolingDefinitions.Spritemap, RioFrameToolingDefinitions.Bank,
             nameof(RioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/RioAnimations.cs");
-        RequireSegmentFrames(NorfairRioAnimations.Segments, NorfairRioFrameToolingDefinitions.Spritemap, NorfairRioFrameToolingDefinitions.Bank,
-            nameof(NorfairRioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioAnimations.cs");
-        RequireSegmentFrames(LowerNorfairRioAnimations.Segments, LowerNorfairRioFrameToolingDefinitions.Spritemap, LowerNorfairRioFrameToolingDefinitions.Bank,
-            nameof(LowerNorfairRioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/LowerNorfairRioAnimations.cs");
+        RequireSegmentFrames(GerutaAnimations.Segments, GerutaFrameToolingDefinitions.Spritemap, GerutaFrameToolingDefinitions.Bank,
+            nameof(GerutaAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/GerutaAnimations.cs");
+        RequireSegmentFrames(HoltzAnimations.Segments, HoltzFrameToolingDefinitions.Spritemap, HoltzFrameToolingDefinitions.Bank,
+            nameof(HoltzAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/HoltzAnimations.cs");
         RequireSegmentFrames(BeetomAnimations.Segments, BeetomFrameToolingDefinitions.Spritemap, BeetomFrameToolingDefinitions.Bank,
             nameof(BeetomAnimations), "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomAnimations.cs");
         RequireSegmentFrames(AlcoonAnimations.Segments, AlcoonFrameToolingDefinitions.Spritemap, AlcoonFrameToolingDefinitions.Bank,

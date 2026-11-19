@@ -94,7 +94,7 @@ internal static class GameOptionsPresentationVerification
                 AssertTrue(!DrawsCursor(installed, original),
                     $"editable options draws no cursor in {installed.Phase}");
             }
-            AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()),
+            AssertTrue(ScenePixels.Same(native.ComposeScene(), installed.ComposeScene()),
                 $"installed options frame {comparedFrames} matches cartridge pixels");
             native.Step(input);
             installed.Step(input);

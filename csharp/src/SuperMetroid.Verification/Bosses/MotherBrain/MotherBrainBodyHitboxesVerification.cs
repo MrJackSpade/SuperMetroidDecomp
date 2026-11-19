@@ -50,7 +50,7 @@ internal static class MotherBrainBodyHitboxesVerification
         AssertEqual(0x8020, head.Health, "a body hit is a dud and never damages the head");
 
         // Lowered clear of that rectangle (and above the torso's), the same beam passes.
-        shot.IsSpent = false;
+        shot.FlyOn();
         shot.Position = shot.Position.WithWholeY(0x0080);
         runtime.Enemies.ResolveShotsOnInteractiveEnemies(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, runtime.Player.IntroducedSamus);
         AssertTrue(!shot.IsSpent, "a beam clear of every body rectangle passes");

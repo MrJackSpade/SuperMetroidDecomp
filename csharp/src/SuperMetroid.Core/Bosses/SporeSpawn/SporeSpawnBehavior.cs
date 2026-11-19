@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SporeSpawn];
@@ -42,7 +42,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal SporeSpawnBehavior(SporeSpawnBehaviorDependencies dependencies)
     {
         _audio = dependencies.Audio;
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _effectActors = dependencies.EffectActors;
@@ -233,19 +233,17 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         Axis axis)
     {
         // The links lie a quarter, a half and three quarters of the way along the distance from the anchor to the
-        // body, each fraction of the distance rounded down.
+        // body, the quarter and the half each rounded toward the anchor and the three quarters their sum.
         int delta = end - anchor;
-        bool negative = delta < 0;
-        int magnitude = Math.Abs(delta);
-        int quarter = magnitude / 4;
-        int half = magnitude / 2;
+        int quarter = delta / 4;
+        int half = delta / 2;
         int threeQuarters = quarter + half;
         Span<int> positions = stackalloc int[4]
         {
             firstPosition,
-            anchor + (negative ? -quarter : quarter),
-            anchor + (negative ? -half : half),
-            anchor + (negative ? -threeQuarters : threeQuarters),
+            anchor + quarter,
+            anchor + half,
+            anchor + threeQuarters,
         };
 
         for (int segment = 0; segment < positions.Length; segment++)
@@ -260,7 +258,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requests the arena ceiling room object at its fixed room block position.</summary>
     private void PublishSporeSpawnObject(SporeSpawnCeilingMutation mutation) =>
-        _frameResults.SporeSpawnCeiling = mutation;
+        _passEvents.Publish(new SporeSpawnCeilingChange(mutation));
 
     /// <summary>Routes accepted bomb hits on <paramref name="body"/> through his encounter's post-damage response.</summary>
     /// <param name="body">His body, whose encounter the response acts on.</param>
@@ -324,14 +322,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 // His frames' hitboxes meet a shot with his shell's dud or his core's own reaction.
                 if (c.HitboxShot == EnemyReaction.DudShot)
                 {
-                    c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
                     _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                     return true;
                 }
                 if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
                 {
                     // The shot has struck the vulnerable core, whose shot reaction rejects it before common damage.
-                    c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
                     return true;
                 }
                 return false;
@@ -352,7 +350,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // His frames' hitboxes meet a touch with his hardened husk's shell, which does nothing, or his own reaction.
         if (context.HitboxTouch == EnemyReaction.Ignore)
             return;
-        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
+        _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
         ResolveSporeSpawnDeathAfterCommon(context.Place, state);
     }
 

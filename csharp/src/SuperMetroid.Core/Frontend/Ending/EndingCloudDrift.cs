@@ -29,7 +29,7 @@ internal sealed class EndingCloudDrift : EndingActorMotion
     /// the right clouds drift left and up, the left clouds right and down, two pixels down for one across.
     /// </summary>
     internal static EndingCloudDrift SideCloud(HorizontalDirection drift) => new(
-        drift == HorizontalDirection.Left ? new Offset16<ScreenPixels>(-1, -2) : new Offset16<ScreenPixels>(1, 2),
+        drift == HorizontalDirection.Left ? EndingMotionDefinitions.RightSideCloudDrift : EndingMotionDefinitions.LeftSideCloudDrift,
         zoom => zoom >= EndingMotionDefinitions.CloudMotionStartZoom);
 
     /// <summary>
@@ -38,7 +38,7 @@ internal sealed class EndingCloudDrift : EndingActorMotion
     /// a pixel an update.
     /// </summary>
     internal static EndingCloudDrift TopOrBottomCloud(VerticalDirection drift) => new(
-        new Offset16<ScreenPixels>(0, drift == VerticalDirection.Down ? 1 : -1),
+        new Offset16<ScreenPixels>(0, 1.Toward(drift)),
         zoom => zoom < EndingMotionDefinitions.TopAndBottomCloudZoomLimit);
 
     /// <summary>Releases the waiting cloud when the zoom allows, its drift beginning next update, or drifts a released one.</summary>

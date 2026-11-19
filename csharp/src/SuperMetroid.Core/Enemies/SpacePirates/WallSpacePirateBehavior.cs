@@ -99,7 +99,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         HorizontalDirection direction)
     {
         PositionWallSpacePirateOnArc(place, state);
-        state.WallJumpArcAngle = state.WallJumpArcAngle.TurnedBySteps(direction == HorizontalDirection.Right ? -state.Jump.StepsPerUpdate : state.Jump.StepsPerUpdate);
+        state.WallJumpArcAngle = state.WallJumpArcAngle.TurnedBySteps(state.Jump.StepsPerUpdate.Toward(direction.Reversed()));
         if (state.WallJumpArcAngle != (direction == HorizontalDirection.Right ? state.Jump.RightTarget : state.Jump.LeftTarget))
             return;
 
@@ -206,9 +206,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         HorizontalDirection direction)
     {
         int span = place.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
-        int signedHalfSpan = direction == HorizontalDirection.Right
-            ? span / 2
-            : -(span / 2);
+        int signedHalfSpan = (span / 2).Toward(direction);
         state.WallJumpArcCenter = new Position16<RoomPixels>(
             place.Position.X.Whole + signedHalfSpan,
             place.Position.Y.Whole);
@@ -254,7 +252,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 state.Action = begin.Action;
                 state.Wall = begin.Wall;
                 return null;
-            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PlayAttackSound }:
+            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PlayJumpSound }:
                 Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);
                 return null;
             default:

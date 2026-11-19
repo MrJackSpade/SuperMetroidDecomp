@@ -13,7 +13,7 @@ internal static class ElevatorStandUpContactVerification
 {
     /// <summary>
     /// <c>$91:F404</c> installs the new pose before <c>$91:FDAE</c> probes the larger body, so
-    /// an elevator pseudo-door met by those probes sees the new pose against
+    /// an elevator ride met by those probes sees the new pose against
     /// <c>$94:938B</c>'s below-$09 gate. In the 13% movie Samus stands up ($28 to $02) on
     /// Kraid's lair elevator; native arms it in that frame and Down boards it next frame.
     /// </summary>
@@ -37,12 +37,12 @@ internal static class ElevatorStandUpContactVerification
         // Feet on the elevator's top surface; the standing body grows five pixels upward.
         samus.Position = samus.Position.WithWholeY((ushort)(DoorRow * 16 - samus.Kinematics.Radius.Y));
         ISamusRoomObjects roomObjects = SamusRoomObjectFixtures.Uninstalled;
-        AssertTrue(roomObjects.DoorContacts.HandOverElevatorStandFromLastUpdate() is false, "no contact before the stand-up");
+        AssertTrue(roomObjects.DoorContacts.ElevatorStand.Take() is false, "no contact before the stand-up");
 
         AssertTrue(SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(samus, level, SamusPoseId.FacingLeftNormalPose, 0, roomObjects: roomObjects),
             "the standing body fits above the elevator");
         AssertEqual(SamusPoseId.FacingLeftNormalPose, samus.Pose, "Samus stands");
-        AssertTrue(roomObjects.DoorContacts.HandOverElevatorStandFromLastUpdate(),
+        AssertTrue(roomObjects.DoorContacts.ElevatorStand.Take(),
             "the probe for the new standing pose ($02 < $09) arms the elevator");
         Console.WriteLine("  Elevator stand-up contact: standing up on the elevator arms it in the same frame.");
     }

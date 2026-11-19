@@ -97,10 +97,8 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
 
     /// <summary>Current public navigation phase, reporting EnteringArea until the separately owned initial reveal/fade completes, then exposing the navigation owner's phase.</summary>
     public FileSelectMapNavigationPhase Phase => entry.IsComplete ? navigation.Phase : FileSelectMapNavigationPhase.EnteringArea;
-    /// <summary>Latched host handoff request after confirmation, two prelude updates, fifteen brightness steps, and thirty-two black updates; the navigation phase alone does not authorize loading gameplay.</summary>
-    public bool LoadRequested { get; private set; }
-    /// <summary>Latched host request to replace this menu with game options once its cancel/options fade reaches zero brightness; no options state is created by this owner.</summary>
-    public bool OptionsRequested { get; private set; }
+    /// <summary>How the map hands off to its host (#2562): its load or its options, kept once it reaches one.</summary>
+    public FileSelectMapOutcome Outcome { get; private set; }
 
     /// <summary>Binds the installed map artwork when the game is bound to its installed content, without restarting navigation.</summary>
     public void BindScreenContent(InstalledScreenContent catalog)
@@ -186,7 +184,8 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 }
                 break;
             case FileSelectMapNavigationPhase.OptionsRequested:
-                OptionsRequested = fade.Darken();
+                if (fade.Darken())
+                    Outcome = FileSelectMapOutcome.Options;
                 break;
             case FileSelectMapNavigationPhase.LoadRequested:
                 requestWait.Step();
@@ -196,7 +195,8 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                     _ = fade.Darken();
                     break;
                 }
-                LoadRequested = requestWait.IsOver;
+                if (requestWait.IsOver)
+                    Outcome = FileSelectMapOutcome.Load;
                 break;
             // Navigation itself advances these phases; no menu countdown runs.
             case FileSelectMapNavigationPhase.Area:
@@ -215,12 +215,12 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private void Queue(SoundEffectId sound) => audio.QueueSound(sound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Captures both map-memory owners and resolved window edges at the display boundary.</summary>
-    public LayeredScene CaptureRenderSnapshot()
+    public LayeredScene ComposeScene()
     {
-        LayeredScene Area(AreaMapBackgroundGlow glow = AreaMapBackgroundGlow.WholeScreen) => areaGraphics.CaptureRenderSnapshot(savedProgress, glow);
-        LayeredScene Frame() => roomGraphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly);
+        LayeredScene Area(AreaMapBackgroundGlow glow = AreaMapBackgroundGlow.WholeScreen) => areaGraphics.ComposeScene(savedProgress, glow);
+        LayeredScene Frame() => roomGraphics.ComposeScene(content: RoomMapContent.FrameOnly);
         bool roomMapStepped = lastUpdateBeganIn == FileSelectMapNavigationPhase.Room;
-        LayeredScene Room(FileSelectStationMarker? shownMarker) => roomGraphics.CaptureRenderSnapshot(Scroll.Scroll,
+        LayeredScene Room(FileSelectStationMarker? shownMarker) => roomGraphics.ComposeScene(Scroll.Scroll,
             shownMarker, roomMapStepped ? animations : null);
         if (!entry.IsComplete)
         {

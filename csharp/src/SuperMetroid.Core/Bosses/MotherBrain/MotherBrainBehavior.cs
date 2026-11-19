@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
@@ -73,17 +73,17 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     internal MotherBrainBehavior(MotherBrainBehaviorDependencies dependencies)
     {
         _bossArtwork = dependencies.Presentation.Artwork;
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _presentation = dependencies.Presentation.Surfaces;
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
         Projectiles = new MotherBrainProjectiles(_room, dependencies.Projectiles, dependencies.Earthquake, dependencies.DeathsAndDrops, _motherBrainEncounter, dependencies.RoomActors);
-        Access = new MotherBrainEncounterAccess(_frameResults);
+        Access = new MotherBrainEncounterAccess(_passEvents);
         Head = new MotherBrainHead(new MotherBrainHeadDependencies { Room = _room, Places = dependencies.Places, Projectiles = dependencies.Projectiles, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access  });
-        Body = new MotherBrainBody(new MotherBrainBodyDependencies { FrameResults = _frameResults, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access , Presentation = _presentation, Places = dependencies.Places });
-        FakeDeath = new MotherBrainFakeDeath(new MotherBrainFakeDeathDependencies { FrameResults = _frameResults, Lifecycle = dependencies.Lifecycle, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, Access = Access, ProjectileAttacks = Projectiles });
+        Body = new MotherBrainBody(new MotherBrainBodyDependencies { PassEvents = _passEvents, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access , Presentation = _presentation, Places = dependencies.Places });
+        FakeDeath = new MotherBrainFakeDeath(new MotherBrainFakeDeathDependencies { PassEvents = _passEvents, Lifecycle = dependencies.Lifecycle, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, Access = Access, ProjectileAttacks = Projectiles });
         Ascent = new MotherBrainAscent(_room, dependencies.Projectiles, dependencies.Earthquake, _presentation, dependencies.FrameContext, _motherBrainEncounter);
-        RainbowAndDeath = new MotherBrainRainbowAndDeath(new MotherBrainRainbowAndDeathDependencies { FrameResults = _frameResults, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access , BossArtwork = _bossArtwork });
+        RainbowAndDeath = new MotherBrainRainbowAndDeath(new MotherBrainRainbowAndDeathDependencies { PassEvents = _passEvents, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access , BossArtwork = _bossArtwork });
         Attacks = new MotherBrainAttacks(_room);
         Combat = new MotherBrainCombat(_room, dependencies.Projectiles, dependencies.Audio, dependencies.Collision);
     }
@@ -95,14 +95,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace body,
         MotherBrainEnemyState state,
         SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         _ = Ensure.NotNull(body);
         // The body main advances the independent room-colour animation before it
         // runs the body phase. Keeping that order is visible on the exact frame
         // the fake-death flash begins and later when the main tube stops the loop.
         RunMotherBrainRoomFlash(state);
-        RunMotherBrainBodyPhase(state, samus, sharedProjectiles);
+        RunMotherBrainBodyPhase(state, samus, samusBombs);
         // Every body phase ends with her contact with Samus; her first phase also checks contact within its own phase,
         // so it checks twice.
         MotherBrainBody.ResolveMotherBrainSamusCollision(state, samus);
@@ -115,11 +115,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunMotherBrainBodyPhase(
         MotherBrainEnemyState state,
         SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         if (state.RainbowBeamSequence is { } lateFight)
         {
-            RainbowAndDeath.RunLiveMotherBrainRainbowBeam(lateFight, samus, state.Body.FrameCounter, sharedProjectiles);
+            RainbowAndDeath.RunLiveMotherBrainRainbowBeam(lateFight, samus, state.Body.FrameCounter, samusBombs);
             return;
         }
         switch (state.Stage)
@@ -192,7 +192,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The fake-death flash starts the looping room flash, drains the room's acid,
                 // arms the head's independent tube sequence, and clears both fade timers.
                 state.RoomFlash = MotherBrainRoomFlashAnimations.Starting();
-                _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidDrains;
+                _passEvents.Publish(new MotherBrainAcidChange(MotherBrainRoomFxDefinitions.AcidDrains));
                 state.TubeCollapse = MotherBrainTubeCollapseProgress.Start;
                 state.TubeCollapseTimer.LastFor(1);
                 state.DescentPhase = MotherBrainDescentPhase.FadeToGray;

@@ -25,7 +25,7 @@ public enum MotherBrainRainbowPhase
     MoveSamusTowardWall,
 
     /// <summary>Keeps the beam and the push going for one more update, then shakes the room as Samus is pinned and starts the drain.</summary>
-    OneFrameDelay,
+    PinSamusToWall,
 
     /// <summary>Starts the drain and its earthquake and immediately executes the first draining update.</summary>
     StartDrainingSamus,

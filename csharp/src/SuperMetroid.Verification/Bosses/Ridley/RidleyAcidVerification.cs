@@ -41,8 +41,8 @@ internal static class RidleyAcidVerification
         expectedEmptyOam.FinalizeFrame();
         var ridleyOam = new OamBuffer();
         ridleyOam.BeginFrame();
-        ridleyOam.AppendDrawn(frame => runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(0, 256)));
-        ridleyOam.AppendDrawn(frame => runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyBabyAndDoorOverEnemies(frame, new(0, 256)));
+        ridleyOam.AppendDrawn(frame => runtime.Enemies.CeresRidleyBehavior.BabyScene.PublishCeresBaby(frame, new(0, 256)));
+        ridleyOam.AppendDrawn(frame => runtime.Enemies.CeresDoorBehavior.PublishRidleyRoomDoorOverlay(frame, new(0, 256)));
         ridleyOam.FinalizeFrame();
         AssertTrue(ridleyOam.ImageEquals(expectedEmptyOam),
             "Norfair Ridley does not draw the Ceres Baby or arena-door overlay");
@@ -52,7 +52,7 @@ internal static class RidleyAcidVerification
         state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;
         runtime.Enemies.NorfairRidleyBehavior.BeginRoarHold(state);
         for (int frame = 0; frame < 200 && state.RevealPhase == RidleyRevealPhase.WaitBeforeLiftoff; frame++)
-            runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, SharedProjectiles = runtime.BombProjectiles });
+            runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, SamusBombs = runtime.BombProjectiles });
         AssertEqual(440, fx.NamedTargetSurface, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.LiquidLevelSpeed.RawValue, "native reveal writes rising velocity");
         AssertEqual((ushort)32, fx.LiquidMoveDelay.RawValue, "native reveal writes rise delay once");
@@ -61,7 +61,7 @@ internal static class RidleyAcidVerification
         AssertAcidVisible(true);
         state.Phase = NorfairRidleyPhase.DeathRoar;
         state.PhaseTimer.LastFor(1);
-        runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, SharedProjectiles = runtime.BombProjectiles });
+        runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, SamusBombs = runtime.BombProjectiles });
         AssertEqual(528, fx.NamedTargetSurface, "native death roar writes acid drain target");
         AssertEqual((ushort)64, fx.LiquidLevelSpeed.RawValue, "native death writes draining velocity");
         AssertEqual((ushort)1, fx.LiquidMoveDelay.RawValue, "native death writes drain delay once");

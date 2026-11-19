@@ -26,7 +26,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     /// The frame's hold, counted once each update; the update it ends on plays the animation on to its next frame. Setup
     /// may stagger the first frame (#1974).
     /// </summary>
-    private readonly UpdateCountdown frameHold = UpdateCountdown.Lasting(1);
+    private readonly UpdateCountdown frameHold = UpdateCountdown.LastingOneUpdate();
 
     /// <summary>Whether the animation has come to rest for good, so it plays on no further until its owner starts another.</summary>
     private bool held;

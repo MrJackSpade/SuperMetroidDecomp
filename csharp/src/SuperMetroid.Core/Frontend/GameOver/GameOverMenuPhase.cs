@@ -11,9 +11,9 @@ public enum GameOverMenuPhase
     FadeIn,
     /// <summary>Interaction: advances the Baby, toggles Yes/No on navigation edges, and accepts the selected answer on an A edge.</summary>
     Main,
-    /// <summary>Fades the accepted Yes answer to black and publishes <see cref="GameOverMenuState.ContinueRequested"/> for the outer map-view transition.</summary>
+    /// <summary>Fades the accepted Yes answer to black and hands off with <see cref="GameOverMenuOutcome.Continue"/> for the outer map-view transition.</summary>
     FadeOutToContinue,
-    /// <summary>Fades the accepted No answer to black and publishes <see cref="GameOverMenuState.TitleRequested"/> for the outer soft reset.</summary>
+    /// <summary>Fades the accepted No answer to black and hands off with <see cref="GameOverMenuOutcome.Title"/> for the outer soft reset.</summary>
     FadeOutToTitle,
     /// <summary>The menu's first step: holds the black screen the death black-out leaves, cancels the room's sounds, and waits out one update.</summary>
     BlackHold,

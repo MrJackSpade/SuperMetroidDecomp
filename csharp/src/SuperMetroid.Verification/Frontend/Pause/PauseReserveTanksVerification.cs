@@ -39,7 +39,7 @@ internal static class PauseReserveTanksVerification
                 pause.Step(0, 0, frameCycle: phase);
                 // The frame is captured once and drawn once; the repaint and restore checks compare descriptions,
                 // drawing only one that differs (#1532).
-                var capture = pause.CaptureRenderSnapshot();
+                var capture = pause.ComposeScene();
                 var actual = DisplayRendering.Render(capture);
                 byte[] captureVram = pause.ShownVram(RetailPresentationFixture());
                 var native = new OamBuffer();
@@ -72,13 +72,13 @@ internal static class PauseReserveTanksVerification
                 for (int y = 88; y < 120; y++)
                 for (int x = 16; x < 72; x++)
                     AssertEqual(expected[y * 256 + x], actual[y * 256 + x], $"reserve tank pixels {capacity}/{supply}/phase{phase} at {x},{y}");
-                AssertTrue(ScenePixels.Same(capture, pause.CaptureRenderSnapshot()), "rendering tank strip does not advance fill flicker");
+                AssertTrue(ScenePixels.Same(capture, pause.ComposeScene()), "rendering tank strip does not advance fill flicker");
                 if (capacity == 100 && supply == 1 && phase == 4)
                 {
                     // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
                     var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);
                     restored.BindFixtureArtwork(RetailPresentationFixture());
-                    AssertTrue(ScenePixels.Same(capture, restored.CaptureRenderSnapshot()), "saved pause preserves nonzero native tank-flicker phase");
+                    AssertTrue(ScenePixels.Same(capture, restored.ComposeScene()), "saved pause preserves nonzero native tank-flicker phase");
                 }
                 cases++;
 

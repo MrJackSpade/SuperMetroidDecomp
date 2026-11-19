@@ -68,16 +68,14 @@ internal sealed class ProjectileTrails
 
     /// <summary>
     /// Starts <paramref name="side"/> on <paramref name="segment"/>, which it begins at its next update, placed
-    /// <paramref name="placement"/> from the shot, with its picture drawn from up and left of that
-    /// (<see cref="ProjectileTrailPlacementDefinitions.PictureInset"/>). The sparkle keeps its offset from the shot's place
-    /// rather than a room position of its own, so a sparkle beside a shot past the room's top or left edge simply lies
-    /// beyond it.
+    /// <paramref name="placement"/> from the shot; each trail frame's picture is placed about the sparkle by its own
+    /// anchor (#2573). The sparkle keeps its offset from the shot's place rather than a room position of its own, so a
+    /// sparkle beside a shot past the room's top or left edge simply lies beyond it.
     /// </summary>
     private static void StartSide(SamusProjectileTrailSide side, ProjectileTrailSegment segment, Offset16<RoomPixels> placement)
     {
         side.Animation = ProjectileTrailSparkleAnimations.Start(segment);
-        side.Offset = Offset16<RoomPixels>.Of(placement.X - ProjectileTrailPlacementDefinitions.PictureInset,
-            placement.Y - ProjectileTrailPlacementDefinitions.PictureInset);
+        side.Offset = placement;
     }
 
     /// <summary>

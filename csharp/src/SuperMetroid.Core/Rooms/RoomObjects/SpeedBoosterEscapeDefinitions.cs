@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 public static class SpeedBoosterEscapeDefinitions
 {
     /// <summary>The whole-pixel X Samus must reach, moving left, before the liquid starts moving.</summary>
-    public const int StartFxMotionSamusX = 2784;
+    public const int LavaStartsMovingSamusX = 2784;
 
     /// <summary>The lavaquake's initial vertical speed: half a pixel upward per update.</summary>
     public static SignedEightEight InitialLavaquakeVelocity { get; } = SignedEightEight.FromPixelFraction(-1, 2);

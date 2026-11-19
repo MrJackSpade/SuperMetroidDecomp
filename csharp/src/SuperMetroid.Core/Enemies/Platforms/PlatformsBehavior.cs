@@ -88,7 +88,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The spawn settings name the speed the platform moves at.
         SignedSixteenSixteen speed = place.SpawnSettings<PlatformSpawnSettings>().Speed;
-        SignedSixteenSixteen displacement = state.XMovement == HorizontalDirection.Left ? -speed : speed;
+        SignedSixteenSixteen displacement = speed.Toward(state.XMovement);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
 

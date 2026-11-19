@@ -38,4 +38,13 @@ internal static class BotwoonFightDefinitions
     /// way his head faces.
     /// </summary>
     internal const int HeadHistoryLength = 4;
+
+    /// <summary>His head's collision half-extents facing up or down: eight pixels across, sixteen tall.</summary>
+    internal static Extent16<RoomPixels> VerticalHeadRadius { get; } = new(8, 16);
+
+    /// <summary>His head's collision half-extents facing left or right: sixteen pixels across, eight tall.</summary>
+    internal static Extent16<RoomPixels> HorizontalHeadRadius { get; } = new(16, 8);
+
+    /// <summary>His head's collision half-extents facing a diagonal: twelve pixels each way.</summary>
+    internal static Extent16<RoomPixels> DiagonalHeadRadius { get; } = new(12, 12);
 }

@@ -87,7 +87,7 @@ internal static class RoomScopeVerification
         VerificationAssertions.AssertTrue(ReferenceEquals(source.Projectiles.Charge, destination.Projectiles.Charge) &&
             ReferenceEquals(runtime.BeamCharge, destination.Projectiles.Charge),
             "the held beam charge is the session's, shared by both rooms");
-        VerificationAssertions.AssertEqual(30, destination.Projectiles.Charge.FlareCounter, "the flare counter survives the load");
+        VerificationAssertions.AssertEqual(30, destination.Projectiles.Charge.UpdatesHeld, "the flare counter survives the load");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.FxOverlay, destination.FxOverlay) &&
             !ReferenceEquals(source.ColourEffects, destination.ColourEffects) &&
             !ReferenceEquals(source.BlockAnimations, destination.BlockAnimations),

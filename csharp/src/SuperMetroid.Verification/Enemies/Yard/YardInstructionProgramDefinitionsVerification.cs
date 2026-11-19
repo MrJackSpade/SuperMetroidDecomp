@@ -33,18 +33,18 @@ internal static class YardInstructionProgramDefinitionsVerification
         }
 
         // Hiding: the closed shell shows again however often its update ends (#2180).
-        ushort repeatedPose = YardAnimationsConstants.Spritemaps(YardSegment.ShellClosedUpsideUpMovingLeft).First();
+        ushort repeatedPose = YardAnimationsConstants.Spritemaps(YardSegment.ShellClosedOnFloorMovingLeft).First();
         state.Behavior = YardBehavior.Hiding;
-        state.Playback = new(YardAnimations.StartingWith(YardSegment.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation);
+        state.Playback = new(YardAnimations.StartingWith(YardSegment.HidingOnFloorMovingLeft), AnimationPlace.StartOfAnimation);
         RunYard(yard, 20);
-        AssertEqual(YardSegment.ShellClosedUpsideUpMovingLeft, StandsIn(state.Playback), "a hiding Yard stays in its closed shell");
+        AssertEqual(YardSegment.ShellClosedOnFloorMovingLeft, StandsIn(state.Playback), "a hiding Yard stays in its closed shell");
         AssertEqual(repeatedPose, yard.SpritemapPointer, "a hiding Yard keeps showing its closed shell");
 
         // Visible, with the fixture's even random draw: the hide runs on into the hidden animation.
         state.Behavior = YardBehavior.NormalCrawling;
-        state.Playback = new(YardAnimations.StartingWith(YardSegment.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation);
+        state.Playback = new(YardAnimations.StartingWith(YardSegment.HidingOnFloorMovingLeft), AnimationPlace.StartOfAnimation);
         RunYard(yard, 3);
-        AssertEqual(YardSegment.HiddenUpsideUpMovingLeft, StandsIn(state.Playback), "a visible Yard's even draw runs on into the hidden animation");
+        AssertEqual(YardSegment.HiddenOnFloorMovingLeft, StandsIn(state.Playback), "a visible Yard's even draw runs on into the hidden animation");
 
         Suite(nameof(YardAnimationsVerification.VerifyYardAnimations), () => YardAnimationsVerification.VerifyYardAnimations(rom));
         Console.WriteLine("Yard: all 38 programs run, and the closed shell holds a hiding Yard and runs a visible one on.");
@@ -73,7 +73,7 @@ internal static class YardInstructionProgramDefinitionsVerification
         yard = enemies.Places.InUpdateOrder[0];
         yard.Bind(EnemyDefinitionId.Yard, yard.Definition);
         yard.Bind(yard.DefinitionId, default(RoomEnemyDefinition));
-        var state = new YardEnemyState(YardMovement.HoldingStill) { Playback = new(YardAnimations.StartingWith(YardSegment.CrawlingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation) };
+        var state = new YardEnemyState(YardMovement.HoldingStill) { Playback = new(YardAnimations.StartingWith(YardSegment.CrawlingOnFloorMovingLeft), AnimationPlace.StartOfAnimation) };
         yard.SetSpeciesState(state);
         return enemies;
     }

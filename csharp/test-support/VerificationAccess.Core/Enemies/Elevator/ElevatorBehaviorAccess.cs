@@ -14,7 +14,7 @@ internal static class ElevatorBehaviorAccess
         {
             self.ElevatorStatus = status;
             if (self.ElevatorStatus == ElevatorActorStatus.Inactive)
-                self.ElevatorFlags = ElevatorJourneyFlag.None;
+                self.DoorArming = ElevatorArming.None;
         }
     }
 }

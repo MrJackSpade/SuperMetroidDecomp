@@ -251,7 +251,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// rightward swoop, decreasing ones for a leftward one.
     /// </summary>
     private static AngularSpeed SwoopTurning(AngularSpeed speed, HorizontalDirection heading) =>
-        heading == HorizontalDirection.Left ? -speed : speed;
+        speed.Toward(heading);
 
     /// <summary>
     /// Starts the swipe (#2473) once the swoop's angle, as the update finds it, has passed the swipe angle: below it for a
@@ -486,11 +486,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Turns the detached wings back along their orbit by the coarse speed of their place on the speed curve
     /// (<see cref="DetachedWingTurn"/>).
     /// </summary>
-    private static void RunDetachedKiHunterWingOrbit(RoomEnemyPlace wings, KiHunterWingState state)
+    internal static void RunDetachedKiHunterWingOrbit(RoomEnemyPlace wings, KiHunterWingState state)
     {
         state.WingArcAngle = state.WingArcAngle.TurnedBy(DetachedWingTurn(
             state.DetachedSpeedCurvePlace,
-            sign: EnemySpeedSign.Negative));
+            RotationDirection.Clockwise));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
         wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(trigonometryAngle, radius) - KiHunterMotionDefinitions.DetachedOrbitOffset);
@@ -511,7 +511,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.WingArcAngle = state.WingArcAngle.TurnedBy(DetachedWingTurn(
             state.DetachedSpeedCurvePlace,
-            sign: EnemySpeedSign.Positive));
+            RotationDirection.Counterclockwise));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
         int desiredY = state.OrbitCenter.Y + EnemyMath.CircleNegativeSinePixels(trigonometryAngle, radius) - KiHunterMotionDefinitions.FallingArcOffset.Y;
@@ -621,10 +621,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The detached wing's turn along its orbit each update (#2439): one step for each pixel of its curve mark's coarse
-    /// speed in the direction it turns; a speed toward decreasing coordinates turns the orbit back.
+    /// speed toward <paramref name="direction"/>; clockwise turns the orbit back.
     /// </summary>
-    private static AngularSpeed DetachedWingTurn(QuadraticSpeedCurvePlace place, EnemySpeedSign sign) =>
-        place.Speed.TurnOfAStepAPixelToward(sign);
+    internal static AngularSpeed DetachedWingTurn(QuadraticSpeedCurvePlace place, RotationDirection direction) =>
+        place.Speed.TurnOfAStepAPixelToward(direction);
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest place on the curve when the step would go below its start.</summary>
     private static void SlowDetachedKiHunterWing(KiHunterWingState state)
@@ -726,7 +726,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Ki-Hunter acid, spat either way (#1760).</summary>
-    private static readonly EnemyProjectileBehavior Acid = new AcidBehavior();
+    internal static readonly EnemyProjectileBehavior Acid = new AcidBehavior();
 
     /// <summary>
     /// Ki-Hunter acid: it holds still in the Ki-Hunter's mouth until its animation launches it in its direction, then flies
@@ -807,7 +807,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Spawns an acid spit from its definition and setup.
     /// The acid draws from the Ki-Hunter's spawned-object sheet in the colours the firing body shows.
     /// </summary>
-    private void SpawnKiHunterAcidSpit(RoomEnemyPlace body, HorizontalDirection direction)
+    internal void SpawnKiHunterAcidSpit(RoomEnemyPlace body, HorizontalDirection direction)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -823,11 +823,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             : KiHunterAcidSpitSegment.Left));
         projectile.State = new KiHunterAcidState(direction);
 
-        projectile.Velocity = projectile.Velocity.WithX(direction == HorizontalDirection.Right
-            ? KiHunterMotionDefinitions.AcidHorizontalSpeed
-            : -KiHunterMotionDefinitions.AcidHorizontalSpeed);
+        projectile.Velocity = projectile.Velocity.WithX(KiHunterMotionDefinitions.AcidHorizontalSpeed.Toward(direction));
         projectile.Position = projectile.Position.WithWholeX(body.Position.X.Whole +
-            (direction == HorizontalDirection.Right ? KiHunterMotionDefinitions.AcidSpitReach : -KiHunterMotionDefinitions.AcidSpitReach));
+            (KiHunterMotionDefinitions.AcidSpitReach.Toward(direction)));
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Zero);
         projectile.Position = projectile.Position.WithWholeY(body.Position.Y.Whole - KiHunterMotionDefinitions.AcidSpitHeight).WithoutFractions();
     }
@@ -841,16 +839,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction = projectile.StateOf<KiHunterAcidState>().Spat;
         projectile.StartMotion(KiHunterAcidMotion.Falling);
         projectile.Position = projectile.Position.WithWholeX(
-            projectile.Position.X.Whole + (direction == HorizontalDirection.Right
-                ? KiHunterMotionDefinitions.AcidLaunchShift
-                : -KiHunterMotionDefinitions.AcidLaunchShift));
+            projectile.Position.X.Whole + (KiHunterMotionDefinitions.AcidLaunchShift.Toward(direction)));
     }
 
     /// <summary>
     /// Moves the falling acid vertically, then horizontally, then speeds its fall up to its cap. Meeting the floor
     /// splashes it; meeting a wall only stops it moving sideways.
     /// </summary>
-    private static void RunKiHunterAcidMovement(
+    internal static void RunKiHunterAcidMovement(
         EnemyProjectile projectile,
         RoomLevelData level)
     {

@@ -39,7 +39,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
     {
         FileSelectStep.SaveSlots => session.ScreenAs<FileSelectMenuState>()?.IsWaitingOutDisplayFrame == true,
         FileSelectStep.Options => false,
-        FileSelectStep.AreaMap => session.ScreenAs<FileSelectMapMenuState>()?.LoadRequested == true,
+        FileSelectStep.AreaMap => session.ScreenAs<FileSelectMapMenuState>()?.Outcome == FileSelectMapOutcome.Load,
         _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectStep)} {session.FileSelectStep}."),
     };
 
@@ -65,23 +65,23 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
     /// <summary>One update of the save slots.</summary>
     private void RunSaveSlots(ControllerButton controllerInput)
     {
-        session.ActiveFileSelect.Step(controllerInput);
-        if (session.ActiveFileSelect.SavesChangedThisFrame)
+        FileSelectSaveChange saveChange = session.ActiveFileSelect.Step(controllerInput);
+        if (saveChange != FileSelectSaveChange.None)
             session.RaiseSavesChanged();
-        if (session.ActiveFileSelect.ClearedSaveThisFrame)
+        if (saveChange == FileSelectSaveChange.Cleared)
         {
             // Clearing a file starts a new one, which clears every stored explored map, then loads the live map from a
             // stored map that is now empty.
             StoredExploredMapLoads.ClearAll(session.storedExploredMaps);
         }
         session.display.PublishMenu(session.ActiveFileSelect);
-        if (session.ActiveFileSelect.TitleRequested)
+        if (session.ActiveFileSelect.Outcome == FileSelectMenuOutcome.Title)
         {
             // The game soft-resets when the menu returns to the title. Starting the title again
             // makes all frontend-owned state disposable and deterministic.
             session.Enter(TitleStep.Starting);
         }
-        else if (session.ActiveFileSelect.NewGameRequested)
+        else if (session.ActiveFileSelect.Outcome == FileSelectMenuOutcome.NewGame)
         {
             session.SelectSaveSlot(session.ActiveFileSelect.SelectedSaveSlot, session.ActiveFileSelect.SelectedSlotContainsSave);
             session.RaiseSavesChanged();
@@ -100,7 +100,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                 optionSlot?.MoonwalkEnabled ?? false,
                 japaneseText: optionSlot?.JapaneseText ?? false)
             {
-                StartupRoute = optionSlot?.StartupRoute ?? SaveLoadingGameState.OpeningCinematic,
+                StartupRoute = optionSlot?.StartupRoute ?? SaveStartupRoute.OpeningCinematic,
             });
             session.Enter(FileSelectStep.Options);
             session.display.PublishMenu(session.ActiveOptions);
@@ -112,14 +112,14 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
     {
         session.ActiveOptions.Step(controllerInput);
         session.display.PublishMenu(session.ActiveOptions);
-        if (session.ActiveOptions.FileSelectRequested)
+        if (session.ActiveOptions.Outcome == GameOptionsMenuOutcome.FileSelect)
         {
             session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.ScreenContent,
                 session.Artwork.SpriteSheets));
             session.Enter(FileSelectStep.SaveSlots);
             session.display.PublishMenu(session.ActiveFileSelect);
         }
-        else if (session.ActiveOptions.IntroRequested)
+        else if (session.ActiveOptions.Outcome == GameOptionsMenuOutcome.Intro)
         {
             // Every selected game starts with the choices the menu closed with.
             session.ChooseOptions(session.ActiveOptions);
@@ -129,7 +129,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                     ?? throw new InvalidDataException(
                         "The selected save became invalid before the game started.");
                 if (selectedSlot.StartupRoute ==
-                    SaveLoadingGameState.OpeningCinematic)
+                    SaveStartupRoute.OpeningCinematic)
                 {
                     // Loading sends the opening-cinematic startup route written by the Spacetime Beam
                     // to the intro while the already-loaded Samus inventory remains
@@ -149,11 +149,11 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                         session.display.PublishIntro(session.ActiveIntro);
                     }
                 }
-                else if (selectedSlot.StartupRoute == SaveLoadingGameState.CeresDestruction)
+                else if (selectedSlot.StartupRoute == SaveStartupRoute.CeresDestruction)
                 {
                     StartSavedCeresDestruction(selectedSlot);
                 }
-                else if (selectedSlot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
+                else if (selectedSlot.StartupRoute == SaveStartupRoute.CeresElevatorArrival)
                 {
                     // The saved new-game loading route selects loading directly, without a map.
                     session.Enter(GameDataLoadRoute.SelectedGame);
@@ -189,14 +189,14 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
         session.ContinueSavedGame();
         SuperMetroidSaveSlot mapSlot = session.saves.ReadSlot(session.SelectedSaveSlot)
             ?? throw new InvalidDataException("The selected save became invalid before map selection.");
-        if (mapSlot.StartupRoute == SaveLoadingGameState.CeresDestruction)
+        if (mapSlot.StartupRoute == SaveStartupRoute.CeresDestruction)
         {
             StartSavedCeresDestruction(mapSlot);
             return;
         }
         if (mapSlot.Checkpoint.Area != AreaId.Ceres)
         {
-            if (session.ScreenAs<FileSelectMapMenuState>() is { LoadRequested: true })
+            if (session.ScreenAs<FileSelectMapMenuState>() is { Outcome: FileSelectMapOutcome.Load })
             {
                 // The previous map update blanked the display and waited out this frame;
                 // continuing, it enters the game load. The map runs no more.
@@ -215,7 +215,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
             }
             else session.ActiveFileSelectMap.Step(controllerInput);
             session.display.PublishFileMap(session.ActiveFileSelectMap);
-            if (session.ActiveFileSelectMap.OptionsRequested)
+            if (session.ActiveFileSelectMap.Outcome == FileSelectMapOutcome.Options)
             {
                 session.Show(new GameOptionsMenuState(session.audio, session.Artwork.ScreenContent,
                     session.Artwork.SpriteSheets, mapSlot.ControllerBindings,

@@ -203,7 +203,7 @@ internal static class LookupStream5Verification
             fade(state); // The eye's independent fade has not completed yet.
             AssertEqual(0, randomCalls, "Incomplete fade does not choose hidden delay");
             AssertEqual(17, state.PhaseWait.UpdatesLeft, "Incomplete fade preserves prior countdown");
-            state.BodyFade.Complete = true;
+            SuperMetroid.Core.PrivateState.Set(state.BodyFade, nameof(PhantoonFadeProgress.IsFinished), true);
             fade(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd63 + bucket * 2);
             AssertEqual(duration, state.PhaseWait.UpdatesLeft, "Completed fade selects exact native hidden duration");
@@ -257,7 +257,7 @@ internal static class LookupStream5Verification
             Action<RoomEnemyPlace, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonFirstRoundFigureEight;
             // The duration bucket is the enemy frame's NMI counter bits 1-2, not a random draw.
             system.FrameContext.SeedFrame((ushort)(bucket << 1));
-            body.Position = body.Position.WithWhole(new(128, 96)); state.PhaseWait.LastFor(1); state.FlameRainRequested = true;
+            body.Position = body.Position.WithWhole(new(128, 96)); state.PhaseWait.LastFor(1); state.NextPattern = PhantoonPatternChoice.FlameRain;
             begin(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd53 + bucket * 2);
             AssertEqual(duration, state.Round.EyeClosedWait.UpdatesLeft, "Native first-round closed-eye duration");
@@ -279,7 +279,7 @@ internal static class LookupStream5Verification
             AssertEqual(PhantoonPhase.WaitingOnEye, state.Phase, "Selected duration stops moving phase");
             AssertEqual(PhantoonPartSegment.EyeOpen, state.EyePart.PlayingProgram(), "Expiration starts exact eye-opening program");
             AssertEqual(1, eye.AnimationClock.Hold, "Eye-opening program executes on next instruction step");
-            AssertEqual(false, state.FlameRainRequested, "Opening clears flame-rain trigger");
+            AssertEqual(PhantoonPatternChoice.FigureEight, state.NextPattern, "Opening clears flame-rain trigger");
             AssertEqual(0, state.CasualFlames.Hold.CartridgeCount, "Casual hold still advances on every movement call: its last update is left");
             AssertEqual(1, randomCalls, "Only independent initial direction consumes RNG in this fixture");
             var flames = system.Projectiles.EnemyProjectiles.Where(projectile => projectile.IsActive).ToArray();
@@ -315,7 +315,7 @@ internal static class LookupStream5Verification
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         byte[] pngBytes = png.ToArray();
         var stock = CeresDoorVisualFiles.Read(new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualFiles.Write(document)));
-        CeresFloorAnimationFrame[] strips = [CeresFloorAnimationFrame.ElevatorLight, CeresFloorAnimationFrame.ElevatorDark];
+        CeresFloorActorPicture[] strips = [CeresFloorActorPicture.ElevatorLight, CeresFloorActorPicture.ElevatorDark];
         for (int frame = 0; frame < strips.Length; frame++)
         {
             IReadOnlyDictionary<int, int> cells = CeresFloorDrawings.Cells(strips[frame]);
@@ -334,7 +334,7 @@ internal static class LookupStream5Verification
         {
             places[0].FrameCounter = tick;
             places[0].ElevatorDoor().RunMainAi(aiFrame);
-            AssertEqual(strips[(tick & 2) >> 1], floor.Shown[CeresFloorPart.ElevatorPlatform], "Actual platform phase draws its strip over the floor");
+            AssertEqual(strips[(tick & 2) >> 1], floor.Shown[CeresFloorActor.ElevatorPlatform], "Actual platform phase draws its strip over the floor");
         }
         string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
         {
@@ -373,7 +373,7 @@ internal static class LookupStream5Verification
             ushort duration = ReadVerificationWord(rom, 0xa7cd41 + bucket * 2);
             AssertEqual(duration, state.PhaseWait.UpdatesLeft, "Native selected vulnerability duration");
             AssertTrue(!body.Contact.HasAny(EnemyContact.IgnoresSamus), "Eye opening enables collision");
-            state.Swoop.Requested = shot;
+            state.WindowEnd = (shot) ? PhantoonWindowEnd.Swoop : PhantoonWindowEnd.EyeCloses;
             state.Round.Damage = 37;
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
             for (int elapsed = 1; elapsed <= duration; elapsed++)
@@ -394,7 +394,7 @@ internal static class LookupStream5Verification
             {
                 AssertEqual(PhantoonPhase.BecomeSolidAndSwoop, state.Phase, "Shot-triggered expiration selects swoop");
                 AssertEqual(ReadVerificationWord(rom, 0xa7d620), state.PhaseWait.UpdatesLeft, "Separate native swoop setup hold preserved");
-                AssertEqual(false, state.Swoop.Requested, "Expiration consumes swoop request");
+                AssertEqual(false, state.WindowEnd == PhantoonWindowEnd.Swoop, "Expiration consumes swoop request");
             }
             else
             {
@@ -402,7 +402,7 @@ internal static class LookupStream5Verification
                 AssertEqual(PhantoonPartSegment.InvulnerableBody, state.BodyPart.PlayingProgram(), "Native invulnerable body handoff");
                 AssertEqual(PhantoonPartSegment.EyeCloseAndPickNewPattern, state.EyePart.PlayingProgram(), "Native close/reselect eye handoff");
                 AssertTrue(body.Contact.HasAny(EnemyContact.IgnoresSamus), "Expiration removes open-eye collision");
-                AssertEqual(true, state.FlameRainRequested, "Unhit expiration requests next rain branch");
+                AssertEqual(true, state.NextPattern == PhantoonPatternChoice.FlameRain, "Unhit expiration requests next rain branch");
             }
         }
         AssertEqual(210, ticks, "All three actual exposure lengths and both expiry branches");
@@ -439,7 +439,7 @@ internal static class LookupStream5Verification
             int count = ReadVerificationWord(rom, 0xa6c15d) / sizeof(ushort);
             // The getaway writes the title's picture by name (#1466); the words it stands for are the page's.
             System.Collections.Immutable.ImmutableArray<int> shownWords = system.CeresEscape.Warning.Overlay.WordsIn(result);
-            AssertEqual(count, shownWords.Count(word => word != RoomWrittenOverlay.Unwritten), "Native emergency word extent");
+            AssertEqual(count, shownWords.Count(word => word != RoomWarningText.Unwritten), "Native emergency word extent");
             AssertEqual(source.Pages["emergency"].Length, count, "Emergency page keeps its native extent");
             for (int index = 0; index < count; index++)
                 AssertEqual(source.Pages["emergency"][index].PackedWord, shownWords[first + index], "Actual shown emergency words");
@@ -977,7 +977,7 @@ internal static class LookupStream5Verification
             body.AiStates = EnemyAiStates.Hurt;
             state.Phase = PhantoonPhase.EyeTracksSamus;
             state.PhaseWait.LastFor(60);
-            state.Swoop.Requested = false;
+            state.WindowEnd = PhantoonWindowEnd.EyeCloses;
             state.Round.Damage = 0;
             shot(body, state, 0x100, 1);
             AssertEqual(16, state.PhaseWait.UpdatesLeft, "Actual shot window");
@@ -1604,8 +1604,8 @@ internal static class LookupStream5Verification
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         var door = enemies.Places.InUpdateOrder[1];
         door.BindCeresDoorOrWall(EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None);
-        ((SuperMetroid.Core.Areas.Ceres.ICeresRidleyScene)enemies.RidleyEncounter).AttachRoomDoor(door);
-        door.SetSpeciesState(new CeresRidleyRoomDoorState { Drawing = SuperMetroid.Core.Areas.Ceres.CeresRidleyRoomDoorDrawing.ByRidleysScene });
+        enemies.CeresDoorBehavior.AttachRidleyRoomDoor(door);
+        door.SetSpeciesState(new CeresRidleyRoomDoorState { Look = SuperMetroid.Core.Areas.Ceres.CeresRidleyRoomDoorLook.Overlay });
         door.Position = door.Position.WithWholeY(80);
         foreach (ushort x in new ushort[] { 0, 1, 3, 255, 256, 511, ushort.MaxValue })
         foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })
@@ -1613,7 +1613,7 @@ internal static class LookupStream5Verification
         {
             door.Position = door.Position.WithWholeX(x); enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(29), phase);
             var actual = new OamBuffer(); actual.BeginFrame();
-            actual.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(camera, 0))); actual.FinalizeFrame();
+            actual.AppendDrawn(frame => enemies.CeresDoorBehavior.PublishRidleyRoomDoorOverlay(frame, new(camera, 0))); actual.FinalizeFrame();
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6a321 + phase * 2);
             AssertEqual(unchecked((short)native), CeresDoorQuake.XOffset(phase),
                 "Quake offset is the authored word of its phase");

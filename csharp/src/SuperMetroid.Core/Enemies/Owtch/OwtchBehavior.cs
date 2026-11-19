@@ -127,7 +127,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // A fraction past a whole pixel carries into the whole pixels.
         SignedSixteenSixteen speed = place.SpawnSettings<OwtchSpawnSettings>().Speed;
-        place.Position = place.Position.AdvanceX(direction == HorizontalDirection.Right ? speed : -speed);
+        place.Position = place.Position.AdvanceX(speed.Toward(direction));
 
         if (direction != HorizontalDirection.Right)
         {
@@ -202,7 +202,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             if (OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()))
                 return false;
             if (c.MarksCollision)
-                c.Projectile.IsSpent = true;
+                c.Projectile.Spend();
             return true;
         },
     };

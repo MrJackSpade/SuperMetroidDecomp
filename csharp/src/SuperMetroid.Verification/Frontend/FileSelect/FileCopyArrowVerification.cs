@@ -38,8 +38,8 @@ internal static class FileCopyArrowVerification
             }
             ScreenSprites Capture()
             {
-                menu.CaptureRenderSnapshot();
-                return menu.Screen.Sprites;
+                menu.ComposeScene();
+                return menu.screen.Sprites;
             }
             Until(FileSelectPhase.Main);
             for (int i = 0; i < 3; i++) Press(ControllerButton.Down);
@@ -75,16 +75,16 @@ internal static class FileCopyArrowVerification
             // cartridge's file-select colours, its sprite colours 145..151 moved the step's number of places along.
             ReadOnlySpan<RgbColor> cartridge = InstalledFixtures.ImportOf(art).Palettes.FileSelect;
             SpriteImage arrowSheet = MenuSheetFixtures.For(art).Get(SpriteSheetId.FileSelect).Frame(FileCopyArrowDefinitions.FrameName(FileCopyArrowShape.ShortDown)).Sheet;
-            int start = menu.CopyArrowStep.Step;
+            int start = menu.CopyArrowRotation.Step;
             for (int frame = 1; frame <= 12; frame++)
             {
                 menu.Step(0);
                 int rotations = frame < 8 ? 0 : 1 + (frame - 8) / 4;
                 int step = (start + rotations) % FileCopyArrowDefinitions.RotationSteps;
-                AssertEqual(FileCopyArrowRotationStep.All[step], menu.CopyArrowStep, "arrow colours rotate after eight ticks then every four");
+                AssertEqual(FileCopyArrowRotationStep.All[step], menu.CopyArrowRotation, "arrow colours rotate after eight ticks then every four");
                 PictureShading shading = PictureShading.Shaded(FileCopyArrowShades.Rotation(FileCopyArrowRotationStep.All[step]));
                 Capture();
-                AssertTrue(menu.Screen.Sprites.Draws.OfType<ImageSpriteDraw>().Any(draw => draw.Shading == shading),
+                AssertTrue(menu.screen.Sprites.Draws.OfType<ImageSpriteDraw>().Any(draw => draw.Shading == shading),
                     "the copy arrow draws in its rotation step's shade");
                 // The sheet's colours laid out by the palette index each was composed as (#1544); a colour none of its
                 // pixels shows is not one of its colours.
@@ -98,9 +98,9 @@ internal static class FileCopyArrowVerification
                 }
             }
             // Rendering must not advance animation.
-            FileCopyArrowRotationStep beforeRender = menu.CopyArrowStep;
-            menu.Render(); menu.CaptureRenderSnapshot();
-            AssertEqual(beforeRender, menu.CopyArrowStep, "render leaves the arrows' rotation alone");
+            FileCopyArrowRotationStep beforeRender = menu.CopyArrowRotation;
+            menu.Render(); menu.ComposeScene();
+            AssertEqual(beforeRender, menu.CopyArrowRotation, "render leaves the arrows' rotation alone");
             Press(ControllerButton.A);
             AssertEqual(FileSelectPhase.CopyCompleted, menu.Phase, "copy completes");
             AssertTrue(Capture().LastFinalizedSpriteCount < noArrowCount + count, "completed page removes Copy arrow");

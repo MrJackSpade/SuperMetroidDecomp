@@ -17,6 +17,16 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// </summary>
 internal static class CeresSheetInks
 {
+    /// <summary>The Ceres cinematics' sprite colourings in the order their sheets list the drawn shades (#2567).</summary>
+    private static readonly IReadOnlyList<CeresSpriteColouring> ColouringOrder = Ensure.EveryMemberOnce<CeresSpriteColouring>(
+    [
+        CeresSpriteColouring.SpaceObjects,
+        CeresSpriteColouring.Station,
+        CeresSpriteColouring.Zebes,
+        CeresSpriteColouring.ZebesTitle,
+        CeresSpriteColouring.Explosions,
+    ]);
+
     /// <summary>The colours of one set.</summary>
     internal const int SetColours = 16;
 
@@ -101,7 +111,7 @@ internal static class CeresSheetInks
     internal static IReadOnlyList<SheetShade> DrawnShades(RgbColor[] sprites)
     {
         Ensure.NotNull(sprites);
-        return [.. Enum.GetValues<CeresSpriteColouring>().Select(colouring => SheetShade.DrawnRun(CeresShades.Drawn(colouring),
+        return [.. ColouringOrder.Select(colouring => SheetShade.DrawnRun(CeresShades.Drawn(colouring),
             SpriteSet(colouring) * SetColours, sprites.AsSpan(SpriteSet(colouring) * SetColours, SetColours), SpriteSet(colouring)))];
     }
 }

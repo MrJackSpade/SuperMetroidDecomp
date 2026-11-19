@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed record MotherBrainBehaviorDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    public required BossFrameResultBuilder FrameResults { get; init; }
+    public required EnemyPassEvents PassEvents { get; init; }
 
     /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }

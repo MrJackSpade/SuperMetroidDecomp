@@ -55,7 +55,7 @@ public sealed class CrocomireDeathState
     /// The dissolve step each band of the melt image last showed, by band (#1652): the pass's image hides, in each band, the
     /// columns the band's step had erased when the band was last shown. A pass starts every band at no step.
     /// </summary>
-    internal int[] MeltBandSteps { get; } = new int[CrocomireMeltingDefinitions.SecondPassBandCount];
+    internal int[] MeltBandSteps { get; } = new int[CrocomireMeltingDefinitions.MeltImageBandCount];
 
     /// <summary>
     /// His death's baring of the skeleton, lasting <see cref="CrocomireSkeletonLookDefinitions.BaringDuration"/>: counted

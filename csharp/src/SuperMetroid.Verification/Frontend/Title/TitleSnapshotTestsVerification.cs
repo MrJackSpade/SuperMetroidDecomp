@@ -49,13 +49,13 @@ internal static class TitleSnapshotTestsVerification
                     // Compare at phase boundaries and throughout motion, not just black endpoints. The live scene's and the
                     // control's frames are compared with the held packet for the pixels they show, which draws them only when
                     // their descriptions differ (#1532).
-                    FloorScene packet = scene.CaptureRenderSnapshot();
+                    FloorScene packet = scene.ComposeScene();
                     byte[] held = GraphDigest(packet, bound);
-                    AssertTrue(ScenePixels.Same(new DisplayPacket(0, scene.CaptureRenderSnapshot()), new DisplayPacket((ushort)frame, packet)),
+                    AssertTrue(ScenePixels.Same(new DisplayPacket(0, scene.ComposeScene()), new DisplayPacket((ushort)frame, packet)),
                         $"title snapshot {phase} frame {frame} shows the live scene's pixels");
-                    FloorScene repeat = scene.CaptureRenderSnapshot();
+                    FloorScene repeat = scene.ComposeScene();
                     AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeat.Paint.SpriteParts()), "repeat title OAM capture");
-                    AssertTrue(ScenePixels.Same(new DisplayPacket(0, control.CaptureRenderSnapshot()), new DisplayPacket(0, packet)),
+                    AssertTrue(ScenePixels.Same(new DisplayPacket(0, control.ComposeScene()), new DisplayPacket(0, packet)),
                         $"title control {phase} frame {frame} shows the same pixels");
                     comparisons++;
 
@@ -75,7 +75,7 @@ internal static class TitleSnapshotTestsVerification
                 AssertEqual(control.Phase, scene.Phase, "capture does not advance title phase");
                 AssertEqual(control.Brightness, scene.Brightness, "capture does not advance brightness");
                 AssertEqual(control.FloorZoom, scene.FloorZoom, "capture does not advance zoom");
-                if (scene.FileSelectRequested)
+                if ((scene.Outcome == TitleSequenceOutcome.FileSelect))
                 {
                     AssertTrue(phases.Contains(TitleSequencePhase.FinalZoom), "snapshot covers natural zoom");
                     AssertTrue(sheetsBefore.AsSpan().SequenceEqual(UnboundGraphDigest(drawnSheets)),

@@ -37,17 +37,14 @@ public abstract class RidleyEncounterState
     /// <summary>The current AI phase's countdown, which times how long the phase lasts (#2233).</summary>
     public BossCountdown PhaseTimer { get; } = new();
 
-    /// <summary>Whether Ridley's tail and wings draw in the hurt flash's colours this update.</summary>
-    internal bool TailAndWingsFlashing { get; set; }
-
-    /// <summary>Whether the common enemy draw path draws Ridley's body in the hurt flash's colours this update.</summary>
-    internal bool BodyFlashing { private get; set; }
+    /// <summary>Which of his drawn parts show his hurt flash's colours, as his step last picked them (#2562).</summary>
+    internal RidleyHurtFlashShowing HurtFlashShows { get; set; }
 
     /// <summary>The shading Ridley's tail and wings draw in: his own colours, or the hurt flash's (#1512).</summary>
-    public PictureShading TailAndWingsShading => Colours.SpriteShading(TailAndWingsFlashing);
+    public PictureShading TailAndWingsShading => Colours.SpriteShading(HurtFlashShows.TailAndWings);
 
     /// <summary>The shading the common enemy draw path draws Ridley's body in (#1512).</summary>
-    public PictureShading CommonDrawShading => Colours.SpriteShading(BodyFlashing);
+    public PictureShading CommonDrawShading => Colours.SpriteShading(HurtFlashShows.Body);
 
     /// <summary>Whether Ridley holds Samus in his claws, which keeps his tail tip from striking her; only Lower Norfair Ridley grabs.</summary>
     internal abstract bool CarriesSamus { get; }

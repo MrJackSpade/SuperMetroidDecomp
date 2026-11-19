@@ -140,8 +140,8 @@ internal static class SamusSuitColorsVerification
         }
 
         samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment[1]);
-        samus.HorizontalSpeed.RequestSuitShadeRestore();
-        AssertTrue(samus.HorizontalSpeed.ApplyPendingSuitShadeRestore(
+        samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
+        AssertTrue(samus.HorizontalSpeed.ShowDueSuitShade(
                 samusColours, samus.EquippedItems),
             "momentum cancellation admits installed normal suit restoration");
         AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Suits.Resolve(SamusSuit.Varia, 1),

@@ -29,7 +29,7 @@ internal static class GrappleSwingArithmeticVerification
                 {
                     RotationAngle angle = RotationAngleConstants.FromRaw(raw);
                     var expected = ReplacedGravity(angle, submerged, velocity);
-                    var grapple = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Angle = angle, Submerged = submerged, AngularVelocity = AngularSpeed.FromFractionsOfStep(velocity) };
+                    var grapple = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Angle = angle, Submerged = submerged, AngularVelocity = AngularSpeedConstants.FromFractionsOfStep(velocity) };
                     SamusGrappleSwing.CalculateGravity(grapple);
                     gravityCompared++;
                     if ((grapple.GravityAcceleration.FractionsOfStep, grapple.VelocityCorrection.FractionsOfStep, grapple.AngularVelocity.FractionsOfStep) != expected)
@@ -48,8 +48,8 @@ internal static class GrappleSwingArithmeticVerification
         string? firstBounceMismatch = null;
         for (int velocity = short.MinValue; velocity <= short.MaxValue; velocity++)
         {
-            AngularSpeed expected = AngularSpeed.FromFractionsOfStep(-(velocity >> 1));
-            AngularSpeed actual = SamusGrappleSwing.ReversedAtHalfSpeed(AngularSpeed.FromFractionsOfStep(velocity));
+            AngularSpeed expected = AngularSpeedConstants.FromFractionsOfStep(-(velocity >> 1));
+            AngularSpeed actual = SamusGrappleSwing.ReversedAtHalfSpeed(AngularSpeedConstants.FromFractionsOfStep(velocity));
             if (actual != expected)
             {
                 bounceMismatches++;
@@ -78,19 +78,19 @@ internal static class GrappleSwingArithmeticVerification
         {
             // The replaced turn: the combined speed's size times 160/256, then its sign restored.
             int size = EightEightOracle.Multiply(Math.Abs(combined), 160);
-            AssertEqual(AngularSpeed.FromFractionsOfStep(combined < 0 ? -size : size),
-                AngularSpeed.FromFractionsOfStep(combined).ScaledBy(GrappleBeamDefinitions.Physics.SubmergedSwingShare, GrappleBeamDefinitions.Physics.SubmergedSwingParts),
+            AssertEqual(AngularSpeedConstants.FromFractionsOfStep(combined < 0 ? -size : size),
+                AngularSpeedConstants.FromFractionsOfStep(combined).ScaledBy(GrappleBeamDefinitions.Physics.SubmergedSwingShare, GrappleBeamDefinitions.Physics.SubmergedSwingParts),
                 $"submerged swing share of {combined}");
-            AssertEqual(AngularSpeed.FromFractionsOfStep(Math.Clamp(combined, -fastest, fastest)),
-                AngularSpeed.FromFractionsOfStep(combined).LimitedTo(GrappleBeamDefinitions.Physics.MaximumAngularVelocity),
+            AssertEqual(AngularSpeedConstants.FromFractionsOfStep(Math.Clamp(combined, -fastest, fastest)),
+                AngularSpeedConstants.FromFractionsOfStep(combined).LimitedTo(GrappleBeamDefinitions.Physics.MaximumAngularVelocity),
                 $"swing speed {combined} held to the fastest swing");
             cases += 2;
         }
         for (int jump = -impulse; jump <= impulse; jump++)
         {
             int expected = jump > 0 ? Math.Max(0, jump - decay) : jump < 0 ? Math.Min(0, jump + decay) : 0;
-            AssertEqual(AngularSpeed.FromFractionsOfStep(expected),
-                AngularSpeed.FromFractionsOfStep(jump).SlowedTowardRest(GrappleBeamDefinitions.Physics.JumpImpulseDecay),
+            AssertEqual(AngularSpeedConstants.FromFractionsOfStep(expected),
+                AngularSpeedConstants.FromFractionsOfStep(jump).SlowedTowardRest(GrappleBeamDefinitions.Physics.JumpImpulseDecay),
                 $"jump impulse {jump} decays toward rest");
             cases++;
         }

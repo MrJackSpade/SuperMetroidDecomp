@@ -74,10 +74,11 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PlaceMagdollitePart(RoomEnemyPlace place, int placesAfterHead)
     {
         RoomEnemyPlace head = placesAfterHead == 0 ? place : _places.ListedBefore(place, placesAfterHead);
-        var composite = new MagdolliteComposite(head, _places.ListedAfter(head, 1), _places.ListedAfter(head, 2));
+        var composite = new MagdolliteComposite(head, _places.ListedAfter(head, MagdollitePartListingDefinitions.BodyPlacesAfterHead),
+            _places.ListedAfter(head, MagdollitePartListingDefinitions.OverlayPlacesAfterHead));
         _partners.Place(place, new MagdollitePartners(
             Composite: composite,
-            FollowUpRecipients: FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfterOrNone(place, distance), reach: 2)));
+            FollowUpRecipients: FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfterOrNone(place, distance), MagdollitePartListingDefinitions.FollowUpReach)));
         if (place == composite.Overlay &&
             (composite.Head.Entity is not MagdolliteHeadEntity || composite.Body.Entity is not MagdolliteBodyEntity))
         {
@@ -124,7 +125,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Places the rising body, hidden 32 pixels below its origin until the head triggers an attack.</summary>
     internal void InitializeMagdolliteBody(RoomEnemyPlace place)
     {
-        PlaceMagdollitePart(place, placesAfterHead: 1);
+        PlaceMagdollitePart(place, MagdollitePartListingDefinitions.BodyPlacesAfterHead);
         var state = new MagdolliteBodyState(MagdolliteBodyAction.Dormant);
         place.SetSpeciesState(state);
         state.OriginY = place.Position.Y.Whole;
@@ -137,7 +138,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Places the projectile-throwing overlay, hidden below its origin, and starts its pillar-cap animation.</summary>
     internal void InitializeMagdolliteOverlay(RoomEnemyPlace place)
     {
-        PlaceMagdollitePart(place, placesAfterHead: 2);
+        PlaceMagdollitePart(place, MagdollitePartListingDefinitions.OverlayPlacesAfterHead);
         var state = new MagdolliteOverlayState(MagdolliteOverlayAction.WaitingForAttack);
         place.SetSpeciesState(state);
         state.OriginY = place.Position.Y.Whole;
@@ -670,7 +671,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies normal Samus contact damage before mirroring the enemy's death or freeze state.</summary>
     internal void ReactToMagdolliteTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context);
+        _collision.ResolveOrdinaryTouch(context);
         ResolveMagdolliteCombatAfterCommon(context.Place);
     }
 
@@ -695,7 +696,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // sideways the way the overlay faces.
         projectile.Position = source.Position.WithWholeY(source.Position.Y.Whole + MagdolliteMotionDefinitions.LavaDrop);
         projectile.Velocity = new(
-            thrown == HorizontalDirection.Right ? MagdolliteMotionDefinitions.LavaThrowSpeed : -MagdolliteMotionDefinitions.LavaThrowSpeed,
+            MagdolliteMotionDefinitions.LavaThrowSpeed.Toward(thrown),
             SignedEightEight.Zero);
         projectile.InstallAnimation(new MagdolliteLavaAnimation(thrown == HorizontalDirection.Right ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left));
     }

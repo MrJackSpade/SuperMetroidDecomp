@@ -53,7 +53,7 @@ internal sealed class ShallowWaterJumpScenario
     /// which Samus's liquid physics copies.
     /// </summary>
     internal string TakeoffSeed() =>
-        $"{Samus.Position.X.Whole:X4} {Samus.Kinematics.Position.X.Fraction:X4} {Samus.Position.Y.Whole:X4} {Samus.Kinematics.Position.Y.Fraction:X4} {(int)SamusPoseNumbers.Number(Samus.Pose):X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer.RemainingFrames:X4} {Samus.ExtraAnimationDelay:X4} {Samus.LiquidPhysics.WaterSurfaceY ?? ushort.MaxValue:X4} {RoomFxRecordCodec.LiquidOptionsByte(Runtime.Room.LoadedScope.FxOverlay.Liquid):X4} {(int)Samus.LiquidPhysics.LiquidPhysicsType:X4}\n";
+        $"{Samus.Position.X.Whole:X4} {Samus.Kinematics.Position.X.Fraction:X4} {Samus.Position.Y.Whole:X4} {Samus.Kinematics.Position.Y.Fraction:X4} {(int)SamusPoseNumbers.Number(Samus.Pose):X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer.RemainingFrames:X4} {Samus.ExtraAnimationDelay:X4} {Samus.LiquidPhysics.WaterSurfaceY ?? ushort.MaxValue:X4} {RoomFxRecordCodec.LiquidOptionsByte(Runtime.Room.LoadedScope.FxOverlay.Liquid):X4} {(int)Samus.LiquidPhysics.MediumLastEntered:X4}\n";
 
     /// <summary>Holds jump for <see cref="JumpFrameCount"/> frames; returns the header and one row per frame, and the apex.</summary>
     internal JumpTrace Jump()
@@ -66,7 +66,7 @@ internal sealed class ShallowWaterJumpScenario
             FixedCoordinate y = Samus.Kinematics.Position.Y;
             if (y.Whole < apex.Whole || (y.Whole == apex.Whole && y.Fraction < apex.Fraction))
                 apex = y;
-            rows.Add($"{frame},{(int)SamusPoseNumbers.Number(Samus.Pose):X2},{Samus.Kinematics.Position.Y.Whole:X4}{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.Kinematics.YSpeed.RawValue:X8},{SamusVerticalDirectionCodec.ToNative(Samus.Kinematics.YDirection)},{Samus.Kinematics.Radius.Y},{SamusLiquidMediumCodec.ToNative(Samus.LiquidPhysics.LiquidPhysicsType)}");
+            rows.Add($"{frame},{(int)SamusPoseNumbers.Number(Samus.Pose):X2},{Samus.Kinematics.Position.Y.Whole:X4}{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.Kinematics.VerticalVelocity.Speed.RawValue:X8},{SamusVerticalDirectionCodec.ToNative(Samus.Kinematics.VerticalVelocity.Direction)},{Samus.Kinematics.Radius.Y},{SamusLiquidMediumCodec.ToNative(Samus.LiquidPhysics.MediumLastEntered)}");
         }
         return new JumpTrace(rows, apex);
     }

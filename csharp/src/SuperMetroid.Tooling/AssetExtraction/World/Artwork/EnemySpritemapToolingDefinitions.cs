@@ -18,7 +18,7 @@ internal static class EnemySpritemapToolingDefinitions
     /// <summary>Frames the document lists before the friendly-animal compositions, the Etecoon first.</summary>
     internal static int PreFriendlyAnimalFrameCount => FramesBefore(EnemyFrameId.EtecoonLookingRight);
     /// <summary>Frames the document lists before the Zero crawler artwork.</summary>
-    internal static int PreZeroFrameCount => FramesBefore(EnemyFrameId.ZeroUpsideRightContracted);
+    internal static int PreZeroFrameCount => FramesBefore(EnemyFrameId.ZeroOnLeftWallContracted);
     /// <summary>Frames the document lists before the tatori family.</summary>
     internal static int PreMamaTurtleFrameCount => FramesBefore(EnemyFrameId.TurtleBabyCrawlingLeftLegsTucked);
 

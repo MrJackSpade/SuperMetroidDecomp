@@ -24,11 +24,11 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </remarks>
 public static class StraddledTerrainFiles
 {
-    /// <summary>Every mirroring, in the order the lead classes are listed within a collision kind.</summary>
-    private static readonly BlockMirroring[] Mirrorings = Enum.GetValues<BlockMirroring>();
+    /// <summary>Every mirroring, in the order the lead classes are listed within a collision kind (#2567).</summary>
+    private static readonly WrittenOrder<BlockMirroring> Mirrorings = new(Ensure.EveryMemberOnce(BlockMirroringKeys.ListedOrder));
 
-    /// <summary>Every collision kind, in the order the lead classes are listed.</summary>
-    private static readonly RoomCollisionType[] Kinds = Enum.GetValues<RoomCollisionType>();
+    /// <summary>Every collision kind, in the order the lead classes are listed (#2567).</summary>
+    private static readonly WrittenOrder<RoomCollisionType> Kinds = new(Ensure.EveryMemberOnce(RoomCollisionTypeKeys.ListedOrder));
 
     /// <summary>How many block numbers a level word names; the file names blocks by these numbers (#2100).</summary>
     private const int BlockCount = RoomLevelWordCodec.BlockNumbers;
@@ -100,7 +100,7 @@ public static class StraddledTerrainFiles
                 throw new InvalidOperationException($"The start of block {block} depends on more than its number.");
             tailOf[block] = tail;
         }
-        if (leadOf.Count != Kinds.Length * Mirrorings.Length * BlockCount || tailOf.Contains(-1))
+        if (leadOf.Count != Kinds.Count * Mirrorings.Count * BlockCount || tailOf.Contains(-1))
             throw new InvalidOperationException("A terrain block is stored as no level word.");
 
         // Each class is listed by what it holds, in the order of the first block it holds.
@@ -111,7 +111,7 @@ public static class StraddledTerrainFiles
         int[] tailHalves = [.. tailClasses.Select(blocks => tailOf[blocks[0]])];
         var leads = new List<StraddledTerrainDocument.Lead>();
         foreach (IGrouping<int, RoomTerrainBlock> leadClass in leadOf.Keys
-            .OrderBy(terrain => terrain.Collision).ThenBy(terrain => terrain.Appearance.Mirroring)
+            .OrderBy(terrain => Kinds.PlaceOf(terrain.Collision)).ThenBy(terrain => Mirrorings.PlaceOf(terrain.Appearance.Mirroring))
             .ThenBy(terrain => RoomLevelWordCodec.BlockNumberOf(terrain.Appearance))
             .GroupBy(terrain => leadOf[terrain]))
         {
@@ -183,7 +183,7 @@ public static class StraddledTerrainFiles
                 throw new InvalidDataException($"Straddled-terrain lead class {lead} makes terrain with {straddles.Count} tail classes, not {tailClasses.Count}.");
             outcomes[lead] = [.. straddles.Select(Terrain)];
         }
-        if (leads.Count != Kinds.Length * Mirrorings.Length * BlockCount)
+        if (leads.Count != Kinds.Count * Mirrorings.Count * BlockCount)
             throw new InvalidDataException("Straddled-terrain lead classes must hold every block of every mirroring and collision kind.");
         AddCollectibleBlocks(Require(document.CollectibleBlocks, "collectible blocks"), tailOf, leads, tails);
         try

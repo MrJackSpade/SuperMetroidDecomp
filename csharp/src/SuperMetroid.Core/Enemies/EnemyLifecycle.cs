@@ -55,7 +55,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     }
 
     /// <summary>Runs the definition's initialization for a place the room's population load has just placed.</summary>
-    private static void RunInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    internal static void SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         Ensure.NotNull(surroundings);
         switch (Ensure.NotNull(place).Entity)
@@ -78,7 +78,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     /// <exception cref="InvalidDataException">
     /// The place's enemy initializes from a population load's surroundings, which no such spawn has, or has no initialization.
     /// </exception>
-    private static void RunSpawnedInitializationAi(RoomEnemyPlace place)
+    internal static void SetUpSpawnedEnemy(RoomEnemyPlace place)
     {
         switch (Ensure.NotNull(place).Entity)
         {
@@ -103,11 +103,11 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         InitializePlaceFromDefinition(place, population, definition);
 
     /// <summary>Lets the population loader run the place's species initialization.</summary>
-    void IEnemyLifecycle.RunInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
-        RunInitializationAi(place, surroundings);
+    void IEnemyLifecycle.SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
+        SetUpEnemy(place, surroundings);
 
     /// <summary>Lets a species run the initialization of an enemy it spawned on another enemy's behalf.</summary>
-    void IEnemyLifecycle.RunSpawnedInitializationAi(RoomEnemyPlace place) => RunSpawnedInitializationAi(place);
+    void IEnemyLifecycle.SetUpSpawnedEnemy(RoomEnemyPlace place) => SetUpSpawnedEnemy(place);
 
     /// <inheritdoc/>
     RoomEnemyPlace? IEnemyLifecycle.SpawnEnemyJoining<TEncounter>(RoomEnemyPlacement population, TEncounter encounter) =>
@@ -123,7 +123,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
             return null;
         InitializePlaceFromDefinition(place, population, _room.Definitions.ReadEnemyDefinition(population.DefinitionId));
         joining(place);
-        RunSpawnedInitializationAi(place);
+        SetUpSpawnedEnemy(place);
         // Spawning writes the empty frame after initialization, before the first animation tick.
         place.Frame = place.Processing.HasAny(EnemyProcessing.Animates)
             ? EnemyFrameId.Empty

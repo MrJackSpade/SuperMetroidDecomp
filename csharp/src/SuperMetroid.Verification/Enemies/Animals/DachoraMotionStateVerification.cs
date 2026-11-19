@@ -31,7 +31,7 @@ internal static class DachoraMotionStateVerification
 
         (RoomEnemySystem enemies, RoomEnemyPlace place, DachoraEnemyState state) = NewDachora(parameter: 1);
         state.Speed = SignedSixteenSixteen.FromParts(8, 0);
-        state.SetGlowCycle(frame: 0, ticks: 0);
+        state.SetGlowCycle(SuperMetroid.Core.Compatibility.DachoraGlowCycle.At(0, 0));
         enemies.DachoraBehavior.AccelerateDachora(place, state, level);
         AssertEqual(255, state.GlowFrame, "a cleared palette cycle's tick borrows from its frame");
         AssertEqual(255, state.GlowTicks, "a cleared palette cycle's ticks wrap");

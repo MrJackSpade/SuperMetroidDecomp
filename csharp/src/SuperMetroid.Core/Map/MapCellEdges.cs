@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Map;
 public readonly record struct MapCellEdges(MapCellEdge Top, MapCellEdge Bottom, MapCellEdge Left, MapCellEdge Right)
 {
     /// <summary>A cell open on every edge.</summary>
-    public static MapCellEdges Open => default;
+    public static MapCellEdges Open { get; } = new(MapCellEdge.Open, MapCellEdge.Open, MapCellEdge.Open, MapCellEdge.Open);
 
     /// <summary>
     /// The edges as a picture's name spells them: each edge that is not open, top, bottom, left then right, as a

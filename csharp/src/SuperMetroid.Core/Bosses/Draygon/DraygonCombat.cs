@@ -54,7 +54,7 @@ internal sealed class DraygonCombat
             throw new InvalidDataException(
                 $"Draygon has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
-        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
+        _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
         ResolveDraygonReaction(context.Place, context.Samus);
     }
 
@@ -130,9 +130,8 @@ internal sealed class DraygonCombat
 
         // The death behaviour releases Samus unconditionally, even during an
         // unrelated movement owner. In particular, this can interrupt a shinespark.
-        // Samus's grapple flags, the owner-release signal among them, are cleared after this.
+        // Samus's grapple flags are cleared after this; Draygon sees his own release.
         _grab.ReleaseSamusDuringEnemyUpdate(samus);
-        samus.DraygonGrabbed.ConsumeOwnerReleaseSignal();
         samus.Grapple.Phase = GrapplePhase.Dropped;
     }
 
@@ -164,7 +163,7 @@ internal sealed class DraygonCombat
             {
                 // Body, claws, and shell use the shared common touch; only the first
                 // eye rectangle of the two eye-showing body frames reaches Draygon's damage reaction.
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
                 _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                 return true;
             }

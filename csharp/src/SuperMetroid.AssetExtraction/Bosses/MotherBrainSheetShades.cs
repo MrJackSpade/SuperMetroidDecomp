@@ -13,7 +13,7 @@ using SuperMetroid.Core.Enemies.Corpses.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>
-/// The shades of Mother Brain's, the Shitroid's and the Zebetites' encounters (#1512, #1544), which the import pre-colours
+/// The shades of Mother Brain's, the Baby Metroid's and the Zebetites' encounters (#1512, #1544), which the import pre-colours
 /// their sprite sheets, her body layer and her room's pictures in, from each encounter's installed colours over the rows
 /// and colour groups its loads write: her brain's, attack's, legs' and the Baby's rows, her body layer's colours and her
 /// room's. Each owner names only its own shades: her body layer's are not her room's.
@@ -22,7 +22,7 @@ internal static class MotherBrainSheetShades
 {
     /// <summary>
     /// The row each enemy whose shades this places draws in, as Mother Brain's encounter writes it: her brain's, her body's
-    /// common row (her body's parts name their own rows), the Baby's, and the attack row the Shitroid and the Zebetites
+    /// common row (her body's parts name their own rows), the Baby's, and the attack row the Baby Metroid and the Zebetites
     /// draw in.
     /// </summary>
     private static readonly Dictionary<EnemyDefinitionId, int> DrawRows = new()
@@ -56,7 +56,7 @@ internal static class MotherBrainSheetShades
     /// <summary>The first ink of her brain's row, sprite row one.</summary>
     private const int BrainRow = 1 * Group;
 
-    /// <summary>The first ink of her attack's row, sprite row two, where the Shitroid and the Zebetites draw.</summary>
+    /// <summary>The first ink of her attack's row, sprite row two, where the Baby Metroid and the Zebetites draw.</summary>
     private const int AttackRow = 2 * Group;
 
     /// <summary>The first ink of her rear legs' and the glass shards' row, sprite row three.</summary>
@@ -77,7 +77,7 @@ internal static class MotherBrainSheetShades
     /// <summary>The first inks of the room lights' two slices: the second and fourth tile groups' colour one.</summary>
     private static readonly int[] LightsFirstInks = [3 * Group + 1, 5 * Group + 1];
 
-    /// <summary>The colours of the Shitroid's membrane its pulse recolours, from its row's colour five.</summary>
+    /// <summary>The colours of the Baby Metroid's membrane its pulse recolours, from its row's colour five.</summary>
     private const int MembraneFirstColour = 5;
 
     /// <summary>The colours of the Zebetites' row their pulse recolours, from its colour twelve.</summary>
@@ -263,23 +263,23 @@ internal static class MotherBrainSheetShades
         return shades;
     }
 
-    /// <summary>The shades of the Shitroid's and its victim's sheets: its entry's colours and each phase of its membrane's pulse.</summary>
+    /// <summary>The shades of the Baby Metroid's and its victim's sheets: its entry's colours and each phase of its membrane's pulse.</summary>
     /// <exception cref="InvalidDataException">Its colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Shitroid(BossSourceArtwork bosses)
+    internal static IReadOnlyList<SheetShade> BabyMetroid(BossSourceArtwork bosses)
     {
         Ensure.NotNull(bosses);
-        ShitroidColorCatalog shitroid = bosses.ShitroidColors ?? throw Missing("the Shitroid's colours");
+        BabyMetroidColorCatalog babyMetroid = bosses.BabyMetroidColors ?? throw Missing("the Shitroid's colours");
         var shades = new List<SheetShade>
         {
-            Rows(TourianCorpseShades.ShitroidTargets,
-                new ColourRun(BrainRow + FirstColour, Colours(Group - FirstColour, colour => shitroid.TargetColor(ShitroidColorTarget.Sidehopper, colour + FirstColour))),
-                new ColourRun(AttackRow + FirstColour, Colours(Group - FirstColour, colour => shitroid.TargetColor(ShitroidColorTarget.Shitroid, colour + FirstColour)))),
+            Rows(TourianCorpseShades.BabyMetroidTargets,
+                new ColourRun(BrainRow + FirstColour, Colours(Group - FirstColour, colour => babyMetroid.TargetColor(BabyMetroidColorTarget.Sidehopper, colour + FirstColour))),
+                new ColourRun(AttackRow + FirstColour, Colours(Group - FirstColour, colour => babyMetroid.TargetColor(BabyMetroidColorTarget.BabyMetroid, colour + FirstColour)))),
         };
-        for (int phase = 0; phase < ShitroidColorDefinitions.NormalFrameCount; phase++)
+        for (int phase = 0; phase < BabyMetroidColorDefinitions.NormalFrameCount; phase++)
         {
             int shown = phase;
-            shades.Add(SheetShade.Run(ShitroidShades.Membrane(ShitroidMembranePulse.All[shown]), AttackRow + MembraneFirstColour,
-                Colours(ShitroidColorDefinitions.NormalColorsPerFrame, colour => shitroid.NormalColor(shown, colour))));
+            shades.Add(SheetShade.Run(BabyMetroidShades.Membrane(BabyMetroidMembranePulse.All[shown]), AttackRow + MembraneFirstColour,
+                Colours(BabyMetroidColorDefinitions.NormalColorsPerFrame, colour => babyMetroid.NormalColor(shown, colour))));
         }
         return shades;
     }

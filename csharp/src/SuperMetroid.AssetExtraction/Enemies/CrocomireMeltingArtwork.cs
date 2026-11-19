@@ -16,13 +16,13 @@ public sealed class CrocomireMeltingArtwork
 {
 
     /// <summary>The import data's planar character data for the first overlapping melt pass.</summary>
-    private readonly RoomCharacterAtlas first;
+    internal readonly RoomCharacterAtlas first;
     /// <summary>The import data's planar character data for the second, eroded melt pass.</summary>
-    private readonly RoomCharacterAtlas second;
+    internal readonly RoomCharacterAtlas second;
     /// <summary>The import data's tile placements for the first illustration.</summary>
-    private readonly BackgroundTile[] firstTilemap;
+    internal readonly BackgroundTile[] firstTilemap;
     /// <summary>The import data's tile placements for the second illustration.</summary>
-    private readonly BackgroundTile[] secondTilemap;
+    internal readonly BackgroundTile[] secondTilemap;
 
     /// <summary>Keeps both character sheets and both complete layouts the import composes the melt pictures from.</summary>
     private CrocomireMeltingArtwork(RoomCharacterAtlas first, RoomCharacterAtlas second,
@@ -134,11 +134,12 @@ public sealed class CrocomireMeltingArtwork
     private const int RowByteCount = CrocomireMeltDissolve.BandRowCharacters * RoomCharacterAtlasFormat.BytesPerTile;
 
     /// <summary>
-    /// The bytes of <paramref name="illustration"/>'s image the cartridge assembles: a row per band, and the row and word
-    /// after the last, which the last band's copy carries past the image.
+    /// The bytes of <paramref name="illustration"/>'s image the import assembles: a row per band of the image, and the row
+    /// and word after the last, which the last band's copy carries past the image (#2573).
     /// </summary>
-    private static int UsedByteCount(CrocomireMeltingIllustration illustration) =>
-        (CrocomireMelting.BandCount(illustration) + 1) * RowByteCount + sizeof(ushort);
+    internal static int UsedByteCount(CrocomireMeltingIllustration illustration) =>
+        Enum.IsDefined(illustration) ? (CrocomireMeltingDefinitions.MeltImageBandCount + 1) * RowByteCount + sizeof(ushort)
+            : throw new ArgumentOutOfRangeException(nameof(illustration), illustration, "Crocomire has two melt images.");
 
     /// <summary>Rejects a sheet that is not <paramref name="illustration"/>'s installed length.</summary>
     private static void RequireLength(RoomCharacterAtlas atlas, int byteCount, CrocomireMeltingIllustration illustration)

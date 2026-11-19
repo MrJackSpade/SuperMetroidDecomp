@@ -52,7 +52,7 @@ internal static class EndingColourOwners
             Add(EndingShades.Flashed(flash), Required(EndingColourOwnerDefinitions.Flashes, flash));
         Add(EndingShades.LogoCrossfade(EndingLogoCrossfadeStep.First), EndingColourOwnerDefinitions.LogoCrossfade);
         // A colour group's shades form one family per animation that shows in it (#1598).
-        ShownColourEffectFrame[] shownFrames = ColourEffectShownFrames.ShownBy(Enum.GetValues<ColourEffectId>());
+        ShownColourEffectFrame[] shownFrames = ColourEffectShownFrames.ShownBy(ColourEffectListedOrders.Effects);
         foreach (KeyValuePair<ColourEffectColours, EndingEffectOwners> group in EndingColourOwnerDefinitions.ColourEffects)
         {
             ColourEffectId[] animations = [.. shownFrames.Where(shown => shown.Colours == group.Key)

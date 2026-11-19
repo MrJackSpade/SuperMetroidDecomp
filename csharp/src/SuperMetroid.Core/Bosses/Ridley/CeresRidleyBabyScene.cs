@@ -10,26 +10,23 @@ using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>The Baby Metroid Ceres Ridley carries, its fall and its draw, and the door of his room drawn around the fight.</summary>
+/// <summary>The Baby Metroid Ceres Ridley carries: its fall, its animation and its picture.</summary>
 [RoomLifetime]
 internal sealed class CeresRidleyBabyScene
 {
     /// <summary>Provides room randomness.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Offsets the scene's own Baby and door drawing during a room quake.</summary>
-    private readonly RoomEarthquake _earthquake;
     /// <summary>Queues the Baby's cries.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Publishes the Baby's and the door overlay's frames.</summary>
+    /// <summary>Publishes the Baby's frames.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>The room's view of Ridley: Ceres Ridley as he attached himself, and the door of his room.</summary>
+    /// <summary>The room's view of Ridley: Ceres Ridley as he attached himself.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyBabyScene(EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyPresentation presentation, RidleyEncounter ridleyEncounter)
+    internal CeresRidleyBabyScene(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyPresentation presentation, RidleyEncounter ridleyEncounter)
     {
         _room = room;
-        _earthquake = earthquake;
         _audio = audio;
         _presentation = presentation;
         _ridleyEncounter = ridleyEncounter;
@@ -81,76 +78,66 @@ internal sealed class CeresRidleyBabyScene
     }
 
     /// <summary>
-    /// Draws the Baby and the door while Ridley's movement and animation are off: as Ridley updates, before the
-    /// other enemies are drawn, so the Baby appears with the room and ahead of Ridley's own picture.
+    /// Runs the Baby's animation at the enemy pass's end while Ridley's movement and animation are off (#2573). Until his
+    /// reveal starts his animation, the Baby's animation, whose cries read the room's random number and queue a sound,
+    /// runs as his enemy pass ends, before Samus's and the actors' drawing steps.
     /// </summary>
-    public void DrawCeresRidleyImmediateBabyAndDoor(
-        SpriteFrameBuffer sprites,
-        Position16<RoomPixels> camera)
+    public void StepCeresBabyWithEnemyPass()
     {
-        Ensure.NotNull(sprites);
-        // Only Ceres Ridley attaches this Baby and door draw to the room.
-        if (_ridleyEncounter.CeresRidley is not { } ceres || ceres.Ridley.MovementAnimationEnabled)
-            return;
-
-        DrawCeresRidleyBabyAndDoor(sprites, ceres.Ridley, camera);
+        if (_ridleyEncounter.CeresRidley is { } ceres && !ceres.Ridley.MovementAnimationEnabled)
+            StepCeresBaby(ceres.Ridley);
     }
 
     /// <summary>
-    /// Draws the Baby and door over every enemy once Ceres Ridley's reveal has started his
-    /// animation: the same private Baby animation, after the ordinary enemy layer loop.
+    /// Runs the Baby's animation after the actors' drawing steps once Ceres Ridley's reveal has started his animation
+    /// (#2573), so its cries queue after the sounds Samus's drawing steps queue.
     /// </summary>
-    public void DrawCeresRidleyBabyAndDoorOverEnemies(
-        SpriteFrameBuffer sprites,
-        Position16<RoomPixels> camera)
+    public void StepCeresBabyAfterActors()
     {
-        Ensure.NotNull(sprites);
-        if (_ridleyEncounter.CeresRidley is not { } ceres || !ceres.Ridley.MovementAnimationEnabled)
-            return;
-
-        DrawCeresRidleyBabyAndDoor(sprites, ceres.Ridley, camera);
+        if (_ridleyEncounter.CeresRidley is { } ceres && ceres.Ridley.MovementAnimationEnabled)
+            StepCeresBaby(ceres.Ridley);
     }
 
-    /// <summary>Publishes the private Baby frame and hidden door overlay with the secondary quake offset.</summary>
-    private void DrawCeresRidleyBabyAndDoor(
-        SpriteFrameBuffer sprites,
-        CeresRidleyState ridley,
-        Position16<RoomPixels> camera)
+    /// <summary>Runs the Baby's animation one update while Ridley has not escaped with it.</summary>
+    private void StepCeresBaby(CeresRidleyState ridley)
     {
         if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
-        {
-            if (AdvanceCeresBabyDrawAnimation(ridley) is { } babyFrame)
-            {
-                _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresBaby), babyFrame,
-                    ridley.Baby.Position.Whole.RelativeToCamera(camera), EnemyShades.HurtFlashLook);
-            }
-        }
-
-        // The room's door hands its drawing to Ridley's scene in its hiding step, when the common
-        // enemy pass intentionally hides the actor; the Baby and door draw then draws this fixed overlay
-        // after the Baby. This draws the door for it; it does not replace the door actor's own animation.
-        if (_ridleyEncounter.CeresRoomDoor is { Entity: IDrawnByCeresRidleyScene { Drawing: CeresRidleyRoomDoorDrawing.ByRidleysScene } } door)
-        {
-            // The scene draws the door itself rather than through the common enemy drawing, so it applies the door's
-            // own earthquake shake, which moves only the drawn door.
-            int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.RemainingFrames);
-            _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyRoomDoorDrawnByRidley,
-                (door.Position.Whole + new Offset16<RoomPixels>(quakeXOffset, 0)).RelativeToCamera(camera),
-                // The overlay shows its own standard colours; the door actor's own looks never reach it (#1512).
-                PictureShading.Standard);
-        }
+            AdvanceCeresBabyAnimation(ridley);
     }
 
     /// <summary>
-    /// Runs the Baby's typed cutscene animation one draw update on the Baby's own clock (#2228) and returns its current
-    /// frame: the pose it shows holds for its duration, counted off one each draw update, and the next pose is then shown.
+    /// Shows the Baby's current frame where it is, at its picture's own depth among the actors and in the layering its phase
+    /// gives it (<see cref="LayeringOf"/>, #2573), while Ridley has not escaped with it and once its animation has shown a
+    /// pose. The Baby shows its own look of the hurt flash.
+    /// </summary>
+    public void PublishCeresBaby(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
+    {
+        Ensure.NotNull(sprites);
+        if (_ridleyEncounter.CeresRidley is not { } ceres || _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped
+            || CeresBabyFrame(ceres.Ridley.Baby.ShownPose) is not { } babyFrame)
+            return;
+        _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresBaby), babyFrame,
+            ceres.Ridley.Baby.Position.Whole.RelativeToCamera(camera), EnemyShades.HurtFlashLook, layering: LayeringOf(ceres.Ridley));
+    }
+
+    /// <summary>
+    /// How the Baby shows among the other actors (#2573): in front of them all, Ridley's dark shape among them, while
+    /// Ridley's movement and animation are off before his reveal, and in its place among them once his reveal has started
+    /// his animation.
+    /// </summary>
+    private static ActorLayering LayeringOf(CeresRidleyState ridley) =>
+        ridley.MovementAnimationEnabled ? ActorLayering.InDrawOrder : ActorLayering.InFrontOfActors;
+
+    /// <summary>
+    /// Runs the Baby's typed cutscene animation one update on the Baby's own clock (#2228): the pose it shows holds for its
+    /// duration, counted off one each update, and the next pose is then shown.
     /// </summary>
     /// <param name="ridley">Ceres Ridley's encounter, which holds the Baby and the colours its cues show.</param>
-    private EnemyFrameId? AdvanceCeresBabyDrawAnimation(CeresRidleyState ridley)
+    internal void AdvanceCeresBabyAnimation(CeresRidleyState ridley)
     {
         CeresBaby baby = ridley.Baby;
         if (!baby.Clock.Expire())
-            return CeresBabyFrame(baby.ShownPose);
+            return;
 
         Animation<CeresBabySegment> animation = baby.Playback.Animation;
         AnimationPlace place = baby.Playback.Place;
@@ -160,21 +147,20 @@ internal sealed class CeresRidleyBabyScene
                 : null);
         baby.Playback = new AnimationPlayback<CeresBabySegment>(animation, place);
         if (outcome is not AnimationShown<CeresBabySegment, CeresBabyPose>.Frame shown)
-            throw new InvalidOperationException($"The Ceres Baby's animation ended a draw update with {outcome}.");
+            throw new InvalidOperationException($"The Ceres Baby's animation ended an update with {outcome}.");
         baby.Clock.Show(shown.Duration);
         baby.ShownPose = shown.Shown;
-        return CeresBabyFrame(baby.ShownPose);
     }
 
-    /// <summary>The frame the draw shows for <paramref name="pose"/>, or none before the Baby's first pose.</summary>
+    /// <summary>The frame the Baby shows for <paramref name="pose"/>, or none before the Baby's first pose.</summary>
     private static EnemyFrameId? CeresBabyFrame(CeresBabyPose? pose) =>
         pose is { } shown ? CeresBabyFrameDefinitions.ShownFrames.Of(shown) : null;
 
     /// <summary>The animation the Baby starts while it moves, where it reacts to its motion (#2167).</summary>
-    private const CeresBabySegment MovingAnimation = CeresBabySegment.ExpressiveLoop;
+    internal const CeresBabySegment MovingAnimation = CeresBabySegment.ExpressiveLoop;
 
     /// <summary>The animation the Baby starts when it rests silently instead of crying (#2167).</summary>
-    private const CeresBabySegment SilentAnimation = CeresBabySegment.IdleSquish;
+    internal const CeresBabySegment SilentAnimation = CeresBabySegment.IdleSquish;
 
     /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation its owner starts, or null to play on.</summary>
     private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue)

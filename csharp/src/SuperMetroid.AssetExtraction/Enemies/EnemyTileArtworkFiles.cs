@@ -78,7 +78,8 @@ public static class EnemyTileArtworkFiles
         var entries = new Dictionary<string, EnemyTileFileEntry>(StringComparer.Ordinal);
         var unplacedEntries = new Dictionary<string, EnemyTileFileEntry>(StringComparer.Ordinal);
         var headers = new List<int>();
-        foreach (EnemyDefinitionId enemy in EnemyTileSourceDefinitions.All.Select(source => source.DefinitionId).Order())
+        HashSet<EnemyDefinitionId> tiled = [.. EnemyTileSourceDefinitions.All.Select(source => source.DefinitionId)];
+        foreach (EnemyDefinitionId enemy in Ensure.EveryMemberOnce(EnemyDefinitionIdKeys.ListedOrder).Where(tiled.Contains))
         {
             int headerWord = EnemyDefinitionIds.HeaderPointer(enemy);
             headers.Add(headerWord);
@@ -279,9 +280,9 @@ public static class EnemyTileArtworkFiles
         byte[] dachoraColors = DachoraColorExtractor.Extract(bus);
         File.WriteAllBytes(Path.Combine(importData, DachoraColorFormat.FileName),
             dachoraColors);
-        byte[] shitroidColors = ShitroidColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(importData, ShitroidColorFormat.FileName),
-            shitroidColors);
+        byte[] babyMetroidColors = BabyMetroidColorExtractor.Extract(bus);
+        File.WriteAllBytes(Path.Combine(importData, BabyMetroidColorFormat.FileName),
+            babyMetroidColors);
         byte[] babyMetroidCutsceneColors =
             BabyMetroidCutsceneColorExtractor.Extract(bus);
         File.WriteAllBytes(Path.Combine(importData,
@@ -337,7 +338,7 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(chozoAndTubeColors)),
             Convert.ToHexString(SHA256.HashData(sporeSpawnColors)),
             Convert.ToHexString(SHA256.HashData(dachoraColors)),
-            Convert.ToHexString(SHA256.HashData(shitroidColors)),
+            Convert.ToHexString(SHA256.HashData(babyMetroidColors)),
             Convert.ToHexString(SHA256.HashData(babyMetroidCutsceneColors)),
             Convert.ToHexString(SHA256.HashData(botwoonColors)),
             Convert.ToHexString(SHA256.HashData(motherBrainDeathColors)),
@@ -495,7 +496,7 @@ public static class EnemyTileArtworkFiles
     {
         var planar = new byte[encodedByteCount];
         int bank = CrocomireMeltingSources.Graphics(illustration).Bank;
-        for (int band = 0; band < CrocomireMelting.BandCount(illustration); band++)
+        for (int band = 0; band < CrocomireMeltingDefinitions.MeltImageBandCount; band++)
         {
             int imageByte = CrocomireMeltingSources.ImageByte(band);
             int source = CrocomireMeltingSources.SourceWord(illustration, band);
@@ -662,7 +663,7 @@ public static class EnemyTileArtworkFiles
         string ChozoAndTubeColorsSha256,
         string SporeSpawnColorsSha256,
         string DachoraColorsSha256,
-        string ShitroidColorsSha256,
+        string BabyMetroidColorsSha256,
         string BabyMetroidCutsceneColorsSha256,
         string BotwoonColorsSha256,
         string MotherBrainDeathColorsSha256,

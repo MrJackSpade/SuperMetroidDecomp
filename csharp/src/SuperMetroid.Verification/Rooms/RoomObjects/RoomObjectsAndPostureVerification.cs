@@ -276,7 +276,7 @@ level, samus, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "crouch clears numeric horizontal velocity");
     AssertEqual(new SamusSpeedBoostCounter(4, 1), samus.HorizontalSpeed.SpeedBoostCounter, "crouch movement preserves boost stage");
     AssertTrue(samus.HorizontalSpeed.HasRunningMomentum, "crouch movement preserves momentum bookkeeping");
-    samus.HorizontalSpeed.ApplyStoppedInputFallback(SamusPoseMetadata.ReadFacingDirection(samus));
+    samus.HorizontalSpeed.StopForNoTransition(SamusPoseMetadata.ReadFacingDirection(samus));
     AssertEqual(new SamusSpeedBoostCounter(0, 0), samus.HorizontalSpeed.SpeedBoostCounter, "crouch input fallback independently cancels boost");
     AssertTrue(!samus.HorizontalSpeed.HasRunningMomentum, "fallback cancels momentum bookkeeping");
 
@@ -325,8 +325,8 @@ level, aimedSamus, unchecked((ushort)index), roomObjects: SamusRoomObjectFixture
         AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(aimedSamus), "aimed crouch FD applies");
         AssertEqual(aimedCrouchTargets[index], aimedSamus.Pose, "aimed crouch FD target");
         AssertEqual(
-            SamusNoInputFallback.ToPose(facesLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose),
-            SamusPoseMetadata.ReadNoInputFallback(aimedSamus),
+            SamusNoInputPose.ToPose(facesLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose),
+            SamusPoseMetadata.ReadNoInputPose(aimedSamus),
             "aimed crouch definition fallback");
         GroundedMovementResult aimedCrouchFrame = SamusPostureMovement.StepCrouching(
 level, aimedSamus, unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled);
@@ -429,9 +429,9 @@ level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 0, roomObjects:
     SamusPoseMetadata.RefreshCollisionRadii(crouchJump);
     AssertEqual(19, crouchJump.Kinematics.Radius.Y, "next alpha publishes crouch jump radius");
     AssertEqual(35, crouchJump.Position.Y.Whole, "alpha does not repeat crouch jump center correction");
-    AssertEqual(4, crouchJump.Kinematics.YSpeed.Whole, "ordinary crouch jump Y speed");
-    AssertEqual(0xe000, crouchJump.Kinematics.YSpeed.Fraction, "ordinary crouch jump Y subspeed");
-    AssertEqual(SamusVerticalDirection.Up, crouchJump.Kinematics.YDirection, "ordinary crouch jump rises");
+    AssertEqual(4, crouchJump.Kinematics.VerticalVelocity.Speed.Whole, "ordinary crouch jump Y speed");
+    AssertEqual(0xe000, crouchJump.Kinematics.VerticalVelocity.Speed.Fraction, "ordinary crouch jump Y subspeed");
+    AssertEqual(SamusVerticalDirection.Up, crouchJump.Kinematics.VerticalVelocity.Direction, "ordinary crouch jump rises");
 
     var crouchJumpLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
@@ -497,7 +497,7 @@ tunnel, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1, roomObjects
         "low tunnel rejects crouch-jump radius expansion");
     AssertEqual(SamusPoseId.CrouchingRightPose, tunnelJump.Pose, "boxed aimed jump falls back to ordinary crouch");
     AssertEqual(16, tunnelJump.Kinematics.Radius.Y, "boxed aimed jump retains crouch radius");
-    AssertEqual(0, tunnelJump.Kinematics.YSpeed.Whole, "boxed aimed jump does not call Make_Samus_Jump");
+    AssertEqual(0, tunnelJump.Kinematics.VerticalVelocity.Speed.Whole, "boxed aimed jump does not call Make_Samus_Jump");
 
     Console.WriteLine("  Samus posture: animated/direct exits, crouch jumps, radii, movement, FD targets, and low-ceiling fallback agree.");
 }

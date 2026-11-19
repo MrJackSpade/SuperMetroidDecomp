@@ -85,7 +85,7 @@ public struct KraidPassBounds
     /// later projectile reaches above the bottom exactly when its top lies at or below <paramref name="reachRow"/> across
     /// the wrapping room space.
     /// </summary>
-    /// <param name="reachRow">The room row from which a later projectile reaches the mouth (<see cref="KraidMouthHitReach.RowAfter"/>).</param>
+    /// <param name="reachRow">The room row from which a later projectile reaches the mouth (<see cref="KraidMouthHitReach.HighestReachingRow"/>).</param>
     public void LeaveAfterMouthHit(int reachRow)
     {
         Bottom = CoordinateAxis.Wrap(reachRow + CoordinateAxis.LastNonNegative);

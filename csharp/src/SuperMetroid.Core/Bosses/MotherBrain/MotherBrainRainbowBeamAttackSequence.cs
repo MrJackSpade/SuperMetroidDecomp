@@ -17,13 +17,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [ArchitectureReview("back-reference", "Mother Brain's late fight (#2471): her encounter begins and owns it for the rest of the room once her phase-two health runs out, and its phases read and write that encounter in place (#2209), so the two share one lifetime.")]
 public sealed class MotherBrainRainbowBeamAttackSequence
 {
-    /// <summary>
-    /// Where the beam's explosions burst from Samus, whom each then follows, in the order they burst: the first beam explosion takes the
-    /// first, and the last is followed by the first again (#2258).
-    /// </summary>
-    internal static IReadOnlyList<Offset16<RoomPixels>> ExplosionOffsets { get; } =
-        [new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7), new(-8, -7)];
-
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
     /// <summary>The late fight's own state, with the walking and standing every late-fight phase shares.</summary>
@@ -155,7 +148,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         {
             // Her neck's recoil starts on her next third-phase update; any wait her body is in runs out on its next
             // step.
-            ThirdPhaseFight.Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil;
+            ThirdPhaseFight.Phase3NeckPhase = MotherBrainPhase3NeckPhase.StartHyperBeamRecoil;
             Encounter.PhaseTimer.LastFor(1);
         }
     }

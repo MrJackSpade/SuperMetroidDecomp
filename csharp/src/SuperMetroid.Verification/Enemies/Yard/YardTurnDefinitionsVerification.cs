@@ -19,18 +19,18 @@ internal static class YardTurnDefinitionsVerification
     {
         YardTurnDefinitionsRecord[] records =
         [
-            new YardTurnDefinitionsRecord(YardDirection.UpsideUpMovingLeft, false, 0xa3cce2),
-            new YardTurnDefinitionsRecord(YardDirection.UpsideLeftMovingDown, false, 0xa3ccea),
-            new YardTurnDefinitionsRecord(YardDirection.UpsideDownMovingRight, false, 0xa3ccf2),
-            new YardTurnDefinitionsRecord(YardDirection.UpsideRightMovingUp, false, 0xa3ccfa),
-            new YardTurnDefinitionsRecord(YardDirection.UpsideUpMovingRight, false, 0xa3cd02),
-            new YardTurnDefinitionsRecord(YardDirection.UpsideRightMovingDown, false, 0xa3cd0a),
-            new YardTurnDefinitionsRecord(YardDirection.UpsideDownMovingLeft, false, 0xa3cd12),
-            new YardTurnDefinitionsRecord(YardDirection.UpsideLeftMovingUp, false, 0xa3cd1a),
-            new YardTurnDefinitionsRecord(YardDirection.UpsideUpMovingLeft, true, 0xa3cd22),
-            new YardTurnDefinitionsRecord(YardDirection.UpsideDownMovingRight, true, 0xa3cd2a),
-            new YardTurnDefinitionsRecord(YardDirection.UpsideUpMovingRight, true, 0xa3cd32),
-            new YardTurnDefinitionsRecord(YardDirection.UpsideDownMovingLeft, true, 0xa3cd3a),
+            new YardTurnDefinitionsRecord(YardDirection.OnFloorMovingLeft, false, 0xa3cce2),
+            new YardTurnDefinitionsRecord(YardDirection.OnRightWallMovingDown, false, 0xa3ccea),
+            new YardTurnDefinitionsRecord(YardDirection.OnCeilingMovingRight, false, 0xa3ccf2),
+            new YardTurnDefinitionsRecord(YardDirection.OnLeftWallMovingUp, false, 0xa3ccfa),
+            new YardTurnDefinitionsRecord(YardDirection.OnFloorMovingRight, false, 0xa3cd02),
+            new YardTurnDefinitionsRecord(YardDirection.OnLeftWallMovingDown, false, 0xa3cd0a),
+            new YardTurnDefinitionsRecord(YardDirection.OnCeilingMovingLeft, false, 0xa3cd12),
+            new YardTurnDefinitionsRecord(YardDirection.OnRightWallMovingUp, false, 0xa3cd1a),
+            new YardTurnDefinitionsRecord(YardDirection.OnFloorMovingLeft, true, 0xa3cd22),
+            new YardTurnDefinitionsRecord(YardDirection.OnCeilingMovingRight, true, 0xa3cd2a),
+            new YardTurnDefinitionsRecord(YardDirection.OnFloorMovingRight, true, 0xa3cd32),
+            new YardTurnDefinitionsRecord(YardDirection.OnCeilingMovingLeft, true, 0xa3cd3a),
         ];
 
         foreach ((YardDirection movement, bool suppressed, int address) in records)
@@ -50,10 +50,10 @@ internal static class YardTurnDefinitionsVerification
         // The four crawls along a wall have no suppressed turn.
         foreach (YardDirection movement in new[]
         {
-            YardDirection.UpsideLeftMovingDown,
-            YardDirection.UpsideRightMovingUp,
-            YardDirection.UpsideRightMovingDown,
-            YardDirection.UpsideLeftMovingUp,
+            YardDirection.OnRightWallMovingDown,
+            YardDirection.OnLeftWallMovingUp,
+            YardDirection.OnLeftWallMovingDown,
+            YardDirection.OnRightWallMovingUp,
         })
         {
             AssertEqual(
@@ -102,7 +102,7 @@ internal static class YardTurnDefinitionsVerification
             var state = global::SuperMetroid.Core.PrivateState.With<YardEnemyState>(new YardEnemyState(YardMovement.HoldingStill)
             {
                 // A hiding animation is never a turn's result, so the assertion sees the turn's own choice.
-                Playback = new(YardAnimations.StartingWith(YardSegment.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation),
+                Playback = new(YardAnimations.StartingWith(YardSegment.HidingOnFloorMovingLeft), AnimationPlace.StartOfAnimation),
                 Movement = YardMovement.Crawling,
                 Crawl = movement,
                 CrawlingVelocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256)),

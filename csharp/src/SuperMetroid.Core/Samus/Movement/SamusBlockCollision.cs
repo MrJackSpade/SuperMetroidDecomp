@@ -38,7 +38,7 @@ public static class SamusBlockCollision
         // trigger it reaches, through an extension block too, wakes its owner during the wall-jump check.
         BlockMoveResult result = MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, probe, owner, pose, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         // Submerging sand writes these real motion values even through wall observation.
-        state.YSpeed = probe.YSpeed;
+        state.VerticalVelocity = state.VerticalVelocity.WithSpeed(probe.VerticalVelocity.Speed);
         state.YAcceleration = probe.YAcceleration;
 
         // A block hit (and square-slope clipping) writes Samus's real X fraction of a pixel even through the wall-jump probe. The
@@ -107,9 +107,7 @@ public static class SamusBlockCollision
                 // On enemy collision the movement skips block detection and moves Samus by the clipped whole distance
                 // alone. The accepted gap is never negative: the probe ignores an enemy Samus is already embedded in.
                 SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
-                acceptedDisplacement = entersLeft
-                    ? -clippedMagnitude
-                    : clippedMagnitude;
+                acceptedDisplacement = move.Displacement.Along(clippedMagnitude);
                 collided = true;
                 enemyCollision = probe;
             }
@@ -162,7 +160,7 @@ public static class SamusBlockCollision
                         acceptedDisplacement = SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(
                             block.Behavior,
                             acceptedDisplacement,
-                            state.YSpeed);
+                            state.VerticalVelocity.Speed);
                         break;
 
                     case RoomCollisionType.SolidBlock:
@@ -348,7 +346,8 @@ public static class SamusBlockCollision
         // Slope alignment only sets this latch; it does not clear a square-floor contact
         // published by the previous vertical pass. The vertical move consumes it before
         // the next terrain Y move of some distance clears it.
-        state.PositionAdjustedBySlope |= alignment.Adjusted;
+        if (alignment.Adjusted)
+            state.RestOnSlope();
 
         return new BlockMoveResult(
             acceptedDisplacement,
@@ -402,9 +401,7 @@ public static class SamusBlockCollision
                 // distinguish an enemy stop from an unobstructed terrain move. The accepted gap is never negative: the
                 // probe ignores an enemy Samus is already embedded in.
                 SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
-                acceptedDisplacement = acceptedDisplacement.IsNegative
-                    ? -clippedMagnitude
-                    : clippedMagnitude;
+                acceptedDisplacement = acceptedDisplacement.Along(clippedMagnitude);
                 collided = true;
                 enemyCollision = probe;
             }
@@ -414,7 +411,7 @@ public static class SamusBlockCollision
         {
             // Only a terrain move of some distance clears this latch. A solid-enemy
             // stop skips the terrain, and a zero movement does not clear it either.
-            state.PositionAdjustedBySlope = false;
+            state.LeaveSlope();
             VerticalTerrainScan scan = ScanVerticalTerrain(terrain, state, owner, pose, new VerticalTerrainProbe { Displacement = acceptedDisplacement, ScanLeftToRight = move.ScanLeftToRight, CanBreakBombBlocks = move.CanBreakBombBlocks, DoorBlocks = move.DoorBlocks, BlockReactionDirection = move.BlockReactionDirection });
             acceptedDisplacement = scan.AcceptedDisplacement;
             collided = scan.Collided;
@@ -702,7 +699,7 @@ public static class SamusBlockCollision
     /// <param name="state">A collision probe copy; its position receives the accepted distance.</param>
     /// <param name="owner">The Samus whose collision reactions act, or null for an ownerless probe.</param>
     /// <param name="pose">
-    /// The pose being installed, which the elevator pseudo-door's standing-pose gate tests: the game writes it to Samus's
+    /// The pose being installed, which the elevator ride's standing-pose gate tests: the game writes it to Samus's
     /// pose before the larger-radius check.
     /// </param>
     /// <param name="displacement">The distance to test, negative upward; zero tests the current bottom boundary.</param>
@@ -934,7 +931,7 @@ public static class SamusBlockCollision
         // A downward square-slope hit publishes support. Without this
         // latch, fast running probes farther than the eight-pixel floor thickness
         // on the next frame and can embed Samus below its surface.
-        if (!displacement.IsNegative) state.PositionAdjustedBySlope = true;
+        if (!displacement.IsNegative) state.RestOnSlope();
         return true;
     }
 
@@ -1034,7 +1031,7 @@ public static class SamusBlockCollision
 
         // Only the downward square-slope clip writes this flag. The no-speed vertical move consumes it to use
         // a one-pixel grounding probe instead of total-horizontal-speed-plus-one.
-        state.PositionAdjustedBySlope = true;
+        state.RestOnSlope();
         return SignedSixteenSixteen.FromWholePixels(downWhole);
     }
 
@@ -1059,11 +1056,11 @@ public static class SamusBlockCollision
     public static void EjectAfterGrapple(RoomLevelData level, SamusKinematicsState state)
     {
         // The overlap probes above and below Samus only measure distances; the check moves her at most by the
-        // overlap above. These probes do not trigger room objects, doors, damage, or enemies.
-        int up = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down);
-        int down = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Up);
-        if (up == 0 || down != 0) return;
-        state.Position -= new Offset16<RoomPixels>(0, up);
+        // overlap below. These probes do not trigger room objects, doors, damage, or enemies.
+        int below = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down);
+        int above = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Up);
+        if (below == 0 || above != 0) return;
+        state.Position -= new Offset16<RoomPixels>(0, below);
         // A body whose radius reaches a block's height may overlap two rows. The check repeats once, not until clear.
         if (state.Radius.Y >= RoomGridConversions.BlockPixels)
             state.Position = state.Position.WithWholeY(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down));

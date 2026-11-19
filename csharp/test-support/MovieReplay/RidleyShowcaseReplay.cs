@@ -342,7 +342,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     SamusAtmosphericEffectWordCodec.SprayWait(W(NativeSnapshotMemory.AtmosphericFrameAndType + sprayPlace * 2),
                         W(NativeSnapshotMemory.AtmosphericTimer + sprayPlace * 2)));
                 Check("Liquid animation buffer", checked((ushort)samus.ExtraAnimationDelay), NativeSnapshotMemory.AnimationFrameBuffer);
-                Check("LiquidPhysicsType", (ushort)samus.LiquidPhysics.LiquidPhysicsType, NativeSnapshotMemory.LiquidPhysicsType);
+                Check("LiquidPhysicsType", (ushort)samus.LiquidPhysics.MediumLastEntered, NativeSnapshotMemory.LiquidPhysicsType);
                 Check("PeriodicSubDamage", checked((ushort)samus.PeriodicDamage.Pending.Fraction), NativeSnapshotMemory.PeriodicSubDamage);
                 Check("PeriodicDamage", checked((ushort)samus.PeriodicDamage.Pending.Whole), NativeSnapshotMemory.PeriodicDamage);
                 // The recorded surface word is 65535 where the room has no lava or acid surface.
@@ -355,12 +355,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus Y fraction", samus.Kinematics.Position.Y.Fraction, NativeSnapshotMemory.YFraction);
             Check("Samus pose", SamusPoseNumbers.Number(samus.Pose), NativeSnapshotMemory.Pose);
             Check("PreviousDrawHeldInput", GameplayActionWordCodec.ToJoypadWord(samus.InputSnapshot.PreviousDrawHeldInput), NativeSnapshotMemory.SamusFilteredHeld);
-            Check("PreviousDrawNewInput", GameplayActionWordCodec.ToJoypadWord(samus.InputSnapshot.PreviousDrawNewInput), NativeSnapshotMemory.SamusFilteredNew);
+            Check("PreviousDrawNewInput", GameplayActionWordCodec.ToJoypadWord(samus.InputSnapshot.PressesSeenLastUpdate), NativeSnapshotMemory.SamusFilteredNew);
             Check("AutoJumpTimer", samus.InputSnapshot.AutoJumpTimer, NativeSnapshotMemory.SamusAutoJumpTimer);
             Check("PreviousHealthForHurtCheck", SamusCountWords.Encode(samus.PreviousHealthForHurtCheck), NativeSnapshotMemory.SamusPreviousHealthForFlash);
             VerificationAssertions.AssertTrue(!samus.InputSnapshot.ShinesparkPoseInputLocked && !samus.InputSnapshot.CrystalFlashPoseInputLocked,
                 "Movie now uses a special pose-input lock; map its handler explicitly");
-            Check("Samus input handler", samus.InputSnapshot.AutoJumpInputPending
+            Check("Samus input handler", samus.InputSnapshot.AutoJump.IsInstalled
                 ? NativeSnapshotMemory.SamusAutoJumpInputHandler : NativeSnapshotMemory.SamusNormalInputHandler,
                 NativeSnapshotMemory.SamusInputHandler);
 
@@ -375,9 +375,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus base fraction", samus.HorizontalSpeed.BaseSpeed.Fraction, NativeSnapshotMemory.BaseFraction);
             Check("Samus extra speed", samus.HorizontalSpeed.ExtraRunSpeed.Whole, NativeSnapshotMemory.ExtraSpeed);
             Check("Samus extra fraction", samus.HorizontalSpeed.ExtraRunSpeed.Fraction, NativeSnapshotMemory.ExtraFraction);
-            Check("Samus vertical speed", samus.Kinematics.YSpeed.Whole, NativeSnapshotMemory.VerticalSpeed);
-            Check("Samus vertical fraction", samus.Kinematics.YSpeed.Fraction, NativeSnapshotMemory.VerticalFraction);
-            Check("Samus vertical direction", SamusVerticalDirectionCodec.ToNative(samus.Kinematics.YDirection), NativeSnapshotMemory.VerticalDirection);
+            Check("Samus vertical speed", samus.Kinematics.VerticalVelocity.Speed.Whole, NativeSnapshotMemory.VerticalSpeed);
+            Check("Samus vertical fraction", samus.Kinematics.VerticalVelocity.Speed.Fraction, NativeSnapshotMemory.VerticalFraction);
+            Check("Samus vertical direction", SamusVerticalDirectionCodec.ToNative(samus.Kinematics.VerticalVelocity.Direction), NativeSnapshotMemory.VerticalDirection);
             Check("Samus SamusXRadius", samus.Kinematics.Radius.X, NativeSnapshotMemory.SamusXRadius);
             Check("Samus SamusYRadius", samus.Kinematics.Radius.Y, NativeSnapshotMemory.SamusYRadius);
             Check("Samus Gravity", samus.Kinematics.YAcceleration.Whole, NativeSnapshotMemory.Gravity);
@@ -579,7 +579,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     Check("Ridley AI timer", unchecked((ushort)timer), NativeSnapshotMemory.RidleyFunctionTimer);
                 Check("Ridley TailFunctionIndex", RidleyNativeWords.TailActions.Word(ridleyState.Tail.Action), NativeSnapshotMemory.RidleyTailFunctionIndex);
                 Check("Ridley IdleTailWhipEnabled", ridleyState.Tail.IdleWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
-                Check("Ridley TailWhipRequest", ridleyState.Tail.WhipRequested ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);
+                Check("Ridley TailWhipRequest", ridleyState.Tail.Whip.IsWaiting ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);
                 Check("Ridley TailExtensionSpeed", ridleyState.Tail.ExtensionSpeed.RawValue, NativeSnapshotMemory.RidleyTailExtensionSpeed);
                 Check("Ridley TailAngleDelta", checked((ushort)ridleyState.Tail.SwingStep.Steps), NativeSnapshotMemory.RidleyTailAngleDelta);
                 Check("Ridley TailMinimumClockwiseAngle", RidleyTailNativeWords.Angle(global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyTailState, global::SuperMetroid.Core.Bosses.Ridley.RidleyTailAngle>(ridleyState.Tail, "MinimumClockwiseAngle")), NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);
@@ -676,7 +676,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     // The cartridge keeps a pending projectile hit in the loop counter's storage; a pending hit is
                     // compared as the family the recorded word decodes to. A grey cap counts no loops of its own, its
                     // repeated flashes being steps of its sequence, so the counter is not compared otherwise.
-                    if (typedDoor.PendingHit is { } pendingHit)
+                    if (typedDoor.AwaitingStrike is { } pendingHit)
                     {
                         SamusProjectileFamily recordedHit = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(W(NativeSnapshotMemory.RoomObjectLoopTimer + offset)).Family;
                         if (recordedHit != pendingHit.Family)
@@ -749,11 +749,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     W(NativeSnapshotMemory.PowerBombExplosionStatus) == 0,
                     "Movie now activates a power bomb; add its full live-state mapping");
                 Check("BombSpreadChargeTimeoutCounter", checked((ushort)samus.BombSpreadCharge.Age), NativeSnapshotMemory.BombSpreadChargeTimeout);
-                if (samus.PendingTransitionShot != SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection)))
-                    mismatches.Add($"PendingTransitionShot: native={W(NativeSnapshotMemory.PoseShotDirection):X4} port={samus.PendingTransitionShot}");
+                if (samus.TransitionShot.Handed != SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection)))
+                    mismatches.Add($"PendingTransitionShot: native={W(NativeSnapshotMemory.PoseShotDirection):X4} port={samus.TransitionShot.Handed}");
                 Check("HyperBeam", SamusSnapshotWords.EncodeHyperBeam(samus.HyperBeamEnabled), NativeSnapshotMemory.HyperBeam);
-                if (samus.ResumeChargingBeamSoundPending != SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound)))
-                    mismatches.Add($"ResumeChargingBeamSound: native={W(NativeSnapshotMemory.ResumeChargeSound):X4} port={samus.ResumeChargingBeamSoundPending}");
+                if (samus.ChargingSound.IsArmed != SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound)))
+                    mismatches.Add($"ResumeChargingBeamSound: native={W(NativeSnapshotMemory.ResumeChargeSound):X4} port={samus.ChargingSound.IsArmed}");
 
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
@@ -1036,7 +1036,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 RoomLevelData level = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active room collision data.");
                 Console.Error.WriteLine($"Pose history: port={(int)SamusPoseNumbers.Number(samus.PoseHistory.PreviousPose):X4}/{samus.PoseHistory.PreviousMovement}/{samus.PoseHistory.MovementBeforePrevious}, native={W(NativeSnapshotMemory.PreviousPose):X4}/{W(NativeSnapshotMemory.PreviousDirection):X4}/{W(NativeSnapshotMemory.LastDifferentPose):X4}/{W(NativeSnapshotMemory.LastDifferentDirection):X4}");
                 Console.Error.WriteLine($"Liquid diagnostic: Y={samus.Position.Y.Whole:X4}, surface={samus.LiquidPhysics.LavaAcidSurfaceY?.ToString("X4", System.Globalization.CultureInfo.InvariantCulture) ?? "none"}, pose={(int)SamusPoseNumbers.Number(samus.Pose):X2}, radius={samus.Kinematics.Radius.Y}");
-                Console.Error.WriteLine($"Shot diagnostic: locked={samus.Control.InputLocked}, HUD={samus.SelectedHudItem}, charge={runtime.Projectiles.Charge.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer}, held={runtime.PlayerActions.Current:X}, new={runtime.PlayerActions.NewlyPressed:X}");
+                Console.Error.WriteLine($"Shot diagnostic: locked={samus.Control.InputLocked}, HUD={samus.SelectedHudItem}, charge={runtime.Projectiles.Charge.UpdatesHeld}, cooldown={runtime.BombProjectiles.CooldownTimer}, held={runtime.PlayerActions.Current:X}, new={runtime.PlayerActions.NewlyPressed:X}");
                 Console.Error.WriteLine($"Room width={level.Size.X}, Samus radius={samus.Kinematics.Radius.X}/{samus.Kinematics.Radius.Y}, speed={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4}+{samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4}");
                 for (int block = 0; block < level.Size.X * level.Size.Y; block++)
                 {

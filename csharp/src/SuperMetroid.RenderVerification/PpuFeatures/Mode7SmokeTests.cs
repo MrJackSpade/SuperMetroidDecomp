@@ -67,9 +67,9 @@ internal static class Mode7SmokeTests
         // pixels transparent, as Ceres rooms show them, or repeating.
         FloorMemory floorMemory = AffineFloorConstants.Split(vram);
         var ceres = new RoomFloor(AffineFloorConstants.CeresRoom(floorMemory.Map, floorMemory.Pixels, palette));
-        ceres.Show(CeresFloorAnimationFrame.ElevatorDark);
-        ceres.Show(CeresFloorAnimationFrame.WingsLowered);
-        ceres.Show(CeresFloorAnimationFrame.BabyHorizontal);
+        ceres.Show(CeresFloorActorPicture.ElevatorDark);
+        ceres.Show(CeresFloorActorPicture.WingsLowered);
+        ceres.Show(CeresFloorActorPicture.BabyHorizontal);
         foreach (AffineFloor shown in new[] { map, ceres.Publish() })
         foreach (int hud in new[] { 0, 32 })
         foreach (double scale in new[] { 1, 0.5, 2 })

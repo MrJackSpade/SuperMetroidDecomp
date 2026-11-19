@@ -275,7 +275,7 @@ public enum EnemyDefinitionId
     /// <remarks>The dead Skree, with its three corpse variants sharing the corpse-rotting engine.</remarks>
     CorpseSkree,
     /// <summary>The Baby Metroid in Tourian, which drains Samus and then leaves her.</summary>
-    /// <remarks>The Shitroid actor.</remarks>
+    /// <remarks>The Baby Metroid actor.</remarks>
     BabyMetroid,
     /// <summary>Bomb Torizo, the Chozo statue that wakes in Crateria.</summary>
     BombTorizo,

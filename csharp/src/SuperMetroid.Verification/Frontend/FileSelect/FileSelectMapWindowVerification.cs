@@ -124,7 +124,7 @@ internal static class FileSelectMapWindowVerification
         var graphics = new FileSelectRoomMapGraphics(new SuperMetroid.Core.Progression.SharedGameState(new SharedRandom()),
             SuperMetroid.Core.Progression.AreaId.Maridia, screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
         RgbaPixel[] frameOnly = graphics.RenderFrameOnly().ToArray();
-        AssertTrue(frameOnly.Length > 0 && graphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly).Layers is [PicturedPlaneLayer],
+        AssertTrue(frameOnly.Length > 0 && graphics.ComposeScene(content: RoomMapContent.FrameOnly).Layers is [PicturedPlaneLayer],
             "transition frame shows only the frame's picture, never the room map's cells");
     }
 

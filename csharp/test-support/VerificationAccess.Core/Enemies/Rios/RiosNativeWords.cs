@@ -8,24 +8,24 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// </summary>
 internal static class RiosNativeWords
 {
-    /// <summary>The routine word naming each <see cref="LowerNorfairRioAction"/>.</summary>
-    internal static readonly NativeWordIdentities<LowerNorfairRioAction> LowerNorfairRioActions = new(new Dictionary<LowerNorfairRioAction, ushort>
+    /// <summary>The routine word naming each <see cref="HoltzAction"/>.</summary>
+    internal static readonly NativeWordIdentities<HoltzAction> HoltzActions = new(new Dictionary<HoltzAction, ushort>
     {
-        [LowerNorfairRioAction.WaitForAttackOpportunity] = 0xc771,
-        [LowerNorfairRioAction.WaitForTakeoffAnimation] = 0xc7bb,
-        [LowerNorfairRioAction.Dive] = 0xc7d6,
-        [LowerNorfairRioAction.ReturnToPerch] = 0xc82d,
-        [LowerNorfairRioAction.WaitForLandingAnimation] = 0xc888,
+        [HoltzAction.WaitForAttackOpportunity] = 0xc771,
+        [HoltzAction.WaitForTakeoffAnimation] = 0xc7bb,
+        [HoltzAction.Dive] = 0xc7d6,
+        [HoltzAction.ReturnToPerch] = 0xc82d,
+        [HoltzAction.WaitForLandingAnimation] = 0xc888,
     });
 
-    /// <summary>The routine word naming each <see cref="NorfairRioAction"/>.</summary>
-    internal static readonly NativeWordIdentities<NorfairRioAction> NorfairRioActions = new(new Dictionary<NorfairRioAction, ushort>
+    /// <summary>The routine word naming each <see cref="GerutaAction"/>.</summary>
+    internal static readonly NativeWordIdentities<GerutaAction> GerutaActions = new(new Dictionary<GerutaAction, ushort>
     {
-        [NorfairRioAction.WaitForAttackOpportunity] = 0xc2e7,
-        [NorfairRioAction.WaitForTakeoffAnimation] = 0xc33f,
-        [NorfairRioAction.Dive] = 0xc361,
-        [NorfairRioAction.ReturnToPerch] = 0xc3b1,
-        [NorfairRioAction.FinishLanding] = 0xc406,
+        [GerutaAction.WaitForAttackOpportunity] = 0xc2e7,
+        [GerutaAction.WaitForTakeoffAnimation] = 0xc33f,
+        [GerutaAction.Dive] = 0xc361,
+        [GerutaAction.ReturnToPerch] = 0xc3b1,
+        [GerutaAction.FinishLanding] = 0xc406,
     });
 
     /// <summary>The routine word naming each <see cref="RioAction"/>.</summary>

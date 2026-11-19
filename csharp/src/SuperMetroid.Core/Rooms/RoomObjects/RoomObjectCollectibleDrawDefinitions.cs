@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class RoomObjectCollectibleDrawDefinitions
 {
-    /// <summary>The six kinds of collectible draw, in the order their frames are published; each kind's blocks collide alike.</summary>
+    /// <summary>The six kinds of collectible draw; each kind's blocks collide alike.</summary>
     internal enum DrawGroup
     {
         /// <summary>Air block after an item is removed.</summary>

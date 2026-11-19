@@ -5,6 +5,12 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// <summary>What music and sound effects share on the DSP: instruments, pitch and volume writes, the key-on, key-off, noise and echo flags, and memory reads.</summary>
 internal sealed class SpcVoices
 {
+    /// <summary>
+    /// The stereo sides in the order the driver writes a voice's volume (#2567): the left from the pan, then the right from
+    /// the pan mirrored.
+    /// </summary>
+    private static readonly DspStereoSide[] PanSides = [DspStereoSide.Left, DspStereoSide.Right];
+
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
     private readonly SpcRam ram;
     /// <summary>DSP renderer reading BRR and echo data from this driver's APU RAM.</summary>
@@ -25,7 +31,7 @@ internal sealed class SpcVoices
         if ((channelOnMask & currentChannelBit) != 0)
             return;
 
-        for (int side = 0; side < 2; side++)
+        foreach (DspStereoSide side in PanSides)
         {
             int panIndex = SpcFixedPoint.Whole(volume);
             int baseVolume;
@@ -48,12 +54,20 @@ internal sealed class SpcVoices
             int delta = unchecked((byte)(nextVolume - baseVolume));
             int interpolated = unchecked((byte)(baseVolume + SpcFixedPoint.Scale(delta, SpcFixedPoint.Fraction(volume))));
             int final = (byte)SpcFixedPoint.Scale(interpolated, channel.FinalVolume);
-            if (((channel.PanFlags << side) & 0x80) != 0) // cartridge-encoding: allow(BitMask) - phase-inversion bit
+            if ((channel.PanFlags & PhaseInversionBit(side)) != 0)
                 final = unchecked((byte)-final);
-            Dsp.Voice(channel.Index).WriteVolume((DspStereoSide)side, unchecked((sbyte)final));
+            Dsp.Voice(channel.Index).WriteVolume(side, unchecked((sbyte)final));
             volume = unchecked((ushort)(SpcDriverDefinitions.Music.FullyLeftPan - volume));
         }
     }
+
+    /// <summary>The pan flag that inverts <paramref name="side"/>'s phase: bit 7 the left's, bit 6 the right's.</summary>
+    private static int PhaseInversionBit(DspStereoSide side) => side switch
+    {
+        DspStereoSide.Left => 0x80, // cartridge-encoding: allow(BitMask) - left phase-inversion bit
+        DspStereoSide.Right => 0x40, // cartridge-encoding: allow(BitMask) - right phase-inversion bit
+        _ => throw new ArgumentOutOfRangeException(nameof(side), side, "Undefined stereo side."),
+    };
 
     /// <summary>Converts a fractional note through the twelve-semitone table and instrument pitch base into DSP frequency.</summary>
     internal void WritePitchInner(ManagedSpcMusicChannel channel, int pitch)

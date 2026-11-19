@@ -29,6 +29,28 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 internal static class WrittenPictureSheetComposer
 {
+    /// <summary>The tile-word writers in the order their pictures are composed and shaded (#2567): Zebes's escape text, then Ceres's.</summary>
+    internal static WrittenOrder<TileWordWriter> WriterOrder { get; } = new(Ensure.EveryMemberOnce<TileWordWriter>(
+        [TileWordWriter.ZebesEscapeText, TileWordWriter.CeresEscapeText]));
+
+    /// <summary>The room effects in the order the overlay sheet packs their pictures (#2567).</summary>
+    private static readonly WrittenOrder<RoomFxType> EffectOrder = new(Ensure.EveryMemberOnce<RoomFxType>(
+    [
+        RoomFxType.None,
+        RoomFxType.Lava,
+        RoomFxType.Acid,
+        RoomFxType.Water,
+        RoomFxType.Spores,
+        RoomFxType.Rain,
+        RoomFxType.Fog,
+        RoomFxType.ScrollingSky,
+        RoomFxType.Fireflea,
+        RoomFxType.TourianEntranceStatue,
+        RoomFxType.CeresRidley,
+        RoomFxType.CeresElevator,
+        RoomFxType.CeresHaze,
+    ]));
+
     /// <summary>Tiles across the tilemaps pictures are written into.</summary>
     private const int SheetTiles = TilemapScreenGeometry.WidthInTiles;
 
@@ -52,7 +74,7 @@ internal static class WrittenPictureSheetComposer
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
-        TileWordWriter[] ordered = [.. Ensure.NotNull(writers).Order()];
+        TileWordWriter[] ordered = [.. Ensure.NotNull(writers).OrderBy(WriterOrder.PlaceOf)];
         List<WrittenSubject> subjects = [.. ordered.SelectMany(writer => Subjects(inputs, writer))];
         // Pictures written over Ceres Ridley's arena show only what the arena loads under its blocks and Ridley's looks place
         // there, never the tileset's (#1791).
@@ -109,7 +131,7 @@ internal static class WrittenPictureSheetComposer
         // The game shows nothing where no effect's artwork lies (#1514), so the cell the effect area is cleared to is not
         // pictured. Each effect's transfer is cut into the pictures its overlay shows (#1706); a picture whose every row
         // repeats across is pictured as one period, which the overlay repeats at the picture's width (#1675).
-        List<WrittenSubject> subjects = [.. uploads.FxTypes.Order().SelectMany(type => EffectSubjects(type,
+        List<WrittenSubject> subjects = [.. uploads.FxTypes.OrderBy(EffectOrder.PlaceOf).SelectMany(type => EffectSubjects(type,
                 BackgroundTileWords.ToWords(inputs.Maps.RoomFxPages.Resolve(type).Span)))];
         const WrittenPictureLayer layer = WrittenPictureLayer.FxOverlay;
         ComposedPictures composed = Compose(inputs, tileset, WrittenPictureSheet.NameOf(layer, tileset), SpriteImageColours.TwoBppBackground,

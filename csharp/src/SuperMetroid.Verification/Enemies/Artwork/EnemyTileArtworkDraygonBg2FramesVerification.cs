@@ -228,7 +228,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.CollidesByFrameHitboxes = true;
         if (newInstructionFrame)
-            place.AnimationClock.ShowsNewFrame = true;
+            SuperMetroid.Core.PrivateState.Set(place.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);
         place.SpritemapPointer = pointer;
         place.Position = place.Position.WithWhole(new(0x0080, 0x0080));
         enemies.Drawing.DrawAsOam(new OamBuffer(), new(0, 0));

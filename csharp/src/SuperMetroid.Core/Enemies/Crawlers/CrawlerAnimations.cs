@@ -15,69 +15,69 @@ internal static class CrawlerAnimations
     internal static AnimationSegments<CrawlerSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<CrawlerSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.SciserUpsideRight] =
+        [P.SciserOnLeftWall] =
         [
-            Show(EnemyFrameId.SciserUpsideRightLegsTucked, 8),
-            Show(EnemyFrameId.SciserUpsideRightLegsMid, 8),
-            Show(EnemyFrameId.SciserUpsideRightLegsOut, 8),
-            Show(EnemyFrameId.SciserUpsideRightLegsMid, 8),
+            Show(EnemyFrameId.SciserOnLeftWallLegsTucked, 8),
+            Show(EnemyFrameId.SciserOnLeftWallLegsMid, 8),
+            Show(EnemyFrameId.SciserOnLeftWallLegsOut, 8),
+            Show(EnemyFrameId.SciserOnLeftWallLegsMid, 8),
         ],
-        [P.SciserUpsideLeft] =
+        [P.SciserOnRightWall] =
         [
-            Show(EnemyFrameId.SciserUpsideLeftLegsTucked, 8),
-            Show(EnemyFrameId.SciserUpsideLeftLegsMid, 8),
-            Show(EnemyFrameId.SciserUpsideLeftLegsOut, 8),
-            Show(EnemyFrameId.SciserUpsideLeftLegsMid, 8),
+            Show(EnemyFrameId.SciserOnRightWallLegsTucked, 8),
+            Show(EnemyFrameId.SciserOnRightWallLegsMid, 8),
+            Show(EnemyFrameId.SciserOnRightWallLegsOut, 8),
+            Show(EnemyFrameId.SciserOnRightWallLegsMid, 8),
         ],
-        [P.SciserUpsideDown] =
+        [P.SciserOnCeiling] =
         [
-            Show(EnemyFrameId.SciserUpsideDownLegsTucked, 8),
-            Show(EnemyFrameId.SciserUpsideDownLegsMid, 8),
-            Show(EnemyFrameId.SciserUpsideDownLegsOut, 8),
-            Show(EnemyFrameId.SciserUpsideDownLegsMid, 8),
+            Show(EnemyFrameId.SciserOnCeilingLegsTucked, 8),
+            Show(EnemyFrameId.SciserOnCeilingLegsMid, 8),
+            Show(EnemyFrameId.SciserOnCeilingLegsOut, 8),
+            Show(EnemyFrameId.SciserOnCeilingLegsMid, 8),
         ],
-        [P.SciserUpsideUp] =
+        [P.SciserOnFloor] =
         [
-            Show(EnemyFrameId.SciserUpsideUpLegsTucked, 8),
-            Show(EnemyFrameId.SciserUpsideUpLegsMid, 8),
-            Show(EnemyFrameId.SciserUpsideUpLegsOut, 8),
-            Show(EnemyFrameId.SciserUpsideUpLegsMid, 8),
+            Show(EnemyFrameId.SciserOnFloorLegsTucked, 8),
+            Show(EnemyFrameId.SciserOnFloorLegsMid, 8),
+            Show(EnemyFrameId.SciserOnFloorLegsOut, 8),
+            Show(EnemyFrameId.SciserOnFloorLegsMid, 8),
         ],
-        [P.ZeroUpsideRight] =
+        [P.ZeroOnLeftWall] =
         [
-            Show(EnemyFrameId.ZeroUpsideRightContracted, 4),
-            Show(EnemyFrameId.ZeroUpsideRightStretching, 4),
-            Show(EnemyFrameId.ZeroUpsideRightStretched, 4),
-            Show(EnemyFrameId.ZeroUpsideRightFullyStretched, 4),
-            Show(EnemyFrameId.ZeroUpsideRightStretched, 4),
-            Show(EnemyFrameId.ZeroUpsideRightStretching, 4),
+            Show(EnemyFrameId.ZeroOnLeftWallContracted, 4),
+            Show(EnemyFrameId.ZeroOnLeftWallStretching, 4),
+            Show(EnemyFrameId.ZeroOnLeftWallStretched, 4),
+            Show(EnemyFrameId.ZeroOnLeftWallFullyStretched, 4),
+            Show(EnemyFrameId.ZeroOnLeftWallStretched, 4),
+            Show(EnemyFrameId.ZeroOnLeftWallStretching, 4),
         ],
-        [P.ZeroUpsideLeft] =
+        [P.ZeroOnRightWall] =
         [
-            Show(EnemyFrameId.ZeroUpsideLeftContracted, 4),
-            Show(EnemyFrameId.ZeroUpsideLeftStretching, 4),
-            Show(EnemyFrameId.ZeroUpsideLeftStretched, 4),
-            Show(EnemyFrameId.ZeroUpsideLeftFullyStretched, 4),
-            Show(EnemyFrameId.ZeroUpsideLeftStretched, 4),
-            Show(EnemyFrameId.ZeroUpsideLeftStretching, 4),
+            Show(EnemyFrameId.ZeroOnRightWallContracted, 4),
+            Show(EnemyFrameId.ZeroOnRightWallStretching, 4),
+            Show(EnemyFrameId.ZeroOnRightWallStretched, 4),
+            Show(EnemyFrameId.ZeroOnRightWallFullyStretched, 4),
+            Show(EnemyFrameId.ZeroOnRightWallStretched, 4),
+            Show(EnemyFrameId.ZeroOnRightWallStretching, 4),
         ],
-        [P.ZeroUpsideDown] =
+        [P.ZeroOnCeiling] =
         [
-            Show(EnemyFrameId.ZeroUpsideDownContracted, 4),
-            Show(EnemyFrameId.ZeroUpsideDownStretching, 4),
-            Show(EnemyFrameId.ZeroUpsideDownStretched, 4),
-            Show(EnemyFrameId.ZeroUpsideDownFullyStretched, 4),
-            Show(EnemyFrameId.ZeroUpsideDownStretched, 4),
-            Show(EnemyFrameId.ZeroUpsideDownStretching, 4),
+            Show(EnemyFrameId.ZeroOnCeilingContracted, 4),
+            Show(EnemyFrameId.ZeroOnCeilingStretching, 4),
+            Show(EnemyFrameId.ZeroOnCeilingStretched, 4),
+            Show(EnemyFrameId.ZeroOnCeilingFullyStretched, 4),
+            Show(EnemyFrameId.ZeroOnCeilingStretched, 4),
+            Show(EnemyFrameId.ZeroOnCeilingStretching, 4),
         ],
-        [P.ZeroUpsideUp] =
+        [P.ZeroOnFloor] =
         [
-            Show(EnemyFrameId.ZeroUpsideUpContracted, 4),
-            Show(EnemyFrameId.ZeroUpsideUpStretching, 4),
-            Show(EnemyFrameId.ZeroUpsideUpStretched, 4),
-            Show(EnemyFrameId.ZeroUpsideUpFullyStretched, 4),
-            Show(EnemyFrameId.ZeroUpsideUpStretched, 4),
-            Show(EnemyFrameId.ZeroUpsideUpStretching, 4),
+            Show(EnemyFrameId.ZeroOnFloorContracted, 4),
+            Show(EnemyFrameId.ZeroOnFloorStretching, 4),
+            Show(EnemyFrameId.ZeroOnFloorStretched, 4),
+            Show(EnemyFrameId.ZeroOnFloorFullyStretched, 4),
+            Show(EnemyFrameId.ZeroOnFloorStretched, 4),
+            Show(EnemyFrameId.ZeroOnFloorStretching, 4),
         ],
         [P.ViolaIdle] =
         [
@@ -96,56 +96,56 @@ internal static class CrawlerAnimations
             Show(EnemyFrameId.ViolaFaceForming, 10),
             Show(EnemyFrameId.ViolaFaceFaint, 10),
         ],
-        [P.SpinyCrawlerUpsideRight] =
+        [P.SpinyCrawlerOnLeftWall] =
         [
-            Show(EnemyFrameId.SpinyCrawlerUpsideRightSpinesTurned0, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideRightSpinesTurned12, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideRightSpinesTurned24, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideRightSpinesTurned36, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideRightSpinesTurned48, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnLeftWallSpinesTurned0, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnLeftWallSpinesTurned12, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnLeftWallSpinesTurned24, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnLeftWallSpinesTurned36, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnLeftWallSpinesTurned48, 3),
         ],
-        [P.SpinyCrawlerUpsideLeft] =
+        [P.SpinyCrawlerOnRightWall] =
         [
-            Show(EnemyFrameId.SpinyCrawlerUpsideLeftSpinesTurned0, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideLeftSpinesTurned12, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideLeftSpinesTurned24, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideLeftSpinesTurned36, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideLeftSpinesTurned48, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnRightWallSpinesTurned0, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnRightWallSpinesTurned12, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnRightWallSpinesTurned24, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnRightWallSpinesTurned36, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnRightWallSpinesTurned48, 3),
         ],
-        [P.SpinyCrawlerUpsideDown] =
+        [P.SpinyCrawlerOnCeiling] =
         [
-            Show(EnemyFrameId.SpinyCrawlerUpsideDownSpinesTurned0, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideDownSpinesTurned12, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideDownSpinesTurned24, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideDownSpinesTurned36, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideDownSpinesTurned48, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnCeilingSpinesTurned0, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnCeilingSpinesTurned12, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnCeilingSpinesTurned24, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnCeilingSpinesTurned36, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnCeilingSpinesTurned48, 3),
         ],
-        [P.SpinyCrawlerUpsideUp] =
+        [P.SpinyCrawlerOnFloor] =
         [
-            Show(EnemyFrameId.SpinyCrawlerUpsideUpSpinesTurned0, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideUpSpinesTurned12, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideUpSpinesTurned24, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideUpSpinesTurned36, 3),
-            Show(EnemyFrameId.SpinyCrawlerUpsideUpSpinesTurned48, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnFloorSpinesTurned0, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnFloorSpinesTurned12, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnFloorSpinesTurned24, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnFloorSpinesTurned36, 3),
+            Show(EnemyFrameId.SpinyCrawlerOnFloorSpinesTurned48, 3),
         ],
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     private static Dictionary<CrawlerSegment, Animation<CrawlerSegment>> StartingAt { get; } = new Dictionary<CrawlerSegment, Animation<CrawlerSegment>>
     {
-        [P.SciserUpsideRight] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserUpsideRight)]),
-        [P.SciserUpsideLeft] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserUpsideLeft)]),
-        [P.SciserUpsideDown] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserUpsideDown)]),
-        [P.SciserUpsideUp] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserUpsideUp)]),
-        [P.ZeroUpsideRight] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroUpsideRight)]),
-        [P.ZeroUpsideLeft] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroUpsideLeft)]),
-        [P.ZeroUpsideDown] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroUpsideDown)]),
-        [P.ZeroUpsideUp] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroUpsideUp)]),
+        [P.SciserOnLeftWall] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserOnLeftWall)]),
+        [P.SciserOnRightWall] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserOnRightWall)]),
+        [P.SciserOnCeiling] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserOnCeiling)]),
+        [P.SciserOnFloor] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserOnFloor)]),
+        [P.ZeroOnLeftWall] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroOnLeftWall)]),
+        [P.ZeroOnRightWall] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroOnRightWall)]),
+        [P.ZeroOnCeiling] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroOnCeiling)]),
+        [P.ZeroOnFloor] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroOnFloor)]),
         [P.ViolaIdle] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ViolaIdle)]),
-        [P.SpinyCrawlerUpsideRight] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerUpsideRight)]),
-        [P.SpinyCrawlerUpsideLeft] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerUpsideLeft)]),
-        [P.SpinyCrawlerUpsideDown] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerUpsideDown)]),
-        [P.SpinyCrawlerUpsideUp] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerUpsideUp)]),
+        [P.SpinyCrawlerOnLeftWall] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerOnLeftWall)]),
+        [P.SpinyCrawlerOnRightWall] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerOnRightWall)]),
+        [P.SpinyCrawlerOnCeiling] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerOnCeiling)]),
+        [P.SpinyCrawlerOnFloor] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerOnFloor)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

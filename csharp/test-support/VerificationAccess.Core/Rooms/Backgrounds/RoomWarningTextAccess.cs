@@ -1,0 +1,79 @@
+using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Areas.Escape;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
+
+namespace SuperMetroid.Core.Rooms.Backgrounds;
+
+/// <summary>
+/// Reads an overlay's written pictures as the tile words the cartridge writes for them (#1466), so verification can compare
+/// them with the words the cartridge writes: each Ceres warning page as its installed words, each typed glyph as the tile
+/// its typewriter types. The overlay itself names only its pictures; the words are the import's knowledge.
+/// </summary>
+internal static class RoomWarningTextAccess
+{
+    /// <summary>The value a position the overlay leaves to the level data reads as.</summary>
+    private const int UnwrittenWord = -1;
+
+    /// <summary>The packed words of an overlay's pictures.</summary>
+    extension(RoomWarningText overlay)
+    {
+        /// <summary>
+        /// Each position's packed tilemap word, or -1 where nothing was written, the Ceres warning pages' words read from
+        /// <paramref name="pages"/>.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">A picture is one no writer writes, or a page is written with no pages given.</exception>
+        internal ImmutableArray<int> WordsIn(CeresEscapeOverlays? pages)
+        {
+            int[] words = [.. Enumerable.Repeat(UnwrittenWord, TwoScreenTilemapCells.Count)];
+            foreach (WrittenPicture written in overlay.Pictures)
+            {
+                (BackgroundTile[] tiles, int width) = TilesOf(written.Picture, pages);
+                for (int index = 0; index < tiles.Length; index++)
+                {
+                    Position16<PlanePixels> row = written.Corner + new Offset16<PlanePixels>(0, index / width * TilePixels);
+                    words[TwoScreenTilemapCells.IndexOf(row) + index % width] = tiles[index].PackedWord;
+                }
+            }
+            return [.. words];
+        }
+    }
+
+    /// <summary>The marker for a position an overlay leaves to the level data.</summary>
+    extension(RoomWarningText)
+    {
+        /// <summary>Marks a tilemap word the overlay leaves to the level data.</summary>
+        internal static int Unwritten => UnwrittenWord;
+    }
+
+    /// <summary>The height of a row of tile words, in pixels.</summary>
+    private const int TilePixels = 8;
+
+    /// <summary>The tiles the cartridge writes for <paramref name="picture"/>, row by row, and the tiles across each row.</summary>
+    private static (BackgroundTile[] Tiles, int Width) TilesOf(string picture, CeresEscapeOverlays? pages)
+    {
+        foreach (CeresEscapeWarningPicture page in CeresEscapeOverlayPages.All)
+        {
+            if (page.Picture != picture)
+                continue;
+            if (pages is null || !pages.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles))
+                throw new InvalidOperationException($"No installed Ceres warning page gives the words of {picture}.");
+            return (tiles.ToArray(), page.Width);
+        }
+        foreach (EscapeTypewriterMessageId program in new[] { EscapeTypewriterMessageId.Ceres, EscapeTypewriterMessageId.Zebes })
+        {
+            BackgroundTile tileBase = EscapeTypewriterGlyphTiles.TileBaseOf(program);
+            for (int character = 0; character <= byte.MaxValue; character++)
+            {
+                if (EscapeTypewriterGlyph.PictureOf(program, (char)character) == picture
+                    && EscapeTypewriterGlyphTiles.GlyphOf(character, tileBase) is { } glyph)
+                    return ([glyph], 1);
+            }
+        }
+        throw new InvalidOperationException($"No writer writes a picture named {picture}.");
+    }
+}

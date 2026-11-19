@@ -93,7 +93,7 @@ internal static class FrontendFloorSheetComposer
         for (int row = 0; row < baby.Rows; row++)
             map.AsSpan((baby.Top + row) * FloorSheetComposer.Side + baby.Left, baby.Columns).CopyTo(babyCells.AsSpan(row * baby.Columns));
         var pictures = new List<FloorSheetComposer.FloorPicture> { FloorSheetComposer.Whole(TitleFloors.FloorFrameName, map, floorPixels) };
-        foreach (TitleBabyPose pose in Enum.GetValues<TitleBabyPose>())
+        foreach (TitleBabyPose pose in Ensure.EveryMemberOnce(TitleFloorTileDefinitions.BabyPoses))
         {
             byte[] posePixels = [.. floorPixels];
             title.BabyCharacters.Slice(TitleFloorTileDefinitions.BabyPages[pose] * TitleFloorTileDefinitions.BabyCharacterPageByteCount,

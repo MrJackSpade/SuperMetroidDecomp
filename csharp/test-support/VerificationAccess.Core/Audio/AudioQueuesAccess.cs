@@ -22,7 +22,7 @@ internal static class AudioQueuesAccess
         /// next call fetches), the request the queue would hand it next, and whether the queue holds any request.
         /// </summary>
         internal string MusicQueueForVerification() =>
-            (self.PendingMusic is PendingMusicDispatch pending
+            (self.FetchedMusic is FetchedMusicRequest pending
                 ? $"wait={pending.Request}@{pending.Wait.UpdatesLeft:X}"
                 : "wait=fetch") +
             (self.Music.TryPeek(out QueuedMusic? next) ? $" next={next.Request}@{next.Delay.Updates:X}" : " next=none") +

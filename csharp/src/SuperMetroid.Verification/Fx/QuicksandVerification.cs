@@ -30,15 +30,14 @@ internal static class QuicksandVerification
             var body = samus.Kinematics;
             body.Position = body.Position.WithWhole(new(24, 24));
             body.Radius = body.Radius.WithY(8);
-            body.YDirection = direction;
-            body.YSpeed = body.YSpeed.WithWhole(5);
+            body.VerticalVelocity = SamusVerticalVelocityConstants.Of(body.VerticalVelocity.Speed.WithWhole(5), direction);
             samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(4, 0xffff);
             samus.HorizontalSpeed.HasRunningMomentum = true;
             SamusInsideBlockReactions.PrepareFrame(level, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
             AssertEqual(direction == SamusVerticalDirection.None ? (suit == 0 ? 0x12000 : 0x10000) : 0x20000,
                 body.ExtraDisplacement.Y.RawValue, "quicksand per-direction/suit displacement");
             AssertEqual(direction == SamusVerticalDirection.None ? 0u : direction == SamusVerticalDirection.Up ? (suit == 0 ? 0x28000u : 0x38000u) : 0x50000u,
-                body.YSpeed.RawValue, "quicksand speed cancellation and jump cap");
+                body.VerticalVelocity.Speed.RawValue, "quicksand speed cancellation and jump cap");
             AssertEqual(0x7fff, samus.HorizontalSpeed.BaseSpeed.Fraction, "quicksand retains low fractional X");
             AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "quicksand clears whole base X");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "quicksand cancels running momentum");
@@ -55,14 +54,14 @@ internal static class QuicksandVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(24, 24));
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
-            samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(4);
+            samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithWhole(4));
             samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
             var sand = Room((byte)(0x83 + kind));
             SamusInsideBlockReactions.PrepareFrame(sand, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
             AssertEqual(kind == 0 ? 0x12000 : kind == 1 ? 0x14000 : 0x1c000,
                 samus.Kinematics.ExtraDisplacement.Y.RawValue, "submerging and sandfall forces");
             SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = sand, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
-            AssertEqual(kind == 0 ? (ushort)0 : (ushort)4, samus.Kinematics.YSpeed.Whole, "submerging horizontal collision speed side effect");
+            AssertEqual(kind == 0 ? (ushort)0 : (ushort)4, samus.Kinematics.VerticalVelocity.Speed.Whole, "submerging horizontal collision speed side effect");
             AssertEqual(kind == 0 ? (ushort)0 : (ushort)0x1c00, samus.Kinematics.YAcceleration.Fraction, "submerging horizontal collision gravity side effect");
         }
         Console.WriteLine("  Quicksand: suit/direction branches, sinking contact, pose clearance, and sandfall forces agree.");
@@ -96,8 +95,7 @@ internal static class QuicksandVerification
             SamusKinematicsState body = samus.Kinematics;
             body.Position = body.Position.WithWhole(new(24, 24));
             body.Radius = body.Radius.WithY(8);
-            body.YDirection = direction;
-            body.YSpeed = body.YSpeed.WithWhole(5);
+            body.VerticalVelocity = SamusVerticalVelocityConstants.Of(body.VerticalVelocity.Speed.WithWhole(5), direction);
             SamusInsideBlockReactions.PrepareFrame(
                 level, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
             QuicksandSurfacePhysics physics =
@@ -112,7 +110,7 @@ internal static class QuicksandVerification
             {
                 // A whole upward speed of five pixels exceeds both caps, so the speed becomes the limit exactly.
                 AssertEqual(physics.UpwardSpeedLimit,
-                    SignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed.Whole), body.YSpeed.Fraction),
+                    SignedSixteenSixteen.FromParts(unchecked((short)body.VerticalVelocity.Speed.Whole), body.VerticalVelocity.Speed.Fraction),
                     $"production quicksand suit {suit} clamps upward speed to its limit");
             }
         }
@@ -123,8 +121,7 @@ internal static class QuicksandVerification
         {
             var body = new SamusKinematicsState
             {
-                YDirection = SamusVerticalDirection.Down,
-                YSpeed = new UnsignedSixteenSixteen(4, 0),
+                VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(4, 0), SamusVerticalDirection.Down),
                 YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00),
             };
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(2, 32768);
@@ -139,7 +136,7 @@ internal static class QuicksandVerification
                 $"production quicksand collision row {index} remains non-solid");
             AssertEqual(index < 3, surfaceContact,
                 $"production quicksand collision row {index} surface contact");
-            AssertEqual(index == 3 ? (ushort)0 : (ushort)4, body.YSpeed.Whole,
+            AssertEqual(index == 3 ? (ushort)0 : (ushort)4, body.VerticalVelocity.Speed.Whole,
                 $"production quicksand collision row {index} speed side effect");
             AssertEqual(index == 3 ? (ushort)0 : (ushort)0x1c00,
                 body.YAcceleration.Fraction,
@@ -223,13 +220,13 @@ internal static class QuicksandVerification
         SamusKinematicsState body = samus.Kinematics;
         body.Position = body.Position.WithWhole(new(24, 24));
         body.Radius = body.Radius.WithY(8);
-        body.YDirection = SamusVerticalDirection.Up;
+        body.VerticalVelocity = SamusVerticalVelocityConstants.Of(body.VerticalVelocity.Speed, SamusVerticalDirection.Up);
         SignedSixteenSixteen limit = QuicksandReactions.SurfacePhysics(gravitySuit: false).UpwardSpeedLimit;
         // 255/65536 of a pixel above the limit: below the resolution of the middle-word comparison.
         SignedSixteenSixteen justAbove = limit + SignedSixteenSixteen.FromParts(wholePixels: 0, fraction: 255);
-        body.YSpeed = new UnsignedSixteenSixteen(justAbove.UnsignedWholePixels, justAbove.Fraction);
+        body.VerticalVelocity = body.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(justAbove.UnsignedWholePixels, justAbove.Fraction));
         SamusInsideBlockReactions.PrepareFrame(level, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
-        AssertEqual(justAbove, SignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed.Whole), body.YSpeed.Fraction),
+        AssertEqual(justAbove, SignedSixteenSixteen.FromParts(unchecked((short)body.VerticalVelocity.Speed.Whole), body.VerticalVelocity.Speed.Fraction),
             "quicksand upward cap ignores the speed's lowest fraction byte");
     }
 
@@ -250,7 +247,7 @@ internal static class QuicksandVerification
             int expected = middle > 0x30 ? (probe & unchecked((int)0xff0000ff)) | 0x3000 : probe;
             var body = new SamusKinematicsState
             {
-                YDirection = SamusVerticalDirection.None,
+                VerticalVelocity = SamusVerticalVelocityConstants.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.None),
             };
             SignedSixteenSixteen displacement = SixteenSixteenWords.ToDisplacement(probe);
             SamusInsideBlockReactions.ReactCollision(

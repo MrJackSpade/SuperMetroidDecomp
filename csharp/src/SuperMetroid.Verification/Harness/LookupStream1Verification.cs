@@ -938,7 +938,7 @@ internal static class LookupStream1Verification
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
             AssertEqual(LookupStream1RomByte(rom, 0x91b629 + pose * 8), SamusPoseRecordCodecTooling.FacingByte(SamusPoseNumbering.FromNumber(pose)), "Native named-pose facing case");
             AssertEqual(LookupStream1RomByte(rom, 0x91b62a + pose * 8), SamusPoseRecordCodecTooling.MovementByte(SamusPoseNumbering.FromNumber(pose)), "Native named-pose raw movement case");
-            AssertEqual(LookupStream1RomByte(rom, 0x91b62b + pose * 8), SamusNoInputFallbackNumbers.Number(SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)).NoInput), "Native named-pose no-input case");
+            AssertEqual(LookupStream1RomByte(rom, 0x91b62b + pose * 8), SamusNoInputPoseNumbers.Number(SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)).NoInput), "Native named-pose no-input case");
         }
         Suite(nameof(VerifyLookupStream1SamusPolicyDomains), () => VerifyLookupStream1SamusPolicyDomains(rom));
         Suite(nameof(VerifyLookupStream1MetroidLayout), () => VerifyLookupStream1MetroidLayout(rom));
@@ -1261,7 +1261,7 @@ internal static class LookupStream1Verification
             }
             var eventNumber = (SuperMetroid.Core.Rooms.RoomObjects.RoomObjectRoomArgumentWords.Decode(
                 SuperMetroid.Core.Rooms.RoomObjects.RoomObjectKind.MetroidRoomClearance, argument)
-                as SuperMetroid.Core.Rooms.RoomObjects.MetroidRoomArgument
+                as SuperMetroid.Core.Rooms.RoomObjects.WatchedMetroidRoom
                 ?? throw new InvalidOperationException($"Metroids-cleared argument {argument} decodes to no watch.")).Cleared;
             AssertEqual(Word(0x840000 | (pointer + 9)), eventNumber.Number(), "native quota observer event operand");
         }

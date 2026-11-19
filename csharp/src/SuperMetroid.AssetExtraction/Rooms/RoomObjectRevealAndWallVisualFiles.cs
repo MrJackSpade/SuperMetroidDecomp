@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
@@ -12,6 +13,23 @@ public static class RoomObjectRevealAndWallVisualFiles
 {
     /// <summary>The installed JSON filename of the reveal and wall pictures.</summary>
     public const string VisualFileName = "reveals-and-walls.json";
+
+    /// <summary>The bombed reveals in the installed file's order (#2567), which lists them first.</summary>
+    private static readonly IReadOnlyList<RoomObjectBombedRevealDraw> Reveals = Ensure.EveryMemberOnce<RoomObjectBombedRevealDraw>(
+    [
+        RoomObjectBombedRevealDraw.CrumbleSingle,
+        RoomObjectBombedRevealDraw.PowerBomb,
+        RoomObjectBombedRevealDraw.SuperMissile,
+    ]);
+
+    /// <summary>The rescue wall's frames in the installed file's order (#2567), which lists them last: cracking, breaking, crumbling, blank.</summary>
+    private static readonly IReadOnlyList<EscapeAnimalDraw> RescueWallFrames = Ensure.EveryMemberOnce<EscapeAnimalDraw>(
+    [
+        EscapeAnimalDraw.Cracking,
+        EscapeAnimalDraw.Breaking,
+        EscapeAnimalDraw.Crumbling,
+        EscapeAnimalDraw.Blank,
+    ]);
 
     /// <summary>The reveal and wall as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -37,7 +55,7 @@ public static class RoomObjectRevealAndWallVisualFiles
         {
             // Each reveal is written as one block, the passage as one row of two, the shaft wall as two columns of three and
             // each rescue wall as one column of three (#1862).
-            foreach (RoomObjectBombedRevealDraw reveal in Enum.GetValues<RoomObjectBombedRevealDraw>())
+            foreach (RoomObjectBombedRevealDraw reveal in Reveals)
             {
                 RoomObjectDraw draw = BombedRevealObjectDraws.Family.Of(reveal);
                 yield return RoomObjectShapeRun.DrawList(draw, Required(draw, RoomObjectDrawIdentity.TryShape(BombedRevealObjectDraws.Family, draw, out var shape), shape),
@@ -50,7 +68,7 @@ public static class RoomObjectRevealAndWallVisualFiles
             RoomObjectDraw wall = OldTourianEscapeShaftWallObjectDefinitions.OpenWallDraw;
             yield return RoomObjectShapeRun.DrawList(wall, Required(wall, RoomObjectDrawIdentity.TryShape(OldTourianEscapeShaftWallDraws.Family, wall, out var wallShape), wallShape),
                 RoomObjectShapeRun.Column(new(0, 0), 3), RoomObjectShapeRun.Column(new(1, 0), 3));
-            foreach (EscapeAnimalDraw frame in Enum.GetValues<EscapeAnimalDraw>())
+            foreach (EscapeAnimalDraw frame in RescueWallFrames)
             {
                 RoomObjectDraw animalWall = EscapeAnimalWalls.Family.Of(frame);
                 yield return RoomObjectShapeRun.DrawList(animalWall,

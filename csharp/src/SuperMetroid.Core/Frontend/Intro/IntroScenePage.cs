@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>The opening cinematic's four scene pages, in the order the installed artwork holds them (#1404).</summary>
+/// <summary>
+/// The opening cinematic's four scene pages (#1404). The installed background page each is stored as is written out in
+/// the import's artwork format, so the members' declaration order carries nothing (#2567).
+/// </summary>
 internal enum IntroScenePage
 {
     /// <summary>The flashback room where Samus fights Mother Brain.</summary>

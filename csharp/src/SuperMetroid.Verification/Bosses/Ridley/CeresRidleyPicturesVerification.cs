@@ -44,18 +44,18 @@ internal static class CeresRidleyPicturesVerification
             escape.RunRidleysStep(ridleyFrameCounter);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
         }
-        RoomWrittenOverlay overlay = runtime.Room.LoadedScope.Enemies.CeresEscape.Warning.Overlay;
+        RoomWarningText overlay = runtime.Room.LoadedScope.Enemies.CeresEscape.Warning.Overlay;
         AssertTrue(!overlay.Pictures.IsEmpty, "Ceres Ridley's getaway shows its warning over BG1");
         // The getaway writes its pages' and glyphs' pictures by name (#1466); the words they stand for are the import's.
         System.Collections.Immutable.ImmutableArray<int> words = overlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
-        RoomOverlayPictures shown = runtime.Display.LatchedOrdinaryRoom.Rooms.ForegroundText
+        ShownRoomWarning shown = runtime.Display.LatchedOrdinaryRoom.Rooms.Warning
             ?? throw new InvalidOperationException("The displayed frame shows no warning over BG1.");
         BgTilePicture?[] shownCells = TwoScreenTilemapCells.Lay(shown.Pictures);
         ReadOnlySpan<byte> page = EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet, UploadedPictureChecks.Shown(runtime)).Characters;
         int written = 0;
         for (int index = 0; index < TwoScreenTilemapCells.Count; index++)
         {
-            if (words[index] == RoomWrittenOverlay.Unwritten)
+            if (words[index] == RoomWarningText.Unwritten)
             {
                 AssertTrue(shownCells[index] is null, $"Nothing written at word {index} shows nothing over BG1");
                 continue;

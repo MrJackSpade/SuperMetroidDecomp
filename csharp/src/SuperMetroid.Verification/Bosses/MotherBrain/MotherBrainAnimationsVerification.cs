@@ -21,7 +21,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>
-/// #1285, #1600: Mother Brain's typed body, brain, Baby, Shitroid, Zebetite, falling-tube and projectile animations
+/// #1285, #1600: Mother Brain's typed body, brain, Baby, Baby Metroid, Zebetite, falling-tube and projectile animations
 /// against the retail cartridge. Every typed segment must match its native list beat by beat and every animation the
 /// lists' control flow; the brain's cadence,
 /// random holds, body moves and the projectiles must behave as the native interpreters do.
@@ -35,7 +35,7 @@ internal static class MotherBrainAnimationsVerification
         int body = CompareBody(cartridge).Values.Sum(list => list.BeatAddresses.Length);
         int head = CompareHead(cartridge).Values.Sum(list => list.BeatAddresses.Length);
         CompareBaby(cartridge);
-        CompareShitroid(cartridge);
+        CompareBabyMetroid(cartridge);
         CompareZebetites(cartridge);
         CompareTubes(cartridge);
         VerifyRoomFlashList(cartridge);

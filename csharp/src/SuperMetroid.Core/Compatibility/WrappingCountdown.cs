@@ -138,6 +138,9 @@ public readonly record struct WrappingCountdown
     public static WrappingCountdown Start(int frames) =>
         new((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, frames));
 
+    /// <summary>A countdown started at one frame: its next step takes it to zero.</summary>
+    public static WrappingCountdown OneFrame => Start(1);
+
     /// <summary>
     /// Takes one frame away, wrapping a countdown at zero to 65535. Store <see cref="CountdownStep.Remaining"/> and test
     /// the owner's expiry rule on the step: <see cref="CountdownStep.IsZero"/> for a timer that expires on reaching zero,

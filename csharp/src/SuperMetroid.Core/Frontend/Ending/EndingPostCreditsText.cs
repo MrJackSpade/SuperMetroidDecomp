@@ -51,7 +51,7 @@ internal sealed class EndingPostCreditsText
     /// <summary>Starts the final message, below which the item-percentage text stays shown.</summary>
     /// <returns>The text started.</returns>
     /// <exception cref="InvalidOperationException">The item percentage alone has not started.</exception>
-    internal EndingTypewriter StartFinalMessage(EndingTypewriterSetup setup) => Start(setup, EndingTextSequence.FinalMessage, typedBefore: 1);
+    internal EndingTypewriter StartFinalMessage(EndingTypewriterSetup setup) => Start(setup, EndingTextSequence.FinalMessage, EndingTypedTextDefinitions.TypedBeforeFinalMessage);
 
     /// <summary>Starts typing <paramref name="sequence"/> after the <paramref name="typedBefore"/> texts that type before it.</summary>
     /// <exception cref="InvalidOperationException">The screen does not show exactly those texts.</exception>

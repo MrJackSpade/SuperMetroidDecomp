@@ -59,7 +59,7 @@ internal sealed class DraygonParts
         body.AnimationClock.StepOnNextUpdate();
 
         _frameContext.RequestFullSweep();
-        RoomEnemyPlace[] parts = _places.ListedRunAfter(body, count: 3);
+        RoomEnemyPlace[] parts = _places.ListedRunAfter(body, DraygonPartListingDefinitions.PartsAfterBody);
         var draygon = new DraygonEnemyState(body, eye: parts[0], tail: parts[1], arms: parts[2])
         {
             Phase = DraygonPhase.IntroInitialDelay,
@@ -90,15 +90,15 @@ internal sealed class DraygonParts
     }
 
     /// <summary>Sets Draygon's eye up, listed right after his body, inert until the body publishes facing AI.</summary>
-    internal void InitializeDraygonEye(RoomEnemyPlace eye) => JoiningPart(eye, placesAfterBody: 1, draygon => draygon.EyePart);
+    internal void InitializeDraygonEye(RoomEnemyPlace eye) => JoiningPart(eye, DraygonPartListingDefinitions.EyePlacesAfterBody, draygon => draygon.EyePart);
 
     /// <summary>Sets Draygon's tail up, listed after his eye, starting with its fake whip.</summary>
     internal void InitializeDraygonTail(RoomEnemyPlace tail) =>
-        tail.Shading = JoiningPart(tail, placesAfterBody: 2, draygon => draygon.TailPart).Draygon.Colours.Sprites;
+        tail.Shading = JoiningPart(tail, DraygonPartListingDefinitions.TailPlacesAfterBody, draygon => draygon.TailPart).Draygon.Colours.Sprites;
 
     /// <summary>Sets Draygon's arms up, listed after his tail, in their idle loop.</summary>
     internal void InitializeDraygonArms(RoomEnemyPlace arms) =>
-        arms.Shading = JoiningPart(arms, placesAfterBody: 3, draygon => draygon.ArmsPart).Draygon.Colours.Sprites;
+        arms.Shading = JoiningPart(arms, DraygonPartListingDefinitions.ArmsPlacesAfterBody, draygon => draygon.ArmsPart).Draygon.Colours.Sprites;
 
     /// <summary>Sets <paramref name="eye"/> tracking Samus facing <paramref name="facing"/> (#2165).</summary>
     private static void Track(DraygonEyeState eye, HorizontalDirection facing)
@@ -239,8 +239,7 @@ internal sealed class DraygonParts
         // as one of the room's dust and explosion effects.
         if (DraygonCadenceDefinitions.EyeBreathBubbleEvery128thUpdate.IsDue(eye.FrameCounter))
             _projectiles.SpawnDustOrExplosion(
-                new(OffRoomPlaces.Place(eye.Position.X.Whole + (facing == HorizontalDirection.Right
-                    ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset)), OffRoomPlaces.Place(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
+                new(OffRoomPlaces.Place(eye.Position.X.Whole + (DraygonEyeEffects.HorizontalOffset.Toward(facing))), OffRoomPlaces.Place(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
                 DraygonEyeEffects.DustVariant);
         Position16<RoomPixels> gaze = eye.Position.Whole +
             TowardFacing(new(DraygonEyeEffects.HorizontalOffset, DraygonEyeEffects.VerticalOffset), facing);

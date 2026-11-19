@@ -11,7 +11,7 @@ public enum BeetomAction
     /// <summary>Decides between lunging at Samus and its own idling, crawling or hopping by whether she is horizontally closer than 96 pixels.</summary>
     DecideAction,
     /// <summary>Takes a random number that chooses idling, crawling or hopping and the way it faces (<see cref="BeetomDecisions.FacesRight"/>).</summary>
-    DecideActionSamusNotInProximity,
+    ChooseIdleCrawlOrHop,
     /// <summary>Starts the idle's wait, which the Beetom counts down standing still from the next update.</summary>
     StartIdling,
     /// <summary>Starts the crawling animation for its heading and crawls from the next update.</summary>
@@ -21,7 +21,7 @@ public enum BeetomAction
     /// <summary>Starts the long hop rising from its place on the speed curve, with the hop animation for its heading.</summary>
     StartLongHop,
     /// <summary>Aims the rising lunge toward Samus and starts the corresponding hop animation.</summary>
-    DecideActionSamusInProximity,
+    StartLunge,
     /// <summary>Starts the clinging animation on its heading's side, then follows Samus as it drains her.</summary>
     StartDraining,
     /// <summary>Starts the crawling animation for its crawl direction and drops straight down.</summary>

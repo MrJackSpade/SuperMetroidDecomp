@@ -31,7 +31,7 @@ internal static class NuclearWaffleSweepAngleVerification
             NuclearWaffleSweepAngle whole = NuclearWaffleSweepAngle.FromSteps(steps);
             for (int fraction = 0; fraction < 256; fraction++)
             {
-                NuclearWaffleSweepAngle angle = whole + AngularSpeed.FromFractionsOfStep(fraction);
+                NuclearWaffleSweepAngle angle = whole + AngularSpeedConstants.FromFractionsOfStep(fraction);
                 SignedSixteenSixteen old = SignedSixteenSixteen.FromParts(steps, fraction * 256);
                 if (Widened(angle) != old || angle.WholeStep != whole ||
                     angle.ToRotationAngle().ToTrigonometryAngle() != TrigonometryAngle.Wrapped(old.WholePixels))
@@ -70,7 +70,7 @@ internal static class NuclearWaffleSweepAngleVerification
                 {
                     for (int sixteenths = 0; sixteenths < 16; sixteenths++)
                     {
-                        NuclearWaffleSweepAngle angle = NuclearWaffleSweepAngle.FromSteps(steps) + AngularSpeed.FromFractionsOfStep(sixteenths * 16);
+                        NuclearWaffleSweepAngle angle = NuclearWaffleSweepAngle.FromSteps(steps) + AngularSpeedConstants.FromFractionsOfStep(sixteenths * 16);
                         if (Widened(angle + turn) != Widened(angle) + Widened(turn))
                             mismatch ??= $"sweep angle {angle} turned at {turn} differs from the 16.16 sum";
                     }

@@ -45,13 +45,6 @@ public static class SamusGrappleBeamDrawing
         if (DrawingFor(grapple.Phase) != SamusGrappleDrawing.Beam || grapple.FlareStage == GrappleFlareStage.None)
             return false;
 
-        // While firing, the grapple's drawing recomputes the hand origins immediately before the flare. The grapple
-        // moved before Samus's ordinary movement, so both hand origins come from her final position; otherwise a
-        // running shot would visibly lag one frame.
-        // Connected phases already publish their exact rope/flare pair during movement.
-        if (grapple.Phase == GrapplePhase.Firing)
-            RefreshFiringDrawOrigins(samus, grapple);
-
         // A just-fired flare restarts at the main flare's loop on every such update, then plays on as usual, so the
         // first visible picture already has one update spent.
         if (grapple.FlareStage == GrappleFlareStage.JustFired)
@@ -84,25 +77,6 @@ public static class SamusGrappleBeamDrawing
         // The rope starts on its opening pattern: the muzzle's segment on the cycle's last picture, each segment beyond
         // on the one before. Its first step waits one draw longer than the rest.
         grapple.Rope.Show(GrappleAnimations.Rope, GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay);
-    }
-
-/// <summary>Recomputes visual beam origins from the final pose while retaining the separate physical endpoint offset.</summary>
-    private static void RefreshFiringDrawOrigins(
-        SamusState samus,
-        SamusGrappleState grapple)
-    {
-        bool useRunOffsets = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running;
-        var origin = GrappleFiring.Origin(grapple.FireDirection, useRunOffsets);
-        var flare = SamusGrappleMovement.ReadFlareOrigin(grapple, grapple.FireDirection, useRunOffsets);
-        int artOrigin = SamusPoseMetadata.ReadArtOrigin(samus);
-        int physicalYOffset = SamusPoseTraits.Of(samus.Pose).ProjectileHeight;
-
-        // Recompute from the final pose/position, not cached launch offsets. Physical
-        // Start and presentation Flare remain separate coordinate pairs.
-        grapple.RopeStart = samus.Position.Whole + new Offset16<RoomPixels>(
-            origin.X, origin.Y - physicalYOffset);
-        grapple.FlareOrigin = samus.Position.Whole + new Offset16<RoomPixels>(
-            flare.X, flare.Y - artOrigin);
     }
 
 /// <summary>
@@ -186,7 +160,7 @@ public static class SamusGrappleBeamDrawing
     /// How the rope's pictures mirror at the grapple angle <paramref name="angle"/>: horizontally in the second half of
     /// the turn, and vertically within a quarter turn either side of the angle zero.
     /// </summary>
-    private static SpriteMirror RopeMirror(RotationAngle angle) =>
+    internal static SpriteMirror RopeMirror(RotationAngle angle) =>
         (angle >= RotationAngle.HalfTurn ? SpriteMirror.Horizontal : SpriteMirror.None) |
         (angle < RotationAngle.QuarterTurn || angle >= RotationAngle.ThreeQuarterTurn ? SpriteMirror.Vertical : SpriteMirror.None);
 

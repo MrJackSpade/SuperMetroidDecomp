@@ -15,7 +15,7 @@ internal sealed class DoorOpeningScrollState
     {
         Direction = setup.Direction;
         SamusScrollStep = setup.SamusScrollStep;
-        Scroll = UpdateCountdown.For(setup.RemainingFrames);
+        Scroll = UpdateCountdown.For(setup.ScrollUpdates);
         CameraPosition = setup.CameraPosition;
         BackgroundPosition = setup.BackgroundPosition;
         SamusPosition = setup.SamusPosition;
@@ -46,9 +46,6 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Exact camera endpoint published after the scroll's final update.</summary>
     public Position16<RoomPixels> FinalCameraPosition { get; }
 
-    /// <summary>Whether the just-advanced update recomputes the layer scrolls; upward doors delay their first updates.</summary>
-    public bool RecalculatesScrollAfterAdvance { get; private set; } = true;
-
     /// <summary>
     /// Builds the setup position and the scroll's trajectory from a door and its destination camera and background
     /// positions; the background's endpoint is reached through directional four-pixel steps.
@@ -64,7 +61,7 @@ internal sealed class DoorOpeningScrollState
 
         Offset16<BackgroundPixels> backgroundSetup = Ensure.Listed(DoorOpeningScrollDefinitions.SetupBackgroundOffsets, direction);
 
-        return new DoorOpeningScrollState(new DoorOpeningScrollSetup { Direction = direction, SamusScrollStep = GetSamusStep(door), RemainingFrames = MovingScrollUpdates(direction), CameraPosition = GetSetupCamera(door), BackgroundPosition = finalBackground + backgroundSetup, SamusPosition = samus, FinalCameraPosition = finalCamera });
+        return new DoorOpeningScrollState(new DoorOpeningScrollSetup { Direction = direction, SamusScrollStep = GetSamusStep(door), ScrollUpdates = MovingScrollUpdates(direction), CameraPosition = GetSetupCamera(door), BackgroundPosition = finalBackground + backgroundSetup, SamusPosition = samus, FinalCameraPosition = finalCamera });
     }
 
     /// <summary>The scroll updates that remain after setup (<see cref="DoorOpeningScrollDefinitions.MovingScrollUpdates"/>).</summary>
@@ -140,10 +137,7 @@ internal sealed class DoorOpeningScrollState
         BackgroundPosition += LayerStep<BackgroundPixels>(Direction);
         SamusPosition = SamusPosition.Advance(SamusScrollStep);
 
-        bool finished = Scroll.Count();
-        RecalculatesScrollAfterAdvance = Direction != DoorDirection.Up ||
-            Scroll.Age > DoorOpeningScrollDefinitions.UpwardUpdatesBeforeScrollRecalculation;
-        return finished;
+        return Scroll.Count();
     }
 
     /// <summary>

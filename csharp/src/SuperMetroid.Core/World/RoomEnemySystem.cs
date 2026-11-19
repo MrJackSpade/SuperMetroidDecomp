@@ -110,7 +110,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal EnemyDrawList Drawing { get; }
 
     /// <summary>Advances each animating enemy's animation and shows the frames the bosses show on their bodies.</summary>
-    private EnemyAnimationPlayer AnimationPlayer { get; }
+    internal EnemyAnimationPlayer AnimationPlayer { get; }
 
     /// <summary>Places the room's enemy population in the room's enemy places when the room loads, with its kill quota.</summary>
     internal EnemyPopulationLoader PopulationLoader { get; }
@@ -122,47 +122,47 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal EnemyLifecycle Lifecycle { get; }
 
     /// <summary>Samus's gunship: its landing, save prompt, boarding and exit, and its lift-offs after Ceres and the escape.</summary>
-    private GunshipBehavior GunshipBehavior { get; }
+    internal GunshipBehavior GunshipBehavior { get; }
 
     /// <summary>Caps how fast the camera follows Samus while Draygon or a Yapping Maw carries her.</summary>
-    private SamusScrollCap ScrollCap { get; }
+    internal SamusScrollCap ScrollCap { get; }
 
     /// <summary>The room's liquid, which Ridley and the Chozo statue raise or lower.</summary>
-    private EnemyRoomFx RoomFx { get; }
+    internal EnemyRoomFx RoomFx { get; }
 
     /// <summary>What the room's enemies tell the rest of the game: the kills, the boss present, the Fireflea darkness and whether a door transition holds them.</summary>
     internal EnemyRoomStatus RoomStatus { get; }
 
     /// <summary>Ridley's fireballs and the afterburn that trails them, in Ceres and Norfair, which Mother Brain's afterburn reuses.</summary>
-    private RidleyProjectiles RidleyProjectiles { get; }
+    internal RidleyProjectiles RidleyProjectiles { get; }
 
     /// <summary>What the room sees of Ridley's encounters in Ceres and Lower Norfair, and the Ceres escape's progress.</summary>
-    private RidleyEncounter RidleyEncounter { get; }
+    internal RidleyEncounter RidleyEncounter { get; }
     /// <summary>Coordinates Ridley's multipart tail through the shared place and projectile services.</summary>
-    private RidleyTail RidleyTail { get; }
+    internal RidleyTail RidleyTail { get; }
     /// <summary>The parts of Ridley's body both his encounters run (#2229).</summary>
-    private RidleyBody RidleyBody { get; }
+    internal RidleyBody RidleyBody { get; }
     /// <summary>The station's escape from Ceres Ridley's room: his getaway and the self-destruct warning (#2228).</summary>
-    private CeresEscape CeresEscape { get; }
+    internal CeresEscape CeresEscape { get; }
     /// <summary>Raises the dust of dead monsters' fallen corpse rows through the same frame as enemy processing.</summary>
     internal CorpseRowDust CorpseRowDust { get; }
     /// <summary>Owns Mother Brain's room encounter and its cutscene state.</summary>
-    private MotherBrainEncounter MotherBrainEncounter { get; }
+    internal MotherBrainEncounter MotherBrainEncounter { get; }
 
     /// <summary>
     /// The encounters of the room's bosses the room itself reads (#2194), which each attaches as its body sets up: the
     /// room's main, display and colours read them here, never through a boss's species.
     /// </summary>
-    private RoomBossEncounters BossEncounters { get; } = new();
+    internal RoomBossEncounters BossEncounters { get; } = new();
 
     /// <summary>Samus's touches, shots, bombs and power bombs against the room's enemies, and the enemies' reactions to them.</summary>
     internal EnemyCollision Collision { get; }
 
     /// <summary>Enemy deaths and their drops: the death explosions, the scattered pickups and Samus collecting them.</summary>
-    private EnemyDeathsAndDrops DeathsAndDrops { get; }
+    internal EnemyDeathsAndDrops DeathsAndDrops { get; }
 
     /// <summary>What the current enemy pass reads: the random number, the frame counter and whether time is frozen.</summary>
-    private EnemyFrameContext FrameContext { get; }
+    internal EnemyFrameContext FrameContext { get; }
 
     /// <summary>How the room's enemies look: the room's appearance, the boss body layer and the shading each draw shows.</summary>
     internal EnemyPresentation Presentation { get; }
@@ -174,25 +174,25 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal ZoaBehavior ZoaBehavior { get; }
 
     /// <summary>The Zebetites barring the way to Mother Brain, which Samus's missiles wear down.</summary>
-    private ZebetiteBehavior ZebetiteBehavior { get; }
+    internal ZebetiteBehavior ZebetiteBehavior { get; }
 
     /// <summary>The room camera's distance mode, which Kraid and Crocomire request (#1874).</summary>
     internal RoomCameraDistance CameraDistance { get; } = new();
 
     /// <summary>The room camera's floor, which Spore Spawn's live fight holds (#2243).</summary>
-    private RoomCameraFloor CameraFloor { get; } = new();
+    internal RoomCameraFloor CameraFloor { get; } = new();
 
     /// <summary>The Yards, Maridia's shelled crawlers that curl into a ball Samus can kick.</summary>
-    private YardEnemyBehavior YardBehavior { get; }
+    internal YardEnemyBehavior YardBehavior { get; }
 
     /// <summary>The Yapping Maws, mouths on stalks that bite at Samus and carry her.</summary>
-    private YappingMawBehavior YappingMawBehavior { get; }
+    internal YappingMawBehavior YappingMawBehavior { get; }
 
     /// <summary>The Wrecked Ship's ghosts, which flicker in and out.</summary>
     internal WreckedShipGhostBehavior WreckedShipGhostBehavior { get; }
 
     /// <summary>The Wrecked Ship's work robots, which patrol and fire lasers.</summary>
-    private WorkRobotBehavior WorkRobotBehavior { get; }
+    internal WorkRobotBehavior WorkRobotBehavior { get; }
 
     /// <summary>The Wavers, flyers that weave up and down as they cross the room.</summary>
     internal WaverBehavior WaverBehavior { get; }
@@ -201,13 +201,13 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal WallSpacePirateBehavior WallSpacePirateBehavior { get; }
 
     /// <summary>The space pirates that walk the floors and fire at Samus.</summary>
-    private WalkingSpacePirateBehavior WalkingSpacePirateBehavior { get; }
+    internal WalkingSpacePirateBehavior WalkingSpacePirateBehavior { get; }
 
     /// <summary>
     /// The Tourian entrance statue scene: its decorations, which follow the statue down, and its look as each boss statue
     /// releases. Only the statue room builds it, with that room (#2426); null in every other room, which places no statue.
     /// </summary>
-    private TourianEntranceStatueBehavior? TourianEntranceStatueBehavior { get; }
+    internal TourianEntranceStatueBehavior? TourianEntranceStatueBehavior { get; }
 
     /// <summary>
     /// The Tourian statues' unlock effects in the statue room: the eyes' glows, the released souls and particles, their
@@ -223,7 +223,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal ITourianStatueActors? TourianStatue { get; }
 
     /// <summary>Spore Spawn, Brinstar's mini-boss, which swings its core and releases spores.</summary>
-    private SporeSpawnBehavior SporeSpawnBehavior { get; }
+    internal SporeSpawnBehavior SporeSpawnBehavior { get; }
 
     /// <summary>The Wrecked Ship's sparks, which flicker on and off and drop falling sparks.</summary>
     internal SparkBehavior SparkBehavior { get; }
@@ -232,16 +232,16 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal SkulteraBehavior SkulteraBehavior { get; }
 
     /// <summary>The Skrees, which hang from ceilings, dive at Samus and burst on the ground.</summary>
-    private SkreeBehavior SkreeBehavior { get; }
+    internal SkreeBehavior SkreeBehavior { get; }
 
     /// <summary>The shutters, the gates that rise, fall or grow out of the walls on their own.</summary>
-    private ShuttersBehavior ShuttersBehavior { get; }
+    internal ShuttersBehavior ShuttersBehavior { get; }
 
     /// <summary>The Baby Metroid in Mother Brain's fight, which drains her and gives Samus its life.</summary>
-    private ShitroidBehavior ShitroidBehavior { get; }
+    internal BabyMetroidBehavior BabyMetroidBehavior { get; }
 
     /// <summary>Shaktool, the Maridia digger that clears the sand from its tunnel.</summary>
-    private ShaktoolBehavior ShaktoolBehavior { get; }
+    internal ShaktoolBehavior ShaktoolBehavior { get; }
 
     /// <summary>The Sbugs, small bugs that wake when Samus comes near and dart about her.</summary>
     internal SbugBehavior SbugBehavior { get; }
@@ -256,169 +256,169 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal RinkaBehavior RinkaBehavior { get; }
 
     /// <summary>Ridley in Lower Norfair: his fight and his death.</summary>
-    private NorfairRidleyBehavior NorfairRidleyBehavior { get; }
+    internal NorfairRidleyBehavior NorfairRidleyBehavior { get; }
 
     /// <summary>The Puyos, Norfair's small blobs that hop along floors and ceilings.</summary>
-    private PuyoBehavior PuyoBehavior { get; }
+    internal PuyoBehavior PuyoBehavior { get; }
 
     /// <summary>The room before Phantoon's, whose setup holds one enemy-projectile place empty for its first updates.</summary>
-    private PrePhantoonRoomBehavior PrePhantoonRoomBehavior { get; }
+    internal PrePhantoonRoomBehavior PrePhantoonRoomBehavior { get; }
 
     /// <summary>The Powamps, Maridia's balloon creatures that inflate and shoot spikes.</summary>
-    private PowampBehavior PowampBehavior { get; }
+    internal PowampBehavior PowampBehavior { get; }
 
     /// <summary>The Polyps, which throw rocks out of Norfair's lava.</summary>
-    private PolypBehavior PolypBehavior { get; }
+    internal PolypBehavior PolypBehavior { get; }
 
     /// <summary>The Trippers and suspensor platforms Samus rides.</summary>
     internal PlatformsBehavior PlatformsBehavior { get; }
 
     /// <summary>The pipe bugs, the Zebs, Zebbos, Gamets and Geegas that stream out of pipes at Samus.</summary>
-    private PipeBugsBehavior PipeBugsBehavior { get; }
+    internal PipeBugsBehavior PipeBugsBehavior { get; }
 
     /// <summary>Phantoon, the Wrecked Ship's boss.</summary>
-    private PhantoonBehavior PhantoonBehavior { get; }
+    internal PhantoonBehavior PhantoonBehavior { get; }
 
     /// <summary>The Owtches, spiky creatures that crawl over Maridia's sand.</summary>
-    private OwtchBehavior OwtchBehavior { get; }
+    internal OwtchBehavior OwtchBehavior { get; }
 
     /// <summary>The wall of old Tourian's escape shaft, which the escape blows open.</summary>
-    private OldTourianEscapeShaftWallBehavior OldTourianEscapeShaftWallBehavior { get; }
+    internal OldTourianEscapeShaftWallBehavior OldTourianEscapeShaftWallBehavior { get; }
 
     /// <summary>The Nuclear Waffles, Lower Norfair's chains of fire that sweep an arc.</summary>
-    private NuclearWaffleBehavior NuclearWaffleBehavior { get; }
+    internal NuclearWaffleBehavior NuclearWaffleBehavior { get; }
 
     /// <summary>Norfair's Rios, which swoop at Samus from the ceiling.</summary>
-    private NorfairRioBehavior NorfairRioBehavior { get; }
+    internal GerutaBehavior GerutaBehavior { get; }
 
     /// <summary>The enemies that leap out of Norfair's lava and fall back in.</summary>
-    private NorfairLavaJumpingEnemyBehavior NorfairLavaJumpingEnemyBehavior { get; }
+    internal SqueeptBehavior SqueeptBehavior { get; }
 
     /// <summary>Maridia's glass tube, which a power bomb shatters.</summary>
-    private NoobTubeBehavior NoobTubeBehavior { get; }
+    internal NoobTubeBehavior NoobTubeBehavior { get; }
 
     /// <summary>The ninja space pirates, which leap across their rooms and throw their claws.</summary>
-    private NinjaSpacePirateBehavior NinjaSpacePirateBehavior { get; }
+    internal NinjaSpacePirateBehavior NinjaSpacePirateBehavior { get; }
 
     /// <summary>The Multiviolas, Norfair's fireballs that bounce around their rooms.</summary>
-    private MultiviolaBehavior MultiviolaBehavior { get; }
+    internal MultiviolaBehavior MultiviolaBehavior { get; }
 
     /// <summary>Mother Brain, the final boss.</summary>
-    private MotherBrainBehavior MotherBrainBehavior { get; }
+    internal MotherBrainBehavior MotherBrainBehavior { get; }
 
     /// <summary>The wall-mounted eyes that track Samus and shine their beam on her.</summary>
-    private MorphBallEyeBehavior MorphBallEyeBehavior { get; }
+    internal MorphBallEyeBehavior MorphBallEyeBehavior { get; }
 
     /// <summary>The Mochtroids, Maridia's Metroid look-alikes.</summary>
     internal MochtroidBehavior MochtroidBehavior { get; }
 
     /// <summary>The Metroids of Tourian, which latch on to Samus and drain her energy.</summary>
-    private MetroidBehavior MetroidBehavior { get; }
+    internal MetroidBehavior MetroidBehavior { get; }
 
     /// <summary>The Metarees, which drop from ceilings and drill into the floor.</summary>
-    private MetareeBehavior MetareeBehavior { get; }
+    internal MetareeBehavior MetareeBehavior { get; }
 
     /// <summary>Maridia's large snails, which crawl over the room's surfaces.</summary>
-    private MaridiaLargeSnailBehavior MaridiaLargeSnailBehavior { get; }
+    internal OumBehavior OumBehavior { get; }
 
     /// <summary>Maridia's mama turtle and her babies.</summary>
-    private MamaTurtleBehavior MamaTurtleBehavior { get; }
+    internal MamaTurtleBehavior MamaTurtleBehavior { get; }
 
     /// <summary>The Magdollites, which rise out of Lower Norfair's lava and throw fire.</summary>
-    private MagdolliteBehavior MagdolliteBehavior { get; }
+    internal MagdolliteBehavior MagdolliteBehavior { get; }
 
     /// <summary>Lower Norfair's Rios, which swoop at Samus from the ceiling.</summary>
-    private LowerNorfairRioBehavior LowerNorfairRioBehavior { get; }
+    internal HoltzBehavior HoltzBehavior { get; }
 
     /// <summary>The Kzans, spiked crushers that drop and rise again, carrying Samus on top.</summary>
-    private KzanBehavior KzanBehavior { get; }
+    internal KzanBehavior KzanBehavior { get; }
 
     /// <summary>Kraid, Brinstar's boss.</summary>
-    private KraidBehavior KraidBehavior { get; }
+    internal KraidBehavior KraidBehavior { get; }
 
     /// <summary>The Ki-Hunters, winged insects that swoop at Samus, spit acid and fight on once their wings are shot off.</summary>
-    private KiHunterBehavior KiHunterBehavior { get; }
+    internal KiHunterBehavior KiHunterBehavior { get; }
 
     /// <summary>The Kagos, hives that release swarms of bugs when shot.</summary>
-    private KagoBehavior KagoBehavior { get; }
+    internal KagoBehavior KagoBehavior { get; }
 
     /// <summary>The Sidehoppers and Dessgeegas, which hop along floors, walls and ceilings.</summary>
-    private HoppersBehavior HoppersBehavior { get; }
+    internal HoppersBehavior HoppersBehavior { get; }
 
     /// <summary>The Hibashis, Norfair's pillars of fire that erupt from the floor.</summary>
-    private HibashiBehavior HibashiBehavior { get; }
+    internal HibashiBehavior HibashiBehavior { get; }
 
     /// <summary>The grapple beam's grip on enemies: which enemy its tip latches on to, and what a grappled enemy does.</summary>
-    private GrappleBehavior GrappleBehavior { get; }
+    internal GrappleBehavior GrappleBehavior { get; }
 
     /// <summary>The Funes and Namihes, heads in Norfair's walls that spit fireballs.</summary>
-    private FuneNamiheBehavior FuneNamiheBehavior { get; }
+    internal FuneNamiheBehavior FuneNamiheBehavior { get; }
 
     /// <summary>The Mellows, Mellas and Memus, swarms of flies that circle and dive at Samus.</summary>
     internal FliesBehavior FliesBehavior { get; }
 
     /// <summary>The Firefleas of Lower Norfair, whose deaths darken the room.</summary>
-    private FirefleaBehavior FirefleaBehavior { get; }
+    internal FirefleaBehavior FirefleaBehavior { get; }
 
     /// <summary>The sparks that fall from the Wrecked Ship's sparks and skitter along the floor.</summary>
-    private FallingSparksBehavior FallingSparksBehavior { get; }
+    internal FallingSparksBehavior FallingSparksBehavior { get; }
 
     /// <summary>Fake Kraid, the small Kraid in the room before Kraid's.</summary>
-    private FakeKraidBehavior FakeKraidBehavior { get; }
+    internal FakeKraidBehavior FakeKraidBehavior { get; }
 
     /// <summary>The eyes guarding some doors, which fire at Samus until she destroys them.</summary>
-    private EyeDoorBehavior EyeDoorBehavior { get; }
+    internal EyeDoorBehavior EyeDoorBehavior { get; }
 
     /// <summary>The Evirs, Maridia's shrimp that throw their arms at Samus.</summary>
-    private EvirBehavior EvirBehavior { get; }
+    internal EvirBehavior EvirBehavior { get; }
 
     /// <summary>The Etecoons, the friendly animals that show Samus the wall jump.</summary>
     internal EtecoonBehavior EtecoonBehavior { get; }
 
     /// <summary>The explosions that go off around Samus during the escape.</summary>
-    private EscapeExplosionsBehavior EscapeExplosionsBehavior { get; }
+    internal EscapeExplosionsBehavior EscapeExplosionsBehavior { get; }
 
     /// <summary>The Dachora and Etecoons escaping Zebes, and the wall Samus can free them through.</summary>
-    private EscapeAnimalsBehavior EscapeAnimalsBehavior { get; }
+    internal EscapeAnimalsBehavior EscapeAnimalsBehavior { get; }
 
     /// <summary>The elevators that carry Samus between areas.</summary>
-    private ElevatorBehavior ElevatorBehavior { get; }
+    internal ElevatorBehavior ElevatorBehavior { get; }
 
     /// <summary>Draygon, Maridia's boss, with the turrets on its room's walls.</summary>
-    private DraygonBehavior DraygonBehavior { get; }
+    internal DraygonBehavior DraygonBehavior { get; }
 
     /// <summary>The Dragons, which rise out of Norfair's lava and spit fireballs.</summary>
-    private DragonBehavior DragonBehavior { get; }
+    internal DragonBehavior DragonBehavior { get; }
 
     /// <summary>The gates that close downward over a passage and the gates already closed.</summary>
-    private DownwardGateBehavior DownwardGateBehavior { get; }
+    internal DownwardGateBehavior DownwardGateBehavior { get; }
 
     /// <summary>The drained corpses lying in Tourian, which crumble away when disturbed.</summary>
     internal DeadTourianBehavior DeadTourianBehavior { get; }
 
     /// <summary>The drained Torizo lying in Tourian, which crumbles away when disturbed.</summary>
-    private DeadTorizoBehavior DeadTorizoBehavior { get; }
+    internal DeadTorizoBehavior DeadTorizoBehavior { get; }
 
     /// <summary>The giant Sidehopper the Baby Metroid drains in Tourian, and the corpse it leaves.</summary>
-    private DeadSidehopperBehavior DeadSidehopperBehavior { get; }
+    internal DeadSidehopperBehavior DeadSidehopperBehavior { get; }
 
     /// <summary>The Dachora, the friendly animal that shows Samus the shinespark.</summary>
-    private DachoraBehavior DachoraBehavior { get; }
+    internal DachoraBehavior DachoraBehavior { get; }
 
     /// <summary>Crocomire, Norfair's boss.</summary>
-    private CrocomireBehavior CrocomireBehavior { get; }
+    internal CrocomireBehavior CrocomireBehavior { get; }
 
     /// <summary>The Geemers, Zeelas and Sovas that crawl around the room's surfaces.</summary>
     internal CrawlersBehavior CrawlersBehavior { get; }
 
     /// <summary>The Chozo statues that come to life: the one that carries Samus and the one that drains the acid.</summary>
-    private ChozoStatueBehavior ChozoStatueBehavior { get; }
+    internal ChozoStatueBehavior ChozoStatueBehavior { get; }
 
     /// <summary>The Choots, Maridia's flat fish that leap when Samus comes near and glide back down.</summary>
     internal ChootBehavior ChootBehavior { get; }
 
     /// <summary>The steam that vents from Ceres station's walls.</summary>
-    private CeresSteamBehavior CeresSteamBehavior { get; }
+    internal CeresSteamBehavior CeresSteamBehavior { get; }
 
     /// <summary>The ceiling tiles that fall in Ceres station during its escape.</summary>
     internal CeresFallingTiles CeresFallingTiles { get; }
@@ -427,43 +427,43 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal SaveStationElectricity SaveStationElectricity { get; }
 
     /// <summary>Ridley in Ceres station: his fight over the Baby Metroid and his getaway.</summary>
-    private CeresRidleyBehavior CeresRidleyBehavior { get; }
+    internal CeresRidleyBehavior CeresRidleyBehavior { get; }
 
     /// <summary>Ceres station's doors and walls, and the quake that shakes them during the escape.</summary>
-    private CeresDoorBehavior CeresDoorBehavior { get; }
+    internal CeresDoorBehavior CeresDoorBehavior { get; }
 
     /// <summary>The Cacatacs, Maridia's cacti that shoot spikes.</summary>
-    private CacatacBehavior CacatacBehavior { get; }
+    internal CacatacBehavior CacatacBehavior { get; }
 
     /// <summary>The Bulls, floating creatures that drift after Samus and recoil from shots.</summary>
-    private BullBehavior BullBehavior { get; }
+    internal BullBehavior BullBehavior { get; }
 
     /// <summary>The Boyons, Norfair's jelly blobs that bounce in place.</summary>
     internal BoyonBehavior BoyonBehavior { get; }
 
     /// <summary>The boulders that roll and bounce down at Samus.</summary>
-    private BoulderBehavior BoulderBehavior { get; }
+    internal BoulderBehavior BoulderBehavior { get; }
 
     /// <summary>Botwoon, Maridia's mini-boss, with its body and spit.</summary>
-    private BotwoonBehavior BotwoonBehavior { get; }
+    internal BotwoonBehavior BotwoonBehavior { get; }
 
     /// <summary>The Torizos, Bomb Torizo and Golden Torizo.</summary>
-    private TorizoBehavior TorizoBehavior { get; }
+    internal TorizoBehavior TorizoBehavior { get; }
 
     /// <summary>The face blocks in Blue Brinstar and their turning animation.</summary>
-    private BlueBrinstarFaceBlockBehavior BlueBrinstarFaceBlockBehavior { get; }
+    internal BlueBrinstarFaceBlockBehavior BlueBrinstarFaceBlockBehavior { get; }
 
     /// <summary>The Beetoms, which leap at Samus, latch on and drain her energy.</summary>
-    private BeetomBehavior BeetomBehavior { get; }
+    internal BeetomBehavior BeetomBehavior { get; }
 
     /// <summary>The Baby Metroid's meeting with Samus in Tourian, where it latches on and lets her go.</summary>
-    private BabyMetroidCutsceneBehavior BabyMetroidCutsceneBehavior { get; }
+    internal BabyMetroidCutsceneBehavior BabyMetroidCutsceneBehavior { get; }
 
     /// <summary>The Atomics, the Wrecked Ship's spinning atoms that drift after Samus.</summary>
     internal AtomicBehavior AtomicBehavior { get; }
 
     /// <summary>The Alcoons, Norfair's lizards that leap out at Samus and spit fireballs.</summary>
-    private AlcoonBehavior AlcoonBehavior { get; }
+    internal AlcoonBehavior AlcoonBehavior { get; }
 
     /// <summary>The room's earthquake, which every enemy, room object and effect that shakes the room starts or sustains.</summary>
     internal RoomEarthquake Earthquake { get; }
@@ -475,7 +475,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal EnemySpeciesRegistry Species { get; }
 
     /// <summary>The loaded room's enemy definitions, services and artwork, shared with the composed owners.</summary>
-    private EnemyRoomBinding Room { get; }
+    internal EnemyRoomBinding Room { get; }
 
     /// <summary>
     /// Rebinds the room's active escape typewriters to the host's current escape-warning text, after the host binds new
@@ -497,7 +497,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     private readonly IEnemySpecies[] _species;
 
     /// <summary>The room's effect actors.</summary>
-    private RoomEffectActors EffectActors { get; }
+    internal RoomEffectActors EffectActors { get; }
 
     /// <summary>
     /// Whether a Puyo striking a ceiling turns back: told of the room's draws, the charge flare's and the HUD's redraws,
@@ -524,7 +524,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal IGunshipSession Gunship => field ??= new GunshipSession(GunshipBehavior);
 
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
-    internal ICeresEncounter Ceres => field ??= new CeresEncounter(RidleyEncounter, CeresRidleyBehavior, CeresEscape);
+    internal ICeresEncounter Ceres => field ??= new CeresEncounter(RidleyEncounter, CeresRidleyBehavior, CeresEscape, CeresDoorBehavior);
 
     /// <summary>The state and hooks the room main behaviours and scrolling use.</summary>
     internal IEnemyRoomMainHooks RoomMainHooks => field ??= new EnemyRoomMainHooks(BossEncounters, CameraDistance, CameraFloor);
@@ -563,10 +563,10 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     FloorView? IEnemyDisplaySources.CeresGetawayFloor => CeresEscape.ShownFloor;
 
     /// <inheritdoc/>
-    RoomWrittenOverlay IEnemyDisplaySources.CeresWarning => CeresEscape.Warning.Overlay;
+    RoomWarningText IEnemyDisplaySources.CeresWarning => CeresEscape.Warning.Overlay;
 
     /// <inheritdoc/>
-    RoomWrittenOverlay IEnemyDisplaySources.ZebesWarning => MotherBrainEncounter.ZebesWarning;
+    RoomWarningText IEnemyDisplaySources.ZebesWarning => MotherBrainEncounter.ZebesWarning;
     /// <inheritdoc/>
     ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.CeresGetawayChamberWalls => CeresEscape.ChamberWalls();
     /// <inheritdoc/>
@@ -592,19 +592,11 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>Grapple endpoint resolution against the room's enemies.</summary>
     internal IGrappleTargets GrappleTargets => GrappleBehavior;
 
-    /// <summary>The current pass's results, written by their producers and read back until the next pass.</summary>
-    private EnemyFrameResultBuilder FrameResults { get; } = new();
-
-    /// <summary>The bosses' results from the enemy pass.</summary>
-    private BossFrameResultBuilder BossFrameResults { get; } = new();
+    /// <summary>The events the enemies have published since the current pass or the room's load began, in publication order.</summary>
+    internal EnemyPassEvents PassEvents { get; } = new();
 
     /// <inheritdoc/>
-    public EnemyFrameResult LastEnemyFrame => BuildFrameResult();
-
-    /// <summary>The enemy pass's results so far, the bosses' included.</summary>
-    private EnemyFrameResult BuildFrameResult() => new(FrameResults.Elevator, FrameResults.ElevatorClearedProjectileData,
-        BossFrameResults.DraygonDiscardedSamusPoseRequests, BossFrameResults.CeresEscapeStarted, BossFrameResults.CameraXOverride,
-        BossFrameResults.RemoveLiquidEffects, FrameResults.Gunship, BossFrameResults.RoomEffects(), FrameResults.Glow);
+    public EnemyFrameResult LastEnemyFrame => new(PassEvents.Published);
 
     /// <summary>
     /// Creates a room's enemy system: every enemy place, each with its stable ordinal, without loading a population or binding artwork, random-number, or gameplay services.
@@ -640,7 +632,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         PuyoCeilingTurn = compatibility.PuyoCeilingTurn;
         EffectActors = new RoomEffectActors(Presentation, compatibility.EffectActorPlaces, PuyoCeilingTurn);
         Projectiles = new EnemyProjectileEngine(Room, Presentation, EffectActors, Earthquake, Audio);
-        GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, Places, FrameResults, Presentation);
+        GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, Places, PassEvents, Presentation);
         Terrain = new EnemyTerrain(breakableTerrain);
         CorpseRowDust = new CorpseRowDust(Audio);
         MotherBrainEncounter = new MotherBrainEncounter(Audio, BossEncounters);
@@ -650,9 +642,9 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         RidleyProjectiles = new RidleyProjectiles(Room, Projectiles);
         RidleyBody = new RidleyBody(new RidleyFlight(Earthquake), new RidleyReveal(doorPassage, Audio), new RidleyBodyAnimation(Audio, RidleyProjectiles),
             new RidleyBodyContact(Collision), new RidleyDrawing(Presentation), RidleyTail);
-        CeresEscape = new CeresEscape(new CeresEscapeDependencies { FrameResults = BossFrameResults, Room = Room, Audio = Audio, Presentation = Presentation, Status = RidleyEncounter, RoomStatus = RoomStatus, BossArtwork = BossArtworkBinding, UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence });
+        CeresEscape = new CeresEscape(new CeresEscapeDependencies { PassEvents = PassEvents, Room = Room, Audio = Audio, Presentation = Presentation, Status = RidleyEncounter, RoomStatus = RoomStatus, BossArtwork = BossArtworkBinding, UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence });
         ZoaBehavior = new ZoaBehavior();
-        ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults, doorPassage);
+        ElevatorBehavior = new ElevatorBehavior(Room, Audio, PassEvents, doorPassage);
         ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Places = Places, DoorPassage = doorPassage, RoomStatus = RoomStatus, Collision = Collision, FadeStepCount = compatibility.FadeStepCount, DeathsAndDrops = DeathsAndDrops });
         YardBehavior = new YardEnemyBehavior(Room, Terrain, Earthquake, Collision, Audio, compatibility.YardKickDistance);
         YappingMawBehavior = new YappingMawBehavior(Projectiles, EffectActors, ScrollCap, Audio);
@@ -670,14 +662,14 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             TourianUnlockEffects = unlockEffects;
             TourianStatue = new TourianStatueActors(statueScene, unlockEffects);
         }
-        SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Presentation = Presentation, Projectiles = Projectiles, EffectActors = EffectActors, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults, CameraFloor = CameraFloor });
+        SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Presentation = Presentation, Projectiles = Projectiles, EffectActors = EffectActors, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, PassEvents = PassEvents, CameraFloor = CameraFloor });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, EffectActors, compatibility.FallingSparkFloorProbe);
         SparkBehavior = new SparkBehavior(FallingSparksBehavior);
         SkulteraBehavior = new SkulteraBehavior(Terrain);
         SkreeBehavior = new SkreeBehavior(Audio, Projectiles, DeathsAndDrops);
         ShuttersBehavior = new ShuttersBehavior(Audio, Places);
-        ShitroidBehavior = new ShitroidBehavior(Room, Places, compatibility.FadeStepCount, BossFrameResults, Audio);
-        DeadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = Room, Terrain = Terrain, Shitroid = new ShitroidFeeding(Places), FrameContext = FrameContext, Projectiles = Projectiles, Collision = Collision, RowDust = CorpseRowDust });
+        BabyMetroidBehavior = new BabyMetroidBehavior(Room, Places, compatibility.FadeStepCount, PassEvents, Audio);
+        DeadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = Room, Terrain = Terrain, BabyMetroidFeeding = new BabyMetroidFeeding(Places), FrameContext = FrameContext, Projectiles = Projectiles, Collision = Collision, RowDust = CorpseRowDust });
         ShaktoolBehavior = new ShaktoolBehavior(Terrain, Places, Collision);
         SbugBehavior = new SbugBehavior();
         RipperBehavior = new RipperBehavior(Terrain);
@@ -691,26 +683,26 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         PolypBehavior = new PolypBehavior(Room, Projectiles);
         PlatformsBehavior = new PlatformsBehavior(Terrain);
         PipeBugsBehavior = new PipeBugsBehavior(Places);
-        PhantoonBehavior = new PhantoonBehavior(new PhantoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops , BossArtwork = BossArtworkBinding, FrameResults = BossFrameResults, Encounters = BossEncounters, Places = Places });
+        PhantoonBehavior = new PhantoonBehavior(new PhantoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops , BossArtwork = BossArtworkBinding, PassEvents = PassEvents, Encounters = BossEncounters, Places = Places });
         OwtchBehavior = new OwtchBehavior(Room);
         OldTourianEscapeShaftWallBehavior = new OldTourianEscapeShaftWallBehavior(Projectiles, Audio);
         NuclearWaffleBehavior = new NuclearWaffleBehavior(Projectiles, EffectActors, Audio);
-        NorfairRioBehavior = new NorfairRioBehavior(Room, Terrain, Places, Audio);
-        NorfairLavaJumpingEnemyBehavior = new NorfairLavaJumpingEnemyBehavior(Room, Places, Audio);
+        GerutaBehavior = new GerutaBehavior(Room, Terrain, Places, Audio);
+        SqueeptBehavior = new SqueeptBehavior(Room, Places, Audio);
         NoobTubeBehavior = new NoobTubeBehavior(Room, Projectiles);
         NinjaSpacePirateBehavior = new NinjaSpacePirateBehavior(Room, Terrain, Projectiles, EffectActors, WalkingSpacePirateBehavior);
         MultiviolaBehavior = new MultiviolaBehavior(Terrain);
         BabyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Lifecycle = Lifecycle, Room = Room, Audio = Audio, Places = Places, FrameContext = FrameContext, Projectiles = Projectiles, MotherBrainEncounter = MotherBrainEncounter });
-        MotherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { FrameResults = BossFrameResults, Lifecycle = Lifecycle, Places = Places, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, RoomActors = new MotherBrainRoomActors(BabyMetroidCutsceneBehavior, RinkaBehavior, WalkingSpacePirateBehavior, RidleyProjectiles)  });
+        MotherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { PassEvents = PassEvents, Lifecycle = Lifecycle, Places = Places, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, RoomActors = new MotherBrainRoomActors(BabyMetroidCutsceneBehavior, RinkaBehavior, WalkingSpacePirateBehavior, RidleyProjectiles)  });
         MochtroidBehavior = new MochtroidBehavior(Terrain, Audio, FrameContext, Collision);
         MetroidBehavior = new MetroidBehavior(Room, Terrain, Audio, EffectActors, FrameContext, DeathsAndDrops);
         MetareeBehavior = new MetareeBehavior(Projectiles, Audio);
-        MaridiaLargeSnailBehavior = new MaridiaLargeSnailBehavior(Terrain, Collision, Audio);
+        OumBehavior = new OumBehavior(Terrain, Collision, Audio);
         MamaTurtleBehavior = new MamaTurtleBehavior(Terrain, Earthquake, Places, Collision, Audio);
         MagdolliteBehavior = new MagdolliteBehavior(Room, Projectiles, Places, Collision, DeathsAndDrops, Audio);
-        LowerNorfairRioBehavior = new LowerNorfairRioBehavior(Room, Terrain, Places, Audio);
+        HoltzBehavior = new HoltzBehavior(Room, Terrain, Places, Audio);
         KzanBehavior = new KzanBehavior(Places, Audio);
-        KraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { FrameResults = BossFrameResults, Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, EffectActors = EffectActors, Presentation = BossPresentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance  });
+        KraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { PassEvents = PassEvents, Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, EffectActors = EffectActors, Presentation = BossPresentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance  });
         KiHunterBehavior = new KiHunterBehavior(Room, Terrain, Projectiles, Audio, Places);
         KagoBehavior = new KagoBehavior(Room, Projectiles, Earthquake, DeathsAndDrops, RoomStatus, Audio);
         HoppersBehavior = new HoppersBehavior(Room, Terrain, Audio);
@@ -725,16 +717,16 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         EtecoonBehavior = new EtecoonBehavior(Terrain, Earthquake, doorPassage, Audio);
         EscapeExplosionsBehavior = new EscapeExplosionsBehavior(Audio, EffectActors);
         EscapeAnimalsBehavior = new EscapeAnimalsBehavior(Room, Terrain);
-        DraygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { FrameResults = BossFrameResults, Places = Places, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, EffectActors = EffectActors, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ScrollCap = ScrollCap , BossArtwork = BossArtworkBinding });
+        DraygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { PassEvents = PassEvents, Places = Places, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, EffectActors = EffectActors, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ScrollCap = ScrollCap , BossArtwork = BossArtworkBinding });
         DragonBehavior = new DragonBehavior(Projectiles, Places, Collision, Audio);
         DownwardGateBehavior = new DownwardGateBehavior(Projectiles);
         DeadTourianBehavior = new DeadTourianBehavior(Room, FrameContext, Projectiles, CorpseRowDust);
         DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation, Audio);
         DachoraBehavior = new DachoraBehavior(Terrain, Places, Audio);
-        var crocomireAccess = new CrocomireEncounterAccess(BossFrameResults, Room, Projectiles, Audio);
+        var crocomireAccess = new CrocomireEncounterAccess(PassEvents, Room, Projectiles, Audio);
         CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Access = crocomireAccess, Places = Places, BodyLayer = new CrocomireBodyLayer(EffectActors, BossPresentation.Surfaces, crocomireAccess, RoomFx), Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance, RoomStatus = RoomStatus, Encounters = BossEncounters });
         CrawlersBehavior = new CrawlersBehavior(Terrain, Earthquake);
-        ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx);
+        ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx, PassEvents);
         ChootBehavior = new ChootBehavior();
         CeresSteamBehavior = new CeresSteamBehavior(Room, Collision);
         // The turning elevator shaft alone places vents that ride its turn (#2480).
@@ -743,17 +735,17 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             : CeresSteamVentsHoldingPlace.Instance);
         CeresFallingTiles = new CeresFallingTiles(Projectiles, Audio);
         SaveStationElectricity = new SaveStationElectricity(Projectiles);
-        CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter, RidleyScene = RidleyEncounter });
+        CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter });
         // A room with a turning floor alone places the elevator room's blocked door, which cycles the floor's platform (#2426).
         CeresElevatorDoorFactory? elevatorDoors = dependencies.Scenery.Floor is { } floor ? new CeresElevatorDoorFactory(CeresDoorBehavior, floor) : null;
         CacatacBehavior = new CacatacBehavior(Room, Projectiles, Audio);
         BullBehavior = new BullBehavior(compatibility.BullInheritance);
         BoyonBehavior = new BoyonBehavior(Audio);
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles, Audio);
-        BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, EffectActors = EffectActors, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
+        BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, EffectActors = EffectActors, Collision = Collision, DeathsAndDrops = DeathsAndDrops, PassEvents = PassEvents });
         AnimationPlayer = new EnemyAnimationPlayer(Presentation);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { BossEncounters = BossEncounters, DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, AnimationPlayer = AnimationPlayer, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
-        TorizoBehavior = new TorizoBehavior(new TorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
+        TorizoBehavior = new TorizoBehavior(new TorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, PassEvents = PassEvents });
         BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(doorPassage);
         BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision, compatibility.BeetomInheritance);
         AtomicBehavior = new AtomicBehavior();
@@ -761,7 +753,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         // Every species with room or frame lifecycle state, in the game's reset order.
         _species =
         [
-            ShitroidBehavior,
+            BabyMetroidBehavior,
             BoyonBehavior,
             MamaTurtleBehavior,
             MetroidBehavior,
@@ -789,10 +781,10 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             SporeSpawnBehavior,
             RinkaBehavior,
             RioBehavior,
-            NorfairLavaJumpingEnemyBehavior,
-            NorfairRioBehavior,
-            LowerNorfairRioBehavior,
-            MaridiaLargeSnailBehavior,
+            SqueeptBehavior,
+            GerutaBehavior,
+            HoltzBehavior,
+            OumBehavior,
             RipperBehavior,
             DragonBehavior,
             KraidBehavior,
@@ -840,7 +832,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
-        Species = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(GetCollision), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, new CeresDoorFactory(CeresDoorBehavior), steamVents, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, TorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior, NoobTubeBehavior,
+        Species = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(GetCollision), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, OumBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, GerutaBehavior, HoltzBehavior, SqueeptBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, BabyMetroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, new CeresDoorFactory(CeresDoorBehavior), steamVents, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, TorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior, NoobTubeBehavior,
             new RidleyEntityFactory(NorfairRidleyBehavior, CeresRidleyBehavior, RidleyEncounter),
             .. Present<IEnemyEntityFactory>(TourianEntranceStatueBehavior), .. Present<IEnemyEntityFactory>(elevatorDoors)],
             // What the owners the room's scenery did not let it build would have placed; the registry refuses a room that
@@ -889,8 +881,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         GunshipBehavior.BeginRoomLoad(request.GunshipScenario);
         FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);
         Presentation.BindBackgrounds(request.Appearance);
-        FrameResults.Begin();
-        BossFrameResults.Begin();
+        PassEvents.Begin();
         // Initialization AI reads the already-positioned destination camera before the first enemy frame captures its own.
         RinkaBehavior.SetRinkaCamera(request.Camera);
 
@@ -915,8 +906,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         ScrollCap.BeginFrame(frame.SamusPreviousPositionCheckpoint);
         FrameContext.BeginFrame(frame.TimeIsFrozen, frame.FrameCounter);
         var aiFrame = new ClockedEnemyAiFrame(frame, new FrameCounters(frame.ShortCounter));
-        FrameResults.Begin();
-        BossFrameResults.Begin();
+        PassEvents.Begin();
         foreach (IEnemySpecies species in _species)
             species.BeginEnemyFrame(frame);
         Drawing.Clear();
@@ -941,11 +931,11 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 // hit must publish Phantoon's hurt clock before this frame ticks it.
                 if (place.Entity is IEnemyContactHooks hooks)
                     hooks.ResolveBeforeOrdinaryHits(frame);
-                Collision.ResolveOrdinaryProjectileHit(frame.SamusProjectiles, frame.SharedProjectiles, Room.Area,
+                Collision.ResolveOrdinaryProjectileHit(frame.SamusProjectiles, frame.SamusBombs, Room.Area,
                     frame.Samus, place, frame.Camera);
                 // Samus's input phase has already moved her bombs. The enemy pass checks
                 // them before this enemy's touch and AI, so an escape a bomb starts begins this update.
-                Collision.ResolveOrdinaryBombHit(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, place, frame.Camera);
+                Collision.ResolveOrdinaryBombHit(frame.SamusBombs, frame.SamusProjectiles, frame.Samus, place, frame.Camera);
                 if (place.IsFree)
                     continue;
                 Collision.ResolveOrdinarySamusContact(frame.Samus, frame.PseudoScrew, frame.ControllerInput, frame.Level, place, frame.Camera);
@@ -1073,16 +1063,16 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         BlueBrinstarFaceBlockBehavior.StepGlow();
         if (!frame.TimeIsFrozen)
             EffectActors.StepRoomEffectActors();
-        return BuildFrameResult();
+        return LastEnemyFrame;
     }
 
     /// <summary>
     /// Shakes the solid or frozen enemy Samus's latest wall jump launched from, as the enemy pass does before any enemy
     /// updates. While no enemy place is filled the request waits.
     /// </summary>
-    private void ShakeWallJumpLaunchEnemy(SamusState samus)
+    internal void ShakeWallJumpLaunchEnemy(SamusState samus)
     {
-        if (Places.EnemyCount == 0 || samus.Kinematics.TakeWallJumpLaunchShake() is not { } launchedFrom)
+        if (Places.EnemyCount == 0 || samus.Kinematics.WallJumpLaunch.Take() is not { } launchedFrom)
             return;
         launchedFrom.ShakeFromWallJumpLaunch();
     }

@@ -16,11 +16,11 @@ internal static class CacatacNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<CacatacSegment>[] Entries =
     [
-        new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideUpIdle, 0x9e8a),
-        new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideUpAttack, 0x9eb0),
-        new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideDownIdle, 0x9eda),
-        new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideDownIdlePoses, 0x9edc),
-        new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideDownAttack, 0x9f00),
+        new NativeProgramEntry<CacatacSegment>(CacatacSegment.OnFloorIdle, 0x9e8a),
+        new NativeProgramEntry<CacatacSegment>(CacatacSegment.OnFloorAttack, 0x9eb0),
+        new NativeProgramEntry<CacatacSegment>(CacatacSegment.OnCeilingIdle, 0x9eda),
+        new NativeProgramEntry<CacatacSegment>(CacatacSegment.OnCeilingIdlePoses, 0x9edc),
+        new NativeProgramEntry<CacatacSegment>(CacatacSegment.OnCeilingAttack, 0x9f00),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

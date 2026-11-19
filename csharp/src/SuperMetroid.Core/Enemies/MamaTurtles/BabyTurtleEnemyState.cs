@@ -39,7 +39,7 @@ public sealed class BabyTurtleEnemyState
     /// Signed whole-pixel velocity per update: <see cref="HorizontalSpeed"/> toward <see cref="Heading"/>, and
     /// <see cref="SpinFallSpeed"/> downward.
     /// </summary>
-    public Offset16<RoomPixels> Velocity => new(Heading == HorizontalDirection.Right ? HorizontalSpeed : -HorizontalSpeed, SpinFallSpeed);
+    public Offset16<RoomPixels> Velocity => new(HorizontalSpeed.Toward(Heading), SpinFallSpeed);
 
     /// <summary>Gets the phase-specific Baby Turtle countdown.</summary>
     public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();

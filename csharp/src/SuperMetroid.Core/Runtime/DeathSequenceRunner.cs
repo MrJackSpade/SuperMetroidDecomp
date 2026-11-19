@@ -76,7 +76,6 @@ internal sealed class DeathSequenceRunner
             samus,
             _player.Colours,
             samus.Artwork.Body.DeathSteps);
-        _player.LastDeathSequenceStep = step;
         samus.DeathSequence.Draw(step.Draws, samus, _sprites, room.Camera.PixelPosition, _display.ActiveTurningFloor);
         _sprites.FinalizeFrame();
         return step;

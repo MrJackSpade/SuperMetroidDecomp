@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Which sequence of colours X-ray's suit colouring shows on the visor, and whether teardown has asked it to restore the
-/// normal suit colours.
+/// Which sequence of colours X-ray's suit colouring shows on the visor, or that X-ray has torn down and the colouring shows
+/// the normal suit colours at its next update.
 /// </summary>
 public enum XrayVisorShadeMode
 {
@@ -12,6 +12,6 @@ public enum XrayVisorShadeMode
     /// <summary>The beam has reached full width: the visor cycles the three full-beam colours.</summary>
     FullBeam,
 
-    /// <summary>X-ray has torn down: the next colouring update restores the normal suit shade and clears this mode.</summary>
-    RestoreSuitShade,
+    /// <summary>X-ray has torn down: the colouring's next update shows the normal suit shade and returns to widening.</summary>
+    TornDown,
 }

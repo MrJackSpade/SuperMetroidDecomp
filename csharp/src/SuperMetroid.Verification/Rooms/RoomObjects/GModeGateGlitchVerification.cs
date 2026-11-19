@@ -122,7 +122,7 @@ internal static class GModeGateGlitchVerification
 
             GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
             bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
-            shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, cameraPosition: new(0, 224), sharedProjectiles: bombs, progression: new SharedGameState(new SharedRandom()));
+            shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, cameraPosition: new(0, 224), samusBombs: bombs, progression: new SharedGameState(new SharedRandom()));
 
             SamusProjectile shot = shots.Shots[0];
             if (!shot.Type.IsNone && shot.Position.X.Whole < 112 && passedGateFrame < 0)
@@ -451,7 +451,7 @@ internal static class GModeGateGlitchVerification
                 block,
                 SamusBombProjectileSystem.PowerBombType),
             "Power Bomb publishes its hit to the intact glass-tube resident");
-        AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), (roomObjects.PopulationPlaces.Single().Behaviour as NoobTubeObject)?.PendingHit,
+        AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), (roomObjects.PopulationPlaces.Single().Behaviour as NoobTubeObject)?.AwaitingStrike,
             "G-Mode-disabled tube retains the pending Power Bomb hit");
         AssertTrue(!brokenEvent && projectiles.Count == 0 && !samus.Control.InputLocked,
             "without a PLM handler pass the glass tube cannot arm, break, or lock Samus");
@@ -488,7 +488,7 @@ internal static class GModeGateGlitchVerification
         samus.ReserveEnergy = 4;
         samus.MaxReserveEnergy = 100;
         samus.ReserveTankMode = ReserveTankMode.Auto;
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }),

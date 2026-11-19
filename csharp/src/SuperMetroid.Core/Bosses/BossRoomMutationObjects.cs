@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses;
 
 /// <summary>
 /// The boss-room terrain spawners: Botwoon's wall, the Spore Spawn ceiling, Phantoon's door, and the Kraid, Crocomire,
-/// Shitroid wall and Mother Brain room mutations. Each spawner accepts only its own family's mutations, and all of them contend for the
+/// Baby Metroid wall and Mother Brain room mutations. Each spawner accepts only its own family's mutations, and all of them contend for the
 /// room's shared room-object places with ordinary room objects.
 /// </summary>
 internal sealed class BossRoomMutationObjects
@@ -22,7 +22,7 @@ internal sealed class BossRoomMutationObjects
         SporeSpawnCeiling = new SporeSpawnCeilingObjects(places);
         KraidRoom = new KraidRoomObjects(places);
         CrocomireArena = new CrocomireArenaObjects(places);
-        ShitroidWall = new ShitroidWallObjects(places);
+        BabyMetroidWall = new BabyMetroidWallObjects(places);
         MotherBrainRoom = new MotherBrainRoomObjects(places);
         PhantoonDoor = new PhantoonDoorObjects(places);
     }
@@ -39,8 +39,8 @@ internal sealed class BossRoomMutationObjects
     /// <summary>Spawns Crocomire's bridge and invisible-wall mutations.</summary>
     internal CrocomireArenaObjects CrocomireArena { get; }
 
-    /// <summary>Spawns the Shitroid's invisible-wall clear or create.</summary>
-    internal ShitroidWallObjects ShitroidWall { get; }
+    /// <summary>Spawns the Baby Metroid's invisible-wall clear or create.</summary>
+    internal BabyMetroidWallObjects BabyMetroidWall { get; }
 
     /// <summary>Spawns Mother Brain's wall, escape-door, background-row and tube mutations.</summary>
     internal MotherBrainRoomObjects MotherBrainRoom { get; }

@@ -167,14 +167,14 @@ internal static class EnemyInstructionOwnerCoverageVerification
             place.Processing = population.Processing;
             place.Presence = population.Presence;
             place.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
-            place.AnimationClock.ShowsNewFrame = false;
+            SuperMetroid.Core.PrivateState.Set(place.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), false);
 
             place.AnimationClock.StepOnNextUpdate();
 
             bool translatedRecord = true;
             try
             {
-                EnemyLifecycle.RunInitializationAi(place, new EnemyPopulationSurroundings(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), GameplayAction.None, default));
+                EnemyLifecycle.SetUpEnemy(place, new EnemyPopulationSurroundings(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), GameplayAction.None, default));
             }
             catch (Exception exception)
                 when (IsUntranslatedEnemyInitializer(

@@ -11,14 +11,14 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainGlassObjects
 {
     /// <summary>The area's boss-defeat flags.</summary>
-    private readonly IAreaBossFlagReader _bosses;
+    private readonly IDefeatedBossesReader _bosses;
     /// <summary>The game's event flags.</summary>
-    private readonly IGlobalEventFlags _events;
+    private readonly IStoryEvents _events;
     /// <summary>Room sound queue receiving the glass-shatter effect.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Binds the glass animation's handling to the room's room-object places, event services, and sound queue.</summary>
-    internal MotherBrainGlassObjects(IAreaBossFlagReader bosses, IGlobalEventFlags events, RoomObjectSoundQueue sounds)
+    internal MotherBrainGlassObjects(IDefeatedBossesReader bosses, IStoryEvents events, RoomObjectSoundQueue sounds)
     {
         _bosses = bosses;
         _events = events;

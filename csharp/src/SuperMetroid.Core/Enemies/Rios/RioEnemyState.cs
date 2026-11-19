@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Rios;
 
@@ -20,11 +21,11 @@ public sealed class RioEnemyState
     public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// Whether its swoop's opening or its cooldown animation has finished: set by the animation's finishing cue and cleared
+    /// The finish of its swoop's opening or its cooldown animation, a typed carried event of its action (#2562): raised by the animation's finishing cue and cleared
     /// as its main AI moves on. It stays a mark beside the action rather than a phase of it (#2450): a wall or floor can
     /// turn the dive into its rebound before the opening the dive waits for has finished, or on the update after; the
     /// opening's finish then carries through the rebound and, as the Rio lands, ends its wait for the cooldown animation
     /// at once.
     /// </summary>
-    public bool AnimationFinished { get; internal set; }
+    public RioAnimationFinish Finish { get; } = new();
 }

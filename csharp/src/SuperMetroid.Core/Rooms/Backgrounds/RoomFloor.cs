@@ -3,37 +3,42 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// The turning floor a Ceres room shows (#1349, #1467, #1626): its tileset's installed floor and the frame each of its
-/// animated parts shows now, the elevator platform, the Baby's capsule and Ridley's wings. A part no animation has shown
-/// a frame of yet shows as the installed floor pictures it. Room state; each frame the display composes the floor from
-/// it as an <see cref="AffineFloor"/>.
+/// The turning floor a Ceres room shows (#1349, #1467, #1626, #2573): its tileset's installed floor, which holds only the
+/// floor, and the picture each actor shown on it shows now, the elevator platform, the Baby's capsule and Ridley's wings,
+/// drawn with the floor's transform over it. An actor that has shown no picture yet shows the one it rests in as the room
+/// loads, where the tileset's floor has it rest (<see cref="RoomFloorSheet.Resting"/>), and otherwise nothing. Room state;
+/// each frame the display composes the floor from it as an <see cref="AffineFloor"/>.
 /// </summary>
 public sealed class RoomFloor
 {
-    /// <summary>The frame each animated part shows now; a part absent from it shows as the installed floor pictures it.</summary>
-    private readonly Dictionary<CeresFloorPart, CeresFloorAnimationFrame> shown = [];
+    /// <summary>The picture each actor on the floor shows now; an actor absent from it shows nothing.</summary>
+    private readonly Dictionary<CeresFloorActor, CeresFloorActorPicture> shown;
 
     /// <summary>The floor as composed, until a part shows another frame.</summary>
     private AffineFloor? published;
 
-    /// <summary>Starts from the tileset's floor with every part as the floor pictures it.</summary>
-    /// <param name="sheet">The tileset's installed floor and the pictures of its parts' frames.</param>
-    public RoomFloor(RoomFloorSheet sheet) => Sheet = Ensure.NotNull(sheet);
-
-    /// <summary>The tileset's installed floor and the pictures of its parts' frames.</summary>
-    private RoomFloorSheet Sheet { get; }
-
-    /// <summary>Shows <paramref name="frame"/> on the part of the floor it animates.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not a floor animation frame.</exception>
-    public void Show(CeresFloorAnimationFrame frame)
+    /// <summary>Starts from the tileset's floor with every actor resting on it showing its resting picture.</summary>
+    /// <param name="sheet">The tileset's installed floor and the pictures of the actors shown on it.</param>
+    public RoomFloor(RoomFloorSheet sheet)
     {
-        CeresFloorPart part = CeresFloorParts.Of(frame);
-        if (shown.TryGetValue(part, out CeresFloorAnimationFrame current) && current == frame) return;
-        shown[part] = frame;
+        Sheet = Ensure.NotNull(sheet);
+        shown = new Dictionary<CeresFloorActor, CeresFloorActorPicture>(sheet.Resting);
+    }
+
+    /// <summary>The tileset's installed floor and the pictures of the actors shown on it.</summary>
+    public RoomFloorSheet Sheet { get; }
+
+    /// <summary>The actor <paramref name="frame"/> is a picture of shows it from now on.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not a picture of the floor's actors.</exception>
+    public void Show(CeresFloorActorPicture frame)
+    {
+        CeresFloorActor actor = CeresFloorActors.Of(frame);
+        if (shown.TryGetValue(actor, out CeresFloorActorPicture current) && current == frame) return;
+        shown[actor] = frame;
         published = null;
     }
 
-    /// <summary>The floor the next frame shows, its parts' frames over the installed floor; shared until a part changes.</summary>
+    /// <summary>The floor the next frame shows, every actor's picture over the installed floor; shared until an actor changes.</summary>
     public AffineFloor Publish() => published ??= new AffineFloor(Sheet.Floor.Image,
-        [.. Enum.GetValues<CeresFloorPart>().Where(shown.ContainsKey).Select(part => Sheet.Picture(shown[part]))]);
+        [.. CeresFloorActors.DrawingOrder.Where(shown.ContainsKey).Select(actor => Sheet.Picture(shown[actor]))]);
 }

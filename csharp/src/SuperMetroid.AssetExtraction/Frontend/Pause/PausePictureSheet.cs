@@ -45,8 +45,8 @@ internal static class PausePictureSheet
         BackgroundTile[] buttons = ButtonRows(maps);
         int[] labelCells = [.. PauseMenuButtonLabels.ButtonLabelSpans.SelectMany(span => Enumerable.Range(span.Word, span.Count))];
         yield return ScreenPictureSubject.Cells(PauseFramePictures.ButtonRowsFrame, buttons, Columns, [.. buttonCells.Except(labelCells)]);
-        foreach (PauseButtonLabel label in Enum.GetValues<PauseButtonLabel>())
-        foreach (PauseButtonLabelShade shade in Enum.GetValues<PauseButtonLabelShade>())
+        foreach (PauseButtonLabel label in PauseSheetFrameOrder.ButtonLabels)
+        foreach (PauseButtonLabelShade shade in PauseSheetFrameOrder.ButtonLabelShades)
         {
             BackgroundTile[] shaded = ButtonRows(maps);
             int[] cells = [.. LabelCells(label)];
@@ -128,8 +128,8 @@ internal static class PausePictureSheet
         foreach (AreaId area in AreaIds.All)
             yield return PauseFramePictures.BackdropFrame(area);
         yield return PauseFramePictures.ButtonRowsFrame;
-        foreach (PauseButtonLabel label in Enum.GetValues<PauseButtonLabel>())
-        foreach (PauseButtonLabelShade shade in Enum.GetValues<PauseButtonLabelShade>())
+        foreach (PauseButtonLabel label in PauseSheetFrameOrder.ButtonLabels)
+        foreach (PauseButtonLabelShade shade in PauseSheetFrameOrder.ButtonLabelShades)
             yield return PauseFramePictures.ButtonFrame(label, shade);
         foreach (string equipment in PauseEquipmentPageLayout.SubjectNames())
             yield return equipment;

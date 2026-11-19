@@ -23,7 +23,7 @@ internal sealed class EnemyShotReaction
     internal EnemyShotStage? BeforeImpact { get; init; }
 
     /// <summary>Whether every family takes only the collision prelude instead of an impact.</summary>
-    internal bool AlwaysUsesCollisionPrelude { get; init; }
+    internal bool EndsWithoutImpact { get; init; }
 
     /// <summary>Runs after the impact, before health is sampled.</summary>
     internal Action<EnemyShotContext>? AfterImpact { get; init; }

@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class CinematicTextGlowDefinitions
 {
     /// <summary>Updates between one step of a glow and the next.</summary>
-    internal const int VariantDuration = 5;
+    internal const int GlowStepDuration = 5;
 }

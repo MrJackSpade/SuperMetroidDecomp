@@ -14,4 +14,12 @@ internal static class DefeatedBossesKeys
         [DefeatedBosses.AreaMiniBoss] = "AreaMiniBoss",
         [DefeatedBosses.AreaTorizo] = "AreaTorizo",
     });
+
+    /// <summary>Each DefeatedBosses flag on its own in the order a save and an installed document list a set of them (#2567), written out beside the keys so reordering the members never changes the bytes written; the empty set is no flag.</summary>
+    internal static IReadOnlyList<DefeatedBosses> ListedOrder { get; } =
+    [
+        DefeatedBosses.AreaBoss,
+        DefeatedBosses.AreaMiniBoss,
+        DefeatedBosses.AreaTorizo,
+    ];
 }

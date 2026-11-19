@@ -72,7 +72,7 @@ internal static class MenuScreenPublicationVerification
         AssertEqual(FileSelectPhase.Main, fileSelect.Phase, "file select reaches its main menu");
         // File select shows its backdrop's picture, then its page's picture with its slots' fields over it (#1467).
         SpriteSheet fileSelectPictures = MenuSheetFixtures.For(maps).Get(SpriteSheetId.MenuPictures);
-        LayeredScene fileSelectScene = fileSelect.CaptureRenderSnapshot();
+        LayeredScene fileSelectScene = fileSelect.ComposeScene();
         AssertTrue(fileSelectScene.Layers.Length == 3 && fileSelectScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } fileBackdrop] } &&
             fileBackdrop.Picture.Equals(fileSelectPictures.Frame(FileSelectParts.BackgroundFrame)) && fileSelectScene.Layers[2] is SpritesLayer,
             "file select shows its backdrop's picture under its page and sprites");
@@ -91,7 +91,7 @@ internal static class MenuScreenPublicationVerification
             options.Step(0);
         // Options shows its backdrop's picture, then the primary page's picture with its language labels' English picture over it (#1467, #1780).
         SpriteSheet menuPictures = optionsSheets.Get(SpriteSheetId.MenuPictures);
-        LayeredScene optionsScene = options.CaptureRenderSnapshot();
+        LayeredScene optionsScene = options.ComposeScene();
         AssertTrue(optionsScene.Layers.Length == 3 && optionsScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } backdrop] } &&
             ReferenceEquals(backdrop.Picture, menuPictures.Frame(GameOptionsNames.BackgroundFrame)) && optionsScene.Layers[2] is SpritesLayer,
             "options shows its backdrop's picture under its page and sprites");
@@ -109,7 +109,7 @@ internal static class MenuScreenPublicationVerification
         for (int frame = 0; frame < 30; frame++)
             gameOver.Step(0);
         // Game over shows one picture of its whole page at the page's corner, under the sprites (#1467).
-        LayeredScene gameOverScene = gameOver.CaptureRenderSnapshot();
+        LayeredScene gameOverScene = gameOver.ComposeScene();
         AssertTrue(gameOverScene.Layers.Length == 2 && gameOverScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } gameOverPage] } &&
             ReferenceEquals(gameOverPage.Picture, gameOverSheets.Get(SpriteSheetId.MenuPictures).Frame(SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverPresentationDefinitions.PageFrame)) &&
             gameOverPage.Corner == default && gameOverScene.Layers[1] is SpritesLayer, "game over shows its page's picture under its sprites");

@@ -38,7 +38,7 @@ internal sealed class BombTorizoHandObjects
     /// <summary>Sets up the hand the room's population placed at <paramref name="place"/>; a defeated Torizo's room has none.</summary>
     internal void SetupBombTorizoHand(
         RoomObjectPlace place,
-        IAreaBossFlagReader bosses)
+        IDefeatedBossesReader bosses)
     {
         Ensure.NotNull(place);
         Ensure.NotNull(bosses);

@@ -21,7 +21,7 @@ internal sealed class TorizoBody
     }
 
     /// <summary>Shows <paramref name="look"/> on <paramref name="torizo"/>'s body and belly at once (#1512).</summary>
-    internal static void LoadTorizoBodyColours(RoomEnemyPlace torizo, TorizoEnemyState state, TorizoLook look)
+    internal static void ShowLook(RoomEnemyPlace torizo, TorizoEnemyState state, TorizoLook look)
     {
         state.Colours.Show(look);
         torizo.Shading = state.Colours.Shading;

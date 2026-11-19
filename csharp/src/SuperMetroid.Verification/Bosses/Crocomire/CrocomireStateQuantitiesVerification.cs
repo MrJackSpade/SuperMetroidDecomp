@@ -92,7 +92,7 @@ internal static class CrocomireStateQuantitiesVerification
         // Every sink starts from rest at the cartridge's starting acceleration word, whatever motion preceded it.
         (_, CrocomireEnemyState started) = NewCrocomire();
         started.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(300);
-        started.VerticalTravelCarry = PixelFractionCarry.Of(SignedEightEight.FromParts(0, 77));
+        started.VerticalTravelCarry = PixelFractionCarryConstants.Of(SignedEightEight.FromParts(0, 77));
         started.StartVerticalMotion(CrocomireBridgeCollapseDefinitions.SinkStartingAcceleration);
         AssertMotionWords(started, LittleEndianBytes.Word(0, 8), 0, 0, started.Body.Position.Y.Whole, "a started sink");
         CompareSink(LittleEndianBytes.Word(0, 8), 0, 0, 144, "resting sink");
@@ -126,7 +126,7 @@ internal static class CrocomireStateQuantitiesVerification
         state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
-        state.VerticalTravelCarry = PixelFractionCarry.Of(SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition)));
+        state.VerticalTravelCarry = PixelFractionCarryConstants.Of(SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition)));
         body.Position = body.Position.WithWholeY(y);
         for (int frame = 0; frame < 400; frame++)
         {
@@ -164,7 +164,7 @@ internal static class CrocomireStateQuantitiesVerification
         state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
-        state.VerticalTravelCarry = PixelFractionCarry.Of(SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition)));
+        state.VerticalTravelCarry = PixelFractionCarryConstants.Of(SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition)));
         body.Position = body.Position.WithWholeY(y);
         for (int frame = 0; frame < 400; frame++)
         {
@@ -335,7 +335,7 @@ internal static class CrocomireStateQuantitiesVerification
         var fixture = new EnemyEffectsFixtureVerification.CrocomireEffectFixture(EnemyEffectsFixtureVerification.MeltEffectArtwork());
         fixture.InitializeMap(CrocomireMeltingIllustration.Flesh);
         fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.Flesh));
-        for (int band = 0; band <= CrocomireMeltingDefinitions.FirstPassBandCount; band++)
+        for (int band = 0; band <= CrocomireMeltingDefinitions.FirstPassBandRound; band++)
             fixture.Call(_ => CrocomireMelting.ShowNextCrocomireMeltBand);
         fixture.Call(_ => CrocomireMelting.BeginCrocomireMelting);
         AssertEqual(0, fixture.Effect.MeltShakeCounter.RawValue, "the melt shake counter starts from zero");

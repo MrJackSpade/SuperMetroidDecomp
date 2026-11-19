@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 public readonly record struct BeamChargeLevel
 {
-    /// <summary>Creates a level of <paramref name="flareCounter"/> charged updates.</summary>
-    private BeamChargeLevel(int flareCounter) => FlareCounter = flareCounter;
+    /// <summary>Creates a level of <paramref name="updatesHeld"/> charged updates.</summary>
+    private BeamChargeLevel(int updatesHeld) => UpdatesHeld = updatesHeld;
 
     /// <summary>No charge.</summary>
     public static BeamChargeLevel None => default;
@@ -22,15 +22,15 @@ public readonly record struct BeamChargeLevel
 
     /// <summary>The updates the charge has been held; zero for the Hyper Beam's flare.</summary>
     [IntegerQuantity("updates the charge flare has shown")]
-    private int FlareCounter { get; }
+    public int UpdatesHeld { get; }
 
     /// <summary>Whether this is the Hyper Beam's flare rather than a held charge.</summary>
-    private bool HyperBeamFlare { get; init; }
+    public bool HyperBeamFlare { get; private init; }
 
     /// <summary>Whether any charge is held: a counted charge or the Hyper Beam's flare.</summary>
-    public bool IsCharging => HyperBeamFlare || FlareCounter != 0;
+    public bool IsCharging => HyperBeamFlare || UpdatesHeld != 0;
 
     /// <summary>Whether the charge has reached <paramref name="updates"/>; the Hyper Beam's flare has reached every count.</summary>
     /// <param name="updates">The charge threshold, in updates held.</param>
-    public bool HasCharged(int updates) => HyperBeamFlare || FlareCounter >= updates;
+    public bool HasCharged(int updates) => HyperBeamFlare || UpdatesHeld >= updates;
 }

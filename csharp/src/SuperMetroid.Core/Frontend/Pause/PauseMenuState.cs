@@ -75,7 +75,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         new PauseInventory(samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems, samus.EquippedItems, samus.HyperBeamEnabled),
         samus.MaxReserveEnergy == 0 ? null : new ShownReserveDisplay(samus.ReserveTankMode, samus.ReserveEnergy),
         samus.MaxReserveEnergy == 0 ? ShownReserveArrow.NoReserves
-            : ReserveArrow != ReserveArrowState.Hidden ? ShownReserveArrow.Lit : ShownReserveArrow.Dim);
+            : ReserveArrow != ReserveArrowState.Dim ? ShownReserveArrow.Lit : ShownReserveArrow.Dim);
     /// <summary>Which of the frame's button labels are lit (#1467); it survives page transitions and artwork rebinds.</summary>
     private PauseButtonHighlight ButtonHighlight { get; set; }
     /// <summary>How the map page shows the area map (#1466, #1467), as last loaded.</summary>
@@ -100,8 +100,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private Offset16<MapPixels> MapScrollPosition => ActiveMapScroll.Scroll;
     /// <summary>Animated map arrows and their current visibility state.</summary>
     internal FileSelectMapAnimations MapArrows { get; }
-    /// <summary>Whether elevator labels draw before map icons during a fade-out.</summary>
-    private bool mapLabelsBeforeIcons;
     /// <summary>The map-position marker's pulse.</summary>
     private readonly MapIndicatorPulse mapIndicator = new();
     /// <summary>The equipment selector's installed animation, which restarts on each equipment-page entry.</summary>
@@ -240,8 +238,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// </remarks>
     public void AdvanceAnimations(int frameCycle, PauseAnimationPhase phase)
     {
-        // The fade-out paths emit destination labels before map icons.
-        mapLabelsBeforeIcons = phase == PauseAnimationPhase.FadingOut || Transition == PauseMenuTransition.MapToEquipmentFadeOut;
         // Only the stable map update moves the scroll arrows. Fade paths retain counters but hide arrows.
         MapArrows.StepArrows(_ => false);
         pauseFrameCycle = frameCycle;
@@ -256,7 +252,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Prepares the sprite list on the simulation owner, then captures without raster work.</summary>
-    public LayeredScene CaptureRenderSnapshot()
+    public LayeredScene ComposeScene()
     {
         PrepareRenderSprites();
         // The map page shows the area map scrolled with the frame it shows through (#2207): its scroll position names the
@@ -289,13 +285,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (ScreenMode == PauseScreenMode.Map)
         {
             var icons = new FileSelectMapIcons(system, area, screenContent.Maps.Stations, screenContent.Maps.Landmarks, MapSheet);
-            if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Sprites, MapScrollPosition);
             MapArrows.DrawArrows(screen.Sprites, mapHighlight.Shading, MapSheet, MapFramingDefinitions.Pause.ArrowDrop);
             DrawMapPositionIndicator();
-            // Pause shares the boss lists, defeated overlays and downloaded
-            // destination lettering with file select. Preserve their per-phase drawing order.
+            // Pause shares the boss lists, defeated overlays and downloaded destination lettering with file select. The
+            // map's icons and its elevator labels keep one layering in every phase (#2573).
             icons.DrawBossMarkers(screen.Sprites, MapScrollPosition);
-            if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Sprites, MapScrollPosition);
+            icons.DrawElevatorLabels(screen.Sprites, MapScrollPosition);
         }
         else
         {
@@ -547,7 +542,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         if (column == PauseEquipmentControls.Beams && samus.HyperBeamEnabled)
             return false;
-        int step = direction == ColumnSearch.Down ? 1 : -1;
+        int step = direction switch
+        {
+            ColumnSearch.Down => 1,
+            ColumnSearch.Up => -1,
+            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, $"Undefined {nameof(ColumnSearch)}."),
+        };
         for (int place = start; place >= 0 && place < column.Length; place += step)
         {
             if (!column[place].Upgrade.IsIn(samus.CollectedBeams, samus.CollectedItems))
@@ -691,7 +691,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             return SelectedControl == PauseEquipmentControls.ReserveMode && samus.ReserveTankMode == ReserveTankMode.Auto ? ReserveArrowState.Animated
                 : SelectedControl == PauseEquipmentControls.ReserveTransfer ? ReserveArrowState.Solid
-                : ReserveArrowState.Hidden;
+                : ReserveArrowState.Dim;
         }
     }
 
@@ -720,10 +720,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             Draw(PauseReserveTankVisual.Empty, tank);
         Draw(PauseReserveTankVisual.EndCap, tank);
 
-        void Draw(PauseReserveTankVisual map, int index)
+        void Draw(PauseReserveTankVisual visual, int index)
         {
             screenContent
-                .PauseReserveTanks.Draw(screen.Sprites, PauseSheet, map, index);
+                .PauseReserveTanks.Draw(screen.Sprites, PauseSheet, visual, index);
         }
     }
 

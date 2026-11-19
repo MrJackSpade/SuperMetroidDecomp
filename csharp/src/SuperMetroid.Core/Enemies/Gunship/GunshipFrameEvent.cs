@@ -1,10 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
-/// <summary>Cross-system gunship transitions produced during the most recent enemy frame.</summary>
+/// <summary>The gunship's transitions its AI publishes in an enemy pass (<see cref="GunshipEvent"/>).</summary>
 public enum GunshipFrameEvent
 {
-    /// <summary>No gunship transition has been published for the current enemy pass.</summary>
-    None,
     /// <summary>Post-Ceres landing has started the entrance-pad opening animation before Samus is ejected.</summary>
     LandingPadOpened,
     /// <summary>Post-Ceres ejection has reached its target and started the entrance-pad closing animation.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Earthquakes;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -68,6 +69,10 @@ internal static class MotherBrainTubeCollapseDefinitions
 
     /// <summary>The updates the room shakes as the main tube lands her.</summary>
     internal const int LandingShakeUpdates = 32;
+
+    /// <summary>The strong vertical shake of the foreground, background and enemies the main tube starts as it lands her.</summary>
+    internal static readonly EarthquakeShake LandingShake =
+        new(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundBackgroundAndEnemies);
 
     /// <summary>The updates between the smoke puffs of the falling main tube.</summary>
     internal const int SmokeIntervalUpdates = 9;

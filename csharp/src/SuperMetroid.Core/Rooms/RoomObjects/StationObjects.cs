@@ -271,7 +271,7 @@ internal sealed class StationObjects
             bool setupAccepted = axis == Axis.Horizontal && (access.Side == HorizontalDirection.Right
                 ? !movingPositive && collisionPose == SamusCollisionPose.RanIntoWallLeft
                 : movingPositive && collisionPose == SamusCollisionPose.RanIntoWallRight);
-            if (setupAccepted && station.OperationPhase == StationOperationPhase.Idle)
+            if (setupAccepted && station.AcceptsTouch)
             {
                 // Recharge setup rejects an already-full resource before the station lock takes control. Rejecting it
                 // later leaves a locked Samus with no access animation running to release her. Collision itself remains

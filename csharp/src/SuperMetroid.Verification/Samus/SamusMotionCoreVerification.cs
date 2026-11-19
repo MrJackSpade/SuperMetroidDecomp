@@ -345,7 +345,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(105, booster.SecondSpeedEchoPosition!.Value.X, "second speed echo X snapshot");
 
     booster.CancelRunningMomentum(SamusFacingDirection.Right);
-    AssertTrue(booster.SuitShadeRestoreRequested,
+    AssertTrue(booster.SuitShade.IsDue,
         "CancelSpeedBoost publishes normal-suit palette restoration");
     AssertEqual(SpeedEchoPhase.Departing, booster.SpeedEchoPhase,
         "right-facing cancellation enters high-bit echo departure");
@@ -424,14 +424,14 @@ internal static void VerifySamusHorizontalSpeed()
     AssertTrue(booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Standing, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
         "cancel copies normal suit palette through runtime seam");
     AssertEqual(0x0321, boostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0], "cancel restores ROM-authored Power Suit palette");
-    AssertTrue(!booster.SuitShadeRestoreRequested, "normal-suit palette request is one-shot");
+    AssertTrue(!booster.SuitShade.IsDue, "normal-suit palette request is one-shot");
 
     var boostedJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { EquippedItems = SamusEquipmentFlags.SpeedBooster };
-    boostedJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(4, 0xe000);
+    boostedJump.Kinematics.VerticalVelocity = boostedJump.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(4, 0xe000));
     boostedJump.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(3, 0x4000);
     SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(boostedJump);
-    AssertEqual(5, boostedJump.Kinematics.YSpeed.Whole, "boosted jump adds half whole extra speed");
-    AssertEqual(0x2000, boostedJump.Kinematics.YSpeed.Fraction,
+    AssertEqual(5, boostedJump.Kinematics.VerticalVelocity.Speed.Whole, "boosted jump adds half whole extra speed");
+    AssertEqual(0x2000, boostedJump.Kinematics.VerticalVelocity.Speed.Fraction,
         "boosted jump wraps fractional addition without carrying");
 
     // $90:E4E6 caps the divisor at four halvings. Extra run speed is added before
@@ -445,10 +445,10 @@ internal static void VerifySamusHorizontalSpeed()
     // fraction. These deliberately oversized values catch a tempting floating-point clamp.
     speed.ExtraRunSpeed = speed.ExtraRunSpeed.WithWhole(0);
     speed.SlowdownLevel = 0;
-    AssertEqual(0x000f1234, speed.CalculateRightDisplacement(UnsignedSixteenSixteen.FromRaw(0x00101234), extraDisplacement: default).RawValue, "right displacement +15 clamp");
+    AssertEqual(0x000f1234, speed.CalculateDisplacement(HorizontalDirection.Right, UnsignedSixteenSixteen.FromRaw(0x00101234), extraDisplacement: default).RawValue, "right displacement +15 clamp");
     // Negation happens before clamping, so 0 - $0010:1234 is $FFEF:EDCC. The clamp
     // replaces only its high word, producing $FFF1:EDCC rather than mirroring $1234.
-    AssertEqual(unchecked((int)0xfff1edcc), speed.CalculateLeftDisplacement(UnsignedSixteenSixteen.FromRaw(0x00101234), extraDisplacement: default).RawValue, "left displacement -15 clamp");
+    AssertEqual(unchecked((int)0xfff1edcc), speed.CalculateDisplacement(HorizontalDirection.Left, UnsignedSixteenSixteen.FromRaw(0x00101234), extraDisplacement: default).RawValue, "left displacement -15 clamp");
 
     Console.WriteLine("  Samus speed: acceleration, deceleration, submerged palette gate, boost departure echoes, divisor, and clamp agree.");
 }
@@ -549,8 +549,7 @@ internal static void VerifySamusExtraDisplacement()
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
     };
     rising.Kinematics.Radius = new(5, 19);
-    rising.Kinematics.YDirection = SamusVerticalDirection.Up;
-    rising.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
+    rising.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Up);
     rising.Kinematics.ExtraDisplacement = rising.Kinematics.ExtraDisplacement.WithWholeY(1).WithFractionY(0x8000);
     FixedCoordinate risingYBefore = rising.Kinematics.Position.Y;
     SamusAerialMovement.StepNormalJump(
@@ -561,7 +560,7 @@ internal static void VerifySamusExtraDisplacement()
         frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SixteenSixteenWords.ToDisplacement(0x00008000), rising.Kinematics.Position.Y - risingYBefore,
         "gravity path adds external Y directly and may reverse actual direction");
-    AssertEqual(SamusVerticalDirection.Up, rising.Kinematics.YDirection,
+    AssertEqual(SamusVerticalDirection.Up, rising.Kinematics.VerticalVelocity.Direction,
         "external reversal does not rewrite native velocity-direction word");
 
     var bouncingBall = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
@@ -572,8 +571,7 @@ internal static void VerifySamusExtraDisplacement()
         KnockbackDirection = SamusKnockbackDirection.None,
     };
     bouncingBall.Kinematics.Radius = new(5, 7);
-    bouncingBall.Kinematics.YDirection = SamusVerticalDirection.Up;
-    bouncingBall.Kinematics.YSpeed = new UnsignedSixteenSixteen(3, 0x4000);
+    bouncingBall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0x4000), SamusVerticalDirection.Up);
     bouncingBall.Kinematics.ExtraDisplacement = bouncingBall.Kinematics.ExtraDisplacement.WithWholeY(-1).WithFractionY(0x8000); // -0.8000
     MorphBallMovementResult displacedBounce = SamusMorphBallMovement.StepFalling(
 
@@ -583,11 +581,11 @@ internal static void VerifySamusExtraDisplacement()
         frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(unchecked((int)0xffff8000), displacedBounce.Vertical.AcceptedDisplacement.RawValue,
         "external Y replaces an active Morph Ball rebound rather than joining gravity");
-    AssertEqual(0, bouncingBall.Kinematics.YSpeed.Whole,
+    AssertEqual(0, bouncingBall.Kinematics.VerticalVelocity.Speed.Whole,
         "external Morph Ball bounce override clears whole rebound speed");
-    AssertEqual(0, bouncingBall.Kinematics.YSpeed.Fraction,
+    AssertEqual(0, bouncingBall.Kinematics.VerticalVelocity.Speed.Fraction,
         "external Morph Ball bounce override clears fractional rebound speed");
-    AssertEqual(SamusVerticalDirection.Down, bouncingBall.Kinematics.YDirection,
+    AssertEqual(SamusVerticalDirection.Down, bouncingBall.Kinematics.VerticalVelocity.Direction,
         "external Morph Ball bounce override forces native direction word two");
     AssertTrue(!displacedBounce.HitCeiling && !displacedBounce.Landed,
         "unobstructed signed-negative Morph Ball producer moves without a false collision");

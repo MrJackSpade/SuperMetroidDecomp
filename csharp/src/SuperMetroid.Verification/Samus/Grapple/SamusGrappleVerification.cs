@@ -161,7 +161,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
     WriteGrappleSwingFrame(swingFrames, angle: 0xc0, frame: 5);
 
     SamusState firingSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
-    firingSamus.Kinematics.YSpeed = firingSamus.Kinematics.YSpeed.WithWhole(1); // selects moving-vertically connection table $C3EE
+    firingSamus.Kinematics.VerticalVelocity = firingSamus.Kinematics.VerticalVelocity.WithSpeed(firingSamus.Kinematics.VerticalVelocity.Speed.WithWhole(1)); // selects moving-vertically connection table $C3EE
     SamusGrappleMovement.BeginFiring(firingSamus, SuperMetroid.Core.Input.GameplayAction.None);
     AssertEqual(GrapplePhase.Firing, firingSamus.Grapple.Phase, "grapple firing phase");
     AssertEqual(0x0bf4, firingSamus.Grapple.ExtensionVelocity.X.InTwoHundredFiftySixthsOfPixel,
@@ -200,7 +200,7 @@ firingLevel, firingSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixt
         "swing command copies rope Start X into flare/draw X");
     AssertEqual(firingSamus.Grapple.RopeStart.Y, firingSamus.Grapple.FlareOrigin.Y,
         "swing command copies rope Start Y into flare/draw Y");
-    AssertEqual(0, firingSamus.Kinematics.YSpeed.Whole,
+    AssertEqual(0, firingSamus.Kinematics.VerticalVelocity.Speed.Whole,
         "connection common tail clears whole Y speed");
     AssertEqual(0, firingSamus.Position.X.Whole, "native frame $18 offsets body thirty-one pixels left of rope start");
     AssertEqual(12, (connectedCameraPrevious ?? throw new InvalidOperationException("Verification requires the connection's camera clamp.")).X,
@@ -217,7 +217,7 @@ firingLevel, firingSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixt
     SamusState deferredConnectionSamus = CreateSamus(
         SamusPoseId.FallingRightPose,
         new(32, 56));
-    deferredConnectionSamus.Kinematics.YSpeed = deferredConnectionSamus.Kinematics.YSpeed.WithWhole(1);
+    deferredConnectionSamus.Kinematics.VerticalVelocity = deferredConnectionSamus.Kinematics.VerticalVelocity.WithSpeed(deferredConnectionSamus.Kinematics.VerticalVelocity.Speed.WithWhole(1));
     SamusGrappleMovement.BeginFiring(deferredConnectionSamus, SuperMetroid.Core.Input.GameplayAction.None);
     SamusGrappleMovement.StepFiringAndCommit(
 
@@ -231,7 +231,7 @@ firingLevel, firingSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixt
     deferredConnectionSamus.Grapple.FireDirection = SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left;
     deferredConnectionSamus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x4000);
     deferredConnectionSamus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(0, 0xb000);
-    deferredConnectionSamus.Kinematics.YSpeed = new UnsignedSixteenSixteen(3, 0x6070);
+    deferredConnectionSamus.Kinematics.VerticalVelocity = deferredConnectionSamus.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(3, 0x6070));
 
     GrappleMovementResult deferredConnection = SamusGrappleMovement.StepFiring(
         firingLevel,
@@ -249,9 +249,9 @@ firingLevel, firingSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixt
         "suppressed Grapple pose retains base fractional speed");
     AssertEqual(0xb000, deferredConnectionSamus.HorizontalSpeed.ExtraRunSpeed.Fraction,
         "suppressed Grapple pose retains extra running momentum");
-    AssertEqual(3, deferredConnectionSamus.Kinematics.YSpeed.Whole,
+    AssertEqual(3, deferredConnectionSamus.Kinematics.VerticalVelocity.Speed.Whole,
         "suppressed Grapple pose retains vertical whole speed");
-    AssertEqual(0x6070, deferredConnectionSamus.Kinematics.YSpeed.Fraction,
+    AssertEqual(0x6070, deferredConnectionSamus.Kinematics.VerticalVelocity.Speed.Fraction,
         "suppressed Grapple pose retains vertical fractional speed");
     AssertTrue(deferredConnection.PendingConnection is
         { Pose: SamusPoseId.GrappleSwingLeftPose, Swinging: true },
@@ -269,7 +269,7 @@ firingLevel, firingSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixt
     breakableFiringBts[3 * 8 + 3] = RoomBlockBehaviorCodec.Decode(1);
     RoomLevelData breakableFiringLevel = CreateRoom(new(8, 8), breakableFiringBlocks, breakableFiringBts);
     SamusState breakableFiringSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
-    breakableFiringSamus.Kinematics.YSpeed = breakableFiringSamus.Kinematics.YSpeed.WithWhole(1);
+    breakableFiringSamus.Kinematics.VerticalVelocity = breakableFiringSamus.Kinematics.VerticalVelocity.WithSpeed(breakableFiringSamus.Kinematics.VerticalVelocity.Speed.WithWhole(1));
     var breakableFiringObjects = RoomObjectFixtures.Unbound();
     SamusGrappleMovement.BeginFiring(breakableFiringSamus, SuperMetroid.Core.Input.GameplayAction.None);
     SamusGrappleMovement.StepFiringAndCommit(
@@ -304,7 +304,7 @@ firingLevel, firingSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixt
     horizontalExtensionBlocks[3 * 8 + 4] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.GrappleBlock);
     RoomLevelData horizontalExtensionLevel = CreateRoom(new(8, 8), horizontalExtensionBlocks, horizontalExtensionBts);
     SamusState horizontalExtensionSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
-    horizontalExtensionSamus.Kinematics.YSpeed = horizontalExtensionSamus.Kinematics.YSpeed.WithWhole(1);
+    horizontalExtensionSamus.Kinematics.VerticalVelocity = horizontalExtensionSamus.Kinematics.VerticalVelocity.WithSpeed(horizontalExtensionSamus.Kinematics.VerticalVelocity.Speed.WithWhole(1));
     SamusGrappleMovement.BeginFiring(horizontalExtensionSamus, SuperMetroid.Core.Input.GameplayAction.None);
     SamusGrappleMovement.StepFiringAndCommit(
 horizontalExtensionLevel, horizontalExtensionSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
@@ -326,7 +326,7 @@ horizontalExtensionLevel, horizontalExtensionSamus, GameplayAction.Shoot, roomOb
     verticalExtensionBlocks[4 * 8 + 3] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.GrappleBlock);
     RoomLevelData verticalExtensionLevel = CreateRoom(new(8, 8), verticalExtensionBlocks, verticalExtensionBts);
     SamusState verticalExtensionSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
-    verticalExtensionSamus.Kinematics.YSpeed = verticalExtensionSamus.Kinematics.YSpeed.WithWhole(1);
+    verticalExtensionSamus.Kinematics.VerticalVelocity = verticalExtensionSamus.Kinematics.VerticalVelocity.WithSpeed(verticalExtensionSamus.Kinematics.VerticalVelocity.Speed.WithWhole(1));
     SamusGrappleMovement.BeginFiring(verticalExtensionSamus, SuperMetroid.Core.Input.GameplayAction.None);
     SamusGrappleMovement.StepFiringAndCommit(
 verticalExtensionLevel, verticalExtensionSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
@@ -368,7 +368,7 @@ solidLevel, solidCollisionSamus, GameplayAction.Shoot, roomObjects: SamusRoomObj
         spikeBts[3 * 8 + 3] = RoomBlockBehaviorCodec.Decode(behavior);
         RoomLevelData spikeLevel = CreateRoom(new(8, 8), spikeBlocks, spikeBts);
         SamusState spikeSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
-        spikeSamus.Kinematics.YSpeed = spikeSamus.Kinematics.YSpeed.WithWhole(1);
+        spikeSamus.Kinematics.VerticalVelocity = spikeSamus.Kinematics.VerticalVelocity.WithSpeed(spikeSamus.Kinematics.VerticalVelocity.Speed.WithWhole(1));
         SamusGrappleMovement.BeginFiring(spikeSamus, SuperMetroid.Core.Input.GameplayAction.None);
         SamusGrappleMovement.StepFiringAndCommit(
 spikeLevel, spikeSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
@@ -514,7 +514,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
             {
                 // A nonzero fractional half alone must select the vertical table and must
                 // be cleared by the shared special-pose-command tail after connection.
-                connectionSamus.Kinematics.YSpeed = connectionSamus.Kinematics.YSpeed.WithFraction(1);
+                connectionSamus.Kinematics.VerticalVelocity = connectionSamus.Kinematics.VerticalVelocity.WithSpeed(connectionSamus.Kinematics.VerticalVelocity.Speed.WithFraction(1));
             }
             connectionSamus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
             connectionSamus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 2);
@@ -553,9 +553,9 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
                 "connection clears fractional extra run speed");
             AssertEqual(SamusAccelerationMode.Turning, connectionSamus.HorizontalSpeed.AccelerationMode,
                 "connection leaves acceleration mode untouched");
-            AssertEqual(0, connectionSamus.Kinematics.YSpeed.Whole,
+            AssertEqual(0, connectionSamus.Kinematics.VerticalVelocity.Speed.Whole,
                 "connection clears whole Y speed");
-            AssertEqual(0, connectionSamus.Kinematics.YSpeed.Fraction,
+            AssertEqual(0, connectionSamus.Kinematics.VerticalVelocity.Speed.Fraction,
                 "connection clears fractional Y speed");
 
             if (expectedLocked)
@@ -635,7 +635,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     // Gravity is exactly zero on that axis, so angle advances by $010C to $810C.
     GrappleMovementResult swung = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = swingLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, (GameplayAction.Shoot | GameplayAction.Left), newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertEqual(GrapplePhase.ConnectedSwinging, swung.Phase, "held-shot grapple phase");
-    AssertEqual(AngularSpeed.FromFractionsOfStep(0x010c), samus.Grapple.AngularVelocity, "bottom kick plus input acceleration");
+    AssertEqual(AngularSpeedConstants.FromFractionsOfStep(0x010c), samus.Grapple.AngularVelocity, "bottom kick plus input acceleration");
     AssertEqual(0x810c, samus.Grapple.Angle.RawValue, "unobstructed angle integration");
     AssertEqual(198, samus.Grapple.FlareOrigin.X, "advanced grapple beam-start X");
     AssertEqual(153, samus.Grapple.FlareOrigin.Y, "advanced grapple beam-start Y");
@@ -762,9 +762,9 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     GrappleMovementResult queued = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = swingLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertTrue(queued.Phase == GrapplePhase.ReleaseFromSwing, "grapple release is one-frame queued");
     AssertEqual(GrapplePhase.ReleaseFromSwing, samus.Grapple.Phase, "release function pointer phase");
-    AssertEqual(0, samus.Kinematics.YSpeed.Whole, "grapple release whole Y speed");
-    AssertEqual(0x0c90, samus.Kinematics.YSpeed.Fraction, "grapple release fractional Y speed");
-    AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.YDirection, "positive swing with negative cosine launches up");
+    AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "grapple release whole Y speed");
+    AssertEqual(0x0c90, samus.Kinematics.VerticalVelocity.Speed.Fraction, "grapple release fractional Y speed");
+    AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.VerticalVelocity.Direction, "positive swing with negative cosine launches up");
     AssertEqual(2, samus.HorizontalSpeed.BaseSpeed.Whole, "grapple release whole X speed");
     AssertEqual(0x13d0, samus.HorizontalSpeed.BaseSpeed.Fraction, "grapple release fractional X speed");
     AssertEqual(SamusAccelerationMode.Decelerating, samus.HorizontalSpeed.AccelerationMode, "release selects deceleration mode");
@@ -774,8 +774,8 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "completed release clears grapple phase");
     AssertEqual(SamusPoseId.NormalJumpForwardLeftPose, samus.Pose,
         "nonnegative angular velocity selects left-facing release pose $52");
-    AssertEqual(0, samus.Kinematics.YSpeed.Whole, "release pose preserves whole Y velocity");
-    AssertEqual(0x0c90, samus.Kinematics.YSpeed.Fraction, "release pose preserves fractional Y velocity");
+    AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "release pose preserves whole Y velocity");
+    AssertEqual(0x0c90, samus.Kinematics.VerticalVelocity.Speed.Fraction, "release pose preserves fractional Y velocity");
     AssertEqual(GrappleFlareStage.None, samus.Grapple.FlareStage,
         "completed grapple release clears the flare");
     AssertEqual(0, samus.Grapple.FlareFrame,
@@ -806,7 +806,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     GrappleMovementResult angularCollision = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = angularCollisionLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, angularCollisionSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertEqual(0x4080, angularCollisionSamus.Grapple.Angle.RawValue,
         "grapple collision restores last-safe angle plus half fraction");
-    AssertEqual(AngularSpeed.FromFractionsOfStep(-0x008c), angularCollisionSamus.Grapple.AngularVelocity,
+    AssertEqual(AngularSpeedConstants.FromFractionsOfStep(-0x008c), angularCollisionSamus.Grapple.AngularVelocity,
         "grapple collision negates arithmetic half velocity");
     AssertEqual(16, angularCollisionSamus.Grapple.CollisionBounceTimer.UpdatesLeft,
         "grapple collision opens sixteen-frame kick window");
@@ -906,9 +906,9 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     GrappleMovementResult afterAngularCollision = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = swingLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, angularCollisionSamus, (GameplayAction.Shoot | GameplayAction.Jump), newlyPressedInput: GameplayAction.Jump, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertEqual(0x3d11, angularCollisionSamus.Grapple.Angle.RawValue,
         "grapple collision kick advances exact reflected-plus-extra angle");
-    AssertEqual(AngularSpeed.FromFractionsOfStep(-0x006f), angularCollisionSamus.Grapple.AngularVelocity,
+    AssertEqual(AngularSpeedConstants.FromFractionsOfStep(-0x006f), angularCollisionSamus.Grapple.AngularVelocity,
         "grapple kick keeps gravity-corrected base angular velocity");
-    AssertEqual(AngularSpeed.FromFractionsOfStep(-0x02fa), angularCollisionSamus.Grapple.JumpImpulse,
+    AssertEqual(AngularSpeedConstants.FromFractionsOfStep(-0x02fa), angularCollisionSamus.Grapple.JumpImpulse,
         "successful grapple kick damps extra angular velocity by six");
     AssertEqual(15, angularCollisionSamus.Grapple.CollisionBounceTimer.UpdatesLeft,
         "successful post-bounce movement ages kick window");
@@ -1026,11 +1026,11 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         "grapple wall jump clears connected function");
     AssertEqual(SamusPoseId.WallJumpRightPose, wallGrabSamus.Pose,
         "left-facing `$B9` contact reverses to wall-jump pose `$83`");
-    AssertEqual(4, wallGrabSamus.Kinematics.YSpeed.Whole,
+    AssertEqual(4, wallGrabSamus.Kinematics.VerticalVelocity.Speed.Whole,
         "grapple wall jump reads dry whole speed from ROM");
-    AssertEqual(0xa000, wallGrabSamus.Kinematics.YSpeed.Fraction,
+    AssertEqual(0xa000, wallGrabSamus.Kinematics.VerticalVelocity.Speed.Fraction,
         "grapple wall jump reads dry fractional speed from ROM");
-    AssertEqual(SamusVerticalDirection.Up, wallGrabSamus.Kinematics.YDirection,
+    AssertEqual(SamusVerticalDirection.Up, wallGrabSamus.Kinematics.VerticalVelocity.Direction,
         "grapple wall jump launches upward");
     AssertEqual(1, wallGrabSamus.HorizontalSpeed.ExtraRunSpeed.Whole,
         "grapple wall jump preserves Dash whole speed");
@@ -1038,7 +1038,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         "grapple wall jump preserves Dash fraction");
     AssertTrue(wallGrabSamus.HorizontalSpeed.HasRunningMomentum,
         "grapple wall jump preserves Dash momentum flag");
-    AssertEqual(0, wallGrabSamus.BeamCharge.FlareCounter,
+    AssertEqual(0, wallGrabSamus.BeamCharge.UpdatesHeld,
         "grapple wall jump clears the active projectile flare counter");
     AssertEqual(new SoundRequest(SamusSound.GrappleEnd, SoundRequestPriority.Essential), wallGrabSamus.LiquidPhysics.SoundRequests.Single(),
         "grapple wall jump queues generic library-one sound seven");
@@ -1101,9 +1101,9 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         "queued dropped handler clears grapple on following call");
     AssertEqual(SamusPoseId.CrouchingAimDiagonalDownLeftPose, expiredWallGrabSamus.Pose,
         "compact dropped table preserves `$B9` diagonal-down aim");
-    AssertEqual(0, expiredWallGrabSamus.Kinematics.YSpeed.Whole,
+    AssertEqual(0, expiredWallGrabSamus.Kinematics.VerticalVelocity.Speed.Whole,
         "dropped handler clears whole vertical speed");
-    AssertEqual(0, expiredWallGrabSamus.Kinematics.YSpeed.Fraction,
+    AssertEqual(0, expiredWallGrabSamus.Kinematics.VerticalVelocity.Speed.Fraction,
         "dropped handler clears fractional vertical speed");
 
     // Record zero is the locked `$D680 -> $B6` route. Candidate `$D7` points up-left

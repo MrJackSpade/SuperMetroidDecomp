@@ -106,7 +106,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
-        _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
 
         // The touch kills the Fireflea whatever it left, in the explosion the health the touch left names
         // (LeftoverNumberDeathExplosion). Queue that death animation before clearing the actor so its artwork and sound

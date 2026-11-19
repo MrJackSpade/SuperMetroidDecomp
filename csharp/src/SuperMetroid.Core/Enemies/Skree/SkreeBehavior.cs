@@ -100,7 +100,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         // drifts it a pixel toward Samus, so the dive stays in the room.
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + SkreeMotionDefinitions.DiveStep);
         place.Position = place.Position.WithWholeX(place.Position.X.Whole +
-            (place.Position.X.Whole >= samus.Position.X.Whole ? -SkreeMotionDefinitions.DiveDrift : SkreeMotionDefinitions.DiveDrift));
+            SkreeMotionDefinitions.DiveDrift.Toward(place.Position.X.Whole >= samus.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right));
     }
 
     /// <summary>Advances the 21-frame burrow, spawning debris at eight and deleting the place at zero.</summary>

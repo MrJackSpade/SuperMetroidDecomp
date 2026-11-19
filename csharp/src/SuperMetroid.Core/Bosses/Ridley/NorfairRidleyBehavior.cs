@@ -62,13 +62,13 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
     {
         SamusState samus = frame.Samus;
         SamusProjectileSystem samusProjectiles = frame.SamusProjectiles;
-        SamusBombProjectileSystem sharedProjectiles = frame.SharedProjectiles;
+        SamusBombProjectileSystem samusBombs = frame.SamusBombs;
         state.HurtCarryLag.RecoverOnOrdinaryUpdate();
 
         RidleyInteractions.UpdateNorfairRidleyIntangibility(place, state, frame.Camera);
-        NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame(state, sharedProjectiles);
+        NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame(state, samusBombs);
 
-        RunNorfairRidleyPhase(place, state, samus, frame.ControllerInput, frame.Level, sharedProjectiles.PowerBombExplosion);
+        RunNorfairRidleyPhase(place, state, samus, frame.ControllerInput, frame.Level, samusBombs.PowerBombExplosion);
 
         if (state.MovementAnimationEnabled)
         {
@@ -170,7 +170,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                         NorfairRidleyPhase.SwoopAimUp,
                         NorfairRidleyMotionDefinitions.SwoopTurnUpdates))
                 {
-                    state.Tail.WhipRequested = true;
+                    state.Tail.Whip.Give();
                 }
                 return;
 
@@ -178,7 +178,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                     state,
                     SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopTurnUpTurn),
-                    SwoopTarget(state, RidleyFlight.SwoopClimbTarget),
+                    SwoopTarget(state, RidleyFlightDefinitions.SwoopClimbTarget),
                     NorfairRidleyMotionDefinitions.SwoopClimbSpeed,
                     NorfairRidleyPhase.SwoopClimb,
                     NorfairRidleyMotionDefinitions.SwoopClimbUpdates);
@@ -188,7 +188,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 if (NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                         state,
                         SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopClimbTurn),
-                        SwoopTarget(state, RidleyFlight.SwoopClimbTarget),
+                        SwoopTarget(state, RidleyFlightDefinitions.SwoopClimbTarget),
                         NorfairRidleyMotionDefinitions.SwoopClimbSpeed,
                         NorfairRidleyPhase.SwoopRecover,
                         NorfairRidleyMotionDefinitions.SwoopRecoveryUpdates))
@@ -379,12 +379,12 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
     {
         SamusState samus = frame.Samus;
         SamusProjectileSystem samusProjectiles = frame.SamusProjectiles;
-        SamusBombProjectileSystem sharedProjectiles = frame.SharedProjectiles;
+        SamusBombProjectileSystem samusBombs = frame.SamusBombs;
         if (RidleyCadenceDefinitions.NorfairRidleyActsEverySecondUpdate.IsDue(body.FrameCounter))
         {
             RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, frame.Camera);
-            NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame(state, sharedProjectiles);
-            RunNorfairRidleyPhase(body, state, samus, frame.ControllerInput, frame.Level, sharedProjectiles.PowerBombExplosion);
+            NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame(state, samusBombs);
+            RunNorfairRidleyPhase(body, state, samus, frame.ControllerInput, frame.Level, samusBombs.PowerBombExplosion);
             if (state.MovementAnimationEnabled)
             {
                 Body.Flight.IntegrateMovement(body, state.Flight);

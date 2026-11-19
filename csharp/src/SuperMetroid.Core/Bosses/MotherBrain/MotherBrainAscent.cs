@@ -50,7 +50,7 @@ internal sealed class MotherBrainAscent
     internal static void SetupMotherBrainPhaseTwoBrain(
         MotherBrainEnemyState state)
     {
-        state.BrainAction = MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn;
+        state.BrainAction = MotherBrainBrainAction.ShowsBrainOnNeck;
 
         // The body and brain both become tangible before the suspense pause, but stay out of the ordinary enemy draw: the
         // body waits for its leg pictures, while her brain and articulated neck are drawn by their own draw, as her brain's

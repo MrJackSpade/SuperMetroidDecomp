@@ -12,7 +12,7 @@ public readonly record struct FloorZoom : IComparable<FloorZoom>
     private const int TwoHundredFiftySixthsPerFloorPixel = 256;
 
     /// <summary>A zoom of <paramref name="twoHundredFiftySixths"/> 256ths of a floor pixel per screen pixel, zero or more.</summary>
-    private FloorZoom(int twoHundredFiftySixths) => TwoHundredFiftySixths = Ensure.AtLeastZero(twoHundredFiftySixths);
+    internal FloorZoom(int twoHundredFiftySixths) => TwoHundredFiftySixths = Ensure.AtLeastZero(twoHundredFiftySixths);
 
     /// <summary>The zoom in 256ths of a floor pixel per screen pixel, zero or more.</summary>
     [IntegerQuantity("turning-floor zoom in 256ths of a floor pixel per screen pixel")]
@@ -20,10 +20,6 @@ public readonly record struct FloorZoom : IComparable<FloorZoom>
 
     /// <summary>The zoom that shows the floor at its own size: one floor pixel to each screen pixel.</summary>
     public static FloorZoom OwnSize { get; } = new(TwoHundredFiftySixthsPerFloorPixel);
-
-    /// <summary>A zoom of <paramref name="twoHundredFiftySixths"/> 256ths of a floor pixel per screen pixel, zero or more.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The zoom is negative.</exception>
-    public static FloorZoom FromTwoHundredFiftySixths(int twoHundredFiftySixths) => new(twoHundredFiftySixths);
 
     /// <summary>A zoom of <paramref name="floorPixels"/> whole floor pixels per screen pixel, zero or more.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The zoom is negative.</exception>

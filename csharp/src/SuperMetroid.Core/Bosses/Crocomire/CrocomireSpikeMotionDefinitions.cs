@@ -39,4 +39,8 @@ internal static class CrocomireSpikeMotionDefinitions
         new(GrowthStep * 2, FastestSpeed: 1, Depth: 96, CrumbleSound: CrocomireSoundDefinitions.Crumble),
         new(GrowthStep * 1, FastestSpeed: 1, Depth: 112, CrumbleSound: null),
     ];
+
+
+    /// <summary>A spiked wall piece's starting vertical speed: four and fifteen thirty-seconds pixels per update upward (#1936, #2181).</summary>
+    internal static readonly SignedSixteenSixteen WallPieceLaunchSpeed = SignedSixteenSixteen.FromPixelFraction(-143, 32);
 }

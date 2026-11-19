@@ -20,7 +20,7 @@ internal static class DrainedPoseHistoryVerification
                 new DrainedPoseHistoryCommand("fall", () => samus.Drained.LetFall(samus)),
                 new DrainedPoseHistoryCommand("stand", () => samus.Drained.PutStanding(samus)),
                 new DrainedPoseHistoryCommand("release standing", () => samus.Drained.Release(samus)),
-                new DrainedPoseHistoryCommand("crouch", () => samus.Drained.PutCrouchingOrFalling(samus)),
+                new DrainedPoseHistoryCommand("crouch", () => samus.Drained.CrouchDrained(samus)),
                 new DrainedPoseHistoryCommand("release crouching", () => samus.Drained.Release(samus)),
                 new DrainedPoseHistoryCommand("rainbow lock", () => samus.Drained.SetupForRainbowBeamAbleToStand(samus)),
             ];

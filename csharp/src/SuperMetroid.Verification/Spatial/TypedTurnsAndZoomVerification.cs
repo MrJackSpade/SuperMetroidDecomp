@@ -114,23 +114,23 @@ internal static class TypedTurnsAndZoomVerification
     {
         for (int twoHundredFiftySixths = 0; twoHundredFiftySixths <= ushort.MaxValue; twoHundredFiftySixths++)
         {
-            FloorZoom zoom = FloorZoom.FromTwoHundredFiftySixths(twoHundredFiftySixths);
+            FloorZoom zoom = FloorZoomConstants.FromTwoHundredFiftySixths(twoHundredFiftySixths);
             if (zoom.TwoHundredFiftySixths != twoHundredFiftySixths ||
                 zoom.WholeFloorPixelsPerScreenPixel != EightEightOracle.UnsignedWhole(twoHundredFiftySixths) ||
                 zoom.FloorPixelsPerScreenPixel != twoHundredFiftySixths / 256.0)
                 throw new InvalidDataException($"Zoom of {twoHundredFiftySixths} 256ths does not keep its count.");
         }
-        AssertEqual(FloorZoom.FromTwoHundredFiftySixths(256), FloorZoom.OwnSize, "own size is one floor pixel per screen pixel");
-        AssertEqual(FloorZoom.FromTwoHundredFiftySixths(3072), FloorZoom.FromFloorPixelsPerScreenPixel(12), "twelve floor pixels per screen pixel");
-        AssertEqual(FloorZoom.FromTwoHundredFiftySixths(24), FloorZoom.FromTwoHundredFiftySixths(88).Narrowed(FloorZoomStep.FromTwoHundredFiftySixths(64)), "narrowing steps down");
-        AssertEqual(FloorZoom.FromTwoHundredFiftySixths(0), FloorZoom.FromTwoHundredFiftySixths(64).Narrowed(FloorZoomStep.FromTwoHundredFiftySixths(64)), "narrowing may reach zero");
-        AssertEqual(FloorZoom.FromTwoHundredFiftySixths(8224), FloorZoom.FromTwoHundredFiftySixths(8192).Widened(FloorZoomStep.FromTwoHundredFiftySixths(32)), "widening steps up");
-        AssertThrows<ArgumentOutOfRangeException>(() => FloorZoom.FromTwoHundredFiftySixths(28).Narrowed(FloorZoomStep.FromTwoHundredFiftySixths(32)), "a zoom never goes negative");
-        AssertThrows<ArgumentOutOfRangeException>(() => FloorZoom.FromTwoHundredFiftySixths(-1), "a negative zoom fails");
-        AssertThrows<ArgumentOutOfRangeException>(() => FloorZoomStep.FromTwoHundredFiftySixths(0), "a zoom step always moves the zoom");
-        AssertTrue(FloorZoom.FromTwoHundredFiftySixths(255) < FloorZoom.OwnSize && FloorZoom.OwnSize >= FloorZoom.FromTwoHundredFiftySixths(256),
+        AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(256), FloorZoom.OwnSize, "own size is one floor pixel per screen pixel");
+        AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(3072), FloorZoom.FromFloorPixelsPerScreenPixel(12), "twelve floor pixels per screen pixel");
+        AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(24), FloorZoomConstants.FromTwoHundredFiftySixths(88).Narrowed(FloorZoomStepConstants.FromTwoHundredFiftySixths(64)), "narrowing steps down");
+        AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(0), FloorZoomConstants.FromTwoHundredFiftySixths(64).Narrowed(FloorZoomStepConstants.FromTwoHundredFiftySixths(64)), "narrowing may reach zero");
+        AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(8224), FloorZoomConstants.FromTwoHundredFiftySixths(8192).Widened(FloorZoomStepConstants.FromTwoHundredFiftySixths(32)), "widening steps up");
+        AssertThrows<ArgumentOutOfRangeException>(() => FloorZoomConstants.FromTwoHundredFiftySixths(28).Narrowed(FloorZoomStepConstants.FromTwoHundredFiftySixths(32)), "a zoom never goes negative");
+        AssertThrows<ArgumentOutOfRangeException>(() => FloorZoomConstants.FromTwoHundredFiftySixths(-1), "a negative zoom fails");
+        AssertThrows<ArgumentOutOfRangeException>(() => FloorZoomStepConstants.FromTwoHundredFiftySixths(0), "a zoom step always moves the zoom");
+        AssertTrue(FloorZoomConstants.FromTwoHundredFiftySixths(255) < FloorZoom.OwnSize && FloorZoom.OwnSize >= FloorZoomConstants.FromTwoHundredFiftySixths(256),
             "zooms order by their 256ths");
-        AssertEqual(240 / 256.0, FloorView.Turned(default, FloorZoom.FromTwoHundredFiftySixths(240), default, default).Scale,
+        AssertEqual(240 / 256.0, FloorView.Turned(default, FloorZoomConstants.FromTwoHundredFiftySixths(240), default, default).Scale,
             "the floor view spans the zoom's floor pixels per screen pixel");
     }
 }

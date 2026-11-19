@@ -43,11 +43,11 @@ internal static class SamusVerticalDefinitionsVerification
                 if (launch == 2) SamusAerialMovement.InitializeDryAirJump(guard, samus);
                 else if (launch == 1) SamusAerialMovement.InitializeWallJump(samus);
                 else SamusAerialMovement.InitializeJump(samus);
-                AssertEqual(unchecked((ushort)(whole + (boost ? raw >> 1 : 0))), samus.Kinematics.YSpeed.Whole, "Native independent whole launch addition");
-                AssertEqual(unchecked((ushort)(fraction + (boost ? raw : 0))), samus.Kinematics.YSpeed.Fraction, "Native fractional overflow does not carry");
+                AssertEqual(unchecked((ushort)(whole + (boost ? raw >> 1 : 0))), samus.Kinematics.VerticalVelocity.Speed.Whole, "Native independent whole launch addition");
+                AssertEqual(unchecked((ushort)(fraction + (boost ? raw : 0))), samus.Kinematics.VerticalVelocity.Speed.Fraction, "Native fractional overflow does not carry");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea7 + medium * 2)), samus.Kinematics.YAcceleration.Whole, "Native gravity whole word");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea1 + medium * 2)), samus.Kinematics.YAcceleration.Fraction, "Native gravity fractional word");
-                AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.YDirection, "Launch remains upward");
+                AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.VerticalVelocity.Direction, "Launch remains upward");
                 cases++;
             }
         }

@@ -29,7 +29,7 @@ public sealed class FileSelectMapAnimations
         Ensure.NotNull(content);
         foreach (MapScrollDirection direction in MapScrollControls.Directions)
         {
-            Arrow replacement = new(content.Get(direction).Position, MapArrowSprites.SpriteBase(direction));
+            Arrow replacement = new(content.Get(direction).Position, MapArrowSprites.Picture(direction));
             if (arrows.GetValueOrDefault(direction) is { } previous)
                 replacement.Admit(previous.Visible);
             arrows[direction] = replacement;
@@ -69,18 +69,18 @@ public sealed class FileSelectMapAnimations
         {
             Arrow arrow = arrows[direction];
             if (!arrow.Visible) continue;
-            MapSpriteSheet.Draw(installed, arrow.Base, entries, arrow.Position + new Offset16<ScreenPixels>(0, verticalOffset),
+            MapSpriteSheet.Draw(installed, arrow.Picture, entries, arrow.Position + new Offset16<ScreenPixels>(0, verticalOffset),
                 highlight);
         }
     }
 
     /// <summary>One map-scroll arrow: its installed anchor, its picture and whether it shows.</summary>
-    internal sealed class Arrow(Offset16<ScreenPixels> position, MapSpriteId spriteBase)
+    internal sealed class Arrow(Offset16<ScreenPixels> position, MapSpriteId picture)
     {
         /// <summary>Installed screen anchor.</summary>
         public readonly Offset16<ScreenPixels> Position = position;
         /// <summary>The arrow's picture for its scroll direction.</summary>
-        public readonly MapSpriteId Base = spriteBase;
+        public readonly MapSpriteId Picture = picture;
         /// <summary>Whether the arrow shows: whether the map could scroll its way at the last update.</summary>
         public bool Visible { get; private set; }
 

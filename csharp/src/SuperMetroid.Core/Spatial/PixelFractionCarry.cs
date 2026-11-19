@@ -10,20 +10,13 @@ namespace SuperMetroid.Core.Spatial;
 public readonly record struct PixelFractionCarry
 {
     /// <summary>Keeps a part of a pixel already checked to lie within one pixel.</summary>
-    private PixelFractionCarry(SignedEightEight part) => Part = part;
+    internal PixelFractionCarry(SignedEightEight part) => Part = part;
 
     /// <summary>The part of a pixel carried: none up to, but not including, one pixel.</summary>
     private SignedEightEight Part { get; }
 
     /// <summary>No travel carried.</summary>
     public static PixelFractionCarry None => default;
-
-    /// <summary>The carry of <paramref name="part"/>, a part of a pixel from none up to, but not including, one pixel.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The part is negative or reaches a whole pixel.</exception>
-    public static PixelFractionCarry Of(SignedEightEight part) =>
-        part.IsNegative || part.WholePixels != 0
-            ? throw new ArgumentOutOfRangeException(nameof(part), part, "A carried part of a pixel lies from none up to one pixel.")
-            : new(part);
 
     /// <summary>
     /// The whole pixels the carried part and <paramref name="travel"/> cross together: the pixels the position moves this

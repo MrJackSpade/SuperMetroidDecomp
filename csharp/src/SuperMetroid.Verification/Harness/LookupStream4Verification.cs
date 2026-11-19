@@ -547,7 +547,7 @@ internal static class LookupStream4Verification
                 expectedZoom -= fast ? 8 : 2;
                 step();
                 AssertEqual(RotationAngle.FromSteps((byte)expectedAngle), floor.Angle, "rotation context advances independently of selected signs");
-                AssertEqual(FloorZoom.FromTwoHundredFiftySixths(expectedZoom), floor.Zoom, "zoom context advances independently of selected signs");
+                AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(expectedZoom), floor.Zoom, "zoom context advances independently of selected signs");
                 AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), floor.Position.X.UnsignedWholePixels, "production shake whole position follows the authored sequence");
                 AssertEqual((ushort)expected, floor.Position.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((frame + 1) % count, state.Flyaway.ShipShake.Place, "production shake moves on after each displacement and starts again after the last");
@@ -810,7 +810,7 @@ internal static class LookupStream4Verification
                 state.Step();
             }
             AssertTrue(!state.Shown().Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
-            AssertTrue(state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
+            AssertTrue(state.TypesItemPercentage && state.Completed, "Subtitle clear preserves completion and scroll handoff");
         }
     }
 
@@ -878,12 +878,12 @@ internal static class LookupStream4Verification
         void tick(int frameCounter) => escape.RunGetawayRoomMain(samus, map, frameCounter);
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
-        CeresFloorAnimationFrame? Capsule() => map.Shown.TryGetValue(CeresFloorPart.BabyCapsule, out CeresFloorAnimationFrame capsule) ? capsule : null;
+        CeresFloorActorPicture? Capsule() => map.Shown.TryGetValue(CeresFloorActor.BabyCapsule, out CeresFloorActorPicture capsule) ? capsule : null;
         int expectedPhase = 0;
         for (ushort nmi = 0; nmi < 16; nmi++)
         {
             vram.LoadBytes(0, untouched);
-            CeresFloorAnimationFrame? before = Capsule();
+            CeresFloorActorPicture? before = Capsule();
             bool advances = (nmi & 3) == 0;
             if (advances) expectedPhase = (expectedPhase + 1) & 3;
             tick(nmi);
@@ -1102,7 +1102,7 @@ internal static class LookupStream4Verification
                 if (CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)) != 0) nativeTitlePointers.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)));
         AssertEqual(31, nativeTitlePointers.Count, "native title sprite catalog size");
         AssertEqual(TitleGraphicsFormat.Sprites.Count, Enum.GetValues<TitleSprite>().Length, "title composition domain is complete");
-        AssertTrue(nativeTitlePointers.SetEquals(SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(rom).All),
+        AssertTrue(nativeTitlePointers.SetEquals(SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(rom).Spritemaps),
             "extraction maps every native title selector to exactly one named composition or card typing step");
         AssertEqual(4, TitleSequenceDefinitions.Graphics.BabyAnimation.Count, "title baby animation frame count");
         for (int frame = 0; frame < 4; frame++)
@@ -1246,12 +1246,12 @@ internal static class LookupStream4Verification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseNumbering.FromNumber(pose) };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
-            var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, Tail = { WhipRequested = false, Action = RidleyTailAction.Pogo }, ReleaseIntangibility = BossCountdown.Lasting(99) };
+            var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, Tail = { Action = RidleyTailAction.Pogo }, ReleaseIntangibility = BossCountdown.Lasting(99) };
             release(state, samus);
             // The release's intangibility lasts its frames: the countdown runs out on the step of the last.
             AssertEqual((flags & 0x40) != 0 ? morphedFrames - 1 : ordinaryFrames - 1, state.ReleaseIntangibility?.CartridgeCount, "Actual release preserves native movement-dependent intangibility");
             AssertEqual(RidleyGrabState.Released, state.GrabState, "Actual release clears grab");
-            AssertTrue(state.Tail.WhipRequested, "Actual release requests tail whip");
+            AssertTrue(state.Tail.Whip.IsWaiting, "Actual release requests tail whip");
             AssertEqual(RidleyTailAction.Neutral, state.Tail.Action, "Actual release resets tail controller");
         }
 
@@ -1645,13 +1645,13 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e6 + 4 * index)), origin.Y, "Draygon original cannon Y");
         }
         for (ushort index = 0; index < 8; index++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyAnimationOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(index, "Oum animation index")), "Oum native action/facing dispatch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyAnimationOracle.EntryOf(OumNativeListAddresses.Entries, MaridiaSnailsNativeWords.OumAnimations.Decode(index, "Oum animation index")), "Oum native action/facing dispatch");
         for (int slot = 0; slot < 3; slot++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x81812b + slot * 2)), SaveRamLayout.SlotOffset(slot), "native SRAM slot origins");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SaveRamLayout.SlotOffset(invalid), "save slot exact domain");
         foreach (ushort invalid in new ushort[] { 8, 255, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(invalid, "Oum animation index"), "Oum animation exact domain");
+            AssertThrows<InvalidDataException>(() => MaridiaSnailsNativeWords.OumAnimations.Decode(invalid, "Oum animation index"), "Oum animation exact domain");
     }
 
     /// <summary>Checks Draygon palette and presentation table boundaries against cartridge layout.</summary>
@@ -2103,28 +2103,28 @@ internal static class LookupStream4Verification
         var nativeFrames = new Dictionary<ushort, ushort>();
         for (int frame = 0xcb87; frame <= 0xcca9; frame += 10)
             nativeFrames.Add((ushort)frame, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | (frame + 8))));
-        AssertEqual(nativeFrames.Count, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.Length, "Oum calculated frame count follows original extent");
+        AssertEqual(nativeFrames.Count, OumCollisionDefinitionsConstants.FramePointers.Length, "Oum calculated frame count follows original extent");
         int ordinal = 0;
         foreach (ushort expectedFrame in nativeFrames.Keys)
-            AssertEqual(expectedFrame, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers[ordinal++], "Oum calculated frame indexing preserves native order");
+            AssertEqual(expectedFrame, OumCollisionDefinitionsConstants.FramePointers[ordinal++], "Oum calculated frame indexing preserves native order");
         foreach (int invalid in new[] { int.MinValue, -1, nativeFrames.Count, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers[invalid], "Oum calculated frame view preserves index bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = OumCollisionDefinitionsConstants.FramePointers[invalid], "Oum calculated frame view preserves index bounds");
         var selectedLists = new HashSet<ushort>();
         int rectangles = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort frame = (ushort)raw;
             bool valid = nativeFrames.TryGetValue(frame, out ushort expected);
-            AssertEqual(valid, MaridiaLargeSnailCollisionDefinitions.HasFrame(frame), "Oum frame domain remains exact");
+            AssertEqual(valid, OumCollisionDefinitions.HasFrame(frame), "Oum frame domain remains exact");
             if (!valid)
             {
-                AssertThrows<InvalidDataException>(() => MaridiaLargeSnailCollisionDefinitions.HitboxListAt(frame), "Oum rejects every non-frame pointer");
+                AssertThrows<InvalidDataException>(() => OumCollisionDefinitions.HitboxListAt(frame), "Oum rejects every non-frame pointer");
                 continue;
             }
-            ushort actual = MaridiaLargeSnailCollisionDefinitions.HitboxListAt(frame);
+            ushort actual = OumCollisionDefinitions.HitboxListAt(frame);
             AssertEqual(expected, actual, "Calculated Oum record identity matches original frame operand");
             selectedLists.Add(actual);
-            var boxes = MaridiaLargeSnailCollisionDefinitions.HitboxesAt(actual);
+            var boxes = OumCollisionDefinitions.HitboxesAt(actual);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | expected)), boxes.Length, "Calculated Oum pointer reaches the native rectangle count");
             for (int index = 0; index < boxes.Length; index++)
             {
@@ -2139,8 +2139,8 @@ internal static class LookupStream4Verification
                 rectangles++;
             }
         }
-        AssertTrue(nativeFrames.Keys.SequenceEqual(MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.ToArray()), "Oum frame enumeration preserves native order");
-        AssertTrue(selectedLists.SetEquals(MaridiaLargeSnailCollisionDefinitions.HitboxPointers), "Oum list calculation covers the original independent payload exactly");
+        AssertTrue(nativeFrames.Keys.SequenceEqual(OumCollisionDefinitionsConstants.FramePointers.ToArray()), "Oum frame enumeration preserves native order");
+        AssertTrue(selectedLists.SetEquals(OumCollisionDefinitions.HitboxPointers), "Oum list calculation covers the original independent payload exactly");
         Console.WriteLine($"Oum calculated list identities: {nativeFrames.Count} frames, {rectangles} native rectangles and complete ushort rejection domain pass.");
     }
 
@@ -2269,7 +2269,12 @@ internal static class LookupStream4Verification
         {
             IReadOnlyList<SheetShade> babySprites = RidleySheetShades.CeresSprites(stock);
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-            Func<CeresRidleyState, ushort> advance = ridley => EnemyFrameCartridgeLookupTooling.Word(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawAnimation(ridley));
+            Func<CeresRidleyState, ushort> advance = ridley =>
+            {
+                enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyAnimation(ridley);
+                return EnemyFrameCartridgeLookupTooling.Word(SuperMetroid.Core.Areas.Ceres.Artwork.CeresBabyFrameDefinitions.ShownFrames.Of(
+                    ridley.Baby.ShownPose ?? throw new InvalidOperationException("The Baby's animation showed no pose.")));
+            };
             for (int phase = 0; phase < 12; phase++)
             {
                 int cursor = 0xbf5d + phase * 8;
@@ -2337,7 +2342,7 @@ internal static class LookupStream4Verification
             CeresEscape escape = enemies.CeresEscape;
             var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero);
             IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected);
-            Action<ushort> apply = appliedZoom => escape.ShowFloorZoom(FloorZoom.FromTwoHundredFiftySixths(appliedZoom));
+            Action<ushort> apply = appliedZoom => escape.ShowFloorZoom(FloorZoomConstants.FromTwoHundredFiftySixths(appliedZoom));
             for (int row = 0; row < 9; row++)
             {
                 apply((ushort)(row * 256 + 255));

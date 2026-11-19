@@ -70,7 +70,7 @@ public sealed class ClipAudioBackend
                     break;
                 case AudioEvent.SelectMusicTrack selection:
                     RequireBeforeSteps(stepped, audioEvent);
-                    State.RequestSongChange(new SongChange(selection.Track));
+                    State.SongChange.Hold(new SongChange(selection.Track));
                     break;
                 case AudioEvent.ClockStep step:
                     if (step.SampleOffset < cursor || step.SampleOffset >= FramesPerUpdate)
@@ -133,7 +133,7 @@ public sealed class ClipAudioBackend
     /// <summary>Applies the song change waiting for this beat, unless it asks for what already plays.</summary>
     private void OnBeat(long now)
     {
-        if (State.TakeSongChange() is not SongChange change || change.Track == State.PlayingTrack)
+        if (State.SongChange.Take() is not SongChange change || change.Track == State.PlayingTrack)
             return;
         if (State.Song is MusicClipEntry playing)
             State.Beat.Hold(BeatLengthAt(playing, now - State.SongStart));

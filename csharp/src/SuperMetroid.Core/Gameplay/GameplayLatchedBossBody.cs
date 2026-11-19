@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Gameplay;
 /// The body a boss shows in an accepted frame (#1352-#1356, #1466, #2031): its parts, where it is placed in the room and
 /// whether it shows this frame. Each of its frames lies where the import placed it against its boss (each installed frame's
 /// anchor), so the display draws each part from the body's placement, clipped to the screen. Enemy AI chooses each during
-/// the update; the frame boundary reads where the boss stands as the frame ends. The body's pictures are the room
-/// backgrounds' while it owns the background (<see cref="BossBodyBackground"/>).
+/// the update; the frame boundary reads where the boss stands as the frame ends. The frame shows it as its own layer
+/// (<see cref="Rendering.BossBodyView"/>, #2573).
 /// </summary>
 /// <param name="Body">The body a boss shows, or null without one.</param>
 /// <param name="Placement">
@@ -21,8 +21,16 @@ public readonly record struct GameplayLatchedBossBody(
     Position16<RoomPixels>? Placement,
     bool Hidden)
 {
+    /// <summary>The body's parts' pictures as the frame shows them (#2573), resolved once as the frame boundary latches it; null without a body.</summary>
+    public ShownBossBody? Shown { get; init; }
+
     /// <summary>The body <paramref name="display"/> shows as the frame boundary reads it, or no body where the room shows none.</summary>
     /// <param name="display">The boss body the room shows, or null where no boss attached one.</param>
-    internal static GameplayLatchedBossBody Of(IBossBodyDisplay? display) =>
-        display is null ? default : new(display.Layer, display.Placement, display.Hidden);
+    internal static GameplayLatchedBossBody Of(IBossBodyDisplay? display)
+    {
+        if (display is null)
+            return default;
+        BossBodyLayer? layer = display.Layer;
+        return new(layer, display.Placement, display.Hidden) { Shown = layer?.Show() };
+    }
 }

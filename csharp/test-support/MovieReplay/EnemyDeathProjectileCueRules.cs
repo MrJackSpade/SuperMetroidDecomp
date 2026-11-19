@@ -20,7 +20,7 @@ internal static class EnemyDeathProjectileCueRules
         [NativeEnemyProjectileInstruction.EDeathExplo_QueueSmallExplosionSoundFX] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathAndDropCueKind.PlaySmallExplosionSound, null),
         [NativeEnemyProjectileInstruction.EDeathExplo_QueueContactKilledSoundFX] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathAndDropCueKind.PlayContactKilledSound, null),
         [NativeEnemyProjectileInstruction.EnemyDeathExplosion_BecomePickup] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathAndDropCueKind.BecomePickup, null),
-        [NativeEnemyProjectileInstruction.Pickup_HandleRespawningEnemy] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathAndDropCueKind.HandleRespawningEnemy, null),
+        [NativeEnemyProjectileInstruction.Pickup_HandleRespawningEnemy] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathAndDropCueKind.RespawnEnemy, null),
     };
 
     /// <summary>The oracle rules for the death and drop programs.</summary>

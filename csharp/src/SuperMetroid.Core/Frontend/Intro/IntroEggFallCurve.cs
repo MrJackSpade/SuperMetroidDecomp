@@ -10,9 +10,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <param name="Updates">The updates the curve covers; every piece has landed before its curve ends.</param>
 internal sealed record IntroEggFallCurve(ImmutableArray<SignedSixteenSixteen> RisingSpeeds, int Updates)
 {
-    /// <summary>How much faster the piece falls each update once it has stopped rising: an eighth of a pixel an update.</summary>
-    private static readonly SignedSixteenSixteen Gravity = SignedSixteenSixteen.FromPixelFraction(1, 8);
-
     /// <summary>The piece's vertical speed on the update after it has flown <paramref name="updatesFlown"/> updates.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="updatesFlown"/> is negative or past the curve.</exception>
     internal SignedSixteenSixteen Speed(int updatesFlown)
@@ -21,6 +18,6 @@ internal sealed record IntroEggFallCurve(ImmutableArray<SignedSixteenSixteen> Ri
             throw new ArgumentOutOfRangeException(nameof(updatesFlown), updatesFlown, $"The curve covers {Updates} updates.");
         return updatesFlown < RisingSpeeds.Length
             ? RisingSpeeds[updatesFlown]
-            : Gravity * (updatesFlown - RisingSpeeds.Length);
+            : IntroEggMotionDefinitions.FallGravity * (updatesFlown - RisingSpeeds.Length);
     }
 }

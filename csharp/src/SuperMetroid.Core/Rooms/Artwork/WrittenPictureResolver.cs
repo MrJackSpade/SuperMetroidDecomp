@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
 {
     /// <summary>The overlay last resolved.</summary>
-    private RoomWrittenOverlay? source;
+    private RoomWarningText? source;
 
     /// <summary>The picture each written picture showed when last resolved.</summary>
     private LayeredPicture[] shown = [];
@@ -29,7 +29,7 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
     /// </summary>
     /// <exception cref="InvalidOperationException">The sheet pictures another layer's pictures.</exception>
     /// <exception cref="InvalidDataException">The sheet pictures a written picture for no such values.</exception>
-    public ImmutableArray<PlacedWrittenPicture> Resolve(RoomWrittenOverlay overlay, RoomAppearanceView appearance)
+    public ImmutableArray<PlacedWrittenPicture> Resolve(RoomWarningText overlay, RoomAppearanceView appearance)
     {
         Ensure.NotNull(overlay);
         if (Sheet.Layer != WrittenPictureLayer.WrittenOverRoom)
@@ -56,7 +56,7 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
     }
 
     /// <summary>Whether <paramref name="overlay"/> was last resolved and showed <paramref name="frames"/>.</summary>
-    private bool Unchanged(RoomWrittenOverlay overlay, LayeredPicture[] frames)
+    private bool Unchanged(RoomWarningText overlay, LayeredPicture[] frames)
     {
         bool unchanged = ReferenceEquals(overlay, source) && shown.Length == frames.Length;
         for (int index = 0; unchanged && index < frames.Length; index++)

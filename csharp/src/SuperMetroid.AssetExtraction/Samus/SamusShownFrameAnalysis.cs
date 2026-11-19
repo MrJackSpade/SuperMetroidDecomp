@@ -57,6 +57,37 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </remarks>
 internal sealed class SamusShownFrameAnalysis
 {
+    /// <summary>The movement types in the order the analysis lists those a pose was initialized in (#2567).</summary>
+    private static readonly IReadOnlyList<SamusMovementType> MovementTypeOrder = Ensure.EveryMemberOnce<SamusMovementType>(
+    [
+        SamusMovementType.Standing,
+        SamusMovementType.Running,
+        SamusMovementType.NormalJumping,
+        SamusMovementType.SpinJumping,
+        SamusMovementType.MorphBallGround,
+        SamusMovementType.Crouching,
+        SamusMovementType.Falling,
+        SamusMovementType.GlitchBall,
+        SamusMovementType.MorphBallFalling,
+        SamusMovementType.GlitchBallKnockback,
+        SamusMovementType.Knockback,
+        SamusMovementType.CompactAirborne,
+        SamusMovementType.TurningOnGround,
+        SamusMovementType.PostureTransition,
+        SamusMovementType.Moonwalking,
+        SamusMovementType.SpringBallGround,
+        SamusMovementType.SpringBallInAir,
+        SamusMovementType.SpringBallFalling,
+        SamusMovementType.WallJumping,
+        SamusMovementType.RanIntoWall,
+        SamusMovementType.Grappling,
+        SamusMovementType.TurningWhileJumping,
+        SamusMovementType.TurningWhileFalling,
+        SamusMovementType.DamageBoost,
+        SamusMovementType.DraygonHeld,
+        SamusMovementType.Special,
+    ]);
+
     /// <summary>
     /// The movement types Samus can be initialized in: the movement types of the poses some path gives her. The drained
     /// operations write a drained pose without initializing it, so her movement stays the type of whichever of these she was
@@ -64,7 +95,7 @@ internal sealed class SamusShownFrameAnalysis
     /// jump's movement into the drained standing pose).
     /// </summary>
     private static readonly SamusMovementType[] InitializedMovementTypes =
-        [.. Enum.GetValues<SamusPoseId>().Select(SamusPoseMetadata.ReadMovementType).Distinct().Order()];
+        [.. MovementTypeOrder.Where(Enum.GetValues<SamusPoseId>().Select(SamusPoseMetadata.ReadMovementType).ToHashSet().Contains)];
 
     /// <summary>The game's layout of Samus's animations, which the analysis reads frames by.</summary>
     private readonly SamusAnimationLayout layout;
@@ -79,7 +110,7 @@ internal sealed class SamusShownFrameAnalysis
     private readonly HashSet<SamusPoseId> fallingWithoutDrain = [];
 
     /// <summary>Each pose's picture frames, by their place in its animation's layout: the delays and holds its own playback shows.</summary>
-    private readonly Dictionary<SamusPoseId, SortedSet<int>> pictured = [];
+    internal readonly Dictionary<SamusPoseId, SortedSet<int>> pictured = [];
 
     /// <summary>The picture frame each shown frame draws, by pose and the frames' places in its animation's layout.</summary>
     private readonly Dictionary<SamusPoseId, SortedDictionary<int, int>> pictureFrames = [];
@@ -110,7 +141,7 @@ internal sealed class SamusShownFrameAnalysis
     }
 
     /// <summary>Every pose some path of the game gives Samus: the poses the body can show.</summary>
-    private static IReadOnlyList<SamusPoseId> Poses { get; } = Enum.GetValues<SamusPoseId>();
+    internal static IReadOnlyList<SamusPoseId> Poses { get; } = Ensure.EveryMemberOnce(SamusPoseIdKeys.ListedOrder);
 
     /// <summary>
     /// What the installation holds of the analysis, for every pose with a record: every frame the pose shows, with the

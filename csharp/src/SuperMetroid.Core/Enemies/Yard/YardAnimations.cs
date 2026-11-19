@@ -15,355 +15,355 @@ internal static class YardAnimations
     internal static AnimationSegments<YardSegment, EnemyFrameId, YardCue> Segments { get; } = new(
         new Dictionary<YardSegment, AnimationBeat<EnemyFrameId, YardCue>[]>
     {
-        [P.OutsideTurnUpsideRightMovingUp] =
+        [P.OutsideTurnOnLeftWallMovingUp] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideRightFacingUpTurned22, 7),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideRightFacingUpTurned45, 4),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideRightFacingUpTurned67, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnLeftWallFacingUpTurned22, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnLeftWallFacingUpTurned45, 4),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnLeftWallFacingUpTurned67, 7),
             Cue(new YardCue.MoveBy(new(-4, -8))),
         ],
-        [P.CrawlingUpsideUpMovingLeft] =
+        [P.CrawlingOnFloorMovingLeft] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideUpMovingLeft)),
-            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideUpMovingLeft)),
-            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideUpMovingLeft)),
-            Show(EnemyFrameId.YardCrawlingUpsideUpFacingLeftLegsTucked, 9),
-            Show(EnemyFrameId.YardCrawlingUpsideUpFacingLeftLegsSpread, 13),
-            Show(EnemyFrameId.YardCrawlingUpsideUpFacingLeftLegsStepping, 9),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.OnFloorMovingLeft)),
+            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingOnFloorMovingLeft)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.OnFloorMovingLeft)),
+            Show(EnemyFrameId.YardCrawlingOnFloorFacingLeftLegsTucked, 9),
+            Show(EnemyFrameId.YardCrawlingOnFloorFacingLeftLegsSpread, 13),
+            Show(EnemyFrameId.YardCrawlingOnFloorFacingLeftLegsStepping, 9),
         ],
-        [P.OutsideTurnUpsideUpMovingLeft] =
+        [P.OutsideTurnOnFloorMovingLeft] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideUpFacingLeftTurned22, 7),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideUpFacingLeftTurned45, 4),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideUpFacingLeftTurned67, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnFloorFacingLeftTurned22, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnFloorFacingLeftTurned45, 4),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnFloorFacingLeftTurned67, 7),
             Cue(new YardCue.MoveBy(new(-8, 4))),
         ],
-        [P.CrawlingUpsideLeftMovingDown] =
+        [P.CrawlingOnRightWallMovingDown] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideLeftMovingDown)),
-            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideLeftMovingDown)),
-            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideLeftMovingDown)),
-            Show(EnemyFrameId.YardCrawlingUpsideLeftFacingDownLegsTucked, 9),
-            Show(EnemyFrameId.YardCrawlingUpsideLeftFacingDownLegsSpread, 13),
-            Show(EnemyFrameId.YardCrawlingUpsideLeftFacingDownLegsStepping, 9),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.OnRightWallMovingDown)),
+            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingOnRightWallMovingDown)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.OnRightWallMovingDown)),
+            Show(EnemyFrameId.YardCrawlingOnRightWallFacingDownLegsTucked, 9),
+            Show(EnemyFrameId.YardCrawlingOnRightWallFacingDownLegsSpread, 13),
+            Show(EnemyFrameId.YardCrawlingOnRightWallFacingDownLegsStepping, 9),
         ],
-        [P.OutsideTurnUpsideLeftMovingDown] =
+        [P.OutsideTurnOnRightWallMovingDown] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideLeftFacingDownTurned22, 7),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideLeftFacingDownTurned45, 4),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideLeftFacingDownTurned67, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnRightWallFacingDownTurned22, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnRightWallFacingDownTurned45, 4),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnRightWallFacingDownTurned67, 7),
             Cue(new YardCue.MoveBy(new(4, 8))),
         ],
-        [P.CrawlingUpsideDownMovingRight] =
+        [P.CrawlingOnCeilingMovingRight] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideDownMovingRight)),
-            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideDownMovingRight)),
-            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideDownMovingRight)),
-            Show(EnemyFrameId.YardCrawlingUpsideDownFacingRightLegsTucked, 9),
-            Show(EnemyFrameId.YardCrawlingUpsideDownFacingRightLegsSpread, 13),
-            Show(EnemyFrameId.YardCrawlingUpsideDownFacingRightLegsStepping, 9),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.OnCeilingMovingRight)),
+            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingOnCeilingMovingRight)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.OnCeilingMovingRight)),
+            Show(EnemyFrameId.YardCrawlingOnCeilingFacingRightLegsTucked, 9),
+            Show(EnemyFrameId.YardCrawlingOnCeilingFacingRightLegsSpread, 13),
+            Show(EnemyFrameId.YardCrawlingOnCeilingFacingRightLegsStepping, 9),
         ],
-        [P.OutsideTurnUpsideDownMovingRight] =
+        [P.OutsideTurnOnCeilingMovingRight] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideDownFacingRightTurned22, 7),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideDownFacingRightTurned45, 4),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideDownFacingRightTurned67, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnCeilingFacingRightTurned22, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnCeilingFacingRightTurned45, 4),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnCeilingFacingRightTurned67, 7),
             Cue(new YardCue.MoveBy(new(8, -4))),
         ],
-        [P.CrawlingUpsideRightMovingUp] =
+        [P.CrawlingOnLeftWallMovingUp] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideRightMovingUp)),
-            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideRightMovingUp)),
-            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideRightMovingUp)),
-            Show(EnemyFrameId.YardCrawlingUpsideRightFacingUpLegsTucked, 9),
-            Show(EnemyFrameId.YardCrawlingUpsideRightFacingUpLegsSpread, 13),
-            Show(EnemyFrameId.YardCrawlingUpsideRightFacingUpLegsStepping, 9),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.OnLeftWallMovingUp)),
+            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingOnLeftWallMovingUp)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.OnLeftWallMovingUp)),
+            Show(EnemyFrameId.YardCrawlingOnLeftWallFacingUpLegsTucked, 9),
+            Show(EnemyFrameId.YardCrawlingOnLeftWallFacingUpLegsSpread, 13),
+            Show(EnemyFrameId.YardCrawlingOnLeftWallFacingUpLegsStepping, 9),
         ],
-        [P.OutsideTurnUpsideLeftMovingUp] =
+        [P.OutsideTurnOnRightWallMovingUp] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideLeftFacingUpTurned22, 7),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideLeftFacingUpTurned45, 4),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideLeftFacingUpTurned67, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnRightWallFacingUpTurned22, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnRightWallFacingUpTurned45, 4),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnRightWallFacingUpTurned67, 7),
             Cue(new YardCue.MoveBy(new(4, -8))),
         ],
-        [P.CrawlingUpsideUpMovingRight] =
+        [P.CrawlingOnFloorMovingRight] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideUpMovingRight)),
-            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideUpMovingRight)),
-            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideUpMovingRight)),
-            Show(EnemyFrameId.YardCrawlingUpsideUpFacingRightLegsTucked, 9),
-            Show(EnemyFrameId.YardCrawlingUpsideUpFacingRightLegsSpread, 13),
-            Show(EnemyFrameId.YardCrawlingUpsideUpFacingRightLegsStepping, 9),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.OnFloorMovingRight)),
+            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingOnFloorMovingRight)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.OnFloorMovingRight)),
+            Show(EnemyFrameId.YardCrawlingOnFloorFacingRightLegsTucked, 9),
+            Show(EnemyFrameId.YardCrawlingOnFloorFacingRightLegsSpread, 13),
+            Show(EnemyFrameId.YardCrawlingOnFloorFacingRightLegsStepping, 9),
         ],
-        [P.OutsideTurnUpsideUpMovingRight] =
+        [P.OutsideTurnOnFloorMovingRight] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideUpFacingRightTurned22, 7),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideUpFacingRightTurned45, 4),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideUpFacingRightTurned67, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnFloorFacingRightTurned22, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnFloorFacingRightTurned45, 4),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnFloorFacingRightTurned67, 7),
             Cue(new YardCue.MoveBy(new(8, 4))),
         ],
-        [P.CrawlingUpsideRightMovingDown] =
+        [P.CrawlingOnLeftWallMovingDown] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideRightMovingDown)),
-            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideRightMovingDown)),
-            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideRightMovingDown)),
-            Show(EnemyFrameId.YardCrawlingUpsideRightFacingDownLegsTucked, 9),
-            Show(EnemyFrameId.YardCrawlingUpsideRightFacingDownLegsSpread, 13),
-            Show(EnemyFrameId.YardCrawlingUpsideRightFacingDownLegsStepping, 9),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.OnLeftWallMovingDown)),
+            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingOnLeftWallMovingDown)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.OnLeftWallMovingDown)),
+            Show(EnemyFrameId.YardCrawlingOnLeftWallFacingDownLegsTucked, 9),
+            Show(EnemyFrameId.YardCrawlingOnLeftWallFacingDownLegsSpread, 13),
+            Show(EnemyFrameId.YardCrawlingOnLeftWallFacingDownLegsStepping, 9),
         ],
-        [P.OutsideTurnUpsideRightMovingDown] =
+        [P.OutsideTurnOnLeftWallMovingDown] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideRightFacingDownTurned22, 7),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideRightFacingDownTurned45, 4),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideRightFacingDownTurned67, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnLeftWallFacingDownTurned22, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnLeftWallFacingDownTurned45, 4),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnLeftWallFacingDownTurned67, 7),
             Cue(new YardCue.MoveBy(new(-4, 8))),
         ],
-        [P.CrawlingUpsideDownMovingLeft] =
+        [P.CrawlingOnCeilingMovingLeft] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideDownMovingLeft)),
-            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideDownMovingLeft)),
-            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideDownMovingLeft)),
-            Show(EnemyFrameId.YardCrawlingUpsideDownFacingLeftLegsTucked, 9),
-            Show(EnemyFrameId.YardCrawlingUpsideDownFacingLeftLegsSpread, 13),
-            Show(EnemyFrameId.YardCrawlingUpsideDownFacingLeftLegsStepping, 9),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.OnCeilingMovingLeft)),
+            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingOnCeilingMovingLeft)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.OnCeilingMovingLeft)),
+            Show(EnemyFrameId.YardCrawlingOnCeilingFacingLeftLegsTucked, 9),
+            Show(EnemyFrameId.YardCrawlingOnCeilingFacingLeftLegsSpread, 13),
+            Show(EnemyFrameId.YardCrawlingOnCeilingFacingLeftLegsStepping, 9),
         ],
-        [P.OutsideTurnUpsideDownMovingLeft] =
+        [P.OutsideTurnOnCeilingMovingLeft] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideDownFacingLeftTurned22, 7),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideDownFacingLeftTurned45, 4),
-            Show(EnemyFrameId.YardRoundingOutsideCornerUpsideDownFacingLeftTurned67, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnCeilingFacingLeftTurned22, 7),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnCeilingFacingLeftTurned45, 4),
+            Show(EnemyFrameId.YardRoundingOutsideCornerOnCeilingFacingLeftTurned67, 7),
             Cue(new YardCue.MoveBy(new(-8, -4))),
         ],
-        [P.CrawlingUpsideLeftMovingUp] =
+        [P.CrawlingOnRightWallMovingUp] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideLeftMovingUp)),
-            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideLeftMovingUp)),
-            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideLeftMovingUp)),
-            Show(EnemyFrameId.YardCrawlingUpsideLeftFacingUpLegsTucked, 9),
-            Show(EnemyFrameId.YardCrawlingUpsideLeftFacingUpLegsSpread, 13),
-            Show(EnemyFrameId.YardCrawlingUpsideLeftFacingUpLegsStepping, 9),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.OnRightWallMovingUp)),
+            Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingOnRightWallMovingUp)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.OnRightWallMovingUp)),
+            Show(EnemyFrameId.YardCrawlingOnRightWallFacingUpLegsTucked, 9),
+            Show(EnemyFrameId.YardCrawlingOnRightWallFacingUpLegsSpread, 13),
+            Show(EnemyFrameId.YardCrawlingOnRightWallFacingUpLegsStepping, 9),
         ],
-        [P.InsideTurnUpsideUpMovingLeft] =
+        [P.InsideTurnOnFloorMovingLeft] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideUpFacingLeftTurned22, 7),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideUpFacingLeftTurned45, 4),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideUpFacingLeftTurned67, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnFloorFacingLeftTurned22, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnFloorFacingLeftTurned45, 4),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnFloorFacingLeftTurned67, 7),
         ],
-        [P.InsideTurnUpsideRightMovingUp] =
+        [P.InsideTurnOnLeftWallMovingUp] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideRightFacingUpTurned22, 7),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideRightFacingUpTurned45, 4),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideRightFacingUpTurned67, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnLeftWallFacingUpTurned22, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnLeftWallFacingUpTurned45, 4),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnLeftWallFacingUpTurned67, 7),
         ],
-        [P.InsideTurnUpsideDownMovingRight] =
+        [P.InsideTurnOnCeilingMovingRight] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideDownFacingRightTurned22, 7),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideDownFacingRightTurned45, 4),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideDownFacingRightTurned67, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnCeilingFacingRightTurned22, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnCeilingFacingRightTurned45, 4),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnCeilingFacingRightTurned67, 7),
         ],
-        [P.InsideTurnUpsideLeftMovingDown] =
+        [P.InsideTurnOnRightWallMovingDown] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideLeftFacingDownTurned22, 7),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideLeftFacingDownTurned45, 4),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideLeftFacingDownTurned67, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnRightWallFacingDownTurned22, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnRightWallFacingDownTurned45, 4),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnRightWallFacingDownTurned67, 7),
         ],
-        [P.InsideTurnUpsideUpMovingRight] =
+        [P.InsideTurnOnFloorMovingRight] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideUpFacingRightTurned22, 7),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideUpFacingRightTurned45, 4),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideUpFacingRightTurned67, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnFloorFacingRightTurned22, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnFloorFacingRightTurned45, 4),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnFloorFacingRightTurned67, 7),
         ],
-        [P.InsideTurnUpsideLeftMovingUp] =
+        [P.InsideTurnOnRightWallMovingUp] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideLeftFacingUpTurned22, 7),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideLeftFacingUpTurned45, 4),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideLeftFacingUpTurned67, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnRightWallFacingUpTurned22, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnRightWallFacingUpTurned45, 4),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnRightWallFacingUpTurned67, 7),
         ],
-        [P.InsideTurnUpsideDownMovingLeft] =
+        [P.InsideTurnOnCeilingMovingLeft] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideDownFacingLeftTurned22, 7),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideDownFacingLeftTurned45, 4),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideDownFacingLeftTurned67, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnCeilingFacingLeftTurned22, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnCeilingFacingLeftTurned45, 4),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnCeilingFacingLeftTurned67, 7),
         ],
-        [P.InsideTurnUpsideRightMovingDown] =
+        [P.InsideTurnOnLeftWallMovingDown] =
         [
             Cue(new YardCue.Signal(K.BeginTurn)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: null)),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideRightFacingDownTurned22, 7),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideRightFacingDownTurned45, 4),
-            Show(EnemyFrameId.YardRoundingInsideCornerUpsideRightFacingDownTurned67, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnLeftWallFacingDownTurned22, 7),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnLeftWallFacingDownTurned45, 4),
+            Show(EnemyFrameId.YardRoundingInsideCornerOnLeftWallFacingDownTurned67, 7),
         ],
-        [P.HidingUpsideUpMovingLeft] =
+        [P.HidingOnFloorMovingLeft] =
         [
             Cue(new YardCue.Signal(K.BeginHiding)),
-            Show(EnemyFrameId.YardUpsideUpFacingLeftLegsTucking, 5),
+            Show(EnemyFrameId.YardOnFloorFacingLeftLegsTucking, 5),
         ],
-        [P.ShellClosedUpsideUpMovingLeft] =
+        [P.ShellClosedOnFloorMovingLeft] =
         [
-            Show(EnemyFrameId.YardUpsideUpFacingLeftShellClosed, 1),
+            Show(EnemyFrameId.YardOnFloorFacingLeftShellClosed, 1),
             Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
         ],
-        [P.HiddenUpsideUpMovingLeft] =
+        [P.HiddenOnFloorMovingLeft] =
         [
-            Show(EnemyFrameId.YardUpsideUpFacingLeftShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideUpFacingLeftLegsEmerging, 16),
+            Show(EnemyFrameId.YardOnFloorFacingLeftShellClosed, 48),
+            Show(EnemyFrameId.YardOnFloorFacingLeftLegsEmerging, 16),
         ],
-        [P.HidingUpsideDownMovingLeft] =
+        [P.HidingOnCeilingMovingLeft] =
         [
             Cue(new YardCue.Signal(K.BeginHiding)),
-            Show(EnemyFrameId.YardUpsideDownFacingLeftLegsTucking, 5),
+            Show(EnemyFrameId.YardOnCeilingFacingLeftLegsTucking, 5),
         ],
-        [P.ShellClosedUpsideDownMovingLeft] =
+        [P.ShellClosedOnCeilingMovingLeft] =
         [
-            Show(EnemyFrameId.YardUpsideDownFacingLeftShellClosed, 1),
+            Show(EnemyFrameId.YardOnCeilingFacingLeftShellClosed, 1),
             Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
         ],
-        [P.HiddenUpsideDownMovingLeft] =
+        [P.HiddenOnCeilingMovingLeft] =
         [
-            Show(EnemyFrameId.YardUpsideDownFacingLeftShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideDownFacingLeftLegsEmerging, 16),
+            Show(EnemyFrameId.YardOnCeilingFacingLeftShellClosed, 48),
+            Show(EnemyFrameId.YardOnCeilingFacingLeftLegsEmerging, 16),
         ],
-        [P.HidingUpsideDownMovingRight] =
+        [P.HidingOnCeilingMovingRight] =
         [
             Cue(new YardCue.Signal(K.BeginHiding)),
-            Show(EnemyFrameId.YardUpsideDownFacingRightLegsTucking, 5),
+            Show(EnemyFrameId.YardOnCeilingFacingRightLegsTucking, 5),
         ],
-        [P.ShellClosedUpsideDownMovingRight] =
+        [P.ShellClosedOnCeilingMovingRight] =
         [
-            Show(EnemyFrameId.YardUpsideDownFacingRightShellClosed, 1),
+            Show(EnemyFrameId.YardOnCeilingFacingRightShellClosed, 1),
             Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
         ],
-        [P.HiddenUpsideDownMovingRight] =
+        [P.HiddenOnCeilingMovingRight] =
         [
-            Show(EnemyFrameId.YardUpsideDownFacingRightShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideDownFacingRightLegsEmerging, 16),
+            Show(EnemyFrameId.YardOnCeilingFacingRightShellClosed, 48),
+            Show(EnemyFrameId.YardOnCeilingFacingRightLegsEmerging, 16),
         ],
-        [P.HidingUpsideUpMovingRight] =
+        [P.HidingOnFloorMovingRight] =
         [
             Cue(new YardCue.Signal(K.BeginHiding)),
-            Show(EnemyFrameId.YardUpsideUpFacingRightLegsTucking, 5),
+            Show(EnemyFrameId.YardOnFloorFacingRightLegsTucking, 5),
         ],
-        [P.ShellClosedUpsideUpMovingRight] =
+        [P.ShellClosedOnFloorMovingRight] =
         [
-            Show(EnemyFrameId.YardUpsideUpFacingRightShellClosed, 1),
+            Show(EnemyFrameId.YardOnFloorFacingRightShellClosed, 1),
             Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
         ],
-        [P.HiddenUpsideUpMovingRight] =
+        [P.HiddenOnFloorMovingRight] =
         [
-            Show(EnemyFrameId.YardUpsideUpFacingRightShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideUpFacingRightLegsEmerging, 16),
+            Show(EnemyFrameId.YardOnFloorFacingRightShellClosed, 48),
+            Show(EnemyFrameId.YardOnFloorFacingRightLegsEmerging, 16),
         ],
-        [P.HidingUpsideRightMovingUp] =
+        [P.HidingOnLeftWallMovingUp] =
         [
             Cue(new YardCue.Signal(K.BeginHiding)),
-            Show(EnemyFrameId.YardUpsideRightFacingUpLegsTucking, 5),
+            Show(EnemyFrameId.YardOnLeftWallFacingUpLegsTucking, 5),
         ],
-        [P.ShellClosedUpsideRightMovingUp] =
+        [P.ShellClosedOnLeftWallMovingUp] =
         [
-            Show(EnemyFrameId.YardUpsideRightFacingUpShellClosed, 1),
+            Show(EnemyFrameId.YardOnLeftWallFacingUpShellClosed, 1),
             Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
         ],
-        [P.HiddenUpsideRightMovingUp] =
+        [P.HiddenOnLeftWallMovingUp] =
         [
-            Show(EnemyFrameId.YardUpsideRightFacingUpShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideRightFacingUpLegsEmerging, 16),
+            Show(EnemyFrameId.YardOnLeftWallFacingUpShellClosed, 48),
+            Show(EnemyFrameId.YardOnLeftWallFacingUpLegsEmerging, 16),
         ],
-        [P.HidingUpsideLeftMovingUp] =
+        [P.HidingOnRightWallMovingUp] =
         [
             Cue(new YardCue.Signal(K.BeginHiding)),
-            Show(EnemyFrameId.YardUpsideLeftFacingUpLegsTucking, 5),
+            Show(EnemyFrameId.YardOnRightWallFacingUpLegsTucking, 5),
         ],
-        [P.ShellClosedUpsideLeftMovingUp] =
+        [P.ShellClosedOnRightWallMovingUp] =
         [
-            Show(EnemyFrameId.YardUpsideLeftFacingUpShellClosed, 1),
+            Show(EnemyFrameId.YardOnRightWallFacingUpShellClosed, 1),
             Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
         ],
-        [P.HiddenUpsideLeftMovingUp] =
+        [P.HiddenOnRightWallMovingUp] =
         [
-            Show(EnemyFrameId.YardUpsideLeftFacingUpShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideLeftFacingUpLegsEmerging, 16),
+            Show(EnemyFrameId.YardOnRightWallFacingUpShellClosed, 48),
+            Show(EnemyFrameId.YardOnRightWallFacingUpLegsEmerging, 16),
         ],
-        [P.HidingUpsideLeftMovingDown] =
+        [P.HidingOnRightWallMovingDown] =
         [
             Cue(new YardCue.Signal(K.BeginHiding)),
-            Show(EnemyFrameId.YardUpsideLeftFacingDownLegsTucking, 5),
+            Show(EnemyFrameId.YardOnRightWallFacingDownLegsTucking, 5),
         ],
-        [P.ShellClosedUpsideLeftMovingDown] =
+        [P.ShellClosedOnRightWallMovingDown] =
         [
-            Show(EnemyFrameId.YardUpsideLeftFacingDownShellClosed, 1),
+            Show(EnemyFrameId.YardOnRightWallFacingDownShellClosed, 1),
             Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
         ],
-        [P.HiddenUpsideLeftMovingDown] =
+        [P.HiddenOnRightWallMovingDown] =
         [
-            Show(EnemyFrameId.YardUpsideLeftFacingDownShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideLeftFacingDownLegsEmerging, 16),
+            Show(EnemyFrameId.YardOnRightWallFacingDownShellClosed, 48),
+            Show(EnemyFrameId.YardOnRightWallFacingDownLegsEmerging, 16),
         ],
-        [P.HidingUpsideRightMovingDown] =
+        [P.HidingOnLeftWallMovingDown] =
         [
             Cue(new YardCue.Signal(K.BeginHiding)),
-            Show(EnemyFrameId.YardUpsideRightFacingDownLegsTucking, 5),
+            Show(EnemyFrameId.YardOnLeftWallFacingDownLegsTucking, 5),
         ],
-        [P.ShellClosedUpsideRightMovingDown] =
+        [P.ShellClosedOnLeftWallMovingDown] =
         [
-            Show(EnemyFrameId.YardUpsideRightFacingDownShellClosed, 1),
+            Show(EnemyFrameId.YardOnLeftWallFacingDownShellClosed, 1),
             Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
         ],
-        [P.HiddenUpsideRightMovingDown] =
+        [P.HiddenOnLeftWallMovingDown] =
         [
-            Show(EnemyFrameId.YardUpsideRightFacingDownShellClosed, 48),
-            Show(EnemyFrameId.YardUpsideRightFacingDownLegsEmerging, 16),
+            Show(EnemyFrameId.YardOnLeftWallFacingDownShellClosed, 48),
+            Show(EnemyFrameId.YardOnLeftWallFacingDownLegsEmerging, 16),
         ],
         [P.AirborneFacingLeft] =
         [
             Cue(new YardCue.Signal(K.BeginFlight)),
-            Show(EnemyFrameId.YardUpsideRightFacingUpShellClosed, 3),
+            Show(EnemyFrameId.YardOnLeftWallFacingUpShellClosed, 3),
         ],
         [P.AirborneFacingLeftTumbling] =
         [
-            Show(EnemyFrameId.YardUpsideLeftFacingDownShellClosed, 3),
-            Show(EnemyFrameId.YardUpsideDownFacingRightShellClosed, 3),
-            Show(EnemyFrameId.YardUpsideRightFacingUpShellClosed, 3),
+            Show(EnemyFrameId.YardOnRightWallFacingDownShellClosed, 3),
+            Show(EnemyFrameId.YardOnCeilingFacingRightShellClosed, 3),
+            Show(EnemyFrameId.YardOnLeftWallFacingUpShellClosed, 3),
         ],
         [P.AirborneFacingRight] =
         [
             Cue(new YardCue.Signal(K.BeginFlight)),
-            Show(EnemyFrameId.YardUpsideLeftFacingUpShellClosed, 3),
+            Show(EnemyFrameId.YardOnRightWallFacingUpShellClosed, 3),
         ],
         [P.AirborneFacingRightTumbling] =
         [
-            Show(EnemyFrameId.YardUpsideRightFacingDownShellClosed, 3),
-            Show(EnemyFrameId.YardUpsideDownFacingLeftShellClosed, 3),
-            Show(EnemyFrameId.YardUpsideLeftFacingUpShellClosed, 3),
+            Show(EnemyFrameId.YardOnLeftWallFacingDownShellClosed, 3),
+            Show(EnemyFrameId.YardOnCeilingFacingLeftShellClosed, 3),
+            Show(EnemyFrameId.YardOnRightWallFacingUpShellClosed, 3),
         ],
     });
 
@@ -373,40 +373,40 @@ internal static class YardAnimations
     /// </summary>
     private static Dictionary<YardSegment, Animation<YardSegment>> StartingAt { get; } = new Dictionary<YardSegment, Animation<YardSegment>>
     {
-        [P.OutsideTurnUpsideRightMovingUp] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnUpsideRightMovingUp)], [Segments.Whole(P.CrawlingUpsideUpMovingLeft)]),
-        [P.CrawlingUpsideUpMovingLeft] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingUpsideUpMovingLeft)]),
-        [P.OutsideTurnUpsideUpMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnUpsideUpMovingLeft)], [Segments.Whole(P.CrawlingUpsideLeftMovingDown)]),
-        [P.CrawlingUpsideLeftMovingDown] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingUpsideLeftMovingDown)]),
-        [P.OutsideTurnUpsideLeftMovingDown] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnUpsideLeftMovingDown)], [Segments.Whole(P.CrawlingUpsideDownMovingRight)]),
-        [P.CrawlingUpsideDownMovingRight] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingUpsideDownMovingRight)]),
-        [P.OutsideTurnUpsideDownMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnUpsideDownMovingRight)], [Segments.Whole(P.CrawlingUpsideRightMovingUp)]),
-        [P.CrawlingUpsideRightMovingUp] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingUpsideRightMovingUp)]),
-        [P.OutsideTurnUpsideLeftMovingUp] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnUpsideLeftMovingUp)], [Segments.Whole(P.CrawlingUpsideUpMovingRight)]),
-        [P.CrawlingUpsideUpMovingRight] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingUpsideUpMovingRight)]),
-        [P.OutsideTurnUpsideUpMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnUpsideUpMovingRight)], [Segments.Whole(P.CrawlingUpsideRightMovingDown)]),
-        [P.CrawlingUpsideRightMovingDown] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingUpsideRightMovingDown)]),
-        [P.OutsideTurnUpsideRightMovingDown] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnUpsideRightMovingDown)], [Segments.Whole(P.CrawlingUpsideDownMovingLeft)]),
-        [P.CrawlingUpsideDownMovingLeft] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingUpsideDownMovingLeft)]),
-        [P.OutsideTurnUpsideDownMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnUpsideDownMovingLeft)], [Segments.Whole(P.CrawlingUpsideLeftMovingUp)]),
-        [P.CrawlingUpsideLeftMovingUp] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingUpsideLeftMovingUp)]),
-        [P.InsideTurnUpsideUpMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnUpsideUpMovingLeft)], [Segments.Whole(P.CrawlingUpsideRightMovingUp)]),
-        [P.InsideTurnUpsideRightMovingUp] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnUpsideRightMovingUp)], [Segments.Whole(P.CrawlingUpsideDownMovingRight)]),
-        [P.InsideTurnUpsideDownMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnUpsideDownMovingRight)], [Segments.Whole(P.CrawlingUpsideLeftMovingDown)]),
-        [P.InsideTurnUpsideLeftMovingDown] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnUpsideLeftMovingDown)], [Segments.Whole(P.CrawlingUpsideUpMovingLeft)]),
-        [P.InsideTurnUpsideUpMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnUpsideUpMovingRight)], [Segments.Whole(P.CrawlingUpsideLeftMovingUp)]),
-        [P.InsideTurnUpsideLeftMovingUp] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnUpsideLeftMovingUp)], [Segments.Whole(P.CrawlingUpsideDownMovingLeft)]),
-        [P.InsideTurnUpsideDownMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnUpsideDownMovingLeft)], [Segments.Whole(P.CrawlingUpsideRightMovingDown)]),
-        [P.InsideTurnUpsideRightMovingDown] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnUpsideRightMovingDown)], [Segments.Whole(P.CrawlingUpsideUpMovingRight)]),
-        [P.HidingUpsideUpMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingUpsideUpMovingLeft), Segments.Whole(P.ShellClosedUpsideUpMovingLeft), Segments.Whole(P.HiddenUpsideUpMovingLeft)], [Segments.Whole(P.CrawlingUpsideUpMovingLeft)]),
-        [P.HiddenUpsideUpMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HiddenUpsideUpMovingLeft)], [Segments.Whole(P.CrawlingUpsideUpMovingLeft)]),
-        [P.HidingUpsideDownMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingUpsideDownMovingLeft), Segments.Whole(P.ShellClosedUpsideDownMovingLeft), Segments.Whole(P.HiddenUpsideDownMovingLeft)], [Segments.Whole(P.CrawlingUpsideDownMovingLeft)]),
-        [P.HidingUpsideDownMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingUpsideDownMovingRight), Segments.Whole(P.ShellClosedUpsideDownMovingRight), Segments.Whole(P.HiddenUpsideDownMovingRight)], [Segments.Whole(P.CrawlingUpsideDownMovingRight)]),
-        [P.HidingUpsideUpMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingUpsideUpMovingRight), Segments.Whole(P.ShellClosedUpsideUpMovingRight), Segments.Whole(P.HiddenUpsideUpMovingRight)], [Segments.Whole(P.CrawlingUpsideUpMovingRight)]),
-        [P.HiddenUpsideUpMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HiddenUpsideUpMovingRight)], [Segments.Whole(P.CrawlingUpsideUpMovingRight)]),
-        [P.HidingUpsideRightMovingUp] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingUpsideRightMovingUp), Segments.Whole(P.ShellClosedUpsideRightMovingUp), Segments.Whole(P.HiddenUpsideRightMovingUp)], [Segments.Whole(P.CrawlingUpsideRightMovingUp)]),
-        [P.HidingUpsideLeftMovingUp] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingUpsideLeftMovingUp), Segments.Whole(P.ShellClosedUpsideLeftMovingUp), Segments.Whole(P.HiddenUpsideLeftMovingUp)], [Segments.Whole(P.CrawlingUpsideLeftMovingUp)]),
-        [P.HidingUpsideLeftMovingDown] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingUpsideLeftMovingDown), Segments.Whole(P.ShellClosedUpsideLeftMovingDown), Segments.Whole(P.HiddenUpsideLeftMovingDown)], [Segments.Whole(P.CrawlingUpsideLeftMovingDown)]),
-        [P.HidingUpsideRightMovingDown] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingUpsideRightMovingDown), Segments.Whole(P.ShellClosedUpsideRightMovingDown), Segments.Whole(P.HiddenUpsideRightMovingDown)], [Segments.Whole(P.CrawlingUpsideRightMovingDown)]),
+        [P.OutsideTurnOnLeftWallMovingUp] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnOnLeftWallMovingUp)], [Segments.Whole(P.CrawlingOnFloorMovingLeft)]),
+        [P.CrawlingOnFloorMovingLeft] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingOnFloorMovingLeft)]),
+        [P.OutsideTurnOnFloorMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnOnFloorMovingLeft)], [Segments.Whole(P.CrawlingOnRightWallMovingDown)]),
+        [P.CrawlingOnRightWallMovingDown] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingOnRightWallMovingDown)]),
+        [P.OutsideTurnOnRightWallMovingDown] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnOnRightWallMovingDown)], [Segments.Whole(P.CrawlingOnCeilingMovingRight)]),
+        [P.CrawlingOnCeilingMovingRight] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingOnCeilingMovingRight)]),
+        [P.OutsideTurnOnCeilingMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnOnCeilingMovingRight)], [Segments.Whole(P.CrawlingOnLeftWallMovingUp)]),
+        [P.CrawlingOnLeftWallMovingUp] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingOnLeftWallMovingUp)]),
+        [P.OutsideTurnOnRightWallMovingUp] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnOnRightWallMovingUp)], [Segments.Whole(P.CrawlingOnFloorMovingRight)]),
+        [P.CrawlingOnFloorMovingRight] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingOnFloorMovingRight)]),
+        [P.OutsideTurnOnFloorMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnOnFloorMovingRight)], [Segments.Whole(P.CrawlingOnLeftWallMovingDown)]),
+        [P.CrawlingOnLeftWallMovingDown] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingOnLeftWallMovingDown)]),
+        [P.OutsideTurnOnLeftWallMovingDown] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnOnLeftWallMovingDown)], [Segments.Whole(P.CrawlingOnCeilingMovingLeft)]),
+        [P.CrawlingOnCeilingMovingLeft] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingOnCeilingMovingLeft)]),
+        [P.OutsideTurnOnCeilingMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.OutsideTurnOnCeilingMovingLeft)], [Segments.Whole(P.CrawlingOnRightWallMovingUp)]),
+        [P.CrawlingOnRightWallMovingUp] = Animation<YardSegment>.Looping([Segments.Whole(P.CrawlingOnRightWallMovingUp)]),
+        [P.InsideTurnOnFloorMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnOnFloorMovingLeft)], [Segments.Whole(P.CrawlingOnLeftWallMovingUp)]),
+        [P.InsideTurnOnLeftWallMovingUp] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnOnLeftWallMovingUp)], [Segments.Whole(P.CrawlingOnCeilingMovingRight)]),
+        [P.InsideTurnOnCeilingMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnOnCeilingMovingRight)], [Segments.Whole(P.CrawlingOnRightWallMovingDown)]),
+        [P.InsideTurnOnRightWallMovingDown] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnOnRightWallMovingDown)], [Segments.Whole(P.CrawlingOnFloorMovingLeft)]),
+        [P.InsideTurnOnFloorMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnOnFloorMovingRight)], [Segments.Whole(P.CrawlingOnRightWallMovingUp)]),
+        [P.InsideTurnOnRightWallMovingUp] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnOnRightWallMovingUp)], [Segments.Whole(P.CrawlingOnCeilingMovingLeft)]),
+        [P.InsideTurnOnCeilingMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnOnCeilingMovingLeft)], [Segments.Whole(P.CrawlingOnLeftWallMovingDown)]),
+        [P.InsideTurnOnLeftWallMovingDown] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.InsideTurnOnLeftWallMovingDown)], [Segments.Whole(P.CrawlingOnFloorMovingRight)]),
+        [P.HidingOnFloorMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingOnFloorMovingLeft), Segments.Whole(P.ShellClosedOnFloorMovingLeft), Segments.Whole(P.HiddenOnFloorMovingLeft)], [Segments.Whole(P.CrawlingOnFloorMovingLeft)]),
+        [P.HiddenOnFloorMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HiddenOnFloorMovingLeft)], [Segments.Whole(P.CrawlingOnFloorMovingLeft)]),
+        [P.HidingOnCeilingMovingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingOnCeilingMovingLeft), Segments.Whole(P.ShellClosedOnCeilingMovingLeft), Segments.Whole(P.HiddenOnCeilingMovingLeft)], [Segments.Whole(P.CrawlingOnCeilingMovingLeft)]),
+        [P.HidingOnCeilingMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingOnCeilingMovingRight), Segments.Whole(P.ShellClosedOnCeilingMovingRight), Segments.Whole(P.HiddenOnCeilingMovingRight)], [Segments.Whole(P.CrawlingOnCeilingMovingRight)]),
+        [P.HidingOnFloorMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingOnFloorMovingRight), Segments.Whole(P.ShellClosedOnFloorMovingRight), Segments.Whole(P.HiddenOnFloorMovingRight)], [Segments.Whole(P.CrawlingOnFloorMovingRight)]),
+        [P.HiddenOnFloorMovingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HiddenOnFloorMovingRight)], [Segments.Whole(P.CrawlingOnFloorMovingRight)]),
+        [P.HidingOnLeftWallMovingUp] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingOnLeftWallMovingUp), Segments.Whole(P.ShellClosedOnLeftWallMovingUp), Segments.Whole(P.HiddenOnLeftWallMovingUp)], [Segments.Whole(P.CrawlingOnLeftWallMovingUp)]),
+        [P.HidingOnRightWallMovingUp] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingOnRightWallMovingUp), Segments.Whole(P.ShellClosedOnRightWallMovingUp), Segments.Whole(P.HiddenOnRightWallMovingUp)], [Segments.Whole(P.CrawlingOnRightWallMovingUp)]),
+        [P.HidingOnRightWallMovingDown] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingOnRightWallMovingDown), Segments.Whole(P.ShellClosedOnRightWallMovingDown), Segments.Whole(P.HiddenOnRightWallMovingDown)], [Segments.Whole(P.CrawlingOnRightWallMovingDown)]),
+        [P.HidingOnLeftWallMovingDown] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.HidingOnLeftWallMovingDown), Segments.Whole(P.ShellClosedOnLeftWallMovingDown), Segments.Whole(P.HiddenOnLeftWallMovingDown)], [Segments.Whole(P.CrawlingOnLeftWallMovingDown)]),
         [P.AirborneFacingLeft] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.AirborneFacingLeft)], [Segments.Whole(P.AirborneFacingLeftTumbling)]),
         [P.AirborneFacingRight] = Animation<YardSegment>.LeadingInto([Segments.Whole(P.AirborneFacingRight)], [Segments.Whole(P.AirborneFacingRightTumbling)]),
     };

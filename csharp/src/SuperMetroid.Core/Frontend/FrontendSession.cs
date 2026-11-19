@@ -16,6 +16,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.Frontend;
@@ -198,8 +199,12 @@ internal sealed class FrontendSession
     internal void RetainSpacetimeRestart(SuperMetroidSaveSlot slot) => spacetimeIntroRestartSlot = Ensure.NotNull(slot);
     /// <summary>A soft reset forgets any Spacetime Beam restart.</summary>
     internal void ForgetSpacetimeRestart() => spacetimeIntroRestartSlot = null;
-    /// <summary>The fade into Landing Site or Ceres arrival, from black on a two-frame cadence.</summary>
-    internal ScreenFade GameplayFadeIn { get; } = new(0, stepDelay: 1, firstWait: 1);
+    /// <summary>
+    /// The fade into Landing Site or Ceres arrival, from black, waiting <see cref="GameplayFadeDefinitions.FadeInWaitBeforeEachStep"/>
+    /// updates before each step.
+    /// </summary>
+    internal ScreenFade GameplayFadeIn { get; } =
+        new(0, stepDelay: GameplayFadeDefinitions.FadeInWaitBeforeEachStep, firstWait: GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
     /// <summary>Selects Ceres arrival rather than Landing Site at the fade destination.</summary>
     internal bool GameplayFadeLeadsToCeresArrival { get; private set; }
     /// <summary>Gameplay brightness retained through pause and unpause fades, from black through full.</summary>
@@ -227,7 +232,11 @@ internal sealed class FrontendSession
     /// <summary>The ending transition after the Zebes escape, one level darker every frame.</summary>
     internal ScreenFade EscapeFade { get; } = new(DisplayBrightness.Full);
     /// <summary>The room state whose music was last queued.</summary>
-    internal RoomStateSettings? LastAudioRoomState { get; private set; }
+    internal RoomStateSettings? LastAudioRoomState { get; set; }
+    /// <summary>The runtime whose room's enemies' start music was last queued (#2562).</summary>
+    private SuperMetroidRuntime? _startMusicQueuedForRuntime;
+    /// <summary>Which of that runtime's room loads it was: its count of rooms loaded then.</summary>
+    private int _startMusicQueuedForRoomLoad;
     /// <summary>Forgets the room whose music was last queued, so the next runtime's room music is queued from scratch.</summary>
     internal void ForgetQueuedAudio() => LastAudioRoomState = null;
     /// <summary>
@@ -402,9 +411,14 @@ internal sealed class FrontendSession
         }
         // The music this room's enemies start is queued after the room's own, with the shortest delay. Before the
         // first room load, such as while a Ceres save starts its destruction cinematic, there are no enemies.
-        if (runtime?.Room.Scope is { } scope)
-            foreach (MusicRequest request in scope.Enemies.Audio.ConsumeRoomEnemyStartMusic())
+        if (runtime?.Room.Scope is { Enemies: var enemies } &&
+            (runtime != _startMusicQueuedForRuntime || runtime.Room.RoomsLoaded != _startMusicQueuedForRoomLoad))
+        {
+            foreach (MusicRequest request in enemies.Audio.RoomStartMusic)
                 audio.QueueMusic(request);
+            _startMusicQueuedForRuntime = runtime;
+            _startMusicQueuedForRoomLoad = runtime.Room.RoomsLoaded;
+        }
 
         // The message box runs outside gameplay: the save choice's move, the gunship's saving sound as its accepted prompt
         // closes and the gunship's pad opening as its prompt returns are events of the box's updates, taken once, so
@@ -572,7 +586,7 @@ internal sealed class FrontendSession
 
             // A Ceres elevator save starts with the Ceres elevator's arrival, as a new game does; every other station
             // loads through the room loader below.
-            if (slot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
+            if (slot.StartupRoute == SaveStartupRoute.CeresElevatorArrival)
             {
                 // The save's progress is restored before the room loads, so the room's state and its enemies see it.
                 runtime.RoomLoader.RestoreSavedPlayerState(slot);
@@ -623,14 +637,14 @@ internal sealed class FrontendSession
         return true;
     }
     /// <summary>
-    /// Enters the fade-in game state with a fully dark screen and the two-frame
-    /// brightness cadence. A fresh Ceres game must execute complete gameplay frames in
+    /// Enters the fade-in game state with a fully dark screen and the fade-in's brightness cadence
+    /// (<see cref="GameplayFadeDefinitions.FadeInWaitBeforeEachStep"/>). A fresh Ceres game must execute complete gameplay frames in
     /// this state before the Ceres elevator state owns the elevator arrival; otherwise the level-data pad
     /// is briefly visible before its concealing enemy projectile is drawn.
     /// </summary>
     internal void BeginGameplayFadeIn(GameplayFadeTarget target)
     {
-        GameplayFadeIn.Restart(0, 1);
+        GameplayFadeIn.Restart(0, GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
         GameplayFadeLeadsToCeresArrival = target == GameplayFadeTarget.CeresArrival;
         Enter(SuperMetroidGameState.GameplayFadeIn);
     }
@@ -643,7 +657,7 @@ internal sealed class FrontendSession
     {
         Enter(SuperMetroidGameState.MainGameplay);
         GameplayFadeLeadsToCeresArrival = false;
-        screenFade.StepEvery(1);
+        screenFade.StepEvery(GameplayFadeDefinitions.MainGameplayUpdatesPerStep);
         RecordFullBrightness();
     }
     /// <summary>
@@ -698,7 +712,7 @@ internal sealed class FrontendSession
     /// Bombs. The frontend cinematic uses isolated actor state, so its gameplay consequence
     /// is made explicit at the shared Ceres handoff.
     /// </summary>
-    private static void RestoreSpacetimeRestartInventory(
+    internal static void RestoreSpacetimeRestartInventory(
         SamusState samus,
         SuperMetroidSaveSlot slot)
     {

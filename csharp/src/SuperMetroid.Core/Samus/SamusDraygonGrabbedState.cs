@@ -77,16 +77,17 @@ public sealed class SamusDraygonGrabbedState
         samus.CommitPoseHistory();
         // The grab clears every pending pose. The pose the animation left pending is Samus's to clear; the runtime clears the
         // others after the enemy update, which publishes the grab.
-        samus.PendingTransitionalPose = null;
+        samus.CuePose.Forget();
     }
 
     /// <summary>
     /// Places Samus where Draygon carries her, after enemy AI has updated the
     /// boss body. Facing left places Samus eight pixels left; facing right places her eight
     /// pixels right; both place her 40 pixels below the body center. Draygon also places a
-    /// Samus who has just escaped, until it consumes the escape flag right after this placement.
+    /// Samus who has just escaped: the carry that places her reports her escape, which he sees once.
     /// </summary>
-    public void ApplyOwnerPosition(
+    /// <returns>Whether she had broken free since his last carry, which this carry has him see.</returns>
+    public bool CarryTo(
         SamusState samus,
         Position16<RoomPixels> ownerPosition,
         HorizontalDirection draygonFacing)
@@ -99,16 +100,20 @@ public sealed class SamusDraygonGrabbedState
         }
 
         samus.Position = samus.Position.WithWhole(ownerPosition + new Offset16<RoomPixels>(
-            draygonFacing == HorizontalDirection.Right ? SamusDraygonHoldDefinitions.HeldAhead : -SamusDraygonHoldDefinitions.HeldAhead,
+            SamusDraygonHoldDefinitions.HeldAhead.Toward(draygonFacing),
             SamusDraygonHoldDefinitions.HeldBelow));
 
         // The placement writes whole positions only. Where Samus lies within a pixel stays, even though the actor
         // overwrites the visible whole coordinates on every owner update.
+        if (Phase != SamusDraygonHoldPhase.ReleasedUnseen)
+            return false;
+        Phase = SamusDraygonHoldPhase.Inactive;
+        return true;
     }
 
     /// <summary>
     /// Runs <see cref="SamusMovementType.DraygonHeld"/> movement for every pose of that movement type: the grabbed poses,
-    /// whose position enemy AI has already supplied through <see cref="ApplyOwnerPosition"/>, and the Draygon-held ball the
+    /// whose position enemy AI has already supplied through <see cref="CarryTo"/>, and the Draygon-held ball the
     /// Baby's Hyper Beam freeze can install without Draygon (#1535), which therefore stays where it is. Her movement only
     /// clears her vertical collision with a solid.
     /// </summary>
@@ -117,7 +122,7 @@ public sealed class SamusDraygonGrabbedState
         Ensure.NotNull(samus);
         EnsureDraygonHeldMovement(samus);
 
-        samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
+        samus.ForgetVerticalCollisionResult();
     }
 
     /// <summary>
@@ -149,10 +154,30 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
+    /// Releases Samus as she breaks free: the release Draygon has not yet seen, which his next carry of her reports
+    /// (<see cref="CarryTo"/>).
+    /// </summary>
+    public void Release(SamusState samus)
+    {
+        LetGo(samus);
+        Phase = SamusDraygonHoldPhase.ReleasedUnseen;
+    }
+
+    /// <summary>
+    /// Draygon releases Samus himself, as his final whips end or he dies: he sees his own release, so his next carry has no
+    /// escape to report. Death releases her even when she was never grabbed.
+    /// </summary>
+    public void ReleaseByDraygon(SamusState samus)
+    {
+        LetGo(samus);
+        Phase = SamusDraygonHoldPhase.Inactive;
+    }
+
+    /// <summary>
     /// Runs the release. The release keeps extra run speed exactly as the game does,
     /// but clears base X speed, all vertical velocity, bounce state, and acceleration mode.
     /// </summary>
-    public void Release(SamusState samus)
+    private static void LetGo(SamusState samus)
     {
         Ensure.NotNull(samus);
 
@@ -172,23 +197,9 @@ public sealed class SamusDraygonGrabbedState
         samus.CommitPoseHistory();
 
         samus.HorizontalSpeed.BaseSpeed = default;
-        samus.Kinematics.YSpeed = default;
-        samus.Kinematics.YDirection = SamusVerticalDirection.None;
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
         samus.MorphBallBounceState = SamusBallBounceState.None;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
-
-        // The release is the signal Draygon reads when Samus breaks free: the next time Draygon carries her, it sees the
-        // release and starts flying upward.
-        Phase = SamusDraygonHoldPhase.ReleasedUnseen;
-    }
-
-    /// <summary>Has Draygon see Samus's release exactly once: whether a release was waiting for it.</summary>
-    public bool ConsumeOwnerReleaseSignal()
-    {
-        if (Phase != SamusDraygonHoldPhase.ReleasedUnseen)
-            return false;
-        Phase = SamusDraygonHoldPhase.Inactive;
-        return true;
     }
 
     /// <summary>Rejects escape checks before Draygon grabs Samus.</summary>

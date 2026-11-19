@@ -17,7 +17,7 @@ internal static class ShallowWaterJumpVerification
         var scenario = new ShallowWaterJumpScenario(CreateRetailRuntimeFixture(playerInvincibilityEnabled: true));
         var samus = scenario.Samus;
         AssertEqual(447, samus.Kinematics.BottomPixel.Y, "standing feet occupy the pixel below the water surface");
-        AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.LiquidPhysicsType, "standing water contact is preserved");
+        AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.MediumLastEntered, "standing water contact is preserved");
         var (rows, apex) = scenario.Jump();
         AssertEqual(FixedCoordinate.Of(0x0153, 0), apex, "cartridge jump reaches the room ceiling at Y=339");
         string[] native = File.ReadAllLines(ShallowWaterJumpNativeTracePath);

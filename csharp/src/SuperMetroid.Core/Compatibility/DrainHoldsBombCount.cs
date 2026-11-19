@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// bombs out until they end; in play the drain lasts far longer than a bomb burns, so none is out when it lets her go.
 /// </summary>
 /// <remarks>
-/// Consulted on every update the drain holds Samus and once as it releases her, in the Shitroid's update; a static rule
+/// Consulted on every update the drain holds Samus and once as it releases her, in the Baby Metroid's update; a static rule
 /// with no state. Evidence: the drain (<c>$A9:F21B</c>) stores a bomb counter of five on every update it drains Samus
 /// (<c>$A9:F22C</c>) and stores zero as it releases her below two energy (<c>$A9:F269</c>); a bomb's deletion
 /// (<c>$90:ADB7</c>) decrements the counter and clears it when that passes zero (<c>$90:ADFC</c>); the bomb placement

@@ -473,7 +473,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             // The page's text phase becomes its input wait once the narration's wait for that page starts.
             if (Phase == IntroCinematicPhase.PageText && CurrentNarration.AwaitingInputPage == Page)
                 Phase = IntroCinematicPhase.PageAwaitingInput;
-            if (CurrentNarration.IntroFinishRequested && Phase == IntroCinematicPhase.PageText)
+            if (CurrentNarration.FinalHoldEnded && Phase == IntroCinematicPhase.PageText)
             {
                 // The last page starts the final fade-out; the screen on this request frame is still the full-brightness
                 // last page.
@@ -590,7 +590,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackDemoInput.Enable();
         CurrentFlashbackDemoInput.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
         // Samus is processed, and drawn ahead of the cinematic actors.
-        flashbackSamusDisplay = IntroSamusDisplay.SamusFirst;
+        flashbackSamusDisplay = IntroSamusDisplay.InFrontOfActors;
 
         // The scene setup starts the crossfade from the narration into the flashback, which starts black.
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
@@ -619,7 +619,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// </summary>
     private void StartFightLightsIfSamusDrawsFirst(IntroSamusDisplay display)
     {
-        if (display == IntroSamusDisplay.SamusFirst)
+        if (display == IntroSamusDisplay.InFrontOfActors)
             ColourEffects.StartScreen(IntroCinematicDefinitions.FightLights);
     }
 
@@ -801,12 +801,12 @@ public sealed class IntroCinematicState : IFrontendScreen
         // still decides when a missile may fire.
         flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
         // A missile's firing sound joins the frontend's queues as the shot fires.
-        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles, progression: FlashbackProgression);
+        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, samusBombs: flashbackBombProjectiles, progression: FlashbackProgression);
 
         // Both the demo and locked movement modes end by resetting the
         // movement and pose-change state, so a later missile inherits only the
         // movement recorded in its own update.
-        SamusAerialPoseTransitions.DropPendingTransitionShot(FlashbackSamus);
+        SamusAerialPoseTransitions.DropTransitionShot(FlashbackSamus);
         FlashbackSamus.ProjectileInheritance.ClearMovement();
     }
 
@@ -907,7 +907,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             samus.KnockbackHold.IsRunning &&
             samus.KnockbackDirection == Samus.Movement.SamusKnockbackDirection.None)
         {
-            SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromPendingHit(samus), poseCollision: null);
+            SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromHurtState(samus), poseCollision: null);
             transitionAccepted = true;
         }
 
@@ -1009,7 +1009,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         sprites.BeginFrame();
         // The cinematic draw layers Samus and the cinematic actors by how the intro shows her.
         IntroSamusDisplay display = BabyDiscovery.SamusDisplay;
-        if (display == IntroSamusDisplay.SamusFirst)
+        if (display == IntroSamusDisplay.InFrontOfActors)
             DrawBabyDiscoverySamus(sprites);
         screenSprites.BeginFrame();
         BabyDiscovery.DrawActors(screenSprites, IntroSprites(CinematicSpriteFamily.IntroEggEffect),
@@ -1017,7 +1017,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         screenSprites.FinishFrame();
         foreach (SpriteDraw draw in screenSprites.Draws)
             sprites.Add(draw);
-        if (display == IntroSamusDisplay.ActorsFirst)
+        if (display == IntroSamusDisplay.BehindActors)
             DrawBabyDiscoverySamus(sprites);
         sprites.FinalizeFrame();
 
@@ -1109,10 +1109,10 @@ public sealed class IntroCinematicState : IFrontendScreen
             : crossfade.SceneShading;
 
     /// <summary>Prepares the current display once, holding everything the display needs to draw it.</summary>
-    internal LayeredScene CaptureRenderSnapshot()
+    internal LayeredScene ComposeScene()
     {
         if (CurrentCeresFlight is not null && Phase == IntroCinematicPhase.CeresFlight)
-            return CurrentCeresFlight.CaptureRenderSnapshot();
+            return CurrentCeresFlight.ComposeScene();
 
         SpriteFrameBuffer sprites;
         PicturedPlaneLayer room;

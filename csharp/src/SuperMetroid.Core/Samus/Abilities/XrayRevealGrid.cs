@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class XrayRevealGrid
 {
     /// <summary>The grid's columns and rows of blocks.</summary>
-    public static Extent16<RoomBlocks> Size { get; } = new(17, 16);
+    public static Extent16<RoomBlocks> Size => XrayRevealDefinitions.GridSize;
 
     /// <summary>Every place in the grid, row by row from the top and from left to right along each row.</summary>
     public static ImmutableArray<Position16<RoomBlocks>> Places { get; } =

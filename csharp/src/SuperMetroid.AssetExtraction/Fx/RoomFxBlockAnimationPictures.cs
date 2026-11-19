@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx.Artwork;
 
@@ -10,8 +11,17 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// </summary>
 internal static class RoomFxBlockAnimationPictures
 {
+    /// <summary>The Tourian statues' pictures in the order the strip holds their windows (#2567).</summary>
+    private static readonly IReadOnlyList<TourianStatueBlockPicture> StatuePictureOrder = Ensure.EveryMemberOnce<TourianStatueBlockPicture>(
+    [
+        TourianStatueBlockPicture.EyesBright,
+        TourianStatueBlockPicture.EyesDim,
+        TourianStatueBlockPicture.EyesDark,
+        TourianStatueBlockPicture.Released,
+    ]);
+
     /// <summary>The pictures each Tourian statue shows, each one window of the shared strip.</summary>
-    internal static IReadOnlyList<TourianStatueBlockPicture> TourianStatuePictures { get; } = Enum.GetValues<TourianStatueBlockPicture>();
+    internal static IReadOnlyList<TourianStatueBlockPicture> TourianStatuePictures { get; } = StatuePictureOrder;
 
     /// <summary>The windows of <paramref name="statue"/> in the shared strip.</summary>
     /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>

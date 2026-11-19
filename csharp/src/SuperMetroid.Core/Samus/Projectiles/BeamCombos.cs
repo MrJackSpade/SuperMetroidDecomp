@@ -319,7 +319,7 @@ internal sealed class BeamCombos
                     spazer.Radius = BeamComboDefinitions.SpazerFlyingStartRadius;
                     spazer.TurnPerUpdate = SpazerTurn(spazer.Part.SpazerTurn, BeamComboDefinitions.SpazerFlyingTurn);
                     shot.Direction = SamusProjectileDirection.UpFacingRight;
-                    shot.IsSpent = false;
+                    shot.FlyOn();
                     spazer.Phase = SpazerComboPhase.FlyingUpTowardsPoint;
                 }
                 break;
@@ -405,9 +405,9 @@ internal sealed class BeamCombos
         // The particle can lie left of the room's origin as its flight ends (PlaceSpazerParticle), and the step out moves it
         // sixteen pixels either way, so its place is one OffRoomPlaces gives it.
         shot.Position = OffRoomPlaces.WithWholeX(shot.Position, shot.Position.X.Whole +
-            (spazer.Part.SpazerTrail ? -BeamComboDefinitions.SpazerFallSideStep : BeamComboDefinitions.SpazerFallSideStep));
+            BeamComboDefinitions.SpazerFallSideStep.Toward(spazer.Part.SpazerTrail ? HorizontalDirection.Left : HorizontalDirection.Right));
         shot.Direction = SamusProjectileDirection.DownFacingLeft;
-        shot.IsSpent = false;
+        shot.FlyOn();
         shot.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
         spazer.Phase = SpazerComboPhase.Falling;
         if (!spazer.Part.SpazerTrail)

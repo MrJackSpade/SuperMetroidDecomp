@@ -157,15 +157,15 @@ public sealed class ManagedSnesDsp
                 voice.SourceNumber = value;
                 break;
             case DspVoiceRegister.Adsr1:
-                voice.AdsrRates[0] = SnesDspTables.RatePeriod(
+                voice.AttackRate = SnesDspTables.RatePeriod(
                     (value & SnesDspRegisterLayout.Fields.AdsrAttackMask) * 2 + 1);
-                voice.AdsrRates[1] = SnesDspTables.RatePeriod(
+                voice.DecayRate = SnesDspTables.RatePeriod(
                     ((value & SnesDspRegisterLayout.Fields.AdsrDecayMask) >>
                         SnesDspRegisterLayout.Fields.AdsrDecayShift) * 2 + 16);
                 voice.UseGain = (value & SnesDspRegisterLayout.Fields.AdsrEnabled) == 0;
                 break;
             case DspVoiceRegister.Adsr2:
-                voice.AdsrRates[2] = SnesDspTables.RatePeriod(
+                voice.SustainRate = SnesDspTables.RatePeriod(
                     value & SnesDspRegisterLayout.Fields.AdsrSustainRateMask);
                 voice.SustainLevel = unchecked((ushort)((((value &
                     SnesDspRegisterLayout.Fields.AdsrSustainLevelMask) >>
@@ -177,7 +177,7 @@ public sealed class ManagedSnesDsp
                 {
                     voice.GainMode = unchecked((byte)((value & SnesDspRegisterLayout.Fields.GainModeMask) >>
                         SnesDspRegisterLayout.Fields.GainModeShift));
-                    voice.AdsrRates[3] = SnesDspTables.RatePeriod(
+                    voice.GainRate = SnesDspTables.RatePeriod(
                         value & SnesDspRegisterLayout.Fields.AdsrSustainRateMask);
                 }
                 else
@@ -375,7 +375,7 @@ public sealed class ManagedSnesDsp
         bool direct = voice.AdsrState != EnvelopeState.Release && voice.UseGain && voice.DirectGain;
         ushort rate = voice.AdsrState == EnvelopeState.Release
             ? (ushort)0
-            : voice.AdsrRates[(int)voice.AdsrState];
+            : voice.RateOf(voice.AdsrState);
         if (voice.AdsrState != EnvelopeState.Release && !direct && rate != 0)
             voice.RateCounter = SpcDriverWrap.Word(voice.RateCounter + 1);
         if (voice.AdsrState == EnvelopeState.Release ||
@@ -402,7 +402,7 @@ public sealed class ManagedSnesDsp
         {
             case EnvelopeState.Attack:
                 voice.Gain = unchecked((ushort)(voice.Gain +
-                    (voice.AdsrRates[(int)EnvelopeState.Attack] == 1 ? 1024 : 32)));
+                    (voice.AttackRate == 1 ? 1024 : 32)));
                 if (voice.Gain >= SnesDspRegisterLayout.AttackEndLevel)
                     voice.AdsrState = EnvelopeState.Decay;
                 if (voice.Gain > SnesDspRegisterLayout.EnvelopeMaximum)
@@ -676,8 +676,14 @@ public sealed class ManagedSnesDsp
         public int? ReleasedBrrCursor;
         /// <summary>Routes the shared noise sample into this voice instead of PCM.</summary>
         public bool UseNoise;
-        /// <summary>Rate periods for attack, decay, sustain, and gain modes.</summary>
-        public ushort[] AdsrRates { get; } = new ushort[4];
+        /// <summary>The attack's rate period, from ADSR1.</summary>
+        public ushort AttackRate;
+        /// <summary>The decay's rate period, from ADSR1.</summary>
+        public ushort DecayRate;
+        /// <summary>The sustain's rate period, from ADSR2.</summary>
+        public ushort SustainRate;
+        /// <summary>The stepped GAIN mode's rate period, from GAIN.</summary>
+        public ushort GainRate;
         /// <summary>Cycles accumulated toward the next non-release envelope step.</summary>
         public int RateCounter;
         /// <summary>Current attack, decay, sustain, gain, or release phase.</summary>
@@ -703,6 +709,21 @@ public sealed class ManagedSnesDsp
         /// <summary>Includes this voice in the shared echo input.</summary>
         public bool EchoEnable;
 
+        /// <summary>
+        /// The rate period of a timed envelope phase (#2567): each phase names its own rate, so no rate is found by the
+        /// phase's place in a list.
+        /// </summary>
+        /// <exception cref="InvalidDataException">The phase is the release, which steps every cycle and has no rate.</exception>
+        public ushort RateOf(EnvelopeState phase) => phase switch
+        {
+            EnvelopeState.Attack => AttackRate,
+            EnvelopeState.Decay => DecayRate,
+            EnvelopeState.Sustain => SustainRate,
+            EnvelopeState.Gain => GainRate,
+            EnvelopeState.Release => throw new InvalidDataException("The S-DSP release steps every cycle and has no rate."),
+            _ => throw new InvalidDataException($"Unknown S-DSP envelope phase {phase}."),
+        };
+
         /// <summary>Clears all voice registers, PCM cursors, and envelope state for DSP reset.</summary>
         public void Reset()
         {
@@ -715,7 +736,7 @@ public sealed class ManagedSnesDsp
             PreviousFlags = 0;
             ReleasedBrrCursor = null;
             UseNoise = false;
-            Array.Clear(AdsrRates);
+            AttackRate = DecayRate = SustainRate = GainRate = 0;
             RateCounter = 0;
             AdsrState = EnvelopeState.Attack;
             SustainLevel = 0;

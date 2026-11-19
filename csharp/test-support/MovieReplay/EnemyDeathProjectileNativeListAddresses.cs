@@ -14,7 +14,7 @@ internal static class EnemyDeathProjectileNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<EnemyDeathAndDropSegment>[] Entries =
     [
-        new NativeProgramEntry<EnemyDeathAndDropSegment>(EnemyDeathAndDropSegment.RespawnTail, 0xeca3),
+        new NativeProgramEntry<EnemyDeathAndDropSegment>(EnemyDeathAndDropSegment.RespawnPause, 0xeca3),
         new NativeProgramEntry<EnemyDeathAndDropSegment>(EnemyDeathAndDropSegment.BigExplosion, 0xecaf),
         new NativeProgramEntry<EnemyDeathAndDropSegment>(EnemyDeathAndDropSegment.BigExplosionEnd, 0xecc1),
         new NativeProgramEntry<EnemyDeathAndDropSegment>(EnemyDeathAndDropSegment.FakeKraidExplosion, 0xecc9),

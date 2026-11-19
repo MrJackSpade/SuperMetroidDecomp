@@ -90,7 +90,7 @@ internal static class RoomEnemyFrameFixtures
         Level = Ensure.NotNull(level),
         SamusProjectiles = inputs.Projectiles,
         SamusColours = inputs.Colours,
-        SharedProjectiles = inputs.Bombs,
+        SamusBombs = inputs.Bombs,
         FrameCounter = frameCounter,
         ShortCounter = frameCounter % FrameClock.ShortCounterPeriod,
     };
@@ -124,12 +124,12 @@ internal static class RoomEnemyFrameFixtures
         /// the order the enemy pass reaches them, with the camera at the room's origin.
         /// </summary>
         /// <returns>How many of the enemies a shot hit.</returns>
-        internal int ResolveShotsOnInteractiveEnemies(SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles, AreaId roomArea, SamusState samus)
+        internal int ResolveShotsOnInteractiveEnemies(SamusProjectileSystem projectiles, SamusBombProjectileSystem samusBombs, AreaId roomArea, SamusState samus)
         {
             int hits = 0;
             foreach (RoomEnemyPlace enemy in self.ProcessingWindow.InteractiveEnemies)
             {
-                if (self.Collision.ResolveOrdinaryProjectileHit(projectiles, sharedProjectiles, roomArea, samus, enemy, Position16<RoomPixels>.Zero))
+                if (self.Collision.ResolveOrdinaryProjectileHit(projectiles, samusBombs, roomArea, samus, enemy, Position16<RoomPixels>.Zero))
                     hits++;
             }
             return hits;

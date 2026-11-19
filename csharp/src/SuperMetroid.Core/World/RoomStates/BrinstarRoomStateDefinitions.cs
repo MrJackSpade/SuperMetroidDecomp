@@ -269,7 +269,7 @@ public static class BrinstarRoomStateDefinitions
 
     /// <summary>The Kraid room's default state.</summary>
     public static RoomStateSettings KraidDefault { get; } =
-        new("KraidDefault", RoomLevelDefinitions.Kraid, RoomGraphicsSet.Kraid, new RoomMusic(MusicDataSet.KraidAndPhantoonBattles, RoomMusicTrack.Plays(MusicTrack.BossRoomTension)), SuperMetroid.Core.Fx.RoomFxDefinitions.Kraid, RoomEnemyPopulationDefinitions.Kraid, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Kraid, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Kraid, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarKraidUpperLower, RoomSetupBehavior.None);
+        new("KraidDefault", RoomLevelDefinitions.Kraid, RoomGraphicsSet.Kraid, new RoomMusic(MusicDataSet.KraidAndPhantoonBattles, RoomMusicTrack.Plays(MusicTrack.BossRoomTension)), SuperMetroid.Core.Fx.RoomFxDefinitions.Kraid, RoomEnemyPopulationDefinitions.Kraid, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Kraid, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Kraid, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.KraidAlive, RoomSetupBehavior.None);
 
 
     /// <summary>The Kraid room's state once the area's boss is dead.</summary>

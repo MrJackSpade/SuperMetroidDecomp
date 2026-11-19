@@ -82,13 +82,18 @@ internal sealed class IntroBabyDiscoveryState
     private RoomLevelData Level { get; }
 
     /// <summary>Signals the outer cinematic owner to start the next page's colour transition.</summary>
+    /// <remarks>
+    /// The scene's end, kept once its cue reaches it (#2562): the cinematic's phase step, which runs before the actors'
+    /// step on each update, starts the next page on the update after the cue, so the end lasts across that boundary; it is
+    /// set once and never cleared, and the next page's setup discards the scene.
+    /// </remarks>
     public bool NextPageRequested { get; private set; }
 
     /// <summary>
     /// How this scene shows Samus. Scene setup shows her under the cinematic actors; the egg's and the dancing
     /// baby's behaviours later reorder or clear it.
     /// </summary>
-    public IntroSamusDisplay SamusDisplay { get; private set; } = IntroSamusDisplay.ActorsFirst;
+    public IntroSamusDisplay SamusDisplay { get; private set; } = IntroSamusDisplay.BehindActors;
 
     /// <summary>True once the scene's end has stopped both phases of Samus's update.</summary>
     private bool samusUpdateStopped;
@@ -112,7 +117,7 @@ internal sealed class IntroBabyDiscoveryState
             demo.Step(HandleDemoCue);
             // The input phase ends by resetting the movement and pose-change state,
             // before this update's movement records new distances.
-            SamusAerialPoseTransitions.DropPendingTransitionShot(Samus);
+            SamusAerialPoseTransitions.DropTransitionShot(Samus);
             Samus.ProjectileInheritance.ClearMovement();
 
             // An end cue read above already stopped Samus's update, so this
@@ -324,7 +329,7 @@ internal sealed class IntroBabyDiscoveryState
             confusedBaby.ScreenPlace.Y,
             targetY,
             BabyVelocity.Y,
-            limit: VerticalSpeedLimit));
+            limit: IntroBabyDiscoveryDefinitions.VerticalSpeedLimit));
         confusedBaby.Position = WithEightEightVelocity(confusedBaby.Position, Axis.Vertical, BabyVelocity.Y);
 
         // The first non-negative velocity marks the top of the initial arc. The baby
@@ -361,11 +366,11 @@ internal sealed class IntroBabyDiscoveryState
             confusedBaby.ScreenPlace.X,
             Samus.Position.X.Whole,
             BabyVelocity.X,
-            limit: HorizontalSpeedLimit));
+            limit: IntroBabyDiscoveryDefinitions.HorizontalSpeedLimit));
         // A baby moving left draws over Samus; otherwise Samus draws first.
         SamusDisplay = BabyVelocity.X.IsNegative
-            ? IntroSamusDisplay.ActorsFirst
-            : IntroSamusDisplay.SamusFirst;
+            ? IntroSamusDisplay.BehindActors
+            : IntroSamusDisplay.InFrontOfActors;
         confusedBaby.Position = WithEightEightVelocity(confusedBaby.Position, Axis.Horizontal, BabyVelocity.X);
 
         int targetY = Samus.Position.Y.Whole - IntroBabyDiscoveryDefinitions.DanceHeightAboveSamus;
@@ -373,18 +378,10 @@ internal sealed class IntroBabyDiscoveryState
             confusedBaby.ScreenPlace.Y,
             targetY,
             BabyVelocity.Y,
-            limit: VerticalSpeedLimit));
+            limit: IntroBabyDiscoveryDefinitions.VerticalSpeedLimit));
         confusedBaby.Position = WithEightEightVelocity(confusedBaby.Position, Axis.Vertical, BabyVelocity.Y);
     }
 
-    /// <summary>The hatched baby's fastest vertical speed either way.</summary>
-    private static readonly SignedEightEight VerticalSpeedLimit = SignedEightEight.FromPixelFraction(17, 8);
-
-    /// <summary>The dancing baby's fastest horizontal speed either way.</summary>
-    private static readonly SignedEightEight HorizontalSpeedLimit = SignedEightEight.FromPixelFraction(5, 2);
-
-    /// <summary>How much the baby's speed changes toward its target on each update.</summary>
-    private static readonly SignedEightEight BabyAcceleration = SignedEightEight.FromPixelFraction(1, 8);
 
     /// <summary>
     /// Adjusts a velocity toward a target by one acceleration step without passing <paramref name="limit"/> either
@@ -397,8 +394,8 @@ internal sealed class IntroBabyDiscoveryState
         SignedEightEight current,
         SignedEightEight limit) =>
         target >= position
-            ? SignedEightEight.Min(limit, current + BabyAcceleration)
-            : SignedEightEight.Max(-limit, current - BabyAcceleration);
+            ? SignedEightEight.Min(limit, current + IntroBabyDiscoveryDefinitions.BabyAcceleration)
+            : SignedEightEight.Max(-limit, current - IntroBabyDiscoveryDefinitions.BabyAcceleration);
 
     /// <summary><paramref name="position"/> moved by one axis of a velocity, fraction included.</summary>
     private static FixedVector<ScreenPixels> WithEightEightVelocity(FixedVector<ScreenPixels> position, Axis axis, SignedEightEight velocity) =>

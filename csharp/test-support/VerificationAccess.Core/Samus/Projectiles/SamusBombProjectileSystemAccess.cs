@@ -12,12 +12,12 @@ internal static class SamusBombProjectileSystemAccess
         /// <summary>
         /// Runs one bomb frame as <see cref="SamusBombProjectileSystem.StepFrame"/> does, the explosion advancing first, and
         /// returns whether the bombs' HUD producer consumed the beam charge: the request the gameplay frame reads from
-        /// <see cref="SamusBombProjectileSystem.RunHudProducer"/> to tear the charge down.
+        /// <see cref="SamusBombProjectileSystem.TickCooldownAndPlaceBombs"/> to tear the charge down.
         /// </summary>
         internal bool StepFrameConsumingCharge(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction controllerNewInput)
         {
             self.AdvancePowerBombExplosion(samus, controllerInput);
-            bool consumed = self.RunHudProducer(samus, controllerInput, controllerNewInput);
+            bool consumed = self.TickCooldownAndPlaceBombs(samus, controllerInput, controllerNewInput);
             self.HandleBombs(terrain, samus, BombJumpOverlapPublication.Immediate);
             return consumed;
         }

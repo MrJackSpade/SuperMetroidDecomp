@@ -346,7 +346,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The spikes take the body's colours from before the touch, which may change them.
         PictureShading lookBeforeTouch = body.Shading;
-        _collision.ResolveNormalEnemyTouch(body, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(body, samus, pseudoScrew);
         if (body.Health != 0)
             return;
 

@@ -18,7 +18,7 @@ public sealed class EscapeEtecoonEnemyState
     private SignedEightEight Speed { get; set; }
 
     /// <summary>The Etecoon's horizontal velocity: its <see cref="Speed"/> toward its <see cref="Direction"/>.</summary>
-    internal SignedEightEight Velocity => Direction == HorizontalDirection.Left ? Speed.Negated() : Speed;
+    internal SignedEightEight Velocity => Speed.Toward(Direction);
 
     /// <summary>What the Etecoon is doing.</summary>
     public EscapeEtecoonAction Action { get; private set; }

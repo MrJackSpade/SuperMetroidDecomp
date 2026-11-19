@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal sealed record SamusPoseDefinition(
     SamusFacingDirection Facing,
     SamusMovementType Movement,
-    SamusNoInputFallback NoInput,
+    SamusNoInputPose NoInput,
     SamusPoseAnimation Animation,
     SamusPoseInputList Inputs,
     int VerticalRadius,

@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonProjectileMotion>, IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Botwoon];
@@ -44,7 +44,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     internal BotwoonBehavior(BotwoonBehaviorDependencies dependencies)
         : base(StartingMotions)
     {
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _effectActors = dependencies.EffectActors;
@@ -66,7 +66,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
         if (defeated)
         {
-            _frameResults.BotwoonWall = BotwoonWallMutation.Clear;
+            _passEvents.Publish(new BotwoonWallChange(BotwoonWallMutation.Clear));
             head.Presence = head.Presence.With(EnemyPresence.Deleted);
             return;
         }
@@ -94,12 +94,12 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     {
         // A fatal hit does not delete Botwoon. He keeps following his current path until
         // the tail has crossed the next hole, then the synchronized head/body death begins.
-        if (state.PendingDeath && state.ExitTransitionComplete)
+        if (state.FatallyHit && state.ExitTransitionComplete)
         {
             state.BodyDeathStarted = true;
             state.Phase = BotwoonPhase.DeathDelay;
             state.PreFallWait.LastFor(BotwoonDeathDefinitions.PreFallWaitUpdates);
-            state.PendingDeath = false;
+            state.FatallyHit = false;
             state.ExitTransitionComplete = false;
         }
 
@@ -154,14 +154,13 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         BotwoonEnemyState state,
         SamusState samus)
     {
-        if (!state.PathComplete)
+        if (state.Movement != BotwoonMovement.Finished)
         {
             RunBotwoonMovingFrame(head, state, samus);
             DetectBotwoonHole(head, state);
             return;
         }
 
-        state.PathComplete = false;
         bool followsPath = state.InsideHole
             || state.InitialAction
             || state.SpeedStage != BotwoonSpeedStageDefinitions.Full
@@ -189,9 +188,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         BotwoonEnemyState state,
         SamusState samus)
     {
-        if (state.PathComplete)
+        if (state.Movement == BotwoonMovement.Finished)
         {
-            state.PathComplete = false;
             state.Phase = BotwoonPhase.ChooseNextAction;
             state.Movement = BotwoonMovement.MoveTowardHole;
             if (state.InsideHole)
@@ -217,10 +215,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             return;
         }
 
-        state.PathComplete = false;
         state.Phase = BotwoonPhase.FollowAuthoredPath;
 
-        state.InsideHole = !state.PendingDeath && BotwoonNavigationDefinitions.StartsInsideHole.IsTakenBy(_room.Random.Generate());
+        state.InsideHole = !state.FatallyHit && BotwoonNavigationDefinitions.StartsInsideHole.IsTakenBy(_room.Random.Generate());
         state.PreviousInsideHole = state.InsideHole;
         if (state.InsideHole)
         {
@@ -255,6 +252,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             case BotwoonMovement.FollowAuthoredPath:
                 FollowBotwoonPath(head, state);
                 return;
+            case BotwoonMovement.Finished:
+                throw new InvalidOperationException("Botwoon moves after finishing his movement, before choosing what follows.");
             default:
                 throw new InvalidDataException(
                     $"Botwoon has no behaviour for movement {state.Movement}.");
@@ -279,7 +278,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         else
         {
             state.PreviousInsideHole = state.InsideHole;
-            state.PathComplete = true;
+            state.Movement = BotwoonMovement.Finished;
         }
     }
 
@@ -326,7 +325,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.PathTraversal = walk.Traversal;
         state.PathStep = walk.FirstStep;
         state.TargetHole = walk.Destination;
-        state.PathComplete = false;
         state.Movement = BotwoonMovement.FollowAuthoredPath;
     }
 
@@ -337,21 +335,33 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     private static void FollowBotwoonPath(RoomEnemyPlace head, BotwoonEnemyState state)
     {
         BotwoonPathDefinition path = state.Path ?? throw new InvalidOperationException("Botwoon follows a path before choosing one.");
-        bool backward = state.PathTraversal == BotwoonPathTraversal.Backward;
         Offset16<RoomPixels> total = Offset16<RoomPixels>.Zero;
         for (int taken = 0; taken < state.SpeedStage.MovementSpeed; taken++)
         {
             if (!BotwoonNavigation.HasStep(path, state.PathStep))
             {
-                state.PathComplete = true;
+                state.Movement = BotwoonMovement.Finished;
                 return;
             }
             total += BotwoonNavigation.Step(path, state.PathStep);
-            state.PathStep += backward ? -1 : 1;
+            state.PathStep += AlongTraversal(state.PathTraversal, 1);
         }
 
-        head.Position += backward ? -total : total;
+        head.Position += AlongTraversal(state.PathTraversal, total);
     }
+
+    /// <summary>
+    /// <paramref name="amount"/> taken the way <paramref name="traversal"/> walks the path (#2569): as it is forward, reversed
+    /// backward.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="traversal"/> is undefined.</exception>
+    private static T AlongTraversal<T>(BotwoonPathTraversal traversal, T amount) where T : System.Numerics.IUnaryNegationOperators<T, T> =>
+        traversal switch
+        {
+            BotwoonPathTraversal.Forward => amount,
+            BotwoonPathTraversal.Backward => -amount,
+            _ => throw new ArgumentOutOfRangeException(nameof(traversal), traversal, $"Undefined {nameof(BotwoonPathTraversal)}."),
+        };
 
     /// <summary>Writes the head's whole-pixel position into the head-position history ring.</summary>
     private static void RecordBotwoonHeadPosition(RoomEnemyPlace head, BotwoonEnemyState state)
@@ -454,11 +464,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 AimBotwoonAtSamus(head, state, samus);
                 return;
             case BotwoonHeadAction.WaitForSpitFrame:
-                if (state.SpitFrameReached)
-                {
-                    SpawnBotwoonSpitVolley(head, state, BotwoonFightDefinitions.AimedVolley);
-                    state.SpitFrameReached = false;
-                }
+                return;
+            case BotwoonHeadAction.SpitAimedVolley:
+                SpawnBotwoonSpitVolley(head, state, BotwoonFightDefinitions.AimedVolley);
                 return;
             case BotwoonHeadAction.SpawnImmediateVolley:
                 SpawnBotwoonSpitVolley(head, state, BotwoonFightDefinitions.ImmediateVolley);
@@ -570,7 +578,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 RequestBotwoonSound(BotwoonSoundDefinitions.Spit);
                 return;
             case BotwoonHeadCue.Signal { Kind: BotwoonHeadCueKind.ReachSpitFrame }:
-                state.SpitFrameReached = true;
+                // Only his aim starts the spitting animation, and it waits for the spit, so the spit always finds the
+                // head waiting; the volley follows on his next head step.
+                state.HeadAction = BotwoonHeadAction.SpitAimedVolley;
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BotwoonHeadCue)} {cue}.");
@@ -629,7 +639,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     private void BeginBotwoonWallExplosions(RoomEnemyPlace head, BotwoonEnemyState state, SamusState samus)
     {
         state.Phase = BotwoonPhase.WallExplosions;
-        _frameResults.BotwoonWall = BotwoonWallMutation.Crumble;
+        _passEvents.Publish(new BotwoonWallChange(BotwoonWallMutation.Crumble));
 
         // His death leaves sixteen drops. One random number places each, across the drop strip and down the drop band
         // (DropX, DropY), and each becomes a pickup at once, chosen by his drop chances.
@@ -714,7 +724,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             return;
 
         BotwoonEnemyState state = head.RequireSpeciesState<BotwoonEnemyState>();
-        state.PendingDeath = true;
+        state.FatallyHit = true;
 
         // The dying head becomes intangible: it leaves the
         // projectile, bomb and touch passes, so a later hit cannot interrupt its fall.
@@ -786,7 +796,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Resolves Samus contact, leaving Botwoon at zero health to die his own way.</summary>
     internal void ReactToBotwoonTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
+        _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
         ResolveBotwoonCombatAfterCommon(context.Place);
     }
     /// <summary>

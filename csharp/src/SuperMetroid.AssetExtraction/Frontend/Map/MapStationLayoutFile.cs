@@ -9,8 +9,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <summary>Reads and writes the installed map-station marker drawing layout.</summary>
 public static class MapStationLayoutFile
 {
-    /// <summary>The station families in the order the layout lists them.</summary>
-    private static readonly MapStationKind[] KindOrder = [MapStationKind.Missile, MapStationKind.Energy, MapStationKind.Map];
+    /// <summary>The station families in the order the layout lists them; the extractor writes them in this order too (#2567).</summary>
+    internal static readonly MapStationKind[] KindOrder = [MapStationKind.Missile, MapStationKind.Energy, MapStationKind.Map];
 
     /// <summary>Every compiled station marker in missile, energy, then map order: the complete marker set an editable layout must hold.</summary>
     private static IEnumerable<MapStationDiscoveryRule> Markers =>

@@ -40,7 +40,7 @@ internal static class CeresSaveStartupVerification
         var departure = SaveSnapshotFixtures.NewGame with
         {
             Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator,
-            StartupRoute = SaveLoadingGameState.CeresDestruction,
+            StartupRoute = SaveStartupRoute.CeresDestruction,
             Progress = departureProgress,
             Health = 77,
             GameTime = new SuperMetroid.Core.Progression.GameClockReading(frames: 44, seconds: 11, minutes: 2, hours: 0),
@@ -102,7 +102,7 @@ internal static class CeresSaveStartupVerification
         fresh.Session.Enter(GameDataLoadRoute.SelectedGame);
         fresh.Step(0);
         var arrivalSlot = fresh.Saves.ReadSlot(SaveSlot.A);
-        AssertEqual(SaveLoadingGameState.CeresElevatorArrival, (arrivalSlot ?? throw new InvalidOperationException("Verification requires arrivalSlot.")).StartupRoute,
+        AssertEqual(SaveStartupRoute.CeresElevatorArrival, (arrivalSlot ?? throw new InvalidOperationException("Verification requires arrivalSlot.")).StartupRoute,
             "#1153 initial automatic save records native mode $1F");
         AssertEqual(DefeatedBosses.None, arrivalSlot.Progression.BossesDefeatedIn(AreaId.Ceres),
             "#1153 initial checkpoint does not activate the escape");
@@ -184,18 +184,18 @@ internal static class CeresSaveStartupVerification
         loaded.System.RecordBossesDefeated(AreaId.Ceres, DefeatedBosses.AreaBoss);
         AutomaticCheckpointSaver.SaveCeresDeparture(reloadSaves, loaded, SaveSlot.A);
         var escapeSlot = reloadSaves.ReadSlot(SaveSlot.A);
-        AssertEqual(SaveLoadingGameState.CeresDestruction, (escapeSlot ?? throw new InvalidOperationException("Verification requires escapeSlot.")).StartupRoute,
+        AssertEqual(SaveStartupRoute.CeresDestruction, (escapeSlot ?? throw new InvalidOperationException("Verification requires escapeSlot.")).StartupRoute,
             "#1153 escape-blackout saver records native mode $22");
         AssertEqual(DefeatedBosses.AreaBoss, escapeSlot.Progression.BossesDefeatedIn(AreaId.Ceres),
             "#1153 escape checkpoint retains defeated-Ridley progression");
 
         // Stub only the already-reported landing event, not an entire flight.
         // The production landing saver must reset $22 to $05 for later saves.
-        loaded.Enemies.FrameResults.Gunship = GunshipFrameEvent.LandingCompleted;
+        loaded.Enemies.PassEvents.Publish(new GunshipEvent(GunshipFrameEvent.LandingCompleted));
         AssertTrue(AutomaticCheckpointSaver.TrySaveGunshipLanding(reloadSaves, loaded, SaveSlot.A),
             "#1153 landing checkpoint uses the production event saver");
         var landingSlot = reloadSaves.ReadSlot(SaveSlot.A);
-        AssertEqual(SaveLoadingGameState.MainGame, (landingSlot ?? throw new InvalidOperationException("Verification requires landingSlot.")).StartupRoute,
+        AssertEqual(SaveStartupRoute.MainGame, (landingSlot ?? throw new InvalidOperationException("Verification requires landingSlot.")).StartupRoute,
             "#1153 Zebes landing saver records native mode $05");
         AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship, landingSlot.Checkpoint),
             "#1153 Zebes checkpoint is the gunship, not the Ceres start");
@@ -204,7 +204,7 @@ internal static class CeresSaveStartupVerification
         // Preserve the persisted word and follow its dispatcher branch literally.
         saves.SaveSlot(SaveSlot.A, departure with
         {
-            StartupRoute = SaveLoadingGameState.MainGame,
+            StartupRoute = SaveStartupRoute.MainGame,
         });
         var unmodified = new SuperMetroidGame(saves);
         unmodified.BindArtwork(InstalledFixtures.GameArtwork with
@@ -219,7 +219,7 @@ internal static class CeresSaveStartupVerification
         unmodified.Step(0);
         AssertTrue(unmodified.IsAt(FileSelectStep.AreaMap),
             "#1153 mode $05 is not reinterpreted using an inferred compatibility rule");
-        AssertEqual(SaveLoadingGameState.MainGame,
+        AssertEqual(SaveStartupRoute.MainGame,
             (saves.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(SaveSlot.A).")).StartupRoute,
             "#1153 malformed legacy slot is not silently rewritten");
         Console.WriteLine("#1153: native $1F/$22/$05 checkpoint writes; normal $1F/$22 reload routing, first Landing Site fade with initialized HUD, inactive initial station and preserved progress/SRAM; no inferred legacy recovery pass.");

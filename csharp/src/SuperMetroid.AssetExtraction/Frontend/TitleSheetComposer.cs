@@ -21,6 +21,14 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// </summary>
 internal static class TitleSheetComposer
 {
+    /// <summary>The sprite colourings in the order the title sheet lists their drawn shades (#2567): text, logo, copyright.</summary>
+    private static readonly IReadOnlyList<TitleSpriteColouring> Colourings = Ensure.EveryMemberOnce<TitleSpriteColouring>(
+    [
+        TitleSpriteColouring.Text,
+        TitleSpriteColouring.Logo,
+        TitleSpriteColouring.Copyright,
+    ]);
+
 
     /// <summary>What the title sheet composes.</summary>
     internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) =>
@@ -69,7 +77,7 @@ internal static class TitleSheetComposer
         // Each colouring's drawn shade shows its own set's colours over its own set's inks, carrying whether its draws
         // take part in colour math.
         var shades = new List<SheetShade>();
-        foreach (TitleSpriteColouring colouring in Enum.GetValues<TitleSpriteColouring>())
+        foreach (TitleSpriteColouring colouring in Colourings)
         {
             int set = TitleSheetInks.SpriteSet(colouring);
             shades.Add(SheetShade.DrawnRun(TitleShades.Drawn(colouring), set * TitleSheetInks.GroupColours,
@@ -78,7 +86,7 @@ internal static class TitleSheetComposer
         int copyright = TitleSheetInks.SpriteSet(TitleSequenceDefinitions.Sprites.CopyrightColouring) * TitleSheetInks.GroupColours;
         shades.Add(new SheetShade(TitleShades.RestoredCopyright,
             [copyright + TitleSheetInks.CopyrightWhiteColour, copyright + TitleSheetInks.CopyrightRedColour],
-            [palette.SkipCopyrightWhite, palette.SkipCopyrightRed]));
+            [palette.SkipCopyrightWhite, palette.SkipCopyrightTint]));
         // The logo and the copyright show each record their fades show over the inks each fade recolours (#1714), laid
         // over their drawn shades.
         foreach (ColourEffectColours faded in TitleSheetInks.Fades)

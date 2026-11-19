@@ -49,6 +49,9 @@ public sealed class UpdateCountdown
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
     internal static UpdateCountdown Lasting(int updates) => new(Ensure.BetweenInclusive(1, int.MaxValue, updates));
 
+    /// <summary>A wait of a single update that starts now: it is over on its first count.</summary>
+    internal static UpdateCountdown LastingOneUpdate() => Lasting(1);
+
     /// <summary>A wait that is already over: one not yet started, or one whose owner has nothing to wait for.</summary>
     internal static UpdateCountdown Ended() => new(0);
 

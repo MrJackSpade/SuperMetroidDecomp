@@ -19,26 +19,18 @@ internal sealed class EnemyAudioQueue
     /// <summary>The update's audio requests the enemies' requests join: the runtime's.</summary>
     private GameplayAudioRequests Requests { get; }
 
-    /// <summary>The music the loading room's enemies start, consumed in the same update outside the enemy pass.</summary>
-    /// <remarks>The requests do not outlive the update that makes them.</remarks>
-    private List<MusicRequest>? _roomEnemyStartMusic;
+    /// <summary>The music the room's enemies start as it loads, in request order (#2562).</summary>
+    private readonly List<MusicRequest> _roomStartMusic = [];
 
     /// <summary>
-    /// Requests music an enemy's initialization starts as its room loads. Room loading plays it after the room's own
-    /// music, with the shortest music delay, and drops it when the music queue is full.
+    /// The music the room's enemies start as it loads, in request order: a fact of the loaded room, which the frontend
+    /// queues once, after the room's own music, with the shortest music delay, dropping what a full music queue refuses
+    /// (#2562).
     /// </summary>
-    internal void RequestRoomEnemyStartMusic(MusicRequest request) =>
-        (_roomEnemyStartMusic ??= []).Add(request);
+    internal IReadOnlyList<MusicRequest> RoomStartMusic => _roomStartMusic;
 
-    /// <summary>Returns and clears the music the enemies of the room just loaded start, in request order.</summary>
-    internal IReadOnlyList<MusicRequest> ConsumeRoomEnemyStartMusic()
-    {
-        if (_roomEnemyStartMusic is not { Count: > 0 } pending)
-            return [];
-        MusicRequest[] requests = [.. pending];
-        pending.Clear();
-        return requests;
-    }
+    /// <summary>Starts <paramref name="request"/> as the room loads, as an enemy's initialization does (<see cref="RoomStartMusic"/>).</summary>
+    internal void RequestRoomEnemyStartMusic(MusicRequest request) => _roomStartMusic.Add(request);
 
     /// <summary>Queues <paramref name="soundEffect"/> now, after the update's earlier sound requests.</summary>
     internal void QueueEnemySound(SoundEffectId soundEffect, SoundRequestPriority priority) =>

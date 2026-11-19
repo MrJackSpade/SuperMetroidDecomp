@@ -122,6 +122,9 @@ internal static class DraygonArenaDefinitions
     /// <summary>The updates the dying Draygon waits for his burial Evirs before he sinks.</summary>
     internal const int BurialWaitUpdates = 416;
 
+    /// <summary>How fast Draygon's corpse drifts toward its burial point, in whole pixels an update.</summary>
+    internal const int BurialDriftSpeed = 1;
+
     /// <summary>How near his burial point the dying Draygon must drift, on each axis, before he sinks.</summary>
     internal const int BurialPointTolerance = 4;
 

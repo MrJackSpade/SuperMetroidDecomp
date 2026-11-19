@@ -15,6 +15,9 @@ public enum GameplayLayer
     /// <summary>The room's background, its back tiles.</summary>
     BackgroundBackPart,
 
+    /// <summary>A boss's body's parts drawn behind the actors (#2573).</summary>
+    BossBodyBehindActors,
+
     /// <summary>The room's foreground, its back tiles.</summary>
     ForegroundBackPart,
 
@@ -23,6 +26,9 @@ public enum GameplayLayer
 
     /// <summary>The room's background, its front tiles.</summary>
     BackgroundFrontPart,
+
+    /// <summary>A boss's body's parts drawn in front of the actors (#2573).</summary>
+    BossBodyInFrontOfActors,
 
     /// <summary>The room's foreground, its front tiles.</summary>
     ForegroundFrontPart,

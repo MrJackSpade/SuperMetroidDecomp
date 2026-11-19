@@ -59,8 +59,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void ResolveKagoShotAfterCommon(RoomEnemyPlace place, KagoEnemyState state)
     {
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground),
-            KagoDefinitions.ShotQuakeDuration);
+        _earthquake.Start(KagoDefinitions.ShotQuake, KagoDefinitions.ShotQuakeDuration);
 
         // The first hit speeds the shell's loop up for good.
         if (state.HitsTaken == 0)
@@ -247,9 +246,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                 jumpLeft = KagoDefinitions.BugJumpsLeft.IsTakenBy(random);
             }
 
-            projectile.Velocity = projectile.Velocity.WithX(jumpLeft
-                ? -KagoDefinitions.BugHorizontalSpeed
-                : KagoDefinitions.BugHorizontalSpeed);
+            projectile.Velocity = projectile.Velocity.WithX(
+                KagoDefinitions.BugHorizontalSpeed.Toward(jumpLeft ? HorizontalDirection.Left : HorizontalDirection.Right));
             projectile.StartMotion(KagoBugMotion.Jumping);
         }
 

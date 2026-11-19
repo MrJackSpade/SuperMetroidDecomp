@@ -54,4 +54,8 @@ internal static class CeresDestructionActorDefinitions
 
     /// <summary>The quarter of the star field whose leaving the screen ends the reveal and starts the game.</summary>
     internal const ZebesRevealActorRole SceneCompletingStars = ZebesRevealActorRole.StarsLowerRight;
+
+
+    /// <summary>How fast each quarter of the reveal's star field speeds its upward slide as the reveal slides away: an eighth of a pixel an update.</summary>
+    internal static readonly SignedEightEight StarFieldSlideAcceleration = SignedEightEight.FromPixelFraction(1, 8);
 }

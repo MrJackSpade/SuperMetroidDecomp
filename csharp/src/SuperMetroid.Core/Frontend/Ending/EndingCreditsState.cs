@@ -153,14 +153,12 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
                 break;
             case EndingRewardGestureScene { Gesture: var gesture }:
                 RequirePhase(EndingCreditsPhase.PostCreditsGesture);
-                gesture.Step();
-                if (gesture.JumpRequested)
+                if (gesture.Step())
                     Show(EndingCreditsPhase.PostCreditsJump, new EndingRewardJumpScene(new EndingRewardJump(Stage.EndingReward)));
                 break;
             case EndingRewardJumpScene { Jump: var jump }:
                 RequirePhase(EndingCreditsPhase.PostCreditsJump);
-                jump.Step();
-                if (jump.ShotRequested)
+                if (jump.Step())
                 {
                     Show(EndingCreditsPhase.PostCreditsShot, new EndingPostShotScene(jump, new EndingPostShot()));
                     audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.ShotSoundPriority);
@@ -174,7 +172,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
                 jump.Step();
                 if (shot.ReadyForWhiteFlash)
                     Show(EndingCreditsPhase.PostCreditsWhiteFlash, new EndingWhiteFlashScene(jump, CreditsRoll.BeginPostCreditsWhiteFlash()),
-                        EndingPostShotDefinitions.FadeFrames);
+                        EndingPostShotDefinitions.FadeSteps);
                 break;
             case EndingWhiteFlashScene { Jump: var jump, Flash: var flash }:
                 RequirePhase(EndingCreditsPhase.PostCreditsWhiteFlash);
@@ -385,7 +383,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
                 if (Stage.Fade.Brighten())
                 {
                     CreditsRoll.FadeWaitingBackdrop(0);
-                    Enter(EndingCreditsPhase.PostCreditsShootingStars, EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames);
+                    Enter(EndingCreditsPhase.PostCreditsShootingStars, EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps);
                 }
                 break;
 
@@ -576,7 +574,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         }
         RequirePhase(EndingCreditsPhase.ItemPercentage);
         scene.Typing.Step();
-        if (scene.Typing.RequestedItemPercentageScroll && scene.Typing.Completed)
+        if (scene.Typing.TypesItemPercentage && scene.Typing.Completed)
             Show(EndingCreditsPhase.ItemPercentageScrollDown, new EndingLogoScene(scene.Logo),
                 EndingSequenceDefinitions.Timing.ItemPercentageDropUpdates);
     }

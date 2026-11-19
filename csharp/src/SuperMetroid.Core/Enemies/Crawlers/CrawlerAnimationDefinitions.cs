@@ -7,24 +7,24 @@ internal static class CrawlerAnimationDefinitions
     internal static readonly Dictionary<CrawlerAnimationFamily, CrawlerAnimationDefinition> Families = new()
     {
         [CrawlerAnimationFamily.Shared] = new(
-            CrawlerSegment.SpinyCrawlerUpsideRight,
-            CrawlerSegment.SpinyCrawlerUpsideLeft,
-            CrawlerSegment.SpinyCrawlerUpsideDown,
-            CrawlerSegment.SpinyCrawlerUpsideUp),
+            CrawlerSegment.SpinyCrawlerOnLeftWall,
+            CrawlerSegment.SpinyCrawlerOnRightWall,
+            CrawlerSegment.SpinyCrawlerOnCeiling,
+            CrawlerSegment.SpinyCrawlerOnFloor),
         [CrawlerAnimationFamily.Viola] = new(
             CrawlerSegment.ViolaIdle,
             CrawlerSegment.ViolaIdle,
             CrawlerSegment.ViolaIdle,
             CrawlerSegment.ViolaIdle),
         [CrawlerAnimationFamily.Sciser] = new(
-            CrawlerSegment.SciserUpsideRight,
-            CrawlerSegment.SciserUpsideLeft,
-            CrawlerSegment.SciserUpsideDown,
-            CrawlerSegment.SciserUpsideUp),
+            CrawlerSegment.SciserOnLeftWall,
+            CrawlerSegment.SciserOnRightWall,
+            CrawlerSegment.SciserOnCeiling,
+            CrawlerSegment.SciserOnFloor),
         [CrawlerAnimationFamily.Zero] = new(
-            CrawlerSegment.ZeroUpsideRight,
-            CrawlerSegment.ZeroUpsideLeft,
-            CrawlerSegment.ZeroUpsideDown,
-            CrawlerSegment.ZeroUpsideUp),
+            CrawlerSegment.ZeroOnLeftWall,
+            CrawlerSegment.ZeroOnRightWall,
+            CrawlerSegment.ZeroOnCeiling,
+            CrawlerSegment.ZeroOnFloor),
     };
 }

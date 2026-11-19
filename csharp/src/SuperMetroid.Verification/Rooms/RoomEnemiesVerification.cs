@@ -322,8 +322,8 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
     EnemyProjectile eyeShot = enemies.Projectiles.ProjectileInPlace(17);
-    global::SuperMetroid.Core.PrivateState.Set(eyeShot, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.EyeDoorProjectile));
-    global::SuperMetroid.Core.PrivateState.Set(eyeShot, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(SuperMetroid.Core.Enemies.Projectiles.FamilyProjectileStarts.BehaviorOf(enemies, eyeShot.Kind)));
+    eyeShot.Kind = RoomEnemyProjectileKind.EyeDoorProjectile;
+    eyeShot.Behavior = SuperMetroid.Core.Enemies.Projectiles.FamilyProjectileStarts.BehaviorOf(enemies, eyeShot.Kind);
     eyeShot.Position = eyeShot.Position.WithWhole(new(0x01b5, 0x0180));
     eyeShot.BlocksSamusProjectiles = true;
     eyeShot.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
@@ -573,7 +573,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     if (verifyDeferredContact) return;
 
     var projectiles = CreateProjectileFixture();
-    var sharedProjectiles = CreateBombFixture();
+    var samusBombs = CreateBombFixture();
     SeedRipperProjectileDataPointers(bus);
 
     // Each armed shot is a fresh projectile in place 0, as every firing creates one (#1590).
@@ -594,12 +594,12 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     }
 
     SamusProjectile shot = ArmProjectile(projectiles, ripper, type: 0x8000, damage: 20);
-    AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
+    AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
         "Ripper ineffective power-beam collision");
     AssertEqual(200, ripper.Health, "Ripper power-beam immunity comes from ROM vulnerability");
 
     shot = ArmProjectile(projectiles, ripper, type: 0x8002, damage: 20);
-    AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
+    AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
         "Ripper Ice Beam collision");
     AssertEqual(400, ripper.Freeze.UpdatesLeft, "Ripper Ice vulnerability freezes actor");
     ushort frozenX = ripper.Position.X.Whole;
@@ -622,7 +622,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     for (int hit = 0; hit < 2; hit++)
     {
         shot = ArmProjectile(projectiles, ripper, type: 0x0200, damage: 100);
-        AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
+        AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
             $"Ripper Super Missile hit {hit + 1}");
         AssertEqual(criesBefore + hit + 1, enemies.Audio.SoundRequests.Count(request =>
             request.SoundEffect == expectedHurtCry && request.Priority.Requests == 3),
@@ -676,12 +676,12 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0), floor: map);
     enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
-    AssertEqual(CeresFloorAnimationFrame.ElevatorLight, map.Shown.Values.Single(),
+    AssertEqual(CeresFloorActorPicture.ElevatorLight, map.Shown[CeresFloorActor.ElevatorPlatform],
         "Ceres elevator landed platform light floor frame");
 
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
-    AssertEqual(CeresFloorAnimationFrame.ElevatorDark, map.Shown.Values.Single(),
+    AssertEqual(CeresFloorActorPicture.ElevatorDark, map.Shown[CeresFloorActor.ElevatorPlatform],
         "Ceres elevator landed platform dark floor frame, drawn over the light one");
 
     Console.WriteLine("  Ceres elevator: landed Mode-7 platform continues its ROM transfer animation.");
@@ -1019,7 +1019,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(state.Tail.Links.Skip(1).Any(segment => segment.TargetDistance == SignedEightEight.FromParts(12, 0)),
         "Ceres Ridley lunge extends articulated tail segments");
 
-    var sharedProjectiles = CreateBombFixture();
+    var samusBombs = CreateBombFixture();
     var projectiles = CreateProjectileFixture();
     // The power beam never runs the Spacetime overwrite, so one progression serves every projectile update.
     var progression = new SharedGameState(new SharedRandom());
@@ -1037,18 +1037,18 @@ internal static void VerifyCeresRidleyRoomEntry()
         // and first-frame motion. The public producer exercises allocation/type/radii
         // before this focused extended-hitbox/shot-AI test resolves the impact.
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ridley.Position.X.Whole + 8)), ridley.Position.Y.Whole));
-        sharedProjectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
+        samusBombs.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
-        projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), sharedProjectiles, progression);
+        projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
         AssertEqual(0, slotsBeforeFire.FiredSlot(projectiles),
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
         AssertTrue(projectiles.Shots[0].Position.X.Whole - projectiles.Shots[0].Radius.X > ridley.Position.X.Whole + 8,
             $"Ceres Ridley hit {hit + 1} is outside the header collision radius");
         AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
-            projectiles, sharedProjectiles),
+            projectiles, samusBombs),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
-        observedNormalRidleyPalette |= !global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState, bool>(state, "BodyFlashing");
-        observedFlashRidleyPalette |= global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState, bool>(state, "BodyFlashing");
+        observedNormalRidleyPalette |= !state.HurtFlashShows.Body;
+        observedFlashRidleyPalette |= state.HurtFlashShows.Body;
         if (hit == 49)
             AssertEqual(0x7000, Shown()[0xf1],
                 "Ceres Ridley 50-hit health palette");
@@ -1060,19 +1060,19 @@ internal static void VerifyCeresRidleyRoomEntry()
         // plus initialization, returning the same slot without shortening the program.
         for (int explosionFrame = 0; explosionFrame < nativeExplosionFrames; explosionFrame++)
         {
-            sharedProjectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), sharedProjectiles, progression);
+            samusBombs.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
+            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
         }
 
         // This focused hit-counter test used to patch the cartridge cooldown to one.
         // Wait through the real shared projectile owner instead; do not bypass admission
         // or speed up the separately stepped enemy phase/timer fixture.
-        for (int cooldownFrame = 0; cooldownFrame < 15 && sharedProjectiles.CooldownTimer != 0; cooldownFrame++)
+        for (int cooldownFrame = 0; cooldownFrame < 15 && samusBombs.CooldownTimer != 0; cooldownFrame++)
         {
-            sharedProjectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), sharedProjectiles, progression);
+            samusBombs.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
+            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
         }
-        AssertEqual(0, sharedProjectiles.CooldownTimer, "Native cooldown expires before the next Ceres shot");
+        AssertEqual(0, samusBombs.CooldownTimer, "Native cooldown expires before the next Ceres shot");
 
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     }
@@ -1199,31 +1199,31 @@ internal static void VerifyCeresRidleyRoomEntry()
     for (int word = 0; word < emergency.WordCount; word++)
         AssertEqual(emergencyTiles.Span[word].PackedWord,
             ceresWords[0x50cb - 0x5000 + word], $"Ceres EMERGENCY word {word} is shown at BG1 row six");
-    AssertEqual(emergency.WordCount, ceresWords.Count(word => word != RoomWrittenOverlay.Unwritten),
+    AssertEqual(emergency.WordCount, ceresWords.Count(word => word != RoomWarningText.Unwritten),
         "Ceres EMERGENCY writes only its own words over BG1");
     AssertEqual(CeresSelfDestructPhase.HoldingTitle, enemies.CeresEscape.Warning.Phase,
         "Ceres self-destruct reaches the 128-frame English title hold");
     for (int frame = 0; frame < 127; frame++)
     {
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-        AssertTrue(!enemies.LastEnemyFrame.CeresEscapeStarted,
+        AssertTrue(!enemies.LastEnemyFrame.Has<CeresEscapeStarted>(),
             $"Ceres escape does not publish early on hold frame {frame}");
         AssertEqual(CeresSelfDestructPhase.HoldingTitle, enemies.CeresEscape.Warning.Phase,
             $"Ceres English warning still holds its title on hold update {frame + 1} of 128");
     }
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-    AssertTrue(!enemies.LastEnemyFrame.CeresEscapeStarted,
+    AssertTrue(!enemies.LastEnemyFrame.Has<CeresEscapeStarted>(),
         "Ceres escape does not skip the English warning after its 128-frame title hold");
     AssertEqual(CeresSelfDestructPhase.TypingWarning, enemies.CeresEscape.Warning.Phase,
         "Ceres English warning enters the typewriter phase");
 
     int typewriterFrames = 0;
-    while (!enemies.LastEnemyFrame.CeresEscapeStarted && typewriterFrames < 512)
+    while (!enemies.LastEnemyFrame.Has<CeresEscapeStarted>() && typewriterFrames < 512)
     {
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         typewriterFrames++;
     }
-    AssertTrue(enemies.LastEnemyFrame.CeresEscapeStarted,
+    AssertTrue(enemies.LastEnemyFrame.Has<CeresEscapeStarted>(),
         "Ceres escape starts only after the complete English warning is typed");
     AssertTrue(ceresBossDefeated,
         "$A6:C131 sets the area-boss bit within the escape-start enemy pass");
@@ -1299,7 +1299,7 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
             WriteTestByte(bus, cursor++, checked((byte)character));
     }
 
-    Word(checked((ushort)EscapeTypewriterExtractor.DelayCommand));
+    Word(EscapeTypewriterExtractor.DelayCommand);
     Word(EscapeTypewriterDefinitions.CharacterDelayFrames);
     Word((ushort)EscapeTypewriterCommand.LineStart);
     Word(0x4905);

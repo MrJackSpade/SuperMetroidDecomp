@@ -82,15 +82,15 @@ internal static class MapSpritesVerification
             var nativeRoom = new FileSelectRoomMapGraphics(system,
                 AreaId.WreckedShip, screenContent: original, sheets: MenuSheetFixtures.For(original));
             // Each comparison draws only scenes whose descriptions differ (#1532).
-            LayeredScene before = nativeRoom.CaptureRenderSnapshot(new(0, 0), marker);
-            AssertTrue(ScenePixels.Same(before, room.CaptureRenderSnapshot(new(0, 0), marker)), "stock map sprite pixels match with source reads blocked");
+            LayeredScene before = nativeRoom.ComposeScene(new(0, 0), marker);
+            AssertTrue(ScenePixels.Same(before, room.ComposeScene(new(0, 0), marker)), "stock map sprite pixels match with source reads blocked");
             // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
             room = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(room);
             room.BindFixtureArtwork(original);
-            AssertTrue(ScenePixels.Same(before, room.CaptureRenderSnapshot(new(0, 0), marker)), "restored sprite resources keep the installed pixels");
+            AssertTrue(ScenePixels.Same(before, room.ComposeScene(new(0, 0), marker)), "restored sprite resources keep the installed pixels");
             var pauseNative = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = AreaId.WreckedShip, RoomMapPosition = new(19, 21), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
             var pause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = AreaId.WreckedShip, RoomMapPosition = new(19, 21), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
-            AssertTrue(ScenePixels.Same(pauseNative.CaptureRenderSnapshot(), pause.CaptureRenderSnapshot()), "pause map sprite pixels match with source reads blocked");
+            AssertTrue(ScenePixels.Same(pauseNative.ComposeScene(), pause.ComposeScene()), "pause map sprite pixels match with source reads blocked");
         }
     }
 

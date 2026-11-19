@@ -13,6 +13,13 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 internal static class RoomAppearanceComposition
 {
+    /// <summary>
+    /// Which input's artwork shows where several reach the same characters, first to last (#2567): an animation's frame, then
+    /// Kraid's backdrop, then an encounter's look; written out so the precedence's declaration order carries nothing.
+    /// </summary>
+    private static readonly WrittenOrder<AppearancePrecedence> Precedence = new(Ensure.EveryMemberOnce<AppearancePrecedence>(
+        [AppearancePrecedence.Animation, AppearancePrecedence.KraidBackdrop, AppearancePrecedence.EncounterLook]));
+
     /// <summary>The inputs some option of which shows over any of <paramref name="characters"/> of <paramref name="set"/>, in token order.</summary>
     internal static ImmutableArray<AppearanceInput> InputsOver(BgCharacterSet set, IEnumerable<int> characters, AppearanceOptions options)
     {
@@ -92,7 +99,7 @@ internal static class RoomAppearanceComposition
             int index = inputs.IndexOf(option.Input);
             if (precedence == AppearancePrecedence.Animation || index < 0 || values[index] != option.Value)
                 continue;
-            if (bound is null || precedence <= PrecedenceOf(bound.Input))
+            if (bound is null || Precedence.PlaceOf(precedence) <= Precedence.PlaceOf(PrecedenceOf(bound.Input)))
                 bound = option;
         }
         if (bound is not null)

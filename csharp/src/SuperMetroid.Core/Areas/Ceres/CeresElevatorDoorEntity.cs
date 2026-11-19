@@ -46,7 +46,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
                     state.Phase = CeresElevatorDoorPhase.Exploding;
                     state.Rumble = UpdateCountdown.Lasting(RumbleDuration);
                     // The first explosion bursts on the destruction's first update.
-                    state.ExplosionWait = UpdateCountdown.Lasting(1);
+                    state.ExplosionWait = UpdateCountdown.LastingOneUpdate();
                     state.NextExplosion = CyclingSequence<Offset16<RoomPixels>>.StartOf(CeresDoorRumbleGeometryDefinitions.ExplosionOffsets);
                 }
                 return;

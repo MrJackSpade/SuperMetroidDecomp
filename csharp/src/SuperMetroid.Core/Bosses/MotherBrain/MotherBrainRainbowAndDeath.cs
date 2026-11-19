@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainRainbowAndDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
@@ -45,7 +45,7 @@ internal sealed class MotherBrainRainbowAndDeath
     internal MotherBrainRainbowAndDeath(MotherBrainRainbowAndDeathDependencies dependencies)
     {
         _bossArtwork = dependencies.BossArtwork;
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
@@ -66,12 +66,12 @@ internal sealed class MotherBrainRainbowAndDeath
             SpawnMotherBrainDeathExplosion(state, explosion);
             _motherBrainEncounter.RequestCueSound(explosion.SoundEffect);
         }
-        if (step.BrainDetached)
+        if (step.Starts(MotherBrainStepEffect.BrainDetached))
         {
             // Her brain is detached: it keeps the colours it shows, and only the corpse's fade changes them (#1544).
             state.Colours.DetachBrain();
         }
-        if (step.BodyFlickers)
+        if (step.Starts(MotherBrainStepEffect.BodyFlickers))
         {
             // Her death flickers the body and the background together on every update, not just on colour steps.
             state.DeathHidesBodyLayer = MotherBrainCadenceDefinitions.DeathFadeHidesBodyEverySecondUpdate.IsDue(state.Body.FrameCounter);
@@ -81,7 +81,7 @@ internal sealed class MotherBrainRainbowAndDeath
             if (step.DeathFadeImage is { } deathFade)
                 state.Colours.ShowDeathFade(deathFade);
         }
-        if (step.BodyClearRequested)
+        if (step.Starts(MotherBrainStepEffect.BodyCleared))
         {
             // Her faded body is gone: the flicker stops and her body stays hidden, its picture cleared from the background.
             state.DeathHidesBodyLayer = false;
@@ -97,10 +97,10 @@ internal sealed class MotherBrainRainbowAndDeath
             if (dust.SoundEffectQueued)
                 _audio.QueueEnemySound(dust.SoundEffect, priority: SoundRequestPriority.Low);
         }
-        if (step.MusicStopQueued) _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
-        if (step.EscapeMusicQueued) _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.RidleyAndDraygonBattles), MusicQueueDelay.Shortest);
-        if (step.EscapeMusicTrackQueued) _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MotherBrainDeathDefinitions.EscapeMusicTrack), MusicQueueDelay.Shortest);
-        if (step.EscapeTypewriterSetupRequested)
+        if (step.Starts(MotherBrainStepEffect.MusicStop)) _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
+        if (step.Starts(MotherBrainStepEffect.EscapeMusic)) _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.RidleyAndDraygonBattles), MusicQueueDelay.Shortest);
+        if (step.Starts(MotherBrainStepEffect.EscapeMusicTrack)) _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MotherBrainDeathDefinitions.EscapeMusicTrack), MusicQueueDelay.Shortest);
+        if (step.Starts(MotherBrainStepEffect.EscapeTypewriterSetup))
         {
             state.EscapeTypewriter = new(_bossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Zebes));
             // The warning shows over the background from the room's top-left corner, where her locked arena's camera stays
@@ -116,7 +116,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.EscapeDoorObject is { } doorObject)
             _access.RequestMotherBrainObject(doorObject.Block, doorObject.RoomObject);
         foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Fragment);
-        if (step.TimeBombSetSubtitleSpawnRequested)
+        if (step.Starts(MotherBrainStepEffect.EscapeSubtitle))
         {
             var subtitle = _projectiles.AllocateEnemyProjectile();
             if (subtitle is not null)
@@ -165,7 +165,7 @@ internal sealed class MotherBrainRainbowAndDeath
         MotherBrainRainbowBeamAttackSequence sequence,
         SamusState samus,
         int enemyFrameCounter,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         MotherBrainEnemyState state = Ensure.NotNull(sequence).Encounter;
         bool typewriterFinished = false;
@@ -180,9 +180,9 @@ internal sealed class MotherBrainRainbowAndDeath
                 WriteZebesTypewriterGlyph(typed.Glyph);
             if (typing is EscapeTypewriterStep.TypedWithClick) _motherBrainEncounter.RequestCueSound(EscapeTypewriterDefinitions.ZebesClick);
         }
-        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, EnemyPassCount = _frameContext.EnemyPassCount, PowerBombActive = sharedProjectiles.PowerBombExplosion.IsActive, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, RoomEarthquakeStopped = !_earthquake.IsShaking, CameraCheckpoint = _room.Session.RainbowBeamCameraCheckpoint });
-        _frameResults.MotherBrainDeathStep = step;
-        ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
+        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, EnemyPassCount = _frameContext.EnemyPassCount, PowerBombActive = samusBombs.PowerBombExplosion.IsActive, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, RoomEarthquakeStopped = !_earthquake.IsShaking });
+        _passEvents.Publish(new MotherBrainDeathStepTaken(step));
+        ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, samusBombs);
     }
 
     /// <summary>
@@ -194,12 +194,12 @@ internal sealed class MotherBrainRainbowAndDeath
         MotherBrainRainbowBeamAttackSequence sequence,
         MotherBrainRainbowBeamAttackStepResult current,
         SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(state);
         Ensure.NotNull(sequence);
-        Ensure.NotNull(sharedProjectiles);
-        if (current.FinalBeamFired)
+        Ensure.NotNull(samusBombs);
+        if (current.Starts(MotherBrainStepEffect.FinalBeamFired))
             state.NextRainbowImage = MotherBrainRainbowImage.CycleStart;
         ApplyMotherBrainBeamColours(state, current);
         // The brain's step runs after the body's. Its health check is enabled during revival, but the health colours wait
@@ -207,13 +207,13 @@ internal sealed class MotherBrainRainbowAndDeath
         if (sequence.State.HealthColoursEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
             state.Colours.ShowHealth(MotherBrainHealthBand.Of(state.Head.Health));
         ApplyLiveMotherBrainDeath(state, current);
-        if (current.SoundQueued)
+        if (current.Starts(MotherBrainStepEffect.RainbowBeamSound))
             // A request is not invariably a start: the painful-walk handoff
             // stops the same looping sound. The sequence's choice decides which.
             _motherBrainEncounter.RequestRainbowBeamSound(sequence.State.RainbowBeamSoundPlaying
                 ? MotherBrainSoundDefinitions.StartRainbowDrain
                 : MotherBrainSoundDefinitions.StopRainbowDrain);
-        if (current.ChargeSoundQueued || current.FinalBeamFired)
+        if (current.Starts(MotherBrainStepEffect.ChargeSound) || current.Starts(MotherBrainStepEffect.FinalBeamFired))
             _motherBrainEncounter.RequestBodySound(EnemySound.Silence);
         if (current.Explosion is not null)
             _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
@@ -222,15 +222,15 @@ internal sealed class MotherBrainRainbowAndDeath
         // the drain start replaces it with the full drain duration, the finish stops it when the beam contracts below
         // its minimum width, and the death sequence starts the brain's landing quake and the escape's.
         current.Earthquake?.ApplyTo(_earthquake);
-        if (current.BeamEnded)
+        if (current.Starts(MotherBrainStepEffect.BeamEnded))
             _motherBrainEncounter.RequestRainbowBeamSound(MotherBrainSoundDefinitions.StopRainbowDrain);
 
         // The attack gives Samus's shared projectile cooldown as its neck lowers, as the beam starts and as it ends;
         // her next update's firing reads it.
         if (current.SamusProjectileCooldown is int samusCooldown)
-            sharedProjectiles.SetSharedCooldown(samusCooldown);
+            samusBombs.SetSharedCooldown(samusCooldown);
 
-        if (current.BabySpawnRequested)
+        if (current.Starts(MotherBrainStepEffect.BabySpawn))
             _roomActors.SpawnBabyMetroid(sequence);
         if (current.Explosion is { } explosion)
         {
@@ -278,18 +278,18 @@ internal sealed class MotherBrainRainbowAndDeath
             state.Colours.ShowRevival(revival);
             return;
         }
-        if (step.BeamEnded)
+        if (step.Starts(MotherBrainStepEffect.BeamEnded))
         {
             state.Colours.ShowRestored();
             return;
         }
-        if (step.DrainedBeamRanOut)
+        if (step.Starts(MotherBrainStepEffect.DrainedBeamRanOut))
         {
             state.Colours.ShowRainbow(MotherBrainRainbowImage.Drained);
             return;
         }
         // The rainbow colours' handler steps them only on its phase of the body's update count.
-        if (!step.RainbowColours || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(state.Body.FrameCounter))
+        if (!step.Starts(MotherBrainStepEffect.RainbowColours) || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(state.Body.FrameCounter))
             return;
 
         ListStep<MotherBrainRainbowImage> image = state.NextRainbowImage;

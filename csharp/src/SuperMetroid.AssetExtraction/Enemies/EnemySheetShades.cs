@@ -275,7 +275,7 @@ internal sealed class EnemySheetShades
     /// <summary>
     /// The shades of the effects <paramref name="enemy"/> shows by recolouring the row it draws in, <paramref name="row"/>
     /// on the sheet: Dachora's colours, the face blocks', Magdollites' and Work Robots' glows, the ghost's fade and the
-    /// Shitroid victim's drain.
+    /// Baby Metroid victim's drain.
     /// </summary>
     internal IReadOnlyList<SheetShade> OwnRow(EnemyDefinitionId enemy, int row)
     {
@@ -368,7 +368,7 @@ internal sealed class EnemySheetShades
                 break;
             case EnemyDefinitionId.BabyMetroid:
                 SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Shitroid(inputs.Bosses));
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.BabyMetroid(inputs.Bosses));
                 break;
             case EnemyDefinitionId.Zebetite:
                 SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
@@ -376,8 +376,8 @@ internal sealed class EnemySheetShades
                 break;
             case EnemyDefinitionId.CorpseSidehopper:
             {
-                // The Shitroid's victim shows the encounter's entry colours before it is drained (#1512).
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Shitroid(inputs.Bosses));
+                // The Baby Metroid's victim shows the encounter's entry colours before it is drained (#1512).
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.BabyMetroid(inputs.Bosses));
                 EnemyAuxiliaryColorCatalog auxiliary = inputs.Enemies.AuxiliaryColors ?? throw Missing("dead Sidehopper drain colours");
                 foreach (SidehopperDrainStage stage in SidehopperDrainStage.Shaded)
                 {
@@ -451,9 +451,9 @@ internal sealed class EnemySheetShades
         }
         if (enemy == EnemyDefinitionId.CorpseSidehopper || DeadTourianBehavior.IsDeadTourianCorpseDefinition(enemy))
         {
-            ShitroidColorCatalog shitroid = inputs.Bosses.ShitroidColors ?? throw Missing("drained corpse colours");
+            BabyMetroidColorCatalog babyMetroid = inputs.Bosses.BabyMetroidColors ?? throw Missing("drained corpse colours");
             rows.Add(new(TourianCorpseShades.Drained, EnemySheetRowDefinitions.DrainedCorpses, colours.With(EnemySheetRowDefinitions.DrainedCorpses, 0,
-                Frame(ShitroidColorDefinitions.TargetColorCount, colour => shitroid.TargetColor(ShitroidColorTarget.DeadSidehopper, colour)))));
+                Frame(BabyMetroidColorDefinitions.TargetColorCount, colour => babyMetroid.TargetColor(BabyMetroidColorTarget.DeadSidehopper, colour)))));
         }
         if (enemy is EnemyDefinitionId.PirateGoldNinja
             or EnemyDefinitionId.PirateSilverNinja)

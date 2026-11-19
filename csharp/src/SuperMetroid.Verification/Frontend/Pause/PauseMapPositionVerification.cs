@@ -50,7 +50,7 @@ internal static class PauseMapPositionVerification
                 pause.AdvanceAnimations(0, PauseAnimationPhase.Stable);
                 // The frame as published; whether a repaint shows the same pixels is answered from the two frames'
                 // descriptions, drawing them only when those differ (#1532, #1757).
-                LayeredScene shown = pause.CaptureRenderSnapshot();
+                LayeredScene shown = pause.ComposeScene();
                 Position16<ScreenPixels> marker = Position16<ScreenPixels>.Zero + samusCell.ToMapPixels().RelativeToScroll(pause.MapScroll);
                 ushort x = marker.X, y = marker.Y;
                 var expected = new OamBuffer(); expected.BeginFrame();
@@ -64,7 +64,7 @@ internal static class PauseMapPositionVerification
                 RgbColor[] shownColours = PauseShownColours.Of(pause, RetailPresentationFixture());
                 for (int color = 0; color < markerColors.Length; color++)
                     AssertEqual(markerColors[color], shownColours[markerPalette + 1 + color], $"{area} frame {frame} current-position marker ink {color + 1}");
-                AssertTrue(ScenePixels.Same(shown, pause.CaptureRenderSnapshot()), "repaint does not advance position marker");
+                AssertTrue(ScenePixels.Same(shown, pause.ComposeScene()), "repaint does not advance position marker");
             }
         }
         Console.WriteLine("Pause current-position marker: raw ROM OAM and palette, two room positions, and two 24-frame pulse cycles agree.");

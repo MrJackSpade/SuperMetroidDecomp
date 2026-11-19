@@ -1,8 +1,10 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// An unsigned 16.16 fixed-point speed kept as its two halves: a whole part and a fraction, each 0 through 65535.
-/// Samus's speeds are magnitudes in this form; their direction is held separately.
+/// An unsigned 16.16 fixed-point speed kept as its two halves: a whole part and a fraction, each 0 through 65535. It is how
+/// fast something moves, never which way: a velocity type gives a speed its direction (Samus's vertical velocity,
+/// <see cref="Samus.Movement.SamusVerticalVelocity"/>, and her running speed taken toward her side), and how a speed slowed
+/// past zero reads is <see cref="SamusSpeedMagnitude"/>'s.
 /// </summary>
 [EncodingOwner("unsigned 16.16 fixed-point number")]
 public readonly record struct UnsignedSixteenSixteen
@@ -41,19 +43,6 @@ public readonly record struct UnsignedSixteenSixteen
         new(unchecked((ushort)(rawValue >> 16)), unchecked((ushort)rawValue));
 
     /// <summary>
-    /// The speed that is the product of two non-negative quantities each counted in 256ths, as the grapple release
-    /// scales the swing's speed by a trigonometric component: 256ths times 256ths are 65536ths of a pixel. The product
-    /// must fit the type.
-    /// </summary>
-    /// <param name="twoFiftySixths">The first factor in 256ths, zero or more.</param>
-    /// <param name="otherTwoFiftySixths">The second factor in 256ths, zero or more.</param>
-    /// <exception cref="ArgumentOutOfRangeException">A factor is negative.</exception>
-    /// <exception cref="OverflowException">The product lies outside the type's range.</exception>
-    public static UnsignedSixteenSixteen ProductOfTwoFiftySixths(int twoFiftySixths, int otherTwoFiftySixths) =>
-        FromRaw(checked((uint)Ensure.BetweenInclusive(0, int.MaxValue, twoFiftySixths) *
-            (uint)Ensure.BetweenInclusive(0, int.MaxValue, otherTwoFiftySixths)));
-
-    /// <summary>
     /// The speed that is a share of <paramref name="wholePixels"/> whole pixels, the share counted in 65536ths, as a mover
     /// scales a whole-pixel speed by a sine sample: whole pixels times 65536ths are 65536ths of a pixel. The product must
     /// fit the type.
@@ -69,11 +58,11 @@ public readonly record struct UnsignedSixteenSixteen
     /// <summary>No speed or distance at all.</summary>
     public static UnsignedSixteenSixteen Zero => default;
 
+    /// <summary>A distance of one whole pixel and no fraction.</summary>
+    public static UnsignedSixteenSixteen OnePixel => FromWholePixels(1);
+
     /// <summary>A distance of <paramref name="wholePixels"/> whole pixels and no fraction, 0 through 65535.</summary>
     public static UnsignedSixteenSixteen FromWholePixels(int wholePixels) => new(wholePixels, 0);
-
-    /// <summary>A speed of <paramref name="sixteenths"/> sixteenths of a pixel, which must not be negative.</summary>
-    public static UnsignedSixteenSixteen FromSixteenthsOfPixel(int sixteenths) => FromRaw(checked((uint)sixteenths * 4096u));
 
     /// <summary>A speed of <paramref name="twoHundredFiftySixths"/> 256ths of a pixel, which must not be negative.</summary>
     private static UnsignedSixteenSixteen FromTwoHundredFiftySixthsOfPixel(int twoHundredFiftySixths) =>
@@ -112,8 +101,8 @@ public readonly record struct UnsignedSixteenSixteen
 
     /// <summary>
     /// Subtracts two values: a fraction that drops below zero borrows one from the whole part, and the whole part wraps
-    /// at sixteen bits, so a speed slowed past zero holds a whole part of 32768 or more, which the game's sign tests read as
-    /// having passed zero.
+    /// at sixteen bits, so a speed slowed past zero holds a whole part of 32768 or more, which reads as having passed zero
+    /// (<see cref="SamusSpeedMagnitude.HasPassedZero"/>).
     /// </summary>
     public static UnsignedSixteenSixteen operator -(UnsignedSixteenSixteen left, UnsignedSixteenSixteen right) =>
         FromRaw(unchecked(left.RawValue - right.RawValue));
@@ -143,17 +132,6 @@ public readonly record struct UnsignedSixteenSixteen
     /// </summary>
     public static UnsignedSixteenSixteen FromDisplacement(SignedSixteenSixteen displacement) =>
         FromRaw(unchecked((uint)displacement.RawValue));
-
-    /// <summary>
-    /// The speed that covers <paramref name="wholePixels"/> pixels in <paramref name="updates"/> updates: the distance in
-    /// 65536ths of a pixel divided by the updates, the remainder dropped.
-    /// </summary>
-    /// <param name="wholePixels">The distance, 0 through 65535 pixels.</param>
-    /// <param name="updates">The updates, one or more.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The distance or the update count is out of range.</exception>
-    public static UnsignedSixteenSixteen Covering(int wholePixels, int updates) =>
-        FromRaw(checked((uint)(((long)Ensure.BetweenInclusive(0, ushort.MaxValue, wholePixels) << 16) /
-            Ensure.BetweenInclusive(1, int.MaxValue, updates))));
 
     /// <summary>
     /// The value divided by <paramref name="divisor"/> as one amount in 256ths (<see cref="InTwoFiftySixths"/>): the

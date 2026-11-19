@@ -91,8 +91,8 @@ internal static class SamusBodyCompositions
     /// Where the chest cover sits relative to the body's origin, or none for a pose without it. The game draws one
     /// small sprite between the top and bottom halves when the unsuited Samus faces the screen; it is not a visor, but
     /// covers the left side of the Power Suit's chest. The suited forward body has that shape in its own art and shows
-    /// no cover. The game places it seven pixels left of and seventeen above Samus's world point, which is the body's
-    /// drawn point offset by its origin rise.
+    /// no cover. The game places it at <see cref="SamusBodyPlacementSourceDefinitions.ChestCoverFromWorldPoint"/> from
+    /// Samus's world point, which is the body's drawn point offset by its origin rise.
     /// </summary>
     /// <remarks>
     /// The game positions the cover from the unrotated world point while Ceres's turning floor rotates the body's;
@@ -101,6 +101,8 @@ internal static class SamusBodyCompositions
     /// </remarks>
     private static Offset16<ScreenPixels>? ChestCover(SamusPoseId pose, int animationFrame, SamusBodySources artwork) =>
         pose == SamusPoseId.ForwardFacingPowerSuitPose
-            ? Offset16<ScreenPixels>.Of(-7, artwork.Gameplay.OriginRise(pose, SamusAnimationLayout.FrameAt(SamusAnimationDelays.AnimationForPose(pose), animationFrame)) - 17)
+            ? Offset16<ScreenPixels>.Of(SamusBodyPlacementSourceDefinitions.ChestCoverFromWorldPoint.X,
+                artwork.Gameplay.OriginRise(pose, SamusAnimationLayout.FrameAt(SamusAnimationDelays.AnimationForPose(pose), animationFrame)) +
+                SamusBodyPlacementSourceDefinitions.ChestCoverFromWorldPoint.Y)
             : null;
 }

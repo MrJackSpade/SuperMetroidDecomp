@@ -4,18 +4,19 @@ namespace SuperMetroid.Core.Saves;
 
 /// <summary>
 /// Writes a set of flags into a save as its members' installed keys in the save's camel case, and reads it back (#2520):
-/// a value a member names is written as that member, and any other as each flag it holds, lowest first, separated by a
+/// a value a member names is written as that member, and any other as each flag it holds in the written-out order, separated by a
 /// comma and a space; reading takes the flags in any order, their case ignored, as saves have always been read.
 /// </summary>
 /// <typeparam name="TFlags">The flags the converter reads and writes.</typeparam>
 /// <param name="keys">The flags' written-out keys.</param>
+/// <param name="order">Each flag on its own, in the order a save lists a set of them (#2567).</param>
 /// <param name="union">The set holding both sets' flags.</param>
-internal sealed class SaveFlagsJsonConverter<TFlags>(InstalledKeys<TFlags> keys, Func<TFlags, TFlags, TFlags> union)
+internal sealed class SaveFlagsJsonConverter<TFlags>(InstalledKeys<TFlags> keys, IReadOnlyList<TFlags> order, Func<TFlags, TFlags, TFlags> union)
     : SaveKeyJsonConverter<TFlags>(keys)
     where TFlags : struct, Enum
 {
-    /// <summary>Each flag on its own, lowest first; the empty set is no flag.</summary>
-    private readonly TFlags[] flags = [.. Enum.GetValues<TFlags>().Where(flag => !EqualityComparer<TFlags>.Default.Equals(flag, default))];
+    /// <summary>Each flag on its own in the order a save lists them; the empty set is no flag.</summary>
+    private readonly TFlags[] flags = [.. Ensure.NotNull(order)];
 
     /// <summary>The set holding both sets' flags.</summary>
     private readonly Func<TFlags, TFlags, TFlags> union = Ensure.NotNull(union);

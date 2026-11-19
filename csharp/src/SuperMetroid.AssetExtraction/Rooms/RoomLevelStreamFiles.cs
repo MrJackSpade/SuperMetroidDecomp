@@ -37,6 +37,17 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </remarks>
 public static class RoomLevelStreamFiles
 {
+    /// <summary>The reaction families in the order the level stream files list them (#2567).</summary>
+    private static readonly IReadOnlyList<BlockReactionFamily> FamilyOrder = Ensure.EveryMemberOnce<BlockReactionFamily>(
+    [
+        BlockReactionFamily.Shootable,
+        BlockReactionFamily.Bombable,
+        BlockReactionFamily.Special,
+        BlockReactionFamily.SpecialAir,
+        BlockReactionFamily.Spike,
+        BlockReactionFamily.Grapple,
+    ]);
+
     /// <summary>
     /// The family's document naming the collision kinds, in the order the level files write them by position; the levels
     /// are the retail rooms' (#1693), each in its own file.
@@ -55,7 +66,7 @@ public static class RoomLevelStreamFiles
     private const int FormatVersion = 9;
 
     /// <summary>The collision kinds in the order the level files write them by position.</summary>
-    private static readonly ImmutableArray<RoomCollisionType> CollisionKinds = [.. Enum.GetValues<RoomCollisionType>()];
+    private static readonly ImmutableArray<RoomCollisionType> CollisionKinds = [.. Ensure.EveryMemberOnce(RoomCollisionTypeKeys.ListedOrder)];
 
     /// <summary>Each mirroring in the order the level files write it by position.</summary>
     private static readonly ImmutableArray<BlockMirroring> MirroringCodes =
@@ -65,7 +76,7 @@ public static class RoomLevelStreamFiles
     private static readonly IReadOnlyList<SlopeShape> SlopeShapes = SlopeShapeDefinitions.All;
 
     /// <summary>The reaction families the collision-kind document names the reactions of.</summary>
-    private static readonly ImmutableArray<BlockReactionFamily> Families = [.. Enum.GetValues<BlockReactionFamily>()];
+    private static readonly ImmutableArray<BlockReactionFamily> Families = [.. FamilyOrder];
 
     /// <summary>Serializer settings shared by the collision-kind document's writes and reads.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

@@ -22,4 +22,20 @@ internal static class SamusEquipmentFlagsKeys
         [SamusEquipmentFlags.GrappleBeam] = "GrappleBeam",
         [SamusEquipmentFlags.XrayScope] = "XrayScope",
     });
+
+    /// <summary>Each SamusEquipmentFlags flag on its own in the order a save and an installed document list a set of them (#2567), written out beside the keys so reordering the members never changes the bytes written; the empty set is no flag.</summary>
+    internal static IReadOnlyList<SamusEquipmentFlags> ListedOrder { get; } =
+    [
+        SamusEquipmentFlags.VariaSuit,
+        SamusEquipmentFlags.SpringBall,
+        SamusEquipmentFlags.MorphBall,
+        SamusEquipmentFlags.ScrewAttack,
+        SamusEquipmentFlags.GravitySuit,
+        SamusEquipmentFlags.HiJumpBoots,
+        SamusEquipmentFlags.SpaceJump,
+        SamusEquipmentFlags.Bombs,
+        SamusEquipmentFlags.SpeedBooster,
+        SamusEquipmentFlags.GrappleBeam,
+        SamusEquipmentFlags.XrayScope,
+    ];
 }

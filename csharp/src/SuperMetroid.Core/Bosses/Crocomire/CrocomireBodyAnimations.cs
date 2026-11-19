@@ -130,7 +130,7 @@ internal static class CrocomireBodyAnimations
             Step(CrocomireStepDefinitions.StepBack),
             Cue(K.FightAi),
         ],
-        [P.WaitForFirstSecondDamage] =
+        [P.AwaitingHit] =
         [
             Show(F.CrocomireBodyArmUprightMouthShut, 34),
             .. MouthOpening(2),
@@ -417,12 +417,12 @@ internal static class CrocomireBodyAnimations
         [A.StepForwardAfterDelay] = Animation<CrocomireBodySegment>.LeadingInto([Segments.Whole(P.StepForwardAfterDelay)], [Segments.Whole(P.StepForward)]),
         [A.StepForward] = Animation<CrocomireBodySegment>.Looping([Segments.Whole(P.StepForward)]),
         [A.StepBack] = Animation<CrocomireBodySegment>.LeadingInto(
-            [Segments.Whole(P.StepBack), Segments.Whole(P.SteppingBack), Segments.Whole(P.WaitForFirstSecondDamage), Segments.Whole(P.ClawSwing), Segments.Whole(P.ClawSwingFightCue)],
+            [Segments.Whole(P.StepBack), Segments.Whole(P.SteppingBack), Segments.Whole(P.AwaitingHit), Segments.Whole(P.ClawSwing), Segments.Whole(P.ClawSwingFightCue)],
             Roaring),
         [A.SteppingBack] = Animation<CrocomireBodySegment>.LeadingInto(
-            [Segments.Whole(P.SteppingBack), Segments.Whole(P.WaitForFirstSecondDamage), Segments.Whole(P.ClawSwing), Segments.Whole(P.ClawSwingFightCue)], Roaring),
-        [A.WaitForFirstSecondDamage] = Animation<CrocomireBodySegment>.LeadingInto(
-            [Segments.Whole(P.WaitForFirstSecondDamage), Segments.Whole(P.ClawSwing), Segments.Whole(P.ClawSwingFightCue)], Roaring),
+            [Segments.Whole(P.SteppingBack), Segments.Whole(P.AwaitingHit), Segments.Whole(P.ClawSwing), Segments.Whole(P.ClawSwingFightCue)], Roaring),
+        [A.AwaitingHit] = Animation<CrocomireBodySegment>.LeadingInto(
+            [Segments.Whole(P.AwaitingHit), Segments.Whole(P.ClawSwing), Segments.Whole(P.ClawSwingFightCue)], Roaring),
         [A.MovingClaws] = Animation<CrocomireBodySegment>.LeadingInto([Segments.Whole(P.ClawSwing), Segments.Whole(P.ClawSwingFightCue)], Roaring),
         [A.Roar] = Animation<CrocomireBodySegment>.Looping(Roaring),
         [A.RoarCloseMouth] = Animation<CrocomireBodySegment>.LeadingInto([Segments.Whole(P.RoarCloseMouth), Segments.Whole(P.RoarCloseMouthLoop)], Roaring),

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -11,6 +12,16 @@ public static class RoomObjectCrocomireVisualFiles
 {
     /// <summary>JSON filename for Crocomire bridge and invisible-wall visual layouts.</summary>
     private const string VisualFileName = "crocomire-arena.json";
+
+    /// <summary>The bridge and wall frames in the installed file's order (#2567).</summary>
+    private static readonly IReadOnlyList<CrocomireArenaDraw> FrameOrder = Ensure.EveryMemberOnce<CrocomireArenaDraw>(
+    [
+        CrocomireArenaDraw.ClearBridge,
+        CrocomireArenaDraw.CrumbleBridgeBlock,
+        CrocomireArenaDraw.ClearBridgeBlock,
+        CrocomireArenaDraw.ClearInvisibleWall,
+        CrocomireArenaDraw.CreateInvisibleWall,
+    ]);
 
     /// <summary>The Crocomire arena as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -34,7 +45,7 @@ public static class RoomObjectCrocomireVisualFiles
     {
         get
         {
-            foreach (CrocomireArenaDraw frame in Enum.GetValues<CrocomireArenaDraw>())
+            foreach (CrocomireArenaDraw frame in FrameOrder)
             {
                 TryGet(CrocomireArenaDraws.Family.Of(frame), out var list);
                 yield return list;

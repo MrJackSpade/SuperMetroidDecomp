@@ -207,7 +207,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             StartAlcoonAnimation(place, state, AlcoonSegment.WalkingRight);
         }
         state.Action = AlcoonAction.WalkingAndFiring;
-        state.WalkCyclesBeforeVolley = UpdateCountdown.Lasting(1);
+        state.WalkCyclesBeforeVolley = UpdateCountdown.Lasting(AlcoonWalkDefinitions.EmergedWalkCycles);
     }
 
     /// <summary>Maintains floor contact, starts a retreat at the spawn-distance limit, or begins a forward volley.</summary>
@@ -366,7 +366,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyAlcoonFireball(context.Projectile, context.Level));
 
     /// <summary>Runs Alcoon's initialization AI.</summary>
-    internal void RunAlcoonInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    internal void SetUpAlcoon(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         InitializeAlcoon(place, surroundings.Level);
     }
@@ -403,9 +403,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.StartAnimation(new AlcoonFireballAnimation(AlcoonFireballSegment.Spinning));
         Offset16<RoomPixels> muzzle = AlcoonFireballLaunchDefinitions.MuzzleFacingRight;
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(alcoon.Position.Whole + (movingLeft ? muzzle.MirroredX() : muzzle));
-        projectile.Velocity = projectile.Velocity.WithX(movingLeft
-            ? -AlcoonFireballLaunchDefinitions.LaunchSpeed
-            : AlcoonFireballLaunchDefinitions.LaunchSpeed);
+        projectile.Velocity = projectile.Velocity.WithX(
+            AlcoonFireballLaunchDefinitions.LaunchSpeed.Toward(movingLeft ? HorizontalDirection.Left : HorizontalDirection.Right));
         projectile.Velocity = projectile.Velocity.WithY(launch.YVelocity);
     }
 

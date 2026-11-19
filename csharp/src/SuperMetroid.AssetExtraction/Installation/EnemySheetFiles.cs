@@ -33,9 +33,13 @@ public static class EnemySheetFiles
     /// record shades to the gunship's top hull and entrance sheets (#1733); 37 installs no Stoke and lists no spawned objects
     /// for an enemy no room places, the Reflec, the second dead Sidehopper and the Tourian statue ghost (#1686); 38 names the
     /// Torizos' artwork looks for what each shows, not by swap numbers (#1761); 39 keys every enemy frame by what its
-    /// picture shows (#2069); 40 keys every enemy projectile frame by what its picture shows (#2154).
+    /// picture shows (#2069); 40 keys every enemy projectile frame by what its picture shows (#2154); 41 lists a spawned-object
+    /// sheet's projectile, encounter and effect-actor frames in the order of their installed names, not their declarations (#2567).
     /// </summary>
-    public const int ManifestVersion = 40;
+    public const int ManifestVersion = 41;
+
+    /// <summary>The encounters in the written-out order the manifest's look changes follow (#2567).</summary>
+    internal static WrittenOrder<EncounterArtwork> EncounterOrder { get; } = new(Ensure.EveryMemberOnce(EncounterArtworkKeys.ListedOrder));
 
     /// <summary>The manifest naming each variant's sheets and the variants each population draws.</summary>
     public const string ManifestFileName = "enemy-sheets.json";
@@ -270,7 +274,7 @@ public static class EnemySheetFiles
                 if (entry.Value is not { Length: > 0 } looks)
                     throw new InvalidDataException($"Enemy sheet manifest draws variant {variant}'s frame {frame} in no look of {entry.Key}.");
                 return new FrameLookChange(encounter, looks);
-            }).OrderBy(change => change.Encounter)]);
+            }).OrderBy(change => EncounterOrder.PlaceOf(change.Encounter))]);
         }
         return changes;
     }

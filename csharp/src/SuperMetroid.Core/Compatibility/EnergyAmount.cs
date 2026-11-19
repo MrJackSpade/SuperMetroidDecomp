@@ -22,9 +22,6 @@ public readonly record struct EnergyAmount
     /// <summary>The amount, whole energy above a sixteen-bit fraction of one energy.</summary>
     private readonly UnsignedSixteenSixteen _amount;
 
-    /// <summary>No energy at all.</summary>
-    public static EnergyAmount Zero => default;
-
     /// <summary>An amount of <paramref name="energy"/> whole energy, 0 through 65535, with no fraction.</summary>
     public static EnergyAmount FromEnergy(int energy) => new(UnsignedSixteenSixteen.FromWholePixels(energy));
 

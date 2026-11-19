@@ -82,7 +82,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             [EnemyDefinitionId.BabyTurtle] = leftToSpecies,
             [EnemyDefinitionId.Owtch] = leftToSpecies,
             [EnemyDefinitionId.Rinka] = leftToSpecies,
-            [EnemyDefinitionId.Oum] = [MaridiaLargeSnailReactions.Shot],
+            [EnemyDefinitionId.Oum] = [OumReactions.Shot],
             [EnemyDefinitionId.GrappleRipper] = leftToSpecies,
             [EnemyDefinitionId.JetRipper] = leftToSpecies,
             [EnemyDefinitionId.Dragon] = leftToSpecies,
@@ -163,7 +163,7 @@ internal static class EnemySpeciesCapabilitiesVerification
         RidleyReactions.FrameHitboxTouch, RidleyReactions.Shot,
         SporeSpawnReactions.Touch, SporeSpawnReactions.Shot,
         TorizoReactions.Touch, TorizoReactions.Shot, TorizoReactions.StandUpSitDownShot, TorizoReactions.GoldenShot,
-        MaridiaLargeSnailReactions.DamagingTouch, MaridiaLargeSnailReactions.NonDamagingTouch, MaridiaLargeSnailReactions.Shot,
+        OumReactions.DamagingTouch, OumReactions.NonDamagingTouch, OumReactions.Shot,
         SpacePirateReactions.Touch, SpacePirateReactions.Shot, SpacePirateReactions.GoldNinjaVulnerableHitboxShot,
         SpacePirateReactions.GoldNinjaInvincibleHitboxShot,
     ];
@@ -212,12 +212,12 @@ internal static class EnemySpeciesCapabilitiesVerification
 
             var doorState = new CeresRidleyRoomDoorState();
             place.SetSpeciesState(doorState);
-            foreach (CeresRidleyRoomDoorDrawing drawing in new[] { CeresRidleyRoomDoorDrawing.ItsOwn, CeresRidleyRoomDoorDrawing.ByRidleysScene })
+            foreach (CeresRidleyRoomDoorLook look in new[] { CeresRidleyRoomDoorLook.Actor, CeresRidleyRoomDoorLook.Overlay })
             {
-                doorState.Drawing = drawing;
-                bool drawnByRidley = entity is IDrawnByCeresRidleyScene door && door.Drawing == CeresRidleyRoomDoorDrawing.ByRidleysScene;
-                AssertEqual(definition == EnemyDefinitionId.CeresRidleyRoomDoor && drawing == CeresRidleyRoomDoorDrawing.ByRidleysScene, drawnByRidley,
-                    $"{definition} hands its drawing to Ceres Ridley's scene when the door's state says {drawing}");
+                doorState.Look = look;
+                bool showsOverlay = entity is CeresRidleyRoomDoorEntity door && door.Look == CeresRidleyRoomDoorLook.Overlay;
+                AssertEqual(definition == EnemyDefinitionId.CeresRidleyRoomDoor && look == CeresRidleyRoomDoorLook.Overlay, showsOverlay,
+                    $"{definition} shows the room door's overlay when the door's state says {look}");
             }
         }
 

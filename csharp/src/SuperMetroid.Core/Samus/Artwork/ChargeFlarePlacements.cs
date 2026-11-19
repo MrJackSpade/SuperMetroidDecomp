@@ -6,6 +6,29 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Immutable visual muzzle offsets, as installed (#1596); never used for projectile physics or Grapple connection.</summary>
 public sealed class ChargeFlarePlacements
 {
+    /// <summary>The projectile directions in the order the flare placements are listed (#2567).</summary>
+    private static readonly IReadOnlyList<SamusProjectileDirection> DirectionOrder = Ensure.EveryMemberOnce<SamusProjectileDirection>(
+    [
+        SamusProjectileDirection.UpFacingRight,
+        SamusProjectileDirection.UpRight,
+        SamusProjectileDirection.Right,
+        SamusProjectileDirection.DownRight,
+        SamusProjectileDirection.DownFacingRight,
+        SamusProjectileDirection.DownFacingLeft,
+        SamusProjectileDirection.DownLeft,
+        SamusProjectileDirection.Left,
+        SamusProjectileDirection.UpLeft,
+        SamusProjectileDirection.UpFacingLeft,
+    ]);
+
+    /// <summary>The turning aims in the order the flare placements are listed (#2567).</summary>
+    private static readonly IReadOnlyList<SamusTurningAim> TurningAimOrder = Ensure.EveryMemberOnce<SamusTurningAim>(
+    [
+        SamusTurningAim.Up,
+        SamusTurningAim.Neutral,
+        SamusTurningAim.Down,
+    ]);
+
     /// <summary>The installed offset of every placement the flare's source holds.</summary>
     private readonly Dictionary<ChargeFlarePlacement, Offset16<RoomPixels>> offsets;
 
@@ -45,10 +68,10 @@ public sealed class ChargeFlarePlacements
     internal static IEnumerable<ChargeFlarePlacement> Placements(ChargeFlareSource source)
     {
         foreach (bool running in (bool[])[false, true])
-            foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
+            foreach (SamusProjectileDirection direction in DirectionOrder)
                 yield return new(running, new SamusFlareAim.AtMuzzle(direction));
         if (source == ChargeFlareSource.Beam)
-            foreach (SamusTurningAim turning in Enum.GetValues<SamusTurningAim>())
+            foreach (SamusTurningAim turning in TurningAimOrder)
                 yield return new(false, new SamusFlareAim.WhileTurning(turning));
     }
 }

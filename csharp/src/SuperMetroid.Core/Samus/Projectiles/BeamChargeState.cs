@@ -26,11 +26,11 @@ internal sealed class BeamChargeState
     /// <see cref="BeamChargeDefinitions.SpecialAttackCounter"/> is the special-attack clamp, past which the
     /// charge advances no further. Zero while the Hyper Beam's flare shows (<see cref="HyperBeamFlare"/>).
     /// </summary>
-    public int FlareCounter => charge.Age;
+    public int UpdatesHeld => charge.Age;
 
     /// <summary>
     /// The charge, lasting <see cref="BeamChargeDefinitions.SpecialAttackCounter"/> and counted once each update Samus
-    /// holds it until it is over: its age is <see cref="FlareCounter"/>, whose named stages arm the charged shot, start
+    /// holds it until it is over: its age is <see cref="UpdatesHeld"/>, whose named stages arm the charged shot, start
     /// the charging sound and show the flare's components.
     /// </summary>
     private readonly UpdateCountdown charge = UpdateCountdown.Lasting(BeamChargeDefinitions.SpecialAttackCounter);
@@ -47,7 +47,7 @@ internal sealed class BeamChargeState
     private bool HyperBeamFlare { get; set; }
 
     /// <summary>The charge as its tests read it now.</summary>
-    public BeamChargeLevel Level => HyperBeamFlare ? BeamChargeLevel.HyperBeam : BeamChargeLevel.Charged(FlareCounter);
+    public BeamChargeLevel Level => HyperBeamFlare ? BeamChargeLevel.HyperBeam : BeamChargeLevel.Charged(UpdatesHeld);
 
     /// <summary>Whether any charge is held: a counted charge or the Hyper Beam's flare.</summary>
     internal bool IsCharging => Level.IsCharging;

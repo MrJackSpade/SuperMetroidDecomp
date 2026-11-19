@@ -3,6 +3,7 @@ using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Runtime.GameplayDisplayFrameTestsVerification;
 using static SuperMetroid.Verification.Rendering.SignedBackgroundScrollVerification;
+using static SuperMetroid.Verification.Rendering.PresentationQuirkInventoryVerification;
 using static SuperMetroid.Verification.Rendering.SignedLineScrollRowsVerification;
 using static SuperMetroid.Verification.Harness.FullMovieReplayVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyFullMovieVerification;
@@ -26,7 +27,7 @@ using static SuperMetroid.Verification.Enemies.EnemyRuleRangesVerification;
 using static SuperMetroid.Verification.Bosses.SeekingVelocityRunVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyFireballTargetVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoInitialDroolVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.DrainingShitroidFallShiftVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.DrainingBabyMetroidFallShiftVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBendChainVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawRetractionHoldVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawGrabCooldownVerification;
@@ -244,7 +245,7 @@ using static SuperMetroid.Verification.Audio.ManagedAudioVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeObjectVerification;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeVisualsVerification;
-using static SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailCollisionDefinitionsVerification;
+using static SuperMetroid.Verification.Enemies.MaridiaSnails.OumCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Hud.MessageSnapshotTestsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidDeathDropsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.MissileEdgeVerification;
@@ -395,9 +396,9 @@ using static SuperMetroid.Verification.Rooms.Scrolling.ScrollChangeNamesVerifica
 using static SuperMetroid.Verification.Rooms.Doors.DoorSetupNamesVerification;
 using static SuperMetroid.Verification.Samus.Movement.ShallowWaterJumpVerification;
 using static SuperMetroid.Verification.Samus.Abilities.ShinesparkEnemyStopVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidGradualAccelerationVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidScrollPairVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidPowerBombVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidGradualAccelerationVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidScrollPairVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidPowerBombVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.ShotBlockObjectProgramsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterRidingVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterScrewContactVerification;
@@ -792,6 +793,9 @@ internal static class FullRunSuitesVerification
         // The typed sine products and the fine sine's coarse reading equal the raw 8.8 arithmetic they replace (#2428).
         new(nameof(SuperMetroid.Verification.Spatial.TypedSineProductsVerification.VerifyTypedSineProducts),
             SuperMetroid.Verification.Spatial.TypedSineProductsVerification.VerifyTypedSineProducts),
+        // The signed velocities equal the magnitude-and-sign arithmetic they replace (#2569).
+        new(nameof(SuperMetroid.Verification.Spatial.SignedVelocityVerification.VerifySignedVelocities),
+            SuperMetroid.Verification.Spatial.SignedVelocityVerification.VerifySignedVelocities),
         // Every aim word's reads in the one angle convention equal its unconverted reads (#2555).
         new(nameof(SuperMetroid.Verification.Spatial.AimAngleConventionVerification.VerifyAimAngleConvention),
             SuperMetroid.Verification.Spatial.AimAngleConventionVerification.VerifyAimAngleConvention),
@@ -917,8 +921,8 @@ internal static class FullRunSuitesVerification
         new(nameof(MotherBrainRainbowSamusCooldownVerification.VerifyMotherBrainRainbowSamusCooldown), () => MotherBrainRainbowSamusCooldownVerification.VerifyMotherBrainRainbowSamusCooldown()),
         new(nameof(MotherBrainEffectAnimationsVerification.VerifyMotherBrainEffectAnimations), () => MotherBrainEffectAnimationsVerification.VerifyMotherBrainEffectAnimations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(MotherBrainEffectBehaviorVerification.VerifyMotherBrainEffectBehavior), () => MotherBrainEffectBehaviorVerification.VerifyMotherBrainEffectBehavior(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
-        new(nameof(MiscDustProjectileAnimationsVerification.VerifyMiscDustProjectileAnimations), () => MiscDustProjectileAnimationsVerification.VerifyMiscDustProjectileAnimations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
-        new(nameof(MiscDustProjectileBehaviorVerification.VerifyMiscDustProjectileBehavior), () => MiscDustProjectileBehaviorVerification.VerifyMiscDustProjectileBehavior(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
+        new(nameof(DustExplosionProjectileAnimationsVerification.VerifyDustExplosionProjectileAnimations), () => DustExplosionProjectileAnimationsVerification.VerifyDustExplosionProjectileAnimations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
+        new(nameof(DustExplosionProjectileBehaviorVerification.VerifyDustExplosionProjectileBehavior), () => DustExplosionProjectileBehaviorVerification.VerifyDustExplosionProjectileBehavior(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(VerifyBabyMetroidCutsceneEntrance), () => VerifyBabyMetroidCutsceneEntrance()),
         new(nameof(VerifySamusSolidEnemyCollision), () => VerifySamusSolidEnemyCollision()),
         new(nameof(VerifySolidEnemyContactRecords), () => VerifySolidEnemyContactRecords()),
@@ -977,6 +981,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDraygonPrebattleXray), () => VerifyDraygonPrebattleXray()),
         new(nameof(VerifyXraySetupBuffers), () => VerifyXraySetupBuffers()),
         new(nameof(VerifyFirefleaFx), () => VerifyFirefleaFx()),
+        new(nameof(VerifyPresentationQuirkInventory), () => VerifyPresentationQuirkInventory()),
         new(nameof(VerifyBombJumpWallContact), () => VerifyBombJumpWallContact()),
         new(nameof(VerifyXrayRoomDisplayRules), () => VerifyXrayRoomDisplayRules()),
         new(nameof(VerifyXrayRevealTable), () => VerifyXrayRevealTable()),
@@ -1219,7 +1224,7 @@ internal static class FullRunSuitesVerification
         new(nameof(SuperMetroid.Verification.Compatibility.RoomReadingOrderVerification.VerifyBlockScanCycleBlocks),
             SuperMetroid.Verification.Compatibility.RoomReadingOrderVerification.VerifyBlockScanCycleBlocks),
         new(nameof(VerifyBabyMetroidVictim), () => VerifyBabyMetroidVictim()),
-        new(nameof(VerifyShitroidFeeding), () => VerifyShitroidFeeding()),
+        new(nameof(VerifyBabyMetroidFeeding), () => VerifyBabyMetroidFeeding()),
         new(nameof(VerifyZebetiteShotShare), () => VerifyZebetiteShotShare()),
         new(nameof(VerifyEnemyOccupantStates), () => VerifyEnemyOccupantStates()),
         new(nameof(VerifyKilledEnemyCompatibility), () => VerifyKilledEnemyCompatibility()),
@@ -1229,10 +1234,10 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyUnauthoredBeamVulnerability), () => VerifyUnauthoredBeamVulnerability()),
         new(nameof(VerifyDeathExplosionRules), () => VerifyDeathExplosionRules()),
         new(nameof(VerifySeekingVelocityRun), () => VerifySeekingVelocityRun()),
-        new(nameof(VerifyShitroidSeekingAcceleration), () => VerifyShitroidSeekingAcceleration()),
+        new(nameof(VerifyBabyMetroidSeekingAcceleration), () => VerifyBabyMetroidSeekingAcceleration()),
         new(nameof(VerifyCeresRidleyFireballTarget), () => VerifyCeresRidleyFireballTarget()),
         new(nameof(VerifyBombTorizoInitialDrool), () => VerifyBombTorizoInitialDrool()),
-        new(nameof(VerifyDrainingShitroidFallShift), () => VerifyDrainingShitroidFallShift()),
+        new(nameof(VerifyDrainingBabyMetroidFallShift), () => VerifyDrainingBabyMetroidFallShift()),
         new(nameof(VerifyYappingMawBendChain), () => VerifyYappingMawBendChain()),
         new(nameof(VerifyYappingMawRetractionHold), () => VerifyYappingMawRetractionHold()),
         new(nameof(VerifyYappingMawGrabCooldown), () => VerifyYappingMawGrabCooldown()),
@@ -1254,11 +1259,11 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDoorAnimatedTiles), () => VerifyDoorAnimatedTiles()),
         new(nameof(VerifyTourianStatueDescentRounding), () => VerifyTourianStatueDescentRounding()),
         new(nameof(VerifyMetroidDeathDrops), () => VerifyMetroidDeathDrops()),
-        new(nameof(VerifyShitroidGradualAcceleration), () => VerifyShitroidGradualAcceleration()),
-        new(nameof(VerifyShitroidFlightPulls), () => VerifyShitroidFlightPulls()),
-        new(nameof(VerifyShitroidDrainCarry), () => VerifyShitroidDrainCarry()),
-        new(nameof(VerifyShitroidScrollPair), () => VerifyShitroidScrollPair()),
-        new(nameof(VerifyPowerBombPassesTheShitroid), () => VerifyPowerBombPassesTheShitroid()),
+        new(nameof(VerifyBabyMetroidGradualAcceleration), () => VerifyBabyMetroidGradualAcceleration()),
+        new(nameof(VerifyBabyMetroidFlightPulls), () => VerifyBabyMetroidFlightPulls()),
+        new(nameof(VerifyBabyMetroidDrainCarry), () => VerifyBabyMetroidDrainCarry()),
+        new(nameof(VerifyBabyMetroidScrollPair), () => VerifyBabyMetroidScrollPair()),
+        new(nameof(VerifyPowerBombPassesTheBabyMetroid), () => VerifyPowerBombPassesTheBabyMetroid()),
         new(nameof(VerifyMotherBrainRinkaDoorSpawn), () => VerifyMotherBrainRinkaDoorSpawn()),
         new(nameof(RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations), () => RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainGlassSuperMissile), () => VerifyMotherBrainGlassSuperMissile()),
@@ -1430,7 +1435,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySpacePirateCollisionDefinitions), () => VerifySpacePirateCollisionDefinitions()),
         new(nameof(VerifyRidleyCollisionDefinitions), () => VerifyRidleyCollisionDefinitions()),
         new(nameof(VerifyCeresSteamCollisionDefinitions), () => VerifyCeresSteamCollisionDefinitions()),
-        new(nameof(VerifyMaridiaLargeSnailCollisionDefinitions), () => VerifyMaridiaLargeSnailCollisionDefinitions()),
+        new(nameof(VerifyOumCollisionDefinitions), () => VerifyOumCollisionDefinitions()),
         new(nameof(VerifyCrocomireTongueCollisionDefinitions), () => VerifyCrocomireTongueCollisionDefinitions()),
         new(nameof(VerifyCrocomireBodyCollisionDefinitions), () => VerifyCrocomireBodyCollisionDefinitions()),
         new(nameof(VerifyBotwoonObjectIdentity), () => VerifyBotwoonObjectIdentity()),

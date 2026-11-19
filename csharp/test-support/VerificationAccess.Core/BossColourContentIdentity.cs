@@ -132,26 +132,26 @@ internal static class BossColourContentIdentity
             });
     }
 
-    /// <summary>The installed content identity of a <see cref="ShitroidColorCatalog"/>.</summary>
-    extension(ShitroidColorCatalog colors)
+    /// <summary>The installed content identity of a <see cref="BabyMetroidColorCatalog"/>.</summary>
+    extension(BabyMetroidColorCatalog colors)
     {
-        /// <summary>Hashes the Sidehopper, Shitroid and dead-Sidehopper targets, then the eight normal pulse phases.</summary>
+        /// <summary>Hashes the Sidehopper, Baby Metroid and dead-Sidehopper targets, then the eight normal pulse phases.</summary>
         public string ContentIdentity =>
             SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
             {
-                Span<RgbColor> selectedSidehopper = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
-                for (int color = 0; color < selectedSidehopper.Length; color++) selectedSidehopper[color] = colors.TargetColor(ShitroidColorTarget.Sidehopper, color);
+                Span<RgbColor> selectedSidehopper = stackalloc RgbColor[BabyMetroidColorDefinitions.TargetColorCount];
+                for (int color = 0; color < selectedSidehopper.Length; color++) selectedSidehopper[color] = colors.TargetColor(BabyMetroidColorTarget.Sidehopper, color);
                 content.AppendColors("sidehopper", selectedSidehopper);
-                Span<RgbColor> selectedShitroid = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
-                for (int color = 0; color < selectedShitroid.Length; color++) selectedShitroid[color] = colors.TargetColor(ShitroidColorTarget.Shitroid, color);
-                content.AppendColors("shitroid", selectedShitroid);
-                Span<RgbColor> selectedCorpse = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
-                for (int color = 0; color < selectedCorpse.Length; color++) selectedCorpse[color] = colors.TargetColor(ShitroidColorTarget.DeadSidehopper, color);
+                Span<RgbColor> selectedBabyMetroid = stackalloc RgbColor[BabyMetroidColorDefinitions.TargetColorCount];
+                for (int color = 0; color < selectedBabyMetroid.Length; color++) selectedBabyMetroid[color] = colors.TargetColor(BabyMetroidColorTarget.BabyMetroid, color);
+                content.AppendColors("shitroid", selectedBabyMetroid);
+                Span<RgbColor> selectedCorpse = stackalloc RgbColor[BabyMetroidColorDefinitions.TargetColorCount];
+                for (int color = 0; color < selectedCorpse.Length; color++) selectedCorpse[color] = colors.TargetColor(BabyMetroidColorTarget.DeadSidehopper, color);
                 content.AppendColors("deadSidehopper", selectedCorpse);
-                content.Append("normal", ShitroidColorDefinitions.NormalFrameCount);
-                for (int frame = 0; frame < ShitroidColorDefinitions.NormalFrameCount; frame++)
+                content.Append("normal", BabyMetroidColorDefinitions.NormalFrameCount);
+                for (int frame = 0; frame < BabyMetroidColorDefinitions.NormalFrameCount; frame++)
                 {
-                    var phaseColors = new RgbColor[ShitroidColorDefinitions.NormalColorsPerFrame];
+                    var phaseColors = new RgbColor[BabyMetroidColorDefinitions.NormalColorsPerFrame];
                     for (int color = 0; color < phaseColors.Length; color++) phaseColors[color] = colors.NormalColor(frame, color);
                     content.AppendColors("row", phaseColors);
                 }

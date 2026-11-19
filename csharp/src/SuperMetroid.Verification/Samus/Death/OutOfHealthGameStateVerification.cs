@@ -264,7 +264,7 @@ internal static class OutOfHealthGameStateVerification
         GameClockReading beforeTakeoff = runtime.GameTime.Reading;
 
         game.Step(0);
-        AssertEqual(GunshipFrameEvent.EscapeTakeoffCompleted, runtime.EnemyFrameResults.LastEnemyFrame.Gunship,
+        AssertTrue(runtime.EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted),
             $"the ship's ascent completes the takeoff; the top hull is at {top.Position.Y.Whole} in {GunshipState.Of(top).Phase}");
         AssertTrue(game.IsAt(EndingStep.LeavingZebes), $"the gunship's takeoff takes the update Samus runs out of health on, not her death; ended in {game.GameState}");
         AssertEqual(beforeTakeoff, runtime.GameTime.Reading, "the out-of-health check returns before counting the play time");
@@ -419,7 +419,7 @@ internal static class OutOfHealthGameStateVerification
             game.Step(0);
             AssertTrue(++landing < 120, "Samus lands on the elevator");
         }
-        while (!samus.Kinematics.YSpeed.IsZero || landing < 4);
+        while (!samus.Kinematics.VerticalVelocity.Speed.IsZero || landing < 4);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the dormant shaft keeps Samus in main gameplay");
         AssertTrue(samus.Position.Y.Whole is >= 75 and < 128 && samus.Position.X.Whole is > 112 and <= 144,
             $"Samus stands inside the elevator's trigger at {samus.Position.Whole}");

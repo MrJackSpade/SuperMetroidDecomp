@@ -10,10 +10,10 @@ internal static class YardDirections
     /// <summary>Whether <paramref name="direction"/> crawls along a wall rather than a floor or ceiling.</summary>
     internal static bool IsOnWall(YardDirection direction) => direction switch
     {
-        YardDirection.UpsideRightMovingUp or YardDirection.UpsideRightMovingDown or
-            YardDirection.UpsideLeftMovingUp or YardDirection.UpsideLeftMovingDown => true,
-        YardDirection.UpsideDownMovingLeft or YardDirection.UpsideDownMovingRight or
-            YardDirection.UpsideUpMovingLeft or YardDirection.UpsideUpMovingRight => false,
+        YardDirection.OnLeftWallMovingUp or YardDirection.OnLeftWallMovingDown or
+            YardDirection.OnRightWallMovingUp or YardDirection.OnRightWallMovingDown => true,
+        YardDirection.OnCeilingMovingLeft or YardDirection.OnCeilingMovingRight or
+            YardDirection.OnFloorMovingLeft or YardDirection.OnFloorMovingRight => false,
         _ => throw new InvalidOperationException($"Undefined {nameof(YardDirection)} {direction}."),
     };
 

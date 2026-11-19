@@ -9,9 +9,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>
 /// Draygon's typed animations (#641, #1600): each body, eye, tail and arms segment's beats, the animation starting at
 /// each, which plays each of its segments whole (#2296), and his tail's final whips, which play its whip four times and
-/// which his grab starts by name (#2399). The idle eye shows its open and narrowing pictures twice in a row
-/// each, and the two showings stay two beats: his body shows the eye's picture as a showing begins on an update the draw
-/// pass reaches the eye, so the second showing shows it again where the first was missed. His tail's lashes are written
+/// which his grab starts by name (#2399). The idle eye shows each of its pictures for one beat of the picture's whole
+/// duration, and his body shows the eye's picture as it changes (#2573). His tail's lashes are written
 /// once over a facing's poses (#2465): his whips and his fake whip lash out shifting his body's picture, his flail lashes
 /// with it still, and every lash recoils and swings back the same way.
 /// </summary>
@@ -135,10 +134,8 @@ internal static class DraygonAnimations
             Show(F.DraygonEyeFacingLeftOpening, 5),
             Show(F.DraygonEyeFacingLeftHalfOpen, 5),
             Show(F.DraygonEyeFacingLeftOpening, 10),
-            Show(F.DraygonEyeFacingLeftOpen, 10),
-            Show(F.DraygonEyeFacingLeftOpen, 10),
-            Show(F.DraygonEyeFacingLeftNarrowing, 10),
-            Show(F.DraygonEyeFacingLeftNarrowing, 10),
+            Show(F.DraygonEyeFacingLeftOpen, 20),
+            Show(F.DraygonEyeFacingLeftNarrowing, 20),
             Show(F.DraygonEyeFacingLeftClosing, 10),
             Show(F.DraygonEyeFacingLeftHalfOpen, 5),
             Show(F.DraygonEyeFacingLeftOpening, 5),
@@ -285,10 +282,8 @@ internal static class DraygonAnimations
             Show(F.DraygonEyeFacingRightOpening, 5),
             Show(F.DraygonEyeFacingRightHalfOpen, 5),
             Show(F.DraygonEyeFacingRightOpening, 10),
-            Show(F.DraygonEyeFacingRightOpen, 10),
-            Show(F.DraygonEyeFacingRightOpen, 10),
-            Show(F.DraygonEyeFacingRightNarrowing, 10),
-            Show(F.DraygonEyeFacingRightNarrowing, 10),
+            Show(F.DraygonEyeFacingRightOpen, 20),
+            Show(F.DraygonEyeFacingRightNarrowing, 20),
             Show(F.DraygonEyeFacingRightClosing, 10),
             Show(F.DraygonEyeFacingRightHalfOpen, 5),
             Show(F.DraygonEyeFacingRightOpening, 5),

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Hud;
 using SuperMetroid.Core.Input;
@@ -85,15 +86,15 @@ public static class SamusGrappleMovement
         grapple.JumpImpulse = AngularSpeed.Zero;
         grapple.CollisionBounceTimer = UpdateCountdown.Ended();
         grapple.ValidatedAnchor = null;
-        grapple.CloseCollision = false;
-        grapple.SlowScrolling = false; // Firing returns the camera to its ordinary scroll.
+        grapple.SwingFreely();
+        grapple.ScrollCameraOrdinarily(); // Firing returns the camera to its ordinary scroll.
         grapple.WallJumpTimer = UpdateCountdown.Ended();
         grapple.CancelFromConnectedPose = false;
         SamusGrappleBeamDrawing.InitializeBeamAnimation(grapple);
 
         QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Fire);
         // The grapple's firing sound, like a beam shot's, cancels a pending resume of the charging sound (#1689).
-        samus.ResumeChargingBeamSoundPending = false;
+        samus.ChargingSound.Cancel();
         // Firing again ends the released-from-swing movement, so
         // Samus moves with ordinary physics from this same frame.
         grapple.ReleasedMovementActive = false;
@@ -308,9 +309,9 @@ public static class SamusGrappleMovement
             grapple);
 
         // The special-angle snap checks all eight special angles only after a close collision
-        // (CloseCollision). A match replaces pendulum positioning for this frame with that angle's exact
+        // (RestsCloseToHand). A match replaces pendulum positioning for this frame with that angle's exact
         // pose, anchor-relative body offset, and locked/wallgrab phase.
-        if (grapple.CloseCollision &&
+        if (grapple.RestsCloseToHand &&
             TryHandleSpecialAngle(samus,
                 grapple,
                 previousPosition,
@@ -475,12 +476,13 @@ public static class SamusGrappleMovement
         grapple.WallJumpTimer.Count();
 
         // Each eligible check first withdraws an earlier launch's enemy shake.
-        samus.Kinematics.WithdrawWallJumpLaunchShake();
+        samus.Kinematics.WallJumpLaunch.Withdraw();
 
         // The wall-jump probe tests solid/frozen enemies first, then 16 pixels of room blocks toward
         // the wall named by the contact pose's facing. The shared probe preserves
         // square slopes, block behaviour, available distance, and enemy identity.
-        SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromWholePixels(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? -GrappleBeamDefinitions.WallGrab.WallJumpProbePixels : GrappleBeamDefinitions.WallGrab.WallJumpProbePixels);
+        SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromWholePixels(GrappleBeamDefinitions.WallGrab.WallJumpProbePixels.Toward(
+            SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? HorizontalDirection.Left : HorizontalDirection.Right));
         // A bomb block the probe breaks starts its reaction through the room's objects, as any other contact does (#1582).
         BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
             terrain.Level,
@@ -492,7 +494,7 @@ public static class SamusGrappleMovement
         {
             // Accepted off a solid or frozen enemy, the wall jump asks this update's enemy pass to shake it.
             if (wall.EnemyCollision is { Enemy: { } launchedFrom })
-                samus.Kinematics.RequestWallJumpLaunchShake(launchedFrom);
+                samus.Kinematics.WallJumpLaunch.Launch(launchedFrom);
             grapple.Phase = GrapplePhase.WallJumping;
             return new GrappleMovementResult(
                 grapple.Phase);
@@ -533,7 +535,7 @@ public static class SamusGrappleMovement
         // The drop clears these speeds now, but publishes its pose as the pending pose
         // change. Normal movement still runs before that pose is committed.
         samus.HorizontalSpeed.BaseSpeed = default;
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
         bool emptyMovement = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Grappling;
         ClearConnectedGrapple(grapple);
         SamusHudSelection.ReturnAutoCancelledItem(samus);
@@ -598,7 +600,7 @@ public static class SamusGrappleMovement
             SamusPresentation.InitializeAnimation(samus);
             grapple.Phase = phase;
             grapple.WallJumpTimer = UpdateCountdown.Ended();
-            grapple.SlowScrolling = false; // Connecting returns the camera to its ordinary scroll.
+            grapple.ScrollCameraOrdinarily(); // Connecting returns the camera to its ordinary scroll.
 
             Position16<RoomPixels> cameraPrevious = ClampPreviousPosition(samus.Position.Whole, previousPosition);
             result = new GrappleMovementResult(
@@ -704,7 +706,7 @@ public static class SamusGrappleMovement
                     return GrappleBlockReaction.Passes;
                 if (spike == SpikeReaction.TurretSpike)
                 {
-                    samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(1));
+                    samus.PeriodicDamage.Accumulate(SpikeHazardDefinitions.GrappledTurretSpikeDamage);
                     return GrappleBlockReaction.Connects;
                 }
 
@@ -832,7 +834,7 @@ public static class SamusGrappleMovement
             return new GrappleMovementResult(grapple.Phase, OwnsMovement: false);
         }
 
-        bool movingVertically = !samus.Kinematics.YSpeed.IsZero;
+        bool movingVertically = samus.Kinematics.VerticalVelocity.IsMoving;
         GrappleConnectionPolicy policy = movingVertically
             ? GrappleConnectionPolicy.MovingVertically
             : sourceMovementType == SamusMovementType.Crouching
@@ -870,7 +872,7 @@ public static class SamusGrappleMovement
         // have different owners; the anchor kind keeps those origins exclusive, so a moving Powamp anchor is never
         // reinterpreted as room terrain.
         grapple.ValidatedAnchor = anchor;
-        grapple.CloseCollision = false;
+        grapple.SwingFreely();
         grapple.WallJumpTimer = UpdateCountdown.Ended();
         grapple.CancelFromConnectedPose = false;
 
@@ -932,9 +934,44 @@ public static class SamusGrappleMovement
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
 
         return ClampPreviousPosition(samus.Position.Whole, pending.Previous);
+    }
+
+    /// <summary>
+    /// Settles a firing beam's origins once every move of the update is made (#2573): while the beam is firing and its
+    /// flare shows, its rope start and flare follow Samus's final position (<see cref="RefreshFiringOrigins"/>). The
+    /// grapple moved before Samus's ordinary movement, so a running shot would otherwise lag her by an update. Connected
+    /// phases set their exact rope and flare pair during movement.
+    /// </summary>
+    internal static void SettleFiringOrigins(SamusState samus)
+    {
+        SamusGrappleState grapple = Ensure.NotNull(samus).Grapple;
+        if (grapple.Phase == GrapplePhase.Firing && grapple.FlareStage != GrappleFlareStage.None)
+            RefreshFiringOrigins(samus, grapple);
+    }
+
+    /// <summary>
+    /// Recomputes a firing beam's rope start and flare from Samus's final pose and position, the rope start at her
+    /// projectile height and the flare at her picture's art origin.
+    /// </summary>
+    internal static void RefreshFiringOrigins(
+        SamusState samus,
+        SamusGrappleState grapple)
+    {
+        bool useRunOffsets = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running;
+        var origin = GrappleFiring.Origin(grapple.FireDirection, useRunOffsets);
+        var flare = ReadFlareOrigin(grapple, grapple.FireDirection, useRunOffsets);
+        int artOrigin = SamusPoseMetadata.ReadArtOrigin(samus);
+        int physicalYOffset = SamusPoseTraits.Of(samus.Pose).ProjectileHeight;
+
+        // Recompute from the final pose/position, not cached launch offsets. The rope start and the flare remain separate
+        // coordinate pairs.
+        grapple.RopeStart = samus.Position.Whole + new Offset16<RoomPixels>(
+            origin.X, origin.Y - physicalYOffset);
+        grapple.FlareOrigin = samus.Position.Whole + new Offset16<RoomPixels>(
+            flare.X, flare.Y - artOrigin);
     }
 
     /// <summary>
@@ -961,13 +998,25 @@ public static class SamusGrappleMovement
         {
             int steps = OctantSteps(absoluteY, absoluteX);
             RotationAngle horizontalAxis = xNegative ? RotationAngle.ThreeQuarterTurn : RotationAngle.QuarterTurn;
-            return horizontalAxis.TurnedBySteps(leanSameWay ? steps : -steps);
+            return TurnedClockwiseFromUp(horizontalAxis, steps, leanSameWay ? RotationDirection.Clockwise : RotationDirection.Counterclockwise);
         }
 
         int reciprocalSteps = OctantSteps(absoluteX, absoluteY);
         RotationAngle verticalAxis = yNegative ? RotationAngle.Zero : RotationAngle.HalfTurn;
-        return verticalAxis.TurnedBySteps(leanSameWay ? -reciprocalSteps : reciprocalSteps);
+        return TurnedClockwiseFromUp(verticalAxis, reciprocalSteps, leanSameWay ? RotationDirection.Counterclockwise : RotationDirection.Clockwise);
     }
+
+    /// <summary>
+    /// <paramref name="axis"/>, an angle measured clockwise from up, turned <paramref name="steps"/> steps the way
+    /// <paramref name="direction"/> turns (#2569): clockwise adds the steps and counterclockwise takes them away.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is neither clockwise nor counterclockwise.</exception>
+    private static RotationAngle TurnedClockwiseFromUp(RotationAngle axis, int steps, RotationDirection direction) => axis.TurnedBySteps(direction switch
+    {
+        RotationDirection.Clockwise => steps,
+        RotationDirection.Counterclockwise => -steps,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Not a rotation direction."),
+    });
 
     /// <summary>The angle steps in an eighth of a turn.</summary>
     private const int EighthTurnSteps = RotationAngle.StepsPerTurn / 8;
@@ -1012,7 +1061,7 @@ public static class SamusGrappleMovement
             // Cancelling from a connected pose takes the pose's no-input fallback while Samus still grapples: it
             // stops all her horizontal and running speed and returns her to the standing or crouching pose she
             // held before the beam locked.
-            if (!SamusPoseMetadata.ReadNoInputFallback(samus).TryGetPose(out SamusPoseId fallback))
+            if (!SamusPoseMetadata.ReadNoInputPose(samus).TryGetPose(out SamusPoseId fallback))
             {
                 throw new InvalidDataException(
                     $"Connected grapple pose {samus.Pose} has no cancellation fallback.");
@@ -1028,7 +1077,7 @@ public static class SamusGrappleMovement
 
         grapple.Phase = GrapplePhase.Inactive;
         // Cancel and kill both return the camera to its ordinary scroll.
-        grapple.SlowScrolling = false;
+        grapple.ScrollCameraOrdinarily();
         grapple.PoseChangeAutoFireTimer = UpdateCountdown.Ended();
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;
@@ -1104,7 +1153,7 @@ public static class SamusGrappleMovement
             ? SamusPoseId.NormalJumpForwardLeftPose
             : SamusPoseId.NormalJumpForwardRightPose;
         grapple.Phase = GrapplePhase.Inactive;
-        grapple.SlowScrolling = false; // Releasing returns the camera to its ordinary scroll.
+        grapple.ScrollCameraOrdinarily(); // Releasing returns the camera to its ordinary scroll.
         grapple.DirectionInputAcceleration = AngularSpeed.Zero;
         grapple.GravityAcceleration = AngularSpeed.Zero;
         grapple.VelocityCorrection = AngularSpeed.Zero;
@@ -1140,9 +1189,9 @@ public static class SamusGrappleMovement
         grapple.VelocityCorrection = AngularSpeed.Zero;
         grapple.JumpImpulse = AngularSpeed.Zero;
         grapple.CollisionBounceTimer = UpdateCountdown.Ended();
-        grapple.CloseCollision = false;
+        grapple.SwingFreely();
         // Dropping and wall jumping return the camera to its ordinary scroll.
-        grapple.SlowScrolling = false;
+        grapple.ScrollCameraOrdinarily();
         grapple.WallJumpTimer = UpdateCountdown.Ended();
         grapple.CancelFromConnectedPose = false;
         grapple.ValidatedAnchor = null;

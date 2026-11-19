@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// session keeps across rooms. His parts hold their own encounter from their initialization and never read it here.
 /// </summary>
 [RoomLifetime]
-internal sealed class RidleyEncounter : ICeresEscapeStatus, ICeresRidleyScene
+internal sealed class RidleyEncounter : ICeresEscapeStatus
 {
     /// <summary>Starts the room's view of Ridley's encounters; his body and Ceres's door attach as they initialize.</summary>
     /// <param name="session">The session that holds Ceres's escape progress across rooms.</param>
@@ -41,12 +41,6 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus, ICeresRidleyScene
     internal CeresRidleyAttachment? CeresRidley { get; private set; }
 
     /// <summary>
-    /// The door of Ceres Ridley's room once it has initialized, whose drawing his scene takes over while the door hands it
-    /// to him; null in any other room.
-    /// </summary>
-    internal RoomEnemyPlace? CeresRoomDoor { get; private set; }
-
-    /// <summary>
     /// How far Ceres's escape has progressed, consumed by the Ceres doors and the elevator shaft. A fresh station load
     /// begins before Ridley escapes; Ceres Ridley publishes his escape and the self-destruct, and the elevator door's
     /// destruction publishes the last stage.
@@ -71,6 +65,4 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus, ICeresRidleyScene
         RidleyPresent = true;
     }
 
-    /// <inheritdoc/>
-    void ICeresRidleyScene.AttachRoomDoor(RoomEnemyPlace door) => CeresRoomDoor = Ensure.NotNull(door);
 }

@@ -23,10 +23,10 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class SamusDrainedState
 {
     /// <summary>
-    /// Latches the immediate suit-colour restore from letting drained Samus fall or the rainbow stop
-    /// until the same frame's colour pass runs.
+    /// Where the rainbow's colouring stands (#2562): showing, or ended by letting drained Samus fall or the rainbow's stop,
+    /// the same update's colour pass then showing her suit's colours again.
     /// </summary>
-    private bool _suitShadeRestoreRequested;
+    private SpecialColouringStage _colouringStage;
 
     /// <summary>The drained phase: the drained pose Samus holds, or her fall.</summary>
     public DrainedSamusPhase Phase { get; private set; }
@@ -140,7 +140,7 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
-        samus.CancelPendingPoseTransition();
+        samus.PoseTransitionCancellation.Cancel();
     }
 
     /// <summary>Starts Samus's rainbow colouring.</summary>
@@ -150,7 +150,7 @@ public sealed class SamusDrainedState
         RainbowGlowing = true;
         RainbowGlowHold = RainbowGlowHold.Starting;
         SamusGlowPlay.RestartShowing(Rainbow, SamusGlowSegment.HyperBeamRainbow, RainbowGlowHold.Updates);
-        _suitShadeRestoreRequested = false;
+        _colouringStage = SpecialColouringStage.Showing;
     }
 
     /// <summary>
@@ -170,7 +170,7 @@ public sealed class SamusDrainedState
         RainbowGlowing = false;
         RainbowGlowHold = RainbowGlowHold.None;
         SamusGlowPlay.Restart(Rainbow, SamusGlowSegment.HyperBeamRainbow);
-        _suitShadeRestoreRequested = true;
+        _colouringStage = SpecialColouringStage.Ending;
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
     }
 
@@ -189,12 +189,12 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(colours);
 
-        if (_suitShadeRestoreRequested)
+        if (_colouringStage == SpecialColouringStage.Ending)
         {
             // The drained shade and the rainbow stop choose Gravity before Varia, then Power, as every
             // other path restoring Samus's suit shade does.
             SamusSuitShade.Show(colours, equippedItems);
-            _suitShadeRestoreRequested = false;
+            _colouringStage = SpecialColouringStage.Showing;
             return true;
         }
 
@@ -240,8 +240,8 @@ public sealed class SamusDrainedState
         // animation step appears.
         SamusPresentation.InitializeAnimation(samus, SamusDrainedAnimationDefinitions.FallInitialFrame);
         ClearBaseAndVerticalSpeed(samus);
-        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-        _suitShadeRestoreRequested = true;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.TurnedDownward();
+        _colouringStage = SpecialColouringStage.Ending;
         Phase = DrainedSamusPhase.WaitingForFallingCue;
         // Letting her fall, standing her, crouching her and releasing her report themselves handled; their step
         // then shifts history even when the pose is unchanged. Enabling the Hyper Beam does not.
@@ -284,8 +284,8 @@ public sealed class SamusDrainedState
         BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out _, out bool downwardDisplacement);
 
         // Generic Y movement has already applied gravity when it reports the collision.
-        // Capture the exact magnitude before the landing erases it for on-floor art.
-        UnsignedSixteenSixteen impactYSpeed = samus.Kinematics.YSpeed;
+        // Capture the exact velocity before the landing erases its speed for on-floor art.
+        SamusVerticalVelocity impact = samus.Kinematics.VerticalVelocity;
 
         if (vertical.Collided)
         {
@@ -294,13 +294,13 @@ public sealed class SamusDrainedState
             // direction and does not select a new pose.
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.LandingFrame,
                 timer: SamusDrainedAnimationDefinitions.LandingTimer);
-            samus.Kinematics.YSpeed = default;
+            samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
             Phase = DrainedSamusPhase.OnFloor;
         }
 
         return new DrainedSamusMovementResult(
             downwardDisplacement && vertical.Collided,
-            impactYSpeed);
+            impact);
     }
 
     /// <summary>Stands drained Samus up.</summary>
@@ -318,7 +318,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>Puts drained Samus back into the drained crouch.</summary>
-    public void PutCrouchingOrFalling(SamusState samus)
+    public void CrouchDrained(SamusState samus)
     {
         Ensure.NotNull(samus);
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
@@ -347,7 +347,7 @@ public sealed class SamusDrainedState
         // every pose here.
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         ClearBaseAndVerticalSpeed(samus);
-        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.TurnedDownward();
         Phase = DrainedSamusPhase.Releasing;
         samus.CommitPoseHistory();
     }
@@ -365,7 +365,7 @@ public sealed class SamusDrainedState
             SamusBeamFlags.Plasma;
         samus.HyperBeamEnabled = true;
         HyperBeamColourEffect = new();
-        samus.ResumeChargingBeamSoundPending = false;
+        samus.ChargingSound.Cancel();
     }
 
     /// <summary>Ends the Samus-side drain lock after release art reaches its transition to the facing standing pose.</summary>
@@ -392,7 +392,7 @@ public sealed class SamusDrainedState
     private static void ClearBaseAndVerticalSpeed(SamusState samus)
     {
         samus.HorizontalSpeed.BaseSpeed = default;
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
     }
 
 }

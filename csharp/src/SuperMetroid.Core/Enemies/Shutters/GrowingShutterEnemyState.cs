@@ -55,7 +55,7 @@ public sealed class GrowingShutterEnemyState
     /// <param name="level">The growth level, 0 through 3.</param>
     private int SectionOriginY(int level) =>
         SpawnY + Ensure.BetweenInclusive(0, SectionCount - 1, level) *
-            (Growth == VerticalDirection.Up ? -SectionOriginSpacing : SectionOriginSpacing);
+            (SectionOriginSpacing.Toward(Growth));
 
     /// <summary>Number of completed growth sections: zero through four, where four is the fully grown terminal state.</summary>
     public int GrowthLevel

@@ -1267,168 +1267,168 @@ public enum EnemyProjectileFrameId
     MagdolliteLavaLeft,
     /// <summary>A Magdollite's lava: thrown right.</summary>
     MagdolliteLavaRight,
-    /// <summary>Misc dust: four sparks gathering in from their widest spread.</summary>
-    MiscDustSparksGathering,
-    /// <summary>Misc dust: four sparks drawing in.</summary>
-    MiscDustSparksDrawingIn,
-    /// <summary>Misc dust: four sparks closing in.</summary>
-    MiscDustSparksClosingIn,
-    /// <summary>Misc dust: four sparks converging.</summary>
-    MiscDustSparksConverging,
-    /// <summary>Misc dust: four sparks nearly met.</summary>
-    MiscDustSparksNearing,
-    /// <summary>Misc dust: four sparks meeting at their closest.</summary>
-    MiscDustSparksMeeting,
-    /// <summary>Misc dust: four sparks set the other way round, gathering in from their widest spread.</summary>
-    MiscDustSparksTwistedGathering,
-    /// <summary>Misc dust: four sparks set the other way round, drawing in.</summary>
-    MiscDustSparksTwistedDrawingIn,
-    /// <summary>Misc dust: four sparks set the other way round, closing in.</summary>
-    MiscDustSparksTwistedClosingIn,
-    /// <summary>Misc dust: four sparks set the other way round, converging.</summary>
-    MiscDustSparksTwistedConverging,
-    /// <summary>Misc dust: four sparks set the other way round, nearly met.</summary>
-    MiscDustSparksTwistedNearing,
-    /// <summary>Misc dust: four sparks set the other way round, meeting at their closest.</summary>
-    MiscDustSparksTwistedMeeting,
-    /// <summary>Misc dust: a small spark.</summary>
-    MiscDustSpark,
-    /// <summary>Misc dust: a small fireball.</summary>
-    MiscDustFireballSmall,
-    /// <summary>Misc dust: a large fireball.</summary>
-    MiscDustFireballLarge,
-    /// <summary>Misc dust: a fireball opening into a flaming ring.</summary>
-    MiscDustFlamingRing,
-    /// <summary>Misc dust: a starburst of flame.</summary>
-    MiscDustStarburst,
-    /// <summary>Misc dust: scattering embers.</summary>
-    MiscDustEmbers,
-    /// <summary>Misc dust: a small green orb.</summary>
-    MiscDustGreenOrbSmall,
-    /// <summary>Misc dust: a green orb.</summary>
-    MiscDustGreenOrb,
-    /// <summary>Misc dust: a green ring around a dark green core.</summary>
-    MiscDustGreenRingCored,
-    /// <summary>Misc dust: a thick green ring around a dark green core.</summary>
-    MiscDustGreenRingThick,
-    /// <summary>Misc dust: a green ring.</summary>
-    MiscDustGreenRing,
-    /// <summary>Misc dust: a glint of light.</summary>
-    MiscDustFlareGlint,
-    /// <summary>Misc dust: a small glow.</summary>
-    MiscDustFlareGlow,
-    /// <summary>Misc dust: a ball of light.</summary>
-    MiscDustFlareBall,
-    /// <summary>Misc dust: a ring of light around a burning core.</summary>
-    MiscDustFlareRingCored,
-    /// <summary>Misc dust: a ring of light.</summary>
-    MiscDustFlareRing,
-    /// <summary>Misc dust: a fading ring of light.</summary>
-    MiscDustFlareRingFading,
-    /// <summary>Misc dust: a small puff of dust.</summary>
-    MiscDustPuff,
-    /// <summary>Misc dust: a cloud of dust.</summary>
-    MiscDustCloud,
-    /// <summary>Misc dust: a cloud of dust thinning.</summary>
-    MiscDustCloudThinning,
-    /// <summary>Misc dust: a thin cloud of dust.</summary>
-    MiscDustCloudThin,
-    /// <summary>Misc dust: a faint cloud of dust.</summary>
-    MiscDustCloudFaint,
-    /// <summary>Misc dust: a smaller puff of dust.</summary>
-    MiscDustPuffSmall,
-    /// <summary>Misc dust: a thin puff of dust.</summary>
-    MiscDustPuffThin,
-    /// <summary>Misc dust: a faint puff of dust.</summary>
-    MiscDustPuffFaint,
-    /// <summary>Misc dust: a low puff of smoke.</summary>
-    MiscDustSmokePuffLow,
-    /// <summary>Misc dust: a puff of smoke rising in specks.</summary>
-    MiscDustSmokePuffRising,
-    /// <summary>Misc dust: a puff of smoke scattering.</summary>
-    MiscDustSmokePuffScattering,
-    /// <summary>Misc dust: a fading puff of smoke.</summary>
-    MiscDustSmokePuffFading,
-    /// <summary>Misc dust: a cloud of fire.</summary>
-    MiscDustFireCloud,
-    /// <summary>Misc dust: a cloud of fire spreading.</summary>
-    MiscDustFireCloudSpreading,
-    /// <summary>Misc dust: a cloud of fire breaking up.</summary>
-    MiscDustFireCloudBreaking,
-    /// <summary>Misc dust: the embers of a cloud of fire.</summary>
-    MiscDustFireCloudEmbers,
-    /// <summary>Misc dust: a huge fireball with a ring inside it.</summary>
-    MiscDustFireballHuge,
-    /// <summary>Misc dust: a wide ring of fire.</summary>
-    MiscDustWideRing,
-    /// <summary>Misc dust: a wide, fading ring of fire.</summary>
-    MiscDustWideRingFading,
-    /// <summary>Misc dust: four glowing pebbles bursting from the blast, close together.</summary>
-    MiscDustPebblesBursting,
-    /// <summary>Misc dust: four glowing pebbles flying out from the blast.</summary>
-    MiscDustPebblesFlyingOut,
-    /// <summary>Misc dust: four glowing pebbles flying apart, the upper pair climbing.</summary>
-    MiscDustPebblesFlyingApart,
-    /// <summary>Misc dust: four glowing pebbles climbing as they spread.</summary>
-    MiscDustPebblesClimbing,
-    /// <summary>Misc dust: four glowing pebbles slowing as they near their highest.</summary>
-    MiscDustPebblesSlowing,
-    /// <summary>Misc dust: four glowing pebbles at their highest.</summary>
-    MiscDustPebblesPeaking,
-    /// <summary>Misc dust: four cooling pebbles turning over to fall.</summary>
-    MiscDustPebblesTurningOver,
-    /// <summary>Misc dust: four cooling pebbles starting down.</summary>
-    MiscDustPebblesStartingDown,
-    /// <summary>Misc dust: four cooling pebbles dropping, darker.</summary>
-    MiscDustPebblesDropping,
-    /// <summary>Misc dust: four cooling pebbles falling as they spread.</summary>
-    MiscDustPebblesFalling,
-    /// <summary>Misc dust: four pebbles cooled to ash, falling on.</summary>
-    MiscDustPebblesTurningAshen,
-    /// <summary>Misc dust: four ashen pebbles tumbling down.</summary>
-    MiscDustPebblesTumbling,
-    /// <summary>Misc dust: four ashen pebbles plunging.</summary>
-    MiscDustPebblesPlunging,
-    /// <summary>Misc dust: four ashen pebbles plummeting.</summary>
-    MiscDustPebblesPlummeting,
-    /// <summary>Misc dust: four ashen pebbles scattering wide as they fall.</summary>
-    MiscDustPebblesScattering,
-    /// <summary>Misc dust: four ashen pebbles falling away at their widest.</summary>
-    MiscDustPebblesFallingAway,
-    /// <summary>Misc dust: a small puff of dust up and to the left.</summary>
-    MiscDustPuffUpLeft,
-    /// <summary>Misc dust: a puff of dust and a smaller one.</summary>
-    MiscDustPuffPair,
-    /// <summary>Misc dust: three puffs of dust.</summary>
-    MiscDustPuffTrio,
-    /// <summary>Misc dust: dense clouds of dust.</summary>
-    MiscDustCloudsDense,
-    /// <summary>Misc dust: clouds of dust thinning.</summary>
-    MiscDustCloudsThinning,
-    /// <summary>Misc dust: thin clouds of dust.</summary>
-    MiscDustCloudsThin,
-    /// <summary>Misc dust: faint clouds of dust.</summary>
-    MiscDustCloudsFaint,
-    /// <summary>Misc dust: a faint cloud of dust to the right.</summary>
-    MiscDustCloudFaintRight,
-    /// <summary>Misc dust: a small bubble.</summary>
-    MiscDustBubbleSmall,
-    /// <summary>Misc dust: a cluster of bubbles.</summary>
-    MiscDustBubbles,
-    /// <summary>Misc dust: bubbles rising.</summary>
-    MiscDustBubblesRising,
-    /// <summary>Misc dust: bubbles spreading.</summary>
-    MiscDustBubblesSpreading,
-    /// <summary>Misc dust: scattered bubbles.</summary>
-    MiscDustBubblesScattered,
-    /// <summary>Misc dust: sparse bubbles.</summary>
-    MiscDustBubblesSparse,
-    /// <summary>Misc dust: a few bubbles.</summary>
-    MiscDustBubblesFew,
-    /// <summary>Misc dust: the last bubbles.</summary>
-    MiscDustBubblesLast,
-    /// <summary>Misc dust: one faint speck.</summary>
-    MiscDustSpeck,
+    /// <summary>A dust explosion: four sparks gathering in from their widest spread.</summary>
+    DustExplosionSparksGathering,
+    /// <summary>A dust explosion: four sparks drawing in.</summary>
+    DustExplosionSparksDrawingIn,
+    /// <summary>A dust explosion: four sparks closing in.</summary>
+    DustExplosionSparksClosingIn,
+    /// <summary>A dust explosion: four sparks converging.</summary>
+    DustExplosionSparksConverging,
+    /// <summary>A dust explosion: four sparks nearly met.</summary>
+    DustExplosionSparksNearing,
+    /// <summary>A dust explosion: four sparks meeting at their closest.</summary>
+    DustExplosionSparksMeeting,
+    /// <summary>A dust explosion: four sparks set the other way round, gathering in from their widest spread.</summary>
+    DustExplosionSparksTwistedGathering,
+    /// <summary>A dust explosion: four sparks set the other way round, drawing in.</summary>
+    DustExplosionSparksTwistedDrawingIn,
+    /// <summary>A dust explosion: four sparks set the other way round, closing in.</summary>
+    DustExplosionSparksTwistedClosingIn,
+    /// <summary>A dust explosion: four sparks set the other way round, converging.</summary>
+    DustExplosionSparksTwistedConverging,
+    /// <summary>A dust explosion: four sparks set the other way round, nearly met.</summary>
+    DustExplosionSparksTwistedNearing,
+    /// <summary>A dust explosion: four sparks set the other way round, meeting at their closest.</summary>
+    DustExplosionSparksTwistedMeeting,
+    /// <summary>A dust explosion: a small spark.</summary>
+    DustExplosionSpark,
+    /// <summary>A dust explosion: a small fireball.</summary>
+    DustExplosionFireballSmall,
+    /// <summary>A dust explosion: a large fireball.</summary>
+    DustExplosionFireballLarge,
+    /// <summary>A dust explosion: a fireball opening into a flaming ring.</summary>
+    DustExplosionFlamingRing,
+    /// <summary>A dust explosion: a starburst of flame.</summary>
+    DustExplosionStarburst,
+    /// <summary>A dust explosion: scattering embers.</summary>
+    DustExplosionEmbers,
+    /// <summary>A dust explosion: a small green orb.</summary>
+    DustExplosionGreenOrbSmall,
+    /// <summary>A dust explosion: a green orb.</summary>
+    DustExplosionGreenOrb,
+    /// <summary>A dust explosion: a green ring around a dark green core.</summary>
+    DustExplosionGreenRingCored,
+    /// <summary>A dust explosion: a thick green ring around a dark green core.</summary>
+    DustExplosionGreenRingThick,
+    /// <summary>A dust explosion: a green ring.</summary>
+    DustExplosionGreenRing,
+    /// <summary>A dust explosion: a glint of light.</summary>
+    DustExplosionFlareGlint,
+    /// <summary>A dust explosion: a small glow.</summary>
+    DustExplosionFlareGlow,
+    /// <summary>A dust explosion: a ball of light.</summary>
+    DustExplosionFlareBall,
+    /// <summary>A dust explosion: a ring of light around a burning core.</summary>
+    DustExplosionFlareRingCored,
+    /// <summary>A dust explosion: a ring of light.</summary>
+    DustExplosionFlareRing,
+    /// <summary>A dust explosion: a fading ring of light.</summary>
+    DustExplosionFlareRingFading,
+    /// <summary>A dust explosion: a small puff of dust.</summary>
+    DustExplosionPuff,
+    /// <summary>A dust explosion: a cloud of dust.</summary>
+    DustExplosionCloud,
+    /// <summary>A dust explosion: a cloud of dust thinning.</summary>
+    DustExplosionCloudThinning,
+    /// <summary>A dust explosion: a thin cloud of dust.</summary>
+    DustExplosionCloudThin,
+    /// <summary>A dust explosion: a faint cloud of dust.</summary>
+    DustExplosionCloudFaint,
+    /// <summary>A dust explosion: a smaller puff of dust.</summary>
+    DustExplosionPuffSmall,
+    /// <summary>A dust explosion: a thin puff of dust.</summary>
+    DustExplosionPuffThin,
+    /// <summary>A dust explosion: a faint puff of dust.</summary>
+    DustExplosionPuffFaint,
+    /// <summary>A dust explosion: a low puff of smoke.</summary>
+    DustExplosionSmokePuffLow,
+    /// <summary>A dust explosion: a puff of smoke rising in specks.</summary>
+    DustExplosionSmokePuffRising,
+    /// <summary>A dust explosion: a puff of smoke scattering.</summary>
+    DustExplosionSmokePuffScattering,
+    /// <summary>A dust explosion: a fading puff of smoke.</summary>
+    DustExplosionSmokePuffFading,
+    /// <summary>A dust explosion: a cloud of fire.</summary>
+    DustExplosionFireCloud,
+    /// <summary>A dust explosion: a cloud of fire spreading.</summary>
+    DustExplosionFireCloudSpreading,
+    /// <summary>A dust explosion: a cloud of fire breaking up.</summary>
+    DustExplosionFireCloudBreaking,
+    /// <summary>A dust explosion: the embers of a cloud of fire.</summary>
+    DustExplosionFireCloudEmbers,
+    /// <summary>A dust explosion: a huge fireball with a ring inside it.</summary>
+    DustExplosionFireballHuge,
+    /// <summary>A dust explosion: a wide ring of fire.</summary>
+    DustExplosionWideRing,
+    /// <summary>A dust explosion: a wide, fading ring of fire.</summary>
+    DustExplosionWideRingFading,
+    /// <summary>A dust explosion: four glowing pebbles bursting from the blast, close together.</summary>
+    DustExplosionPebblesBursting,
+    /// <summary>A dust explosion: four glowing pebbles flying out from the blast.</summary>
+    DustExplosionPebblesFlyingOut,
+    /// <summary>A dust explosion: four glowing pebbles flying apart, the upper pair climbing.</summary>
+    DustExplosionPebblesFlyingApart,
+    /// <summary>A dust explosion: four glowing pebbles climbing as they spread.</summary>
+    DustExplosionPebblesClimbing,
+    /// <summary>A dust explosion: four glowing pebbles slowing as they near their highest.</summary>
+    DustExplosionPebblesSlowing,
+    /// <summary>A dust explosion: four glowing pebbles at their highest.</summary>
+    DustExplosionPebblesPeaking,
+    /// <summary>A dust explosion: four cooling pebbles turning over to fall.</summary>
+    DustExplosionPebblesTurningOver,
+    /// <summary>A dust explosion: four cooling pebbles starting down.</summary>
+    DustExplosionPebblesStartingDown,
+    /// <summary>A dust explosion: four cooling pebbles dropping, darker.</summary>
+    DustExplosionPebblesDropping,
+    /// <summary>A dust explosion: four cooling pebbles falling as they spread.</summary>
+    DustExplosionPebblesFalling,
+    /// <summary>A dust explosion: four pebbles cooled to ash, falling on.</summary>
+    DustExplosionPebblesTurningAshen,
+    /// <summary>A dust explosion: four ashen pebbles tumbling down.</summary>
+    DustExplosionPebblesTumbling,
+    /// <summary>A dust explosion: four ashen pebbles plunging.</summary>
+    DustExplosionPebblesPlunging,
+    /// <summary>A dust explosion: four ashen pebbles plummeting.</summary>
+    DustExplosionPebblesPlummeting,
+    /// <summary>A dust explosion: four ashen pebbles scattering wide as they fall.</summary>
+    DustExplosionPebblesScattering,
+    /// <summary>A dust explosion: four ashen pebbles falling away at their widest.</summary>
+    DustExplosionPebblesFallingAway,
+    /// <summary>A dust explosion: a small puff of dust up and to the left.</summary>
+    DustExplosionPuffUpLeft,
+    /// <summary>A dust explosion: a puff of dust and a smaller one.</summary>
+    DustExplosionPuffPair,
+    /// <summary>A dust explosion: three puffs of dust.</summary>
+    DustExplosionPuffTrio,
+    /// <summary>A dust explosion: dense clouds of dust.</summary>
+    DustExplosionCloudsDense,
+    /// <summary>A dust explosion: clouds of dust thinning.</summary>
+    DustExplosionCloudsThinning,
+    /// <summary>A dust explosion: thin clouds of dust.</summary>
+    DustExplosionCloudsThin,
+    /// <summary>A dust explosion: faint clouds of dust.</summary>
+    DustExplosionCloudsFaint,
+    /// <summary>A dust explosion: a faint cloud of dust to the right.</summary>
+    DustExplosionCloudFaintRight,
+    /// <summary>A dust explosion: a small bubble.</summary>
+    DustExplosionBubbleSmall,
+    /// <summary>A dust explosion: a cluster of bubbles.</summary>
+    DustExplosionBubbles,
+    /// <summary>A dust explosion: bubbles rising.</summary>
+    DustExplosionBubblesRising,
+    /// <summary>A dust explosion: bubbles spreading.</summary>
+    DustExplosionBubblesSpreading,
+    /// <summary>A dust explosion: scattered bubbles.</summary>
+    DustExplosionBubblesScattered,
+    /// <summary>A dust explosion: sparse bubbles.</summary>
+    DustExplosionBubblesSparse,
+    /// <summary>A dust explosion: a few bubbles.</summary>
+    DustExplosionBubblesFew,
+    /// <summary>A dust explosion: the last bubbles.</summary>
+    DustExplosionBubblesLast,
+    /// <summary>A dust explosion: one faint speck.</summary>
+    DustExplosionSpeck,
     /// <summary>A downward gate: one block tall.</summary>
     DownwardGateOneBlockTall,
     /// <summary>A downward gate: two blocks tall.</summary>

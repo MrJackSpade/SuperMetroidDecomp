@@ -328,7 +328,7 @@ Implemented room infrastructure includes:
   resource/world-state mutation, and selected-slot SRAM persistence;
 - collision-bomb, projectile-bombable, shootable, special-bomb, and breakable-grapple block
   PLMs, including permanent and respawning variants; and
-- translated encounter mutations for Bomb Torizo, Spore Spawn, Botwoon, Crocomire, Shitroid,
+- translated encounter mutations for Bomb Torizo, Spore Spawn, Botwoon, Crocomire, Baby Metroid,
   and Mother Brain.
 
 Room loading now consumes immutable decoded PLM placements exactly once in native order. Core

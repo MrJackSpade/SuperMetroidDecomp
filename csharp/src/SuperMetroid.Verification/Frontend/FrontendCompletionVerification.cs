@@ -276,11 +276,6 @@ internal static void VerifyDoorOpeningTrajectories()
         for (int frame = 0; frame < expectedFrames; frame++)
         {
             bool completed = trajectory.Advance();
-            if (direction == 3)
-            {
-                AssertEqual(frame >= 3, trajectory.RecalculatesScrollAfterAdvance,
-                    $"up-door counter {frame + 2} streaming gate");
-            }
             AssertEqual(frame == expectedFrames - 1, completed,
                 $"door direction {direction} completion call");
             AssertEqual(cameraStep, trajectory.CameraPosition - previousCamera,
@@ -425,7 +420,7 @@ internal static void VerifyEndingCreditsState()
             CollectedBeams: SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma), JapaneseText = false, Text = RetailPresentationFixture().EndingText }, EndingTextSequence.ItemPercentage);
     for (int frame = 0; frame < 4_000 && !percentage.Completed; frame++)
         percentage.Step();
-    AssertTrue(percentage.Completed && percentage.RequestedItemPercentageScroll,
+    AssertTrue(percentage.Completed && percentage.TypesItemPercentage,
         "item-percentage object reaches its native scroll handoff");
     // The digits and the percent sign are pictures shown left to right from the hundreds digit's corner (#1467, #1555).
     EndingShownText[] digits = [.. percentage.Shown().Where(text => text.Corner.Y == EndingResultTextLayout.PercentageHundredsCorner.Y)];

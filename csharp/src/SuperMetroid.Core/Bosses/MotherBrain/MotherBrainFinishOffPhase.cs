@@ -4,7 +4,7 @@
 public enum MotherBrainFinishOffPhase
 {
     /// <summary>Uses suit-adjusted health thresholds and sampled RNG to choose onion rings/bombs until Samus reaches the intended low-health floor.</summary>
-    GetSamusToLowEnergy,
+    AttackUntilSamusIsLow,
 
     /// <summary>Waits for standing, then immediately enters the admiration pause.</summary>
     StandUp,

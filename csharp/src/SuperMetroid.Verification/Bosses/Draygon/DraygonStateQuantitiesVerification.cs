@@ -72,11 +72,11 @@ internal static class DraygonStateQuantitiesVerification
         (_, DraygonEnemyState state) = NewDraygon();
         state.SwoopVelocity = default;
         state.GoopYOscillationAngle = RotationAngle.FromSteps(byte.MaxValue);
-        DraygonGoop.MoveDraygonAlongGoopPath(state, HorizontalDirection.Right);
+        DraygonGoop.MoveDraygonAlongGoopPath(state);
         AssertEqual(unchecked((ushort)(384 + EnemyMath.CircleCosinePixels(new TrigonometryAngle(byte.MaxValue), 32))), state.Body.Position.Y.Whole,
             "the bob reads the phase before advancing it");
         AssertEqual(RotationAngle.Zero, state.GoopYOscillationAngle, "the phase wraps from the last table unit to zero");
-        DraygonGoop.MoveDraygonAlongGoopPath(state, HorizontalDirection.Right);
+        DraygonGoop.MoveDraygonAlongGoopPath(state);
         AssertEqual(unchecked((ushort)(384 + EnemyMath.CircleCosinePixels(new TrigonometryAngle(0), 32))), state.Body.Position.Y.Whole,
             "the next bob reads the wrapped phase");
         AssertEqual(1, (int)state.GoopYOscillationAngle.ToTrigonometryAngle().RawValue, "the wrapped phase advances by one unit");
@@ -189,7 +189,7 @@ internal static class DraygonStateQuantitiesVerification
         AssertEqual(state.Body.Position.Y.Whole, path.HeightAt(expected.Count), "the path ends at the body's height");
         AssertThrows<ArgumentOutOfRangeException>(() => path.HeightAt(expected.Count + 1), "the path has no height past its starting height");
         uint velocity = SixteenSixteenWords.FromWhole((uint)Math.Abs(CoordinateAxis.AsSigned(unchecked(resetX - 200)))) / (uint)expected.Count;
-        AssertEqual(velocity, state.SwoopVelocity.RawValue, "swoop horizontal speed");
+        AssertEqual((int)velocity, state.SwoopVelocity.RawValue, "the rightward swoop's horizontal velocity");
         AssertEqual(expected.Count, state.SwoopHalf.UpdatesLeft, "the descent starts at the swoop's starting height");
     }
 

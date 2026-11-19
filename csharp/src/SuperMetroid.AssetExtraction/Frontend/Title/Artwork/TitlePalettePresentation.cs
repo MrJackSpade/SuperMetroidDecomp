@@ -22,17 +22,17 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     /// <param name="colours">The selected initial colours in the cartridge's order, which the import pipeline decoded.</param>
     /// <param name="animatedColors">Every installed ambient-program colour.</param>
     /// <param name="skipCopyrightWhite">The selected skip-only white.</param>
-    /// <param name="skipCopyrightRed">The selected skip-only red.</param>
+    /// <param name="skipCopyrightTint">The selected skip-only copyright tint.</param>
     internal TitlePalettePresentation(
         ImmutableArray<RgbColor> colours,
         Dictionary<PaletteFxColorKey, RgbColor> animatedColors,
         RgbColor skipCopyrightWhite,
-        RgbColor skipCopyrightRed)
+        RgbColor skipCopyrightTint)
     {
         this.colours = colours;
         this.animatedColors = animatedColors;
         SkipCopyrightWhite = skipCopyrightWhite;
-        SkipCopyrightRed = skipCopyrightRed;
+        SkipCopyrightTint = skipCopyrightTint;
     }
 
     /// <summary>The selected initial colours: the background colours, then the sprite colours, in the cartridge's order.</summary>
@@ -40,8 +40,8 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
 
     /// <summary>Selected copyright white the title fast-skip route restores to the copyright glyph's white.</summary>
     public RgbColor SkipCopyrightWhite { get; }
-    /// <summary>Selected copyright tint the fast skip restores to the copyright glyph's red; the legacy Red name does not restrict its channels.</summary>
-    public RgbColor SkipCopyrightRed { get; }
+    /// <summary>The copyright glyph's tint the fast skip restores.</summary>
+    public RgbColor SkipCopyrightTint { get; }
     /// <summary>
     /// The colour the title shows behind its floor and objects, where nothing is drawn: its first background colour (#1512),
     /// which the import records in the scene colours.

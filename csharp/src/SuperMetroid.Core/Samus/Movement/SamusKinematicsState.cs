@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Poses;
 
@@ -22,10 +23,11 @@ public sealed class SamusKinematicsState
     private readonly Dictionary<SamusCollisionDirection, ISolidEnemy> _solidEnemyContacts = [];
 
     /// <summary>
-    /// The solid enemy Samus's latest wall jump launched from, waiting for the next enemy pass to shake it; null when no
-    /// launch from an enemy waits. It names an enemy of the room it was made in, which withdraws it when it unloads.
+    /// The solid enemy Samus's latest wall jump launched from, which the next enemy pass shakes. Each wall-jump check
+    /// withdraws a waiting launch before it looks for a new one; it names an enemy of the room it was made in, which
+    /// withdraws it when it unloads.
     /// </summary>
-    private ISolidEnemy? _wallJumpLaunchEnemy;
+    internal WallJumpLaunchShake<ISolidEnemy> WallJumpLaunch { get; } = new();
 
     /// <summary>
     /// Contact-damage snapshot for ownerless geometry probes. Sand still reads this
@@ -52,8 +54,7 @@ public sealed class SamusKinematicsState
         var probe = new SamusKinematicsState { ProbeBodyAttack = ProbeBodyAttack };
         probe.Position = Position;
         probe.Radius = Radius;
-        probe.YSpeed = YSpeed;
-        probe.YDirection = YDirection;
+        probe.VerticalVelocity = VerticalVelocity;
         probe.YAcceleration = YAcceleration;
         probe.PositionAdjustedBySlope = PositionAdjustedBySlope;
         // Probes still call the solid-enemy detector before blocks. The
@@ -98,21 +99,20 @@ public sealed class SamusKinematicsState
     /// </summary>
     public Extent16<RoomPixels> Radius { get; set; } = new(SamusPoseCollisionDefinitions.HorizontalRadius, 0);
 
-    /// <summary>Vertical speed magnitude; its direction is <see cref="YDirection"/>.</summary>
-    public UnsignedSixteenSixteen YSpeed { get; set; }
-
     /// <summary>
-    /// Vertical direction: <see cref="SamusVerticalDirection.None"/>, <see cref="SamusVerticalDirection.Up"/> or
-    /// <see cref="SamusVerticalDirection.Down"/>. Vertical speed is a magnitude with this separate direction;
-    /// treating upward velocity as a negative number would lose the quirks of a speed passing zero
-    /// in the vertical move and the jump-release test.
+    /// Her vertical velocity (#2569): one value holding how fast she moves vertically and which way, whose rest and apex
+    /// readings the vertical moves and the jump-release test depend on (<see cref="SamusVerticalVelocity"/>).
     /// </summary>
-    public SamusVerticalDirection YDirection { get; set; }
+    public SamusVerticalVelocity VerticalVelocity { get; set; }
 
     /// <summary>The gravity applied to vertical speed.</summary>
     public UnsignedSixteenSixteen YAcceleration { get; set; }
 
-    /// <summary>Flag set when square collision or non-square alignment changes Y.</summary>
+    /// <summary>
+    /// Whether a slope supports her: a downward square-slope clip or a horizontal move's slope alignment leaves her supported,
+    /// which the next vertical move without speed reads for its one-pixel grounding probe, and the next terrain Y move of
+    /// some distance ends.
+    /// </summary>
     public bool PositionAdjustedBySlope { get; set; }
 
     /// <summary>
@@ -127,6 +127,12 @@ public sealed class SamusKinematicsState
     /// </summary>
     public Position16<RoomPixels> BottomPixel =>
         new(Position.X.Whole, TerrainScanEdges.Edge(BottomBoundary - 1));
+
+    /// <summary>A downward square-slope clip, or a horizontal move's alignment that adjusted her height, leaves her supported.</summary>
+    internal void RestOnSlope() => PositionAdjustedBySlope = true;
+
+    /// <summary>A terrain Y move of some distance ends the slope's support.</summary>
+    internal void LeaveSlope() => PositionAdjustedBySlope = false;
 
     /// <summary>Publishes the result of one directional solid-enemy probe: the enemy met, or null.</summary>
     internal void RecordSolidEnemyCollision(
@@ -153,12 +159,7 @@ public sealed class SamusKinematicsState
     internal bool DidCollideWithSolidEnemy(ISolidEnemy enemy)
     {
         Ensure.NotNull(enemy);
-        foreach (ISolidEnemy contact in _solidEnemyContacts.Values)
-        {
-            if (ReferenceEquals(contact, enemy))
-                return true;
-        }
-        return false;
+        return _solidEnemyContacts.Values.Any(contact => ReferenceEquals(contact, enemy));
     }
 
     /// <summary>Forgets every direction's contact, as the end of the enemy pass does.</summary>
@@ -171,24 +172,7 @@ public sealed class SamusKinematicsState
     /// </summary>
     internal void ForgetUnloadedRoomEnemies()
     {
-        WithdrawWallJumpLaunchShake();
+        WallJumpLaunch.Withdraw();
         ClearSolidEnemyCollisions();
-    }
-
-    /// <summary>Asks the next enemy pass to shake <paramref name="launchedFrom"/>, which a wall jump has just launched from.</summary>
-    internal void RequestWallJumpLaunchShake(ISolidEnemy launchedFrom) => _wallJumpLaunchEnemy = Ensure.NotNull(launchedFrom);
-
-    /// <summary>
-    /// Withdraws a waiting launch's shake, as each wall-jump check does before it looks for a new launch, and as a room
-    /// does when it unloads with the enemy the launch named.
-    /// </summary>
-    internal void WithdrawWallJumpLaunchShake() => _wallJumpLaunchEnemy = null;
-
-    /// <summary>Takes the enemy a wall jump launched from for the enemy pass to shake, leaving none waiting.</summary>
-    internal ISolidEnemy? TakeWallJumpLaunchShake()
-    {
-        ISolidEnemy? launchedFrom = _wallJumpLaunchEnemy;
-        _wallJumpLaunchEnemy = null;
-        return launchedFrom;
     }
 }

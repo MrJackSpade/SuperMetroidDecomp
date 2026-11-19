@@ -55,7 +55,7 @@ internal static class EndingSnapshotTestsVerification
                 // The live ending's frame this update, captured once for every check of it: a capture does not advance the
                 // ending, which the capture-only control checks below (#1532).
                 LayeredScene? liveScene = null;
-                LayeredScene Live() => liveScene ??= EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                LayeredScene Live() => liveScene ??= EndingCreditsPresentation.ComposeScene(legacy);
                 if (previousPacket is not null)
                     AssertTrue(previousHeld.AsSpan().SequenceEqual(GraphDigest(previousPacket)),
                         "ending packet survives subsequent palette/tile/sprite updates");
@@ -380,7 +380,7 @@ internal static class EndingSnapshotTestsVerification
                     // an accidental producer-side mutation introduced by extraction.
                     var expected = new DisplayPacket(tick, Live());
                     samples++;
-                    packet = new(tick, EndingCreditsPresentation.CaptureRenderSnapshot(captured));
+                    packet = new(tick, EndingCreditsPresentation.ComposeScene(captured));
                     held = GraphDigest(packet);
                     AssertTrue(ScenePixels.Same(expected, packet),
                         $"ending reward {hours}, phase {legacy.Phase}, tick {tick} pixel parity");
@@ -399,8 +399,8 @@ internal static class EndingSnapshotTestsVerification
             AssertTrue(burstDisplayFrames > 10, "ending executes the callback-driven explosion burst before its finale");
             AssertTrue(phases.Contains(EndingCreditsPhase.Credits) && phases.Contains(EndingCreditsPhase.PostCreditsReward)
                 && phases.Contains(EndingCreditsPhase.ZebesExplosionAnimation), "ending covers all composition families");
-            LayeredScene final = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-            LayeredScene retained = EndingCreditsPresentation.CaptureRenderSnapshot(captured);
+            LayeredScene final = EndingCreditsPresentation.ComposeScene(legacy);
+            LayeredScene retained = EndingCreditsPresentation.ComposeScene(captured);
             AssertTrue(ScenePixels.Same(final, retained), "ending final packet shows the legacy frame's pixels");
             byte[] retainedHeld = GraphDigest(retained);
             for (int i = 0; i < 600; i++) captured.Step();

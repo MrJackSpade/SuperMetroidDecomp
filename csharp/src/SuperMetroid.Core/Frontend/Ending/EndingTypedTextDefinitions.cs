@@ -25,4 +25,8 @@ internal static class EndingTypedTextDefinitions
 
     /// <summary>The updates the whole clear time shows before the ending moves on to the credits.</summary>
     internal const int ClearTimeShownUpdates = 128;
+
+
+    /// <summary>The texts typed before the final message: one, the item percentage, which stays shown above it.</summary>
+    internal const int TypedBeforeFinalMessage = 1;
 }

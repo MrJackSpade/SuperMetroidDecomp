@@ -1,14 +1,15 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>Signs a Yard's crawling speed for its direction.</summary>
+/// <summary>A Yard's crawling velocity along its direction.</summary>
 public static class YardCrawlVelocity
 {
-    /// <summary>The crawl velocity <paramref name="speed"/> gives on each axis in <paramref name="direction"/>: the speed, or the speed reversed.</summary>
+    /// <summary>
+    /// The crawl velocity <paramref name="speed"/> gives in <paramref name="direction"/>: the speed taken toward the
+    /// direction's heading on each axis.
+    /// </summary>
     public static PixelVelocity<RoomPixels> Apply(SignedEightEight speed, YardDirection direction)
     {
-        SignedEightEight negative = speed.Negated();
         YardCrawlHeading heading = Ensure.Listed(YardVelocityDefinitions.Headings, direction);
-        return new(heading.Horizontal == HorizontalDirection.Left ? negative : speed,
-            heading.Vertical == VerticalDirection.Up ? negative : speed);
+        return new(speed.Toward(heading.Horizontal), speed.Toward(heading.Vertical));
     }
 }

@@ -84,21 +84,18 @@ internal sealed class MotherBrainHead
     /// <summary>Runs the head main/hurt entry and its brain action's choice of whether her brain and neck are drawn.</summary>
     internal static void RunMotherBrainHeadMain(RoomEnemyPlace head, MotherBrainEnemyState state, SamusState samus)
     {
-        // The head main first stops drawing her brain and neck; her brain's action then draws them again.
-        state.DrawBrain = false;
-        state.DrawNeck = false;
+        // Her brain's action decides whether her own draw shows her neck with her brain.
         switch (state.BrainAction)
         {
-            case MotherBrainBrainAction.SetupBrainToBeDrawn:
-                state.DrawBrain = true;
+            case MotherBrainBrainAction.ShowsBrainAlone:
+                state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainAlone;
                 return;
-            case MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn:
+            case MotherBrainBrainAction.ShowsBrainOnNeck:
                 StepMotherBrainNeck(
                     state,
                     samus);
                 head.Position = head.Position.WithWhole(state.Neck.BrainAnchor.Position + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
-                state.DrawBrain = true;
-                state.DrawNeck = true;
+                state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainOnNeck;
                 return;
             default:
                 throw new InvalidDataException(
@@ -126,10 +123,11 @@ internal sealed class MotherBrainHead
             SpawnMotherBrainPurpleBreathSmall(state);
         // The brain's animation plays at this draw, after every enemy's AI (MotherBrainBrainAnimation), and the whole draw
         // ends when the animation is not live.
-        if (AdvanceMotherBrainBrain(state, samus) is not EnemyFrameId brainFrame)
+        if (PlayMotherBrainBrain(state, samus) is not { } picture)
             return;
 
-        Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head);
+        EnemyFrameId brainFrame = picture.Frame;
+        Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head, picture.Shook);
         // The brain is published wherever it lies; the display clips it to the view (#1520).
         DrawMotherBrainWorldFrame(
             sprites,
@@ -175,7 +173,7 @@ internal sealed class MotherBrainHead
     /// <param name="frame">The frame, where it lies and its shading.</param>
     /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="corpseRows">The rows her rotting corpse shows, or none while she shows no rotting corpse.</param>
-    private void DrawMotherBrainWorldFrame(
+    internal void DrawMotherBrainWorldFrame(
         SpriteFrameBuffer sprites,
         SpriteSource source,
         MotherBrainWorldFrame frame,
@@ -193,13 +191,14 @@ internal sealed class MotherBrainHead
 
     /// <summary>
     /// Where her brain's shake places it at this draw: her brain's own shake, which this draw's play of her brain counted
-    /// down, while it was shaking; otherwise the shake her hurt flash or her shake timer paces.
+    /// down, while it was shaking (<paramref name="brainShook"/>); otherwise the shake her hurt flash or her shake timer paces.
     /// </summary>
     private static Offset16<RoomPixels> GetMotherBrainBrainShake(
         MotherBrainEnemyState state,
-        RoomEnemyPlace head)
+        RoomEnemyPlace head,
+        bool brainShook)
     {
-        if (state.BrainShake.ShookAtLastStep)
+        if (brainShook)
             return state.BrainShake.Offset;
 
         int paced = head.HurtFlash.IsRunning ? head.HurtFlash.UpdatesLeft : head.Shake.UpdatesLeft;
@@ -241,17 +240,27 @@ internal sealed class MotherBrainHead
     /// Once her late fight has begun its own cues act on it (#2471): her attacks on the Baby count, aim at and cry at the
     /// Baby it made.
     /// </remarks>
-    private EnemyFrameId? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)
+    internal EnemyFrameId? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus) =>
+        PlayMotherBrainBrain(state, samus)?.Frame;
+
+    /// <summary>
+    /// Plays her brain at her brain's draw as <see cref="AdvanceMotherBrainBrain"/> does, returning the picture it shows and
+    /// whether her brain's shake, which a shown picture counts down, was still shaking; null when the brain is not live.
+    /// </summary>
+    private MotherBrainBrainPicture? PlayMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)
     {
         EnemyFrameId? shown = state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, cue => (state.RainbowBeamSequence is { } lateFight
                 ? ApplyLateFightHeadCue(lateFight, samus, cue)
                 : ApplyMotherBrainHeadCue(state, samus, cue)) is { } segment
             ? new AnimationContinuation<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOfAnimation)
             : null);
-        if (shown is not null)
-            state.BrainShake.Step();
-        return shown;
+        return shown is { } frame ? new MotherBrainBrainPicture(frame, state.BrainShake.Step()) : null;
     }
+
+    /// <summary>A picture her brain's draw shows and whether her brain's shake counted one of its updates off for it.</summary>
+    /// <param name="Frame">The picture.</param>
+    /// <param name="Shook">Whether her brain's shake was still shaking when the picture counted an update off it.</param>
+    private readonly record struct MotherBrainBrainPicture(EnemyFrameId Frame, bool Shook);
 
     /// <summary>
     /// Carries out one event of a brain animation in her late fight: the cues of her attacks on the Baby act on
@@ -415,7 +424,7 @@ internal sealed class MotherBrainHead
     /// Runs the head's onion-ring step and the ring's setup. The ring takes its enemy-projectile place after the twelve
     /// room turrets and all lingering drool have theirs, so no ring appears when every place is held.
     /// </summary>
-    private void SpawnMotherBrainOnionRing(
+    internal void SpawnMotherBrainOnionRing(
         MotherBrainEnemyState state,
         TrigonometryAngle angle)
     {
@@ -441,7 +450,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Runs the head's drool step and the drool's setup.</summary>
-    private void SpawnMotherBrainDrool(MotherBrainEnemyState state)
+    internal void SpawnMotherBrainDrool(MotherBrainEnemyState state)
     {
         if (!state.DroolGenerationEnabled)
             return;
@@ -507,7 +516,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Spawns the rainbow beam's charge glow, pinned to her head in the update it spawns.</summary>
-    private void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
+    internal void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

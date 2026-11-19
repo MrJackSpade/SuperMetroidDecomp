@@ -192,7 +192,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SignedEightEight launchSpeed = source.SpawnSettings<FuneNamiheSpawnSettings>().LaunchSpeed;
         projectile.Velocity = new(
-            direction == HorizontalDirection.Right ? launchSpeed : launchSpeed.Negated(),
+            launchSpeed.Toward(direction),
             SignedEightEight.Zero);
     }
 

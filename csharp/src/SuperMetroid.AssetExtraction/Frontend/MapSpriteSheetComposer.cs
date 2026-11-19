@@ -17,6 +17,16 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// </summary>
 internal static class MapSpriteSheetComposer
 {
+    /// <summary>The map sprite colourings in the order the sheet lists their shades (#2567).</summary>
+    private static readonly IReadOnlyList<MapSpriteColouring> Colourings = Ensure.EveryMemberOnce<MapSpriteColouring>(
+    [
+        MapSpriteColouring.Labels,
+        MapSpriteColouring.DimLabels,
+        MapSpriteColouring.Markers,
+        MapSpriteColouring.DefeatedBossMarker,
+        MapSpriteColouring.Highlighted,
+    ]);
+
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = 128;
 
@@ -42,7 +52,7 @@ internal static class MapSpriteSheetComposer
         RgbColor[] pause = palettes.Pause[SpriteColours..].ToArray();
         // Each colouring's shade shows its set's colours on each screen over the sets its sprites are pictured in.
         var shades = new List<SheetShade>();
-        foreach (MapSpriteColouring colouring in Enum.GetValues<MapSpriteColouring>())
+        foreach (MapSpriteColouring colouring in Colourings)
         {
             int set = MapSpriteColouringSets.SpriteSet(colouring);
             shades.Add(Drawn(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, colouring), fileSelect, set, pictures.SetsOf(colouring)));

@@ -32,7 +32,7 @@ internal static class KiHunterSwoopTurnVerification
         string? mismatch = null;
         for (int fractions = short.MinValue; fractions <= short.MaxValue; fractions++)
         {
-            AngularSpeed speed = AngularSpeed.FromFractionsOfStep(fractions);
+            AngularSpeed speed = AngularSpeedConstants.FromFractionsOfStep(fractions);
             SignedSixteenSixteen old = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(fractions);
             if (speed.WholeSteps != old.WholePixels)
                 mismatch ??= $"speed {fractions}: whole steps {speed.WholeSteps}, 16.16 whole {old.WholePixels}";

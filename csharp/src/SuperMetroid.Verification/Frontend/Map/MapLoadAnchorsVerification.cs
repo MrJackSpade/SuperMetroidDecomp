@@ -181,7 +181,7 @@ internal static class MapLoadAnchorsVerification
                 AssertEqual(ScrollState(Scroll(native)), ScrollState(Scroll(compiled)), "each saved station retains menu-owned scroll state");
             }
             AssertEqual(FileSelectMapNavigationPhase.Room, compiled.Phase, $"saved-station fixture {station} reaches room map");
-            AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), compiled.CaptureRenderSnapshot()), "every saved station has exact composed room-map position");
+            AssertTrue(ScenePixels.Same(native.ComposeScene(), compiled.ComposeScene()), "every saved station has exact composed room-map position");
             AssertTrue(before.SequenceEqual(ReadSram()), "map entry leaves entire SRAM and progression unchanged");
         }
         byte[] ReadSram() => SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(stationSaves, RetailPresentationFixture());

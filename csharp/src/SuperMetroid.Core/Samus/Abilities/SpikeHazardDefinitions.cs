@@ -27,4 +27,8 @@ public static class SpikeHazardDefinitions
 
     /// <summary>Frames of knockback after any damaging spike contact.</summary>
     public const int KnockbackFrames = 10;
+
+
+    /// <summary>The periodic damage the grapple beam adds as it latches onto a destroyed Draygon turret's spike: one energy.</summary>
+    internal static EnergyAmount GrappledTurretSpikeDamage { get; } = EnergyAmount.FromEnergy(1);
 }

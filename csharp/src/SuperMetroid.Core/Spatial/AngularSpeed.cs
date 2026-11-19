@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Spatial;
 /// carrying beneath them from update to update. Its fraction is a rotation angle's, so a speed turns a rotation angle
 /// exactly. The same measure serves the change a turning speed takes each update.
 /// </summary>
-public readonly record struct AngularSpeed : IComparable<AngularSpeed>
+public readonly record struct AngularSpeed : IComparable<AngularSpeed>, System.Numerics.IUnaryNegationOperators<AngularSpeed, AngularSpeed>
 {
     /// <summary>Number of fractions in one step.</summary>
     private const int FractionsPerStep = 256;
@@ -18,7 +18,7 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>
 
     /// <summary>The speed of <paramref name="fractionsOfStep"/> 256ths of a step an update, within half a turn either way.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed turns half a turn or more an update.</exception>
-    private AngularSpeed(int fractionsOfStep) =>
+    internal AngularSpeed(int fractionsOfStep) =>
         FractionsOfStep = Ensure.BetweenInclusive(-MostWholeSteps * FractionsPerStep, MostWholeSteps * FractionsPerStep - 1, fractionsOfStep);
 
     /// <summary>The speed in 256ths of a step an update, -32768 through 32767: negative toward decreasing angles.</summary>
@@ -101,7 +101,7 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>
 
     /// <summary>How fast the speed turns, whichever way: the speed itself, or the same speed turning the other way.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed is the most negative one, which has no reversal within the range.</exception>
-    public AngularSpeed Magnitude => IsNegative ? -this : this;
+    public AngularSpeed Magnitude => new(Math.Abs(FractionsOfStep));
 
     /// <summary>
     /// The speed scaled by <paramref name="share"/> parts of <paramref name="parts"/> (#2110), rounded toward no turning

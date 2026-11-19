@@ -37,13 +37,11 @@ internal sealed class EndingRewardJump
     /// <summary>How Samus's body moves (#2541): standing until her jump, rising, falling back once above the screen, then landed.</summary>
     private EndingRewardJumpMotion bodyMotion;
     /// <summary>Shared vertical velocity; each active actor movement applies gravity to it.</summary>
-    private SignedSixteenSixteen Velocity { get; set; }
-    /// <summary>Whether the shooting cue has requested the ending screen capture.</summary>
-    public bool ShotRequested { get; private set; }
+    internal SignedSixteenSixteen Velocity { get; private set; }
     /// <summary>Whether Samus has passed above the screen and shows as the falling Samus, falling back or landed.</summary>
-    private bool FellBack => bodyMotion is EndingRewardJumpMotion.Falling or EndingRewardJumpMotion.Landed;
+    internal bool FellBack => bodyMotion is EndingRewardJumpMotion.Falling or EndingRewardJumpMotion.Landed;
     /// <summary>Whole-pixel body height used to select the falling and landed animations.</summary>
-    private int BodyY => body.ScreenPlace.Y;
+    public int BodyY => body.ScreenPlace.Y;
 
     /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
     public EndingRewardJump(EndingReward reward)
@@ -55,8 +53,10 @@ internal sealed class EndingRewardJump
     }
 
     /// <summary>Advances head before body, including shared gravity and cue effects.</summary>
-    public void Step()
+    /// <returns>Whether the step's shooting cue asks for the ending's shot (#2562), which the scene's owner shows at once.</returns>
+    public bool Step()
     {
+        bool shoots = false;
         // The head steps before the body, as it runs ahead of it.
         // Both motions use the shared Samus velocity, so each update accelerates it.
         if (head is { IsActive: true })
@@ -66,7 +66,7 @@ internal sealed class EndingRewardJump
                 head.Position = Accelerated(head.Position);
                 if (head.ScreenPlace.Y < EndingRewardJumpDefinitions.FallStartY) head.Delete();
             }
-            head.Step(HandleCue);
+            head.Step(cue => shoots |= HandleCue(cue));
         }
         if (bodyMotion == EndingRewardJumpMotion.Rising)
         {
@@ -88,7 +88,8 @@ internal sealed class EndingRewardJump
                 bodyMotion = EndingRewardJumpMotion.Landed;
             }
         }
-        body.Step(HandleCue);
+        body.Step(cue => shoots |= HandleCue(cue));
+        return shoots;
     }
 
     /// <summary>
@@ -109,30 +110,32 @@ internal sealed class EndingRewardJump
         return position.WithY(position.Y + Velocity);
     }
 
-    /// <summary>Handles launch, head placement, the flights and the shoot event the jump animations publish.</summary>
-    private void HandleCue(EndingRewardJumpCue cue)
+    /// <summary>
+    /// Handles launch, head placement, the flights and the shoot event the jump animations publish: whether
+    /// <paramref name="cue"/> is the shoot event.
+    /// </summary>
+    private bool HandleCue(EndingRewardJumpCue cue)
     {
         switch (cue)
         {
             case EndingRewardJumpCue.Launch:
                 Velocity = EndingRewardJumpDefinitions.LaunchVelocity;
-                return;
+                return false;
             case EndingRewardJumpCue.PrepareHead:
                 RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadReadied : EndingRewardJumpDefinitions.HelmetlessHeadReadied;
-                return;
+                return false;
             case EndingRewardJumpCue.LaunchHead:
                 RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadLaunched : EndingRewardJumpDefinitions.HelmetlessHeadLaunched;
-                return;
+                return false;
             case ShootCue:
                 body.SetColouring(EndingShades.Drawn(ShootingColouring));
-                ShotRequested = true;
-                return;
+                return true;
             case EndingRewardJumpCue.StartBodyFlight:
                 bodyMotion = EndingRewardJumpMotion.Rising;
-                return;
+                return false;
             case EndingRewardJumpCue.StartHeadFlight:
                 headMotion = EndingRewardJumpMotion.Rising;
-                return;
+                return false;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EndingRewardJumpCue)} {cue}.");
         }

@@ -68,7 +68,7 @@ internal sealed class DraygonSwoops
         // The swoop covers the whole-pixel distance to Samus in as many updates as the path has entries.
         int distance = DistanceAcrossRoomEdge.Between(
             state.LeftSideReset.X, samus.Position.X.Whole);
-        SetDraygonSwoopVelocity(state, distance, frameCount);
+        SetDraygonSwoopVelocity(state, distance, frameCount, HorizontalDirection.Right);
         state.SwoopHalf = UpdateCountdown.Lasting(frameCount);
     }
 
@@ -92,7 +92,7 @@ internal sealed class DraygonSwoops
             state.Phase = DraygonPhase.SwoopApex;
             return;
         }
-        DraygonMovement.MoveDraygonHorizontally(state, side.Direction);
+        DraygonMovement.MoveDraygonHorizontally(state);
     }
 
     /// <summary>Runs the velocity recalculation at the bottom of the swoop.</summary>
@@ -106,7 +106,7 @@ internal sealed class DraygonSwoops
         int frameCount = PathOf(state).EntryCount;
         // The rightward swoop's bottom lies over Samus, inside the arena, so the distance on to the right-side place is a plain one.
         int distance = DraygonArenaDefinitions.RightSideResetDistance - body.Position.X.Whole;
-        SetDraygonSwoopVelocity(state, distance, frameCount);
+        SetDraygonSwoopVelocity(state, distance, frameCount, HorizontalDirection.Right);
         state.SwoopHalf = UpdateCountdown.Lasting(frameCount);
         state.Phase = DraygonPhase.SwoopAscending;
     }
@@ -133,7 +133,7 @@ internal sealed class DraygonSwoops
         body.Position = body.Position.WithWholeY(PathOf(state).HeightAt(entry));
         if (!state.SwoopHalf.Count())
         {
-            DraygonMovement.MoveDraygonHorizontally(state, side.Direction);
+            DraygonMovement.MoveDraygonHorizontally(state);
             return;
         }
 
@@ -172,7 +172,7 @@ internal sealed class DraygonSwoops
 
         int distance = DistanceAcrossRoomEdge.Between(
             state.RightSideResetX, samus.Position.X.Whole);
-        SetDraygonSwoopVelocity(state, distance, frameCount);
+        SetDraygonSwoopVelocity(state, distance, frameCount, HorizontalDirection.Left);
         state.Phase = DraygonPhase.SwoopDescending;
         state.BodyPart.StartAnimation(DraygonSegment.BodyFacingLeftReset);
         state.Facing = HorizontalDirection.Left;
@@ -189,7 +189,7 @@ internal sealed class DraygonSwoops
         RoomEnemyPlace body = state.Body;
         int frameCount = PathOf(state).EntryCount;
         int distance = DistanceAcrossRoomEdge.Apart(body.Position.X.Whole, state.LeftSideReset.X);
-        SetDraygonSwoopVelocity(state, distance, frameCount);
+        SetDraygonSwoopVelocity(state, distance, frameCount, HorizontalDirection.Left);
         state.SwoopHalf = UpdateCountdown.Lasting(frameCount);
         state.Phase = DraygonPhase.SwoopAscending;
     }
@@ -199,12 +199,16 @@ internal sealed class DraygonSwoops
     internal static DraygonSwoopPath PathOf(DraygonEnemyState state) =>
         state.SwoopPath ?? throw new InvalidOperationException("Draygon flies a swoop he has not planned.");
 
-    /// <summary>Sets the swoop's horizontal speed: the speed that covers <paramref name="distance"/> in one update per path entry.</summary>
+    /// <summary>
+    /// Sets the swoop's horizontal velocity: toward <paramref name="direction"/> at the speed that covers
+    /// <paramref name="distance"/> in one update per path entry.
+    /// </summary>
     /// <param name="state">Draygon's state, which receives the velocity.</param>
     /// <param name="distance">The whole pixels the swoop covers.</param>
     /// <param name="frameCount">The path's entries.</param>
-    private static void SetDraygonSwoopVelocity(DraygonEnemyState state, int distance, int frameCount) =>
-        state.SwoopVelocity = UnsignedSixteenSixteen.Covering(distance, frameCount);
+    /// <param name="direction">The side the swoop flies toward.</param>
+    private static void SetDraygonSwoopVelocity(DraygonEnemyState state, int distance, int frameCount, HorizontalDirection direction) =>
+        state.SwoopVelocity = SignedSixteenSixteen.Covering(distance, frameCount).Toward(direction);
 
     /// <summary>Runs the four-pixel upward retreat.</summary>
     internal void FlyDraygonStraightUp(

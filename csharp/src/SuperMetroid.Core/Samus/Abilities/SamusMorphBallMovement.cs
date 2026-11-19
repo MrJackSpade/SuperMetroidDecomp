@@ -74,7 +74,7 @@ public static class SamusMorphBallMovement
         BlockMoveResult vertical;
         bool landed = false;
         bool hitCeiling;
-        if (samus.Kinematics.YDirection != SamusVerticalDirection.None)
+        if (!samus.Kinematics.VerticalVelocity.HasNoDirection)
         {
             // The simple vertical movement handles a rebound already in progress through the
             // same falling check and one-frame-lag gravity step as airborne morph.
@@ -157,7 +157,7 @@ public static class SamusMorphBallMovement
         bool directionHeld = (controllerInput &
             (GameplayAction.Left | GameplayAction.Right)) != GameplayAction.None;
         AerialBaseSpeedResult calculation =
-            speed.CalculateBaseSpeedDecelerationDisallowed(movementType);
+            speed.CalculateAerialBaseSpeed(movementType);
         SamusHorizontalDisplacement requestedHorizontal;
         if (!directionHeld && speed.AccelerationMode == SamusAccelerationMode.Accelerating)
         {
@@ -183,8 +183,7 @@ public static class SamusMorphBallMovement
             // The bounce gives an external producer priority over the rebound arc.
             // It cancels the stored bounce velocity, forces direction down, and executes
             // the downward move; an upward external displacement can still make the actual scan upward.
-            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-            samus.Kinematics.YSpeed = default;
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
             SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) ??
                 throw new InvalidOperationException("A nonzero external Y displacement always yields a scan distance.");
             vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
@@ -237,16 +236,15 @@ public static class SamusMorphBallMovement
         // The normal variable-height jump cutoff. Releasing Jump
         // while rising cancels the remaining magnitude; a speed passing zero at the apex takes
         // the same branch even if Jump is still held.
-        if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
+        if (samus.Kinematics.VerticalVelocity.IsRising &&
             (((controllerInput & GameplayAction.Jump) == GameplayAction.None) ||
-             SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole)))
+             samus.Kinematics.VerticalVelocity.HasPassedApex))
         {
-            samus.Kinematics.YSpeed = default;
-            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
 
         AerialBaseSpeedResult calculation =
-            speed.CalculateBaseSpeedDecelerationDisallowed(
+            speed.CalculateAerialBaseSpeed(
                 movementType: SamusMovementType.SpringBallInAir);
         bool directionHeld = (controllerInput &
             (GameplayAction.Left | GameplayAction.Right)) != GameplayAction.None;
@@ -314,7 +312,7 @@ public static class SamusMorphBallMovement
 
         BlockMoveResult vertical;
         bool landed = false;
-        if (samus.Kinematics.YDirection == SamusVerticalDirection.None)
+        if (samus.Kinematics.VerticalVelocity.HasNoDirection)
         {
             vertical = RunNoSpeedCalculationGroundingProbe(
                 level,
@@ -336,8 +334,7 @@ public static class SamusMorphBallMovement
             {
                 // The transition movement recognizes the ordinary landed result and cancels every value
                 // which could make the item-and-airborne transition cue choose the airborne endpoint afterward.
-                samus.Kinematics.YSpeed = default;
-                samus.Kinematics.YDirection = SamusVerticalDirection.None;
+                samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
                 samus.MorphBallBounceState = SamusBallBounceState.None;
             }
         }
@@ -359,31 +356,16 @@ public static class SamusMorphBallMovement
     {
         SamusKinematicsState state = samus.Kinematics;
 
-        // The fall converts the speed that passed zero at the prior apex frame before
-        // this frame snapshots displacement. Direction is a separate value;
-        // the magnitude's sign does not give it.
-        if (state.YDirection == SamusVerticalDirection.Up && SamusSpeedMagnitude.HasPassedZero(state.YSpeed.Whole))
+        // The fall converts the rise that passed its apex on the prior frame before this frame snapshots displacement.
+        if (state.VerticalVelocity.HasPassedApex)
         {
-            state.YSpeed = default;
-            state.YDirection = SamusVerticalDirection.Down;
+            state.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
 
-        // The bounce moves by the OLD magnitude, then updates stored speed for next frame.
-        // This one-frame lag is observable on both bounce launch and the falling speed cap.
-        UnsignedSixteenSixteen oldSpeed = state.YSpeed;
-        if (state.YDirection == SamusVerticalDirection.Down)
-        {
-            if (state.YSpeed.Whole != SamusVerticalMotionDefinitions.BallBounceFallingSpeed)
-                state.YSpeed = oldSpeed + state.YAcceleration;
-        }
-        else
-        {
-            state.YSpeed = oldSpeed - state.YAcceleration;
-        }
-
-        SignedSixteenSixteen displacement = state.YDirection == SamusVerticalDirection.Down
-            ? oldSpeed.AsDisplacement()
-            : -oldSpeed.AsDisplacement();
+        // The bounce moves by the OLD velocity, then gravity updates it for next frame, a fall holding at the bounce's
+        // falling speed. This one-frame lag is observable on both bounce launch and the falling speed cap.
+        SignedSixteenSixteen displacement = state.VerticalVelocity.Displacement;
+        state.VerticalVelocity = state.VerticalVelocity.AfterGravity(state.YAcceleration, SamusVerticalMotionDefinitions.BallBounceFallingSpeed);
         displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             displacement);

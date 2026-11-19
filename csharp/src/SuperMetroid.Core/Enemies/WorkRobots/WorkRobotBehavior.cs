@@ -189,7 +189,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The foot probe stands beside the robot and falls; the robot keeps the fractions its fall left
         // (ProbeMovementKept).
-        int probeX = (ledge.ProbeSide == HorizontalDirection.Left ? -WorkRobotMotionDefinitions.LedgeProbeRadii : WorkRobotMotionDefinitions.LedgeProbeRadii) * place.Radius.X;
+        int probeX = (WorkRobotMotionDefinitions.LedgeProbeRadii.Toward(ledge.ProbeSide)) * place.Radius.X;
         var probe = new EnemyTerrainProbe(place, new Offset16<RoomPixels>(probeX, 0));
         bool floorFound = _terrain.MoveEnemyVertically(level, probe, WorkRobotMotionDefinitions.LedgeProbeDepth);
         place.Position = ProbeMovementKept.AfterLedgeProbe(place.Position, probe.Position);
@@ -242,7 +242,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ResolveWorkRobotTouch(RoomEnemyPlace robot, SamusState samus)
     {
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromWholePixels(
-            robot.Position.X.Whole < samus.Position.X.Whole ? WorkRobotMotionDefinitions.TouchPush : -WorkRobotMotionDefinitions.TouchPush));
+            WorkRobotMotionDefinitions.TouchPush.Toward(robot.Position.X.Whole < samus.Position.X.Whole ? HorizontalDirection.Right : HorizontalDirection.Left)));
     }
 
     /// <summary>
@@ -369,7 +369,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             Laser,
             SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare));
-        projectile.Velocity = projectile.Velocity.WithX(state.Facing == HorizontalDirection.Left ? -WorkRobotLaserDefinitions.Speed : WorkRobotLaserDefinitions.Speed);
+        projectile.Velocity = projectile.Velocity.WithX(WorkRobotLaserDefinitions.Speed.Toward(state.Facing));
         projectile.Velocity = projectile.Velocity.WithY(laser switch
         {
             WorkRobotLaser.Upward => -WorkRobotLaserDefinitions.DiagonalVerticalSpeed,
@@ -382,7 +382,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every laser starts at the muzzle ahead of the robot, the way it faces, and above it.
         int ahead = WorkRobotLaserDefinitions.MuzzleAhead;
         projectile.Position = new(FixedCoordinate.FromWhole(robot.Position.X.Whole +
-            (state.Facing == HorizontalDirection.Left ? -ahead : ahead)),
+            (ahead.Toward(state.Facing))),
             FixedCoordinate.FromWhole(robot.Position.Y.Whole - WorkRobotLaserDefinitions.MuzzleAbove));
 
         if (WorkRobotLaserSoundRange.RequestsSound(robot.Position.Whole, robot.Radius, camera))

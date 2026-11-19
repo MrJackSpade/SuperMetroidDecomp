@@ -154,7 +154,7 @@ internal static class ScrollObjectsVerification
         bombJump.Kinematics.YAcceleration = default;
         bombJump.RequestMorphedBombJump(SamusBombJumpDirection.Straight);
         SamusBombJumpMovement.Start(bombJump);
-        bombJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
+        bombJump.Kinematics.VerticalVelocity = bombJump.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(1, 0));
         SamusBombJumpMovement.Step(
 
             level,

@@ -28,6 +28,23 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 internal static class BossBodySheetComposer
 {
+    /// <summary>The boss bodies in the order their sheets are composed and listed (#2567).</summary>
+    private static readonly BossBodyOwner[] OwnerOrder = [.. Ensure.EveryMemberOnce<BossBodyOwner>(
+    [
+        BossBodyOwner.Kraid,
+        BossBodyOwner.Phantoon,
+        BossBodyOwner.Draygon,
+        BossBodyOwner.Crocomire,
+        BossBodyOwner.MotherBrain,
+    ])];
+
+    /// <summary>Crocomire's melting illustrations in the order his body sheet holds their melt states (#2567).</summary>
+    private static readonly IReadOnlyList<CrocomireMeltingIllustration> MeltingOrder = Ensure.EveryMemberOnce<CrocomireMeltingIllustration>(
+    [
+        CrocomireMeltingIllustration.Flesh,
+        CrocomireMeltingIllustration.BareSkull,
+    ]);
+
     /// <summary>The first row of the bottom-left screen of Kraid's layer, where his lower body is written.</summary>
     internal const int LowerPageTopRow = 64;
 
@@ -52,7 +69,7 @@ internal static class BossBodySheetComposer
     {
         Ensure.NotNull(inputs);
         // Each boss's sheet composes on its own (#1530), into its owner's place, so the order stays the owners'.
-        BossBodyOwner[] owners = Enum.GetValues<BossBodyOwner>();
+        BossBodyOwner[] owners = OwnerOrder;
         var sheets = new ComposedBossBodySheet[owners.Length];
         try
         {
@@ -125,7 +142,7 @@ internal static class BossBodySheetComposer
             case BossBodyOwner.Crocomire:
                 CrocomireMeltingArtwork melting = bosses.CrocomireMelting ?? throw Missing(owner);
                 return [.. EnemyFrames((bosses.CrocomireBg2Frames ?? throw Missing(owner)).Writes),
-                    .. Enum.GetValues<CrocomireMeltingIllustration>().SelectMany(image => CrocomireMeltStates(melting, image))];
+                    .. MeltingOrder.SelectMany(image => CrocomireMeltStates(melting, image))];
             case BossBodyOwner.MotherBrain:
                 return EnemyFrames((bosses.MotherBrainBodyBg2Frames ?? throw Missing(owner)).Writes);
             default:
@@ -141,28 +158,28 @@ internal static class BossBodySheetComposer
     private static List<BossBodyFrameSource> CrocomireMeltStates(CrocomireMeltingArtwork melting, CrocomireMeltingIllustration image)
     {
         var selected = new Dictionary<ArtworkAnimation, ArtworkFrame>();
-        for (int band = 0; band < CrocomireMelting.BandCount(image); band++)
+        for (int band = 0; band < CrocomireMeltingDefinitions.MeltImageBandCount; band++)
             selected.Add(CrocomireMeltBands.Animation(band), CrocomireMeltBands.Undissolved(image, band));
         BossBodyFrameSource source = BossBodyFrameSource.Written(CrocomireMeltingFrameNames.Of(image),
             BossBodySourceDefinitions.CrocomireMeltFirstCell, melting.Tilemap(image));
-        return [source with { Selected = selected, Dissolve = DissolveOf(source, image) }];
+        return [source with { Selected = selected, Dissolve = DissolveOf(source) }];
     }
 
     /// <summary>
-    /// How the dissolve erases melt image <paramref name="image"/>'s picture, written as <paramref name="source"/> writes it
+    /// How the dissolve erases a melt image's picture, written as <paramref name="source"/> writes it
     /// (#1652, #2478). A cell showing a character of one of the bands the dissolve erases shows that band, and each of its
     /// pixels is erased after the first step whose column lies in the character's group of eight pixel columns and whose
     /// place among each eight steps is the pixel's column in the character
     /// (<see cref="CrocomireMeltDissolveDefinitions.ColumnOrder"/>), down every row of the character. Every other pixel is
     /// kept: a cell showing another character, or a character of the band the dissolve never erases.
     /// </summary>
-    private static PictureDissolve DissolveOf(BossBodyFrameSource source, CrocomireMeltingIllustration image)
+    private static PictureDissolve DissolveOf(BossBodyFrameSource source)
     {
         const int cell = RoomTileCanvas.CharacterPixels;
         Position16<BackgroundPixels> corner = BossBodyPainter.CornerOf(source.Cells);
         Extent16<ImagePixels> size = BossBodyPainter.PictureSizeOf(source.Cells);
         var pixels = new DissolvingPixel?[size.X * size.Y];
-        int bands = Math.Min(CrocomireMelting.BandCount(image), CrocomireMeltDissolveDefinitions.ErasedBands);
+        int bands = Math.Min(CrocomireMeltingDefinitions.MeltImageBandCount, CrocomireMeltDissolveDefinitions.ErasedBands);
         foreach ((int layerCell, BackgroundTile tile) in source.Cells)
         {
             int band = tile.Tile / CrocomireMeltDissolve.BandRowCharacters, group = tile.Tile % CrocomireMeltDissolve.BandRowCharacters;

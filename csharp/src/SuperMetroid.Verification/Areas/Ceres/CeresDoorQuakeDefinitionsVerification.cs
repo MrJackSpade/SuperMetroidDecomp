@@ -52,10 +52,10 @@ internal static class CeresDoorQuakeDefinitionsVerification
         enemies.HoldCeresRidley(enemies.Places.InUpdateOrder[0], new CeresRidleyState(Position16<RoomPixels>.Zero));
         RoomEnemyPlace door = enemies.Places.InUpdateOrder[1];
         door.BindCeresDoorOrWall(EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None);
-        ((ICeresRidleyScene)enemies.RidleyEncounter).AttachRoomDoor(door);
-        door.SetSpeciesState(new CeresRidleyRoomDoorState { Drawing = CeresRidleyRoomDoorDrawing.ByRidleysScene });
+        enemies.CeresDoorBehavior.AttachRidleyRoomDoor(door);
+        door.SetSpeciesState(new CeresRidleyRoomDoorState { Look = CeresRidleyRoomDoorLook.Overlay });
         door.Position = door.Position.WithWhole(new(100, 80));
-        // Ceres Ridley's scene draws from his room's sheets.
+        // The door's overlay shows from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         short[] expectedOffsets = [0, -4, -1, 3];
         int? baseX = null;
@@ -64,7 +64,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
             enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(29), phase);
             var oam = new OamBuffer();
             oam.BeginFrame();
-            oam.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(0, 0)));
+            oam.AppendDrawn(frame => enemies.CeresDoorBehavior.PublishRidleyRoomDoorOverlay(frame, new(0, 0)));
             oam.FinalizeFrame();
             baseX ??= oam.GetEntry(0).Position.X;
             AssertEqual(baseX.Value + expectedOffsets[phase], oam.GetEntry(0).Position.X,
@@ -78,7 +78,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         nativeOverlay.FinalizeFrame();
         var installedOverlay = new OamBuffer();
         installedOverlay.BeginFrame();
-        installedOverlay.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(0, 0)));
+        installedOverlay.AppendDrawn(frame => enemies.CeresDoorBehavior.PublishRidleyRoomDoorOverlay(frame, new(0, 0)));
         installedOverlay.FinalizeFrame();
         // The door shows its colours as its shade (#1512), which keeps no palette row, so the overlay's records match the
         // cartridge's in every field but the row its colours were loaded into.

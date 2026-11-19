@@ -240,16 +240,16 @@ public sealed class SamusProjectileSystem
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
     /// <param name="buttons">The actions Samus's projectile producer reads: held actions, this frame's new presses, and the previous frame's new presses (#633).</param>
     /// <param name="cameraPosition">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
-    /// <param name="sharedProjectiles">
+    /// <param name="samusBombs">
     /// Samus's bombs, carrying the shared projectile cooldown. The runtime steps that
     /// clock once, immediately before calling this method; this method may replace it after
     /// a successful shot just as the game does.
     /// </param>
     /// <param name="progression">The progression a Spacetime shot's overwrite turns on and off.</param>
-    internal SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles, SharedGameState progression)
+    internal SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem samusBombs, SharedGameState progression)
     {
-        FireFromHud(terrain, samus, buttons, sharedProjectiles, projectileProducerEnabled: true);
-        HandleShots(terrain, samus, cameraPosition, sharedProjectiles, progression);
+        FireFromHud(terrain, samus, buttons, samusBombs, projectileProducerEnabled: true);
+        HandleShots(terrain, samus, cameraPosition, samusBombs, progression);
         return LastFrameResult;
     }
 
@@ -261,13 +261,13 @@ public sealed class SamusProjectileSystem
     /// <param name="terrain">The room terrain the shots collide with and react to.</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
     /// <param name="buttons">The actions Samus's projectile producer reads: held actions, this frame's new presses, and the previous frame's new presses (#633).</param>
-    /// <param name="sharedProjectiles">Samus's bombs, carrying the shared projectile cooldown, which a successful shot replaces.</param>
+    /// <param name="samusBombs">Samus's bombs, carrying the shared projectile cooldown, which a successful shot replaces.</param>
     /// <param name="projectileProducerEnabled">Whether to admit the HUD weapon producer; the shots are handled whether or not it runs.</param>
-    internal void FireFromHud(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, SamusBombProjectileSystem sharedProjectiles, bool projectileProducerEnabled)
+    internal void FireFromHud(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, SamusBombProjectileSystem samusBombs, bool projectileProducerEnabled)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
-        Ensure.NotNull(sharedProjectiles);
+        Ensure.NotNull(samusBombs);
 
         SoundEffectId? queuedSound = null;
         SoundRequestPriority? queuedSoundPriority = null;
@@ -288,7 +288,7 @@ public sealed class SamusProjectileSystem
         // The turning HUD step waits for an explicit pose-setup muzzle handoff.
         // With no handoff it neither increments charge nor releases it on a Shoot edge.
         bool preservesTurnCharge = hudMode == SamusHudSelectionMode.Turning &&
-            samus.PendingTransitionShot is null;
+            samus.TransitionShot.Handed is null;
         // The posture-transition HUD step preserves the carried charge during morph art;
         // ordinary crouch/stand transitions still run their beam producer.
         bool preservesPostureCharge = hudMode == SamusHudSelectionMode.Transition &&
@@ -311,7 +311,7 @@ public sealed class SamusProjectileSystem
                     buttons.ControllerInput,
                     // Uncharged firing tests both current and prior new-input latches.
                     buttons.ControllerNewInput | buttons.ControllerPreviousNewInput,
-                    sharedProjectiles,
+                    samusBombs,
                     terrain.RoomObjects);
             }
             else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
@@ -320,7 +320,7 @@ public sealed class SamusProjectileSystem
                     samus,
                     buttons.ControllerNewInput,
                     buttons.ControllerPreviousNewInput,
-                    sharedProjectiles)?.Sound;
+                    samusBombs)?.Sound;
                 if (queuedSound is not null)
                     queuedSoundPriority = SoundRequestPriority.Normal;
             }
@@ -342,13 +342,13 @@ public sealed class SamusProjectileSystem
     /// <param name="terrain">The room terrain the shots collide with and react to.</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment and the X-ray freeze.</param>
     /// <param name="cameraPosition">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
-    /// <param name="sharedProjectiles">Samus's bombs, carrying the shared cooldown and the power bomb the shots read.</param>
+    /// <param name="samusBombs">Samus's bombs, carrying the shared cooldown and the power bomb the shots read.</param>
     /// <param name="progression">The progression a Spacetime shot's overwrite turns on and off.</param>
-    internal void HandleShots(SamusTerrain terrain, SamusState samus, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles, SharedGameState progression)
+    internal void HandleShots(SamusTerrain terrain, SamusState samus, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem samusBombs, SharedGameState progression)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
-        Ensure.NotNull(sharedProjectiles);
+        Ensure.NotNull(samusBombs);
         Ensure.NotNull(progression);
 
         // Bombs were handled by the companion class first; the shots run in update order here because a delete cue
@@ -362,7 +362,7 @@ public sealed class SamusProjectileSystem
             if (shot.Playback is null)
                 continue;
 
-            shot.Behavior?.Run(new SamusShotUpdate(shot, this, terrain, samus, cameraPosition, sharedProjectiles, progression));
+            shot.Behavior?.Run(new SamusShotUpdate(shot, this, terrain, samus, cameraPosition, samusBombs, progression));
 
             // Killing a projectile replaces rather than clears a live beam. Consequently the
             // explosion's first frame is selected in this same projectile pass.
@@ -400,14 +400,14 @@ public sealed class SamusProjectileSystem
         // Updates before the main flare shows start or keep its hidden animation; from then the central
         // flare is drawn, and from the sparks' count both orbiting spark components too. The Hyper Beam's flare counts
         // no updates, so without the Hyper Beam equipped it shows nothing here.
-        if (Charge.FlareCounter == 1)
+        if (Charge.UpdatesHeld == 1)
         {
             Charge.StartChargeFlare();
         }
-        if (Charge.FlareCounter < ChargeFlareAnimationDefinitions.MainFlareShownFrom)
+        if (Charge.UpdatesHeld < ChargeFlareAnimationDefinitions.MainFlareShownFrom)
             return ChargeFlareComponents.None;
 
-        ChargeFlareComponents shown = Charge.FlareCounter < ChargeFlareAnimationDefinitions.SparksShownFrom ? ChargeFlareComponents.MainFlareOnly : ChargeFlareComponents.FlareAndSparks;
+        ChargeFlareComponents shown = Charge.UpdatesHeld < ChargeFlareAnimationDefinitions.SparksShownFrom ? ChargeFlareComponents.MainFlareOnly : ChargeFlareComponents.FlareAndSparks;
         foreach (ChargeFlareComponent component in shown.DrawOrder)
             Animation.AdvanceFlareComponent(component);
         return shown;

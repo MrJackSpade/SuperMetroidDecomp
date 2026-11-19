@@ -237,7 +237,7 @@ internal static class GameSaveJsonVerification
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system,
             SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.DraygonSave)) with
         {
-            StartupRoute = SaveLoadingGameState.CeresDestruction,
+            StartupRoute = SaveStartupRoute.CeresDestruction,
             HudItem = HudItem.XRay,
             ReserveMode = ReserveTankMode.Manual,
         };
@@ -248,7 +248,7 @@ internal static class GameSaveJsonVerification
         GameSaveSlotJsonDocument slot = document.Slots[0] ?? throw new InvalidOperationException("JSON capture lost slot 0.");
         AssertEqual(HudItem.XRay, slot.HudItem, "JSON carries the last selection of the HUD ring");
         AssertEqual(ReserveTankMode.Manual, slot.ReserveMode, "JSON carries the manual reserve-tank mode");
-        AssertEqual(SaveLoadingGameState.CeresDestruction, slot.StartupRoute, "JSON names the save's startup route");
+        AssertEqual(SaveStartupRoute.CeresDestruction, slot.StartupRoute, "JSON names the save's startup route");
         AssertEqual(nameof(LoadStationDefinitions.DraygonSave), slot.Checkpoint, "JSON names the checkpoint's load station");
 
         string json = GameSaveJsonCodec.Serialize(document);

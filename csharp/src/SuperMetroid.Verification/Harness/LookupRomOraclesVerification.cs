@@ -45,7 +45,7 @@ internal static class LookupRomOraclesVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             VerifyIntroNarrationNativePages(rom);
             // A value no page identity holds stands for an unknown page.
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationScriptSources.Page((IntroNarrationPageId)(-1)), "narration registry rejects an unknown page");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationScriptSourcesConstants.Page((IntroNarrationPageId)(-1)), "narration registry rejects an unknown page");
         Console.WriteLine("Narration registry: six native page boundaries, extraction, compilation, order and unknown-page rejection pass.");
         return 0;
     }

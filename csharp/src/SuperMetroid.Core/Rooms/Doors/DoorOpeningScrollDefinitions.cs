@@ -72,9 +72,6 @@ internal static class DoorOpeningScrollDefinitions
     /// </summary>
     internal static readonly Offset16<RoomPixels> UpwardParallaxBasis = new(0, -1);
 
-    /// <summary>The upward scroll's first updates, which leave the layer scrolls as the setup left them.</summary>
-    internal const int UpwardUpdatesBeforeScrollRecalculation = 3;
-
     /// <summary>
     /// The block of its screen, the second, from which the doorway nudge moves a coordinate on past its far edge, off the
     /// screen's near doorway.
@@ -95,4 +92,8 @@ internal static class DoorOpeningScrollDefinitions
     /// screen's middle; a camera before it moves back to its own screen's edge.
     /// </summary>
     internal const int CameraAlignmentNextScreenFrom = 128;
+
+
+    /// <summary>The updates of the door's scroll that ran while its destination loaded: one, the loading update's own.</summary>
+    internal const int LoadingScrollUpdates = 1;
 }

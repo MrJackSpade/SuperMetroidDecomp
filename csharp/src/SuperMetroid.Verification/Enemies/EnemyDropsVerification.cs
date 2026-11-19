@@ -95,7 +95,7 @@ internal static class EnemyDropsVerification
         enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
         enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
         {
-            Touch = EnemyReaction.NormalEnemyTouch,
+            Touch = EnemyReaction.OrdinaryTouch,
         });
         SeedContactDeathVulnerability(fixture.Bus);
         enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);

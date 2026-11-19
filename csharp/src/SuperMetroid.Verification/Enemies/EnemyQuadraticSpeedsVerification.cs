@@ -19,7 +19,7 @@ internal static class EnemyQuadraticSpeedsVerification
     internal static void VerifyCompiledQuadraticEnemySpeeds(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        EnemySpeedSign[] signs = [EnemySpeedSign.Positive, EnemySpeedSign.Negative];
+        VerticalDirection[] directions = [VerticalDirection.Down, VerticalDirection.Up];
         for (int row = 0; row < QuadraticSpeedCurveDefinitions.MarkCount; row++)
         {
             QuadraticCurveSpeed speeds = QuadraticSpeedCurve.AtMark(row);
@@ -27,28 +27,28 @@ internal static class EnemyQuadraticSpeedsVerification
             {
                 (SignedSixteenSixteen positive, SignedSixteenSixteen negative) = EnemySpeedTableCodec.QuadraticRow(cartridge, table, row);
                 AssertEqual(speeds.Speed, positive, $"quadratic speed row {row} at {table:X6}");
-                AssertEqual(speeds.Toward(EnemySpeedSign.Negative), negative,
+                AssertEqual(speeds.Toward(VerticalDirection.Up), negative,
                     $"quadratic speed row {row} at {table:X6}: stored negation is the speed negated at use");
             }
-            foreach (EnemySpeedSign sign in signs)
-                AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, row, sign), (int)unchecked((ushort)speeds.CoarseToward(sign).InTwoFiftySixths), "quadratic coarse speed");
+            foreach (VerticalDirection direction in directions)
+                AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, row, direction), (int)unchecked((ushort)speeds.CoarseToward(direction).InTwoFiftySixths), "quadratic coarse speed");
         }
         AssertThrows<InvalidDataException>(() => QuadraticSpeedCurve.AtMark(-1), "negative quadratic row");
         AssertThrows<InvalidDataException>(() => QuadraticSpeedCurve.AtMark(QuadraticSpeedCurveDefinitions.MarkCount), "quadratic row past the table");
         if (definitionsOnly) return;
-        var addRock = new Action<EnemyProjectile, QuadraticSpeedCurvePlace, EnemySpeedSign>(PolypBehavior.AddPolypRockQuadraticStep);
+        var addRock = new Action<EnemyProjectile, QuadraticSpeedCurvePlace, VerticalDirection>(PolypBehavior.AddPolypRockQuadraticStep);
         var rock = new EnemyProjectile(0, default);
         foreach (uint origin in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int index = 0; index < QuadraticSpeedCurveDefinitions.MarkCount; index++)
-        foreach (EnemySpeedSign sign in signs)
+        foreach (VerticalDirection direction in directions)
         {
-            int speed = EnemySpeedTableCodec.QuadraticSpeedToward(cartridge, EnemySpeedTableCodec.QuadraticProjectileCopy, index, sign).RawValue;
+            int speed = EnemySpeedTableCodec.QuadraticSpeedToward(cartridge, EnemySpeedTableCodec.QuadraticProjectileCopy, index, direction).RawValue;
             uint expected = unchecked(origin + (uint)speed);
             rock.Position = rock.Position.WithY(SixteenSixteenWords.ToCoordinate(origin));
-            addRock(rock, QuadraticSpeedCurvePlace.FromMarks(index), sign);
+            addRock(rock, QuadraticSpeedCurvePlace.FromMarks(index), direction);
             AssertEqual(SixteenSixteenWords.ToCoordinate(expected), rock.Position.Y, "Polyp real split-word carry/wrap");
         }
-        AssertThrows<InvalidDataException>(() => addRock(rock, QuadraticSpeedCurvePlace.FromMarks(QuadraticSpeedCurveDefinitions.MarkCount), EnemySpeedSign.Positive), "Polyp invalid speed remains loud");
+        AssertThrows<InvalidDataException>(() => addRock(rock, QuadraticSpeedCurvePlace.FromMarks(QuadraticSpeedCurveDefinitions.MarkCount), VerticalDirection.Down), "Polyp invalid speed remains loud");
         // The Beetom's and the hoppers' climbs (#2026): for every height up to 96 pixels, past every climb the game plans
         // (16 to 64 pixels), at one, two and four marks a pass, the climb starts at the mark the original's sixteen-bit
         // sum, compared with the height by the sign of their difference, settles on; a height below nothing is refused
@@ -63,7 +63,7 @@ internal static class EnemyQuadraticSpeedsVerification
             ushort accumulated = 0;
             for (int index = delta; index < QuadraticSpeedCurveDefinitions.MarkCount; index += delta)
             {
-                accumulated = unchecked((ushort)(accumulated + EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, EnemySpeedSign.Positive)));
+                accumulated = unchecked((ushort)(accumulated + EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, VerticalDirection.Down)));
                 if (unchecked((short)(accumulated - height)) < 0)
                     continue;
                 AssertEqual(QuadraticSpeedCurvePlace.FromMarks(index), Climb(height, delta), "Beetom and hopper coarse-speed climb");
@@ -77,7 +77,7 @@ internal static class EnemyQuadraticSpeedsVerification
         // #1627: the climb is bounded by the table's rows, not a pass count. Fifty rows at a time, a climb row fifty settles
         // is taken there; one 256th taller runs on past the table's last row and is rejected; a delta of zero settles on
         // its first pass or never.
-        int fiftiethRow = EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, 50, EnemySpeedSign.Positive);
+        int fiftiethRow = EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, 50, VerticalDirection.Down);
         AssertEqual(QuadraticSpeedCurvePlace.FromMarks(50), Climb(fiftiethRow, 50), "a climb settled by row fifty ends there");
         AssertThrows<InvalidDataException>(() => Climb(fiftiethRow + 1, 50), "a climb past the table's last row is rejected");
         AssertEqual(QuadraticSpeedCurvePlace.Start, Climb(0, 0), "a climb of no height with no delta settles on the first row");
@@ -95,36 +95,37 @@ internal static class EnemyQuadraticSpeedsVerification
         do
         {
             wingPlace += 384;
-            wingSum = unchecked((ushort)(wingSum + EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, wingPlace / 256, EnemySpeedSign.Positive)));
+            wingSum = unchecked((ushort)(wingSum + EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, wingPlace / 256, VerticalDirection.Down)));
         }
         while (unchecked((short)(wingSum - 32 * 256)) < 0);
         AssertEqual(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(wingPlace), KiHunterMotionDefinitions.DetachedWingClimb.StartPlace,
             "the Ki-Hunter's detached wings climb 32 pixels at a mark and a half a pass");
 
-        var wings = new Func<QuadraticSpeedCurvePlace, EnemySpeedSign, AngularSpeed>(KiHunterBehavior.DetachedWingTurn);
+        var wings = new Func<QuadraticSpeedCurvePlace, RotationDirection, AngularSpeed>(KiHunterBehavior.DetachedWingTurn);
         for (int index = 0; index < QuadraticSpeedCurveDefinitions.MarkCount; index++)
         for (int low = 0; low < 256; low++)
-        foreach (EnemySpeedSign sign in signs)
-            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), (int)unchecked((ushort)wings(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(index * 256 + low), sign).FractionsOfStep),
-                "KiHunter high-byte index and coarse wing orbit speed");
+        foreach (VerticalDirection direction in directions)
+            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, direction), (int)unchecked((ushort)wings(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(index * 256 + low),
+                    direction == VerticalDirection.Up ? RotationDirection.Clockwise : RotationDirection.Counterclockwise).FractionsOfStep),
+                "KiHunter high-byte index and coarse wing orbit speed, clockwise the stored negation");
 
         var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);
         var maw = new YappingMawEnemyState { Links = [], RootEffectActor = new(SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorKind.YappingMawBaseFacingUp, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard) };
         int mawAdditions = 0;
         foreach (uint start in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int row = 0; row < QuadraticSpeedCurveDefinitions.MarkCount; row++)
-        foreach (EnemySpeedSign sign in signs)
+        foreach (VerticalDirection direction in directions)
         {
-            int speed = EnemySpeedTableCodec.QuadraticSpeedToward(cartridge, EnemySpeedTableCodec.QuadraticTable, row, sign).RawValue;
-            maw.Extension = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawCurl>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { (global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)(SixteenSixteenWords.ToDisplacement(unchecked((int)start))) });
+            int speed = EnemySpeedTableCodec.QuadraticSpeedToward(cartridge, EnemySpeedTableCodec.QuadraticTable, row, direction).RawValue;
+            maw.Extension = new YappingMawCurl(SixteenSixteenWords.ToDisplacement(unchecked((int)start)));
             maw.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
-            maw.CurlPhase = sign == EnemySpeedSign.Negative ? YappingMawCurlPhase.Retracting : YappingMawCurlPhase.Extending;
+            maw.CurlPhase = direction == VerticalDirection.Up ? YappingMawCurlPhase.Retracting : YappingMawCurlPhase.Extending;
             mawAdditions++;
             uint expected = unchecked(start + (uint)speed);
             addMaw(maw);
             AssertEqual(expected, unchecked((uint)maw.Extension.InFixedPoint.RawValue), "Yapping Maw real split-word integration");
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(row + 1), maw.SpeedCurvePlace, "Yapping Maw row advance");
-            AssertEqual(sign == EnemySpeedSign.Negative ? YappingMawCurlPhase.Retracting : YappingMawCurlPhase.Extending, maw.CurlPhase,
+            AssertEqual(direction == VerticalDirection.Up ? YappingMawCurlPhase.Retracting : YappingMawCurlPhase.Extending, maw.CurlPhase,
                 "Yapping Maw curl phase held across the addition");
         }
         Console.WriteLine("Compiled quadratic speeds: all 95 rows and their coarse speeds match both cartridge copies.");

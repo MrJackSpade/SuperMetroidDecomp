@@ -20,7 +20,7 @@ internal sealed class EnemyCommonParticipation(Func<EnemyCollision> collision)
     /// <summary>Whether <paramref name="definition"/> names a shared touch reaction: the ordinary one or the ignoring one.</summary>
     /// <param name="definition">The occupant's definition.</param>
     internal static bool ReactsToTouch(RoomEnemyDefinition definition) =>
-        definition.Touch == EnemyReaction.Ignore || definition.Touch == EnemyReaction.NormalEnemyTouch;
+        definition.Touch == EnemyReaction.Ignore || definition.Touch == EnemyReaction.OrdinaryTouch;
 
     /// <summary>
     /// Runs the shared touch reaction the touched enemy's definition names: the ordinary touch damages Samus or the enemy,
@@ -29,14 +29,14 @@ internal sealed class EnemyCommonParticipation(Func<EnemyCollision> collision)
     /// <param name="context">The touch.</param>
     internal void ReactToTouch(EnemyTouchContext context)
     {
-        if (context.Place.Definition.Touch == EnemyReaction.NormalEnemyTouch)
-            collision().ResolveNormalEnemyTouch(context);
+        if (context.Place.Definition.Touch == EnemyReaction.OrdinaryTouch)
+            collision().ResolveOrdinaryTouch(context);
     }
 
     /// <summary>The shared shot reaction <paramref name="definition"/> names, or null when it names none.</summary>
     /// <param name="definition">The occupant's definition.</param>
     internal static EnemyShotReaction? ShotReaction(RoomEnemyDefinition definition) =>
-        definition.Shot == EnemyReaction.Ignore || definition.Shot == EnemyReaction.NormalEnemyShot ? CommonShot : null;
+        definition.Shot == EnemyReaction.Ignore || definition.Shot == EnemyReaction.OrdinaryShot ? CommonShot : null;
 
     /// <summary>
     /// The shared Power Bomb reaction <paramref name="definition"/> names: the ignoring one, or null for common Power

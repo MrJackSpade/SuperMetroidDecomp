@@ -64,7 +64,7 @@ internal static class CrocomireMeltingDefinitionsVerification
 
     /// <summary>The cartridge address of <paramref name="pass"/>'s upload list.</summary>
     private static int UploadListAddress(CrocomireMeltingIllustration pass) =>
-        HeaderAddress(pass) + 8 + 4 * CrocomireMelting.BandCount(pass) + 2;
+        HeaderAddress(pass) + 8 + 4 * CrocomireMelting.BandRound(pass) + 2;
 
     /// <summary>Checks each pass's header: its distortion rows, its copy length and its graphics bank.</summary>
     internal static void VerifyCrocomireMeltHeaders(CartridgeImportAddressSpace rom)
@@ -81,7 +81,7 @@ internal static class CrocomireMeltingDefinitionsVerification
                 $"Crocomire {pass} melt graphics bank");
         }
         AssertEqual(MeltTableAddress + SecondHeaderOffset,
-            UploadListAddress(CrocomireMeltingIllustration.Flesh) + 8 * CrocomireMeltingDefinitions.FirstPassBandCount + 2,
+            UploadListAddress(CrocomireMeltingIllustration.Flesh) + 8 * CrocomireMeltingDefinitions.FirstPassBandRound + 2,
             "the second pass's header follows the first pass's upload terminator");
     }
 
@@ -91,7 +91,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         var source = CartridgeImportSource.Require(rom);
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
-            int bands = CrocomireMelting.BandCount(pass);
+            int bands = CrocomireMelting.BandRound(pass);
             for (int band = 0; band < bands; band++)
             {
                 int copy = HeaderAddress(pass) + 8 + band * 4;
@@ -111,7 +111,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         var source = CartridgeImportSource.Require(rom);
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
-            int bands = CrocomireMelting.BandCount(pass);
+            int bands = CrocomireMelting.BandRound(pass);
             for (int band = 0; band < bands; band++)
             {
                 int upload = UploadListAddress(pass) + band * 8;

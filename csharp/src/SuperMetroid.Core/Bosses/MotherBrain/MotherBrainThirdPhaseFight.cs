@@ -152,7 +152,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.Inactive;
                 return;
 
-            case MotherBrainPhase3NeckPhase.SetupRecoilRecovery:
+            case MotherBrainPhase3NeckPhase.StartRecoilRecovery:
                 Encounter.NeckMovementEnabled = true;
                 Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
                 Encounter.LowerNeckMovement = MotherBrainNeckMovement.Lower;
@@ -172,7 +172,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
                 return;
 
-            case MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil:
+            case MotherBrainPhase3NeckPhase.StartHyperBeamRecoil:
                 Encounter.NeckMovementEnabled = true;
                 Phase3DisableAttacks = true;
                 _state.SetHeadAnimation(MotherBrainHeadSegment.HyperBeamRecoil);
@@ -192,7 +192,7 @@ internal sealed class MotherBrainThirdPhaseFight
 
                 Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Bobbing;
                 Phase3DisableAttacks = false;
-                Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupRecoilRecovery;
+                Phase3NeckPhase = MotherBrainPhase3NeckPhase.StartRecoilRecovery;
                 return;
 
             default:

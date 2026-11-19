@@ -58,6 +58,11 @@ internal sealed class IntroMotherBrainSpriteState
         new(0, IntroCinematicState.GameplayFlashbackVerticalScroll);
 
     /// <summary>True when the exploding behaviour's animation asks for the page the flashback leads into.</summary>
+    /// <remarks>
+    /// The scene's end, kept once its cue reaches it (#2562): the cinematic's phase step, which runs before the actors'
+    /// step on each update, starts the next page on the update after the cue, so the end lasts across that boundary; it is
+    /// set once and never cleared, and the next page's setup discards the scene.
+    /// </remarks>
     public bool NextPageRequested { get; private set; }
 
     /// <summary>Whether the actor still contributes its frame to the cinematic sprites: until page two's crossfade deletes it.</summary>
@@ -113,14 +118,14 @@ internal sealed class IntroMotherBrainSpriteState
     /// The fourth hit starts her explosion, which tests no missiles, so from then on every missile passes through.
     /// </summary>
     /// <param name="impacts">The flashback projectile system's enemy impacts, which kill the missile.</param>
-    /// <param name="sharedProjectiles">The flashback's bombs and power-bomb explosion, which the kill consults.</param>
+    /// <param name="samusBombs">The flashback's bombs and power-bomb explosion, which the kill consults.</param>
     /// <returns>Whether this hit was the fourth, which starts the explosion.</returns>
-    public bool TakeMissileHit(ProjectileEnemyImpacts impacts, SamusBombProjectileSystem sharedProjectiles)
+    public bool TakeMissileHit(ProjectileEnemyImpacts impacts, SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(impacts);
         if (ExplosionStarted)
             return false;
-        return impacts.TryImpactIntroMotherBrainMissile(sharedProjectiles, IntroMotherBrainDefinitions.MissileImpactLine) && RecordMissileHit();
+        return impacts.TryImpactIntroMotherBrainMissile(samusBombs, IntroMotherBrainDefinitions.MissileImpactLine) && RecordMissileHit();
     }
 
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>
@@ -159,9 +164,7 @@ internal sealed class IntroMotherBrainSpriteState
     {
         // The shake adds four on even cinematic frames and subtracts four on odd ones, so the room's scroll alternates
         // between twelve and the flashback's eight and never passes the room's top.
-        Background = Background.WithY(Background.Y +
-            (IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter)
-                ? -IntroMotherBrainDefinitions.RoomShakePixels
-                : IntroMotherBrainDefinitions.RoomShakePixels));
+        Background = Background.WithY(Background.Y + IntroMotherBrainDefinitions.RoomShakePixels.Toward(
+            IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter) ? VerticalDirection.Up : VerticalDirection.Down));
     }
 }

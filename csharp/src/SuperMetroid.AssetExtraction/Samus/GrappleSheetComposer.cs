@@ -18,10 +18,14 @@ internal static class GrappleSheetComposer
     private static IReadOnlyList<SpriteMirror> RopeMirrors { get; } =
         [SpriteMirror.None, SpriteMirror.Horizontal, SpriteMirror.Vertical, SpriteMirror.Horizontal | SpriteMirror.Vertical];
 
+    /// <summary>The rope's orientations in the sheet's order, each listed once (#2567).</summary>
+    private static readonly IReadOnlyList<GrappleRopeOrientation> RopeOrientations =
+        Ensure.EveryMemberOnce(GrappleSheetDefinitions.RopeOrientations);
+
     /// <summary>Every frame the grapple sheet holds.</summary>
     internal static IEnumerable<string> Frames =>
         GrappleSheetDefinitions.Endpoint.Select(GrappleSheets.EndpointFrame)
-            .Concat(Enum.GetValues<GrappleRopeOrientation>().SelectMany(orientation =>
+            .Concat(RopeOrientations.SelectMany(orientation =>
                 GrappleSheetDefinitions.RopePattern.SelectMany(picture =>
                     RopeMirrors.Select(mirror => GrappleSheets.RopeFrame(orientation, picture, mirror)))));
 
@@ -49,7 +53,7 @@ internal static class GrappleSheetComposer
             frames.Add(new(GrappleSheets.EndpointFrame(GrappleSheetDefinitions.Endpoint[point]), SpritePartFrames.CentredSmallObject(endpoint, 0),
                 tiles.OnStandardObjects(inputs.StandardObjects, point, GrappleRopeOrientation.Horizontal)));
         }
-        foreach (GrappleRopeOrientation orientation in Enum.GetValues<GrappleRopeOrientation>())
+        foreach (GrappleRopeOrientation orientation in RopeOrientations)
         {
             SpriteArtwork page = tiles.OnStandardObjects(inputs.StandardObjects, 0, orientation);
             for (int segment = 0; segment < GrappleSpriteDefinitions.SegmentFrameCount; segment++)

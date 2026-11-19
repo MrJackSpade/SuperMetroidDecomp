@@ -14,4 +14,13 @@ internal static class BlockMirroringKeys
         [BlockMirroring.Vertical] = "Vertical",
         [BlockMirroring.Both] = "Both",
     });
+
+    /// <summary>The BlockMirroring members in the order an installed document lists them (#2567), written out beside the keys so reordering the members never changes the bytes written.</summary>
+    internal static IReadOnlyList<BlockMirroring> ListedOrder { get; } =
+    [
+        BlockMirroring.None,
+        BlockMirroring.Horizontal,
+        BlockMirroring.Vertical,
+        BlockMirroring.Both,
+    ];
 }

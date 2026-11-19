@@ -15,8 +15,8 @@ internal static class MotherBrainRandomDefinitions
     /// <summary>The baby metroid's ambient cry on its way to Samus: the top 96 of the 4096 rolls, 4000 and over, cry.</summary>
     internal static readonly RandomChance BabyMetroidCries = RandomChance.Highest(96, RollOf4096);
 
-    /// <summary>The Shitroid's hover: the top 32 of the 4096 rolls, 4064 and over, restart its hover.</summary>
-    internal static readonly RandomChance ShitroidHoverRestarts = RandomChance.Highest(32, RollOf4096);
+    /// <summary>The Baby Metroid's hover: the top 32 of the 4096 rolls, 4064 and over, restart its hover.</summary>
+    internal static readonly RandomChance BabyMetroidHoverRestarts = RandomChance.Highest(32, RollOf4096);
 
     /// <summary>
     /// A dust cloud of Mother Brain's ascent being the short big cloud rather than the small one (#2470): an even choice of

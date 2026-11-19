@@ -12,9 +12,6 @@ internal sealed class CrocomireSpikeWallPieceState(CrocomireSpikeWallPiece piece
     /// <summary>The piece of the wall it is, which sets its motion and its landing sound.</summary>
     internal CrocomireSpikeWallPiece Piece { get; } = Ensure.NotNull(piece);
 
-    /// <summary>The piece's starting vertical speed: four and fifteen thirty-seconds pixels per update upward (#1936, #2181).</summary>
-    private static readonly SignedSixteenSixteen LaunchFallSpeed = SignedSixteenSixteen.FromPixelFraction(-143, 32);
-
     /// <summary>
     /// The piece's sideways acceleration, in pixels per update per update, of which its velocity takes the whole 256ths of a
     /// pixel each update (#1936, #2181); it starts at none and grows to its piece's cap.
@@ -29,5 +26,5 @@ internal sealed class CrocomireSpikeWallPieceState(CrocomireSpikeWallPiece piece
     }
 
     /// <summary>The piece's vertical speed, pixels per update; it starts rising and gravity pulls it down.</summary>
-    internal SignedSixteenSixteen FallSpeed { get; set; } = LaunchFallSpeed;
+    internal SignedSixteenSixteen FallSpeed { get; set; } = CrocomireSpikeMotionDefinitions.WallPieceLaunchSpeed;
 }

@@ -24,6 +24,36 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>The installed content identities of the sprite, enemy, boss-body and room sheets, the X-ray, Samus death and cinematic catalogs, which only the import pipeline and its diagnostics compare (#1502).</summary>
 internal static class InstalledArtworkContentIdentity
 {
+    /// <summary>The destruction's actor roles in the order the content identity hashes them (#2567).</summary>
+    private static readonly CeresDestructionActorRole[] DestructionRoleOrder = [.. Ensure.EveryMemberOnce<CeresDestructionActorRole>(
+    [
+        CeresDestructionActorRole.LargeAsteroids,
+        CeresDestructionActorRole.SmallAsteroids,
+        CeresDestructionActorRole.Vortex,
+    ])];
+
+    /// <summary>The rear view's actor roles in the order the content identity hashes them (#2567).</summary>
+    private static readonly CeresRearViewActorRole[] RearViewRoleOrder = [.. Ensure.EveryMemberOnce<CeresRearViewActorRole>(
+    [
+        CeresRearViewActorRole.LargeAsteroids,
+        CeresRearViewActorRole.StationUnderAttack,
+        CeresRearViewActorRole.SmallAsteroids,
+        CeresRearViewActorRole.Vortex,
+        CeresRearViewActorRole.RearStars,
+    ])];
+
+    /// <summary>The reveal's actor roles in the order the content identity hashes them (#2567).</summary>
+    private static readonly ZebesRevealActorRole[] RevealRoleOrder = [.. Ensure.EveryMemberOnce<ZebesRevealActorRole>(
+    [
+        ZebesRevealActorRole.Planet,
+        ZebesRevealActorRole.StarsUpperLeft,
+        ZebesRevealActorRole.StarsUpperRight,
+        ZebesRevealActorRole.StarsLowerLeft,
+        ZebesRevealActorRole.StarsLowerRight,
+        ZebesRevealActorRole.Title,
+        ZebesRevealActorRole.JapaneseSubtitle,
+    ])];
+
     /// <summary>The installed content identity of a <see cref="InstalledEnemySheets"/>.</summary>
     extension(InstalledEnemySheets installed)
     {
@@ -248,7 +278,8 @@ internal static class InstalledArtworkContentIdentity
         {
             // Each visual is identified by its collision kind's and its reaction's names, in that order (#1722).
             foreach (KeyValuePair<XrayRevealVisualKey, XrayRevealVisualBlocks> pair in reveals.blocks
-                .OrderBy(entry => entry.Key.Type).ThenBy(entry => entry.Key.Reaction?.ToString() ?? string.Empty, StringComparer.Ordinal))
+                .OrderBy(entry => SuperMetroid.AssetExtraction.Samus.XrayRevealVisualFiles.CollisionOrder.PlaceOf(entry.Key.Type))
+                .ThenBy(entry => entry.Key.Reaction?.ToString() ?? string.Empty, StringComparer.Ordinal))
             {
                 XrayRevealVisualBlocks visual = pair.Value;
                 content.AppendName("kind", pair.Key.Type.ToString());
@@ -283,7 +314,7 @@ internal static class InstalledArtworkContentIdentity
         /// <summary>Identity of each role's placement, in role order: the role and both initial visual coordinates.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create("CeresDestructionActorLayout", content =>
         {
-            CeresDestructionActorRole[] roles = Enum.GetValues<CeresDestructionActorRole>();
+            CeresDestructionActorRole[] roles = DestructionRoleOrder;
             content.Append("actors", roles.Length);
             foreach (CeresDestructionActorRole role in roles)
             {
@@ -301,7 +332,7 @@ internal static class InstalledArtworkContentIdentity
         /// <summary>Identity of each role's placement, in role order: the role and both initial visual coordinates.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create("CeresFlightActorLayout", content =>
         {
-            CeresRearViewActorRole[] roles = Enum.GetValues<CeresRearViewActorRole>();
+            CeresRearViewActorRole[] roles = RearViewRoleOrder;
             content.Append("actors", roles.Length);
             foreach (CeresRearViewActorRole role in roles)
             {
@@ -319,7 +350,7 @@ internal static class InstalledArtworkContentIdentity
         /// <summary>Identity of each role's placement, in role order: the role and both initial visual coordinates.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create("CeresRevealActorLayout", content =>
         {
-            ZebesRevealActorRole[] roles = Enum.GetValues<ZebesRevealActorRole>();
+            ZebesRevealActorRole[] roles = RevealRoleOrder;
             content.Append("actors", roles.Length);
             foreach (ZebesRevealActorRole role in roles)
             {

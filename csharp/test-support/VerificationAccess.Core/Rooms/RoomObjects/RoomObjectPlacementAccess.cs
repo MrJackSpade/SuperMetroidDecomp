@@ -60,17 +60,17 @@ internal static class RoomObjectPlacementAccess
         if (cannon is not null)
             throw new InvalidDataException($"Placement {kind} is no Draygon cannon to control a wall cannon.");
         if (RoomObjectKindVariants.ColoredDoors.TryGetValue(kind, out ColoredDoorVariant colored))
-            return new ColoredDoorSetup(colored, Require<LockedDoorArgument>(kind, argument));
+            return new ColoredDoorSetup(colored, Require<DoorLock>(kind, argument));
         if (RoomObjectKindVariants.GreyDoors.TryGetValue(kind, out GreyDoorVariant grey))
-            return new GreyDoorSetup(grey, Require<GreyDoorArgument>(kind, argument));
+            return new GreyDoorSetup(grey, Require<GreyDoorOpening>(kind, argument));
         if (RoomObjectKindVariants.Items.TryGetValue(kind, out PermanentCollectibleObject item))
-            return new CollectibleSetup(item, Require<CollectedItemArgument>(kind, argument));
+            return new CollectibleSetup(item, Require<CollectibleIdentity>(kind, argument));
         if (RoomObjectKindVariants.EyeDoorEyes.TryGetValue(kind, out EyeDoorOrientation eye))
-            return new EyeDoorEyeSetup(eye, Require<LockedDoorArgument>(kind, argument));
+            return new EyeDoorEyeSetup(eye, Require<DoorLock>(kind, argument));
         if (RoomObjectKindVariants.EyeDoorParts.TryGetValue(kind, out EyeDoorPart part))
-            return new EyeDoorPartSetup(part, Require<LockedDoorArgument>(kind, argument));
+            return new EyeDoorPartSetup(part, Require<DoorLock>(kind, argument));
         if (kind == RoomObjectKind.SaveStation)
-            return new SaveStationSetup(Require<SaveStationArgument>(kind, argument));
+            return new SaveStationSetup(Require<SaveStationPlace>(kind, argument));
         if (RoomObjectKindVariants.AccessStations.TryGetValue(kind, out StationAccessRule? station))
         {
             return argument is null ? new AccessStationSetup(station)
@@ -82,8 +82,8 @@ internal static class RoomObjectPlacementAccess
                 : throw new InvalidDataException($"Placement {kind} reads no argument, but its record gives {argument}.");
         }
         if (kind == RoomObjectKind.MetroidRoomClearance)
-            return new MetroidRoomClearanceSetup(Require<MetroidRoomArgument>(kind, argument));
-        if (kind == RoomObjectKind.DownwardGateShotBlock) return new DownwardGateShotBlockSetup(Require<GateTriggerArgument>(kind, argument));
+            return new MetroidRoomClearanceSetup(Require<WatchedMetroidRoom>(kind, argument));
+        if (kind == RoomObjectKind.DownwardGateShotBlock) return new DownwardGateShotBlockSetup(Require<GateShotTrigger>(kind, argument));
         if (argument is not null)
             throw new InvalidDataException($"Placement {kind} reads no argument, but its record gives {argument}.");
         return UnarguedSetups.TryGetValue(kind, out RoomObjectPlacementSetup? setup) ? setup

@@ -25,7 +25,7 @@ internal static class EnemyTurnRateSelectors
     /// <exception cref="InvalidDataException">The speed is finer than a 256th of a pixel.</exception>
     private static AngularSpeed AsTurnRate(string setting, SignedSixteenSixteen speed)
     {
-        AngularSpeed turnRate = AngularSpeed.FromFractionsOfStep(speed.InTwoFiftySixths);
+        AngularSpeed turnRate = AngularSpeedConstants.FromFractionsOfStep(speed.InTwoFiftySixths);
         return SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(turnRate.FractionsOfStep) == speed
             ? turnRate
             : throw new InvalidDataException($"Population words select {setting} {speed.RawValue}/65536, finer than a turning speed holds.");

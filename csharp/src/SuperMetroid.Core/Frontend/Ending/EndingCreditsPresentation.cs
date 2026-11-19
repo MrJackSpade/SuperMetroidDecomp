@@ -16,7 +16,7 @@ internal static class EndingCreditsPresentation
 {
     /// <summary>Resolves the ending display at its existing draw boundary, without rasterization.</summary>
     /// <exception cref="InvalidOperationException">The ending shows a scene the presentation does not draw.</exception>
-    public static LayeredScene CaptureRenderSnapshot(EndingCreditsState ending)
+    public static LayeredScene ComposeScene(EndingCreditsState ending)
     {
         if (ending.UsesExplosionFinaleDisplay) return ending.CaptureExplosionFinale();
         var layers = new List<DisplayLayer>();

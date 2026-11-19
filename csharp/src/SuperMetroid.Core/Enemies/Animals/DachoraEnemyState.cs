@@ -62,11 +62,14 @@ public sealed class DachoraEnemyState
     [IntegerQuantity("updates left before the glow cycle advances")]
     public int GlowTicks => _glowCycle.UpdatesLeft;
 
+    /// <summary>Sets the glow cycle to <paramref name="cycle"/>, as the run, wall, launch and ceiling phases restart or clear it.</summary>
+    internal void SetGlowCycle(DachoraGlowCycle cycle) => _glowCycle = cycle;
+
     /// <summary>
-    /// Sets the glow cycle to show <paramref name="frame"/> after <paramref name="ticks"/> updates, each 0 through 255, as
-    /// the run, wall, launch and ceiling phases restart or clear it.
+    /// Whether the glow cycle still stands where a run starts it (<see cref="DachoraGlowCycleDefinitions.RunStart"/>): the
+    /// update at full speed that finds it there requests the Speed Booster sound.
     /// </summary>
-    internal void SetGlowCycle(int frame, int ticks) => _glowCycle = DachoraGlowCycle.At(frame, ticks);
+    internal bool GlowCycleIsAtRunStart => _glowCycle == DachoraGlowCycleDefinitions.RunStart;
 
     /// <summary>
     /// Counts one update off the glow cycle and reports whether its updates reached zero; counted from a cleared cycle, it

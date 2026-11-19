@@ -12,7 +12,7 @@ internal interface IElevatorJourney
     ElevatorActorStatus ElevatorStatus { get; }
 
     /// <summary>What has armed the elevator's pseudo-door.</summary>
-    ElevatorJourneyFlag ElevatorFlags { get; }
+    ElevatorArming DoorArming { get; }
 
     /// <summary>The way the elevator travels.</summary>
     ElevatorTravelDirection ElevatorTravel { get; }
@@ -20,8 +20,8 @@ internal interface IElevatorJourney
     /// <summary>Whether the elevator, not Samus's own movement, moves Samus this frame.</summary>
     bool ElevatorRunsSamusMovement { get; }
 
-    /// <summary>Returns and clears the arriving elevator that placed Samus during the room load.</summary>
-    RoomEnemyPlace? ConsumeElevatorArrivalPlacement();
+    /// <summary>The elevator that placed Samus as the room loaded for an arriving ride, while that arrival is beginning.</summary>
+    RoomEnemyPlace? ArrivalElevator { get; }
 
     /// <summary>Publishes the elevator's pseudo-door collision.</summary>
     void PublishElevatorDoorContact();

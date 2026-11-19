@@ -33,10 +33,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Rio.</summary>
     internal static void InitializeRio(RoomEnemyPlace place)
     {
-        var state = new RioEnemyState(RioAction.WaitingForSamus)
-        {
-            AnimationFinished = false,
-        };
+        var state = new RioEnemyState(RioAction.WaitingForSamus);
         place.SetSpeciesState(state);
 
         // The Rio rests in its idle animation until its first swoop starts another.
@@ -65,10 +62,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 state.Velocity = new PixelVelocity<RoomPixels>(
-                    RioLaunchDefinitions.RioXVelocity,
+                    RioLaunchDefinitions.RioXVelocity.Toward(RioLaunches.SideOfSamus(place, samus)),
                     RioLaunchDefinitions.RioYVelocity);
-                if (samus.Position.X.Whole < place.Position.X.Whole)
-                    state.Velocity = state.Velocity.ReversedX();
                 StartRioAnimation(
                     place,
                     state,
@@ -82,9 +77,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RioAction.WaitingForLandingAnimation:
-                if (!state.AnimationFinished)
+                if (!state.Finish.Take())
                     return;
-                state.AnimationFinished = false;
                 state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, RioAnimations.PostSwoopHover);
                 state.Action = RioAction.WaitingForSamus;
                 return;
@@ -115,9 +109,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.Zero);
                     state.Action = RioAction.HoveringTowardSamus;
                 }
-                else if (state.AnimationFinished)
+                else if (state.Finish.Take())
                 {
-                    state.AnimationFinished = false;
                     StartRioAnimation(
                         place,
                         state,
@@ -188,7 +181,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case RioCueKind.AnimationFinished:
-                state.AnimationFinished = true;
+                state.Finish.Raise();
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(RioCueKind)} {cue.Kind}.");

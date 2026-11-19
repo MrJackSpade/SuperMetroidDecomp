@@ -40,7 +40,7 @@ internal static class CrawlerBehaviorVerification
             if (family == CrawlerAnimationFamily.Viola)
                 place.SetSpawnSettings(new ViolaSpawnSettings(orientation, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             else
-                place.SetSpawnSettings(new CrawlerSpawnSettings(orientation, CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
+                place.SetSpawnSettings(new CrawlerSpawnSettings(orientation, CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             if (definition == EnemyDefinitionId.OrangeZoomer)
                 CrawlersBehavior.InitializeOrangeZoomer(place);
             else
@@ -54,7 +54,7 @@ internal static class CrawlerBehaviorVerification
             CrawlerSegment loop = CrawlerAnimations.StartingWith(program).Phases[^1].Segment;
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Segments, loop, CrawlerFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Segments, loop)), $"{context} loop");
-            bool sideWall = orientation is CrawlerSurfaceOrientation.UpsideRight or CrawlerSurfaceOrientation.UpsideLeft;
+            bool sideWall = orientation is CrawlerSurfaceOrientation.OnLeftWall or CrawlerSurfaceOrientation.OnRightWall;
             CrawlerAction expected = sideWall ? CrawlerAction.CrawlingVertically : CrawlerAction.CrawlingHorizontally;
             AssertEqual<CrawlerAction?>(CrawlerAction.Settling, state.Action, $"{context} settles first");
             AssertEqual(expected, CrawlersBehavior.CrawlActionOn(state), $"{context} settles into its surface's crawl");

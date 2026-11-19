@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainBody
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
@@ -44,7 +44,7 @@ internal sealed class MotherBrainBody
     {
         _presentation = dependencies.Presentation;
         _places = dependencies.Places;
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
@@ -81,12 +81,12 @@ internal sealed class MotherBrainBody
         // The encounter's setup creates the walk credit, the burst cycle and the brain animation the encounter and its later
         // sequence share.
         // The body begins the encounter, which it holds from here and her head joins (#2218).
-        MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(body, _places.ListedRunAfter(body, count: 1)[0],
+        MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(body, _places.ListedRunAfter(body, MotherBrainFightDefinitions.PartsAfterBody)[0],
             new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation())
         {
             Form = MotherBrainForm.Glass,
             HitboxesEnabled = MotherBrainHitboxParts.Brain,
-            BrainAction = MotherBrainBrainAction.SetupBrainToBeDrawn,
+            BrainAction = MotherBrainBrainAction.ShowsBrainAlone,
         });
         body.SetSpeciesState(state);
         // Her body frames show on her body from here, which her room does not show over the pipe background until her
@@ -94,7 +94,7 @@ internal sealed class MotherBrainBody
         _presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, state));
         // Her glass shards and tube projectiles show their own colours, MotherBrainColours.GlassAndTubes (#1544).
         // Her room's acid rises, which the room loader applies after enemy initialization.
-        _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidRises;
+        _passEvents.Publish(new MotherBrainAcidChange(MotherBrainRoomFxDefinitions.AcidRises));
         SpawnMotherBrainInitialTurrets(state);
     }
 
@@ -280,7 +280,7 @@ internal sealed class MotherBrainBody
             samus.RequestKnockback(EnemyCollisionDefinitions.SamusTouchInvincibilityUpdates,
                 EnemyCollisionDefinitions.SamusTouchKnockbackUpdates, KnockbackHorizontalDirection.Right);
             if (samus.Position.Y.Whole < MotherBrainFightDefinitions.BodyPushDownAboveY)
-                samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+                samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.TurnedDownward();
 
             // Only contact to the right of the hurting touch's edge hurts Samus. Contact
             // elsewhere still installs the displacement and timers above without damage.
@@ -288,7 +288,7 @@ internal sealed class MotherBrainBody
             {
                 // The hurting touch is an ordinary enemy touch: suit-divided damage, the hit's invincibility, and
                 // knockback away from her body.
-                EnemyCollision.ApplyNormalEnemyTouchDamage(samus, state.Body.Definition.Damage, state.Body.Position.X.Whole);
+                EnemyCollision.ApplyOrdinaryTouchDamage(samus, state.Body.Definition.Damage, state.Body.Position.X.Whole);
             }
             return true;
         }

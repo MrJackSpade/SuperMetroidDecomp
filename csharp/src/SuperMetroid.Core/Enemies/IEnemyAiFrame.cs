@@ -33,7 +33,7 @@ internal interface IEnemyAiFrame
     PseudoScrewCharge PseudoScrew { get; }
 
     /// <summary>Shared bomb and power-bomb state.</summary>
-    SamusBombProjectileSystem SharedProjectiles { get; }
+    SamusBombProjectileSystem SamusBombs { get; }
 
     /// <summary>The accepted-frame counters this enemy pass reads.</summary>
     FrameCounters Clock { get; }

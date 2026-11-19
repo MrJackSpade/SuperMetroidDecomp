@@ -26,7 +26,7 @@ internal static class CeresDoorAnimations
             Show(EnemyFrameId.CeresDoorFacingRightThreeQuartersOpen, 2),
             Show(EnemyFrameId.CeresDoorFacingRightHalfOpen, 2),
             Show(EnemyFrameId.CeresDoorFacingRightQuarterOpen, 2),
-            Cue(new(K.HandDrawingToRidley)),
+            Cue(new(K.ShowOverlay)),
             Show(EnemyFrameId.CeresDoorFacingRightClosed, 1),
             Cue(new(K.MakeInvisible)),
         ],
@@ -34,7 +34,7 @@ internal static class CeresDoorAnimations
         [
             Wait(2),
             Cue(new(K.RidleyRoomDoorWaits)),
-            Cue(new(K.MakeVisibleAndTakeDrawingBack)),
+            Cue(new(K.MakeVisibleAndShowActor)),
         ],
         [P.DoorFacingRight] =
         [

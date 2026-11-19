@@ -8,14 +8,14 @@ internal static class YardTurnDefinitions
     /// </summary>
     internal static readonly Dictionary<YardDirection, YardTurnDefinition> Turns = new()
     {
-        [YardDirection.UpsideUpMovingLeft] = new(new(-7, 0), YardSegment.OutsideTurnUpsideUpMovingLeft, YardSegment.InsideTurnUpsideUpMovingLeft),
-        [YardDirection.UpsideLeftMovingDown] = new(new(0, 7), YardSegment.OutsideTurnUpsideLeftMovingDown, YardSegment.InsideTurnUpsideLeftMovingDown),
-        [YardDirection.UpsideDownMovingRight] = new(new(7, 0), YardSegment.OutsideTurnUpsideDownMovingRight, YardSegment.InsideTurnUpsideDownMovingRight),
-        [YardDirection.UpsideRightMovingUp] = new(new(0, -7), YardSegment.OutsideTurnUpsideRightMovingUp, YardSegment.InsideTurnUpsideRightMovingUp),
-        [YardDirection.UpsideUpMovingRight] = new(new(7, 0), YardSegment.OutsideTurnUpsideUpMovingRight, YardSegment.InsideTurnUpsideUpMovingRight),
-        [YardDirection.UpsideRightMovingDown] = new(new(0, 7), YardSegment.OutsideTurnUpsideRightMovingDown, YardSegment.InsideTurnUpsideRightMovingDown),
-        [YardDirection.UpsideDownMovingLeft] = new(new(-7, 0), YardSegment.OutsideTurnUpsideDownMovingLeft, YardSegment.InsideTurnUpsideDownMovingLeft),
-        [YardDirection.UpsideLeftMovingUp] = new(new(0, -7), YardSegment.OutsideTurnUpsideLeftMovingUp, YardSegment.InsideTurnUpsideLeftMovingUp),
+        [YardDirection.OnFloorMovingLeft] = new(new(-7, 0), YardSegment.OutsideTurnOnFloorMovingLeft, YardSegment.InsideTurnOnFloorMovingLeft),
+        [YardDirection.OnRightWallMovingDown] = new(new(0, 7), YardSegment.OutsideTurnOnRightWallMovingDown, YardSegment.InsideTurnOnRightWallMovingDown),
+        [YardDirection.OnCeilingMovingRight] = new(new(7, 0), YardSegment.OutsideTurnOnCeilingMovingRight, YardSegment.InsideTurnOnCeilingMovingRight),
+        [YardDirection.OnLeftWallMovingUp] = new(new(0, -7), YardSegment.OutsideTurnOnLeftWallMovingUp, YardSegment.InsideTurnOnLeftWallMovingUp),
+        [YardDirection.OnFloorMovingRight] = new(new(7, 0), YardSegment.OutsideTurnOnFloorMovingRight, YardSegment.InsideTurnOnFloorMovingRight),
+        [YardDirection.OnLeftWallMovingDown] = new(new(0, 7), YardSegment.OutsideTurnOnLeftWallMovingDown, YardSegment.InsideTurnOnLeftWallMovingDown),
+        [YardDirection.OnCeilingMovingLeft] = new(new(-7, 0), YardSegment.OutsideTurnOnCeilingMovingLeft, YardSegment.InsideTurnOnCeilingMovingLeft),
+        [YardDirection.OnRightWallMovingUp] = new(new(0, -7), YardSegment.OutsideTurnOnRightWallMovingUp, YardSegment.InsideTurnOnRightWallMovingUp),
     };
 
     /// <summary>
@@ -25,9 +25,9 @@ internal static class YardTurnDefinitions
     /// </summary>
     internal static readonly Dictionary<YardDirection, YardSuppressedCrawl> SuppressedCrawls = new()
     {
-        [YardDirection.UpsideUpMovingLeft] = new(YardSegment.CrawlingUpsideLeftMovingDown, YardSegment.CrawlingUpsideRightMovingUp),
-        [YardDirection.UpsideDownMovingRight] = new(YardSegment.CrawlingUpsideRightMovingUp, YardSegment.CrawlingUpsideLeftMovingDown),
-        [YardDirection.UpsideUpMovingRight] = new(YardSegment.CrawlingUpsideRightMovingDown, YardSegment.CrawlingUpsideLeftMovingUp),
-        [YardDirection.UpsideDownMovingLeft] = new(YardSegment.CrawlingUpsideLeftMovingUp, YardSegment.CrawlingUpsideRightMovingDown),
+        [YardDirection.OnFloorMovingLeft] = new(YardSegment.CrawlingOnRightWallMovingDown, YardSegment.CrawlingOnLeftWallMovingUp),
+        [YardDirection.OnCeilingMovingRight] = new(YardSegment.CrawlingOnLeftWallMovingUp, YardSegment.CrawlingOnRightWallMovingDown),
+        [YardDirection.OnFloorMovingRight] = new(YardSegment.CrawlingOnLeftWallMovingDown, YardSegment.CrawlingOnRightWallMovingUp),
+        [YardDirection.OnCeilingMovingLeft] = new(YardSegment.CrawlingOnRightWallMovingUp, YardSegment.CrawlingOnLeftWallMovingDown),
     };
 }

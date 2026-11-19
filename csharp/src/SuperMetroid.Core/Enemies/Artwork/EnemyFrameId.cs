@@ -45,25 +45,25 @@ public enum EnemyFrameId
     /// <summary>Cacatac: upright on the floor, puffed up to shoot its spikes.</summary>
     CacatacUprightPuffedUp,
     /// <summary>Cacatac: upside down on the ceiling, legs splayed.</summary>
-    CacatacUpsideDownSplayed,
+    CacatacOnCeilingSplayed,
     /// <summary>Cacatac: upside down on the ceiling, legs drawing in.</summary>
-    CacatacUpsideDownDrawingIn,
+    CacatacOnCeilingDrawingIn,
     /// <summary>Cacatac: upside down on the ceiling, legs drawn in.</summary>
-    CacatacUpsideDownDrawnIn,
+    CacatacOnCeilingDrawnIn,
     /// <summary>Cacatac: upside down on the ceiling, crouching on drawn-in legs.</summary>
-    CacatacUpsideDownCrouching,
+    CacatacOnCeilingCrouching,
     /// <summary>Cacatac: upside down on the ceiling, legs gathered under it, low.</summary>
-    CacatacUpsideDownGathered,
+    CacatacOnCeilingGathered,
     /// <summary>Cacatac: upside down on the ceiling, legs gathered under it, standing.</summary>
-    CacatacUpsideDownGatheredTall,
+    CacatacOnCeilingGatheredTall,
     /// <summary>Cacatac: upside down on the ceiling, legs spreading.</summary>
-    CacatacUpsideDownSpreading,
+    CacatacOnCeilingSpreading,
     /// <summary>Cacatac: upside down on the ceiling, legs stretched tall.</summary>
-    CacatacUpsideDownStretched,
+    CacatacOnCeilingStretched,
     /// <summary>Cacatac: upside down on the ceiling, puffing up to shoot its spikes.</summary>
-    CacatacUpsideDownPuffingUp,
+    CacatacOnCeilingPuffingUp,
     /// <summary>Cacatac: upside down on the ceiling, puffed up to shoot its spikes.</summary>
-    CacatacUpsideDownPuffedUp,
+    CacatacOnCeilingPuffedUp,
     /// <summary>The boulder: rolling, upright.</summary>
     BoulderTurned0,
     /// <summary>The boulder: rolling, turned an eighth.</summary>
@@ -528,68 +528,68 @@ public enum EnemyFrameId
     RioWingsUpClawsCurled,
     /// <summary>Rio: wings level, claws curled.</summary>
     RioWingsLevelClawsCurled,
-    /// <summary>The Lower Norfair Rio: hovering, wings raised.</summary>
-    LowerNorfairRioWingsRaised,
-    /// <summary>The Lower Norfair Rio: hovering, wings level.</summary>
-    LowerNorfairRioWingsLevel,
-    /// <summary>The Lower Norfair Rio: hovering, wings level, a pixel lower.</summary>
-    LowerNorfairRioWingsLevelDropped,
-    /// <summary>The Lower Norfair Rio: wings lifting.</summary>
-    LowerNorfairRioWingsLifting,
-    /// <summary>The Lower Norfair Rio: wings tilting out.</summary>
-    LowerNorfairRioWingsTilting,
-    /// <summary>The Lower Norfair Rio: wings opening.</summary>
-    LowerNorfairRioWingsOpening,
-    /// <summary>The Lower Norfair Rio: wings spread.</summary>
-    LowerNorfairRioWingsSpread,
-    /// <summary>The Lower Norfair Rio: wings fully spread.</summary>
-    LowerNorfairRioWingsFullySpread,
-    /// <summary>The Lower Norfair Rio: wings closing.</summary>
-    LowerNorfairRioWingsClosing,
-    /// <summary>The Lower Norfair Rio: wings folding.</summary>
-    LowerNorfairRioWingsFolding,
-    /// <summary>The Lower Norfair Rio: wings folded back.</summary>
-    LowerNorfairRioWingsFolded,
-    /// <summary>The Lower Norfair Rio: wings swept back.</summary>
-    LowerNorfairRioWingsSwept,
-    /// <summary>The Lower Norfair Rio: the flame trailing it, large.</summary>
-    LowerNorfairRioFlameLarge,
-    /// <summary>The Lower Norfair Rio: the flame trailing it, medium.</summary>
-    LowerNorfairRioFlameMedium,
-    /// <summary>The Lower Norfair Rio: the flame trailing it, small.</summary>
-    LowerNorfairRioFlameSmall,
-    /// <summary>The Norfair Rio: hovering, wings level.</summary>
-    NorfairRioWingsLevel,
-    /// <summary>The Norfair Rio: hovering, wings spread.</summary>
-    NorfairRioWingsSpread,
-    /// <summary>The Norfair Rio: hovering, wings drooping.</summary>
-    NorfairRioWingsDrooping,
-    /// <summary>The Norfair Rio: the flame trailing it as it rises, large.</summary>
-    NorfairRioRisingFlameLarge,
-    /// <summary>The Norfair Rio: the flame trailing it as it rises, medium.</summary>
-    NorfairRioRisingFlameMedium,
-    /// <summary>The Norfair Rio: the flame trailing it as it rises, small.</summary>
-    NorfairRioRisingFlameSmall,
-    /// <summary>The Norfair Rio: diving, wings swept up.</summary>
-    NorfairRioDiving,
-    /// <summary>The Norfair Rio: wings flattening.</summary>
-    NorfairRioWingsFlattening,
-    /// <summary>The Norfair Rio: wings tilting up.</summary>
-    NorfairRioWingsTilting,
-    /// <summary>The Norfair Rio: wings lifting.</summary>
-    NorfairRioWingsLifting,
-    /// <summary>The Norfair Rio: wings raising.</summary>
-    NorfairRioWingsRaising,
-    /// <summary>The Norfair Rio: wings swept up over it.</summary>
-    NorfairRioWingsSweptUp,
-    /// <summary>The Norfair Rio: climbing, wings spread low.</summary>
-    NorfairRioClimbing,
-    /// <summary>The Norfair Rio: the flame trailing it as it falls, large.</summary>
-    NorfairRioFallingFlameLarge,
-    /// <summary>The Norfair Rio: the flame trailing it as it falls, medium.</summary>
-    NorfairRioFallingFlameMedium,
-    /// <summary>The Norfair Rio: the flame trailing it as it falls, small.</summary>
-    NorfairRioFallingFlameSmall,
+    /// <summary>The Holtz: hovering, wings raised.</summary>
+    HoltzWingsRaised,
+    /// <summary>The Holtz: hovering, wings level.</summary>
+    HoltzWingsLevel,
+    /// <summary>The Holtz: hovering, wings level, a pixel lower.</summary>
+    HoltzWingsLevelDropped,
+    /// <summary>The Holtz: wings lifting.</summary>
+    HoltzWingsLifting,
+    /// <summary>The Holtz: wings tilting out.</summary>
+    HoltzWingsTilting,
+    /// <summary>The Holtz: wings opening.</summary>
+    HoltzWingsOpening,
+    /// <summary>The Holtz: wings spread.</summary>
+    HoltzWingsSpread,
+    /// <summary>The Holtz: wings fully spread.</summary>
+    HoltzWingsFullySpread,
+    /// <summary>The Holtz: wings closing.</summary>
+    HoltzWingsClosing,
+    /// <summary>The Holtz: wings folding.</summary>
+    HoltzWingsFolding,
+    /// <summary>The Holtz: wings folded back.</summary>
+    HoltzWingsFolded,
+    /// <summary>The Holtz: wings swept back.</summary>
+    HoltzWingsSwept,
+    /// <summary>The Holtz: the flame trailing it, large.</summary>
+    HoltzFlameLarge,
+    /// <summary>The Holtz: the flame trailing it, medium.</summary>
+    HoltzFlameMedium,
+    /// <summary>The Holtz: the flame trailing it, small.</summary>
+    HoltzFlameSmall,
+    /// <summary>The Geruta: hovering, wings level.</summary>
+    GerutaWingsLevel,
+    /// <summary>The Geruta: hovering, wings spread.</summary>
+    GerutaWingsSpread,
+    /// <summary>The Geruta: hovering, wings drooping.</summary>
+    GerutaWingsDrooping,
+    /// <summary>The Geruta: the flame trailing it as it rises, large.</summary>
+    GerutaRisingFlameLarge,
+    /// <summary>The Geruta: the flame trailing it as it rises, medium.</summary>
+    GerutaRisingFlameMedium,
+    /// <summary>The Geruta: the flame trailing it as it rises, small.</summary>
+    GerutaRisingFlameSmall,
+    /// <summary>The Geruta: diving, wings swept up.</summary>
+    GerutaDiving,
+    /// <summary>The Geruta: wings flattening.</summary>
+    GerutaWingsFlattening,
+    /// <summary>The Geruta: wings tilting up.</summary>
+    GerutaWingsTilting,
+    /// <summary>The Geruta: wings lifting.</summary>
+    GerutaWingsLifting,
+    /// <summary>The Geruta: wings raising.</summary>
+    GerutaWingsRaising,
+    /// <summary>The Geruta: wings swept up over it.</summary>
+    GerutaWingsSweptUp,
+    /// <summary>The Geruta: climbing, wings spread low.</summary>
+    GerutaClimbing,
+    /// <summary>The Geruta: the flame trailing it as it falls, large.</summary>
+    GerutaFallingFlameLarge,
+    /// <summary>The Geruta: the flame trailing it as it falls, medium.</summary>
+    GerutaFallingFlameMedium,
+    /// <summary>The Geruta: the flame trailing it as it falls, small.</summary>
+    GerutaFallingFlameSmall,
     /// <summary>Puyo: on the ground, domed tall.</summary>
     PuyoGroundedTall,
     /// <summary>Puyo: on the ground, flattening.</summary>
@@ -699,11 +699,11 @@ public enum EnemyFrameId
     /// <summary>Sidehopper: on the floor, crouched low.</summary>
     SidehopperLegsCrouched,
     /// <summary>Sidehopper: upside down on the ceiling, legs straight.</summary>
-    SidehopperUpsideDownLegsStraight,
+    SidehopperOnCeilingLegsStraight,
     /// <summary>Sidehopper: upside down on the ceiling, legs bent.</summary>
-    SidehopperUpsideDownLegsBent,
+    SidehopperOnCeilingLegsBent,
     /// <summary>Sidehopper: upside down on the ceiling, crouched low.</summary>
-    SidehopperUpsideDownLegsCrouched,
+    SidehopperOnCeilingLegsCrouched,
     /// <summary>Dessgeega: on the floor, legs straight.</summary>
     DessgeegaLegsStraight,
     /// <summary>Dessgeega: on the floor, legs bent.</summary>
@@ -711,11 +711,11 @@ public enum EnemyFrameId
     /// <summary>Dessgeega: on the floor, crouched low.</summary>
     DessgeegaLegsCrouched,
     /// <summary>Dessgeega: upside down on the ceiling, legs straight.</summary>
-    DessgeegaUpsideDownLegsStraight,
+    DessgeegaOnCeilingLegsStraight,
     /// <summary>Dessgeega: upside down on the ceiling, legs bent.</summary>
-    DessgeegaUpsideDownLegsBent,
+    DessgeegaOnCeilingLegsBent,
     /// <summary>Dessgeega: upside down on the ceiling, crouched low.</summary>
-    DessgeegaUpsideDownLegsCrouched,
+    DessgeegaOnCeilingLegsCrouched,
     /// <summary>The large Sidehopper, and the dead Sidehopper before the Baby drains it: on the floor, legs straight.</summary>
     LargeSidehopperLegsStraight,
     /// <summary>The large Sidehopper, and the dead Sidehopper before the Baby drains it: on the floor, legs bent.</summary>
@@ -723,11 +723,11 @@ public enum EnemyFrameId
     /// <summary>The large Sidehopper, and the dead Sidehopper before the Baby drains it: on the floor, crouched low.</summary>
     LargeSidehopperLegsCrouched,
     /// <summary>The large Sidehopper: upside down on the ceiling, legs straight.</summary>
-    LargeSidehopperUpsideDownLegsStraight,
+    LargeSidehopperOnCeilingLegsStraight,
     /// <summary>The large Sidehopper: upside down on the ceiling, legs bent.</summary>
-    LargeSidehopperUpsideDownLegsBent,
+    LargeSidehopperOnCeilingLegsBent,
     /// <summary>The large Sidehopper: upside down on the ceiling, crouched low.</summary>
-    LargeSidehopperUpsideDownLegsCrouched,
+    LargeSidehopperOnCeilingLegsCrouched,
     /// <summary>The large Dessgeega: on the floor, legs straight.</summary>
     LargeDessgeegaLegsStraight,
     /// <summary>The large Dessgeega: on the floor, legs bent.</summary>
@@ -735,11 +735,11 @@ public enum EnemyFrameId
     /// <summary>The large Dessgeega: on the floor, crouched low.</summary>
     LargeDessgeegaLegsCrouched,
     /// <summary>The large Dessgeega: upside down on the ceiling, legs straight.</summary>
-    LargeDessgeegaUpsideDownLegsStraight,
+    LargeDessgeegaOnCeilingLegsStraight,
     /// <summary>The large Dessgeega: upside down on the ceiling, legs bent.</summary>
-    LargeDessgeegaUpsideDownLegsBent,
+    LargeDessgeegaOnCeilingLegsBent,
     /// <summary>The large Dessgeega: upside down on the ceiling, crouched low.</summary>
-    LargeDessgeegaUpsideDownLegsCrouched,
+    LargeDessgeegaOnCeilingLegsCrouched,
     /// <summary>Choot: lying flat.</summary>
     ChootLyingFlat,
     /// <summary>Choot: springing up, its edges folding.</summary>
@@ -749,45 +749,45 @@ public enum EnemyFrameId
     /// <summary>Choot: spread out wide as it drifts down.</summary>
     ChootSpreadOut,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top right, its spines turned 0 degrees.</summary>
-    SpinyCrawlerUpsideRightSpinesTurned0,
+    SpinyCrawlerOnLeftWallSpinesTurned0,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top right, its spines turned 12 degrees.</summary>
-    SpinyCrawlerUpsideRightSpinesTurned12,
+    SpinyCrawlerOnLeftWallSpinesTurned12,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top right, its spines turned 24 degrees.</summary>
-    SpinyCrawlerUpsideRightSpinesTurned24,
+    SpinyCrawlerOnLeftWallSpinesTurned24,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top right, its spines turned 36 degrees.</summary>
-    SpinyCrawlerUpsideRightSpinesTurned36,
+    SpinyCrawlerOnLeftWallSpinesTurned36,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top right, its spines turned 48 degrees.</summary>
-    SpinyCrawlerUpsideRightSpinesTurned48,
+    SpinyCrawlerOnLeftWallSpinesTurned48,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top left, its spines turned 0 degrees.</summary>
-    SpinyCrawlerUpsideLeftSpinesTurned0,
+    SpinyCrawlerOnRightWallSpinesTurned0,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top left, its spines turned 12 degrees.</summary>
-    SpinyCrawlerUpsideLeftSpinesTurned12,
+    SpinyCrawlerOnRightWallSpinesTurned12,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top left, its spines turned 24 degrees.</summary>
-    SpinyCrawlerUpsideLeftSpinesTurned24,
+    SpinyCrawlerOnRightWallSpinesTurned24,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top left, its spines turned 36 degrees.</summary>
-    SpinyCrawlerUpsideLeftSpinesTurned36,
+    SpinyCrawlerOnRightWallSpinesTurned36,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top left, its spines turned 48 degrees.</summary>
-    SpinyCrawlerUpsideLeftSpinesTurned48,
+    SpinyCrawlerOnRightWallSpinesTurned48,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top down, its spines turned 0 degrees.</summary>
-    SpinyCrawlerUpsideDownSpinesTurned0,
+    SpinyCrawlerOnCeilingSpinesTurned0,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top down, its spines turned 12 degrees.</summary>
-    SpinyCrawlerUpsideDownSpinesTurned12,
+    SpinyCrawlerOnCeilingSpinesTurned12,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top down, its spines turned 24 degrees.</summary>
-    SpinyCrawlerUpsideDownSpinesTurned24,
+    SpinyCrawlerOnCeilingSpinesTurned24,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top down, its spines turned 36 degrees.</summary>
-    SpinyCrawlerUpsideDownSpinesTurned36,
+    SpinyCrawlerOnCeilingSpinesTurned36,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top down, its spines turned 48 degrees.</summary>
-    SpinyCrawlerUpsideDownSpinesTurned48,
+    SpinyCrawlerOnCeilingSpinesTurned48,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top up, its spines turned 0 degrees.</summary>
-    SpinyCrawlerUpsideUpSpinesTurned0,
+    SpinyCrawlerOnFloorSpinesTurned0,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top up, its spines turned 12 degrees.</summary>
-    SpinyCrawlerUpsideUpSpinesTurned12,
+    SpinyCrawlerOnFloorSpinesTurned12,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top up, its spines turned 24 degrees.</summary>
-    SpinyCrawlerUpsideUpSpinesTurned24,
+    SpinyCrawlerOnFloorSpinesTurned24,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top up, its spines turned 36 degrees.</summary>
-    SpinyCrawlerUpsideUpSpinesTurned36,
+    SpinyCrawlerOnFloorSpinesTurned36,
     /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top up, its spines turned 48 degrees.</summary>
-    SpinyCrawlerUpsideUpSpinesTurned48,
+    SpinyCrawlerOnFloorSpinesTurned48,
     /// <summary>Sbug: facing right, wings up.</summary>
     SbugFacingRightWingsUp,
     /// <summary>Sbug: facing right, wings level.</summary>
@@ -1355,29 +1355,29 @@ public enum EnemyFrameId
     /// <summary>Ridley: its wing facing right, down.</summary>
     RidleyWingFacingRightDown,
     /// <summary>Sciser: scuttling with its top right, legs tucked.</summary>
-    SciserUpsideRightLegsTucked,
+    SciserOnLeftWallLegsTucked,
     /// <summary>Sciser: scuttling with its top right, legs part way out.</summary>
-    SciserUpsideRightLegsMid,
+    SciserOnLeftWallLegsMid,
     /// <summary>Sciser: scuttling with its top right, legs out.</summary>
-    SciserUpsideRightLegsOut,
+    SciserOnLeftWallLegsOut,
     /// <summary>Sciser: scuttling with its top left, legs tucked.</summary>
-    SciserUpsideLeftLegsTucked,
+    SciserOnRightWallLegsTucked,
     /// <summary>Sciser: scuttling with its top left, legs part way out.</summary>
-    SciserUpsideLeftLegsMid,
+    SciserOnRightWallLegsMid,
     /// <summary>Sciser: scuttling with its top left, legs out.</summary>
-    SciserUpsideLeftLegsOut,
+    SciserOnRightWallLegsOut,
     /// <summary>Sciser: scuttling with its top down, legs tucked.</summary>
-    SciserUpsideDownLegsTucked,
+    SciserOnCeilingLegsTucked,
     /// <summary>Sciser: scuttling with its top down, legs part way out.</summary>
-    SciserUpsideDownLegsMid,
+    SciserOnCeilingLegsMid,
     /// <summary>Sciser: scuttling with its top down, legs out.</summary>
-    SciserUpsideDownLegsOut,
+    SciserOnCeilingLegsOut,
     /// <summary>Sciser: scuttling with its top up, legs tucked.</summary>
-    SciserUpsideUpLegsTucked,
+    SciserOnFloorLegsTucked,
     /// <summary>Sciser: scuttling with its top up, legs part way out.</summary>
-    SciserUpsideUpLegsMid,
+    SciserOnFloorLegsMid,
     /// <summary>Sciser: scuttling with its top up, legs out.</summary>
-    SciserUpsideUpLegsOut,
+    SciserOnFloorLegsOut,
     /// <summary>The fly: wings raised and out.</summary>
     FlyWingsRaisedOut,
     /// <summary>The fly: wings raised.</summary>
@@ -1781,197 +1781,197 @@ public enum EnemyFrameId
     /// <summary>The work robot: unpowered, tilted right.</summary>
     WorkRobotUnpoweredTiltedRight,
     /// <summary>Yard: rounding an outside corner with its top to the right, facing up, turned a quarter of the way round.</summary>
-    YardRoundingOutsideCornerUpsideRightFacingUpTurned22,
+    YardRoundingOutsideCornerOnLeftWallFacingUpTurned22,
     /// <summary>Yard: rounding an outside corner with its top to the right, facing up, turned half way round.</summary>
-    YardRoundingOutsideCornerUpsideRightFacingUpTurned45,
+    YardRoundingOutsideCornerOnLeftWallFacingUpTurned45,
     /// <summary>Yard: rounding an outside corner with its top to the right, facing up, turned three quarters of the way round.</summary>
-    YardRoundingOutsideCornerUpsideRightFacingUpTurned67,
+    YardRoundingOutsideCornerOnLeftWallFacingUpTurned67,
     /// <summary>Yard: crawling upright, facing left, legs tucked.</summary>
-    YardCrawlingUpsideUpFacingLeftLegsTucked,
+    YardCrawlingOnFloorFacingLeftLegsTucked,
     /// <summary>Yard: crawling upright, facing left, legs spread.</summary>
-    YardCrawlingUpsideUpFacingLeftLegsSpread,
+    YardCrawlingOnFloorFacingLeftLegsSpread,
     /// <summary>Yard: crawling upright, facing left, legs stepping.</summary>
-    YardCrawlingUpsideUpFacingLeftLegsStepping,
+    YardCrawlingOnFloorFacingLeftLegsStepping,
     /// <summary>Yard: rounding an outside corner upright, facing left, turned a quarter of the way round.</summary>
-    YardRoundingOutsideCornerUpsideUpFacingLeftTurned22,
+    YardRoundingOutsideCornerOnFloorFacingLeftTurned22,
     /// <summary>Yard: rounding an outside corner upright, facing left, turned half way round.</summary>
-    YardRoundingOutsideCornerUpsideUpFacingLeftTurned45,
+    YardRoundingOutsideCornerOnFloorFacingLeftTurned45,
     /// <summary>Yard: rounding an outside corner upright, facing left, turned three quarters of the way round.</summary>
-    YardRoundingOutsideCornerUpsideUpFacingLeftTurned67,
+    YardRoundingOutsideCornerOnFloorFacingLeftTurned67,
     /// <summary>Yard: crawling with its top to the left, facing down, legs tucked.</summary>
-    YardCrawlingUpsideLeftFacingDownLegsTucked,
+    YardCrawlingOnRightWallFacingDownLegsTucked,
     /// <summary>Yard: crawling with its top to the left, facing down, legs spread.</summary>
-    YardCrawlingUpsideLeftFacingDownLegsSpread,
+    YardCrawlingOnRightWallFacingDownLegsSpread,
     /// <summary>Yard: crawling with its top to the left, facing down, legs stepping.</summary>
-    YardCrawlingUpsideLeftFacingDownLegsStepping,
+    YardCrawlingOnRightWallFacingDownLegsStepping,
     /// <summary>Yard: rounding an outside corner with its top to the left, facing down, turned a quarter of the way round.</summary>
-    YardRoundingOutsideCornerUpsideLeftFacingDownTurned22,
+    YardRoundingOutsideCornerOnRightWallFacingDownTurned22,
     /// <summary>Yard: rounding an outside corner with its top to the left, facing down, turned half way round.</summary>
-    YardRoundingOutsideCornerUpsideLeftFacingDownTurned45,
+    YardRoundingOutsideCornerOnRightWallFacingDownTurned45,
     /// <summary>Yard: rounding an outside corner with its top to the left, facing down, turned three quarters of the way round.</summary>
-    YardRoundingOutsideCornerUpsideLeftFacingDownTurned67,
+    YardRoundingOutsideCornerOnRightWallFacingDownTurned67,
     /// <summary>Yard: crawling upside down, facing right, legs tucked.</summary>
-    YardCrawlingUpsideDownFacingRightLegsTucked,
+    YardCrawlingOnCeilingFacingRightLegsTucked,
     /// <summary>Yard: crawling upside down, facing right, legs spread.</summary>
-    YardCrawlingUpsideDownFacingRightLegsSpread,
+    YardCrawlingOnCeilingFacingRightLegsSpread,
     /// <summary>Yard: crawling upside down, facing right, legs stepping.</summary>
-    YardCrawlingUpsideDownFacingRightLegsStepping,
+    YardCrawlingOnCeilingFacingRightLegsStepping,
     /// <summary>Yard: rounding an outside corner upside down, facing right, turned a quarter of the way round.</summary>
-    YardRoundingOutsideCornerUpsideDownFacingRightTurned22,
+    YardRoundingOutsideCornerOnCeilingFacingRightTurned22,
     /// <summary>Yard: rounding an outside corner upside down, facing right, turned half way round.</summary>
-    YardRoundingOutsideCornerUpsideDownFacingRightTurned45,
+    YardRoundingOutsideCornerOnCeilingFacingRightTurned45,
     /// <summary>Yard: rounding an outside corner upside down, facing right, turned three quarters of the way round.</summary>
-    YardRoundingOutsideCornerUpsideDownFacingRightTurned67,
+    YardRoundingOutsideCornerOnCeilingFacingRightTurned67,
     /// <summary>Yard: crawling with its top to the right, facing up, legs tucked.</summary>
-    YardCrawlingUpsideRightFacingUpLegsTucked,
+    YardCrawlingOnLeftWallFacingUpLegsTucked,
     /// <summary>Yard: crawling with its top to the right, facing up, legs spread.</summary>
-    YardCrawlingUpsideRightFacingUpLegsSpread,
+    YardCrawlingOnLeftWallFacingUpLegsSpread,
     /// <summary>Yard: crawling with its top to the right, facing up, legs stepping.</summary>
-    YardCrawlingUpsideRightFacingUpLegsStepping,
+    YardCrawlingOnLeftWallFacingUpLegsStepping,
     /// <summary>Yard: rounding an outside corner with its top to the left, facing up, turned a quarter of the way round.</summary>
-    YardRoundingOutsideCornerUpsideLeftFacingUpTurned22,
+    YardRoundingOutsideCornerOnRightWallFacingUpTurned22,
     /// <summary>Yard: rounding an outside corner with its top to the left, facing up, turned half way round.</summary>
-    YardRoundingOutsideCornerUpsideLeftFacingUpTurned45,
+    YardRoundingOutsideCornerOnRightWallFacingUpTurned45,
     /// <summary>Yard: rounding an outside corner with its top to the left, facing up, turned three quarters of the way round.</summary>
-    YardRoundingOutsideCornerUpsideLeftFacingUpTurned67,
+    YardRoundingOutsideCornerOnRightWallFacingUpTurned67,
     /// <summary>Yard: crawling upright, facing right, legs tucked.</summary>
-    YardCrawlingUpsideUpFacingRightLegsTucked,
+    YardCrawlingOnFloorFacingRightLegsTucked,
     /// <summary>Yard: crawling upright, facing right, legs spread.</summary>
-    YardCrawlingUpsideUpFacingRightLegsSpread,
+    YardCrawlingOnFloorFacingRightLegsSpread,
     /// <summary>Yard: crawling upright, facing right, legs stepping.</summary>
-    YardCrawlingUpsideUpFacingRightLegsStepping,
+    YardCrawlingOnFloorFacingRightLegsStepping,
     /// <summary>Yard: rounding an outside corner upright, facing right, turned a quarter of the way round.</summary>
-    YardRoundingOutsideCornerUpsideUpFacingRightTurned22,
+    YardRoundingOutsideCornerOnFloorFacingRightTurned22,
     /// <summary>Yard: rounding an outside corner upright, facing right, turned half way round.</summary>
-    YardRoundingOutsideCornerUpsideUpFacingRightTurned45,
+    YardRoundingOutsideCornerOnFloorFacingRightTurned45,
     /// <summary>Yard: rounding an outside corner upright, facing right, turned three quarters of the way round.</summary>
-    YardRoundingOutsideCornerUpsideUpFacingRightTurned67,
+    YardRoundingOutsideCornerOnFloorFacingRightTurned67,
     /// <summary>Yard: crawling with its top to the right, facing down, legs tucked.</summary>
-    YardCrawlingUpsideRightFacingDownLegsTucked,
+    YardCrawlingOnLeftWallFacingDownLegsTucked,
     /// <summary>Yard: crawling with its top to the right, facing down, legs spread.</summary>
-    YardCrawlingUpsideRightFacingDownLegsSpread,
+    YardCrawlingOnLeftWallFacingDownLegsSpread,
     /// <summary>Yard: crawling with its top to the right, facing down, legs stepping.</summary>
-    YardCrawlingUpsideRightFacingDownLegsStepping,
+    YardCrawlingOnLeftWallFacingDownLegsStepping,
     /// <summary>Yard: rounding an outside corner with its top to the right, facing down, turned a quarter of the way round.</summary>
-    YardRoundingOutsideCornerUpsideRightFacingDownTurned22,
+    YardRoundingOutsideCornerOnLeftWallFacingDownTurned22,
     /// <summary>Yard: rounding an outside corner with its top to the right, facing down, turned half way round.</summary>
-    YardRoundingOutsideCornerUpsideRightFacingDownTurned45,
+    YardRoundingOutsideCornerOnLeftWallFacingDownTurned45,
     /// <summary>Yard: rounding an outside corner with its top to the right, facing down, turned three quarters of the way round.</summary>
-    YardRoundingOutsideCornerUpsideRightFacingDownTurned67,
+    YardRoundingOutsideCornerOnLeftWallFacingDownTurned67,
     /// <summary>Yard: crawling upside down, facing left, legs tucked.</summary>
-    YardCrawlingUpsideDownFacingLeftLegsTucked,
+    YardCrawlingOnCeilingFacingLeftLegsTucked,
     /// <summary>Yard: crawling upside down, facing left, legs spread.</summary>
-    YardCrawlingUpsideDownFacingLeftLegsSpread,
+    YardCrawlingOnCeilingFacingLeftLegsSpread,
     /// <summary>Yard: crawling upside down, facing left, legs stepping.</summary>
-    YardCrawlingUpsideDownFacingLeftLegsStepping,
+    YardCrawlingOnCeilingFacingLeftLegsStepping,
     /// <summary>Yard: rounding an outside corner upside down, facing left, turned a quarter of the way round.</summary>
-    YardRoundingOutsideCornerUpsideDownFacingLeftTurned22,
+    YardRoundingOutsideCornerOnCeilingFacingLeftTurned22,
     /// <summary>Yard: rounding an outside corner upside down, facing left, turned half way round.</summary>
-    YardRoundingOutsideCornerUpsideDownFacingLeftTurned45,
+    YardRoundingOutsideCornerOnCeilingFacingLeftTurned45,
     /// <summary>Yard: rounding an outside corner upside down, facing left, turned three quarters of the way round.</summary>
-    YardRoundingOutsideCornerUpsideDownFacingLeftTurned67,
+    YardRoundingOutsideCornerOnCeilingFacingLeftTurned67,
     /// <summary>Yard: crawling with its top to the left, facing up, legs tucked.</summary>
-    YardCrawlingUpsideLeftFacingUpLegsTucked,
+    YardCrawlingOnRightWallFacingUpLegsTucked,
     /// <summary>Yard: crawling with its top to the left, facing up, legs spread.</summary>
-    YardCrawlingUpsideLeftFacingUpLegsSpread,
+    YardCrawlingOnRightWallFacingUpLegsSpread,
     /// <summary>Yard: crawling with its top to the left, facing up, legs stepping.</summary>
-    YardCrawlingUpsideLeftFacingUpLegsStepping,
+    YardCrawlingOnRightWallFacingUpLegsStepping,
     /// <summary>Yard: rounding an inside corner upright, facing left, turned a quarter of the way round.</summary>
-    YardRoundingInsideCornerUpsideUpFacingLeftTurned22,
+    YardRoundingInsideCornerOnFloorFacingLeftTurned22,
     /// <summary>Yard: rounding an inside corner upright, facing left, turned half way round.</summary>
-    YardRoundingInsideCornerUpsideUpFacingLeftTurned45,
+    YardRoundingInsideCornerOnFloorFacingLeftTurned45,
     /// <summary>Yard: rounding an inside corner upright, facing left, turned three quarters of the way round.</summary>
-    YardRoundingInsideCornerUpsideUpFacingLeftTurned67,
+    YardRoundingInsideCornerOnFloorFacingLeftTurned67,
     /// <summary>Yard: rounding an inside corner with its top to the right, facing up, turned a quarter of the way round.</summary>
-    YardRoundingInsideCornerUpsideRightFacingUpTurned22,
+    YardRoundingInsideCornerOnLeftWallFacingUpTurned22,
     /// <summary>Yard: rounding an inside corner with its top to the right, facing up, turned half way round.</summary>
-    YardRoundingInsideCornerUpsideRightFacingUpTurned45,
+    YardRoundingInsideCornerOnLeftWallFacingUpTurned45,
     /// <summary>Yard: rounding an inside corner with its top to the right, facing up, turned three quarters of the way round.</summary>
-    YardRoundingInsideCornerUpsideRightFacingUpTurned67,
+    YardRoundingInsideCornerOnLeftWallFacingUpTurned67,
     /// <summary>Yard: rounding an inside corner upside down, facing right, turned a quarter of the way round.</summary>
-    YardRoundingInsideCornerUpsideDownFacingRightTurned22,
+    YardRoundingInsideCornerOnCeilingFacingRightTurned22,
     /// <summary>Yard: rounding an inside corner upside down, facing right, turned half way round.</summary>
-    YardRoundingInsideCornerUpsideDownFacingRightTurned45,
+    YardRoundingInsideCornerOnCeilingFacingRightTurned45,
     /// <summary>Yard: rounding an inside corner upside down, facing right, turned three quarters of the way round.</summary>
-    YardRoundingInsideCornerUpsideDownFacingRightTurned67,
+    YardRoundingInsideCornerOnCeilingFacingRightTurned67,
     /// <summary>Yard: rounding an inside corner with its top to the left, facing down, turned a quarter of the way round.</summary>
-    YardRoundingInsideCornerUpsideLeftFacingDownTurned22,
+    YardRoundingInsideCornerOnRightWallFacingDownTurned22,
     /// <summary>Yard: rounding an inside corner with its top to the left, facing down, turned half way round.</summary>
-    YardRoundingInsideCornerUpsideLeftFacingDownTurned45,
+    YardRoundingInsideCornerOnRightWallFacingDownTurned45,
     /// <summary>Yard: rounding an inside corner with its top to the left, facing down, turned three quarters of the way round.</summary>
-    YardRoundingInsideCornerUpsideLeftFacingDownTurned67,
+    YardRoundingInsideCornerOnRightWallFacingDownTurned67,
     /// <summary>Yard: rounding an inside corner upright, facing right, turned a quarter of the way round.</summary>
-    YardRoundingInsideCornerUpsideUpFacingRightTurned22,
+    YardRoundingInsideCornerOnFloorFacingRightTurned22,
     /// <summary>Yard: rounding an inside corner upright, facing right, turned half way round.</summary>
-    YardRoundingInsideCornerUpsideUpFacingRightTurned45,
+    YardRoundingInsideCornerOnFloorFacingRightTurned45,
     /// <summary>Yard: rounding an inside corner upright, facing right, turned three quarters of the way round.</summary>
-    YardRoundingInsideCornerUpsideUpFacingRightTurned67,
+    YardRoundingInsideCornerOnFloorFacingRightTurned67,
     /// <summary>Yard: rounding an inside corner with its top to the left, facing up, turned a quarter of the way round.</summary>
-    YardRoundingInsideCornerUpsideLeftFacingUpTurned22,
+    YardRoundingInsideCornerOnRightWallFacingUpTurned22,
     /// <summary>Yard: rounding an inside corner with its top to the left, facing up, turned half way round.</summary>
-    YardRoundingInsideCornerUpsideLeftFacingUpTurned45,
+    YardRoundingInsideCornerOnRightWallFacingUpTurned45,
     /// <summary>Yard: rounding an inside corner with its top to the left, facing up, turned three quarters of the way round.</summary>
-    YardRoundingInsideCornerUpsideLeftFacingUpTurned67,
+    YardRoundingInsideCornerOnRightWallFacingUpTurned67,
     /// <summary>Yard: rounding an inside corner upside down, facing left, turned a quarter of the way round.</summary>
-    YardRoundingInsideCornerUpsideDownFacingLeftTurned22,
+    YardRoundingInsideCornerOnCeilingFacingLeftTurned22,
     /// <summary>Yard: rounding an inside corner upside down, facing left, turned half way round.</summary>
-    YardRoundingInsideCornerUpsideDownFacingLeftTurned45,
+    YardRoundingInsideCornerOnCeilingFacingLeftTurned45,
     /// <summary>Yard: rounding an inside corner upside down, facing left, turned three quarters of the way round.</summary>
-    YardRoundingInsideCornerUpsideDownFacingLeftTurned67,
+    YardRoundingInsideCornerOnCeilingFacingLeftTurned67,
     /// <summary>Yard: rounding an inside corner with its top to the right, facing down, turned a quarter of the way round.</summary>
-    YardRoundingInsideCornerUpsideRightFacingDownTurned22,
+    YardRoundingInsideCornerOnLeftWallFacingDownTurned22,
     /// <summary>Yard: rounding an inside corner with its top to the right, facing down, turned half way round.</summary>
-    YardRoundingInsideCornerUpsideRightFacingDownTurned45,
+    YardRoundingInsideCornerOnLeftWallFacingDownTurned45,
     /// <summary>Yard: rounding an inside corner with its top to the right, facing down, turned three quarters of the way round.</summary>
-    YardRoundingInsideCornerUpsideRightFacingDownTurned67,
+    YardRoundingInsideCornerOnLeftWallFacingDownTurned67,
     /// <summary>Yard: upright, facing left, tucking its legs into its shell.</summary>
-    YardUpsideUpFacingLeftLegsTucking,
+    YardOnFloorFacingLeftLegsTucking,
     /// <summary>Yard: upright, facing left, withdrawn into its closed shell.</summary>
-    YardUpsideUpFacingLeftShellClosed,
-    /// <summary>Yard: upright, facing left, putting its legs back out of its shell before it crawls on: the picture of YardUpsideUpFacingLeftLegsTucking, placed 3 pixels further left.</summary>
-    YardUpsideUpFacingLeftLegsEmerging,
+    YardOnFloorFacingLeftShellClosed,
+    /// <summary>Yard: upright, facing left, putting its legs back out of its shell before it crawls on: the picture of YardOnFloorFacingLeftLegsTucking, placed 3 pixels further left.</summary>
+    YardOnFloorFacingLeftLegsEmerging,
     /// <summary>Yard: upside down, facing left, tucking its legs into its shell.</summary>
-    YardUpsideDownFacingLeftLegsTucking,
+    YardOnCeilingFacingLeftLegsTucking,
     /// <summary>Yard: upside down, facing left, withdrawn into its closed shell.</summary>
-    YardUpsideDownFacingLeftShellClosed,
-    /// <summary>Yard: upside down, facing left, putting its legs back out of its shell before it crawls on: the picture of YardUpsideDownFacingLeftLegsTucking, placed 2 pixels further left.</summary>
-    YardUpsideDownFacingLeftLegsEmerging,
+    YardOnCeilingFacingLeftShellClosed,
+    /// <summary>Yard: upside down, facing left, putting its legs back out of its shell before it crawls on: the picture of YardOnCeilingFacingLeftLegsTucking, placed 2 pixels further left.</summary>
+    YardOnCeilingFacingLeftLegsEmerging,
     /// <summary>Yard: upside down, facing right, tucking its legs into its shell.</summary>
-    YardUpsideDownFacingRightLegsTucking,
+    YardOnCeilingFacingRightLegsTucking,
     /// <summary>Yard: upside down, facing right, withdrawn into its closed shell.</summary>
-    YardUpsideDownFacingRightShellClosed,
-    /// <summary>Yard: upside down, facing right, putting its legs back out of its shell before it crawls on: the picture of YardUpsideDownFacingRightLegsTucking, placed 2 pixels further right.</summary>
-    YardUpsideDownFacingRightLegsEmerging,
+    YardOnCeilingFacingRightShellClosed,
+    /// <summary>Yard: upside down, facing right, putting its legs back out of its shell before it crawls on: the picture of YardOnCeilingFacingRightLegsTucking, placed 2 pixels further right.</summary>
+    YardOnCeilingFacingRightLegsEmerging,
     /// <summary>Yard: upright, facing right, tucking its legs into its shell.</summary>
-    YardUpsideUpFacingRightLegsTucking,
+    YardOnFloorFacingRightLegsTucking,
     /// <summary>Yard: upright, facing right, withdrawn into its closed shell.</summary>
-    YardUpsideUpFacingRightShellClosed,
-    /// <summary>Yard: upright, facing right, putting its legs back out of its shell before it crawls on: the picture of YardUpsideUpFacingRightLegsTucking, placed 3 pixels further right.</summary>
-    YardUpsideUpFacingRightLegsEmerging,
+    YardOnFloorFacingRightShellClosed,
+    /// <summary>Yard: upright, facing right, putting its legs back out of its shell before it crawls on: the picture of YardOnFloorFacingRightLegsTucking, placed 3 pixels further right.</summary>
+    YardOnFloorFacingRightLegsEmerging,
     /// <summary>Yard: with its top to the right, facing up, tucking its legs into its shell.</summary>
-    YardUpsideRightFacingUpLegsTucking,
+    YardOnLeftWallFacingUpLegsTucking,
     /// <summary>Yard: with its top to the right, facing up, withdrawn into its closed shell.</summary>
-    YardUpsideRightFacingUpShellClosed,
+    YardOnLeftWallFacingUpShellClosed,
     /// <summary>Yard: with its top to the right, facing up, putting its legs back out of its shell before it crawls on.</summary>
-    YardUpsideRightFacingUpLegsEmerging,
+    YardOnLeftWallFacingUpLegsEmerging,
     /// <summary>Yard: with its top to the left, facing up, tucking its legs into its shell.</summary>
-    YardUpsideLeftFacingUpLegsTucking,
+    YardOnRightWallFacingUpLegsTucking,
     /// <summary>Yard: with its top to the left, facing up, withdrawn into its closed shell.</summary>
-    YardUpsideLeftFacingUpShellClosed,
-    /// <summary>Yard: with its top to the left, facing up, putting its legs back out of its shell before it crawls on: the picture of YardUpsideLeftFacingUpLegsTucking, placed 2 pixels higher.</summary>
-    YardUpsideLeftFacingUpLegsEmerging,
+    YardOnRightWallFacingUpShellClosed,
+    /// <summary>Yard: with its top to the left, facing up, putting its legs back out of its shell before it crawls on: the picture of YardOnRightWallFacingUpLegsTucking, placed 2 pixels higher.</summary>
+    YardOnRightWallFacingUpLegsEmerging,
     /// <summary>Yard: with its top to the left, facing down, tucking its legs into its shell.</summary>
-    YardUpsideLeftFacingDownLegsTucking,
+    YardOnRightWallFacingDownLegsTucking,
     /// <summary>Yard: with its top to the left, facing down, withdrawn into its closed shell.</summary>
-    YardUpsideLeftFacingDownShellClosed,
-    /// <summary>Yard: with its top to the left, facing down, putting its legs back out of its shell before it crawls on: the picture of YardUpsideLeftFacingDownLegsTucking, placed 2 pixels lower.</summary>
-    YardUpsideLeftFacingDownLegsEmerging,
+    YardOnRightWallFacingDownShellClosed,
+    /// <summary>Yard: with its top to the left, facing down, putting its legs back out of its shell before it crawls on: the picture of YardOnRightWallFacingDownLegsTucking, placed 2 pixels lower.</summary>
+    YardOnRightWallFacingDownLegsEmerging,
     /// <summary>Yard: with its top to the right, facing down, tucking its legs into its shell.</summary>
-    YardUpsideRightFacingDownLegsTucking,
+    YardOnLeftWallFacingDownLegsTucking,
     /// <summary>Yard: with its top to the right, facing down, withdrawn into its closed shell.</summary>
-    YardUpsideRightFacingDownShellClosed,
-    /// <summary>Yard: with its top to the right, facing down, putting its legs back out of its shell before it crawls on: the picture of YardUpsideRightFacingDownLegsTucking, placed 2 pixels lower.</summary>
-    YardUpsideRightFacingDownLegsEmerging,
+    YardOnLeftWallFacingDownShellClosed,
+    /// <summary>Yard: with its top to the right, facing down, putting its legs back out of its shell before it crawls on: the picture of YardOnLeftWallFacingDownLegsTucking, placed 2 pixels lower.</summary>
+    YardOnLeftWallFacingDownLegsEmerging,
     /// <summary>Botwoon: head closed up left.</summary>
     BotwoonHeadClosedUpLeft,
     /// <summary>Botwoon: head closed left.</summary>
@@ -2085,37 +2085,37 @@ public enum EnemyFrameId
     /// <summary>The mama turtle: head and legs withdrawn, its shell facing right.</summary>
     TurtleMamaWithdrawnFacingRight,
     /// <summary>Zero: crawling with its top right, contracted.</summary>
-    ZeroUpsideRightContracted,
+    ZeroOnLeftWallContracted,
     /// <summary>Zero: crawling with its top right, stretching, the gaps between its segments showing.</summary>
-    ZeroUpsideRightStretching,
+    ZeroOnLeftWallStretching,
     /// <summary>Zero: crawling with its top right, stretched, its segments parted.</summary>
-    ZeroUpsideRightStretched,
+    ZeroOnLeftWallStretched,
     /// <summary>Zero: crawling with its top right, fully stretched, its segments wide apart.</summary>
-    ZeroUpsideRightFullyStretched,
+    ZeroOnLeftWallFullyStretched,
     /// <summary>Zero: crawling with its top left, contracted.</summary>
-    ZeroUpsideLeftContracted,
+    ZeroOnRightWallContracted,
     /// <summary>Zero: crawling with its top left, stretching, the gaps between its segments showing.</summary>
-    ZeroUpsideLeftStretching,
+    ZeroOnRightWallStretching,
     /// <summary>Zero: crawling with its top left, stretched, its segments parted.</summary>
-    ZeroUpsideLeftStretched,
+    ZeroOnRightWallStretched,
     /// <summary>Zero: crawling with its top left, fully stretched, its segments wide apart.</summary>
-    ZeroUpsideLeftFullyStretched,
+    ZeroOnRightWallFullyStretched,
     /// <summary>Zero: crawling with its top down, contracted.</summary>
-    ZeroUpsideDownContracted,
+    ZeroOnCeilingContracted,
     /// <summary>Zero: crawling with its top down, stretching, the gaps between its segments showing.</summary>
-    ZeroUpsideDownStretching,
+    ZeroOnCeilingStretching,
     /// <summary>Zero: crawling with its top down, stretched, its segments parted.</summary>
-    ZeroUpsideDownStretched,
+    ZeroOnCeilingStretched,
     /// <summary>Zero: crawling with its top down, fully stretched, its segments wide apart.</summary>
-    ZeroUpsideDownFullyStretched,
+    ZeroOnCeilingFullyStretched,
     /// <summary>Zero: crawling with its top up, contracted.</summary>
-    ZeroUpsideUpContracted,
+    ZeroOnFloorContracted,
     /// <summary>Zero: crawling with its top up, stretching, the gaps between its segments showing.</summary>
-    ZeroUpsideUpStretching,
+    ZeroOnFloorStretching,
     /// <summary>Zero: crawling with its top up, stretched, its segments parted.</summary>
-    ZeroUpsideUpStretched,
+    ZeroOnFloorStretched,
     /// <summary>Zero: crawling with its top up, fully stretched, its segments wide apart.</summary>
-    ZeroUpsideUpFullyStretched,
+    ZeroOnFloorFullyStretched,
     /// <summary>Etecoon: standing, looking right.</summary>
     EtecoonLookingRight,
     /// <summary>Etecoon: standing, turning left.</summary>

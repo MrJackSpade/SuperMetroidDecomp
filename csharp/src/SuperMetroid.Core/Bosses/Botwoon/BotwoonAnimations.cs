@@ -8,6 +8,19 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <summary>Botwoon's typed animations (#641): his head's, his body segments' and his spit's (#2400).</summary>
 internal static class BotwoonAnimations
 {
+    /// <summary>Botwoon's facings in the order his segments are listed (#2567).</summary>
+    private static readonly IReadOnlyList<CompassDirection> FacingOrder = Ensure.EveryMemberOnce<CompassDirection>(
+    [
+        CompassDirection.Up,
+        CompassDirection.UpRight,
+        CompassDirection.Right,
+        CompassDirection.DownRight,
+        CompassDirection.Down,
+        CompassDirection.DownLeft,
+        CompassDirection.Left,
+        CompassDirection.UpLeft,
+    ]);
+
     /// <summary>The closed-mouth aiming hold before Botwoon publishes the spit cue.</summary>
     private const int MouthClosedBeforeSpit = 32;
     /// <summary>The usual open-mouth hold after a spit volley.</summary>
@@ -22,7 +35,7 @@ internal static class BotwoonAnimations
     /// <summary>Every head animation's segment: moving and spitting by facing, plus the hidden head.</summary>
     private static readonly BotwoonHeadAnimationSegment[] HeadAnimationKeys =
     [
-        .. Enum.GetValues<CompassDirection>().SelectMany(facing => new[]
+        .. FacingOrder.SelectMany(facing => new[]
         {
             BotwoonHeadAnimationSegment.Moving(facing),
             BotwoonHeadAnimationSegment.Spitting(facing),
@@ -33,7 +46,7 @@ internal static class BotwoonAnimations
     /// <summary>Every body segment animation: body cycles and stationary tail caps by facing, and the hidden link or tail.</summary>
     private static readonly BotwoonBodyAnimationSegment[] BodyAnimationKeys =
     [
-        .. Enum.GetValues<CompassDirection>().SelectMany(facing => new[] { B.Link(facing), B.TailCap(facing) }),
+        .. FacingOrder.SelectMany(facing => new[] { B.Link(facing), B.TailCap(facing) }),
         B.Hidden,
     ];
 
@@ -165,9 +178,9 @@ internal static class BotwoonAnimations
     /// </summary>
     internal static Extent16<RoomPixels> HeadRadius(CompassDirection facing) => facing switch
     {
-        CompassDirection.Up or CompassDirection.Down => new(8, 16),
-        CompassDirection.Left or CompassDirection.Right => new(16, 8),
-        CompassDirection.UpRight or CompassDirection.DownRight or CompassDirection.DownLeft or CompassDirection.UpLeft => new(12, 12),
+        CompassDirection.Up or CompassDirection.Down => BotwoonFightDefinitions.VerticalHeadRadius,
+        CompassDirection.Left or CompassDirection.Right => BotwoonFightDefinitions.HorizontalHeadRadius,
+        CompassDirection.UpRight or CompassDirection.DownRight or CompassDirection.DownLeft or CompassDirection.UpLeft => BotwoonFightDefinitions.DiagonalHeadRadius,
         _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
     };
 

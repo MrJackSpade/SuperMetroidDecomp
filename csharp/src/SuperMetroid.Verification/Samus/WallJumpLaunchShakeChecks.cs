@@ -29,6 +29,6 @@ internal static class WallJumpLaunchShakeChecks
         room.ShakeWallJumpLaunchEnemy(samus);
         foreach (RoomEnemyPlace place in room.Places.InUpdateOrder)
             AssertEqual(ReferenceEquals(place, expected) ? LaunchShakeDraws : 0, place.Shake.UpdatesLeft, $"{message}: enemy {place.Ordinal}'s shake");
-        AssertEqual<ISolidEnemy?>(null, samus.Kinematics.TakeWallJumpLaunchShake(), $"{message}: the enemy pass takes the request once");
+        AssertEqual<ISolidEnemy?>(null, samus.Kinematics.WallJumpLaunch.Take(), $"{message}: the enemy pass takes the request once");
     }
 }

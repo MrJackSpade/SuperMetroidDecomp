@@ -248,7 +248,7 @@ internal static class RoomBlockWriters
     {
         foreach ((XrayRevealVisualKey key, XrayRevealVisualBlocks visual) in xray.blocks)
         {
-            XrayRevealShape command = XrayRevealTable.Find(key.Type, key.Reaction)
+            XrayRevealShape command = XrayReveals.Find(key.Type, key.Reaction)
                 ?? throw new InvalidDataException($"X-ray visual {key.Type}/reaction {key.Reaction} has no reveal rule.");
             bool brinstar = command == XrayRevealShape.CopyBrinstar;
             var blocks = new HashSet<int>(visual.InReadingOrder);
@@ -285,5 +285,5 @@ internal static class RoomBlockWriters
 
     /// <summary>Every block any of a room object's installed frames shows.</summary>
     private static HashSet<int> FrameBlocks<TFrame>(RoomObjectFrameImages<TFrame> images) where TFrame : notnull =>
-        BlocksOf(images.All.Values.SelectMany(image => image.Cells.Values));
+        [.. images.All.Values.SelectMany(image => image.Cells.Values).Where(block => block.ShowsBlock).Select(block => block.Block)];
 }

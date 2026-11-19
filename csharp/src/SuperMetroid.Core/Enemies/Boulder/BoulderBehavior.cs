@@ -38,8 +38,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BoulderEnemyState(BoulderAction.WaitingForSamus);
         place.SetSpeciesState(state);
 
-        state.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
-        state.TravelSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
+        state.BounceCurvePlace = QuadraticSpeedCurvePlace.Start;
+        state.TravelCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.ImpactsSoFar = 0;
         state.RestingY = place.Position.Whole.Y;
         state.PreviousY = place.Position.Y;
@@ -132,11 +132,11 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates down toward the recorded spawn height, then clamps and starts the first rebound.</summary>
     private static void RunBoulderInitialFall(RoomEnemyPlace place, BoulderEnemyState state)
     {
-        AddBoulderVerticalVelocity(place, state.BounceSpeedAccumulator, direction: VerticalDirection.Down);
+        AddBoulderVerticalVelocity(place, state.BounceCurvePlace, direction: VerticalDirection.Down);
         if (place.Position.Y.Whole < state.RestingY)
         {
-            state.BounceSpeedAccumulator = AddAndCap(
-                state.BounceSpeedAccumulator,
+            state.BounceCurvePlace = AddAndCap(
+                state.BounceCurvePlace,
                 BoulderMotionDefinitions.BounceSpeedStep,
                 BoulderMotionDefinitions.MaximumBouncingSpeed);
             return;
@@ -144,27 +144,27 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
         place.Position = place.Position.WithWholeY(state.RestingY);
         state.Action = BoulderAction.Rebound;
-        state.BounceSpeedAccumulator = BoulderMotionDefinitions.FirstReboundBounceSpeed;
+        state.BounceCurvePlace = BoulderMotionDefinitions.FirstReboundBounceSpeed;
     }
 
     /// <summary>Applies upward quadratic motion while reducing bounce speed, adding sideways travel, then returns to falling.</summary>
     private static void RunBoulderRebound(RoomEnemyPlace place, BoulderEnemyState state)
     {
-        AddBoulderVerticalVelocity(place, state.BounceSpeedAccumulator, direction: VerticalDirection.Up);
+        AddBoulderVerticalVelocity(place, state.BounceCurvePlace, direction: VerticalDirection.Up);
 
         // Slowing the rebound by one mark past the curve's start ends it: the boulder falls from the curve's start.
-        QuadraticSpeedCurvePlace slowed = state.BounceSpeedAccumulator - BoulderMotionDefinitions.BounceSpeedStep;
+        QuadraticSpeedCurvePlace slowed = state.BounceCurvePlace - BoulderMotionDefinitions.BounceSpeedStep;
         if (slowed.IsNegative)
         {
-            state.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
+            state.BounceCurvePlace = QuadraticSpeedCurvePlace.Start;
             state.Action = BoulderAction.Falling;
             return;
         }
-        state.BounceSpeedAccumulator = slowed;
+        state.BounceCurvePlace = slowed;
 
         AddBoulderHorizontalVelocity(place, state);
-        state.TravelSpeedAccumulator = AddAndCap(
-            state.TravelSpeedAccumulator,
+        state.TravelCurvePlace = AddAndCap(
+            state.TravelCurvePlace,
             BoulderMotionDefinitions.BouncingTravelSpeedStep,
             BoulderMotionDefinitions.MaximumBouncingSpeed);
     }
@@ -172,7 +172,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates through terrain contact; ordinary impacts consume bounces while a boulder that breaks on impact breaks at the first.</summary>
     private void RunBoulderFalling(RoomEnemyPlace place, BoulderEnemyState state, RoomLevelData level)
     {
-        SignedSixteenSixteen verticalDisplacement = state.BounceSpeedAccumulator.Speed.Positive;
+        SignedSixteenSixteen verticalDisplacement = state.BounceCurvePlace.Speed.Positive;
         if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))
         {
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.BoulderImpactSound, priority: SoundRequestPriority.Normal);
@@ -189,7 +189,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = BoulderAction.Rebound;
 
             // The third impact still restarts the bounce clock, at the curve's start, even though it enters rolling.
-            state.BounceSpeedAccumulator = BoulderBounces.RestartPlace(state.ImpactsSoFar);
+            state.BounceCurvePlace = BoulderBounces.RestartPlace(state.ImpactsSoFar);
             if (++state.ImpactsSoFar == BoulderBounces.ImpactCount)
             {
                 state.PreviousY = place.Position.Y;
@@ -200,10 +200,10 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The fall's place on the curve is not capped: its next update reads the following mark, and the curve
         // rejects a place past its last mark.
-        state.BounceSpeedAccumulator += BoulderMotionDefinitions.BounceSpeedStep;
+        state.BounceCurvePlace += BoulderMotionDefinitions.BounceSpeedStep;
         AddBoulderHorizontalVelocity(place, state);
-        state.TravelSpeedAccumulator = AddAndCap(
-            state.TravelSpeedAccumulator,
+        state.TravelCurvePlace = AddAndCap(
+            state.TravelCurvePlace,
             BoulderMotionDefinitions.BouncingTravelSpeedStep,
             BoulderMotionDefinitions.MaximumBouncingSpeed);
     }
@@ -212,7 +212,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunBoulderRolling(RoomEnemyPlace place, BoulderEnemyState state, RoomLevelData level)
     {
         SignedSixteenSixteen verticalDisplacement =
-            state.TravelSpeedAccumulator.Speed.Positive +
+            state.TravelCurvePlace.Speed.Positive +
             SignedSixteenSixteen.FromWholePixels(state.VerticalCompensation);
         _terrain.MoveEnemyVertically(level, place, verticalDisplacement);
         place.Position = place.Position.WithWhole(place.Position.Whole - new Offset16<RoomPixels>(0, state.VerticalCompensation));
@@ -231,8 +231,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            state.TravelSpeedAccumulator = AddAndCap(
-                state.TravelSpeedAccumulator,
+            state.TravelCurvePlace = AddAndCap(
+                state.TravelCurvePlace,
                 BoulderMotionDefinitions.RollingTravelSpeedStep,
                 BoulderMotionDefinitions.MaximumRollingTravelSpeed);
             if (place.Position.Y == state.PreviousY)
@@ -248,12 +248,12 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Reads the quadratic speed sample and signs it toward the roll its spawn settings name.</summary>
     private static SignedSixteenSixteen ReadBoulderHorizontalDisplacement(RoomEnemyPlace place, BoulderEnemyState state) =>
-        state.TravelSpeedAccumulator.Speed.Toward(place.SpawnSettings<BoulderSpawnSettings>().Roll != BoulderRoll.Right ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        state.TravelCurvePlace.Speed.Toward(place.SpawnSettings<BoulderSpawnSettings>().Roll != BoulderRoll.Right ? HorizontalDirection.Left : HorizontalDirection.Right);
 
     /// <summary>Moves the boulder vertically by its place's speed on the quadratic speed curve, toward <paramref name="direction"/>.</summary>
     private static void AddBoulderVerticalVelocity(RoomEnemyPlace place, QuadraticSpeedCurvePlace accumulator, VerticalDirection direction)
     {
-        SignedSixteenSixteen displacement = accumulator.Speed.Toward(direction == VerticalDirection.Up ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        SignedSixteenSixteen displacement = accumulator.Speed.Toward(direction);
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(displacement));
     }
 

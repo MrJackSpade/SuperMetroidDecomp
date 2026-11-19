@@ -313,9 +313,9 @@ internal static class RoomBlockPicturesVerification
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         var typewriter = new EscapeTypewriterState(runtime.BossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Zebes));
         // The typewriter types each glyph's picture by name (#1466); the overlay is checked against the tiles it typed.
-        RoomWrittenOverlay overlay = RoomWrittenOverlay.Empty;
+        RoomWarningText overlay = RoomWarningText.Empty;
         var typedWords = new int[TwoScreenTilemapCells.Count];
-        Array.Fill(typedWords, RoomWrittenOverlay.Unwritten);
+        Array.Fill(typedWords, RoomWarningText.Unwritten);
         for (EscapeTypewriterStep step = typewriter.Step(); step is not EscapeTypewriterStep.Complete; step = typewriter.Step())
         {
             if (step is EscapeTypewriterStep.Typed { Glyph: var typed })
@@ -328,7 +328,7 @@ internal static class RoomBlockPicturesVerification
         int glyphs = 0;
         for (int index = 0; index < TwoScreenTilemapCells.Count; index++)
         {
-            if (typedWords[index] == RoomWrittenOverlay.Unwritten)
+            if (typedWords[index] == RoomWarningText.Unwritten)
             {
                 AssertTrue(pictures[index] is null, $"{sheet.Name}: nothing typed at word {index} shows nothing");
                 continue;
@@ -531,6 +531,9 @@ internal static class RoomBlockPicturesVerification
                 int tile = map[y / 8 * (FloorSheetComposer.SidePixels / 8) + x / 8];
                 int expected = pixels[tile * 64 + y % 8 * 8 + x % 8];
                 checkedPixels++;
+                // Where an actor rests on the floor, the actor's own picture shows there and the floor is clear (#2573).
+                if (shown.DrawnOver.Any(over => x >= -over.Origin.X && x < -over.Origin.X + over.Size.X && y >= -over.Origin.Y && y < -over.Origin.Y + over.Size.Y))
+                    continue;
                 if (x < left || x >= left + shown.Image.Size.X || y < top || y >= top + shown.Image.Size.Y)
                 {
                     if (expected != 0)

@@ -80,7 +80,7 @@ internal sealed class SamusPresentation
         }
 
         samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(initialDelay.Ticks);
-        samus.PendingTransitionalPose = null;
+        samus.CuePose.Forget();
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ internal sealed class SamusPresentation
         samus.AnimatedPose = pose;
         samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(pose).Require(frame);
         samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
-        samus.PendingTransitionalPose = null;
+        samus.CuePose.Forget();
     }
 
     /// <summary>
@@ -175,7 +175,7 @@ internal sealed class SamusPresentation
         // still rising. This is intentionally tested before the decrement and applies only when the
         // timer's last update remains; release or the apex turns her downward and lets it expire.
         if (samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
-            samus.Kinematics.YDirection != SamusVerticalDirection.Down &&
+            !samus.Kinematics.VerticalVelocity.IsFalling &&
             samus.AnimationIsOn(SamusAnimationFrames.NeutralJumpRise) &&
             samus.AnimationFrameTimer.IsAt(1))
         {
@@ -314,19 +314,19 @@ internal sealed class SamusPresentation
                     SamusPoseId.NeutralJumpTransitionLeftPose or
                     SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
                     return;
-                if (!samus.Control.InputLocked && !demoPoseInput) samus.InputSnapshot.AutoJumpInputPending = true;
+                if (!samus.Control.InputLocked && !demoPoseInput) samus.InputSnapshot.AutoJump.Install();
                 // The transition neither selects a new delay nor advances the shown frame; the pose transitions that
                 // follow the animation consume it.
-                samus.PendingTransitionalPose = turn.Pose;
+                samus.CuePose.Name(turn.Pose);
                 return;
 
             case SamusAnimationItemAirborneTransition itemAirborne:
                 // Moving vertically means any vertical speed at all. Morph entry uses this to finish
                 // without guessing whether the transition walked off a ledge.
-                bool movingVertically = !samus.Kinematics.YSpeed.IsZero;
-                samus.PendingTransitionalPose = samus.EquippedItems.HasAny(itemAirborne.Item)
+                bool movingVertically = samus.Kinematics.VerticalVelocity.IsMoving;
+                samus.CuePose.Name(samus.EquippedItems.HasAny(itemAirborne.Item)
                     ? movingVertically ? itemAirborne.EquippedAirborne : itemAirborne.EquippedGrounded
-                    : movingVertically ? itemAirborne.UnequippedAirborne : itemAirborne.UnequippedGrounded;
+                    : movingVertically ? itemAirborne.UnequippedAirborne : itemAirborne.UnequippedGrounded);
                 return;
 
             case SamusAnimationWallJumpSelect wallJump:
@@ -340,18 +340,18 @@ internal sealed class SamusPresentation
 
             case SamusAnimationVerticalSpeedTransition verticalSpeed:
                 // Read only on a cue value's place (#1535): the pose depends on whether Samus has any vertical speed alone.
-                samus.PendingTransitionalPose = !samus.Kinematics.YSpeed.IsZero
+                samus.CuePose.Name(samus.Kinematics.VerticalVelocity.IsMoving
                     ? verticalSpeed.Airborne
-                    : verticalSpeed.Grounded;
+                    : verticalSpeed.Grounded);
                 return;
 
             case SamusAnimationItemTransition item:
-                samus.PendingTransitionalPose = samus.EquippedItems.HasAny(item.Item) ? item.Equipped : item.Unequipped;
+                samus.CuePose.Name(samus.EquippedItems.HasAny(item.Item) ? item.Equipped : item.Unequipped);
                 return;
 
             case SamusAnimationTransition transition:
                 // Unlike a turn's transition, no selected jump supersedes it.
-                samus.PendingTransitionalPose = transition.Pose;
+                samus.CuePose.Name(transition.Pose);
                 return;
 
             case SamusAnimationRepeat repeat:
@@ -469,62 +469,25 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Draws the two ordinary Speed-Booster echoes from the positions captured by
-    /// the speed-echo position update.
+    /// Draws the two ordinary Speed-Booster echoes where they stand: the positions the speed-echo position update captured,
+    /// or, once cancellation sends them departing, where their departure has carried them
+    /// (<see cref="SamusHorizontalSpeedState.AdvanceDepartingSpeedEchoes"/>). Trailing echoes show only at boost stage
+    /// four. The draw changes nothing (#2573).
     /// </summary>
-    /// <remarks>
-    /// The echoes either trail her or depart. While they capture her positions they draw stationary trailing snapshots,
-    /// only at boost stage four.
-    /// Cancellation sends the echoes departing; drawing then advances each body's
-    /// ±8 X / ±2 Y convergence before deciding whether it crossed the live Samus.
-    /// </remarks>
     public void DrawSpeedBoosterEchoes(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition)
     {
         Ensure.NotNull(sprites);
-
-        if (samus.HorizontalSpeed.SpeedEchoesDeparting)
-        {
-            // The echo update walks the second echo before the first. Movement is a drawing side
-            // effect in the game, so do not advance it earlier in StepFrame: frames
-            // whose drawing of Samus is suppressed must also freeze these copies.
-            if (samus.HorizontalSpeed.AdvanceDepartingSpeedEcho(
-                    SpeedEcho.Second,
-                    samus.Position.Whole))
-            {
-                DrawActiveSpeedBoosterEcho(samus,
-                    sprites,
-                    samus.HorizontalSpeed.SecondSpeedEchoPosition,
-                    cameraPosition);
-            }
-
-            if (samus.HorizontalSpeed.AdvanceDepartingSpeedEcho(
-                    SpeedEcho.First,
-                    samus.Position.Whole))
-            {
-                DrawActiveSpeedBoosterEcho(samus,
-                    sprites,
-                    samus.HorizontalSpeed.FirstSpeedEchoPosition,
-                    cameraPosition);
-            }
-
-            samus.HorizontalSpeed.FinishDepartingSpeedEchoFrame();
+        if (!samus.HorizontalSpeed.SpeedEchoesDeparting && !samus.HorizontalSpeed.IsActivelySpeedBoosting)
             return;
-        }
-
-        if (!samus.HorizontalSpeed.IsActivelySpeedBoosting)
-            return;
-
-        // The echo draw draws the second echo before the first. Drawing order is observable when their
-        // opaque pixels overlap, so retain that otherwise-surprising reverse order.
-        DrawActiveSpeedBoosterEcho(samus,
-            sprites,
-            samus.HorizontalSpeed.SecondSpeedEchoPosition,
-            cameraPosition);
         DrawActiveSpeedBoosterEcho(samus,
             sprites,
             samus.HorizontalSpeed.FirstSpeedEchoPosition,
+            cameraPosition);
+        DrawActiveSpeedBoosterEcho(samus,
+            sprites,
+            samus.HorizontalSpeed.SecondSpeedEchoPosition,
             cameraPosition);
     }
 
@@ -544,14 +507,13 @@ internal sealed class SamusPresentation
             return;
         }
 
-        // The second copy is drawn before the first, as for the boost's echoes.
-        DrawActiveSpeedBoosterEcho(samus,
-            sprites,
-            samus.Shinespark.SecondOrbitingCopy,
-            cameraPosition);
         DrawActiveSpeedBoosterEcho(samus,
             sprites,
             samus.Shinespark.FirstOrbitingCopy,
+            cameraPosition);
+        DrawActiveSpeedBoosterEcho(samus,
+            sprites,
+            samus.Shinespark.SecondOrbitingCopy,
             cameraPosition);
     }
 
@@ -568,11 +530,10 @@ internal sealed class SamusPresentation
         if (!SamusCadenceDefinitions.CrashEchoesDrawnEverySecondUpdate.IsDue(frameCounter))
             return;
 
-        // The second echo is drawn before the first. That ordering controls drawing priority when copies overlap.
-        DrawActiveSpeedBoosterEcho(samus,
-            sprites, samus.Shinespark.SecondReleasedEcho.ShownPosition, cameraPosition);
         DrawActiveSpeedBoosterEcho(samus,
             sprites, samus.Shinespark.FirstReleasedEcho.ShownPosition, cameraPosition);
+        DrawActiveSpeedBoosterEcho(samus,
+            sprites, samus.Shinespark.SecondReleasedEcho.ShownPosition, cameraPosition);
     }
 
     /// <summary>The installed sheets the body draws from.</summary>

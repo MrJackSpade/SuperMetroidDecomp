@@ -379,7 +379,7 @@ public sealed class BabyMetroidCutsceneState
                 bool ceilingCollision = CollidesWithRectangle(target, BabyMetroidCutsceneFlightDefinitions.TargetReach);
                 if (ceilingCollision)
                 {
-                    samus.Drained.PutCrouchingOrFalling(samus);
+                    samus.Drained.CrouchDrained(samus);
                     Phase = BabyMetroidCutscenePhase.MoveToSamus;
                     RouteLeg = BabyMetroidRoute.FirstLeg;
                 }
@@ -558,7 +558,7 @@ public sealed class BabyMetroidCutsceneState
                 // The cutscene's shake first adds -1 to the Y velocity,
                 // which the common mover then applies, and places the Baby at the saved origin
                 // plus the undoubled shaking offsets.
-                Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FromPixelFraction(1, 256));
+                Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FinestStep);
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
                 Position = Position.WithWhole(FatalBlowOrigin + MotherBrainShakeDefinitions.Offsets[shakingIndex]);
                 if (PhaseTimer.StepRunsOut())
@@ -665,7 +665,7 @@ public sealed class BabyMetroidCutsceneState
 
         // After the Baby moves, its hit shake counts down and its hit flash plays on: a hit starts the shake with sixteen
         // updates left, so the next update shakes the Baby at sixteen and shows the flash's first hurt colours.
-        OnionRingHitShake.Step();
+        _ = OnionRingHitShake.Step();
         HurtFlash?.Step();
 
         return new BabyMetroidCutsceneStepResult(

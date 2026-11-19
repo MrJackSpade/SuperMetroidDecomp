@@ -51,7 +51,7 @@ internal sealed class DoorTransitionRunner
     /// <summary>Runs one update of the door's wait for its sounds to finish: enemies and drawing, without Samus's movement.</summary>
     public void RunDoorSoundWaitFrame(ControllerButton controllerInput, RoomScope room, SamusState samus)
     {
-        RunDoorSoundWaitPrologue(controllerInput, room, samus);
+        RunDoorWaitOpening(controllerInput, room, samus);
         DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, room, samus);
     }
 
@@ -61,7 +61,7 @@ internal sealed class DoorTransitionRunner
     /// precedes the door's own step, so its room-FX sound requests are queued before the door cancels and disables
     /// sounds.
     /// </summary>
-    public void RunDoorSoundWaitPrologue(ControllerButton controllerInput, RoomScope room, SamusState samus)
+    public void RunDoorWaitOpening(ControllerButton controllerInput, RoomScope room, SamusState samus)
     {
         _frameBoundary.BeginAcceptedFrame(controllerInput);
         AdvanceEffectsAndRandom(room, samus);
@@ -77,11 +77,11 @@ internal sealed class DoorTransitionRunner
     internal void DrawDoorTransitionActors(DoorTransitionEnemyProjectiles enemyProjectiles, RoomScope room, SamusState samus)
     {
         _sprites.BeginFrame();
-        _enemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Unprepared, room.Camera.PreviousSamusPoint, room, samus);
+        _ = _enemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Unprepared, room.Camera.PreviousSamusPoint, room, samus);
         // The Samus-collision pass belongs to gameplay only.
         if (enemyProjectiles == DoorTransitionEnemyProjectiles.Run)
             RunEnemyProjectiles(room, samus);
-        _actorDrawing.DrawGameplayActors(room, samus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
+        _actorDrawing.DrawGameplayActors(room, samus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
         // Drawing Samus every frame bypasses ordinary hurt flicker after the shared
         // draw. Elevator-owned drawing retains its separate alternating cadence.
         if (room.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive)

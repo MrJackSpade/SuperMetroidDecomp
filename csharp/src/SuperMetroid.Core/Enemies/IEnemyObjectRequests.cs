@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>The room-object work enemies and their room objects hand each other each frame.</summary>
 internal interface IEnemyObjectRequests
 {
-    /// <summary>Applies the Chozo statue room-object work the statues requested this frame.</summary>
-    void ApplyPendingChozoStatueObjects(RoomLevelData level, ChozoStatueObjects chozoStatueObjects);
-
-    /// <summary>Starts the Chozo statue's hand sequence once Samus has triggered its hand.</summary>
-    void ActivateChozoStatueHandTrigger();
+    /// <summary>
+    /// Starts the Chozo statue's hand sequence once Samus has triggered its hand, returning the room objects the trigger
+    /// asks for, which the room spawns at once.
+    /// </summary>
+    IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHandTrigger();
 
     /// <summary>Spawns or wakes the downward gate's projectile a gate room object requested.</summary>
     void ApplyDownwardGateProjectileRequest(DownwardGateProjectileRequest request);

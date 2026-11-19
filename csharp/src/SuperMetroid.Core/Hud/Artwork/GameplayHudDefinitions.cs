@@ -19,4 +19,18 @@ public static class GameplayHudDefinitions
     /// <summary>Fourteen energy tanks in two rows of seven; this excludes the numeric energy count.</summary>
     public const int EnergyTankCount = 14;
 
+    /// <summary>The digits of the energy count, the energy beyond full tanks: two.</summary>
+    public const int EnergyCountDigits = 2;
+
+    /// <summary>The digits of the missile counter: three.</summary>
+    public const int MissileDigits = 3;
+
+    /// <summary>The digits of the Super Missile counter: two.</summary>
+    public const int SuperMissileDigits = 2;
+
+    /// <summary>The digits of the Power Bomb counter: two.</summary>
+    public const int PowerBombDigits = 2;
+
+    /// <summary>The minimap's size: five area-map squares across and three down.</summary>
+    public static Extent16<MapTiles> MinimapSize { get; } = new(5, 3);
 }

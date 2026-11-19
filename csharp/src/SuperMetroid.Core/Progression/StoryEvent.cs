@@ -13,7 +13,7 @@ public enum StoryEvent
     /// <summary>Zebes is awake, set when the initial enemy-death quota unlocks its grey door and used by room progression.</summary>
     ZebesAwake,
     /// <summary>The giant Metroid has drained the Sidehopper, preserving that Tourian encounter milestone.</summary>
-    ShitroidAteSidehopper,
+    BabyMetroidAteSidehopper,
     /// <summary>Mother Brain's glass-breaking room object has completed destruction; room setup and Mother Brain initialization observe the broken-glass state.</summary>
     MotherBrainGlassDestroyed,
     /// <summary>Phantoon's entrance statue has completed its grey transformation; one of four retained prerequisites for Tourian descent.</summary>
@@ -45,12 +45,12 @@ public enum StoryEvent
     /// <summary>The second Tourian Metroid shaft has met its clear condition; the metroids-cleared room object records it for later room-state selection.</summary>
     SecondMetroidShaftCleared,
     /// <summary>
-    /// The rooms leading to the Shitroid skip its encounter music. Nothing in the game ever sets this event. Only the room-state tests of the three rooms leading to the Shitroid read it: when it is set, the
+    /// The rooms leading to the Baby Metroid skip its encounter music. Nothing in the game ever sets this event. Only the room-state tests of the three rooms leading to the Baby Metroid read it: when it is set, the
     /// Blue Hopper room keeps the music already playing and the Dust Torizo room plays Tourian's theme, where both
     /// otherwise start the Baby Metroid encounter's music, and the Big Boy room selects a state identical to its default.
     /// It is named for those alternate states.
     /// </summary>
-    ShitroidEncounterMusicSkipped,
+    BabyMetroidEncounterMusicSkipped,
     /// <summary>The Speed Booster escape room object has detected that Samus outran the rising-lava earthquake sequence, suppressing that hazard on later activation.</summary>
     OutranSpeedBoosterLavaquake,
 }

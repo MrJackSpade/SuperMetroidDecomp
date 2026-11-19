@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -18,6 +19,38 @@ public sealed class GameplayMessageArtwork(
     GameplayMessagePanelPresentation? panels = null,
     GameplayMessageNoticePresentation? notices = null)
 {
+    /// <summary>The messages the ordinary message coroutine shows, in the order the message sheets hold them (#2567).</summary>
+    private static readonly IReadOnlyList<GameplayMessageId> MessageOrder = Ensure.EveryMemberOnce<GameplayMessageId>(
+    [
+        GameplayMessageId.EnergyTank,
+        GameplayMessageId.MissileTank,
+        GameplayMessageId.SuperMissileTank,
+        GameplayMessageId.PowerBombTank,
+        GameplayMessageId.GrappleBeam,
+        GameplayMessageId.XrayScope,
+        GameplayMessageId.VariaSuit,
+        GameplayMessageId.SpringBall,
+        GameplayMessageId.MorphBall,
+        GameplayMessageId.ScrewAttack,
+        GameplayMessageId.HiJumpBoots,
+        GameplayMessageId.SpaceJump,
+        GameplayMessageId.SpeedBooster,
+        GameplayMessageId.ChargeBeam,
+        GameplayMessageId.IceBeam,
+        GameplayMessageId.WaveBeam,
+        GameplayMessageId.SpazerBeam,
+        GameplayMessageId.PlasmaBeam,
+        GameplayMessageId.Bombs,
+        GameplayMessageId.MapDataAccessCompleted,
+        GameplayMessageId.EnergyRechargeCompleted,
+        GameplayMessageId.MissileRechargeCompleted,
+        GameplayMessageId.SaveConfirmation,
+        GameplayMessageId.SaveCompleted,
+        GameplayMessageId.ReserveTank,
+        GameplayMessageId.GravitySuit,
+        GameplayMessageId.GunshipSaveConfirmation,
+    ]);
+
     /// <summary>The one-row titles, or null.</summary>
     public GameplayMessageTitlePresentation? Titles { get; } = titles;
 
@@ -85,5 +118,5 @@ public sealed class GameplayMessageArtwork(
 
     /// <summary>The messages the ordinary message coroutine shows.</summary>
     private static IEnumerable<GameplayMessageId> OrdinaryMessages =>
-        Enum.GetValues<GameplayMessageId>();
+        MessageOrder;
 }

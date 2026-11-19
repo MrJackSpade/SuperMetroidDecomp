@@ -37,4 +37,11 @@ public static class MotherBrainBeamDefinitions
 
     /// <summary>How far one widening or narrowing of the rainbow beam changes its width: one and a half steps.</summary>
     public static readonly RotationAngle RainbowWidthStep = RotationAngle.FromStepFraction(3, 2);
+
+    /// <summary>
+    /// Where the beam's explosions burst from Samus, whom each then follows, in the order they burst: the first beam explosion takes the
+    /// first, and the last is followed by the first again (#2258).
+    /// </summary>
+    public static IReadOnlyList<Offset16<RoomPixels>> ExplosionOffsets { get; } =
+        [new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7), new(-8, -7)];
 }

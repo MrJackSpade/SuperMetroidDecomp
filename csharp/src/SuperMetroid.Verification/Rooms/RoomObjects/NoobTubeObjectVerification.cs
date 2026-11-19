@@ -352,7 +352,7 @@ internal static class NoobTubeObjectVerification
     /// <summary>The strike the live glass tube has not yet read, or null for none.</summary>
     private static ResidentObjectProjectileHit? PendingTubeHit(RoomObjectSystem roomObjects) =>
         (roomObjects.PopulationPlaces.Single().Behaviour as NoobTubeObject
-            ?? throw new InvalidOperationException("The glass tube is not a typed object.")).PendingHit;
+            ?? throw new InvalidOperationException("The glass tube is not a typed object.")).AwaitingStrike;
 
     /// <summary>Advances one PLM tick with the requested new-input edge and a fixed camera.</summary>
     internal static void StepNoobTube(

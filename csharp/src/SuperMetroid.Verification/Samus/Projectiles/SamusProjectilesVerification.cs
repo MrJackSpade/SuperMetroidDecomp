@@ -225,7 +225,7 @@ internal static void VerifySamusPowerBeamProjectiles()
                 nativeUnchargedSounds[beamType]),
             combinedResult.QueuedSoundEffect,
             $"beam combination {beamType} indexes uncharged sound");
-        AssertEqual(10, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.BeamFiring, global::SuperMetroid.Core.UpdateCountdown>(combinedProjectiles.Firing, "InteractionImmunity").UpdatesLeft,
+        AssertEqual(10, combinedProjectiles.Firing.InteractionImmunity.UpdatesLeft,
             $"beam combination {beamType} publishes native invincibility timer");
 
         SamusShotBehavior expectedFrameBehavior = (beamType & 1) == 0
@@ -285,7 +285,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             cadenceBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, cadenceSamus, 0, 0);
             cadenceProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, cadenceSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), cadenceBombs, new SharedGameState(new SharedRandom()));
         }
-        AssertEqual<int?>(expectedReload, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile, global::SuperMetroid.Core.UpdateCountdown?>(cadenceProjectiles.Shots[0], "Trail")?.UpdatesLeft,
+        AssertEqual<int?>(expectedReload, cadenceProjectiles.Shots[0].Trail?.UpdatesLeft,
             $"wave combination {beamType} reloads native trail cadence");
     }
 
@@ -334,7 +334,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         });
         flareBecameVisible |= flareOam.LastFinalizedSpriteCount != 0;
     }
-    AssertEqual(60, chargeProjectiles.Charge.FlareCounter,
+    AssertEqual(60, chargeProjectiles.Charge.UpdatesHeld,
         "charge held frames reach armed threshold");
     AssertTrue(flareBecameVisible, "charge flare becomes visible from ROM spritemap table");
     VerifySpinChargePreservation(bus, air, fixtureFrames);
@@ -492,7 +492,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "charged release starts the charged shot's flash");
     AssertEqual(4, (int)SamusSnapshotWords.EncodeChargedShotGlow(chargeProjectiles.Charge.ChargedShotGlow),
         "charged release starts the flash at its start");
-    AssertEqual(0, chargeProjectiles.Charge.FlareCounter,
+    AssertEqual(0, chargeProjectiles.Charge.UpdatesHeld,
         "charged release clears flare counter");
 
     // `$91:D799-$D7AE` decrements before testing zero. Calls one through three paint only
@@ -556,21 +556,21 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(bridgeSamus, 
         SamusPoseId.NeutralJumpTransitionRightPose,
         controllerNewInput: GameplayAction.Shoot);
-    AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { (global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)(SamusProjectileDirection.Right) }), bridgeSamus.PendingTransitionShot,
+    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SamusProjectileDirection.Right), bridgeSamus.TransitionShot.Handed,
         "normal-jump initializer hands over the new pose's shot direction");
     bridgeBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, bridgeSamus, 0, 0);
     SamusProjectileSlotObservation beforeBridgeRelease = bridgeProjectiles.ObserveSlots();
-    bridgeProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, bridgeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, cameraPosition: new(0, 0), sharedProjectiles: bridgeBombs, progression: new SharedGameState(new SharedRandom()));
+    bridgeProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, bridgeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, cameraPosition: new(0, 0), samusBombs: bridgeBombs, progression: new SharedGameState(new SharedRandom()));
     int? bridgeReleaseSlot = beforeBridgeRelease.FiredSlot(bridgeProjectiles);
     AssertTrue(bridgeReleaseSlot is not null,
         "pose-direction bridge forces charged release while Shoot remains held");
     AssertEqual(SamusProjectileDirection.Right,
         bridgeProjectiles.Shots[(bridgeReleaseSlot ?? throw new InvalidOperationException("Verification requires bridgeReleaseSlot."))].Direction,
         "pose-direction bridge supplies stored low-byte direction");
-    AssertEqual(0, bridgeProjectiles.Charge.FlareCounter,
+    AssertEqual(0, bridgeProjectiles.Charge.UpdatesHeld,
         "pose-direction bridge consumes charge counter");
-    SamusAerialPoseTransitions.DropPendingTransitionShot(bridgeSamus);
-    AssertEqual<SamusTransitionShot?>(null, bridgeSamus.PendingTransitionShot,
+    SamusAerialPoseTransitions.DropTransitionShot(bridgeSamus);
+    AssertEqual<SamusTransitionShot?>(null, bridgeSamus.TransitionShot.Handed,
         "current-state epilogue clears pose-direction bridge");
 
     // Charged combinations index the parallel pointer/sound range and cooldown bytes
@@ -642,7 +642,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(1000, hyperSlot.Damage, "Hyper Beam overwrites ROM-table damage with 1000");
     AssertEqual(SamusShotBehaviors.HyperBeam, hyperSlot.Behavior,
         "Hyper Beam selects trail-free Wave movement");
-    AssertEqual<int?>(null, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile, global::SuperMetroid.Core.UpdateCountdown?>(hyperSlot, "Trail")?.UpdatesLeft, "Hyper Beam does not arm a projectile trail");
+    AssertEqual<int?>(null, hyperSlot.Trail?.UpdatesLeft, "Hyper Beam does not arm a projectile trail");
     AssertEqual(21, hyperBombs.CooldownTimer, "Hyper Beam installs literal cooldown 21");
     AssertEqual(
         (SoundEffectId?)SoundEffectCommands.Decode(
@@ -1015,7 +1015,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "missile increments the shared ordinary-projectile counter");
     AssertEqual(10, missileBombs.CooldownTimer,
         "missile producer installs literal ten-frame shared cooldown");
-    AssertEqual(20, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.BeamFiring, global::SuperMetroid.Core.UpdateCountdown>(missileProjectiles.Firing, "InteractionImmunity").UpdatesLeft,
+    AssertEqual(20, missileProjectiles.Firing.InteractionImmunity.UpdatesLeft,
         "missile producer installs literal projectile invincibility timer twenty");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), missile.Type, "missile is an ordinary missile");
     AssertEqual(0x0064, missile.Damage, "missile reads damage from `$93:8641`");
@@ -1534,7 +1534,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     AssertEqual(1, superProjectiles.LiveTrails.Count,
         "super's initial four-count leaves its first exhaust trail");
-    AssertEqual<int?>(2, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile, global::SuperMetroid.Core.UpdateCountdown?>(super, "Trail")?.UpdatesLeft,
+    AssertEqual<int?>(2, super.Trail?.UpdatesLeft,
         "super exhaust reloads two instead of missile four");
 
     bool superExploded = false;

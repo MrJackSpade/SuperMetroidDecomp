@@ -7,6 +7,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title;
 /// <param name="Cards">Each card typing step's spritemap.</param>
 internal sealed record TitleSpritemaps(IReadOnlyDictionary<TitleSprite, int> Sprites, IReadOnlyDictionary<TitleCardTyping, int> Cards)
 {
-    /// <summary>Every spritemap, the compositions' then the cards'.</summary>
-    internal IEnumerable<int> All => Sprites.Values.Concat(Cards.Values);
+    /// <summary>Whether every composition and card typing has a spritemap of its own.</summary>
+    internal bool AllDistinct => Spritemaps.Count == Sprites.Count + Cards.Count;
+
+    /// <summary>Every spritemap the compositions and card typings name, each once.</summary>
+    internal IReadOnlySet<int> Spritemaps => Sprites.Values.Concat(Cards.Values).ToHashSet();
 }

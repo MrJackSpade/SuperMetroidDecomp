@@ -5,8 +5,5 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal sealed class GunshipSession(GunshipBehavior gunship) : IGunshipSession
 {
     /// <inheritdoc/>
-    public bool SavePromptPending => gunship.GunshipSavePromptPending;
-
-    /// <inheritdoc/>
     public void AnswerSavePrompt() => gunship.AnswerGunshipSavePrompt();
 }

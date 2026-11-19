@@ -40,19 +40,14 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         MultiviolaEnemyState state,
         RoomLevelData level)
     {
-        // Each update takes the speeds along each axis afresh from the heading the bounces turn (#2531). The products are
-        // magnitudes; the signs of the heading's cosine and sine give each axis its direction. They are not
-        // EnemyMath.VelocityAlong's components: an axis the Multiviola heads left or up along takes MultiviolaLeftOrUpSpeed,
-        // which is not the speed's exact reverse and moves it a pixel an update even where the axis has no speed.
-        int speed = place.SpawnSettings<MultiviolaSpawnSettings>().Speed;
-        SignedSixteenSixteen horizontalDisplacement = EnemyMath.AbsoluteCosineSpeed(state.Heading, speed).AsDisplacement();
-        if (!EnemyMath.CosineIsNegative(state.Heading))
-            horizontalDisplacement = MultiviolaLeftOrUpSpeed.Of(horizontalDisplacement);
-
+        // Each update takes the velocity afresh from the heading the bounces turn (#2531). It is not
+        // EnemyMath.VelocityAlong: an axis the Multiviola heads left or up along moves at MultiviolaLeftOrUpSpeed, which is
+        // not the speed's exact reverse and moves it a pixel an update even where the axis has no speed.
+        FixedVector<RoomPixels> velocity = MultiviolaLeftOrUpSpeed.VelocityAlong(state.Heading, place.SpawnSettings<MultiviolaSpawnSettings>().Speed);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
-                horizontalDisplacement))
+                velocity.X))
         {
             // Bounce off the wall. As in the game, vertical movement is skipped
             // on a horizontal collision, so a corner can consume two frames to reflect both
@@ -62,11 +57,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The wall test left the heading as it was, so the vertical speed is the one this update's heading gives.
-        SignedSixteenSixteen verticalDisplacement = EnemyMath.AbsoluteSineSpeed(state.Heading, speed).AsDisplacement();
-        if (!EnemyMath.SineIsNegative(state.Heading))
-            verticalDisplacement = MultiviolaLeftOrUpSpeed.Of(verticalDisplacement);
-
-        if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))
+        if (_terrain.MoveEnemyVertically(level, place, velocity.Y))
             state.Heading = MultiviolaQuarterBounce.OffFloorOrCeiling(state.Heading);
     }
 

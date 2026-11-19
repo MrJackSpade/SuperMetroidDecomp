@@ -39,7 +39,7 @@ public sealed class YardKickTrackingDistance
     public SignedSixteenSixteen HorizontalDistancePlusOne { get; private set; }
 
     /// <summary>The measure Samus's initialisation leaves before the camera has tracked her: no movement, plus one pixel.</summary>
-    private static SignedSixteenSixteen InitialDistancePlusOne => SignedSixteenSixteen.FromWholePixels(1);
+    private static SignedSixteenSixteen InitialDistancePlusOne => SignedSixteenSixteen.OnePixel;
 
     /// <summary>Records the camera's horizontal measure of Samus's movement, plus one pixel, as the scrolling leaves it.</summary>
     /// <param name="distancePlusOne">The distance the camera measured, plus one pixel.</param>

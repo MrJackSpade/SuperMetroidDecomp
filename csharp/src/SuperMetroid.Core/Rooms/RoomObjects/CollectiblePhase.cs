@@ -1,6 +1,11 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>Phase of one permanent-item room object.</summary>
+/// <remarks>
+/// VisibleTouched, ChozoOrbShot, ShotBlockShot, ShotBlockVisibleTouched and CollectedShotBlockShot are states of its course, not requests another owner stores for it (#2562): a cue, a touch or a shot ends
+/// the state before, and the game acts on it one update later, the state naming where it stands until then; the update
+/// that acts on it moves it on, as every other state's does. The update between is the game's.
+/// </remarks>
 public enum CollectiblePhase
 {
     /// <summary>A previously collected exposed or orb item awaits its empty draw and immediate removal from the room.</summary>

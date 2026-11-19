@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class SamusCrystalFlashState
 {
     /// <summary>The exact held actions that start Crystal Flash: Down, both aims and Shoot, and nothing else.</summary>
-    private const GameplayAction RequiredInput =
+    public const GameplayAction RequiredInput =
         GameplayAction.Down | GameplayAction.AimDown | GameplayAction.AimUp | GameplayAction.Shoot;
 
     /// <summary>The phase in which Crystal Flash moves Samus, or none once another owner has taken her movement.</summary>
@@ -69,36 +69,33 @@ public sealed class SamusCrystalFlashState
     /// Another special suit colouring takes over from Crystal Flash's, along with its running timer. Its pulse and bubble
     /// play no more until Crystal Flash starts them again.
     /// </summary>
-    internal void RelinquishSuitColouring() => BeamShadeRestoreRequested = false;
+    internal void RelinquishSuitColouring() => Colouring = SpecialColouringStage.Showing;
 
     /// <summary>
     /// The room line Samus's whole Y reached at the end of the complete 20-pixel rise: the finishing phase walks her down
     /// one pixel an update while her whole Y differs from it.
     /// </summary>
-    private int RaisedHeight { get; set; }
+    public int RaisedHeight { get; private set; }
 
     /// <summary>
     /// The body's colour pulse (#2387), its ten shades of ten colouring updates each played over and over: activation
     /// starts it, and its first shade shows on the flash's first colouring update.
     /// </summary>
-    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BodyPulse { get; } =
+    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BodyPulse { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.CrystalFlashBody);
 
     /// <summary>
     /// The bubble's colours turning (#2387), its six shades of five colouring updates each played over and over on their
     /// own count beside the body's: activation starts it, and its first shade shows on the flash's first colouring update.
     /// </summary>
-    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BubbleTurn { get; } =
+    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BubbleTurn { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.CrystalFlashBubble);
 
     /// <summary>
-    /// Whether the flash has finished and asks its next colouring update to show the equipped beams' colours again and
-    /// release the shade.
+    /// Where the flash's colouring stands (#2562): showing its pulse and bubble, or ended by the flash's finish, its next
+    /// colouring update showing the equipped beams' colours again and releasing the shade.
     /// </summary>
-    private bool BeamShadeRestoreRequested { get; set; }
-
-    /// <summary>Set when the raise finishes and the bubble's explosion and its glow start.</summary>
-    private bool BubbleEffectRequested { get; set; }
+    public SpecialColouringStage Colouring { get; private set; }
 
 /// <summary>
     /// Starts Crystal Flash when Samus may use it: checks every admission condition and sets up the raise.
@@ -122,7 +119,7 @@ public sealed class SamusCrystalFlashState
         // The remaining preconditions are literal comparisons. Reserve energy must
         // be empty even when the reserve mode is manual; possession of a reserve tank alone
         // does not matter. Each current ammo count, not its maximum, must supply the flash's ammunition.
-        if (!samus.Kinematics.YSpeed.IsZero ||
+        if (samus.Kinematics.VerticalVelocity.IsMoving ||
             samus.Health >= CrystalFlashDefinitions.AdmittingEnergyBelow || samus.ReserveEnergy != 0 ||
             samus.Missiles < CrystalFlashDefinitions.AmmunitionPerKind ||
             samus.SuperMissiles < CrystalFlashDefinitions.AmmunitionPerKind ||
@@ -165,8 +162,7 @@ public sealed class SamusCrystalFlashState
         _colouring.Take(SamusSpecialColouringKind.CrystalFlash);
         SamusGlowPlay.Restart(BodyPulse, SamusGlowSegment.CrystalFlashBody);
         SamusGlowPlay.Restart(BubbleTurn, SamusGlowSegment.CrystalFlashBubble);
-        BeamShadeRestoreRequested = false;
-        BubbleEffectRequested = false;
+        Colouring = SpecialColouringStage.Showing;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
         samus.KnockbackHold = UpdateCountdown.Ended();
@@ -217,7 +213,7 @@ public sealed class SamusCrystalFlashState
 
         return new CrystalFlashMovementResult(
             phaseAtStart,
-            BubbleEffectRequested);
+            BubbleStarted: phaseAtStart == CrystalFlashPhase.Raising && Phase == CrystalFlashPhase.DrainingAmmo);
     }
 
     /// <summary>Raises Samus two whole pixels for ten updates, then starts the drain phase and requests the bubble effect.</summary>
@@ -235,7 +231,6 @@ public sealed class SamusCrystalFlashState
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.CrystalFlashGlow, timer: CrystalFlashDefinitions.PhasePictureHold);
         RaisedHeight = samus.Position.Y.Whole;
         Phase = CrystalFlashPhase.DrainingAmmo;
-        BubbleEffectRequested = true;
         // The raise becomes the main phase with one essential-priority request that silences the room library.
         samus.AudioRequests.QueueSound(RoomSound.Silence, SoundRequestPriority.Essential);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
@@ -298,7 +293,7 @@ public sealed class SamusCrystalFlashState
         // end of the rise. Anything else that moved Samus up or down makes her whole vertical position step down one
         // pixel each update it differs from the raised height.
         if (samus.Position.Y.Whole != RaisedHeight)
-            samus.Position += new Offset16<RoomPixels>(0, 1);
+            samus.Position += CrystalFlashDefinitions.SettleStep;
 
         // The pose's animation ends in a transition to the facing standing pose, which occurs after movement.
         // Therefore cleanup naturally happens on the following movement phase, once standing movement is
@@ -306,7 +301,7 @@ public sealed class SamusCrystalFlashState
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Standing)
             return;
 
-        BeamShadeRestoreRequested = true;
+        Colouring = SpecialColouringStage.Ending;
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // Normal-input completion clears the same hit timers as the return path.
@@ -332,14 +327,14 @@ public sealed class SamusCrystalFlashState
         if (!_colouring.Holds(SamusSpecialColouringKind.CrystalFlash))
             return false;
 
-        if (BeamShadeRestoreRequested)
+        if (Colouring == SpecialColouringStage.Ending)
         {
             // Completion reloads the equipped combination's beam shade with the loader equipping a beam uses, so a Spazer
             // and Plasma combination shows the same colours as everywhere else (#1506, #1736).
             SamusProjectileSystem.ShowBeamShade(colours, samus.EquippedBeams);
 
             _colouring.Release(SamusSpecialColouringKind.CrystalFlash);
-            BeamShadeRestoreRequested = false;
+            Colouring = SpecialColouringStage.Showing;
             return true;
         }
 

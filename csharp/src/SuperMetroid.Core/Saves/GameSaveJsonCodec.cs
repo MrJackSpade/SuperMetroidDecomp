@@ -18,7 +18,7 @@ public static class GameSaveJsonCodec
     private static readonly SamusBeamFlags AllBeamFlags =
         Enum.GetValues<SamusBeamFlags>().Aggregate((left, right) => left | right);
     /// <summary>Known defeated bosses accepted by the named save schema.</summary>
-    private static readonly DefeatedBosses AllBossFlags =
+    private static readonly DefeatedBosses AllDefeatableBosses =
         Enum.GetValues<DefeatedBosses>().Aggregate((left, right) => left | right);
 
     /// <summary>Captures all meaningful persistent state without a duplicate raw save-memory image.</summary>
@@ -317,12 +317,12 @@ public static class GameSaveJsonCodec
         };
         options.Converters.Add(new SaveKeyJsonConverter<ReserveTankMode>(ReserveTankModeKeys.Installed));
         options.Converters.Add(new SaveKeyJsonConverter<HudItem>(HudItemKeys.Installed));
-        options.Converters.Add(new SaveKeyJsonConverter<SaveLoadingGameState>(SaveLoadingGameStateKeys.Installed));
+        options.Converters.Add(new SaveKeyJsonConverter<SaveStartupRoute>(SaveStartupRouteKeys.Installed));
         options.Converters.Add(new SaveKeyJsonConverter<AreaId>(AreaIdKeys.Installed));
-        options.Converters.Add(new SaveFlagsJsonConverter<ControllerButton>(ControllerButtonKeys.Installed, (left, right) => left | right));
-        options.Converters.Add(new SaveFlagsJsonConverter<SamusEquipmentFlags>(SamusEquipmentFlagsKeys.Installed, (left, right) => left | right));
-        options.Converters.Add(new SaveFlagsJsonConverter<SamusBeamFlags>(SamusBeamFlagsKeys.Installed, (left, right) => left | right));
-        options.Converters.Add(new SaveFlagsJsonConverter<DefeatedBosses>(DefeatedBossesKeys.Installed, (left, right) => left | right));
+        options.Converters.Add(new SaveFlagsJsonConverter<ControllerButton>(ControllerButtonKeys.Installed, ControllerButtonKeys.ListedOrder, (left, right) => left | right));
+        options.Converters.Add(new SaveFlagsJsonConverter<SamusEquipmentFlags>(SamusEquipmentFlagsKeys.Installed, SamusEquipmentFlagsKeys.ListedOrder, (left, right) => left | right));
+        options.Converters.Add(new SaveFlagsJsonConverter<SamusBeamFlags>(SamusBeamFlagsKeys.Installed, SamusBeamFlagsKeys.ListedOrder, (left, right) => left | right));
+        options.Converters.Add(new SaveFlagsJsonConverter<DefeatedBosses>(DefeatedBossesKeys.Installed, DefeatedBossesKeys.ListedOrder, (left, right) => left | right));
         return options;
     }
 
@@ -348,7 +348,7 @@ public static class GameSaveJsonCodec
         foreach (AreaId area in DecodeAreaOrder(progression.DefeatedBosses.Select(entry => entry?.Area), $"{property}.defeatedBosses"))
         {
             DefeatedBosses bosses = progression.DefeatedBosses[ListPosition(area)].Bosses;
-            if ((bosses & ~AllBossFlags) != DefeatedBosses.None)
+            if ((bosses & ~AllDefeatableBosses) != DefeatedBosses.None)
                 throw new InvalidDataException($"{property}.defeatedBosses names an unknown boss in {area}");
             progress.SetDefeatedBosses(area, bosses);
         }

@@ -26,7 +26,14 @@ internal static class EndingPostShotDefinitions
     /// <summary>How long the post-shot step delays the Samus fade behind the shot's.</summary>
     public const int SamusFadeDelay = 16;
     /// <summary>How many steps the post-credits fades run.</summary>
-    public const int FadeFrames = 32;
+    public const int FadeSteps = 32;
     /// <summary>The hold before the white-flash display.</summary>
     public const int HoldFrames = 180;
+
+
+    /// <summary>The updates each step of the shot picture's and Samus's fades takes: one.</summary>
+    public const int FadeUpdatesPerStep = 1;
+
+    /// <summary>The shot's update the shot picture's fade takes its first step on: its first.</summary>
+    public const int ShotFadeFirstStepUpdate = 1;
 }

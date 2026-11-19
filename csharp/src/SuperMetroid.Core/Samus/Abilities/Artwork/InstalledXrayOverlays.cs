@@ -61,7 +61,8 @@ public sealed class InstalledXrayOverlays
     }
 
     /// <summary>The tank kinds, whose installed reveals this holds.</summary>
-    public static IReadOnlyCollection<InWorldCollectibleKind> TankKinds { get; } = [.. RoomObjectCollectibleDrawDefinitions.TankLooks.Keys];
+    public static IReadOnlyCollection<InWorldCollectibleKind> TankKinds { get; } =
+        [InWorldCollectibleKind.EnergyTank, InWorldCollectibleKind.MissileTank, InWorldCollectibleKind.SuperMissileTank, InWorldCollectibleKind.PowerBombTank];
 
     /// <summary>Selects the installed reveal block of tank kind <paramref name="tank"/>, independently of whether it has been collected.</summary>
     /// <returns>The selected appearance.</returns>

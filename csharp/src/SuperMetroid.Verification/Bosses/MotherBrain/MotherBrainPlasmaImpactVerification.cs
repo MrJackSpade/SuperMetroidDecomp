@@ -72,7 +72,7 @@ internal static class MotherBrainPlasmaImpactVerification
         head.Invincibility.End();
         AssertEqual(1, Hit(), "Hyper Beam still accepts its later-form damage callback");
         AssertEqual(16550, head.Health, "Hyper Beam retains its native charged damage selection");
-        AssertEqual(MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainThirdPhaseFight, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainPhase3NeckPhase>(lateFight.ThirdPhaseFight, "Phase3NeckPhase"),
+        AssertEqual(MotherBrainPhase3NeckPhase.StartHyperBeamRecoil, lateFight.ThirdPhaseFight.Phase3NeckPhase,
             "Hyper Beam retains its phase-three recoil transition");
         AssertTrue(shot.IsSpent, "Hyper Beam also obeys the head collision property");
         Console.WriteLine("Mother Brain Plasma: one charged impact/damage event, no later-frame repeats, recoil and first-form restriction passed.");

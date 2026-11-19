@@ -29,8 +29,8 @@ internal static class RoomDoorBlockFiles
     /// <summary>Document schema version this loader accepts.</summary>
     private const int FormatVersion = 1;
 
-    /// <summary>The name the document gives the elevator pseudo-door, which is no door definition.</summary>
-    private const string ElevatorPseudoDoorName = "ElevatorPseudoDoor";
+    /// <summary>The name the document gives the elevator ride, which is no door definition.</summary>
+    private const string ElevatorRideName = "ElevatorPseudoDoor";
 
     /// <summary>Serializer settings shared by the document's writes and reads.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -114,7 +114,7 @@ internal static class RoomDoorBlockFiles
         Dictionary<string, RoomDefinition> roomsByName = RetailRooms.All.ToDictionary(room => room.Name, StringComparer.Ordinal);
         Dictionary<string, DoorBlockExit> exitsByName = DoorDefinitions.Definitions
             .Select(DoorBlockExit.Physical)
-            .Append(DoorBlockExit.ElevatorPseudoDoor)
+            .Append(DoorBlockExit.ElevatorRide)
             .ToDictionary(NameOf, StringComparer.Ordinal);
 
         var doorBlocks = new Dictionary<RoomLevelUse, IReadOnlyList<RoomDoorBlock>>();
@@ -143,8 +143,8 @@ internal static class RoomDoorBlockFiles
         return doorBlocks;
     }
 
-    /// <summary>The name the document gives an exit: its door's, or the elevator pseudo-door's.</summary>
-    private static string NameOf(DoorBlockExit exit) => exit.Door?.Name ?? ElevatorPseudoDoorName;
+    /// <summary>The name the document gives an exit: its door's, or the elevator ride's.</summary>
+    private static string NameOf(DoorBlockExit exit) => exit.Door?.Name ?? ElevatorRideName;
 
     /// <summary>Each retail room's door blocks in each level its states use, by the room's, the level's and each exit's name.</summary>
     private sealed record RoomDoorBlocksDocument(int Version,

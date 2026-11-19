@@ -110,13 +110,13 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>
-    /// Shows the pass's next band at its image before any column is erased, one band an update; the update after the
-    /// last band moves to the next death stage and starts the bands over.
+    /// Shows the pass's next band at its image before any column is erased, one band an update through the pass's round;
+    /// the update after the round moves to the next death stage and starts the bands over.
     /// </summary>
     internal static void ShowNextCrocomireMeltBand(CrocomireEnemyState state)
     {
         CrocomireDeathState death = state.Death;
-        if (death.NextMeltBand == BandCount(death.MeltPass))
+        if (death.NextMeltBand == BandRound(death.MeltPass))
         {
             state.AdvanceDeathStage();
             death.NextMeltBand = 0;
@@ -125,20 +125,27 @@ internal sealed class CrocomireMelting
         ShowMeltBand(death, death.NextMeltBand++);
     }
 
-    /// <summary>The bands <paramref name="pass"/>'s melt image is shown in.</summary>
+    /// <summary>
+    /// The updates of one round of <paramref name="pass"/>'s bands: its image's six bands, one an update, and for the bare
+    /// skull an update after them that shows none.
+    /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="pass"/> is not a melt image.</exception>
-    internal static int BandCount(CrocomireMeltingIllustration pass) => pass switch
+    internal static int BandRound(CrocomireMeltingIllustration pass) => pass switch
     {
-        CrocomireMeltingIllustration.Flesh => CrocomireMeltingDefinitions.FirstPassBandCount,
-        CrocomireMeltingIllustration.BareSkull => CrocomireMeltingDefinitions.SecondPassBandCount,
+        CrocomireMeltingIllustration.Flesh => CrocomireMeltingDefinitions.FirstPassBandRound,
+        CrocomireMeltingIllustration.BareSkull => CrocomireMeltingDefinitions.SecondPassBandRound,
         _ => throw new ArgumentOutOfRangeException(nameof(pass), pass, $"Undefined {nameof(CrocomireMeltingIllustration)}."),
     };
 
     /// <summary>
     /// Shows <paramref name="band"/> at this update (#1406, #1652): from now on the band shows the pass's image after the
-    /// columns erased so far, until it is shown again.
+    /// columns erased so far, until it is shown again. The place in a round past the image's six bands shows none.
     /// </summary>
-    private static void ShowMeltBand(CrocomireDeathState death, int band) => death.MeltBandSteps[band] = death.MeltColumnsErased;
+    private static void ShowMeltBand(CrocomireDeathState death, int band)
+    {
+        if (band < CrocomireMeltingDefinitions.MeltImageBandCount)
+            death.MeltBandSteps[band] = death.MeltColumnsErased;
+    }
 
     /// <summary>Starts Crocomire's dissolve once his melt image shows.</summary>
     internal static void BeginCrocomireMelting(CrocomireEnemyState state)
@@ -193,7 +200,7 @@ internal sealed class CrocomireMelting
         if (death.MeltColumnsErased == CrocomireMeltingDefinitions.ColumnCount)
             return;
         death.MeltColumnsErased++;
-        if (death.NextMeltBand == BandCount(death.MeltPass))
+        if (death.NextMeltBand == BandRound(death.MeltPass))
             death.NextMeltBand = 0;
         ShowMeltBand(death, death.NextMeltBand++);
         // The image is stored once; each band hides the pixels its steps had erased when it was last shown (#1652, #2478).
@@ -221,7 +228,7 @@ internal sealed class CrocomireMelting
         // The source row rises a whole row less the slope each line, so it first reaches the lowest row on the line after
         // its rise passes one row short of it.
         UnsignedSixteenSixteen slope = death.DistortionStep;
-        int bandLines = rows <= 0 ? 0 : (UnsignedSixteenSixteen.FromWholePixels(1) - slope).WholeStepsWithin(rows - 1) + 1;
+        int bandLines = rows <= 0 ? 0 : (UnsignedSixteenSixteen.OnePixel - slope).WholeStepsWithin(rows - 1) + 1;
         int endLine = Math.Min(firstLine + bandLines, CrocomireMeltingDefinitions.DistortionLines);
         death.MeltDistortion = new CrocomireMeltDistortion(death.MeltDistortion.LevelledTop, state.Body.Position.Y.Whole,
             ScreenLine(firstLine), ScreenLine(endLine), slope);

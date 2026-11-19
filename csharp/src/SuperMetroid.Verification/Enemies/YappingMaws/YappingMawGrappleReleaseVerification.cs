@@ -61,7 +61,7 @@ internal static class YappingMawGrappleReleaseVerification
         AssertTrue(samus.Control.InputLocked && maw.HasGrabbedSamus, "Maw retains input until native delay underflows");
         runtime.StepFrame((ControllerButton.B | ControllerButton.Left | ControllerButton.R));
         SamusPoseId heldPose = samus.Pose;
-        var heldMovement = runtime.Player.LastGrappleMovement;
+        var heldMovement = runtime.LatestGameplayFrame?.GrappleMovement;
         Console.WriteLine($"Maw drop frame: pose=${(int)SamusPoseNumbers.Number(heldPose):X2}, grapple={samus.Grapple.Phase}, locked={samus.Control.InputLocked}.");
         AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "the next grapple handler completes the queued drop");
         AssertEqual(SamusPoseId.FacingLeftNormalPose, heldPose, "command three drops swing to native standing pose while held");
@@ -70,7 +70,7 @@ internal static class YappingMawGrappleReleaseVerification
         AssertTrue(!samus.Control.InputLocked && !maw.HasGrabbedSamus, "native timer expiry releases player control");
         AssertTrue(SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Grappling, "released Samus has an ordinary movement body");
         runtime.StepFrame((ControllerButton.Left | ControllerButton.X | ControllerButton.R));
-        AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "released control accepts a new shoot edge as a new grapple");
+        AssertTrue(runtime.LatestGameplayFrame?.GrappleMovement is { Fired: true }, "released control accepts a new shoot edge as a new grapple");
         AssertEqual((ushort)936, samus.Position.X.Whole, "Maw release retains native held X");
         Console.WriteLine($"  Yapping Maw grapple release: pose=${(int)SamusPoseNumbers.Number(samus.Pose):X2}, position={samus.Position.X.Whole}/{samus.Position.Y.Whole}, input unlocked.");
     }

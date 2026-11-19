@@ -166,9 +166,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(state.Walking == HorizontalDirection.Right
-                ? FakeKraidProjectileDefinitions.StepPixels
-                : -FakeKraidProjectileDefinitions.StepPixels);
+            SignedSixteenSixteen displacement =
+                SignedSixteenSixteen.FromWholePixels(FakeKraidProjectileDefinitions.StepPixels).Toward(state.Walking);
             reverse = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
@@ -211,9 +210,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         HorizontalDirection direction)
     {
-        int xOffset = direction == HorizontalDirection.Right
-            ? FakeKraidProjectileDefinitions.SpitAheadPixels
-            : -FakeKraidProjectileDefinitions.SpitAheadPixels;
+        int xOffset = FakeKraidProjectileDefinitions.SpitAheadPixels.Toward(direction);
         foreach (FakeKraidSpit spit in FakeKraidProjectileDefinitions.SpitsInLaunchOrder)
             SpawnFakeKraidSpit(place, xOffset, FakeKraidProjectiles.SpitLaunch(direction, spit));
     }
@@ -264,7 +261,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             : FakeKraidProjectilePose.SpikeRight));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
             source.Position.Whole + Offset16<RoomPixels>.Of(0, FakeKraidProjectiles.SpikeYOffset(row)));
-        projectile.Velocity = new(left ? -FakeKraidProjectileDefinitions.SpikeSpeed : FakeKraidProjectileDefinitions.SpikeSpeed, SignedEightEight.Zero);
+        projectile.Velocity = new(FakeKraidProjectileDefinitions.SpikeSpeed.Toward(state.Facing), SignedEightEight.Zero);
         return true;
     }
 
@@ -372,7 +369,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Fake Kraid's initialization AI.</summary>
-    internal void RunFakeKraidInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    internal void SetUpFakeKraid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         InitializeFakeKraid(place, surroundings.Samus);
     }
@@ -423,7 +420,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ReactToFakeKraidTouch(EnemyTouchContext context)
     {
         int healthBefore = context.Place.Health;
-        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
+        _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
         if (healthBefore != 0 && context.Place.Health == 0)
             KillFakeKraid(context.Place, context.Samus);
     }

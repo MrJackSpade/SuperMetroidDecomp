@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -69,22 +70,11 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Set when a control setup run during enemy AI cancels the pending pose transition: the setup
-    /// clears every prospective pose and momentum response, so this frame's pending
-    /// transition is not committed. The runtime consumes it before the pose update.
+    /// A control setup's cancellation of her pending pose transition during the enemies: the setup clears every prospective
+    /// pose and momentum response, so this frame's pending transition is not committed; the movement phase's resample takes
+    /// it before the pose update.
     /// </summary>
-    private bool PendingPoseTransitionCancelled { get; set; }
-
-    /// <summary>Records the cancellation of the pending pose transition.</summary>
-    internal void CancelPendingPoseTransition() => PendingPoseTransitionCancelled = true;
-
-    /// <summary>Returns and clears the pending-transition cancellation.</summary>
-    internal bool ConsumePendingPoseTransitionCancellation()
-    {
-        bool cancelled = PendingPoseTransitionCancelled;
-        PendingPoseTransitionCancelled = false;
-        return cancelled;
-    }
+    public PoseTransitionCancellation PoseTransitionCancellation { get; } = new();
 
     /// <summary>
     /// Where Samus's animation stands (#2048): a frame of a named segment of the animation of <see cref="AnimatedPose"/>.
@@ -272,7 +262,7 @@ public sealed class SamusState
     /// of one update is never rounded on its own; how the fraction reaches the whole energy is the compatibility layer's
     /// (<see cref="PeriodicDamageEnergyFraction"/>).
     /// </summary>
-    private PeriodicDamageEnergyFraction EnergyFraction { get; set; }
+    public PeriodicDamageEnergyFraction EnergyFraction { get; private set; }
 
     /// <summary>
     /// Takes periodic damage as the game's periodic damage does: the fraction comes off <see cref="EnergyFraction"/>
@@ -382,7 +372,7 @@ public sealed class SamusState
     /// the new pose's direction, and a turn out of a moonwalk hands the moonwalk's. The next update's weapon firing
     /// fires it, and that update then drops it whether or not a shot was fired.
     /// </summary>
-    public SamusTransitionShot? PendingTransitionShot { get; internal set; }
+    public TransitionShot<SamusTransitionShot> TransitionShot { get; } = new();
 
     /// <summary>Whether Mother Brain's hyper beam is enabled.</summary>
     public bool HyperBeamEnabled { get; set; }
@@ -412,7 +402,9 @@ public sealed class SamusState
 
     /// <summary>
     /// The bomb jump a bomb's blast asked of Samus: its launch direction, and whether her pose handling has accepted it,
-    /// which keeps the same request from arming the jump again.
+    /// which keeps the same request from arming the jump again. It is her state from the blast's overlap until her pose
+    /// handling rejects it, an input transition to another pose cancels it, or the jump it armed ends: the rising arc reads
+    /// its direction throughout, and a later blast replaces it whole.
     /// </summary>
     public SamusBombJumpRequest BombJumpRequest { get; set; }
 
@@ -442,7 +434,7 @@ public sealed class SamusState
     /// recovery sets it at counter forty when a non-spinning Samus is still holding a sufficiently charged beam, and the
     /// post-draw sound check consumes it later in the same gameplay pass; a spin's end sets it for the next pass.
     /// </summary>
-    public bool ResumeChargingBeamSoundPending { get; internal set; }
+    public ChargingSoundResumption ChargingSound { get; } = new();
 
     /// <summary>
     /// The general Samus invincibility timer tested by enemy, projectile,
@@ -536,15 +528,15 @@ public sealed class SamusState
     internal FramesBeyondAnimation<SamusAnimationName, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> FramesBeyondAnimation { get; }
 
     /// <summary>
-    /// The pose the animation's pose-transition cue left pending, which outranks every other pose transition. Null means
-    /// the animation has not requested that transition.
+    /// The pose the animation's pose-transition cue named, which outranks every other pose transition; it names none while
+    /// the animation has not reached such a cue.
     /// </summary>
     /// <remarks>
     /// This holds the pose between the animation's cue and the pose update that installs it. Samus's pose handling
     /// consumes it after animation, at the same pose-transition point used by the game.
     /// Keeping it explicit makes the turn's final facing change its own step.
     /// </remarks>
-    public SamusPoseId? PendingTransitionalPose { get; internal set; }
+    public AnimationCuePose<SamusPoseId> CuePose { get; } = new();
 
     /// <summary>The position, to a fraction of a pixel, and the radii that collision reads.</summary>
     public SamusKinematicsState Kinematics { get; }
@@ -610,11 +602,30 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// The solid vertical collision result the latest vertical movement or wall jump published. Most
-    /// movement methods return collision results directly; Draygon-held movement has no displacement and its sole
-    /// side effect is explicitly clearing this otherwise-stale result.
+    /// The solid vertical collision result the latest vertical movement or wall jump left as her state, which lasts until the
+    /// next one. Most movement methods return collision results directly; Draygon-held movement has no displacement and its
+    /// sole effect is forgetting this result. A downward move keeps a wall jump's result unless it lands.
     /// </summary>
     public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; set; }
+
+    /// <summary>A downward move leaves its result: landed when it collided, otherwise falling, unless a wall jump's is kept.</summary>
+    internal void LeaveDownwardMoveResult(bool landed)
+    {
+        if (landed)
+            SolidVerticalCollisionResult = SamusVerticalCollisionResult.Landed;
+        else if (SolidVerticalCollisionResult != SamusVerticalCollisionResult.WallJump)
+            SolidVerticalCollisionResult = SamusVerticalCollisionResult.Falling;
+    }
+
+    /// <summary>An upward move leaves its result: the ceiling it hit, or none.</summary>
+    internal void LeaveUpwardMoveResult(bool hitCeiling) =>
+        SolidVerticalCollisionResult = hitCeiling ? SamusVerticalCollisionResult.HitCeiling : SamusVerticalCollisionResult.None;
+
+    /// <summary>A wall jump leaves its result, which a later downward move keeps until she lands.</summary>
+    internal void LeaveWallJumpResult() => SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
+
+    /// <summary>A movement without vertical displacement forgets the result.</summary>
+    internal void ForgetVerticalCollisionResult() => SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
 
     /// <summary>Samus's room position, to a fraction of a pixel, owned by <see cref="Kinematics"/>.</summary>
     public FixedPosition<RoomPixels> Position
@@ -667,7 +678,7 @@ public sealed class SamusState
                 centerAdjustment = 0;
                 return LargerPoseCollisionOutcome.RetainSource;
             }
-            enemyAdjustment = above ? opposite.Distance : -opposite.Distance;
+            enemyAdjustment = opposite.Distance.Toward(above ? VerticalDirection.Down : VerticalDirection.Up);
         }
 
         // Both probes test the room from where her body stands now, on copies of it; neither moves her.
@@ -775,7 +786,7 @@ public sealed class SamusState
     /// lets her fall through the platform. Each probe uses a separate kinematics copy because
     /// the collision check publishes a distance without moving live Samus.
     /// The probe carries the pose being installed: the pose setup writes it to Samus's pose
-    /// before the larger-radius check, so the elevator pseudo-door's standing-pose gate tests it.
+    /// before the larger-radius check, so the elevator ride's standing-pose gate tests it.
     /// </remarks>
     internal BlockMoveResult ProbeChangedPoseVertical(
         RoomLevelData level,
@@ -803,7 +814,7 @@ public sealed class SamusState
                 level, probe, this, targetPose, amount, scanLeftToRight, roomObjects);
             // Submerging sand clears speed/gravity even during an observation.
             // Those reactions take hold without the probe's position becoming hers.
-            Kinematics.YSpeed = probe.YSpeed;
+            Kinematics.VerticalVelocity = Kinematics.VerticalVelocity.WithSpeed(probe.VerticalVelocity.Speed);
             Kinematics.YAcceleration = probe.YAcceleration;
             // The block reaction clamps the live fractional Y even for a
             // changed-pose observation; the probe's whole-pixel movement never
@@ -845,27 +856,16 @@ public sealed class SamusState
         SamusPresentation.InitializeAnimation(this);
     }
 
-    /// <summary>
-    /// Samus's previous whole-pixel Y in the room, written by a pose-collision correction this frame; null when
-    /// nothing wrote it. Only <see cref="WritePreviousYPosition"/> stores it.
-    /// </summary>
-    private int? _poseCollisionPreviousYPosition;
-    /// <summary>Relative previous-Y correction accumulated while preserving feet across a pose change.</summary>
-    private int _poseAlignmentPreviousYDelta;
-    /// <summary>
-    /// Samus's previous whole-pixel X in the room, written by a room or pose owner this frame; null when nothing
-    /// wrote it. Only <see cref="WritePreviousXPosition"/> stores it.
-    /// </summary>
-    private int? _previousXPositionWrite;
+    /// <summary>How this update corrects the camera's record of where Samus was before its scrolling (#2562).</summary>
+    public SamusPreviousPositionCorrections PreviousPositionCorrections { get; } = new();
 
     /// <summary>
     /// Records Samus's previous X position as set by an owner that runs
     /// before the main scrolling, such as the landed gunship placing Samus.
     /// Only the whole pixels change; the previous X fraction is untouched (Mother Brain's
-    /// rainbow-beam push records its fraction in <see cref="RainbowBeamCameraCheckpoint"/>).
+    /// rainbow-beam push hides its fraction through <see cref="SamusPreviousPositionCorrections.RainbowPush"/>).
     /// </summary>
-    internal void WritePreviousXPosition(int xPosition) =>
-        _previousXPositionWrite = xPosition;
+    internal void WritePreviousXPosition(int xPosition) => PreviousPositionCorrections.WriteX(xPosition);
 
     /// <summary>
     /// Aligns Samus's bottom with the previous pose after installing a new pose:
@@ -876,7 +876,7 @@ public sealed class SamusState
     {
         int delta = previousRadius - targetRadius;
         Position += new Offset16<RoomPixels>(0, delta);
-        _poseAlignmentPreviousYDelta += delta;
+        PreviousPositionCorrections.ShiftFeet(delta);
     }
 
     /// <summary>
@@ -885,49 +885,22 @@ public sealed class SamusState
     /// fraction is deliberately not changed: the game writes only the whole pixels, not the fraction.
     /// The write is absolute, discarding any earlier bottom-alignment shift this frame.
     /// </summary>
-    internal void WritePreviousYPosition(int correctedY)
-    {
-        _poseCollisionPreviousYPosition = correctedY;
-        _poseAlignmentPreviousYDelta = 0;
-    }
+    internal void WritePreviousYPosition(int correctedY) => PreviousPositionCorrections.WriteY(correctedY);
 
     /// <summary>
     /// Samus's live previous X and Y positions: the
-    /// frame-start checkpoint with this frame's writes so far, without consuming them.
+    /// frame-start checkpoint with this frame's writes so far, without handing them over.
     /// </summary>
-    internal Position16<RoomPixels> PeekPreviousPosition(FixedPosition<RoomPixels> previous) => new Position16<RoomPixels>(
-        _previousXPositionWrite ?? previous.X.Whole, PreviousYWithWrites(previous));
+    internal Position16<RoomPixels> PeekPreviousPosition(FixedPosition<RoomPixels> previous) =>
+        PreviousPositionCorrections.Peek(previous);
 
     /// <summary>
-    /// The previous whole-pixel Y with this frame's writes: the written height or the checkpoint's, moved by the feet
-    /// alignments since.
+    /// Applies this frame's previous-position corrections before scrolling calculates distance: the whole writes, keeping
+    /// the fractions, then what the rainbow-beam push hides of its movement within a pixel. Later in the update the whole
+    /// position replaces the checkpoint.
     /// </summary>
-    /// <remarks>
-    /// The sum stays in the room. The checkpoint lies above the room's top only on a departing up-elevator's last
-    /// updates, when the locked input mode runs no pose change, no shinespark or Ceres shove holds her, and the ride keeps
-    /// the boarding pose's radius, 21 or 24, which a hurt pose does not exceed, so nothing writes the height or moves it.
-    /// Elsewhere every written height lies in the room, and a feet alignment lowers her (no pose-transition cue grows her
-    /// body), raises her by two pixels as a shinespark crash's radius-19 body, which block collision keeps below the top,
-    /// stands up, or ends the Ceres shove in Ceres Ridley's room, whose top row is solid.
-    /// </remarks>
-    private int PreviousYWithWrites(FixedPosition<RoomPixels> previous) =>
-        (_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta;
-
-    /// <summary>
-    /// Applies this frame's whole previous-position writes before scrolling calculates
-    /// distance; the fractions are kept. Later in the update the whole position replaces the checkpoint. The written X is
-    /// a whole pixel of the room's coordinates, which <see cref="FixedCoordinate"/> holds (#1627).
-    /// </summary>
-    internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous)
-    {
-        var written = new FixedPosition<RoomPixels>(
-            FixedCoordinate.Of(_previousXPositionWrite ?? previous.X.Whole, previous.X.Fraction),
-            FixedCoordinate.Of(PreviousYWithWrites(previous), previous.Y.Fraction));
-        _poseCollisionPreviousYPosition = null;
-        _poseAlignmentPreviousYDelta = 0;
-        _previousXPositionWrite = null;
-        return written;
-    }
+    internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous) =>
+        PreviousPositionCorrections.HandOver(previous);
 
     /// <summary>Persistent low-energy warning state, shared by the movement phase and reserve recovery.</summary>
     public SamusHealthWarningState HealthWarning => field ??= new();

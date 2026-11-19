@@ -179,7 +179,7 @@ internal static class SpecialAttackParticlesVerification
                 _ = FlyingBeam(projectiles, place, fraction, charged: true);
                 break;
             case PlaceHolding.SpentBeam:
-                FlyingBeam(projectiles, place, fraction, charged: false).IsSpent = true;
+                FlyingBeam(projectiles, place, fraction, charged: false).Spend();
                 break;
             case PlaceHolding.BeamExplosion:
                 SamusProjectile exploding = FlyingBeam(projectiles, place, fraction, charged: false);
@@ -397,7 +397,7 @@ internal static class SpecialAttackParticlesVerification
             (SamusProjectileSystem projectiles, SamusBombProjectileSystem shared, SamusState samus) =
                 StartAttack(SamusBeamFlags.Spazer, SpazerSamus);
             SamusProjectile spent = projectiles.Shots[spentPlace];
-            spent.IsSpent = true;
+            spent.Spend();
             AssertTrue(projectiles.Combos.StepSpazerCombo(samus, spent, shared, SpazerCameraY) is null,
                 $"spent Spazer particle {spentPlace} makes no sound");
             for (int place = 0; place < 4; place++)
@@ -415,7 +415,7 @@ internal static class SpecialAttackParticlesVerification
         echo.Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(TrigonometryAngle.Zero));
         AssertTrue(!replaced.IsOccupied, "the crash echo's release ends the trailing particle it replaces");
         SamusProjectile spentBeam = echoProjectiles.Shots[1];
-        spentBeam.IsSpent = true;
+        spentBeam.Spend();
         _ = echoProjectiles.Combos.StepSpazerCombo(echoSamus, spentBeam, echoShared, SpazerCameraY);
         AssertTrue(!echo.IsOccupied, "a spent Spazer particle ends the crash echo holding its partner's place");
         AssertTrue(ReferenceEquals(echo, echoProjectiles.Shots[3]), "the ended echo is the last shot of its place");

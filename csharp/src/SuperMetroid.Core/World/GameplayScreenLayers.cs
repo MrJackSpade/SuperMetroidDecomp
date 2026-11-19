@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class GameplayScreenLayers
 {
     /// <summary>The layers an ordinary room shows: both backgrounds and the sprites.</summary>
-    private const ScreenLayers OrdinaryLayers = ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites;
+    private const ScreenLayers OrdinaryLayers = ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.BossBody | ScreenLayers.Sprites;
 
     /// <summary>Supplies door-transition screen-layer overrides.</summary>
     private readonly ActiveRoomState _room;
@@ -29,7 +29,7 @@ internal sealed class GameplayScreenLayers
 
     /// <summary>
     /// Chooses the layers before the projectiles move: a door transition's own layers, foreground and the sprites alone
-    /// while Mother Brain's death hides background, and the waterfall rooms' layers when their effect's blend lays the
+    /// while Mother Brain's death hides her body and the background behind it, and the waterfall rooms' layers when their effect's blend lays the
     /// background behind the room (#1545).
     /// </summary>
     internal void Choose(RoomScope room)
@@ -38,7 +38,7 @@ internal sealed class GameplayScreenLayers
             (ScreenLayers.Foreground | ScreenLayers.Sprites |
                 (room.Enemies.DisplaySources.MotherBrain?.DeathHidesBodyLayer == true
                     ? ScreenLayers.None
-                    : ScreenLayers.Background));
+                    : ScreenLayers.Background | ScreenLayers.BossBody));
         if (_room.DoorTransitionShownLayers is null &&
             room.FxOverlay.Blend is OverlayBehindRoomBlend { BackgroundBehind: true })
         {

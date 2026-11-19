@@ -9,7 +9,11 @@ public sealed class MochtroidEnemyState
     /// <summary>The Mochtroid's velocity in room pixels per update, positive right and down.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>How the Mochtroid moves this update, cleared before each run of its main AI.</summary>
+    /// <summary>
+    /// How the Mochtroid moves on its next main AI (#2562): attached while Samus has touched it since its last, free
+    /// otherwise. Its touch, which the contact step resolves apart from its main AI, attaches it, and its main AI's run is
+    /// the attachment's end: it moves attached, and is free again unless a touch comes before its next run.
+    /// </summary>
     public MochtroidMovementMode MovementMode { get; internal set; }
 
     /// <summary>

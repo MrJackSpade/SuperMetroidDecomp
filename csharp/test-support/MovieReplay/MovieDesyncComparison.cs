@@ -40,7 +40,7 @@ internal static class MovieDesyncComparison
     /// The health the cartridge refills the Baby Metroid to on each of its main AI steps, though nothing damages it; the
     /// port keeps its definition's health, which nothing reads (#2257).
     /// </summary>
-    private const int RefilledShitroidNativeHealth = 32767;
+    private const int RefilledBabyMetroidNativeHealth = 32767;
 
     /// <summary>Prints port and native state at a converted update to diagnose the first replay divergence.</summary>
     internal static void TraceMovieSamus(SuperMetroidGame game, NativeCheckpointMemory memory, int update, ConvertedMovieUpdate step)
@@ -55,7 +55,7 @@ internal static class MovieDesyncComparison
             Console.WriteLine($"  options port phase={options.Phase} row={options.SelectedRow}");
         if (samus is null) return;
         Console.WriteLine($"  port   pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} X={samus.Position.X.Whole:X4}.{samus.Kinematics.Position.X.Fraction:X4} Y={samus.Position.Y.Whole:X4}.{samus.Kinematics.Position.Y.Fraction:X4} " +
-            $"vs={samus.Kinematics.YSpeed.Whole:X4}.{samus.Kinematics.YSpeed.Fraction:X4} total={samus.HorizontalSpeed.TotalSpeed.Whole:X4}.{samus.HorizontalSpeed.TotalSpeed.Fraction:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4} accel={SamusAccelerationModeCodec.ToNative(samus.HorizontalSpeed.AccelerationMode):X4} anim={samus.AnimationFrame:X4}/{samus.AnimationFrameTimer.RawValue:X4} ydir={samus.Kinematics.YDirection} drained={samus.Drained.Phase} movement={SamusPoseMetadata.ReadMovementType(samus)}");
+            $"vs={samus.Kinematics.VerticalVelocity.Speed.Whole:X4}.{samus.Kinematics.VerticalVelocity.Speed.Fraction:X4} total={samus.HorizontalSpeed.TotalSpeed.Whole:X4}.{samus.HorizontalSpeed.TotalSpeed.Fraction:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4} accel={SamusAccelerationModeCodec.ToNative(samus.HorizontalSpeed.AccelerationMode):X4} anim={samus.AnimationFrame:X4}/{samus.AnimationFrameTimer.RawValue:X4} ydir={samus.Kinematics.VerticalVelocity.Direction} drained={samus.Drained.Phase} movement={SamusPoseMetadata.ReadMovementType(samus)}");
         Console.WriteLine($"  native pose={Native(MovieDesyncMemory.SamusPose)} X={Native(MovieDesyncMemory.SamusX)}.{Native(MovieDesyncMemory.SamusXFraction)} Y={Native(MovieDesyncMemory.SamusY)}.{Native(MovieDesyncMemory.SamusYFraction)} " +
             $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)} base={Native(0x0b46)}.{Native(0x0b48)} extra={Native(0x0b42)}.{Native(0x0b44)} accel={Native(0x0b4a)} anim={Native(0x0a96)}/{Native(0x0a94)}");
         Console.WriteLine($"  hurt port inv={samus.InvincibilityTimer.RawValue:X4} kb={samus.KnockbackHold.UpdatesLeft:X4} div={samus.SlowdownLevel:X4} hp={samus.Health:X4}");
@@ -68,7 +68,7 @@ internal static class MovieDesyncComparison
         if (game.RuntimeForVerification?.EscapeTimer is { } escape)
             Console.WriteLine($"  escape port={escape.Phase}/{escape.IsActive} {escape.Readout.Minutes:D2}:{escape.Readout.Seconds:D2}.{escape.Readout.Centiseconds:D2} " +
                 $"native={Native(0x0943)} {memory[0x0947]:X2}:{memory[0x0946]:X2}.{memory[0x0945]:X2}");
-        Console.WriteLine("  aerial port  " + game.RuntimeForVerification?.Player.LastAerialSamusMovement);
+        Console.WriteLine("  aerial port  " + game.RuntimeForVerification?.LatestGameplayFrame?.AerialMovement);
         if (game.RuntimeForVerification is { } projectileRuntime)
         {
             Console.WriteLine("  sproj port   " + string.Join(" ", projectileRuntime.Projectiles.Shots
@@ -284,5 +284,5 @@ internal static class MovieDesyncComparison
     /// main AI holds the refilled health.
     /// </summary>
     private static int NativeHealth(RoomEnemyPlace actor) =>
-        actor.DefinitionId == EnemyDefinitionId.BabyMetroid && actor.FrameCounter != 0 ? RefilledShitroidNativeHealth : actor.Health;
+        actor.DefinitionId == EnemyDefinitionId.BabyMetroid && actor.FrameCounter != 0 ? RefilledBabyMetroidNativeHealth : actor.Health;
 }

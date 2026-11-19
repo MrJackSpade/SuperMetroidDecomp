@@ -75,15 +75,16 @@ internal static class PhantoonPositionVerification
             AssertEqual<Position16<RoomPixels>?>(placementBefore, runtime.Display.LatchedOrdinaryRoom.Bosses.Placement,
                 $"the accepted frame publishes his body placed where Phantoon lay, frame {frame}");
             if (frame == 0) continue;
-            var layer = runtime.PublishDisplayFrame().OrdinaryBase.Room;
-            AssertEqual(displayedX, (int)layer.View.BackgroundScroll.X, "Phantoon captured horizontal register follows accepted NMI");
+            Offset16<BackgroundPixels> bodyScroll = (runtime.PublishDisplayFrame().OrdinaryBase.Room.BossBody
+                ?? throw new InvalidOperationException("Phantoon's room shows his body.")).Scroll;
+            AssertEqual(displayedX, (int)bodyScroll.X, "Phantoon captured horizontal register follows accepted NMI");
             // The view shows the background row below his placement at the screen's top (#1514).
-            AssertEqual(displayedY + ScreenGeometry.LayerRowsHiddenAboveScreen, (int)layer.View.BackgroundScroll.Y, "Phantoon captured vertical register follows accepted NMI");
+            AssertEqual(RoomView.ShownRow(displayedY), (int)bodyScroll.Y, "Phantoon captured vertical register follows accepted NMI");
             // His body is placed at the body, each installed frame lying against it (#2031). Assert the rendered placement
             // against the physical body, not merely two copied fields.
-            AssertEqual(displayedBodyX, unchecked((ushort)-layer.View.BackgroundScroll.X),
+            AssertEqual(displayedBodyX, unchecked((ushort)-bodyScroll.X),
                 "Phantoon's displayed body placement shares the collision body's horizontal position");
-            AssertEqual(displayedBodyY, unchecked((ushort)-(layer.View.BackgroundScroll.Y - ScreenGeometry.LayerRowsHiddenAboveScreen)),
+            AssertEqual(unchecked((ushort)RoomView.ShownRow(-displayedBodyY)), unchecked((ushort)bodyScroll.Y),
                 "Phantoon's displayed body placement shares the collision body's vertical position");
             positions.Add(new MotherBrainRinkaDoorSpawnExpected(phantoon.Body.Position.X.Whole, phantoon.Body.Position.Y.Whole));
         }

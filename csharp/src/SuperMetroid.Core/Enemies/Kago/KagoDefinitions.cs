@@ -21,6 +21,12 @@ internal static class KagoDefinitions
     /// <summary>How long the quake lasts when a shot strikes a Kago, in updates.</summary>
     internal const int ShotQuakeDuration = 16;
 
+    /// <summary>The light diagonal foreground shake a shot striking a Kago starts.</summary>
+    internal static readonly SuperMetroid.Core.Earthquakes.EarthquakeShake ShotQuake = new(
+        SuperMetroid.Core.Earthquakes.EarthquakeStrength.Light,
+        SuperMetroid.Core.Earthquakes.EarthquakeDirection.Diagonal,
+        SuperMetroid.Core.Earthquakes.EarthquakeReach.Foreground);
+
     /// <summary>How many updates after its first hop a new Kago bug first sounds.</summary>
     internal const int FirstSoundPastFirstHop = 3;
 

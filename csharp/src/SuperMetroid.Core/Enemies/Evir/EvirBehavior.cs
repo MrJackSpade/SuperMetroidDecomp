@@ -80,7 +80,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         PlaceFollowUpRecipients(place);
         // The second listed enemy is not a second creature. It is the arms, which the room lists right after their
         // body and which always read facing and position from it.
-        RoomEnemyPlace body = _places.ListedBefore(place, 1);
+        RoomEnemyPlace body = _places.ListedBefore(place, EvirPartListingDefinitions.ArmsPlacesAfterBody);
         RequirePlacedBody(body, place, "arms");
         var arms = new EvirArmsState(body);
         place.SetSpeciesState(arms);
@@ -93,7 +93,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the ones the room lists after it.
     /// </summary>
     private void PlaceFollowUpRecipients(RoomEnemyPlace place) =>
-        _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), reach: 2));
+        _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), EvirPartListingDefinitions.FollowUpReach));
 
     /// <summary>Initializes an Evir's body, facing Samus.</summary>
     internal void InitializeEvirBody(RoomEnemyPlace place, SamusState samus)
@@ -101,7 +101,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         PlaceFollowUpRecipients(place);
 
         // The room lists each Evir's spit two places after its body, behind the arms.
-        var state = new EvirBodyState(spit: _places.ListedAfter(place, 2));
+        var state = new EvirBodyState(spit: _places.ListedAfter(place, EvirPartListingDefinitions.SpitPlacesAfterBody));
         place.SetSpeciesState(state);
         SetEvirBodyFacing(place, state, samus);
 
@@ -132,7 +132,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeEvirProjectile(RoomEnemyPlace place)
     {
         // The room lists each Evir's spit two places after its body, behind the arms.
-        RoomEnemyPlace body = _places.ListedBefore(place, 2);
+        RoomEnemyPlace body = _places.ListedBefore(place, EvirPartListingDefinitions.SpitPlacesAfterBody);
         RequirePlacedBody(body, place, "spit");
         var state = new EvirSpitState(EvirSpitAction.Idle, body)
         {
@@ -340,11 +340,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Animation cue: sets the initial regeneration offset.</summary>
     private static void SetInitialEvirRegenerationOffset(EvirSpitState state) =>
-        state.RegenerationOffset = new(EvirBodyFacesRight(state) ? -EvirMotionDefinitions.RegenerationStartDistance : EvirMotionDefinitions.RegenerationStartDistance, 0);
+        state.RegenerationOffset = new(EvirMotionDefinitions.RegenerationStartDistance.Toward(
+            EvirBodyFacesRight(state) ? HorizontalDirection.Left : HorizontalDirection.Right), 0);
 
     /// <summary>Animation cue: advances the regeneration offset.</summary>
     private static void AdvanceEvirRegenerationOffset(EvirSpitState state) =>
-        state.RegenerationOffset += new Offset16<RoomPixels>(EvirBodyFacesRight(state) ? 1 : -1, 0);
+        state.RegenerationOffset += new Offset16<RoomPixels>(1.Toward(EvirBodyFacesRight(state) ? HorizontalDirection.Right : HorizontalDirection.Left), 0);
 
     /// <summary>
     /// Both regeneration cues test the facing of the spit's body, not any facing of its own: the living body's, the one a
@@ -486,7 +487,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs common body contact and then Evir's own combat follow-up.</summary>
     internal void ReactToEvirTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context);
+        _collision.ResolveOrdinaryTouch(context);
         ResolveEvirCombatAfterCommon(context.Place);
     }
 }

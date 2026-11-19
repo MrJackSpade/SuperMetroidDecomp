@@ -10,13 +10,13 @@ internal interface IEnemyLifecycle
     void InitializePlaceFromDefinition(RoomEnemyPlace place, RoomEnemyPlacement population, RoomEnemyDefinition definition);
 
     /// <summary>Runs the initialization AI of a place the room's population load has placed, in its surroundings.</summary>
-    void RunInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings);
+    void SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings);
 
     /// <summary>
     /// Runs the initialization AI of a place a species spawned on another enemy's behalf, or a respawn rebuilt: it has no
     /// population load's surroundings (<see cref="EnemyPopulationSurroundings"/>).
     /// </summary>
-    void RunSpawnedInitializationAi(RoomEnemyPlace place);
+    void SetUpSpawnedEnemy(RoomEnemyPlace place);
 
     /// <summary>
     /// Installs <paramref name="population"/> in the first free place, giving the new occupant <paramref name="encounter"/>,

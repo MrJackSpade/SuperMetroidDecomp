@@ -37,7 +37,7 @@ internal static class GrappleSpinVerification
             SamusPresentation.InitializeAnimation(samus);
             samus.SelectedHudItem = HudItem.Grapple;
             samus.EquippedItems |= SamusEquipmentFlags.GrappleBeam;
-            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
             runtime.StepFrame(ControllerButton.X);
             Console.WriteLine($"Spin fire first frame: pose={(int)SamusPoseNumbers.Number(samus.Pose):X2}, grapple={samus.Grapple.Phase}");
             AssertEqual(left ? SamusPoseId.NormalJumpGunExtendedLeftPose : SamusPoseId.NormalJumpGunExtendedRightPose,

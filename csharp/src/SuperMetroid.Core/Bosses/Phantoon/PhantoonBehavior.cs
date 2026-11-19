@@ -72,9 +72,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         _places = dependencies.Places;
         Presentation = new PhantoonPresentation(dependencies.FrameContext);
         Combat = new PhantoonCombat(_room, dependencies.Earthquake, _audio, dependencies.Collision, dependencies.DeathsAndDrops);
-        Opening = new PhantoonOpening(dependencies.Projectiles, _audio, Presentation, dependencies.FrameResults, Combat);
+        Opening = new PhantoonOpening(dependencies.Projectiles, _audio, Presentation, dependencies.PassEvents, Combat);
         Patterns = new PhantoonPatterns(_room, dependencies.Projectiles, _audio, dependencies.FrameContext, Presentation, Combat);
-        Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, Audio = _audio, FrameResults = dependencies.FrameResults });
+        Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, Audio = _audio, PassEvents = dependencies.PassEvents });
     }
 
     /// <summary>
@@ -83,7 +83,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void InitializePhantoonBody(RoomEnemyPlace body)
     {
-        RoomEnemyPlace[] parts = _places.ListedRunAfter(body, count: 3);
+        RoomEnemyPlace[] parts = _places.ListedRunAfter(body, PhantoonPartListingDefinitions.PartsAfterBody);
         var state = new PhantoonEnemyState(body, eye: parts[0], tentacles: parts[1], mouth: parts[2]);
         // The room steps his body wave and visibility and its display latches them from the room from here (#2194).
         _encounters.Attach(state);
@@ -101,9 +101,12 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         StartPhantoonPart(state.BodyPart);
         // The body starts asking for no flame rain; no reader consumes it before a phase sets it (#1472).
-        state.FlameRainRequested = false;
+        state.NextPattern = PhantoonPatternChoice.FigureEight;
         body.SetSpeciesState(state.BodyPart);
-        ResetPhantoonMouthControls(state);
+        // The encounter starts asking to hide his body, with no casual-flame burst, which the fight only starts much later;
+        // his parts set up in the same pass, before anything reads either.
+        state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Hide;
+        state.CasualFlames.NextFlame = null;
     }
 
     /// <summary>
@@ -116,7 +119,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets Phantoon's eye up, listed right after his body, closed; its start ends any wave.</summary>
     internal void InitializePhantoonEye(RoomEnemyPlace eye)
     {
-        PhantoonEnemyState state = JoiningEncounter(eye, placesAfterBody: 1);
+        PhantoonEnemyState state = JoiningEncounter(eye, PhantoonPartListingDefinitions.EyePlacesAfterBody);
         StartPhantoonPart(state.EyePart);
         state.Wave.Length = null;
         JoinPhantoon(state.EyePart);
@@ -125,7 +128,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets Phantoon's tentacles up, listed after his eye.</summary>
     internal void InitializePhantoonTentacles(RoomEnemyPlace tentacles)
     {
-        PhantoonEnemyState state = JoiningEncounter(tentacles, placesAfterBody: 2);
+        PhantoonEnemyState state = JoiningEncounter(tentacles, PhantoonPartListingDefinitions.TentaclesPlacesAfterBody);
         StartPhantoonPart(state.TentaclesPart);
         JoinPhantoon(state.TentaclesPart);
     }
@@ -133,17 +136,13 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets Phantoon's mouth up, listed after his tentacles.</summary>
     internal void InitializePhantoonMouth(RoomEnemyPlace mouth)
     {
-        PhantoonEnemyState state = JoiningEncounter(mouth, placesAfterBody: 3);
+        PhantoonEnemyState state = JoiningEncounter(mouth, PhantoonPartListingDefinitions.MouthPlacesAfterBody);
         StartPhantoonPart(state.MouthPart);
         JoinPhantoon(state.MouthPart);
     }
 
-    /// <summary>Ends a drawing part's setup: the part holds its part of the encounter, and its setup resets the mouth's controls.</summary>
-    private static void JoinPhantoon(PhantoonPart part)
-    {
-        part.Place.SetSpeciesState(part);
-        ResetPhantoonMouthControls(part.Phantoon);
-    }
+    /// <summary>Ends a drawing part's setup: the part holds its part of the encounter.</summary>
+    private static void JoinPhantoon(PhantoonPart part) => part.Place.SetSpeciesState(part);
 
     /// <summary>
     /// Gives a drawing part the body's colours and runs the animation it was made playing (#2319), its first step on the
@@ -155,16 +154,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.Restart();
         place.Shading = part.Phantoon.Body.Shading;
-    }
-
-    /// <summary>
-    /// Every part's setup, the body's included, asks to hide Phantoon's body and ends any casual-flame burst, which the
-    /// fight only starts much later.
-    /// </summary>
-    private static void ResetPhantoonMouthControls(PhantoonEnemyState state)
-    {
-        state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Hide;
-        state.CasualFlames.NextFlame = null;
     }
 
     /// <summary>Runs Phantoon's encounter phase for one update.</summary>
@@ -373,7 +362,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the eye's Samus-tracking animation for the current attack phase.</summary>
     private void BeginPhantoonEyeTracking(PhantoonEnemyState state)
     {
-        state.Swoop.Requested = false;
+        state.WindowEnd = PhantoonWindowEnd.EyeCloses;
         RoomEnemyPlace body = state.Body;
         state.BodyPart.StartAnimation(PhantoonPartSegment.EyeHitboxBody);
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);

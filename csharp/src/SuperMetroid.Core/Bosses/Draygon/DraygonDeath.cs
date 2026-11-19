@@ -46,7 +46,7 @@ internal sealed class DraygonDeath
                 graphics: default);
         }
 
-        DraygonMovement.MoveDraygonAtAngle(body, BurialDriftAngle(body.Position.Whole), speed: 1);
+        DraygonMovement.MoveDraygonAtAngle(body, BurialDriftAngle(body.Position.Whole), DraygonArenaDefinitions.BurialDriftSpeed);
 
         // The burial point and its tolerance lie inside the arena, so a place within the tolerance is so plainly.
         if (Math.Abs(body.Position.X.Whole - DraygonArenaDefinitions.DeathTargetX) >= DraygonArenaDefinitions.BurialPointTolerance ||

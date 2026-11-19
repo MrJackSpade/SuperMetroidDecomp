@@ -28,7 +28,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
                 continue;
             }
             AssertTrue(nativeZoom != ushort.MaxValue, "Ceres getaway native table holds no terminator before the last update");
-            AssertEqual(FloorZoom.FromTwoHundredFiftySixths(nativeZoom), CeresRidleyGetawayCurve.ZoomAt(index), "Ceres getaway exact native zoom");
+            AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(nativeZoom), CeresRidleyGetawayCurve.ZoomAt(index), "Ceres getaway exact native zoom");
             Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.DriftAt(index);
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6af2f + offset))), drift.Y, "Ceres getaway exact native Y increment");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b00f + offset))), drift.X, "Ceres getaway exact native X subtraction");
@@ -49,7 +49,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
     internal static void VerifyCompiledCeresRidleyMode7Transfers(CartridgeImportAddressSpace rom)
     {
         int checkedTransfers = 0;
-        foreach (CeresFloorAnimationFrame pointer in Enum.GetValues<CeresFloorAnimationFrame>())
+        foreach (CeresFloorActorPicture pointer in Enum.GetValues<CeresFloorActorPicture>())
         {
             int cursor = 0xa60000 | CeresNativeWords.FloorAnimationFrames.Word(pointer);
             var expected = new Dictionary<int, byte>();
@@ -70,7 +70,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
                 $"Ceres {pointer}'s picture writes exactly the cells and tiles its list writes");
         }
         AssertThrows<InvalidDataException>(() =>
-            RoomFloorSheet.PictureNameOf((CeresFloorAnimationFrame)0xffff),
+            RoomFloorSheet.PictureNameOf((CeresFloorActorPicture)0xffff),
             "Ceres unknown floor animation frame fails loudly");
         Console.WriteLine($"Ceres floor animation: {checkedTransfers} native transfers across all seven lists match the pictured cells and installed updates.");
     }

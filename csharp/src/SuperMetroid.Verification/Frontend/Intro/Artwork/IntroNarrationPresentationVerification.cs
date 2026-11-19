@@ -112,7 +112,7 @@ internal static class IntroNarrationPresentationVerification
         IntroNarrationActors state,
         IntroNarrationPageId page) =>
         IntroNarrationPageDefinitions.Pages[page].Closing == IntroNarrationPageClosing.EndsIntro
-            ? state.IntroFinishRequested
+            ? state.FinalHoldEnded
             : state.AwaitingInputPage == page;
 
     /// <summary>Checks that the installed opening narration is the deterministic cartridge extraction.</summary>

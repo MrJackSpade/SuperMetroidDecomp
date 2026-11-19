@@ -39,7 +39,7 @@ internal static class KraidMouthHitReachVerification
         foreach ((KraidMouthHitReach.DamagingHit hit, int originalBottom) in OriginalBottoms)
         {
             KraidPassBounds bounds = KraidPassBounds.Placed(left: 0, top: 0, bottom: 0);
-            bounds.LeaveAfterMouthHit(KraidMouthHitReach.RowAfter(hit));
+            bounds.LeaveAfterMouthHit(KraidMouthHitReach.HighestReachingRow(hit));
             int? firstDifference = null;
             for (int top = short.MinValue; top <= short.MaxValue && firstDifference is null; top++)
             {
@@ -76,7 +76,7 @@ internal static class KraidMouthHitReachVerification
     private static bool Reaches(KraidMouthHitReach.DamagingHit hit, int top)
     {
         KraidPassBounds bounds = KraidPassBounds.Placed(left: 0, top: 0, bottom: 0);
-        bounds.LeaveAfterMouthHit(KraidMouthHitReach.RowAfter(hit));
+        bounds.LeaveAfterMouthHit(KraidMouthHitReach.HighestReachingRow(hit));
         return bounds.IsAboveBottom(top);
     }
 

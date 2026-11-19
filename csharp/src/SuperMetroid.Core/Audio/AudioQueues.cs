@@ -21,12 +21,12 @@ public sealed class AudioQueues
     /// stays first until it has played. No path holds more requests than the game's queue keeps without filling it,
     /// so the queue never refuses or overwrites one (#1692).
     /// </summary>
-    private readonly Queue<QueuedMusic> Music = new();
+    internal readonly Queue<QueuedMusic> Music = new();
     /// <summary>Each sound library's own queue of waiting requests.</summary>
-    private readonly Dictionary<SoundEffectLibrary, SoundQueue> SoundQueues =
+    internal readonly Dictionary<SoundEffectLibrary, SoundQueue> SoundQueues =
         SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue());
     /// <summary>The request cycle each sound queue runs with its library, injected by the session's composition root.</summary>
-    private readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
+    internal readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
 
     /// <summary>The sound each of the three sound queues last asked its library for, as an acknowledgement of it, or none.</summary>
     internal SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> SentSoundRequests => SoundHandshakes.Requests;
@@ -37,7 +37,7 @@ public sealed class AudioQueues
     /// The request the music queue fetched and is waiting out the delay of, or none when its next pass fetches the
     /// next request from the queue.
     /// </summary>
-    private PendingMusicDispatch? PendingMusic { get; set; }
+    internal FetchedMusicRequest? FetchedMusic { get; private set; }
     /// <summary>
     /// The sound-queue passes, <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimePasses"/> from a music change, for
     /// which the change withdraws every library's sound request: counted once on each pass it withdraws them.
@@ -64,10 +64,10 @@ public sealed class AudioQueues
     }
 
     /// <summary>The music data set most recently loaded by a dispatched request, or null while only the shared sounds are loaded.</summary>
-    private MusicDataSet? DataSet { get; set; }
+    public MusicDataSet? DataSet { get; private set; }
 
     /// <summary>The track most recently played, or null after a stop or a data set change.</summary>
-    private MusicTrack? PlayingTrack { get; set; }
+    public MusicTrack? PlayingTrack { get; private set; }
 
     /// <summary>
     /// What phases waiting for the music to settle read: true while the music queue holds any request, including the one
@@ -85,7 +85,7 @@ public sealed class AudioQueues
     public void Reset()
     {
         Music.Clear();
-        PendingMusic = null;
+        FetchedMusic = null;
         foreach (SoundQueue queue in SoundQueues.Values)
             queue.Clear();
         SoundHandshakes.Reset();
@@ -198,7 +198,7 @@ public sealed class AudioQueues
         MusicTrack? roomTrack = PlayingTrack;
 
         Music.Clear();
-        PendingMusic = null;
+        FetchedMusic = null;
 
         QueueMusic(MusicRequest.SelectTrack(AudioQueueDefinitions.PermanentItemTrack));
         ScheduleMusic(
@@ -284,12 +284,12 @@ public sealed class AudioQueues
     /// </summary>
     private void HandleMusicQueue(List<AudioRequest> requests)
     {
-        if (PendingMusic is PendingMusicDispatch pending)
+        if (FetchedMusic is FetchedMusicRequest pending)
         {
             // A fetched request waits at least the shortest delay, so its wait ends on its last pass.
             if (!pending.Wait.Count())
                 return;
-            PendingMusic = null;
+            FetchedMusic = null;
 
             if (pending.Request is MusicRequest.ChangeDataSet change)
             {
@@ -314,7 +314,7 @@ public sealed class AudioQueues
         }
 
         if (Music.TryPeek(out QueuedMusic? next))
-            PendingMusic = new PendingMusicDispatch(next.Request, UpdateCountdown.Lasting(next.Delay.Updates));
+            FetchedMusic = new FetchedMusicRequest(next.Request, UpdateCountdown.Lasting(next.Delay.Updates));
     }
 
     /// <summary>The area theme of <paramref name="dataSet"/>, the data set loaded as an area-theme request plays.</summary>

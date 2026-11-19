@@ -1,4 +1,7 @@
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.World;
@@ -29,8 +32,14 @@ internal sealed class SamusControlFrame
     /// <summary>Whether the death sequence owns Samus this frame.</summary>
     internal bool DeathOwnsSamus { get; private set; }
 
+    /// <summary>
+    /// X-ray's setup this frame, which the input phase records as the setup returns it (#2562): the pose its activation
+    /// installs, which the frame's pose update commits; null when X-ray did not take control of Samus this frame.
+    /// </summary>
+    internal XrayActivation? XrayActivation { get; private set; }
+
     /// <summary>Whether X-ray took control of Samus during this frame.</summary>
-    internal bool XrayActivatedThisFrame { get; private set; }
+    internal bool XrayActivatedThisFrame => XrayActivation is not null;
 
     /// <summary>The movement type read before X-ray pose input ran.</summary>
     internal SamusMovementType MovementBeforeXrayAdmission { get; private set; }
@@ -89,6 +98,39 @@ internal sealed class SamusControlFrame
     /// <summary>Whether the grapple-release mover keeps the input phase's pending aim or turn transition.</summary>
     internal bool GrappleReleaseAcceptsPoseInput { get; private set; }
 
+    /// <summary>The grounded movement's horizontal and vertical collision results, when a grounded mover ran this frame.</summary>
+    internal GroundedMovementResult? GroundedMovement { get; private set; }
+
+    /// <summary>The ordinary air movement's collision result, when an aerial mover ran this frame.</summary>
+    internal AerialMovementResult? AerialMovement { get; private set; }
+
+    /// <summary>The ordinary Morph Ball movement's collision result, when a Morph Ball mover ran this frame.</summary>
+    internal MorphBallMovementResult? MorphBallMovement { get; private set; }
+
+    /// <summary>The bomb jump's movement result, when the bomb jump moved her this frame.</summary>
+    internal BombJumpMovementResult? BombJumpMovement { get; private set; }
+
+    /// <summary>The knockback's movement result, when knockback moved her this frame.</summary>
+    internal KnockbackMovementResult? KnockbackMovement { get; private set; }
+
+    /// <summary>The grapple's step this frame, from the input phase, when the grapple fired or ran.</summary>
+    internal GrappleMovementResult? GrappleMovement { get; private set; }
+
+    /// <summary>The stored-shine windup's or the active shinespark's movement result, when it moved her this frame.</summary>
+    internal ShinesparkMovementResult? ShinesparkMovement { get; private set; }
+
+    /// <summary>Crystal Flash's start, ammo-drain or finish movement result, when it moved her this frame.</summary>
+    internal CrystalFlashMovementResult? CrystalFlashMovement { get; private set; }
+
+    /// <summary>The X-ray scope's setup, beam or deactivation step this frame, when the scope was active.</summary>
+    internal XrayBeamStepResult? XrayBeamStep { get; private set; }
+
+    /// <summary>The death sequence's animation, shade and artwork step this frame, when death owns Samus.</summary>
+    internal SamusDeathSequenceStepResult? DeathSequenceStep { get; private set; }
+
+    /// <summary>Drained Samus's fall this frame, when she fell.</summary>
+    internal DrainedSamusMovementResult? DrainedMovement { get; private set; }
+
     /// <summary>Samples Samus's camera point carried across the frame boundary.</summary>
     internal void SampleCameraPoint(FixedPosition<RoomPixels> point) => PreviousCameraPoint = point;
 
@@ -113,7 +155,6 @@ internal sealed class SamusControlFrame
     {
         Mode = mode;
         XrayOwnsPoseInput = xrayOwnsPoseInput;
-        XrayActivatedThisFrame = false;
         MovementBeforeXrayAdmission = movementBeforeXray;
     }
 
@@ -141,8 +182,8 @@ internal sealed class SamusControlFrame
     /// <summary>Samples whether the ordinary input phase's HUD, bomb and projectile owners run.</summary>
     internal void SampleInputHandlingRuns(bool runs) => InputHandlingRuns = runs;
 
-    /// <summary>Records that X-ray took control of Samus during this frame.</summary>
-    internal void MarkXrayActivated() => XrayActivatedThisFrame = true;
+    /// <summary>Records X-ray's setup taking control of Samus this frame, with the pose its activation installs, if any.</summary>
+    internal void RecordXrayActivation(SamusPoseId? activationPose) => XrayActivation = new XrayActivation(activationPose);
 
     /// <summary>Records whether grapple owns movement.</summary>
     internal void SampleGrappleOwnership(bool owns) => GrappleOwnsMovement = owns;
@@ -158,6 +199,39 @@ internal sealed class SamusControlFrame
 
     /// <summary>Samples the pose movement moves Samus by.</summary>
     internal void SampleMovementPose(SamusPoseId pose) => PoseAtMovement = pose;
+
+    /// <summary>Records this frame's grounded movement result.</summary>
+    internal void Record(GroundedMovementResult result) => GroundedMovement = result;
+
+    /// <summary>Records this frame's aerial movement result.</summary>
+    internal void Record(AerialMovementResult result) => AerialMovement = result;
+
+    /// <summary>Records this frame's Morph Ball movement result.</summary>
+    internal void Record(MorphBallMovementResult result) => MorphBallMovement = result;
+
+    /// <summary>Records this frame's bomb jump movement result.</summary>
+    internal void Record(BombJumpMovementResult result) => BombJumpMovement = result;
+
+    /// <summary>Records this frame's knockback movement result.</summary>
+    internal void Record(KnockbackMovementResult result) => KnockbackMovement = result;
+
+    /// <summary>Records this frame's grapple movement result.</summary>
+    internal void Record(GrappleMovementResult result) => GrappleMovement = result;
+
+    /// <summary>Records this frame's shinespark movement result.</summary>
+    internal void Record(ShinesparkMovementResult result) => ShinesparkMovement = result;
+
+    /// <summary>Records this frame's Crystal Flash movement result.</summary>
+    internal void Record(CrystalFlashMovementResult result) => CrystalFlashMovement = result;
+
+    /// <summary>Records this frame's X-ray beam step result.</summary>
+    internal void Record(XrayBeamStepResult result) => XrayBeamStep = result;
+
+    /// <summary>Records this frame's death sequence step result.</summary>
+    internal void Record(SamusDeathSequenceStepResult result) => DeathSequenceStep = result;
+
+    /// <summary>Records this frame's drained movement result.</summary>
+    internal void Record(DrainedSamusMovementResult result) => DrainedMovement = result;
 
     /// <summary>Records whether the enemy update ran before Samus because this frame has no movement to wait for.</summary>
     internal void RecordEnemyUpdateRanFirst(bool ranFirst) => EnemyUpdateRanFirst = ranFirst;

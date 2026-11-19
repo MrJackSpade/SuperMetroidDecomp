@@ -315,9 +315,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // She hovers off from rest toward Samus's side, speeding up a sixteenth of a pixel each update.
-        state.XAcceleration = mama.Position.X.Whole < samus.Position.X.Whole
-            ? MamaTurtleMotionDefinitions.HoverAcceleration
-            : -MamaTurtleMotionDefinitions.HoverAcceleration;
+        state.XAcceleration = MamaTurtleMotionDefinitions.HoverAcceleration.Toward(
+            mama.Position.X.Whole < samus.Position.X.Whole ? HorizontalDirection.Right : HorizontalDirection.Left);
         state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.Zero);
         state.Action = MamaTurtleAction.Hovering;
     }
@@ -334,8 +333,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, state.Velocity.X))
         {
             ReverseMamaTurtleAtWall(state);
-            _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Horizontal, EarthquakeReach.Foreground),
-                MamaTurtleMotionDefinitions.WallQuakeDuration);
+            _earthquake.Start(MamaTurtleMotionDefinitions.WallQuake, MamaTurtleMotionDefinitions.WallQuakeDuration);
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleWallSound, priority: SoundRequestPriority.Normal);
             return;
         }
@@ -372,7 +370,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // The cap holds only the whole pixels, the sum's fraction kept, and takes its sign from the velocity before this
         // update's acceleration, so a velocity crossing zero this update is capped toward its old side for one update.
         state.Velocity = state.Velocity.WithX(sum.WholePixelsReachEitherWay(MamaTurtleMotionDefinitions.FastestHover)
-            ? sum.WithWholePixelsOf(velocity.IsNegative ? -MamaTurtleMotionDefinitions.FastestHover : MamaTurtleMotionDefinitions.FastestHover)
+            ? sum.WithWholePixelsOf(velocity.Along(MamaTurtleMotionDefinitions.FastestHover))
             : sum);
     }
 
@@ -620,9 +618,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction)
     {
         state.Action = MamaTurtleAction.RisingToHover;
-        state.Velocity = state.Velocity.WithX(state.Velocity.X.WithWholePixelsOf(direction == HorizontalDirection.Right
-            ? MamaTurtleMotionDefinitions.RiseToHoverDrift
-            : -MamaTurtleMotionDefinitions.RiseToHoverDrift));
+        state.Velocity = state.Velocity.WithX(state.Velocity.X.WithWholePixelsOf(MamaTurtleMotionDefinitions.RiseToHoverDrift.Toward(direction)));
         state.ActionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.RiseToHoverDuration);
     }
 
@@ -654,7 +650,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (mama.Contact.HasAny(EnemyContact.SolidToSamus))
             return;
-        _collision.ResolveNormalEnemyTouch(mama, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(mama, samus, pseudoScrew);
         state.Action = MamaTurtleAction.Falling;
         state.Velocity = state.Velocity.WithY(state.Velocity.Y.WithWholePixelsOf(MamaTurtleMotionDefinitions.KnockedDownFallSpeed));
     }
@@ -702,7 +698,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MamaTurtleDamageBox.Touches(mama, samus) || !samus.InvincibilityTimer.IsZero)
             return;
 
-        _collision.ResolveNormalEnemyTouch(mama, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(mama, samus, pseudoScrew);
     }
 
     /// <summary>The state of <paramref name="baby"/>'s Mama, who found it when she was placed.</summary>

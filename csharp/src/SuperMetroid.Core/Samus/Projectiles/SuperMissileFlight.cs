@@ -9,5 +9,5 @@ internal sealed class SuperMissileFlight : SamusShotBehavior
     /// <inheritdoc/>
     internal override void Run(SamusShotUpdate update) =>
         update.Shots.Motion.FlySuperMissile(update.Terrain.Level, update.Samus, update.Shot, update.Camera,
-            update.SharedProjectiles, update.Terrain.RoomObjects);
+            update.SamusBombs, update.Terrain.RoomObjects);
 }

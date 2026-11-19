@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// One frame a collectible draws over its block (#1557, #1762), named for what it shows. The members are declared in the
-/// order the frames are published; their values are arbitrary identities.
+/// One frame a collectible draws over its block (#1557, #1762), named for what it shows. Its values are arbitrary
+/// identities, and the import publishes the frames in an order it writes out (#2567).
 /// </summary>
 internal enum CollectibleDraw
 {

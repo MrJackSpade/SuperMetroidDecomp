@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// samples an ordinary comparison would refuse.
 /// </summary>
 /// <remarks>
-/// Consulted at each roll, as the boss's update draws its sample: which way Mother Brain's breath, the Shitroid's remorse
+/// Consulted at each roll, as the boss's update draws its sample: which way Mother Brain's breath, the Baby Metroid's remorse
 /// cry, Ceres Ridley's fireball jitter, Norfair Ridley's breakup fragments and Crocomire's dust and step go depends on
 /// these halves exactly. The samples come from the shared random sequence (<see cref="SharedRandomState"/>), 0 through
 /// 65535. Evidence: each roll's original routine reads the sample, or the sample less its threshold, as a signed
@@ -24,6 +24,14 @@ public static class BossRandomRolls
     /// <param name="sample">The random sample, 0 through 65535.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="sample"/> is outside the random range.</exception>
     public static bool InLowerHalf(int sample) => InHalfFrom(sample, threshold: 0);
+
+    /// <summary>
+    /// The side a boss's roll sends a thing toward (#2569): rightward, toward increasing coordinates, for a sample in the
+    /// lower half of the random range (<see cref="InLowerHalf"/>), leftward for one in the upper half.
+    /// </summary>
+    /// <param name="sample">The random sample, 0 through 65535.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="sample"/> is outside the random range.</exception>
+    public static HorizontalDirection SideOf(int sample) => InLowerHalf(sample) ? HorizontalDirection.Right : HorizontalDirection.Left;
 
     /// <summary>
     /// Whether a sample lies in the half of the random range that starts at <paramref name="threshold"/>: the sample less

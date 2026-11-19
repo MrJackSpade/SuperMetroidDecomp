@@ -96,13 +96,13 @@ internal static class NativeEnemyFamilyStateImport
                 // by every step.
                 PhantoonFadeProgress fade = phantoon.Phase == PhantoonPhase.Dead ? phantoon.ShipPowerOn : phantoon.BodyFade;
                 fade.Steps = words.E;
-                phantoon.BodyFade.Complete = words.F != 0;
+                PrivateState.Set(phantoon.BodyFade, nameof(PhantoonFadeProgress.IsFinished), words.F != 0);
                 phantoon.RageWaveCount = words.F;
                 PhantoonNativeWords.ImportDeathMosaic(phantoon.Death, words.C);
             }
             else if (part == EnemyDefinitionId.PhantoonTentacles)
             {
-                phantoon.Swoop.Requested = words.A != 0;
+                phantoon.WindowEnd = (words.A != 0) ? PhantoonWindowEnd.Swoop : PhantoonWindowEnd.EyeCloses;
                 phantoon.Round.Damage = words.B;
                 phantoon.Swoop.Velocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
                 PhantoonNativeWords.ImportSwoopTarget(phantoon.Swoop, words.E);
@@ -136,7 +136,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.FigureEight.PathPlace = PhantoonPath.At(words.A);
                 phantoon.Death.ExplosionPasses = words.A;
                 phantoon.StartingFlames.Orbiting = words.B != 0;
-                phantoon.FigureEight.Speed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPathSpeed>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { (global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B)) });
+                phantoon.FigureEight.Speed = new PhantoonPathSpeed(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B));
                 phantoon.FigureEight.Stage = PhantoonFigureEightStageWords.Decode(words.D);
                 if (words.F != 0)
                     phantoon.Phase = PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
@@ -172,8 +172,8 @@ internal static class NativeEnemyFamilyStateImport
             // The bottom hull, listed right after the top, keeps the ship's engine-sound timer in variable D, its
             // rumble frame in E and its escape speed in F.
             bottomOfShip.EngineSoundTimer = UpdateCountdown.For(ZeroOrBelowDuration(words.D));
-            bottomOfShip.Rumble.PlaceAt(UpdateCountdownAccess.AtAge(GunshipTakeoffDefinitions.EngineRumbleFrames,
-                Math.Min((int)words.E, GunshipTakeoffDefinitions.EngineRumbleFrames)));
+            bottomOfShip.Rumble = UpdateCountdownAccess.AtAge(GunshipTakeoffDefinitions.EngineRumbleFrames,
+                Math.Min((int)words.E, GunshipTakeoffDefinitions.EngineRumbleFrames));
             bottomOfShip.EscapeVelocity = new SignedEightEight(words.F);
         }
         if (enemy.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
@@ -210,7 +210,7 @@ internal static class NativeEnemyFamilyStateImport
                 $"Recorded Ceres door or wall {enemy.Ordinal} runs routine {words.A:X4}, not its actor's {CeresNativeWords.MainBehaviourWord(enemy):X4}.");
         }
         if (enemy.SpeciesState<CeresRidleyRoomDoorState>() is { } ridleyRoomDoorRecord)
-            ridleyRoomDoorRecord.Drawing = words.B != 0 ? CeresRidleyRoomDoorDrawing.ByRidleysScene : CeresRidleyRoomDoorDrawing.ItsOwn;
+            ridleyRoomDoorRecord.Look = words.B != 0 ? CeresRidleyRoomDoorLook.Overlay : CeresRidleyRoomDoorLook.Actor;
         if (enemy.SpeciesState<DeadTorizoEnemyState>() is { } deadTorizoRecord)
         {
             deadTorizoRecord.Phase = CorpsesNativeWords.DeadTorizoPhases.Decode(words.A, "recorded DeadTorizoPhase");
@@ -267,7 +267,9 @@ internal static class NativeEnemyFamilyStateImport
             }
             // The swoop path's length (word C) is read with the path's heights from the cartridge's table by the snapshot
             // import, which holds the memory the table lies in.
-            draygonRecord.SwoopVelocity = UnsignedSixteenSixteen.FromRaw(SixteenSixteenWords.Compose(words.D, words.E));
+            // The cartridge keeps the pass's speed; the port's velocity takes it toward the pass's side.
+            draygonRecord.SwoopVelocity = UnsignedSixteenSixteen.FromRaw(SixteenSixteenWords.Compose(words.D, words.E)).AsDisplacement()
+                .Toward(draygonRecord.PassDirection);
         }
         // Draygon's encounter keeps his eye's tracking (#2298).
         if (enemy.Entity is DraygonEyeEntity { Encounter.EyeTracking: var draygonEyeRecord })
@@ -286,8 +288,11 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {
-            global::SuperMetroid.Core.PrivateState.Set(crocomireRecord, "DeathStage", (global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathStage>)(CrocomireNativeWords.DeathStages.Decode(words.A, "recorded Crocomire death stage")));
-            crocomireRecord.DamageReactionPending = CrocomireNativeWords.DamageReactionPending(words.B);
+            crocomireRecord.DeathStage = CrocomireNativeWords.DeathStages.Decode(words.A, "recorded Crocomire death stage");
+            if (CrocomireNativeWords.DamageReactionPending(words.B))
+                crocomireRecord.StepBack.Ask();
+            else
+                crocomireRecord.StepBack.Forget();
             // The fight table's first entry, which no live fight selects, stands for a defeated room's corpse, which keeps its
             // constructed phase and never runs it (#1939).
             if (words.C != 0)
@@ -300,8 +305,8 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<DeadSidehopperEnemyState>() is { } deadSidehopperRecord)
         {
             deadSidehopperRecord.Action = CorpsesNativeWords.DeadSidehopperActions.Decode(words.A, "recorded DeadSidehopperAction");
-            deadSidehopperRecord.PreRotDelay.PlaceAt(UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
-                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates)));
+            deadSidehopperRecord.PreRotDelay = UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
+                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates));
             deadSidehopperRecord.PostLandingPause = TrueWait(words.F);
         }
         if (enemy.SpeciesState<BotwoonEnemyState>() is { } botwoonRecord)
@@ -314,27 +319,27 @@ internal static class NativeEnemyFamilyStateImport
             if (words.F != 0)
                 botwoonRecord.HeadAction = BotwoonNativeWords.HeadActions.Decode(words.F, "recorded BotwoonHeadAction");
         }
-        if (enemy.SpeciesState<ShitroidEnemyState>() is { } shitroidRecord)
+        if (enemy.SpeciesState<BabyMetroidEnemyState>() is { } babyMetroidRecord)
         {
             // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
             if (words.A != 0)
             {
-                (ShitroidAction shitroidAction, HorizontalDirection? side) = MotherBrainNativeWords.ShitroidActions.Decode(words.A, "recorded ShitroidAction");
-                shitroidRecord.Action = shitroidAction;
+                (BabyMetroidAction babyMetroidAction, HorizontalDirection? side) = MotherBrainNativeWords.BabyMetroidActions.Decode(words.A, "recorded ShitroidAction");
+                babyMetroidRecord.Action = babyMetroidAction;
                 // Only the departing flight names the side of Samus it flies to (#2165).
                 if (side is { } departureSide)
-                    shitroidRecord.DepartureSide = departureSide;
+                    babyMetroidRecord.DepartureSide = departureSide;
             }
-            shitroidRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
+            babyMetroidRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             // Word D holds the membrane's phase and the updates before it moves on, less one; word E its pace, as the
             // updates each phase holds less one (#2404).
-            shitroidRecord.ResumeMembrane(MotherBrainNativeWords.ShitroidMembranePaces.Decode(words.E, "recorded Shitroid membrane pace"),
-                ShitroidMembranePulse.All[LittleEndianBytes.LowByte(words.D)], LittleEndianBytes.HighByte(words.D) + 1);
+            babyMetroidRecord.ResumeMembrane(MotherBrainNativeWords.BabyMetroidMembranePaces.Decode(words.E, "recorded Shitroid membrane pace"),
+                BabyMetroidMembranePulse.All[LittleEndianBytes.LowByte(words.D)], LittleEndianBytes.HighByte(words.D) + 1);
             // The cartridge keeps the Sidehopper drain's updates in the same word as every other wait's count.
-            if (shitroidRecord.Action == ShitroidAction.DrainSidehopper)
-                shitroidRecord.SidehopperDrain.SetCartridgeCount(words.F - 1);
+            if (babyMetroidRecord.Action == BabyMetroidAction.DrainSidehopper)
+                babyMetroidRecord.SidehopperDrain.SetCartridgeCount(words.F - 1);
             else
-                shitroidRecord.StateTimer.SetCartridgeCount(CoordinateAxis.AsSigned(words.F));
+                babyMetroidRecord.StateTimer.SetCartridgeCount(CoordinateAxis.AsSigned(words.F));
         }
         if (enemy.SpeciesState<DachoraEchoState>() is { } dachoraEcho)
         {
@@ -348,13 +353,13 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<DachoraEnemyState>() is { } dachoraRecord)
         {
-            dachoraRecord.SetGlowCycle(frame: LittleEndianBytes.HighByte(words.E), ticks: LittleEndianBytes.LowByte(words.E));
+            dachoraRecord.SetGlowCycle(SuperMetroid.Core.Compatibility.DachoraGlowCycle.At(LittleEndianBytes.HighByte(words.E), LittleEndianBytes.LowByte(words.E)));
             dachoraRecord.Action = AnimalsNativeWords.DachoraActions.Decode(words.F, "recorded DachoraAction");
             // The cartridge keeps the speed's whole pixels and the countdowns in variable A and the acceleration's fraction
             // in variable D; each is read here as the meaning the recorded phase gives it.
             if (dachoraRecord.Action is DachoraAction.BlinkingBeforeRun or DachoraAction.ChargingShinespark)
             {
-                global::SuperMetroid.Core.PrivateState.Set(dachoraRecord, "PhaseTimer", (global::SuperMetroid.Core.UpdateCountdown)(UpdateCountdownAccess.Recorded(unchecked((short)words.A))));
+                dachoraRecord.PhaseTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
                 dachoraRecord.Speed = SignedSixteenSixteen.FromParts(0, words.B);
                 dachoraRecord.VerticalAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.D);
             }
@@ -557,7 +562,7 @@ internal static class NativeEnemyFamilyStateImport
             growingShutterRecord.Action = growingAction;
             // The record keeps every section's origin; Core derives them from the first, the spawn row (#2183), and the
             // recorded origins must be the ones it derives.
-            global::SuperMetroid.Core.PrivateState.Set(growingShutterRecord, "SpawnY", (int)(words.B));
+            growingShutterRecord.SpawnY = words.B;
             ushort[] originRows = [words.B, words.C, words.D, words.E];
             for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
             {
@@ -643,14 +648,14 @@ internal static class NativeEnemyFamilyStateImport
             fakeKraidRecord.WalkTurnWait.SetCartridgeCount(words.D - 1);
             fakeKraidRecord.SpitWait.SetUpdatesLeft(words.E);
         }
-        if (enemy.SpeciesState<MaridiaLargeSnailEnemyState>() is { } maridiaLargeSnailRecord)
+        if (enemy.SpeciesState<OumEnemyState>() is { } oumRecord)
         {
-            maridiaLargeSnailRecord.Action = MaridiaSnailsNativeWords.MaridiaLargeSnailActions.Decode(words.A, "recorded MaridiaLargeSnailAction");
-            maridiaLargeSnailRecord.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(unchecked((short)words.B));
-            maridiaLargeSnailRecord.AttackCooldown = TrueWait(words.C);
-            maridiaLargeSnailRecord.Heading = words.D != 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
-            maridiaLargeSnailRecord.RemainingBounces = unchecked((short)words.E);
-            maridiaLargeSnailRecord.BouncePhase = MaridiaSnailsNativeWords.MaridiaLargeSnailBouncePhases.Decode(words.F, "recorded MaridiaLargeSnailBouncePhase");
+            oumRecord.Action = MaridiaSnailsNativeWords.OumActions.Decode(words.A, "recorded MaridiaLargeSnailAction");
+            oumRecord.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(unchecked((short)words.B));
+            oumRecord.AttackCooldown = TrueWait(words.C);
+            oumRecord.Heading = words.D != 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
+            oumRecord.RemainingBounces = unchecked((short)words.E);
+            oumRecord.BouncePhase = MaridiaSnailsNativeWords.OumBouncePhases.Decode(words.F, "recorded MaridiaLargeSnailBouncePhase");
         }
         if (enemy.SpeciesState<WallSpacePirateEnemyState>() is { } wallSpacePirateRecord)
         {
@@ -690,8 +695,8 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<BoulderEnemyState>() is { } boulderRecord)
         {
             boulderRecord.Action = BoulderNativeWords.BoulderActions.Decode(words.A, "recorded BoulderAction");
-            boulderRecord.TravelSpeedAccumulator = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.B);
-            boulderRecord.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.C);
+            boulderRecord.TravelCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.B);
+            boulderRecord.BounceCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.C);
             // The record counts the bounces left, two before the first impact and minus one once rolling.
             boulderRecord.ImpactsSoFar = BoulderBounces.ImpactCount - 1 - unchecked((short)words.D);
             // The Boulder rolls as its placement names (#2476), which the recording's roll must be.
@@ -783,7 +788,7 @@ internal static class NativeEnemyFamilyStateImport
             beetom.Action = beetomAction;
             // Only an action that goes one way names its heading (#2277).
             if (beetomHeading is { } beetomGoes)
-                global::SuperMetroid.Core.PrivateState.Set(beetom, "Heading", (global::SuperMetroid.Core.Spatial.HorizontalDirection)(beetomGoes));
+                beetom.Heading = beetomGoes;
             beetom.ActionTimer = TrueWait(words.D);
             beetom.ButtonCounter = unchecked((short)words.E);
             beetom.LastSeenPlayerActions = GameplayActionWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
@@ -880,17 +885,17 @@ internal static class NativeEnemyFamilyStateImport
             crawler.Action = (enemy.Entity is OrangeZoomerEntity ? CrawlersNativeWords.OrangeZoomerActions : CrawlersNativeWords.SurfaceCrawlerActions)
                 .Decode(words.F, "recorded CrawlerAction");
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.Holtz && enemy.SpeciesState<LowerNorfairRioEnemyState>() is { } holtz)
+        if (enemy.DefinitionId == EnemyDefinitionId.Holtz && enemy.SpeciesState<HoltzEnemyState>() is { } holtz)
         {
             holtz.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
-            holtz.Action = RiosNativeWords.LowerNorfairRioActions.Decode(words.F, "recorded LowerNorfairRioAction");
+            holtz.Action = RiosNativeWords.HoltzActions.Decode(words.F, "recorded LowerNorfairRioAction");
         }
         if (enemy.DefinitionId == EnemyDefinitionId.EtecoonEscape && enemy.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {
             // The record's signed walking speed: its sign is the way the Etecoon walks (#2369).
             var escapeVelocity = new SignedEightEight(words.A);
             PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Direction), escapeVelocity.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right);
-            PrivateState.Set(escape, "Speed", escapeVelocity.IsNegative ? escapeVelocity.Negated() : escapeVelocity);
+            PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Speed), escapeVelocity.IsNegative ? escapeVelocity.Negated() : escapeVelocity);
             PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Action), AnimalsNativeWords.EscapeEtecoonActionAt(words.F));
         }
         if (enemy.DefinitionId == EnemyDefinitionId.FaceBlock && enemy.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
@@ -975,20 +980,20 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.DeadTourianCorpses[index] is { } corpse)
         {
             corpse.Phase = DeadTourianCorpsePhaseOf(corpse.Species, words.A);
-            corpse.PreRotDelay.PlaceAt(UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
-                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates)));
+            corpse.PreRotDelay = UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
+                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates));
         }
         if (enemies.RioStates[index] is { } rio)
         {
             rio.SavedHorizontalVelocity = new SignedEightEight(words.A);
             rio.Action = RiosNativeWords.RioActions.Decode(words.B, "recorded RioAction");
             rio.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
-            rio.AnimationFinished = words.E != 0;
+            if (words.E != 0) rio.Finish.Raise(); else rio.Finish.Forget();
         }
-        if (enemy.EntityState<NorfairRioEntity, NorfairRioEnemyState>() is { } norfairRio)
+        if (enemy.EntityState<GerutaEntity, GerutaEnemyState>() is { } geruta)
         {
-            norfairRio.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.A));
-            norfairRio.Action = RiosNativeWords.NorfairRioActions.Decode(words.F, "recorded NorfairRioAction");
+            geruta.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.A));
+            geruta.Action = RiosNativeWords.GerutaActions.Decode(words.F, "recorded NorfairRioAction");
         }
         if (enemies.WaverStates[index] is { } waver)
         {
@@ -1099,20 +1104,20 @@ internal static class NativeEnemyFamilyStateImport
         {
             ripperVariant.Heading = unchecked((short)words.D) < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
             // The Ripper flies its placement's speed (#2450), which the recording's must be.
-            EnemyLinearSpeed recordedRipperSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearSpeedAtOffset(words.E);
+            SignedSixteenSixteen recordedRipperSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearSpeedAtOffset(words.E);
             // A grapple Ripper's placement keeps its patrol bounds beside its speed (#2512).
             SignedSixteenSixteen placementRipperSpeed = enemy.DefinitionId == EnemyDefinitionId.GrappleRipper
                 ? enemy.SpawnSettings<GrappleRipperSpawnSettings>().Speed
                 : enemy.SpawnSettings<RipperSpawnSettings>().Speed;
             SignedSixteenSixteen ripperRightward = RipperBehavior.FlyingVelocity(placementRipperSpeed, HorizontalDirection.Right);
-            if (recordedRipperSpeed.Speed != ripperRightward)
-                throw new InvalidDataException($"Recorded Ripper speed {recordedRipperSpeed.Speed} is not its placement's {ripperRightward}.");
+            if (recordedRipperSpeed != ripperRightward)
+                throw new InvalidDataException($"Recorded Ripper speed {recordedRipperSpeed} is not its placement's {ripperRightward}.");
         }
-        if (enemies.NorfairLavaJumpingEnemyStates[index] is { } lavaJumper)
+        if (enemies.SqueeptStates[index] is { } lavaJumper)
         {
             lavaJumper.YVelocity = new SignedEightEight(words.C);
             lavaJumper.SpawnPosition = new Position16<RoomPixels>(words.D, words.E);
-            lavaJumper.Action = LavaJumpersNativeWords.NorfairLavaJumpingEnemyActions.Decode(words.F, "recorded NorfairLavaJumpingEnemyAction");
+            lavaJumper.Action = LavaJumpersNativeWords.SqueeptActions.Decode(words.F, "recorded NorfairLavaJumpingEnemyAction");
         }
         if (enemies.MetareeStates[index] is { } metaree)
         {

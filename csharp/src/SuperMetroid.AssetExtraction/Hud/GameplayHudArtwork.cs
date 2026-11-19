@@ -75,8 +75,9 @@ public sealed class GameplayHudArtwork
     {
         ValidateTilemap(tiles);
         if ((uint)palette >= BackgroundTile.ColourVariants) throw new ArgumentOutOfRangeException(nameof(palette));
-        if (Enum.GetValues<HudIcon>().Where(item => HudIconDefinitions.Items[item] == selectedItem).ToArray() is not [HudIcon shown])
+        if (Enum.GetValues<HudIcon>().Count(item => HudIconDefinitions.Items[item] == selectedItem) != 1)
             return;
+        HudIcon shown = Enum.GetValues<HudIcon>().Single(item => HudIconDefinitions.Items[item] == selectedItem);
         GameplayHudIcon icon = Icon(shown);
         for (int cell = 0; cell < icon.Cells.Length; cell++)
         {

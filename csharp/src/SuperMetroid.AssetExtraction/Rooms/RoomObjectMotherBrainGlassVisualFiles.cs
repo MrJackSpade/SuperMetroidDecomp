@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -11,6 +12,22 @@ public static class RoomObjectMotherBrainGlassVisualFiles
 {
     /// <summary>The installed file holding the initial, damaged, shifted, shattering and cleared glass frames' pictures.</summary>
     private const string VisualFileName = "mother-brain-glass.json";
+
+    /// <summary>The glass frames in the installed file's order (#2567): intact, the pane's stages, the rim's, cleared.</summary>
+    private static readonly IReadOnlyList<MotherBrainGlassDraw> FrameOrder = Ensure.EveryMemberOnce<MotherBrainGlassDraw>(
+    [
+        MotherBrainGlassDraw.Intact,
+        MotherBrainGlassDraw.PaneCracked,
+        MotherBrainGlassDraw.PaneCrackedThrough,
+        MotherBrainGlassDraw.PaneTransition,
+        MotherBrainGlassDraw.PaneShifted,
+        MotherBrainGlassDraw.PaneShiftedCrumbling,
+        MotherBrainGlassDraw.PaneShiftedEmptying,
+        MotherBrainGlassDraw.RimBuckling,
+        MotherBrainGlassDraw.RimBursting,
+        MotherBrainGlassDraw.RimGone,
+        MotherBrainGlassDraw.Cleared,
+    ]);
 
     /// <summary>The glass as the import pictures it: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<MotherBrainGlassDraw> Family { get; } =
@@ -33,7 +50,7 @@ public static class RoomObjectMotherBrainGlassVisualFiles
     /// Every glass frame's geometry as the cartridge writes it: the runs of its draw list, each cell colliding as the
     /// game's block shape for the frame says (#1608). The run form is the cartridge's; the game draws the shape.
     /// </summary>
-    private static Dictionary<MotherBrainGlassDraw, RoomObjectFrameLayout> Layouts()
+    private static List<RoomObjectFamilyFrame<MotherBrainGlassDraw>> Layouts()
     {
         // The intact glass and a shifted pane's glass block are one-cell rows; every other run is a column. The pane's far
         // columns start three, two and one blocks left of the glass block, lower where their top block is not drawn.
@@ -59,13 +76,13 @@ public static class RoomObjectMotherBrainGlassVisualFiles
             [MotherBrainGlassDraw.Cleared] = square,
         };
 
-        var layouts = new Dictionary<MotherBrainGlassDraw, RoomObjectFrameLayout>();
-        foreach (MotherBrainGlassDraw frame in Enum.GetValues<MotherBrainGlassDraw>())
+        var layouts = new List<RoomObjectFamilyFrame<MotherBrainGlassDraw>>();
+        foreach (MotherBrainGlassDraw frame in FrameOrder)
         {
             RoomObjectDraw draw = MotherBrainGlassDraws.Family.Of(frame);
             if (!RoomObjectDrawIdentity.TryShape(MotherBrainGlassDraws.Family, draw, out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Mother Brain glass frame {frame} has no shape.");
-            layouts.Add(frame, RoomObjectShapeRun.Layout(draw, shape, runs[frame]));
+            layouts.Add(new(frame, RoomObjectShapeRun.Layout(draw, shape, runs[frame])));
         }
         return layouts;
     }

@@ -113,7 +113,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             // The population entry selects the initial animations and velocity signs, but
             // does not set the live direction. Only the direction cue does. A
             // first-frame hide can bypass it and keeps the first direction.
-            Direction = YardDirection.UpsideRightMovingUp,
+            Direction = YardDirection.OnLeftWallMovingUp,
             Behavior = YardBehavior.NormalCrawling,
             CrawlSpeed = settings.CrawlSpeed,
         };
@@ -429,12 +429,12 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         // crawler's starting velocity carries over: the live crawl speed on both axes, the horizontal one reversed for
         // a block on Yard's right.
         state.BlockSide = state.AirborneFacingDirection == HorizontalDirection.Right
-            ? CrawlerSurfaceOrientation.UpsideLeft
-            : CrawlerSurfaceOrientation.UpsideRight;
+            ? CrawlerSurfaceOrientation.OnRightWall
+            : CrawlerSurfaceOrientation.OnLeftWall;
         // Surface direction can still describe a wall or ceiling. The landing instead uses
         // the new floor-facing block side for its downward probe and horizontal sign.
         var landing = new PixelVelocity<RoomPixels>(state.CrawlSpeed, state.CrawlSpeed);
-        state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.UpsideRight ? landing.ReversedX() : landing;
+        state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.OnLeftWall ? landing.ReversedX() : landing;
         place.Frame = EnemyFrameId.Empty;
         state.Movement = YardMovement.HoldingStill;
         state.Playback = EnemyAnimationPlayback.Start(place, YardAnimations.StartingWith(state.HidingAnimation ??
@@ -521,9 +521,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Movement = YardMovement.Airborne;
         SetYardAirborneLists(place, state);
         state.AirborneVelocity = YardShotLaunchFractions.Launched(state.AirborneVelocity, new Offset16<RoomPixels>(
-            SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left
-                ? -YardMotionDefinitions.BeamLaunchWholeSpeed
-                : YardMotionDefinitions.BeamLaunchWholeSpeed,
+            YardMotionDefinitions.BeamLaunchWholeSpeed.Toward(
+                SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right),
             -YardMotionDefinitions.BeamLaunchWholeSpeed));
     }
 
@@ -558,7 +557,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
         state.CrawlSpeed = place.SpawnSettings<YardSpawnSettings>().CrawlSpeed;
         if (state.Behavior != YardBehavior.NormalCrawling)
             TurnYardAround(state);

@@ -124,7 +124,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        _terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(1));
+        _terrain.MoveEnemyVertically(level, place, DachoraMotionDefinitions.WaitingFloorProbe);
         if (!DachoraWithinAxis(place.Position.Y.Whole, samus.Position.Y.Whole, DachoraMotionDefinitions.ActivationYDistance) ||
             !DachoraWithinAxis(place.Position.X.Whole, samus.Position.X.Whole, DachoraMotionDefinitions.ActivationXDistance))
         {
@@ -157,7 +157,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = state.Facing == HorizontalDirection.Right
             ? DachoraAction.RunningRight
             : DachoraAction.RunningLeft;
-        state.SetGlowCycle(frame: 0, ticks: 1);
+        state.SetGlowCycle(DachoraGlowCycleDefinitions.RunStart);
     }
 
     /// <summary>Runs left. Leftward speed is the whole and fractional speed exactly negated.</summary>
@@ -179,7 +179,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         StartDachoraAnimation(place, state, DachoraSegment.RunningRight);
         state.Action = DachoraAction.RunningRight;
-        state.SetGlowCycle(frame: 0, ticks: 1);
+        state.SetGlowCycle(DachoraGlowCycleDefinitions.RunStart);
         state.Facing = HorizontalDirection.Right;
         state.Speed = SignedSixteenSixteen.Zero;
         ShowDachoraColours(place, DachoraColourPhase.Default, frame: 0);
@@ -199,7 +199,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = DachoraAction.RunningLeft;
             state.Facing = HorizontalDirection.Left;
             state.Speed = SignedSixteenSixteen.Zero;
-            state.SetGlowCycle(frame: 0, ticks: 0);
+            state.SetGlowCycle(DachoraGlowCycleDefinitions.Cleared);
             ShowDachoraColours(place, DachoraColourPhase.Default, frame: 0);
             return;
         }
@@ -211,7 +211,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         StartDachoraAnimation(place, state, DachoraSegment.ChargeRight);
         state.Action = DachoraAction.ChargingShinespark;
         state.StartCharging(DachoraTimingDefinitions.ChargeDuration);
-        state.SetGlowCycle(frame: 0, ticks: 0);
+        state.SetGlowCycle(DachoraGlowCycleDefinitions.Cleared);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + DachoraMotionDefinitions.ChargeCrouchDepth);
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DachoraChargeSound, priority: SoundRequestPriority.Normal);
     }
@@ -228,7 +228,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.Speed >= DachoraMotionDefinitions.MaximumSpeed)
         {
-            if (state.GlowFrame == 0 && state.GlowTicks == 1)
+            if (state.GlowCycleIsAtRunStart)
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.DachoraSpeedBoosterSound, priority: SoundRequestPriority.Normal);
 
             if (state.TickGlowCycle())
@@ -238,9 +238,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        // Presses the body down one pixel every running frame before changing speed.
+        // Presses the body down every running frame before changing speed.
         // The collision result is discarded; the probe keeps Dachora glued to room slopes.
-        _terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(1));
+        _terrain.MoveEnemyVertically(level, place, DachoraMotionDefinitions.RunningFloorPress);
 
         // Every run starts from rest and gains a sixteenth of a pixel an update, so its speed lands exactly on the cap and
         // stays there.
@@ -314,7 +314,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             : DachoraSegment.FallingLeft);
         state.Action = DachoraAction.Falling;
         state.Speed = SignedSixteenSixteen.Zero;
-        state.SetGlowCycle(frame: 0, ticks: 0);
+        state.SetGlowCycle(DachoraGlowCycleDefinitions.Cleared);
         ShowDachoraColours(place, DachoraColourPhase.Default, frame: 0);
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DachoraCeilingImpactSound, priority: SoundRequestPriority.Normal);
     }

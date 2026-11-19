@@ -106,7 +106,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// The selected save's startup route, loaded from the save by file select.
     /// A new game's is the opening-cinematic route.
     /// </summary>
-    public SaveLoadingGameState StartupRoute { get; init; }
+    public SaveStartupRoute StartupRoute { get; init; }
 
     /// <summary>Gets whether the Japanese-language options pages are selected.</summary>
     public bool JapaneseText { get; private set; }
@@ -123,11 +123,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Gets the options menu's current phase.</summary>
     public GameOptionsPhase Phase { get; private set; }
 
-    /// <summary>Gets whether the completed start-game fade requested the opening sequence.</summary>
-    public bool IntroRequested { get; private set; }
-
-    /// <summary>Gets whether the completed cancel fade requested the file-select menu.</summary>
-    public bool FileSelectRequested { get; private set; }
+    /// <summary>How the menu hands off to the frontend (#2562): the opening sequence or file select, kept once it reaches one.</summary>
+    public GameOptionsMenuOutcome Outcome { get; private set; }
 
     /// <summary>Advances one options-menu update using the held controller buttons.</summary>
     public void Step(ControllerButton controllerInput)
@@ -206,12 +203,12 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.StartGame:
-                IntroRequested = true;
+                Outcome = GameOptionsMenuOutcome.Intro;
                 break;
 
             case GameOptionsPhase.FadeOutToFileSelect:
                 if (fade.Darken())
-                    FileSelectRequested = true;
+                    Outcome = GameOptionsMenuOutcome.FileSelect;
                 break;
 
             default:
@@ -220,11 +217,11 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Captures the backdrop, the scrolled page with what is drawn over it, and the selector without composing pixels.</summary>
-    public LayeredScene CaptureRenderSnapshot()
+    public LayeredScene ComposeScene()
     {
         PrepareRenderSprites();
         // The backdrop, the page and its labels, language rows and toggle choices are the menus' pictures (#1467).
-        return MenuRenderSnapshotCapture.Capture(screen, screen.PagePictures(GameOptionsNames.BackgroundFrame),
+        return MenuSceneComposer.Capture(screen, screen.PagePictures(GameOptionsNames.BackgroundFrame),
             screen.PagePictures(ShownPage.Frames()), pageVerticalScroll, fade.Level);
     }
 
@@ -275,7 +272,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             case GameOptionsPrimaryRow.StartGame:
                 // Starting: a save that resumes ordinary gameplay starts at once;
                 // a new game and the cinematic routes fade out first.
-                Phase = StartupRoute == SaveLoadingGameState.MainGame
+                Phase = StartupRoute == SaveStartupRoute.MainGame
                     ? GameOptionsPhase.StartGame
                     : GameOptionsPhase.FadeOutToIntro;
                 break;

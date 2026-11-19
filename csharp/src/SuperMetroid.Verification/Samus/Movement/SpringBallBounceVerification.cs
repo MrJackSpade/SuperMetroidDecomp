@@ -26,8 +26,7 @@ internal static class SpringBallBounceVerification
             };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
-            samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Up);
             samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
 
             SamusMorphBallMovement.StepSpringBallInAir(room, samus, GameplayAction.Right, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
@@ -36,13 +35,13 @@ internal static class SpringBallBounceVerification
             {
                 AssertEqual((ushort)0x168, samus.Position.Y.Whole, $"{context} rises by the rebound speed");
                 AssertEqual((ushort)0xffff, samus.Kinematics.Position.Y.Fraction, $"{context} Y fraction");
-                AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.YDirection, $"{context} keeps rising");
-                AssertEqual(0, samus.Kinematics.YSpeed.Whole, $"{context} Y speed");
-                AssertEqual(0xe400, samus.Kinematics.YSpeed.Fraction, $"{context} Y subspeed after gravity");
+                AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.VerticalVelocity.Direction, $"{context} keeps rising");
+                AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, $"{context} Y speed");
+                AssertEqual(0xe400, samus.Kinematics.VerticalVelocity.Speed.Fraction, $"{context} Y subspeed after gravity");
             }
             else
             {
-                AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection, $"{context} released Jump cuts the rise");
+                AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.VerticalVelocity.Direction, $"{context} released Jump cuts the rise");
             }
         }
         Console.WriteLine("Spring Ball bounce: a rebound in the air uses the bouncing routine, not the jump cutoff.");

@@ -19,10 +19,10 @@ public enum MotherBrainDrainedPhase
     MoveToBackOfRoom,
 
     /// <summary>Waits for her neck to finish rising, stops her drool, and once she stands crouches her fast.</summary>
-    GoIntoLowPowerMode,
+    SlumpOnceNeckIsRaised,
 
     /// <summary>Waits out the crouched pause, then starts her greying from its first step and begins it at once.</summary>
-    PrepareTransitionToGrey,
+    WaitBeforeGreying,
 
     /// <summary>Greys her one step each time the wait runs out; the step after the last gives her brain her third phase's health and leaves her a grey corpse awaiting revival.</summary>
     TransitionToGrey,

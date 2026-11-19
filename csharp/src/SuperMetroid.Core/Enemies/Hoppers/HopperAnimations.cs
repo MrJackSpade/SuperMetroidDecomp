@@ -35,16 +35,16 @@ internal static class HopperAnimations
         [
             Cue(new HopperCue.Signal(K.ProcessOffScreen)),
             Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Hop)),
-            Hold(EnemyFrameId.SidehopperUpsideDownLegsStraight),
+            Hold(EnemyFrameId.SidehopperOnCeilingLegsStraight),
         ],
         [P.SidehopperCeilingLanded] =
         [
             Cue(new HopperCue.Signal(K.StopProcessingOffScreen)),
             Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Land)),
-            Show(EnemyFrameId.SidehopperUpsideDownLegsBent, 2),
-            Show(EnemyFrameId.SidehopperUpsideDownLegsCrouched, 5),
-            Show(EnemyFrameId.SidehopperUpsideDownLegsBent, 2),
-            Show(EnemyFrameId.SidehopperUpsideDownLegsCrouched, 3),
+            Show(EnemyFrameId.SidehopperOnCeilingLegsBent, 2),
+            Show(EnemyFrameId.SidehopperOnCeilingLegsCrouched, 5),
+            Show(EnemyFrameId.SidehopperOnCeilingLegsBent, 2),
+            Show(EnemyFrameId.SidehopperOnCeilingLegsCrouched, 3),
             Cue(new HopperCue.Signal(K.ReadyToHop)),
         ],
         [P.DessgeegaFloorJumping] =
@@ -64,15 +64,15 @@ internal static class HopperAnimations
         [P.DessgeegaCeilingJumping] =
         [
             Cue(new HopperCue.Signal(K.ProcessOffScreen)),
-            Hold(EnemyFrameId.DessgeegaUpsideDownLegsStraight),
+            Hold(EnemyFrameId.DessgeegaOnCeilingLegsStraight),
         ],
         [P.DessgeegaCeilingLanded] =
         [
             Cue(new HopperCue.Signal(K.StopProcessingOffScreen)),
-            Show(EnemyFrameId.DessgeegaUpsideDownLegsBent, 2),
-            Show(EnemyFrameId.DessgeegaUpsideDownLegsCrouched, 5),
-            Show(EnemyFrameId.DessgeegaUpsideDownLegsBent, 2),
-            Show(EnemyFrameId.DessgeegaUpsideDownLegsCrouched, 3),
+            Show(EnemyFrameId.DessgeegaOnCeilingLegsBent, 2),
+            Show(EnemyFrameId.DessgeegaOnCeilingLegsCrouched, 5),
+            Show(EnemyFrameId.DessgeegaOnCeilingLegsBent, 2),
+            Show(EnemyFrameId.DessgeegaOnCeilingLegsCrouched, 3),
             Cue(new HopperCue.Signal(K.ReadyToHop)),
         ],
         [P.LargeSidehopperFloorJumping] =
@@ -95,16 +95,16 @@ internal static class HopperAnimations
         [
             Cue(new HopperCue.Signal(K.ProcessOffScreen)),
             Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Hop)),
-            Hold(EnemyFrameId.LargeSidehopperUpsideDownLegsStraight),
+            Hold(EnemyFrameId.LargeSidehopperOnCeilingLegsStraight),
         ],
         [P.LargeSidehopperCeilingLanded] =
         [
             Cue(new HopperCue.Signal(K.StopProcessingOffScreen)),
             Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Land)),
-            Show(EnemyFrameId.LargeSidehopperUpsideDownLegsBent, 2),
-            Show(EnemyFrameId.LargeSidehopperUpsideDownLegsCrouched, 5),
-            Show(EnemyFrameId.LargeSidehopperUpsideDownLegsBent, 2),
-            Show(EnemyFrameId.LargeSidehopperUpsideDownLegsCrouched, 3),
+            Show(EnemyFrameId.LargeSidehopperOnCeilingLegsBent, 2),
+            Show(EnemyFrameId.LargeSidehopperOnCeilingLegsCrouched, 5),
+            Show(EnemyFrameId.LargeSidehopperOnCeilingLegsBent, 2),
+            Show(EnemyFrameId.LargeSidehopperOnCeilingLegsCrouched, 3),
             Cue(new HopperCue.Signal(K.ReadyToHop)),
         ],
         [P.LargeDessgeegaFloorJumping] =
@@ -124,15 +124,15 @@ internal static class HopperAnimations
         [P.LargeDessgeegaCeilingJumping] =
         [
             Cue(new HopperCue.Signal(K.ProcessOffScreen)),
-            Hold(EnemyFrameId.LargeDessgeegaUpsideDownLegsStraight),
+            Hold(EnemyFrameId.LargeDessgeegaOnCeilingLegsStraight),
         ],
         [P.LargeDessgeegaCeilingLanded] =
         [
             Cue(new HopperCue.Signal(K.StopProcessingOffScreen)),
-            Show(EnemyFrameId.LargeDessgeegaUpsideDownLegsBent, 2),
-            Show(EnemyFrameId.LargeDessgeegaUpsideDownLegsCrouched, 5),
-            Show(EnemyFrameId.LargeDessgeegaUpsideDownLegsBent, 2),
-            Show(EnemyFrameId.LargeDessgeegaUpsideDownLegsCrouched, 3),
+            Show(EnemyFrameId.LargeDessgeegaOnCeilingLegsBent, 2),
+            Show(EnemyFrameId.LargeDessgeegaOnCeilingLegsCrouched, 5),
+            Show(EnemyFrameId.LargeDessgeegaOnCeilingLegsBent, 2),
+            Show(EnemyFrameId.LargeDessgeegaOnCeilingLegsCrouched, 3),
             Cue(new HopperCue.Signal(K.ReadyToHop)),
         ],
     });

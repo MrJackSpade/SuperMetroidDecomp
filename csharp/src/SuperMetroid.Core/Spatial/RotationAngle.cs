@@ -13,7 +13,7 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     public const int StepsPerTurn = 256;
 
     /// <summary>Number of fractions in one step.</summary>
-    private const int FractionsPerStep = 256;
+    internal const int FractionsPerStep = 256;
 
     /// <summary>Holds the angle in 256ths of a step, 0 through 65535: whole steps and their fraction.</summary>
     private RotationAngle(ushort rawValue) => RawValue = rawValue;
@@ -72,19 +72,6 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
 
     /// <summary>The angle halfway through whole step <paramref name="step"/>: the step with half a step's fraction.</summary>
     public static RotationAngle MiddleOfStep(TrigonometryAngle step) => FromSteps(step.RawValue, FractionsPerStep / 2);
-
-    /// <summary>
-    /// The angle <paramref name="eighths"/> eighths of a step round from zero, 0 through 2047 (#2422): the precision a tide's
-    /// turn each update is authored in.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="eighths"/> lies outside one turn.</exception>
-    public static RotationAngle FromEighthsOfStep(int eighths) =>
-        FromSteps(Ensure.BetweenInclusive(0, 8 * StepsPerTurn - 1, eighths) / 8, eighths % 8 * (FractionsPerStep / 8));
-
-    /// <summary>The angle <paramref name="halfSteps"/> half steps round from zero, 0 through 511: a whole or a half step.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="halfSteps"/> lies outside one turn.</exception>
-    public static RotationAngle FromHalfSteps(int halfSteps) =>
-        FromSteps(Ensure.BetweenInclusive(0, 2 * StepsPerTurn - 1, halfSteps) / 2, halfSteps % 2 * (FractionsPerStep / 2));
 
     /// <summary>The angle a computation in 256ths of a step lands on: past a full turn, or below zero, it continues around the circle.</summary>
     public static RotationAngle NormalizeRaw(int rawValue) => new(unchecked((ushort)rawValue));

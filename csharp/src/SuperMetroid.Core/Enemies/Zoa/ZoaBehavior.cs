@@ -119,9 +119,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The shot travels the way the Zoa faces. The shooting animation's cues set the speed as it starts and after 64
         // and 72 updates.
-        SignedSixteenSixteen xDisplacement = state.Facing == HorizontalDirection.Right
-            ? speed
-            : -speed;
+        SignedSixteenSixteen xDisplacement = speed.Toward(state.Facing);
         place.Position = place.Position.AdvanceX(xDisplacement);
         if (EnemyProcessingWindow.EnemyCenterIsOnScreen(place, camera))
         {

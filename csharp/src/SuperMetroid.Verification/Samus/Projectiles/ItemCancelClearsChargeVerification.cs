@@ -44,11 +44,11 @@ internal static class ItemCancelClearsChargeVerification
         const ControllerButton shoot = ControllerButton.X;
         for (int frame = 0; frame < 10; frame++)
             runtime.StepFrame(shoot);
-        AssertEqual(10, runtime.Projectiles.Charge.FlareCounter, "ten held frames charge to ten");
+        AssertEqual(10, runtime.Projectiles.Charge.UpdatesHeld, "ten held frames charge to ten");
 
         runtime.StepFrame((shoot | ControllerButton.Y));
         AssertEqual(HudItem.Beam, samus.SelectedHudItem, "the cancel leaves nothing selected");
-        AssertEqual(1, runtime.Projectiles.Charge.FlareCounter,
+        AssertEqual(1, runtime.Projectiles.Charge.UpdatesHeld,
             "the cancel clears the charge before held Shoot counts it again");
         Console.WriteLine("  Item cancel: a Y press with nothing selected still clears the charge.");
     }

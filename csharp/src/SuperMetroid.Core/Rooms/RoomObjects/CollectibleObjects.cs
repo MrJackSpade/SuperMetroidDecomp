@@ -17,7 +17,7 @@ internal sealed class CollectibleObjects
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;
     /// <summary>The room's effect overlay FX.</summary>
-    private readonly IRoomFxMotion _roomFx;
+    private readonly IRoomLiquid _roomFx;
     /// <summary>Updates level blocks and queues their draws.</summary>
     private readonly IRoomObjectDrawing _drawing;
     /// <summary>The room's places, searched for the item a touch or a shot reaches and for the items the room holds.</summary>
@@ -26,7 +26,7 @@ internal sealed class CollectibleObjects
     /// Connects the collectibles to room state and drawing, and to the room's block pairs, which its collectibles that
     /// show their own picture take in turn.
     /// </summary>
-    internal CollectibleObjects(SharedGameState system, IRoomSamusAccess samus, IRoomFxMotion roomFx, IRoomObjectDrawing drawing, RoomObjectPlaceList places,
+    internal CollectibleObjects(SharedGameState system, IRoomSamusAccess samus, IRoomLiquid roomFx, IRoomObjectDrawing drawing, RoomObjectPlaceList places,
         CollectibleBlockPairs blockPairs, RoomObjectSoundQueue sounds)
     {
         _sounds = Ensure.NotNull(sounds);
@@ -42,18 +42,20 @@ internal sealed class CollectibleObjects
     private readonly CollectibleBlockPairs _blockPairs;
     /// <summary>The room objects' audio requests, which a pickup's fanfare joins.</summary>
     private readonly RoomObjectSoundQueue _sounds;
-    /// <summary>Delays the Speed Booster Chozo lava motion write until message return.</summary>
-    private bool _pendingSpeedBoosterPickupContinuation;
     /// <summary>
     /// The items collected whose pickup message is still open, each at its place, in the order they were collected: the
     /// room-object update's order, the order of their places.
     /// </summary>
     private readonly List<AwaitingPickup> _awaitingMessage = [];
 
-    /// <summary>An item collected whose pickup message is still open, at its place.</summary>
+    /// <summary>An item collected whose pickup message is still open, at its place, and what its message's close does to the room.</summary>
     /// <param name="Place">The item's place.</param>
     /// <param name="Item">The item.</param>
-    private readonly record struct AwaitingPickup(RoomObjectPlace Place, CollectibleObject Item);
+    /// <param name="RaisesLava">
+    /// Whether its message's close starts the room's lava rising (#2562): the Speed Booster in its Chozo orb, whose pickup
+    /// leaves the lava's motion to the message's close. The last item collected before the close decides.
+    /// </param>
+    private readonly record struct AwaitingPickup(RoomObjectPlace Place, CollectibleObject Item, bool RaisesLava);
 
     /// <summary>Whether the room objects' step is waiting for its synchronous pickup message.</summary>
     internal bool HasPendingCollectibleMessage => _awaitingMessage.Count != 0;
@@ -70,17 +72,11 @@ internal sealed class CollectibleObjects
             AwaitingPickup awaiting = _awaitingMessage[index];
             awaiting.Item.ResumeAfterMessage(_drawing, level, awaiting.Place);
         }
+        bool raisesLava = _awaitingMessage.Count != 0 && _awaitingMessage[^1].RaisesLava;
         _awaitingMessage.Clear();
-        CompleteSpeedBoosterPickupContinuation();
-    }
-
-    /// <summary>Applies the delayed lava-rise velocity after the Speed Booster message returns.</summary>
-    private void CompleteSpeedBoosterPickupContinuation()
-    {
-        if (!_pendingSpeedBoosterPickupContinuation)
-            return;
-        _roomFx.SetLiquidSpeed(SpeedBoosterPickupDefinitions.LavaRiseVelocity);
-        _pendingSpeedBoosterPickupContinuation = false;
+        // The Speed Booster's pickup starts the lava rising once its message has closed.
+        if (raisesLava)
+            _roomFx.SetLiquidSpeed(SpeedBoosterPickupDefinitions.LavaRiseVelocity);
     }
 
     /// <summary>Every permanent-item room object the room holds, from the last place in update order back to the first.</summary>
@@ -151,7 +147,7 @@ internal sealed class CollectibleObjects
         RoomObjectRoom room,
         RoomObjectPlace place,
         PermanentCollectibleObject item,
-        CollectedItemArgument placed)
+        CollectibleIdentity placed)
     {
         Ensure.NotNull(placed);
         RoomLevelData level = room.Level;
@@ -202,13 +198,11 @@ internal sealed class CollectibleObjects
         outcome.Collected(new CollectiblePickupEvent(item.Kind, definition.Message, definition.Consequence));
         // The item's cue starts the fanfare as it runs, before its message box opens.
         _sounds.QueuePermanentItemFanfare();
-        _pendingSpeedBoosterPickupContinuation =
-            item.Kind == InWorldCollectibleKind.SpeedBooster &&
-            item.Presentation == CollectiblePresentation.ChozoOrb;
 
         // The item is granted before its message opens; it keeps its block and its place while the message shows, and
         // finishes its pickup once the message closes.
         item.AwaitMessage();
-        _awaitingMessage.Add(new AwaitingPickup(place, item));
+        _awaitingMessage.Add(new AwaitingPickup(place, item,
+            RaisesLava: item.Kind == InWorldCollectibleKind.SpeedBooster && item.Presentation == CollectiblePresentation.ChozoOrb));
     }
 }

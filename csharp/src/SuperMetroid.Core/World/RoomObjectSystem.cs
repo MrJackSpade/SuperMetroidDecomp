@@ -41,7 +41,7 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     internal BossRoomMutationObjects BossRoomMutations { get; }
 
     /// <summary>The game's event flags, which scripted room objects set.</summary>
-    internal IGlobalEventFlags Events { get; }
+    internal IStoryEvents Events { get; }
 
     /// <summary>The room's room objects at their places in the update order, shared by every room-object family.</summary>
     private RoomObjectPlaceList Places { get; }
@@ -217,7 +217,7 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     BlockReactionObjects IRoomObjects.BlockReactions => BlockReactions;
 
     /// <inheritdoc/>
-    IGlobalEventFlags IRoomObjects.Events => Events;
+    IStoryEvents IRoomObjects.Events => Events;
 
     /// <inheritdoc/>
     RoomObjectSoundQueue IRoomObjects.Sounds => Sounds;

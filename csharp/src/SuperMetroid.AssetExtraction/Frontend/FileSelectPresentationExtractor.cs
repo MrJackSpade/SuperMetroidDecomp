@@ -161,21 +161,21 @@ public static class FileSelectPresentationExtractor
             ],
             BorderAnchors = new(StringComparer.Ordinal)
             {
-                [FileSelectPresentationFormat.BorderName(FileSelectBorder.Main)] = new(128, 16),
-                [FileSelectPresentationFormat.BorderName(FileSelectBorder.Copy)] = new(128, 16),
-                [FileSelectPresentationFormat.BorderName(FileSelectBorder.Clear)] = new(124, 16),
+                [FileSelectPresentationFormat.BorderName(FileSelectBorder.Main)] = FileSelectNativeLayout.NormalBorderAnchor,
+                [FileSelectPresentationFormat.BorderName(FileSelectBorder.Copy)] = FileSelectNativeLayout.CopyBorderAnchor,
+                [FileSelectPresentationFormat.BorderName(FileSelectBorder.Clear)] = FileSelectNativeLayout.ClearBorderAnchor,
             },
             MainCursorAnchors = Enumerable.Range(0, FileSelectCursorPositions.MainSelectionCount)
                 .Select(FileSelectCursorPositions.MainSelectionY)
-                .Select(y => new Offset16<ScreenPixels>(14, y)).ToArray(),
+                .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.MainCursorX, y)).ToArray(),
             DataCursorAnchors = Enumerable.Range(0, FileSelectCursorPositions.DataSelectionCount)
                 .Select(FileSelectCursorPositions.DataSelectionY)
-                .Select(y => new Offset16<ScreenPixels>(22, y)).ToArray(),
+                .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.DataCursorX, y)).ToArray(),
             ConfirmationCursorAnchors =
-                [new(94, 184), new(94, 208)],
+                [FileSelectCursorPositions.ConfirmationYesAnchor, FileSelectCursorPositions.ConfirmationNoAnchor],
             HelmetAnchors = Enumerable.Range(0, FileSelectCursorPositions.SaveSlotCount)
                 .Select(FileSelectCursorPositions.HelmetY)
-                .Select(y => new Offset16<ScreenPixels>(100, y)).ToArray(),
+                .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.HelmetX, y)).ToArray(),
             DynamicAnchors = new(StringComparer.Ordinal)
             {
                 [FileSelectPresentationFormat.AnchorName(FileSelectAnchor.CopyDestinationSource)] =

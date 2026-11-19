@@ -48,7 +48,7 @@ internal static class TourianStatueWaterVerification
         AssertEqual(0xb0, samus.LiquidPhysics.WaterSurfaceY, "Water physics receives the visible surface");
         samus.Position = samus.Position.WithWholeY(190);
         samus.LiquidPhysics.InitializeRememberedMedium(samus);
-        AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.LiquidPhysicsType,
+        AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.MediumLastEntered,
             "Native low-nibble FX dispatch selects water below the statue surface");
         var displayed = runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("No displayed water snapshot");
         AssertEqual(0xb0, displayed.WaterSurfaceScreenY, "Displayed water surface stays at native room height");
@@ -72,8 +72,8 @@ internal static class TourianStatueWaterVerification
         // The view shows the background row below the descent's camera row at the screen's top (#1514): with the camera at
         // the room's top, the descent puts that row above the background's origin, a negative scroll, not a wrapped one
         // (#2305).
-        AssertEqual(runtime.Display.DisplayedGameplayScrolls.ForegroundPosition.Y + runtime.TourianStatues.DisplayedVerticalOffset
-            + ScreenGeometry.LayerRowsHiddenAboveScreen, (int)descending.View.BackgroundScroll.Y, "Statue descent retains its independent BG2 vertical scroll");
+        AssertEqual(RoomView.ShownRow(runtime.Display.DisplayedGameplayScrolls.ForegroundPosition.Y + runtime.TourianStatues.DisplayedVerticalOffset),
+            (int)descending.View.BackgroundScroll.Y, "Statue descent retains its independent BG2 vertical scroll");
         AssertTrue(descending.View.BackgroundScroll.Y < 0, "the statues' descent scrolls the background above its origin");
         AssertEqual(0xb0, (runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("Verification requires a published room FX snapshot.")).WaterSurfaceScreenY,
             "Statue motion does not move its water surface");

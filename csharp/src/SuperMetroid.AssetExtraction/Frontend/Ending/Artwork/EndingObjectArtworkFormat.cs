@@ -68,8 +68,22 @@ public static class EndingObjectArtworkFormat
     };
     /// <summary>Number of required explosion fragments, ordered by the four map pages they fill.</summary>
     public const int FragmentCount = 4;
+    /// <summary>
+    /// The explosion pictures in the installation's order (#2567): the order the fragments are exported in and the sheets
+    /// hold their pictures in.
+    /// </summary>
+    internal static IReadOnlyList<EndingExplosionPicture> ExplosionPictures { get; } =
+        [EndingExplosionPicture.WideExplosion, EndingExplosionPicture.ConcentricExplosion, EndingExplosionPicture.Eclipse, EndingExplosionPicture.Blank];
+    /// <summary>The installed fragment each explosion picture fills (#2567): its map page, counted from page $70 in fours.</summary>
+    internal static IReadOnlyDictionary<EndingExplosionPicture, int> FragmentNumbers { get; } = new Dictionary<EndingExplosionPicture, int>
+    {
+        [EndingExplosionPicture.WideExplosion] = 0,
+        [EndingExplosionPicture.ConcentricExplosion] = 1,
+        [EndingExplosionPicture.Eclipse] = 2,
+        [EndingExplosionPicture.Blank] = 3,
+    };
     /// <summary>Published fragment keys use the page sequence70,74,78,7c.</summary>
-    /// <param name="index">Zero-based fragment index, zero through three, matching <see cref="EndingExplosionPicture"/> order.</param>
+    /// <param name="index">Zero-based fragment index, zero through three; <see cref="FragmentNumbers"/> names each picture's.</param>
     /// <returns>The lowercase page-keyed JSON filename of the fragment's tile references.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside zero through three.</exception>
     public static string FragmentFileName(int index)

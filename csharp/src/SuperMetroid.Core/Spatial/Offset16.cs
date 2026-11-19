@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Spatial;
 /// <typeparam name="TSpace">The coordinate space the displacement is measured in.</typeparam>
 [SpatialComponents("Spatial value type: owns its X and Y words.")]
 [EncodingOwner("sixteen-bit signed coordinate difference")]
-public readonly record struct Offset16<TSpace>
+public readonly record struct Offset16<TSpace> : System.Numerics.IUnaryNegationOperators<Offset16<TSpace>, Offset16<TSpace>>
     where TSpace : ISpatialSpace
 {
     /// <summary>The displacement by two amounts that must fit the signed sixteen-bit range, -32768 through 32767.</summary>
@@ -33,6 +33,18 @@ public readonly record struct Offset16<TSpace>
 
     /// <summary>No displacement.</summary>
     public static Offset16<TSpace> Zero => default;
+
+    /// <summary>One unit up, toward decreasing Y, and no horizontal displacement.</summary>
+    public static Offset16<TSpace> OneUp => new(0, -1);
+
+    /// <summary>One unit down, toward increasing Y, and no horizontal displacement.</summary>
+    public static Offset16<TSpace> OneDown => new(0, 1);
+
+    /// <summary>One unit left, toward decreasing X, and no vertical displacement.</summary>
+    public static Offset16<TSpace> OneLeft => new(-1, 0);
+
+    /// <summary>One unit right, toward increasing X, and no vertical displacement.</summary>
+    public static Offset16<TSpace> OneRight => new(1, 0);
 
     /// <summary>The displacement by two amounts that must fit the signed sixteen-bit range, -32768 through 32767.</summary>
     public static Offset16<TSpace> Of(int x, int y) => new(x, y);

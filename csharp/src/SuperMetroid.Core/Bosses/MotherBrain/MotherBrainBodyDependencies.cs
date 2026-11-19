@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed record MotherBrainBodyDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    public required BossFrameResultBuilder FrameResults { get; init; }
+    public required EnemyPassEvents PassEvents { get; init; }
 
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     public required EnemyRoomBinding Room { get; init; }

@@ -94,7 +94,7 @@ internal static class TitleSpriteExtractor
 
         var mapped = new TitleSpritemaps(spritemaps, cards);
         if (spritemaps.Count != TitleGraphicsFormat.Sprites.Count || cards.Count != TitleGraphicsFormat.Typings.Count ||
-            mapped.All.Distinct().Count() != mapped.All.Count())
+            !mapped.AllDistinct)
             throw new InvalidDataException(
                 "Imported title spritemaps do not give every title composition and card typing its own spritemap.");
         return mapped;

@@ -9,18 +9,18 @@ internal sealed class SpeedBoosterEscapeObjects
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;
     /// <summary>The game's event flags.</summary>
-    private readonly IGlobalEventFlags _events;
-    /// <summary>The room's effect overlay FX.</summary>
-    private readonly IRoomFxMotion _roomFx;
+    private readonly IStoryEvents _events;
+    /// <summary>The room's lava, which the escape raises.</summary>
+    private readonly IRoomLiquid _liquid;
     /// <summary>The room's earthquake.</summary>
     private readonly IRoomEarthquakeWriter _earthquake;
 
     /// <summary>Binds the escape to its room-level state owners.</summary>
-    internal SpeedBoosterEscapeObjects(IRoomSamusAccess samus, IGlobalEventFlags events, IRoomFxMotion roomFx, IRoomEarthquakeWriter earthquake)
+    internal SpeedBoosterEscapeObjects(IRoomSamusAccess samus, IStoryEvents events, IRoomLiquid liquid, IRoomEarthquakeWriter earthquake)
     {
         _samus = samus;
         _events = events;
-        _roomFx = roomFx;
+        _liquid = liquid;
         _earthquake = earthquake;
     }
 
@@ -43,7 +43,7 @@ internal sealed class SpeedBoosterEscapeObjects
     /// </summary>
     internal bool TryStartLavaquake()
     {
-        IRoomFxMotion fx = _roomFx;
+        IRoomLiquid fx = _liquid;
         if (!_samus.Current.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
         {
             fx.HaltLiquid();
@@ -62,8 +62,8 @@ internal sealed class SpeedBoosterEscapeObjects
     /// <summary>Starts the lava moving once Samus has run far enough left, and returns whether she has.</summary>
     internal bool TryStartLavaMoving()
     {
-        IRoomFxMotion fx = _roomFx;
-        if (_samus.Current.Position.X.Whole > SpeedBoosterEscapeDefinitions.StartFxMotionSamusX)
+        IRoomLiquid fx = _liquid;
+        if (_samus.Current.Position.X.Whole > SpeedBoosterEscapeDefinitions.LavaStartsMovingSamusX)
             return false;
         fx.EndLiquidWaitNextUpdate();
         return true;
@@ -72,14 +72,14 @@ internal sealed class SpeedBoosterEscapeObjects
     /// <summary>Raises the lava to <paramref name="rise"/> once Samus reaches its line, and returns whether she has.</summary>
     internal bool TryRaiseLava(SpeedBoosterEscapeStageDefinition rise)
     {
-        IRoomFxMotion fx = _roomFx;
+        IRoomLiquid fx = _liquid;
         // The rise waits while Samus remains right of its threshold.
         if (rise.TargetSamusX < _samus.Current.Position.X.Whole)
             return false;
 
         // A lava with no surface lies below every line, so the rise gives it its highest line.
-        if (rise.MaximumFxY < AbsentLiquidSurfaceDepth.Of(fx.BaseY?.Whole))
-            fx.SetLiquidLevel(rise.MaximumFxY);
+        if (rise.HighestLavaSurfaceY < AbsentLiquidSurfaceDepth.Of(fx.BaseY?.Whole))
+            fx.SetLiquidLevel(rise.HighestLavaSurfaceY);
         fx.SetLiquidSpeed(rise.YVelocity);
         return true;
     }

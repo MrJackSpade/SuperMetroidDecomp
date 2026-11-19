@@ -44,7 +44,7 @@ internal static class ResumeChargingSoundCancelVerification
     private static void VerifyControlResumes()
     {
         var fixture = new Fixture(SamusPoseId.FacingRightNormalPose, StandingPosition, SamusBeamFlags.None);
-        fixture.Samus.ResumeChargingBeamSoundPending = true;
+        fixture.Samus.ChargingSound.Arm();
         fixture.PostDraw(GameplayAction.Shoot);
         AssertTrue(fixture.Requests.SoundRequests.SequenceEqual([new SoundRequest(SamusSound.ResumeChargingBeam, SoundRequestPriority.High)]),
             "with nothing fired, the pending resume requests the charging sound on the post-draw pass");
@@ -56,7 +56,7 @@ internal static class ResumeChargingSoundCancelVerification
         foreach (SamusBeamFlags beams in new[] { SamusBeamFlags.None, SamusBeamFlags.Charge })
         {
             var fixture = new Fixture(SamusPoseId.FacingRightNormalPose, StandingPosition, beams);
-            fixture.Samus.ResumeChargingBeamSoundPending = true;
+            fixture.Samus.ChargingSound.Arm();
             fixture.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None });
             fixture.AssertShotCancelled($"uncharged shot with {beams}");
         }
@@ -70,8 +70,8 @@ internal static class ResumeChargingSoundCancelVerification
     {
         var fired = new Fixture(SamusPoseId.NormalJumpGunExtendedLeftPose, JumpingPosition, SamusBeamFlags.Charge | SamusBeamFlags.Wave);
         fired.Charge.SetFlareCount(BeamChargeDefinitions.FullyChargedCounter);
-        fired.Samus.PendingTransitionShot = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { (global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)(SamusProjectileDirection.Left) });
-        fired.Samus.ResumeChargingBeamSoundPending = true;
+        fired.Samus.TransitionShot.Hand(new SamusTransitionShot(SamusProjectileDirection.Left));
+        fired.Samus.ChargingSound.Arm();
         fired.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None, ControllerPreviousNewInput = GameplayAction.None });
         fired.AssertShotCancelled("charged release");
 
@@ -79,11 +79,11 @@ internal static class ResumeChargingSoundCancelVerification
         // the request and then silences the charge.
         var rejected = new Fixture(SamusPoseId.NormalJumpGunExtendedLeftPose, JumpingPosition, SamusBeamFlags.Charge | SamusBeamFlags.Wave);
         rejected.Charge.SetFlareCount(BeamChargeDefinitions.FullyChargedCounter);
-        rejected.Samus.PendingTransitionShot = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { (global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)(SamusProjectileDirection.Left) });
+        rejected.Samus.TransitionShot.Hand(new SamusTransitionShot(SamusProjectileDirection.Left));
         rejected.Bombs.SetSharedCooldown(5);
-        rejected.Samus.ResumeChargingBeamSoundPending = true;
+        rejected.Samus.ChargingSound.Arm();
         rejected.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None, ControllerPreviousNewInput = GameplayAction.None });
-        AssertTrue(!rejected.Samus.ResumeChargingBeamSoundPending, "the rejected release clears the pending resume");
+        AssertTrue(!rejected.Samus.ChargingSound.IsArmed, "the rejected release clears the pending resume");
         rejected.PostDraw(GameplayAction.Shoot);
         AssertTrue(rejected.Requests.SoundRequests.SequenceEqual([new SoundRequest(SamusSound.Silence, SoundRequestPriority.Essential)]),
             "the rejected release requests only the charge-silencing sound, and no resume follows it");
@@ -102,7 +102,7 @@ internal static class ResumeChargingSoundCancelVerification
 
         fixture.Requests.BeginRecordedUpdate();
         SamusPostDrawAudio.Step(fixture.Samus, SamusMovementType.SpinJumping, GameplayAction.Shoot);
-        AssertTrue(fixture.Samus.ResumeChargingBeamSoundPending, "leaving the spin with Shoot held and the flare showing requests the resume");
+        AssertTrue(fixture.Samus.ChargingSound.IsArmed, "leaving the spin with Shoot held and the flare showing requests the resume");
 
         fixture.Requests.BeginRecordedUpdate();
         fixture.Bombs.SetSharedCooldown(0);
@@ -114,10 +114,10 @@ internal static class ResumeChargingSoundCancelVerification
     private static void VerifyGrappleFiringCancels()
     {
         var fixture = new Fixture(SamusPoseId.FacingRightNormalPose, StandingPosition, SamusBeamFlags.None);
-        fixture.Samus.ResumeChargingBeamSoundPending = true;
+        fixture.Samus.ChargingSound.Arm();
         SamusGrappleMovement.BeginFiring(fixture.Samus, GameplayAction.Shoot);
         AssertEqual(GrapplePhase.Firing, fixture.Samus.Grapple.Phase, "the grapple fires");
-        AssertTrue(!fixture.Samus.ResumeChargingBeamSoundPending, "the grapple's firing clears the pending resume");
+        AssertTrue(!fixture.Samus.ChargingSound.IsArmed, "the grapple's firing clears the pending resume");
         fixture.PostDraw(GameplayAction.Shoot);
         AssertTrue(fixture.Requests.SoundRequests.SequenceEqual([GrappleBeamDefinitions.Sounds.Fire]),
             "the grapple requests only its firing sound, and no resume follows it");
@@ -172,7 +172,7 @@ internal static class ResumeChargingSoundCancelVerification
         {
             SamusProjectileFrameResult result = Projectiles.LastFrameResult;
             AssertTrue(result.QueuedSoundEffect is not null, $"the {shot} fires and requests its sound");
-            AssertTrue(!Samus.ResumeChargingBeamSoundPending, $"the {shot} clears the pending resume");
+            AssertTrue(!Samus.ChargingSound.IsArmed, $"the {shot} clears the pending resume");
             PostDraw(GameplayAction.Shoot);
             var shotRequest = new SoundRequest(result.QueuedSoundEffect!.Value, result.QueuedSoundPriority!.Value);
             AssertTrue(Requests.SoundRequests.SequenceEqual([shotRequest]),

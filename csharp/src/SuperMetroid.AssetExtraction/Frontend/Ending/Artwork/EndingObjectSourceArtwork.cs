@@ -30,7 +30,9 @@ public class EndingObjectSourceArtwork
             parts.Fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
             parts.Fragments.Any(fragment => fragment is null || !IsWholeMap(fragment)))
             throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
-        fragmentsById = Enum.GetValues<EndingExplosionPicture>().Zip(parts.Fragments, (id, fragment) => KeyValuePair.Create(id, fragment)).ToDictionary();
+        fragments = [.. parts.Fragments];
+        fragmentsById = EndingObjectArtworkFormat.ExplosionPictures.ToDictionary(picture => picture,
+            picture => fragments[Ensure.Listed(EndingObjectArtworkFormat.FragmentNumbers, picture)]);
         CloudSprites = Ensure.NotNull(parts.CloudSprites);
         ExplosionSprites = Ensure.NotNull(parts.ExplosionSprites);
         CompletionTextSprites = Ensure.NotNull(parts.CompletionTextSprites);
@@ -38,7 +40,10 @@ public class EndingObjectSourceArtwork
         LogoSprites = Ensure.NotNull(parts.LogoSprites);
     }
 
-    /// <summary>The four explosion maps, keyed by the explosion map each one holds.</summary>
+    /// <summary>The four explosion maps in their installed fragments' order (<see cref="EndingObjectArtworkFormat.FragmentNumbers"/>).</summary>
+    internal readonly RoomBackgroundTilemapAtlas[] fragments;
+
+    /// <summary>The same maps keyed by the explosion map each one holds.</summary>
     private readonly Dictionary<EndingExplosionPicture, RoomBackgroundTilemapAtlas> fragmentsById;
 
     /// <summary>Whether <paramref name="map"/> holds exactly one 32-by-32 page of tiles.</summary>
@@ -56,15 +61,15 @@ public class EndingObjectSourceArtwork
     public RoomBackgroundTilemapAtlas Fragment(EndingExplosionPicture id) => Ensure.Listed(fragmentsById, id);
 
     /// <summary>Six editable atmospheric-cloud compositions.</summary>
-    private EndingCloudSpritePresentation CloudSprites { get; }
+    public EndingCloudSpritePresentation CloudSprites { get; }
     /// <summary>Sixteen editable Zebes-explosion compositions.</summary>
-    private EndingExplosionSpritePresentation ExplosionSprites { get; }
+    public EndingExplosionSpritePresentation ExplosionSprites { get; }
     /// <summary>Fifty-six editable completion-message and clear-time compositions.</summary>
     public EndingCompletionTextSpritePresentation CompletionTextSprites { get; }
     /// <summary>Thirty-seven editable post-credits Samus reward compositions.</summary>
-    private EndingRewardSpritePresentation RewardSprites { get; }
+    public EndingRewardSpritePresentation RewardSprites { get; }
     /// <summary>Eight editable compositions for the final assembling logo.</summary>
-    private EndingLogoSpritePresentation LogoSprites { get; }
+    public EndingLogoSpritePresentation LogoSprites { get; }
 
     /// <summary>The compositions of <paramref name="family"/>: the ending's own, or the escaping animals' compiled pods.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The family is not an ending family.</exception>

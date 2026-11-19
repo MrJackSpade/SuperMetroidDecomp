@@ -40,11 +40,11 @@ internal static class CeresExplosionVerification
             {
                 AssertTrue(!spawned, "station explosion spawns only once");
                 reference.Spawn(
-                    new(unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - scene.Background.X.WholePixels)), unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - scene.Background.Y.WholePixels))));
+                    new(unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - scene.FloorScroll.X.WholePixels)), unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - scene.FloorScroll.Y.WholePixels))));
                 spawned = true;
             }
 
-            var actual = scene.CaptureRenderSnapshot()
+            var actual = scene.ComposeScene()
                 .LayersOf<ColourAddWindowLayer>().SingleOrDefault();
             // The station's blast covers the screen from its top line, where a gameplay Power Bomb's starts below the HUD.
             var glow = GameplayEffectCapture.CapturePowerBombGlow(

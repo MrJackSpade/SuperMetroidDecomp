@@ -18,7 +18,7 @@ internal sealed class DownwardGateTriggerShots
 
     /// <summary>Every shot but those of <paramref name="families"/> sets the trigger off.</summary>
     internal static DownwardGateTriggerShots AllBut(params SamusProjectileFamily[] families) =>
-        new(Enum.GetValues<SamusProjectileFamily>().Except(families));
+        new(Enum.GetValues<SamusProjectileFamily>().Except(families).ToHashSet());
 
     /// <summary>Whether a shot of <paramref name="family"/> sets the trigger off.</summary>
     internal bool Accepts(SamusProjectileFamily family) => _accepted.Contains(family);

@@ -71,7 +71,7 @@ internal static class RetailEndingHandoffTests
             sawFade |= legacy.IsAt(EndingStep.LeavingZebes);
             if (legacy.IsAt(EndingStep.Credits) && ++endingFrames == 60) break;
         }
-        if (!sawFade || endingFrames != 60) throw new InvalidOperationException($"Ending fixture missed native escape fade/credits handoff: state={legacy.GameState}, fade={sawFade}, ending={endingFrames}, health={legacy.GameplayRuntimeForVerification.Player.IntroducedSamus.Health}, event={legacy.GameplayRuntimeForVerification.Enemies.LastEnemyFrame.Gunship}.");
+        if (!sawFade || endingFrames != 60) throw new InvalidOperationException($"Ending fixture missed native escape fade/credits handoff: state={legacy.GameState}, fade={sawFade}, ending={endingFrames}, health={legacy.GameplayRuntimeForVerification.Player.IntroducedSamus.Health}, event={string.Join(",", legacy.GameplayRuntimeForVerification.Enemies.LastEnemyFrame.All<GunshipEvent>())}.");
         Console.WriteLine($"{device.Kind}: {frames + 1} exact gunship-event/fade/ending frames with matching PCM and frontend state.");
     }
 }

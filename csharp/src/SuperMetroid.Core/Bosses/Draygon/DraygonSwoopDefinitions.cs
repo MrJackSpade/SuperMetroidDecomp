@@ -17,4 +17,8 @@ internal static class DraygonSwoopDefinitions
     /// at which they return to rest on the climb: each update of the swoop follows one entry of its path.
     /// </summary>
     internal const int ArmsReachUpdatesFromBottom = 26;
+
+
+    /// <summary>How fast Draygon swoops in from the side of the arena to spit his goop: one pixel an update.</summary>
+    internal static readonly SignedSixteenSixteen GoopApproachSpeed = SignedSixteenSixteen.FromWholePixels(1);
 }

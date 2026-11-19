@@ -60,11 +60,19 @@ public sealed class SpriteImage
             Ensure.LengthEqual(blending, pixels);
         var places = new Dictionary<ColourKey, int>();
         var keys = ImmutableArray.CreateBuilder<ColourKey>();
-        // A clear pixel is never keyed: no shade recolours it, and a layer drawn opaque shows its stored colour.
+        // A clear pixel is never keyed: no shade recolours it, and a layer drawn opaque shows its stored colour. A pixel of a
+        // colour and recolour region already found holds a key already found (ColourKeyPlaces), so only the first pixel of
+        // each builds and adds its key: a whole turning floor holds a million pixels.
+        var found = new ColourKeyPlaces();
         for (int pixel = 0; pixel < pixels; pixel++)
         {
-            if (decoded.Pixels[pixel].A != 0)
-                Add(KeyAt(decoded, pixel), places, keys);
+            RgbaPixel shown = decoded.Pixels[pixel];
+            int region = decoded.RecolourRegions?[pixel] ?? 0;
+            if (shown.A == 0 || found.TryGet(shown, region, out _))
+                continue;
+            ColourKey key = KeyAt(decoded, pixel);
+            Add(key, places, keys);
+            found.Set(shown, region, places[key]);
         }
         if (Backdrop is { } backdrop)
             Add(backdrop, places, keys);

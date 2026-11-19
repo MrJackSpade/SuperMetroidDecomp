@@ -56,16 +56,16 @@ internal static class MotherBrainTubeDescentVerification
 
         // #2211: the rebuild draws the mural two rows an update, top to bottom from block row two of column two, then
         // hands off to the phase-two graphics setup.
-        enemies.BossFrameResults.MotherBrainObjects.Clear();
+        enemies.PassEvents.Begin();
         for (int update = 0; update < 6; update++)
         {
             AssertEqual(MotherBrainAscentPhase.DrawMural, state.AscentPhase, $"the mural is still drawing at update {update}");
             enemies.MotherBrainBehavior.FakeDeath.DrawNextMuralRows(state);
         }
-        AssertTrue(enemies.BossFrameResults.MotherBrainObjects.SequenceEqual(Enumerable.Range(0, 12).Select(row =>
-                new MotherBrainMuralRowReveal(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainMuralRow>([typeof(int)], new object?[] { (int)(row) })))),
+        AssertTrue(enemies.LastEnemyFrame.All<MotherBrainRoomChangeRequest>().SequenceEqual(Enumerable.Range(0, 12).Select(row =>
+                new MotherBrainMuralRowReveal(new MotherBrainMuralRow(row)))),
             "the mural's twelve rows are revealed in order");
-        AssertTrue(enemies.BossFrameResults.MotherBrainObjects.Select(request => request.Block).SequenceEqual(Enumerable.Range(0, 12).Select(row =>
+        AssertTrue(enemies.LastEnemyFrame.All<MotherBrainRoomChangeRequest>().Select(request => request.Block).SequenceEqual(Enumerable.Range(0, 12).Select(row =>
                 new Position16<RoomBlocks>(2, 2 + row))),
             "each of the mural's rows is revealed a block below the last, from block row two of column two");
         AssertEqual(MotherBrainAscentPhase.SetupPhase2Graphics, state.AscentPhase, "the drawn mural hands off to the phase-two graphics");

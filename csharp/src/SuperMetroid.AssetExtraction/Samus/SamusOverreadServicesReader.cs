@@ -245,7 +245,7 @@ internal static class SamusOverreadServicesReader
             Decided(Require(overwrite.UsedStations, nameof(overwrite.UsedStations)), UsedStationsByName, "SpaceTime used station"),
             Require(overwrite.AreaMaps, nameof(overwrite.AreaMaps)).ToDictionary(
                 area => Parse(AreaIdKeys.Installed, area.Key, "SpaceTime map area"), area => area.Value),
-            overwrite.SavedStartupRoute is null ? null : Parse(SaveLoadingGameStateKeys.Installed, overwrite.SavedStartupRoute, "SpaceTime startup route"));
+            overwrite.SavedStartupRoute is null ? null : Parse(SaveStartupRouteKeys.Installed, overwrite.SavedStartupRoute, "SpaceTime startup route"));
 
     /// <summary>What an overwrite decides for one kind of progress, its members found by name.</summary>
     /// <exception cref="InvalidDataException">A name names nothing of the kind, is listed twice, or is left on without being decided.</exception>

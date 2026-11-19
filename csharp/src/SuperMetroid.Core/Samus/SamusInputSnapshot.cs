@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
@@ -23,7 +24,7 @@ internal sealed class SamusInputSnapshot
     /// exits a non-firing pose to fire on the next frame. The demo's input phase replaces it with
     /// the preceding scripted edge before running the normal HUD step.
     /// </summary>
-    public GameplayAction PreviousDrawNewInput { get; internal set; }
+    public GameplayAction PressesSeenLastUpdate { get; internal set; }
 
     /// <summary>
     /// Consecutive held-Jump history updated by the post-draw input filter: a wrapping count, 0 through
@@ -40,8 +41,8 @@ internal sealed class SamusInputSnapshot
     /// <summary>Held input published by the post-draw input filter and at the end of each update.</summary>
     private GameplayAction PreviousDrawHeldInput { get; set; }
 
-    /// <summary>Samus's pose input is currently the one-shot auto-jump.</summary>
-    public bool AutoJumpInputPending { get; internal set; }
+    /// <summary>The one-shot auto-jump, when a landing or a turn has installed it as Samus's pose input.</summary>
+    public AutoJumpInput AutoJump { get; } = new();
 
     /// <summary>
     /// Shinespark launch locked her pose input. This
@@ -53,13 +54,15 @@ internal sealed class SamusInputSnapshot
     /// <summary>Crystal Flash's pose-input lock survives grab/release until input is restored.</summary>
     public bool CrystalFlashPoseInputLocked { get; internal set; }
 
-    /// <summary>Local input substitution from the auto-jump; does not alter the controller's real edge.</summary>
-    internal GameplayAction ConsumeAutoJumpInput(GameplayAction newlyPressed)
+    /// <summary>
+    /// The input phase's substitution from the auto-jump, when installed: it runs once and reinstates her ordinary input; it
+    /// does not alter the controller's real edge.
+    /// </summary>
+    internal GameplayAction ApplyAutoJumpInput(GameplayAction newlyPressed)
     {
-        if (!AutoJumpInputPending) return newlyPressed;
+        if (!AutoJump.Take()) return newlyPressed;
         ShinesparkPoseInputLocked = false;
         CrystalFlashPoseInputLocked = false;
-        AutoJumpInputPending = false;
         if (AutoJumpTimer != 0 && JumpHoldReadsAsFresh(AutoJumpTimer))
         {
             AutoJumpTimer = 0;
@@ -86,7 +89,7 @@ internal sealed class SamusInputSnapshot
         AutoJumpTimer = (held & PreviousDrawHeldInput & jump) != GameplayAction.None
             ? WrappingCounter.IncrementCount(AutoJumpTimer) : 0;
         PreviousDrawHeldInput = held;
-        PreviousDrawNewInput = newlyPressed;
+        PressesSeenLastUpdate = newlyPressed;
     }
 
     /// <summary>Flashes Samus's hurt colours when she has lost health, after the input filter that follows the draw, whether or not knockback is admitted.</summary>

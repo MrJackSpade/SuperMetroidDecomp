@@ -74,7 +74,7 @@ internal sealed class GreyDoorObjects
         RoomLevelData level,
         RoomObjectPlace place,
         GreyDoorVariant variant,
-        GreyDoorArgument placed)
+        GreyDoorOpening placed)
     {
         Ensure.NotNull(place);
         Ensure.NotNull(placed);

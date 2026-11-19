@@ -165,7 +165,7 @@ internal sealed class NorfairRidleyCombat
                 (wall == RidleyWallSweepTarget.WallBehind ? RidleyMovementTargets.WallBehind : RidleyMovementTargets.WallAhead).For(facing),
                 int.Min(samus.Position.Y.Whole, NorfairRidleyArenaDefinitions.PogoZoneTopY)),
             ReadRidleyHealthMovementDivisor(state));
-        state.Tail.WhipRequested = true;
+        state.Tail.Whip.Give();
 
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
         {
@@ -227,6 +227,8 @@ internal sealed class NorfairRidleyCombat
 
         state.Tail.Action = RidleyTailAction.PogoSetup;
         _ridleyTail.TickRidleyPogoTail(place, state, samus);
+        // The first bounce heads the way his settling left him moving, rightward when it left him still.
+        state.PogoBounce = state.Flight.Velocity.X.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right;
         InitializeNorfairRidleyPogoVelocity(state);
         state.Phase = NorfairRidleyPhase.PogoFall;
         state.PhaseTimer.LastFor(RidleyRandomDefinitions.PogoTimer.Of(_room.Random.Read()) + NorfairRidleyMotionDefinitions.PogoLeastUpdates);
@@ -306,20 +308,16 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// Launches a pogo bounce: one of the health band's four launches, chosen by the current random number. The sign of
-    /// the previous horizontal velocity chooses the bounce's direction.
+    /// Launches a pogo bounce: one of the health band's four launches, chosen by the current random number, its sideways
+    /// speed taken toward the bounce's side (<see cref="NorfairRidleyState.PogoBounce"/>).
     /// </summary>
-    private void InitializeNorfairRidleyPogoVelocity(NorfairRidleyState state)
+    internal void InitializeNorfairRidleyPogoVelocity(NorfairRidleyState state)
     {
         // The pogo choice samples the current random number; it does not advance shared RNG.
         RidleyPogoDefinition definition = state.HealthBand.PogoLaunch.Choose(_room.Random.Read());
         state.PogoUpwardAcceleration = definition.UpwardAcceleration;
         state.PogoDownwardAcceleration = definition.DownwardAcceleration;
-        state.Flight.Velocity = state.Flight.Velocity.WithY(definition.Velocity.Y);
-        SignedEightEight horizontal = definition.Velocity.X;
-        state.Flight.Velocity = state.Flight.Velocity.WithX(state.Flight.Velocity.X.IsNegative
-            ? horizontal.Negated()
-            : horizontal);
+        state.Flight.Velocity = new(definition.Velocity.X.Toward(state.PogoBounce), definition.Velocity.Y);
     }
 
     /// <summary>Lunges toward a grabbable Samus, ending on passage, boundary, height, or claw contact.</summary>
@@ -426,7 +424,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>Tests Samus's radius against the facing and foot-frame adjusted claw point.</summary>
-    private static bool RidleyClawOverlapsSamus(
+    internal static bool RidleyClawOverlapsSamus(
         RoomEnemyPlace place,
         NorfairRidleyState state,
         SamusState samus,
@@ -462,7 +460,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>The hover acceleration divisor of Ridley's health band.</summary>
-    private static int ReadRidleyHealthMovementDivisor(NorfairRidleyState state) => state.HealthBand.HoverDivisor;
+    internal static int ReadRidleyHealthMovementDivisor(NorfairRidleyState state) => state.HealthBand.HoverDivisor;
 
     /// <summary>Checks the validated pose movement type against Ridley's grabbable states.</summary>
     internal static bool SamusMovementUsesRidleyGrab(SamusState samus)
@@ -478,11 +476,11 @@ internal sealed class NorfairRidleyCombat
     /// </summary>
     internal static void PrepareNorfairRidleyCombatFrame(
         NorfairRidleyState state,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         if (state.FightMode is RidleyFightMode.NotFighting or RidleyFightMode.Dying or RidleyFightMode.PowerBombDodge)
             return;
-        if (!sharedProjectiles.PowerBombExplosion.IsArmed || state.GrabState != RidleyGrabState.Released)
+        if (!samusBombs.PowerBombExplosion.IsArmed || state.GrabState != RidleyGrabState.Released)
             return;
 
         // The power-bomb lunge resets both tail controls before the lunge.
@@ -545,7 +543,7 @@ internal sealed class NorfairRidleyCombat
             return;
         }
         state.Phase = NorfairRidleyPhase.HoverSetup;
-        state.Tail.WhipRequested = true;
+        state.Tail.Whip.Give();
     }
 
     /// <summary>Recovers from a missed lunge with a Power Bomb out.</summary>
@@ -570,21 +568,25 @@ internal sealed class NorfairRidleyCombat
         NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, target, ReadRidleyHealthMovementDivisor(state));
     }
 
-    /// <summary>Chooses the next bounce's direction from position and the current seed.</summary>
-    private void SetRidleyPogoHorizontalDirection(RoomEnemyPlace place, NorfairRidleyState state, SamusState samus)
+    /// <summary>
+    /// Chooses the next bounce's side from position and the current seed: a bounce that left him no sideways speed heads
+    /// for the arena's centre, one past his movement bounds heads back inside them, and otherwise the seed decides whether
+    /// the bounce heads toward Samus or away.
+    /// </summary>
+    internal void SetRidleyPogoHorizontalDirection(RoomEnemyPlace place, NorfairRidleyState state, SamusState samus)
     {
+        int x = place.Position.X.Whole;
         if (state.Flight.Velocity.X.IsZero)
-            state.Flight.Velocity = state.Flight.Velocity.WithX(place.Position.X.Whole < NorfairRidleyArenaDefinitions.CentreX ? NorfairRidleyMotionDefinitions.PogoRestartSpeed : -NorfairRidleyMotionDefinitions.PogoRestartSpeed);
-        bool negative = state.Flight.Velocity.X.IsNegative;
+            state.PogoBounce = x < NorfairRidleyArenaDefinitions.CentreX ? HorizontalDirection.Right : HorizontalDirection.Left;
         bool reverse;
-        if (place.Position.X.Whole < state.Flight.MovementMinimum.X) reverse = negative;
-        else if (place.Position.X.Whole >= state.Flight.MovementMaximum.X) reverse = !negative;
+        if (x < state.Flight.MovementMinimum.X) reverse = state.PogoBounce == HorizontalDirection.Left;
+        else if (x >= state.Flight.MovementMaximum.X) reverse = state.PogoBounce == HorizontalDirection.Right;
         else
         {
-            bool headsTowardSamus = place.Position.X.Whole < samus.Position.X.Whole != state.Flight.Velocity.X.IsNegative;
+            HorizontalDirection towardSamus = x < samus.Position.X.Whole ? HorizontalDirection.Right : HorizontalDirection.Left;
             bool headsAway = RidleyRandomDefinitions.PogoBounceHeadsAwayFromSamus.IsTakenBy(_room.Random.Read());
-            reverse = headsTowardSamus ? headsAway : !headsAway;
+            reverse = state.PogoBounce == towardSamus ? headsAway : !headsAway;
         }
-        if (reverse) state.Flight.Velocity = state.Flight.Velocity.WithX(state.Flight.Velocity.X.Negated());
+        if (reverse) state.PogoBounce = state.PogoBounce.Reversed();
     }
 }

@@ -99,7 +99,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.NextRainbowImage = ListStep<MotherBrainRainbowImage>.At(MotherBrainRainbowImage.All,
             DecodeNextRainbowFrame(W(MotherBrainMemory.RainbowPaletteIndex)));
-        state.DrawNeck = state.BrainAction == MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn;
+        // What her head's main last drew is not imported: her head's next main, which runs before her next draw, decides it.
         // Each joint's distance is the neck's own; only where each lies is imported.
         for (int joint = 0; joint < state.Neck.Joints.Count; joint++)
         {
@@ -288,9 +288,9 @@ internal static class NativeSnapshotMotherBrainImport
     /// <summary>The phases of her death after her escape's start has placed her body at the room's corner for the warning.</summary>
     private static readonly HashSet<MotherBrainDeathPhase> EscapeWarningPhases =
     [
-        MotherBrainDeathPhase.SpawnTimeBombSetSubtitle,
+        MotherBrainDeathPhase.ShowsEscapeSubtitle,
         MotherBrainDeathPhase.TypeOutZebesEscapeText,
-        MotherBrainDeathPhase.DoorExplodingStartTimer,
+        MotherBrainDeathPhase.EscapeDoorBursts,
         MotherBrainDeathPhase.BlowUpEscapeDoor,
         MotherBrainDeathPhase.KeepEarthquakeGoing,
     ];

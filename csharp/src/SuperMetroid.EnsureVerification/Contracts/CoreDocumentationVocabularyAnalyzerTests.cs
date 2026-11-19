@@ -1783,8 +1783,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { object CaptureRenderSnapshot() => null; }", "('CaptureRenderSnapshot')");
         Expect("class MenuRenderSnapshotCapture { }", "('MenuRenderSnapshotCapture')");
         Expect("enum BeetomAction { DecideActionSamusInProximity }", "('DecideActionSamusInProximity')");
-        Expect(CompatibilityService + "/// <summary>Evidence: the draining hover reads its speed.</summary>
-[CompatibilityService(\"shift\")] class DrainingShitroidFallShift { }",
+        Expect(CompatibilityService + "/// <summary>Evidence: the draining hover reads its speed.</summary>\n[CompatibilityService(\"shift\")] class DrainingShitroidFallShift { }",
             "('DrainingShitroidFallShift')");
         // The game's names, an upside-down Cacatac, English words that run on past a label and the labels in prose are not
         // declared names the original spelled.

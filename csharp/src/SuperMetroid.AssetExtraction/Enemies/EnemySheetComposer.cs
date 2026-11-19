@@ -122,7 +122,7 @@ internal static class EnemySheetComposer
                     Owner = SpawnedObjectOwnerNames.Name(plan.Owner),
                     Spawners = [.. plan.Spawners.Select(EnemyDefinitionIdKeys.Installed.Of)],
                     SharedSpawners = [.. plan.SharedSpawners.Select(EnemyDefinitionIdKeys.Installed.Of)],
-                    Common = [.. plan.Common.Select(common => common.Spawner)],
+                    Common = [.. plan.Common.Select(common => CommonSpawnerKeys.Installed.Of(common.Spawner))],
                     Empty = [.. sheet.Empty.Order(StringComparer.Ordinal)],
                     LookChanges = sheet.LookChanges.Count > 0 ? Document(sheet.LookChanges) : null,
                     CorpsePictures = sheet.CorpsePictures.Count > 0 ? Document(sheet.CorpsePictures) : null,

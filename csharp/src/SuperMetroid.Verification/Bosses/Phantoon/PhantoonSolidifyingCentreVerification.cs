@@ -40,7 +40,8 @@ internal static class PhantoonSolidifyingCentreVerification
         body.Frame = EnemyFrameId.PhantoonInvulnerableBody;
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         body.Health = 2500;
-        var state = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.EyeTracksSamus, PhaseTimer = 60 };
+        var state = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.EyeTracksSamus };
+        state.PhaseWait.LastFor(60);
         enemies.BeginPhantoonAsSetUp(state);
 
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());

@@ -41,14 +41,15 @@ internal static class FakeKraidProjectileDefinitions
     internal static readonly SignedEightEight SpikeSpeed = SignedEightEight.FromPixels(2);
 
     /// <summary>
-    /// The updates, beyond his random starting delay, before each body port's first spike, in the order his setup starts
-    /// their clocks: the top port's after 64, the middle's after 96 and the bottom's after 48.
+    /// The visits of each body port's clock, beyond his random starting delay, up to the one its first spike flies on,
+    /// that one included, in the order his setup starts their clocks: the top port's 65, the middle's 97 and the bottom's
+    /// 49.
     /// </summary>
     internal static IReadOnlyList<KeyValuePair<FakeKraidSpikeRow, int>> SpikeStartDelays { get; } =
     [
-        new(FakeKraidSpikeRow.Top, 64),
-        new(FakeKraidSpikeRow.Middle, 96),
-        new(FakeKraidSpikeRow.Bottom, 48),
+        new(FakeKraidSpikeRow.Top, 65),
+        new(FakeKraidSpikeRow.Middle, 97),
+        new(FakeKraidSpikeRow.Bottom, 49),
     ];
 
     /// <summary>

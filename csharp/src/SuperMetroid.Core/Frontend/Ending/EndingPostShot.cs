@@ -4,10 +4,13 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>After the shot: rotate the shot graphic, fade Samus, and hold before the white flash.</summary>
 internal sealed class EndingPostShot
 {
-    /// <summary>Post-shot update count driving the shooting and Samus fade schedules.</summary>
-    private int updates;
-    /// <summary>Frames remaining after rotation reaches its minimum zoom.</summary>
-    private int hold;
+    /// <summary>The shot picture's fade out (#2541): a step on each of the shot's updates from its first.</summary>
+    private readonly PacedFadeSteps shotFade = new(EndingPostShotDefinitions.FadeFrames, updatesPerStep: 1, firstStepUpdate: 1);
+    /// <summary>Samus's fade out (#2541): a step on each of the shot's updates once its delay has passed.</summary>
+    private readonly PacedFadeSteps samusFade = new(EndingPostShotDefinitions.FadeFrames, updatesPerStep: 1,
+        firstStepUpdate: EndingPostShotDefinitions.SamusFadeDelay + 1);
+    /// <summary>The hold before the white flash (#2541), which counts the updates after the rotation reaches its minimum zoom.</summary>
+    private readonly UpdateCountdown hold = UpdateCountdown.Lasting(EndingPostShotDefinitions.HoldFrames);
     /// <summary>Current zoom of the rotating shot graphic, narrowed each step and stopped at its minimum.</summary>
     public FloorZoom Zoom { get; private set; } = EndingPostShotDefinitions.InitialZoom;
     /// <summary>Rotation of the shot graphic, turned backward on each active rotation step and wrapping around the full turn.</summary>
@@ -22,10 +25,9 @@ internal sealed class EndingPostShot
     {
         Ensure.NotNull(screen);
         if (ReadyForWhiteFlash) throw new InvalidOperationException("Post-shot white-flash handoff must be consumed.");
-        updates++;
-        ApplyFade(screen.Colours, EndingFade.Shot, Math.Min(updates, EndingPostShotDefinitions.FadeFrames));
-        int samusFade = Math.Clamp(updates - EndingPostShotDefinitions.SamusFadeDelay, 0,
-            EndingPostShotDefinitions.FadeFrames);
+        _ = shotFade.Advance();
+        _ = samusFade.Advance();
+        ApplyFade(screen.Colours, EndingFade.Shot, shotFade);
         ApplyFade(screen.Colours, EndingFade.ShootingSamus, samusFade);
         if (!RotationFinished)
         {
@@ -35,25 +37,24 @@ internal sealed class EndingPostShot
             {
                 Zoom = EndingPostShotDefinitions.MinimumZoom;
                 RotationFinished = true;
-                hold = EndingPostShotDefinitions.HoldFrames;
             }
         }
         else
         {
-            ReadyForWhiteFlash = --hold == 0;
+            ReadyForWhiteFlash = hold.Count();
         }
     }
 
     /// <summary>
-    /// Fades <paramref name="group"/> in 32 steps from the colours it showed when the shot began (#1512): those are the
-    /// post-credits colours, which nothing recolours between their restoration and the shot, so the import pre-colours
-    /// each level from them.
+    /// Shows <paramref name="group"/> at the step <paramref name="fade"/> has reached, in 32 steps from the colours it showed
+    /// when the shot began (#1512): those are the post-credits colours, which nothing recolours between their restoration
+    /// and the shot, so the import pre-colours each level from them.
     /// </summary>
-    private static void ApplyFade(EndingColours colours, EndingFade group, int elapsed)
+    private static void ApplyFade(EndingColours colours, EndingFade group, PacedFadeSteps fade)
     {
         // Each step dims every colour by a 32nd of its full brightness: the level left is its brightness times the steps
         // remaining over 32, rounded down.
-        colours.Fade(group, EndingPostShotDefinitions.FadeFrames - elapsed);
+        colours.Fade(group, fade.Left);
     }
 
 }

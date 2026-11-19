@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>The phase one of Kraid's fingernails runs.</summary>
 public enum KraidNailPhase
 {
-    /// <summary>Waits out the fingernail's phase timer, then sets its launch up (<see cref="Initialize"/>).</summary>
+    /// <summary>Runs the fingernail's phase wait, then sets its launch up (<see cref="Initialize"/>).</summary>
     WaitBeforeLaunch,
     /// <summary>Selects the fingernail's starting side, animation, and firing transition.</summary>
     Initialize,

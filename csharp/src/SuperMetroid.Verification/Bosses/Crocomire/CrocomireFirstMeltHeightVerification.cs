@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -17,11 +18,14 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 /// </summary>
 internal static class CrocomireFirstMeltHeightVerification
 {
-    /// <summary>The death phases between the two melts, in which the cartridge selects the first melt's picture by height.</summary>
-    private static readonly CrocomireDeathPhase[] FirstMeltHops =
+    /// <summary>
+    /// The death stages between the two melts, the three rises and sinks showing the first melt's picture, in which the
+    /// cartridge selects that picture by height.
+    /// </summary>
+    private static readonly ListStep<CrocomireDeathStage>[] FirstMeltHops =
     [
-        CrocomireDeathPhase.ThirdHopRise, CrocomireDeathPhase.FourthHopSink, CrocomireDeathPhase.FourthHopRise,
-        CrocomireDeathPhase.FifthHopSink, CrocomireDeathPhase.FifthHopRise, CrocomireDeathPhase.SixthHopSink,
+        .. CrocomireDeathStages.All.Where(stage => stage.Entry is CrocomireDeathStage.Rise { Body: CrocomireBodyInAcid.MeltingFlesh }
+            or CrocomireDeathStage.Sink { Body: CrocomireBodyInAcid.MeltingFlesh }),
     ];
 
     /// <summary>
@@ -62,11 +66,12 @@ internal static class CrocomireFirstMeltHeightVerification
         IReadOnlyList<EnemyCollisionHitbox> jawStrip = CrocomireBodyCollision.ComponentsAt(EnemyFrameId.CrocomireBodyMeltingFleshTopRow)[0].Hitboxes;
 
         int updates = 0;
-        foreach (CrocomireDeathPhase phase in FirstMeltHops)
+        AssertEqual(6, FirstMeltHops.Length, "three rises and three sinks between the melts show the first melt's picture");
+        foreach (ListStep<CrocomireDeathStage> phase in FirstMeltHops)
         foreach ((int y, CrocomireBodyAnimation animation, EnemyFrameId frame) in HeightBands.Concat(HeightBands.Reverse()))
         {
             string at = $"{phase} from height {y}";
-            state.DeathPhase = phase;
+            state.DeathStage = phase;
             state.VerticalSpeed = SignedEightEight.FromPixels(1);
             body.Position = body.Position.WithWholeY(y);
             fixture.Enemies.CrocomireBehavior.RunCrocomireMain(body, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), camera);

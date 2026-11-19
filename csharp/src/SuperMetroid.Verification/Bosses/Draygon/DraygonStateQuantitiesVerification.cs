@@ -27,29 +27,33 @@ internal static class DraygonStateQuantitiesVerification
     }
 
     /// <summary>
-    /// The attached goop's lifetime decrements then tests for zero: a lifetime of two holds for one update and releases
-    /// the goop on the second.
+    /// #2538: a blob of goop stuck to Samus stays for its whole lifetime (<see cref="DraygonArenaDefinitions.GoopAttachedLifetime"/>,
+    /// 256 updates, as the game counted 256 down to zero) and falls off on its last update.
     /// </summary>
     private static void VerifyAttachedGoopCountdown()
     {
         (RoomEnemySystem enemies, _) = NewDraygon();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { SlowdownLevel = 1 };
-        EnemyProjectile goop = AttachedGoop(enemies, lifetime: 2);
-        DraygonShots.DraygonShotBehavior.RunAttachedDraygonGoop(goop, samus, InstalledFixtures.CreateBombSystem().PowerBombExplosion);
-        AssertTrue(goop.IsActive, "an attached goop with lifetime two holds for its first update");
-        AssertEqual(1, goop.StateOf<DraygonGoopAttachedState>().Lifetime, "the first update leaves one update of lifetime");
-        DraygonShots.DraygonShotBehavior.RunAttachedDraygonGoop(goop, samus, InstalledFixtures.CreateBombSystem().PowerBombExplosion);
-        AssertTrue(!goop.IsActive, "the goop falls off on the update its lifetime reaches zero");
+        EnemyProjectile goop = AttachedGoop(enemies);
+        var powerBomb = InstalledFixtures.CreateBombSystem().PowerBombExplosion;
+        AssertEqual(256, DraygonArenaDefinitions.GoopAttachedLifetime, "the goop stays the 256 updates the game counted");
+        for (int update = 1; update < DraygonArenaDefinitions.GoopAttachedLifetime; update++)
+        {
+            DraygonShots.DraygonShotBehavior.RunAttachedDraygonGoop(goop, samus, powerBomb);
+            AssertTrue(goop.IsActive, $"the attached goop stays on update {update} of its lifetime");
+        }
+        DraygonShots.DraygonShotBehavior.RunAttachedDraygonGoop(goop, samus, powerBomb);
+        AssertTrue(!goop.IsActive, "the goop falls off on its lifetime's last update");
         AssertEqual(0, samus.SlowdownLevel, "the goop that falls off restores one X-speed divisor step");
     }
 
-    /// <summary>Puts an attached Draygon goop with the given lifetime in the last projectile slot.</summary>
-    private static EnemyProjectile AttachedGoop(RoomEnemySystem enemies, int lifetime)
+    /// <summary>Puts a blob of Draygon goop that has just stuck to Samus in the last projectile slot.</summary>
+    private static EnemyProjectile AttachedGoop(RoomEnemySystem enemies)
     {
         EnemyProjectile goop = enemies.Projectiles.EnemyProjectiles[^1];
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
         goop.StartMotion(DraygonShotMotion.GoopStuckToSamus);
-        goop.State = new DraygonGoopAttachedState(stackPosition: 1) { Lifetime = lifetime };
+        goop.State = new DraygonGoopAttachedState(stackPosition: 1);
         return goop;
     }
 

@@ -57,7 +57,7 @@ internal static class DraygonTurretCadenceVerification
             EnemyProjectile goop = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
                 p.Kind == RoomEnemyProjectileKind.DraygonGoop);
             AngledFlightState flight = goop.StateOf<AngledFlightState>();
-            var velocity = new SpawnGoopResult(flight.Heading, flight.HorizontalSpeed, flight.VerticalSpeed);
+            var velocity = new SpawnGoopResult(flight.Heading, flight.Velocity);
             goop.Delete();
             return velocity;
         }
@@ -65,8 +65,8 @@ internal static class DraygonTurretCadenceVerification
         runtime.Enemies.DraygonBehavior.Turrets.SpawnDraygonWallTurret(runtime.Player.IntroducedSamus, 0);
         var afterTurret = SpawnGoop();
         AssertEqual(beforeTurret, afterTurret, "goop speed does not inherit a turret's parameter");
-        AssertEqual(EnemyMath.AbsoluteCosineSpeed(afterTurret.Heading, DraygonProjectileSpeeds.Goop), afterTurret.HorizontalSpeed,
-            "goop horizontal speed is speed two");
+        AssertEqual(EnemyMath.VelocityAlong(afterTurret.Heading, DraygonProjectileSpeeds.Goop), afterTurret.Velocity,
+            "goop velocity is speed two along its heading");
 
         // #1269: $86:8E0F starts with $86:8D5C. Inside the power-bomb ellipse the goop loses
         // its ID and Samus's SlowdownLevel clears, but the routine still moves the slot.
@@ -81,7 +81,7 @@ internal static class DraygonTurretCadenceVerification
         ushort bombedX = bombed.Position.X.Whole;
         runtime.Enemies.AdvanceEnemyProjectileAnimations(runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus,
             new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), runtime.Enemies.NextStandaloneProjectileFrame(),
-            samusBombs: runtime.BombProjectiles, frameCounter: runtime.Enemies.FrameContext.RandomEnemyCounter);
+            samusBombs: runtime.BombProjectiles, frameCounter: runtime.Enemies.FrameContext.EnemyPassCount);
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
         AssertEqual(0, runtime.Player.IntroducedSamus.SlowdownLevel, "$86:8D93 clears Samus's X speed divisor");
         AssertTrue(bombed.Position.X.Whole != bombedX, "the goop routine still moves the released slot");

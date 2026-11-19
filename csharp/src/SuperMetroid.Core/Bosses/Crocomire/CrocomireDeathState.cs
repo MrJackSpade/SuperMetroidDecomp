@@ -26,14 +26,15 @@ public sealed class CrocomireDeathState
     /// </summary>
     public BossCountdown AcidSoundWait { get; } = new();
 
-    /// <summary>Whether his first stage onto the bridge has raised its dust (#2182).</summary>
-    public bool ApproachDustRaised { get; internal set; }
-
-    /// <summary>Whether his second stage onto the bridge has started its first block crumbling (#2182).</summary>
-    public bool FirstBridgeBlockCrumbling { get; internal set; }
-
-    /// <summary>Whether his third stage onto the bridge has started its next two blocks crumbling (#2182).</summary>
-    public bool NextBridgeBlocksCrumbling { get; internal set; }
+    /// <summary>
+    /// How many stages of his approach onto the bridge (<see cref="CrocomireBridgeCollapseDefinitions.ApproachStages"/>)
+    /// have crumbled their blocks and raised their dust since he last stood off it (#2182, #2540), zero through their count.
+    /// </summary>
+    public int ApproachStagesRun
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, CrocomireBridgeCollapseDefinitions.ApproachStages.Count, value);
+    }
 
     /// <summary>The melt pass in progress: which of the two melt images Crocomire's body shows and dissolves.</summary>
     public CrocomireMeltingIllustration MeltPass { get; internal set; }

@@ -46,13 +46,24 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
     private readonly AudioQueues audio;
+    /// <summary>What the scene shows behind and among its actors (#2541), which the scene moves on from one stage to the next.</summary>
+    internal CeresDestructionView View { get; private set; }
     /// <summary>
-    /// What the turning floor shows (#1467), or null while it shows nothing: before the station is set up, and once the
-    /// final explosion with Samus still aboard has cleared the whole floor (#1513).
+    /// The picture the turning floor holds (#1467), or null while it holds none: before the station is set up, and once the
+    /// final explosion with Samus still aboard has cleared the whole floor (#1513). The Zebes reveal holds the gunship's
+    /// rear view for the approach that follows it.
     /// </summary>
-    internal CeresFloorShot? FloorShot { get; private set; }
+    /// <exception cref="InvalidOperationException">The view is undefined.</exception>
+    internal CeresFloorShot? FloorShot => View switch
+    {
+        CeresDestructionView.BeforeStation or CeresDestructionView.StationCleared => null,
+        CeresDestructionView.Station => CeresFloorShot.Station,
+        CeresDestructionView.GunshipLeavingExplosion => CeresFloorShot.Explosion,
+        CeresDestructionView.ZebesReveal or CeresDestructionView.ZebesApproach or CeresDestructionView.ZebesClose => CeresFloorShot.ZebesApproach,
+        _ => throw new InvalidOperationException($"Undefined {nameof(CeresDestructionView)} {View}."),
+    };
     /// <summary>Whether the Zebes reveal's pictures and planet show in place of the station's (#1467).</summary>
-    internal bool ZebesRevealed { get; private set; }
+    internal bool ZebesRevealed => View is CeresDestructionView.ZebesReveal or CeresDestructionView.ZebesApproach or CeresDestructionView.ZebesClose;
     /// <summary>
     /// The colour the scene shows behind every layer (#1512): black until the scene loads the flight's colours, then the
     /// installed flight's backdrop, which the engine flicker never recolours.
@@ -83,8 +94,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// first; it runs before the other actors over Ceres, so a blast it spawns runs in the same update.
     /// </summary>
     private readonly CinematicActor<CeresAnimation, CinematicSpritePose, CeresExplosionSpawnerCue> explosionSpawner;
-    /// <summary>How many of <see cref="CeresExplosionDefinitions.RepeatingBlasts"/> the spawner has spawned.</summary>
-    private int repeatingBlastsSpawned;
+    /// <summary>
+    /// The places of the repeating blasts the spawner has still to spawn (#2541), in the order it spawns them: each play of
+    /// its repeating blast takes the next.
+    /// </summary>
+    private readonly Queue<Offset16<ScreenPixels>> repeatingBlastPlacesLeft = new(CeresExplosionDefinitions.RepeatingBlastPlaces);
     /// <summary>The blast that destroys the station (#1981), centred on it in screen pixels.</summary>
     private readonly CeresStationBlast stationExplosion;
 
@@ -140,10 +154,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// within a four-update cycle is read, which a wider counter preserves exactly.
     /// </summary>
     private int cinematicFrameCounter;
-    /// <summary>Selects the turning floor or the planet-reveal page.</summary>
-    private bool usesFloor = true;
-    /// <summary>Whether the turning floor shows during the turning-floor scenes, or only the sprites do.</summary>
-    private ScreenLayers shownLayers = ScreenLayers.Foreground | ScreenLayers.Sprites;
     /// <summary>The route when the escape timer expires while Samus remains aboard Ceres.</summary>
     internal bool WithSamus { get; }
 
@@ -371,7 +381,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 {
                     // The game hides the ship's turning floor before the hold, not
                     // when the later pan starts. The planet and star sprites stay shown.
-                    shownLayers = ScreenLayers.Sprites;
+                    View = CeresDestructionView.ZebesClose;
                     phaseTimer = CeresDestructionSceneDefinitions.Timing.ZebesHoldFrames;
                     Phase = CeresDestructionPhase.HoldCloseZebes;
                 }
@@ -418,7 +428,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         IntroCinematicArtwork content = Artwork;
 
         // The scene setup loads the station's two views; the floor shows the station's installed picture (#1467).
-        FloorShot = CeresFloorShot.Station;
+        View = CeresDestructionView.Station;
         Backdrop = content.CeresFlight.Backdrop;
         // The setup clears the colour effects and starts the station's navigation lights (#1733).
         ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
@@ -440,8 +450,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         // The reveal starts on the planet-reveal page. It also stages the rear-gunship view, which becomes visible
         // only when the gunship step later selects the floor again.
-        ZebesRevealed = true;
-        FloorShot = CeresFloorShot.ZebesApproach;
+        View = CeresDestructionView.ZebesReveal;
         // The reveal clears the colour effects, ending the station's navigation lights, and starts the engine's flicker.
         ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
         ColourEffects.StartScreen(CeresDestructionSceneDefinitions.GunshipEngineFlicker);
@@ -453,13 +462,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         fade.Show(0);
         fade.StepEvery(CeresDestructionSceneDefinitions.Timing.FadeUpdatesPerStep);
         revealBlockWidth = CeresDestructionSceneDefinitions.RevealPixelation.StartingBlockWidth;
-        usesFloor = false;
     }
 
     /// <summary>Creates the planet, stars, and title sprites for the later turning-floor flight.</summary>
     private void SetupZebesFloorActors()
     {
-        usesFloor = true;
+        View = CeresDestructionView.ZebesApproach;
         Background = new(Background.X.WithWholePixels(CeresDestructionSceneDefinitions.Sprites.ZebesInitialBackgroundX),
             Background.Y.WithWholePixels(CeresDestructionSceneDefinitions.Sprites.ZebesInitialBackgroundY));
         angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
@@ -549,14 +557,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 return;
 
             case CeresExplosionSpawnerCue.SpawnRepeatingBlast:
-                // Once the gunship flies away from the station the spawner spawns no more repeating blasts; the final
-                // wave still comes. The gunship leaves only after the
-                // spawner's last repeating blast, so every one of them spawns.
-                if (!CeresDestructionPhaseGroups.BeforeFlyingAway.Contains(Phase))
-                    return;
-                SpawnCeresExplosion(CeresExplosionDefinitions.RepeatingActor,
-                    CeresExplosionDefinitions.RepeatingBlasts[repeatingBlastsSpawned]);
-                repeatingBlastsSpawned++;
+                // Each play of the spawner's repeating blast spawns one at the next of their places.
+                SpawnCeresExplosion(CeresExplosionDefinitions.RepeatingActor, new CeresExplosionPlacement(
+                    repeatingBlastPlacesLeft.Dequeue(), CeresExplosionDefinitions.RepeatingBlastDelayFrames));
                 return;
 
             case CeresExplosionSpawnerCue.SpawnFinalWave:
@@ -575,7 +578,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// gunship leaves and both halves are cleared, so the floor shows nothing (#1513). No half keeps the station.
     /// </summary>
     private void LoadFinalExplosionMaps() =>
-        FloorShot = WithSamus ? null : CeresFloorShot.Explosion;
+        View = WithSamus ? CeresDestructionView.StationCleared : CeresDestructionView.GunshipLeavingExplosion;
 
     /// <summary>Starts the station blast, queues its sound, adds its sprite, and replaces the station maps.</summary>
     private void SpawnFinalCeresExplosion()
@@ -696,43 +699,47 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// in front of it; on the approach to Zebes, the planet and its stars behind the gunship's floor; or the Zebes reveal's
     /// planet picture. Each picture and sprite is drawn whole, in its layer's order.
     /// </summary>
+    /// <exception cref="InvalidOperationException">The view is undefined.</exception>
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
         var sprites = new SpritesLayer(screenSprites.Draws);
-        DisplayLayer[] layers;
-        if (usesFloor && (shownLayers & ScreenLayers.Foreground) == ScreenLayers.None)
+        DisplayLayer[] layers = View switch
         {
-            layers = [sprites];
-        }
-        else if (usesFloor)
-        {
-            FloorView floor = FloorView.Turned(angle, Zoom,
-                CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
-                    ? CeresDestructionSceneDefinitions.CeresFloorCenter
-                    : CeresDestructionSceneDefinitions.ZebesFloorCenter,
-                Background.Whole);
-            // Before the station is set up, and after the explosion with Samus aboard clears it, the floor shows nothing.
-            if (FloorShot is not { } shot)
-                layers = [sprites];
-            else
-            {
-                var turning = new TurningFloorLayer(floor, CeresFloors.Of(spriteSheets, shot).Shaded(FloorShading));
-                layers = CeresDestructionPhaseGroups.CeresScene.Contains(Phase) ? [turning, sprites] : [sprites, turning];
-            }
-        }
-        else
-        {
-            // The Zebes reveal shows the planet's installed picture once it is loaded (#1467), pixelated in the reveal's
-            // blocks (#1774); its sprites are not pixelated.
-            layers = [new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets, ZebesRevealed), Offset16<PlanePixels>.Zero)
-            {
-                Pixelation = new BackgroundPixelation(revealBlockWidth),
-            }];
-        }
+            // Before the station is set up, after the explosion with Samus aboard clears the floor, and once the gunship's
+            // floor is hidden near Zebes, the scene shows its sprites alone.
+            CeresDestructionView.BeforeStation or CeresDestructionView.StationCleared or CeresDestructionView.ZebesClose => [sprites],
+            CeresDestructionView.Station => TurningFloorLayers(CeresFloorShot.Station, sprites),
+            CeresDestructionView.GunshipLeavingExplosion => TurningFloorLayers(CeresFloorShot.Explosion, sprites),
+            CeresDestructionView.ZebesApproach => TurningFloorLayers(CeresFloorShot.ZebesApproach, sprites),
+            // The Zebes reveal shows the planet's installed picture (#1467), pixelated in the reveal's blocks (#1774); its
+            // sprites are not pixelated.
+            CeresDestructionView.ZebesReveal =>
+            [
+                new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets), Offset16<PlanePixels>.Zero)
+                {
+                    Pixelation = new BackgroundPixelation(revealBlockWidth),
+                },
+            ],
+            _ => throw new InvalidOperationException($"Undefined {nameof(CeresDestructionView)} {View}."),
+        };
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];
         return new(new FramePaint(Backdrop), layers, fade.Level);
+    }
+
+    /// <summary>
+    /// The turning floor showing <paramref name="shot"/> with <paramref name="sprites"/>: over Ceres the asteroids and blasts
+    /// in front of the floor, on the approach to Zebes the planet and its stars behind it.
+    /// </summary>
+    private DisplayLayer[] TurningFloorLayers(CeresFloorShot shot, SpritesLayer sprites)
+    {
+        bool overCeres = CeresDestructionPhaseGroups.CeresScene.Contains(Phase);
+        FloorView floor = FloorView.Turned(angle, Zoom,
+            overCeres ? CeresDestructionSceneDefinitions.CeresFloorCenter : CeresDestructionSceneDefinitions.ZebesFloorCenter,
+            Background.Whole);
+        var turning = new TurningFloorLayer(floor, CeresFloors.Of(spriteSheets, shot).Shaded(FloorShading));
+        return overCeres ? [turning, sprites] : [sprites, turning];
     }
 
     /// <summary>

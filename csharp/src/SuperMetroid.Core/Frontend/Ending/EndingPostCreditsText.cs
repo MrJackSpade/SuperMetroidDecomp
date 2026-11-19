@@ -12,24 +12,23 @@ internal sealed class EndingPostCreditsText
     /// <summary>The panel shown.</summary>
     internal EndingPostCreditsPanel Panel { get; private set; }
 
-    /// <summary>The item-percentage text, from the logo's end on.</summary>
-    internal EndingTypewriter? ItemPercentage { get; private set; }
+    /// <summary>
+    /// The typed texts the screen shows, in the order they started (#2541): none until the logo's end, then the item
+    /// percentage, then, from the end of the move down on, the final message below which the item percentage stays shown.
+    /// </summary>
+    private readonly List<EndingTypewriter> typed = [];
 
-    /// <summary>The final message, from the end of the move down on.</summary>
-    internal EndingTypewriter? FinalMessage { get; private set; }
+    /// <summary>The typed texts the screen shows, in the order they started.</summary>
+    internal IReadOnlyList<EndingTypewriter> Typed => typed;
 
     /// <summary>Pixels the text is moved down the screen, zero until the item percentage's move down.</summary>
     internal int Drop { get; set; }
-
-    /// <summary>The typed text the ending advances: the final message once it starts, otherwise the item percentage.</summary>
-    internal EndingTypewriter? Typing => FinalMessage ?? ItemPercentage;
 
     /// <summary>Shows no text: no panel and no typed text, as the credits leave the screen.</summary>
     internal void Clear()
     {
         Panel = EndingPostCreditsPanel.None;
-        ItemPercentage = null;
-        FinalMessage = null;
+        typed.Clear();
     }
 
     /// <summary>Shows the result panel.</summary>
@@ -47,19 +46,32 @@ internal sealed class EndingPostCreditsText
     internal void ClearCopyright() => Panel = Panel == EndingPostCreditsPanel.Copyright ? EndingPostCreditsPanel.None
         : throw new InvalidOperationException("The post-credits text shows no copyright.");
 
-    /// <summary>Starts the item-percentage text.</summary>
-    internal void StartItemPercentage(EndingTypewriterSetup setup) =>
-        ItemPercentage = new EndingTypewriter(setup, EndingTextSequence.ItemPercentage);
+    /// <summary>Starts the item-percentage text, the first typed text the screen shows.</summary>
+    /// <returns>The text started.</returns>
+    /// <exception cref="InvalidOperationException">A typed text has already started.</exception>
+    internal EndingTypewriter StartItemPercentage(EndingTypewriterSetup setup) => Start(setup, EndingTextSequence.ItemPercentage, typedBefore: 0);
 
     /// <summary>Starts the final message, below which the item-percentage text stays shown.</summary>
-    internal void StartFinalMessage(EndingTypewriterSetup setup) =>
-        FinalMessage = new EndingTypewriter(setup, EndingTextSequence.FinalMessage);
+    /// <returns>The text started.</returns>
+    /// <exception cref="InvalidOperationException">The item percentage alone has not started.</exception>
+    internal EndingTypewriter StartFinalMessage(EndingTypewriterSetup setup) => Start(setup, EndingTextSequence.FinalMessage, typedBefore: 1);
+
+    /// <summary>Starts typing <paramref name="sequence"/> after the <paramref name="typedBefore"/> texts that type before it.</summary>
+    /// <exception cref="InvalidOperationException">The screen does not show exactly those texts.</exception>
+    private EndingTypewriter Start(EndingTypewriterSetup setup, EndingTextSequence sequence, int typedBefore)
+    {
+        if (typed.Count != typedBefore)
+            throw new InvalidOperationException($"The {sequence} text starts after {typedBefore} typed texts, not {typed.Count}.");
+        var started = new EndingTypewriter(setup, sequence);
+        typed.Add(started);
+        return started;
+    }
 
     /// <summary>Binds the typed texts' installed text when the game is bound to its installed content.</summary>
     internal void BindText(EndingTypewriterText value)
     {
-        ItemPercentage?.BindText(value);
-        FinalMessage?.BindText(value);
+        foreach (EndingTypewriter text in typed)
+            text.BindText(value);
     }
 
     /// <summary>What the screen shows, in drawing order: the panel, the item-percentage text, then the final message.</summary>
@@ -79,9 +91,10 @@ internal sealed class EndingPostCreditsText
             default:
                 throw new InvalidOperationException($"Undefined post-credits panel {Panel}.");
         }
-        foreach (EndingShownText text in ItemPercentage?.Shown() ?? [])
-            yield return text;
-        foreach (EndingShownText text in FinalMessage?.Shown() ?? [])
-            yield return text;
+        foreach (EndingTypewriter text in typed)
+        {
+            foreach (EndingShownText shown in text.Shown())
+                yield return shown;
+        }
     }
 }

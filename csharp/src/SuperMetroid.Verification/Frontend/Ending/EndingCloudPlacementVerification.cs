@@ -22,12 +22,12 @@ internal static class EndingCloudPlacementVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = AudioQueues.Standalone();
         var ending = CreateRetailEndingFixture(audio, 0, 0);
-        for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.FadeInTopAndBottomCloudEscape; frame++)
+        for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.FadeInTopAndBottomCloudEscape; frame++)
         {
             ending.Step();
             audio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.FadeInTopAndBottomCloudEscape, ending.Stage.Phase, "cloud scene setup reached");
+        AssertEqual(EndingCreditsPhase.FadeInTopAndBottomCloudEscape, ending.Phase, "cloud scene setup reached");
         // $8B:D731 spawns EED3/EED9/EEDF/EEE5 with parameter zero.
         // F0B2/F0E1/F0E9/F0F1 therefore all use X=128 and these four Y origins.
         short[] nativeY = [-96, -32, 288, 352];
@@ -55,14 +55,14 @@ internal static class EndingCloudPlacementVerification
         // Scene B's three phases leave the same loads in the screen memory, so its image, the native cloud characters
         // written over it, is composed once and read by every compared frame (#1757); each compared frame requires its
         // phase's loads to be the ones the image was composed from.
-        EndingScreenLoads sceneLoads = EndingScreenLoads.Of(ending.Stage.Phase);
+        EndingScreenLoads sceneLoads = EndingScreenLoads.Of(ending.Phase);
         byte[] nativeVram = ending.ShownVram();
         nativeCloudCharacters.CopyTo(nativeVram.AsSpan(
             SuperMetroid.AssetExtraction.Artwork.ObjCharacterImage.ResolveTileByteAddress(0, objectSelection)));
         for (int frame = 0; frame < 200; frame++)
         {
             ending.Step();
-            if (ending.Stage.Phase is not (EndingCreditsPhase.FadeInTopAndBottomCloudEscape or
+            if (ending.Phase is not (EndingCreditsPhase.FadeInTopAndBottomCloudEscape or
                 EndingCreditsPhase.TopAndBottomCloudEscape or EndingCreditsPhase.FadeOutTopAndBottomCloudEscape))
                 break;
             steppedFrames++;
@@ -79,8 +79,8 @@ internal static class EndingCloudPlacementVerification
             }
             // The clouds move a pixel a frame, so a misplaced origin or a wrong step shows on every later frame: the
             // first two frames, each phase's first frame and every eighth frame are compared (#1532).
-            bool phaseStarts = ending.Stage.Phase != comparedPhase;
-            comparedPhase = ending.Stage.Phase;
+            bool phaseStarts = ending.Phase != comparedPhase;
+            comparedPhase = ending.Phase;
             if (frame >= 2 && !phaseStarts && frame % 8 != 0)
                 continue;
             var oam = ScreenSpritesFixtures.Blank();
@@ -89,14 +89,14 @@ internal static class EndingCloudPlacementVerification
             oam.FinalizeFrame();
             var actual = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
             RgbColor[] actualColours = EndingShownColours.Of(ending);
-            AssertEqual(sceneLoads, EndingScreenLoads.Of(ending.Stage.Phase), $"scene B frame {frame} shows the loads its memory image holds");
+            AssertEqual(sceneLoads, EndingScreenLoads.Of(ending.Phase), $"scene B frame {frame} shows the loads its memory image holds");
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];
             var expectedMemory = actual.Paint.WithNativeColoursAndOam(nativeVram, actualColours,
                 oamBytes, oam.LastFinalizedSpriteCount, objectSelection);
             var expected = DisplayRendering.Render(new LayeredScene(expectedMemory, actual.Layers, actual.Brightness));
             var pixels = ending.Render();
             int differs = pixels.ToArray().Zip(expected, (live, native) => live != native).ToList().IndexOf(true);
-            AssertTrue(differs < 0, $"scene B cloud positions/motion frame {frame} ({ending.Stage.Phase})" + (differs < 0 ? ""
+            AssertTrue(differs < 0, $"scene B cloud positions/motion frame {frame} ({ending.Phase})" + (differs < 0 ? ""
                 : $": pixel ({differs % 256},{differs / 256}) live {pixels[differs]}, native {expected[differs]}; live trace " + EndingPlanetBoundaryVerification.SpritePixelTrace(actual, differs % 256, differs / 256) + "; native trace " + EndingPlanetBoundaryVerification.SpritePixelTrace(new LayeredScene(expectedMemory, actual.Layers, actual.Brightness), differs % 256, differs / 256) + "; live draws " +
                     string.Join(", ", actual.Paint.SpriteDraws.OfType<ImageSpriteDraw>().Select(draw =>
                         $"{draw.Image.Size.X}x{draw.Image.Size.Y} at {draw.Corner.X},{draw.Corner.Y}")) + "; native objects " +
@@ -104,7 +104,7 @@ internal static class EndingCloudPlacementVerification
                         $"{entry.TileNumber:X3}{(entry.IsLarge ? "L" : "s")} at {entry.Position.X},{entry.Position.Y}"))));
             checkedFrames++;
         }
-        AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Stage.Phase, "complete scene B checked through fade-out");
+        AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Phase, "complete scene B checked through fade-out");
         Console.WriteLine($"Ending scene B: {checkedFrames} sampled full frames of {steppedFrames} match independently stepped native cloud origins/motion; graphics source is shared, not a full cartridge pixel oracle.");
     }
 
@@ -113,12 +113,12 @@ internal static class EndingCloudPlacementVerification
     {
         var audio = AudioQueues.Standalone();
         var ending = CreateRetailEndingFixture(audio, 0, 0);
-        for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.SideCloudEscape; frame++)
+        for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.SideCloudEscape; frame++)
         {
             ending.Step();
             audio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.SideCloudEscape, ending.Stage.Phase, "takeoff color-math scene reached");
+        AssertEqual(EndingCreditsPhase.SideCloudEscape, ending.Phase, "takeoff color-math scene reached");
         for (int frame = 0; frame < 90; frame++) ending.Step();
         TurningFloorLayer shown = EndingCreditsPresentation.CaptureRenderSnapshot(ending).LayersOf<TurningFloorLayer>().First();
         if (checkWrapping)

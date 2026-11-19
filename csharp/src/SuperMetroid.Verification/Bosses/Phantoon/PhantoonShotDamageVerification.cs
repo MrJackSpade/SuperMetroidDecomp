@@ -55,7 +55,8 @@ internal static class PhantoonShotDamageVerification
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         body.Health = 2500;
         PhantoonEnemyState state = enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1],
-            enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.Swooping, PhaseTimer = 60 });
+            enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.Swooping });
+        state.PhaseWait.LastFor(60);
 
         Position16<RoomPixels> eye = EyeCentre(body);
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,

@@ -63,11 +63,10 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     public PhantoonPhase Phase { get; internal set; } = PhantoonPhase.SpawnStartingFlames;
 
     /// <summary>
-    /// The updates the current phase waits before it moves on, zero or more: a timed phase moves on on the update its timer
-    /// reaches zero (<see cref="PhantoonPresentation.TickPhantoonPhaseTimer"/>), and the power's return waits out its
-    /// count before it starts.
+    /// The wait the current timed phase runs (#2538): the phase's start gives it its duration, and the phase moves on on
+    /// its last update; the Wrecked Ship's power starts to come on on its last.
     /// </summary>
-    public int PhaseTimer { get; internal set => field = Ensure.AtLeastZero(value); }
+    public BossCountdown PhaseWait { get; } = new();
 
     /// <summary>Whether the eye-close animation's pattern choice picks the flame rain.</summary>
     public bool FlameRainRequested { get; internal set; }

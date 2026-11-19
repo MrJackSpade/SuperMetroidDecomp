@@ -328,7 +328,7 @@ internal static class NativeSnapshotImport
             ImportNativeEnemyProjectile(runtime.Enemies, projectile, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
-        runtime.Enemies.FrameContext.SeedRandomEnemyCounter(W(NativeSnapshotMemory.MainEnemyRoutineCount));
+        runtime.Enemies.FrameContext.SeedEnemyPassCount(W(NativeSnapshotMemory.MainEnemyRoutineCount));
         // The liquid's BG3 HDMA object has already run its first pass, so its callback is
         // installed. A live object owns the per-frame liquid motion; once Mother Brain's
         // $A9:8C0C has cleared the channel flags, the room's liquid objects are deleted.

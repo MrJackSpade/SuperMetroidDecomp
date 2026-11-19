@@ -3,14 +3,14 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// What a piece of Crocomire's crumbling spike wall keeps: its place in the wall, its sideways acceleration and its falling
-/// speed.
+/// What a piece of Crocomire's crumbling spike wall keeps: which piece of the wall it is, its sideways acceleration and its
+/// falling speed.
 /// </summary>
-/// <param name="piece">The piece's place in the wall, zero for the top piece.</param>
-internal sealed class CrocomireSpikeWallPieceState(int piece) : EnemyProjectileState
+/// <param name="piece">The piece of the wall it is, which sets its motion and its landing sound.</param>
+internal sealed class CrocomireSpikeWallPieceState(CrocomireSpikeWallPiece piece) : EnemyProjectileState
 {
-    /// <summary>The piece's place in the wall, zero for the top piece; it sets the piece's height, motion and landing sound.</summary>
-    internal int Piece { get; } = Ensure.BetweenInclusive(0, CrocomireSpikeMotionDefinitions.PieceCount - 1, piece);
+    /// <summary>The piece of the wall it is, which sets its motion and its landing sound.</summary>
+    internal CrocomireSpikeWallPiece Piece { get; } = Ensure.NotNull(piece);
 
     /// <summary>The piece's starting vertical speed: four and fifteen thirty-seconds pixels per update upward (#1936, #2181).</summary>
     private static readonly SignedSixteenSixteen LaunchFallSpeed = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-1144);

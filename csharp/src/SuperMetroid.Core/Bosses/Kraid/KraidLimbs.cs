@@ -117,10 +117,10 @@ internal sealed class KraidLimbs
         }
     }
 
-    /// <summary>Counts down the grown body's think delay before opening the mouth for its next attack.</summary>
+    /// <summary>Runs the grown body's thinking, and on its last update opens the mouth for its next attack.</summary>
     internal static void RunKraidSecondPhaseThinking(KraidEnemyState state)
     {
-        if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
+        if (state.ThinkingWait.StepRunsOut())
         {
             state.BodyState.FightPhase = KraidFightPhase.MouthOpenReaction;
             state.StartHeadAnimation(KraidHeadSegment.Roar);
@@ -134,7 +134,7 @@ internal sealed class KraidLimbs
             return false;
 
         state.BodyState.FightPhase = KraidFightPhase.HeadAnimationBeforeGrowth;
-        state.BodyState.PhaseTimer = KraidArenaDefinitions.GrowthHeadAnimationUpdates;
+        state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.GrowthHeadAnimationUpdates);
 
         state.ResumeHeadRoar(KraidHeadAnimations.ReadsAt(state.HeadPlayback).Growth);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.GrowthShakeUpdates);
@@ -198,7 +198,7 @@ internal sealed class KraidLimbs
             case KraidFootPhase.FirstPhaseThinking:
                 if (TryBeginKraidGrowth(body, state))
                     return;
-                if (part.CountPhaseTimerDown())
+                if (part.PhaseWait.StepRunsOut())
                     part.Phase = KraidFootPhase.PrepareFirstPhaseLunge;
                 return;
             case KraidFootPhase.PrepareFirstPhaseLunge:
@@ -208,14 +208,14 @@ internal sealed class KraidLimbs
                 RunKraidFirstPhaseLunge(body, foot, part);
                 return;
             case KraidFootPhase.WaitBeforeRetreat:
-                if (part.CountPhaseTimerDown())
+                if (part.PhaseWait.StepRunsOut())
                 {
                     part.Phase = KraidFootPhase.FirstPhaseRetreat;
                     state.FootState.StartAnimation(KraidPartSegment.FootWalkingBackward);
                 }
                 return;
             case KraidFootPhase.WaitBeforeSecondPhase:
-                if (part.CountPhaseTimerDown())
+                if (part.PhaseWait.StepRunsOut())
                     part.Phase = KraidFootPhase.SecondPhaseInitialize;
                 return;
             case KraidFootPhase.FirstPhaseRetreat:
@@ -225,7 +225,7 @@ internal sealed class KraidLimbs
                 RunKraidSecondPhaseWalkToStart(body, part);
                 return;
             case KraidFootPhase.SecondPhaseInitialize:
-                SetKraidWalking(part, targetX: KraidMovementChoices.StartingX, thinkTimer: KraidArenaDefinitions.SecondPhaseFirstThinkUpdates, direction: HorizontalDirection.Right);
+                SetKraidWalking(part, targetX: KraidMovementChoices.StartingX, thinkUpdates: KraidArenaDefinitions.SecondPhaseFirstThinkUpdates, direction: HorizontalDirection.Right);
                 return;
             case KraidFootPhase.SecondPhaseThinking:
                 RunKraidSecondPhaseThinking(body, part);
@@ -269,7 +269,7 @@ internal sealed class KraidLimbs
         if (body.Position.X.Whole == KraidArenaDefinitions.LungeReachX)
         {
             part.Phase = KraidFootPhase.WaitBeforeRetreat;
-            part.PhaseTimer = 1;
+            part.PhaseWait.LastFor(KraidArenaDefinitions.LungeReachPauseUpdates);
             part.SetAnimation(KraidPartSegment.FootNeutral);
         }
         else
@@ -296,7 +296,7 @@ internal sealed class KraidLimbs
             state.ArmState.StartAnimation(KraidPartSegment.ArmNormal);
             state.FootState.StartAnimation(KraidPartSegment.FootNeutral);
             part.Phase = KraidFootPhase.FirstPhaseThinking;
-            part.PhaseTimer = KraidArenaDefinitions.LungeDelayUpdates;
+            part.PhaseWait.LastFor(KraidArenaDefinitions.LungeDelayUpdates);
         }
         else
         {
@@ -319,35 +319,35 @@ internal sealed class KraidLimbs
         if (!part.ShowsWalkEnd)
             return;
         part.Phase = KraidFootPhase.WaitBeforeSecondPhase;
-        part.PhaseTimer = KraidArenaDefinitions.SecondPhaseStartDelayUpdates;
+        part.PhaseWait.LastFor(KraidArenaDefinitions.SecondPhaseStartDelayUpdates);
         part.StartAnimation(KraidPartSegment.FootNeutral);
     }
 
-    /// <summary>Chooses the grown foot's next walking target and direction after its think timer ends.</summary>
+    /// <summary>Chooses the grown foot's next walking target and direction on the last update of its thinking.</summary>
     internal void RunKraidSecondPhaseThinking(
         RoomEnemyPlace body,
         KraidFootState part)
     {
-        if (--part.ThinkTimer != 0)
+        if (part.ThinkWait.StepKeepsRunning())
             return;
 
-        (int targetX, int thinkTimer) = KraidMovementChoices.Select(body.Position.X.Whole, _access.ReadKraidRandomNumber());
-        SetKraidWalking(part, targetX, thinkTimer,
+        (int targetX, int thinkUpdates) = KraidMovementChoices.Select(body.Position.X.Whole, _access.ReadKraidRandomNumber());
+        SetKraidWalking(part, targetX, thinkUpdates,
             targetX >= body.Position.X.Whole ? HorizontalDirection.Right : HorizontalDirection.Left);
     }
 
     /// <summary>
-    /// Stores a walk target and starts the foot's walking animation: walking right steps the foot backward, walking left
-    /// steps it forward.
+    /// Stores a walk target and the thinking that follows the walk, and starts the foot's walking animation: walking right
+    /// steps the foot backward, walking left steps it forward.
     /// </summary>
     private static void SetKraidWalking(
         KraidFootState part,
         int targetX,
-        int thinkTimer,
+        int thinkUpdates,
         HorizontalDirection direction)
     {
         part.Kraid.WalkTargetX = targetX;
-        part.ThinkTimer = thinkTimer;
+        part.ThinkWait.LastFor(thinkUpdates);
         part.Phase = KraidFootPhase.SecondPhaseWalking;
         part.WalkDirection = direction;
         part.StartAnimation(direction == HorizontalDirection.Right ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward);

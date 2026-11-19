@@ -35,7 +35,7 @@ internal static class KraidReportedCollisionsVerification
             samus.Position = samus.Position.WithWhole(new(120, 491));
             body.Position = body.Position.WithWhole(new(176, 592));
             state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
-            state.ThinkingTimer = 100;
+            state.ThinkingWait.LastFor(100);
             // The closed case starts the roar; the open case stands just past the roar cry, on the fully open pose.
             state.HeadPlayback = closed
                 ? KraidHeadNativeCursors.PlaybackAtStep(KraidHeadSegment.Roar, 0)
@@ -120,7 +120,7 @@ internal static class KraidReportedCollisionsVerification
         {
             body.Position = body.Position.WithWhole(new(176, 592));
             state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
-            state.ThinkingTimer = 100;
+            state.ThinkingWait.LastFor(100);
             ResetSamus(180, 500);
             runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, state, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), new Position16<RoomPixels>(0, 384), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem(), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem());
             AssertEqual((ushort)172, samus.Position.X.Whole, "Kraid ejects Samus eight pixels left");
@@ -134,7 +134,7 @@ internal static class KraidReportedCollisionsVerification
             state.EjectionLimitY = 496;
             body.Position = body.Position.WithWhole(new(176, 592));
             state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
-            state.ThinkingTimer = 100;
+            state.ThinkingWait.LastFor(100);
             ResetSamus(180, 500);
             runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, state, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), new Position16<RoomPixels>(0, 384), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem(), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem());
             state.EjectionLimitY = smallFormLimit;

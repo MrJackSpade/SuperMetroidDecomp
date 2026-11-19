@@ -12,6 +12,6 @@ public static class AttractDemoDefinitions
     /// <summary>The Big Pink screen, in the room's fourth column and seventh row, the Charge Beam demo closes to the camera.</summary>
     public static readonly Position16<RoomScreens> ChargeBeamClosedScreen = new(3, 6);
 
-    /// <summary>Frames Kraid's body waits before its next action in the Kraid demo.</summary>
-    public const int KraidPhaseTimer = 60;
+    /// <summary>The updates Kraid's body waits before its next action in the Kraid demo, the last included.</summary>
+    public const int KraidPhaseWaitUpdates = 60;
 }

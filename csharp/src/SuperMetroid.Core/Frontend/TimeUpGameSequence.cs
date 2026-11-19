@@ -2,6 +2,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -64,7 +65,7 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
         // The white-out runs the whole main-gameplay update, then advances every colour
         // toward the white target with denominator eight. It owns that update, so a Samus out of
         // health without reserves does not die behind it (#2509).
-        gameplay.RunMainGameplayUpdate(controllerInput);
+        gameplay.RunMainGameplayUpdate(controllerInput, GameplayUpdateOwner.TimeUpWhiteOut);
         if (session.GameplayRuntime.FadeOut.Step())
         {
             session.Enter(TimeUpStep.FadingToBlack);
@@ -100,10 +101,6 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
             session.BeginBlackDeathBlackOut();
             return;
         }
-        session.Show(new CeresDestructionCinematicState(
-            session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
-            session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,
-            outcome: CeresDestructionOutcome.SamusAboard, japaneseText: session.GameplayRuntime.JapaneseText));
-        session.Enter(CeresDestructionOutcome.SamusAboard);
+        session.BeginCeresDestruction(CeresDestructionOutcome.SamusAboard);
     }
 }

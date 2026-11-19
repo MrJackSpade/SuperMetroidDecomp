@@ -86,8 +86,9 @@ internal static class NativeEnemyFamilyStateImport
             EnemyDefinitionId part = enemy.DefinitionId;
             if (part == EnemyDefinitionId.PhantoonEye)
             {
-                // A count the cartridge ran below zero has run out, as the port's timer that stays at zero has.
-                phantoon.Round.EyeClosedTimer = Math.Max(0, CoordinateAxis.AsSigned(words.A));
+                // The cartridge's count opens the eye on the update it reaches zero; one it ran to zero or below opens it on
+                // the next.
+                PrivateState.Set(phantoon.Round.EyeClosedWait, nameof(BossCountdown.Count), Math.Max(0, CoordinateAxis.AsSigned(words.A)) - 1);
                 phantoon.FigureEight.Direction = words.C != 0 ? PhantoonPathDirection.Backwards : PhantoonPathDirection.Forwards;
                 phantoon.Death.FadeCycles = words.C;
                 // The eye's word E counts the steps of whichever of his fades runs: his body's, or after his death the
@@ -137,10 +138,13 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.StartingFlames.Orbiting = words.B != 0;
                 phantoon.FigureEight.Speed = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B);
                 phantoon.FigureEight.Stage = PhantoonFigureEightStageWords.Decode(words.D);
-                // A count the cartridge ran below zero has run out, as the port's timer that stays at zero has.
-                phantoon.PhaseTimer = Math.Max(0, CoordinateAxis.AsSigned(words.E));
                 if (words.F != 0)
                     phantoon.Phase = PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
+                // The cartridge's count ends a timed phase on the update it reaches zero, and one it ran to zero or below on
+                // the next; once he is dead, the power comes on from the update after the count is used up (#2538).
+                int phaseCount = Math.Max(0, CoordinateAxis.AsSigned(words.E));
+                PrivateState.Set(phantoon.PhaseWait, nameof(BossCountdown.Count),
+                    phantoon.Phase == PhantoonPhase.Dead ? phaseCount : phaseCount - 1);
             }
             else
             {
@@ -246,7 +250,8 @@ internal static class NativeEnemyFamilyStateImport
                     draygonRecord.IntroFrames = words.B;
                     break;
                 case DraygonNativeWords.SharedValue.BurialWait:
-                    draygonRecord.BurialWait = words.B;
+                    // The cartridge's burial wait holds the updates left, the one he starts sinking on included.
+                    PrivateState.Set(draygonRecord.BurialWait, nameof(BossCountdown.Count), words.B - 1);
                     break;
                 case DraygonNativeWords.SharedValue.SwoopEntry:
                     draygonRecord.SwoopEntry = words.B / DraygonNativeWords.SwoopEntryBytes;
@@ -275,7 +280,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {
-            crocomireRecord.DeathPhase = CrocomireNativeWords.DeathPhases.Decode(words.A, "recorded Crocomire death phase");
+            crocomireRecord.DeathStage = CrocomireNativeWords.DeathStages.Decode(words.A, "recorded Crocomire death stage");
             crocomireRecord.DamageReactionPending = CrocomireNativeWords.DamageReactionPending(words.B);
             // The fight table's first entry, which no live fight selects, stands for a defeated room's corpse, which keeps its
             // constructed phase and never runs it (#1939).
@@ -619,8 +624,10 @@ internal static class NativeEnemyFamilyStateImport
             // The cartridge keeps Fake Kraid's walk and facing as signed four-pixel steps (#2214).
             fakeKraidRecord.Walking = FakeKraidNativeDirection(words.B, "walk");
             fakeKraidRecord.Facing = FakeKraidNativeDirection(words.C, "facing");
-            fakeKraidRecord.WalkStepTimer = words.D;
-            fakeKraidRecord.SpitDecisionTimer = words.E;
+            // The cartridge counts both in walk steps left: the walk turns on the step its count reaches zero, and the spit
+            // count stops at zero.
+            PrivateState.Set(fakeKraidRecord.WalkTurnWait, nameof(BossCountdown.Count), words.D - 1);
+            PrivateState.Set(fakeKraidRecord.SpitWait, nameof(HeldBossCountdown.UpdatesLeft), (int)words.E);
         }
         if (enemy.SpeciesState<MaridiaLargeSnailEnemyState>() is { } maridiaLargeSnailRecord)
         {
@@ -1236,9 +1243,10 @@ internal static class NativeEnemyFamilyStateImport
 
     /// <summary>
     /// Imports one of Kraid's parts' record (#2208): word A names the phase the part runs, of its own part's type, and
-    /// for the foot's walk the way it walks (#2165); words B and C hold the body's head timer, a lint's travel and X offset,
-    /// or a nail's velocity; word F is the part's phase timer, or the ceiling rocks' cursor while his growth breaks the
-    /// ceiling. A part whose setup has not given it a phase records no word A and keeps the phase it starts in.
+    /// for the foot's walk the way it walks (#2165); words B and C hold the head's hold on its pose, a lint's travel and X
+    /// offset, or a nail's velocity; word F is the updates left of the part's phase wait, or the ceiling rocks' cursor
+    /// while his growth breaks the ceiling. A part whose setup has not given it a phase records no word A and keeps the
+    /// phase it starts in.
     /// </summary>
     private static void ImportKraidPart(RoomEnemyPlace enemy, KraidPartState part, NativeEnemyRecordWords words)
     {
@@ -1247,7 +1255,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             case KraidBodyState body:
             {
-                body.HeadTimer = words.C;
+                // The cartridge holds the head's pose while its count is above zero, and holds at zero.
+                PrivateState.Set(body.Kraid.HeadHold, nameof(HeldBossCountdown.UpdatesLeft), (int)words.C);
                 bool deathWait = KraidNativeWords.DeathWaitUpdatesLeft.TryGetValue(words.A, out int deathWaitLeft);
                 if (deathWait)
                     body.DeathPhase = KraidDeathPhase.WaitBeforeFadeIn;
@@ -1263,21 +1272,21 @@ internal static class NativeEnemyFamilyStateImport
                         : ListStep<KraidCeilingRock>.At(KraidCeilingRockDefinitions.Rocks, rock);
                 }
                 else
-                    body.PhaseTimer = deathWait ? deathWaitLeft : words.F;
+                    ImportPhaseWait(body, deathWait ? deathWaitLeft : words.F);
                 return;
             }
             case KraidArmState arm:
                 // The arm runs no phase (#2208): its record names the bank's bare return, as a resting part's does.
                 if (recorded && words.A != KraidNativeWords.RestingWord)
                     throw new InvalidDataException($"Kraid's arm, enemy {enemy.Ordinal}, runs routine {words.A:X4}, not the resting one.");
-                arm.PhaseTimer = words.F;
+                ImportPhaseWait(arm, words.F);
                 return;
             case KraidLintState lint:
                 if (recorded)
                     lint.Phase = KraidNativeWords.LintPhases.Decode(words.A, "recorded KraidLintPhase");
                 lint.LintXOffset = CoordinateAxis.AsSigned(words.C);
                 lint.LintTravel = words.B;
-                lint.PhaseTimer = words.F;
+                ImportPhaseWait(lint, words.F);
                 return;
             case KraidFootState foot:
             {
@@ -1289,19 +1298,26 @@ internal static class NativeEnemyFamilyStateImport
                 // Only the foot's walk names the way it walks (#2165).
                 if (walk is { } direction)
                     foot.WalkDirection = direction;
-                foot.PhaseTimer = words.F;
+                ImportPhaseWait(foot, words.F);
                 return;
             }
             case KraidNailState nail:
                 if (recorded)
                     nail.Phase = KraidNativeWords.NailPhases.Decode(words.A, "recorded KraidNailPhase");
                 nail.NailVelocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.B, words.E, words.D);
-                nail.PhaseTimer = words.F;
+                ImportPhaseWait(nail, words.F);
                 return;
             default:
                 throw new InvalidDataException($"Enemy {enemy.Ordinal} holds a Kraid part state of no part, {part.GetType().Name}.");
         }
     }
+
+    /// <summary>
+    /// Sets a Kraid part's phase wait from the cartridge's count of its updates left, the one its phase moves on on
+    /// included (#2538).
+    /// </summary>
+    private static void ImportPhaseWait(KraidPartState part, int updatesLeft) =>
+        PrivateState.Set(part.PhaseWait, nameof(BossCountdown.Count), updatesLeft - 1);
 
     /// <summary>
     /// Splits a Shaktool segment's shared orientation word by the segment's role: the centre's heading bucket and

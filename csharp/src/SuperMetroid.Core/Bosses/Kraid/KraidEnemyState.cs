@@ -3,9 +3,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Shared Kraid encounter state, plus the room-level effects whose
-/// owners sit outside any one enemy. No combat simplification
-/// is represented here: thresholds and formulas are the game's own.
+/// Kraid's encounter state, which all of his parts share, and the room's effects that belong to no one part of him.
 /// </summary>
 public sealed class KraidEnemyState
 {
@@ -77,8 +75,13 @@ public sealed class KraidEnemyState
     /// <summary>His two fingernails' own states, first first.</summary>
     internal IEnumerable<KraidNailState> Nails => [FirstNailState, SecondNailState];
 
-    /// <summary>Gets the updates his body thinks before its next mouth attack: a random number of 64-update steps.</summary>
-    public int ThinkingTimer { get; internal set; }
+    /// <summary>
+    /// His body's thinking before its next mouth attack (#2538): each thinking setup starts it for a random number of
+    /// <see cref="KraidArenaDefinitions.ThinkingDelayStepUpdates"/>, and he roars on its last update. It holds once it has
+    /// run out, so the thinking his grown roar returns him to never ends of itself, and a hurt roar returns him to it as
+    /// it stood.
+    /// </summary>
+    public HeldBossCountdown ThinkingWait { get; } = new();
     /// <summary>
     /// Gets the highest room Y Samus may be pushed to when Kraid's body ejects her: 324 for the small form and 164 once
     /// growth raises the clamp.
@@ -140,35 +143,60 @@ public sealed class KraidEnemyState
     internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
 
     /// <summary>
-    /// Kraid's playing head animation and where it stands; its timer is the body's head countdown. Null until the first
-    /// attack, glow or death installs an animation.
+    /// Kraid's playing head animation and where it stands; <see cref="HeadHold"/> paces it. Null until the first attack, glow
+    /// or death starts an animation.
     /// </summary>
     internal AnimationPlayback<KraidHeadSegment>? HeadPlayback { get; set; }
 
     /// <summary>
+    /// His head's hold on the pose it shows (#2538): each pose the head shows or enters holds for its duration, and the head
+    /// animation plays on to its next pose on the hold's last update. Once an animation has ended the hold has run out and
+    /// holds, so the head keeps its pose until another animation starts. His rise and his closing mouth hold the pose
+    /// without an animation playing (<see cref="HoldHeadUntilRise"/>, <see cref="HoldClosedMouth"/>).
+    /// </summary>
+    internal HeldBossCountdown HeadHold { get; } = new();
+
+    /// <summary>
     /// Starts the head animation that starts at <paramref name="animation"/> (#2399): the head enters its opening pose without
-    /// showing it, and the head timer holds that pose's duration.
+    /// showing it, and holds it for that pose's duration.
     /// </summary>
     internal void StartHeadAnimation(KraidHeadSegment animation) => EnterHead(KraidHeadAnimations.Starting(animation));
 
     /// <summary>
     /// Selects the head animation that starts at <paramref name="animation"/> (#2399): the head stands past its opening pose,
-    /// as starting it leaves it, while the head timer runs on as it is.
+    /// as starting it leaves it, while its hold runs on as it is.
     /// </summary>
     internal void SelectHeadAnimation(KraidHeadSegment animation) => HeadPlayback = KraidHeadAnimations.Starting(animation).Playback;
 
     /// <summary>
     /// Resumes the roar as growth does from <paramref name="resume"/> (#2399): the head enters the resumed pose without
-    /// showing it, and the head timer holds that pose's duration.
+    /// showing it, and holds it for that pose's duration.
     /// </summary>
     internal void ResumeHeadRoar(KraidHeadGrowthResume resume) => EnterHead(KraidHeadAnimations.GrowthResume(resume));
 
-    /// <summary>Stands the head past the pose <paramref name="entry"/> entered, its timer holding that pose's duration.</summary>
+    /// <summary>Stands the head past the pose <paramref name="entry"/> entered, holding that pose for its duration.</summary>
     private void EnterHead(KraidHeadEntry entry)
     {
         HeadPlayback = entry.Playback;
-        BodyState.HeadTimer = entry.Delay;
+        HeadHold.LastFor(entry.Delay);
     }
+
+    /// <summary>Shows the head pose <paramref name="shown"/> his head animation reached, holding it for its duration.</summary>
+    internal void ShowHeadPose(AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
+    {
+        HeadHold.LastFor(shown.Duration);
+        // His body layer shows the pose over his body from here (#1515).
+        DisplayedHeadFrame = shown.Shown;
+    }
+
+    /// <summary>His head holds its pose for <see cref="KraidArenaDefinitions.RiseHeadDelayUpdates"/> as he waits to rise.</summary>
+    internal void HoldHeadUntilRise() => HeadHold.LastFor(KraidArenaDefinitions.RiseHeadDelayUpdates);
+
+    /// <summary>
+    /// His mouth has closed after an attack or a hurt roar: his head holds its pose for
+    /// <see cref="KraidArenaDefinitions.MouthClosedHeadDelayUpdates"/>.
+    /// </summary>
+    internal void HoldClosedMouth() => HeadHold.LastFor(KraidArenaDefinitions.MouthClosedHeadDelayUpdates);
 
     /// <summary>Arms three mouth reopens, whatever number of them was still pending (#1890).</summary>
     internal void ArmMouthReopens() => PendingMouthReopens = ArmedMouthReopens;
@@ -229,6 +257,10 @@ public sealed class KraidEnemyState
         ShowsBodyLayer = true;
     }
 
-    /// <summary>Gets the sinking sound countdown, initially forty-three and reloaded to thirty after each request.</summary>
-    public int DeathSoundTimer { get; internal set; }
+    /// <summary>
+    /// His wait for his sinking body's next rumble (#2538): his sinking starts it for
+    /// <see cref="KraidArenaDefinitions.SinkFirstSoundUpdates"/>, and each rumble, on its last update, starts it again for
+    /// <see cref="KraidArenaDefinitions.SinkSoundIntervalUpdates"/>.
+    /// </summary>
+    public BossCountdown SinkRumbleWait { get; } = new();
 }

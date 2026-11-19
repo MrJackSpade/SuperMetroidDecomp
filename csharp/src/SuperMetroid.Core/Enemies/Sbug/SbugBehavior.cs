@@ -23,17 +23,14 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The leg along the Sbug's spawn heading, which its forward movement takes: its displacement scales the fine
-    /// half-wave of the heading by the placement's speed.
+    /// The leg along the Sbug's spawn heading, which its forward movement takes: the placement's speed along the heading
+    /// (<see cref="EnemyMath.VelocityAlong"/>).
     /// </summary>
     internal static SbugLeg ForwardLeg(RoomEnemyPlace place)
     {
         SbugSpawnSettings settings = Ensure.NotNull(place).SpawnSettings<SbugSpawnSettings>();
-        TrigonometryAngle heading = settings.InitialAngle.ToTrigonometryAngle();
-        return new(
-            CalculateForwardSbugComponent(heading, settings.Speed, phase: TrigonometryAngle.QuarterTurn),
-            CalculateForwardSbugComponent(heading, settings.Speed, phase: TrigonometryAngle.HalfTurn),
-            SbugMovement.FacingOf(settings.InitialAngle));
+        FixedVector<RoomPixels> velocity = EnemyMath.VelocityAlong(settings.InitialAngle.ToTrigonometryAngle(), settings.Speed);
+        return new(velocity.X, velocity.Y, SbugMovement.FacingOf(settings.InitialAngle));
     }
 
     /// <summary>
@@ -132,21 +129,6 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         place.Position = place.Position.WithX(place.Position.X.MovedBy(xVelocity));
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(yVelocity));
-    }
-
-    /// <summary>
-    /// The forward velocity along one axis: the Sbug's whole-pixel speed scaled by the fine half-wave of the angle turned
-    /// by <paramref name="phase"/>, pointing backward along the axis when that turned angle lies in the turn's second
-    /// half.
-    /// </summary>
-    internal static SignedSixteenSixteen CalculateForwardSbugComponent(
-        TrigonometryAngle angle,
-        int speed,
-        TrigonometryAngle phase)
-    {
-        TrigonometryAngle turned = angle + phase;
-        SignedSixteenSixteen magnitude = EnemyMath.UnsignedSineSpeed(turned, speed).AsDisplacement();
-        return turned.IsInSecondHalf ? -magnitude : magnitude;
     }
 
     /// <summary>The side speeds along X and Y: the short circle products of the angle turned a quarter and a half turn on.</summary>

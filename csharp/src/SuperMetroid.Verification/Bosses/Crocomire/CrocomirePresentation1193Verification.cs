@@ -57,7 +57,7 @@ internal static class CrocomirePresentation1193Verification
             "Actual Crocomire room selects native shaking callback");
         if (!spikes)
         {
-            (boss ?? throw new InvalidOperationException("Verification requires boss.")).DeathPhase = CrocomireDeathPhase.RumbleHiddenWall;
+            (boss ?? throw new InvalidOperationException("Verification requires boss.")).DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>();
             boss.Body.Presence = boss.Body.Presence.Without(EnemyPresence.Hidden);
             boss.RumbleOscillation = 0;
             boss.RumbleTowardExtreme = true;
@@ -151,7 +151,7 @@ internal static class CrocomirePresentation1193Verification
             runtime.RoomMains.RunCrocomireComebackRoomMain(boss);
             AssertEqual(100, scroll.ForegroundScroll.Y, "Invisible body suppresses the native room callback");
             boss.Body.Presence = boss.Body.Presence.Without(EnemyPresence.Hidden);
-            boss.DeathPhase = CrocomireDeathPhase.BreakSpikeWall;
+            boss.DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.BreakSpikeWall>();
             death.RumbleYOffset = 0x8080;
             scroll.CalculateLayerScrolls();
             runtime.RoomMains.RunCrocomireComebackRoomMain(boss);

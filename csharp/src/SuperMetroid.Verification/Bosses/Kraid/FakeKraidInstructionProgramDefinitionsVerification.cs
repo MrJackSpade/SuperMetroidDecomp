@@ -104,14 +104,14 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             place.AnimationClock.StepOnNextUpdate();
             state.Walking = walking;
             state.Facing = movingRight ? HorizontalDirection.Right : HorizontalDirection.Left;
-            state.WalkStepTimer = 0x0100;
-            state.SpitDecisionTimer = 0x0100;
+            state.WalkTurnWait.LastFor(0x0100);
+            state.SpitWait.LastFor(0x0100);
 
             RunFrames(enemies, place, samus, level, 60);
 
-            AssertEqual(0x00ff, state.WalkStepTimer,
+            AssertEqual(0x00ff, state.WalkTurnWait.UpdatesLeft,
                 $"Fake Kraid {program} executes its walk callback");
-            AssertEqual(0x00ff, state.SpitDecisionTimer,
+            AssertEqual(0x00ff, state.SpitWait.UpdatesLeft,
                 $"Fake Kraid {program} executes its action callback");
         }
 
@@ -124,8 +124,8 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out FakeKraidEnemyState state);
             state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
-            state.WalkStepTimer = 0x0100;
-            state.SpitDecisionTimer = 0x0100;
+            state.WalkTurnWait.LastFor(0x0100);
+            state.SpitWait.LastFor(0x0100);
 
             RunFrames(enemies, place, samus, level, 60);
 
@@ -139,8 +139,8 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
 
         void ExerciseWalkTimerExpiry(FakeKraidSegment program, bool movingRight, HorizontalDirection walking)
         {
-            // A timer at one reaches zero on the walk callback: the actor reverses without stepping and reloads
-            // seven through ten (seven for the fixture's zero random word).
+            // A walk on its last step turns round on the walk callback without stepping, and starts a walk of seven
+            // through ten steps (seven for the fixture's zero random word).
             RoomEnemySystem enemies = CreateSystem(
                 movingRight,
                 out RoomEnemyPlace place,
@@ -150,18 +150,18 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             place.AnimationClock.StepOnNextUpdate();
             state.Walking = walking;
             state.Facing = movingRight ? HorizontalDirection.Right : HorizontalDirection.Left;
-            state.WalkStepTimer = 1;
-            state.SpitDecisionTimer = UnexpiredSpitDecisions;
+            state.WalkTurnWait.LastFor(1);
+            state.SpitWait.LastFor(UnexpiredSpitDecisions);
             ushort startX = place.Position.X.Whole;
 
             RunFrames(enemies, place, samus, level, 60);
 
             AssertEqual(walking == HorizontalDirection.Right ? HorizontalDirection.Left : HorizontalDirection.Right, state.Walking,
-                $"Fake Kraid {program} reverses when its walk timer reaches zero");
+                $"Fake Kraid {program} turns round on its walk's last step");
             AssertEqual(startX, place.Position.X.Whole,
                 $"Fake Kraid {program} does not step on the reversing callback");
-            AssertEqual(7, state.WalkStepTimer,
-                $"Fake Kraid {program} reloads its walk timer from the random word");
+            AssertEqual(7, state.WalkTurnWait.UpdatesLeft,
+                $"Fake Kraid {program} starts its next walk from the random word");
         }
 
         RoomEnemySystem CreateSystem(

@@ -45,19 +45,22 @@ internal static class CeresExplosionDefinitions
     ];
 
     /// <summary>
-    /// The six repeating small blasts' places around the station, in the order the spawner's animation spawns them, one
-    /// place each (#2489). Each appears on the update after it is spawned. The places stay on screen while the turning
-    /// floor's picture shrinks beneath them.
+    /// The six repeating small blasts' places around the station, each an offset from the turning floor's centre on screen,
+    /// in the order the spawner's animation spawns them, one place each play of its repeating blast (#2489, #2541). The
+    /// places stay on screen while the turning floor's picture shrinks beneath them.
     /// </summary>
-    internal static IReadOnlyList<CeresExplosionPlacement> RepeatingBlasts { get; } =
+    internal static IReadOnlyList<Offset16<ScreenPixels>> RepeatingBlastPlaces { get; } =
     [
-        new(new(14, -8), 1),
-        new(new(8, 12), 1),
-        new(new(-16, 12), 1),
-        new(new(-8, -14), 1),
-        new(new(0, 0), 1),
-        new(new(16, 14), 1),
+        new(14, -8),
+        new(8, 12),
+        new(-16, 12),
+        new(-8, -14),
+        new(0, 0),
+        new(16, 14),
     ];
+
+    /// <summary>The updates before every repeating blast's first picture shows: it appears on the update after it is spawned.</summary>
+    internal const int RepeatingBlastDelayFrames = 1;
 
     /// <summary>
     /// The final wave's four large blasts, in the order they appear: two to the right of the floor's centre, then two to

@@ -13,7 +13,10 @@ internal sealed class EndingFlyawayStarsMotion(EndingStarsMotion? motion) : Endi
     /// <summary>The left starfield's motion: it waits for the flyaway from its spawn on.</summary>
     internal static EndingFlyawayStarsMotion WaitingFromSpawn() => new(EndingStarsMotion.WaitingForFlyaway);
 
-    /// <summary>The right starfield's motion: it waits for the flyaway only once its animation has it wait (<see cref="WaitForFlyaway"/>).</summary>
+    /// <summary>
+    /// The right starfield's motion: it waits for the flyaway only once its animation has it wait
+    /// (<see cref="EndingSceneCue.WaitForFlyaway"/>).
+    /// </summary>
     internal static EndingFlyawayStarsMotion WaitingWhenCued() => new(null);
 
     /// <summary>How the starfield moves with the flyaway, or null while it does not yet wait for it.</summary>
@@ -22,8 +25,11 @@ internal sealed class EndingFlyawayStarsMotion(EndingStarsMotion? motion) : Endi
     /// <summary>The starfield's speed across the screen once the flyaway starts it.</summary>
     private SignedSixteenSixteen velocity;
 
-    /// <summary>Has the starfield wait for the flyaway to carry it away.</summary>
-    internal void WaitForFlyaway() => Motion = EndingStarsMotion.WaitingForFlyaway;
+    /// <summary>Has the starfield wait for the flyaway to carry it away, on the cue its animation raises for it.</summary>
+    /// <exception cref="InvalidOperationException">The cue is not the flyaway's wait.</exception>
+    internal override void TakeCue(EndingSceneCue cue) => Motion = cue == EndingSceneCue.WaitForFlyaway
+        ? EndingStarsMotion.WaitingForFlyaway
+        : throw new InvalidOperationException($"A starfield's motion takes no {cue} cue.");
 
     /// <summary>Starts or continues the starfield's flyaway, then deletes it once the completion text starts.</summary>
     internal override void Step(ICinematicActor<EndingSceneCue> actor, IEndingActorScene scene)

@@ -67,10 +67,7 @@ internal static class BossBodyLayeredPartsVerification
         CrocomireMelting melting = enemies.CrocomireBehavior.Melting;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
-            if (pass == CrocomireMeltingIllustration.Flesh)
-                melting.ShowFirstCrocomireMeltImage(state);
-            else
-                melting.ShowSecondCrocomireMeltImage(state);
+            melting.ShowCrocomireMeltImage(state, pass);
             AssertEqual(1, enemies.Presentation.RequireBossBody().Publish().Frames.Length, $"Crocomire's {pass} melt image replaces what his body showed");
             Compare($"showing his {pass} melt image");
             melting.BeginCrocomireMeltPass(state, pass);

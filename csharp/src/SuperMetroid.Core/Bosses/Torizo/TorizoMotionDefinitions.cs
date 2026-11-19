@@ -8,7 +8,7 @@ internal static class TorizoMotionDefinitions
     /// for it starts below it and gains at most three sixteenths of a pixel an update each update, so it is met within one
     /// pixel of it.
     /// </summary>
-    internal static readonly SignedEightEight RunawaySpeed = SignedEightEight.FromParts(16, 0);
+    internal static readonly SignedEightEight RunawaySpeed = SignedEightEight.FromPixels(16);
 
     /// <summary>
     /// A resting Torizo's fall speed, one pixel an update: its setup, a landing and a walk off a ledge give it this

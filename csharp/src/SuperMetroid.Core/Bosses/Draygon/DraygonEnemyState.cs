@@ -119,8 +119,9 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>
-    /// Phase of the goop pass's vertical bob: zero when a pass starts and one step further each movement update, wrapping around the turn, which the bob depends on. The body's height is 384 plus the cosine
-    /// of this phase times 32.
+    /// Where the goop pass's vertical bob stands: zero when a pass starts and a step further each movement update, round
+    /// and round the turn; his body sways up and down about his swim line by it, as far as
+    /// <see cref="DraygonArenaDefinitions.GoopSwayRadius"/>.
     /// </summary>
     public RotationAngle GoopYOscillationAngle { get; internal set; }
 
@@ -154,8 +155,11 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// </summary>
     public RotationAngle SpiralAngleDelta { get; internal set; }
 
-    /// <summary>Frames left of an incidental 64-frame tail whip.</summary>
-    public int TailWhipTimer { get; internal set; }
+    /// <summary>
+    /// The pause his tail whip makes in his spiral (#2538): it starts on the pause's first update, lasts
+    /// <see cref="DraygonGrabDefinitions.TailWhipUpdates"/>, and his spiral resumes on its last.
+    /// </summary>
+    public BossCountdown TailWhipPause { get; } = new();
 
 
 
@@ -190,8 +194,11 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
         internal set => field = Ensure.BetweenInclusive(0, DraygonIntroDanceDefinitions.DurationFrames, value);
     }
 
-    /// <summary>The updates the dying body waits at its burial point before it sinks, counted down to zero.</summary>
-    public int BurialWait { get; internal set; }
+    /// <summary>
+    /// The dying body's wait at its burial point before it sinks (#2538): reaching the point starts it for
+    /// <see cref="DraygonArenaDefinitions.BurialWaitUpdates"/>, and the body starts sinking on its last update.
+    /// </summary>
+    public BossCountdown BurialWait { get; } = new();
 
     /// <summary>
     /// The swoop path entry whose height the body takes next: it counts down from the path's

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
@@ -30,7 +31,7 @@ internal static class EndingFloorOverflowVerification
         HashSet<EndingCreditsPhase> beforeEscape = [.. Enum.GetValues<EndingCreditsPhase>().TakeWhile(phase => phase != EndingCreditsPhase.PlanetEscapeFast)];
         foreach (EndingCreditsPhase phase in Enum.GetValues<EndingCreditsPhase>())
         {
-            ending.Stage.Phase = phase;
+            PrivateState.Set(ending, nameof(EndingCreditsState.Phase), phase);
             bool repeats = EndingCreditsPresentation.FloorRepeatsBeyondEdges(ending);
             bool expected = beforeEscape.Contains(phase);
             if (repeats != expected)
@@ -47,7 +48,7 @@ internal static class EndingFloorOverflowVerification
     /// <summary>The ending at <paramref name="phase"/>.</summary>
     private static EndingCreditsState PhaseOf(EndingCreditsState ending, EndingCreditsPhase phase)
     {
-        ending.Stage.Phase = phase;
+        PrivateState.Set(ending, nameof(EndingCreditsState.Phase), phase);
         return ending;
     }
 

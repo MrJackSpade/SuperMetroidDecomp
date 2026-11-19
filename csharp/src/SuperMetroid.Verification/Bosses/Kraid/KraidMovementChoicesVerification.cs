@@ -19,7 +19,7 @@ internal static class KraidMovementChoicesVerification
     /// <summary>Compares the selected think delay for every RNG word and position row.</summary>
     private static void VerifyKraidMovementTimers(ushort[] positions,
         Func<ushort, ushort, KraidMovementChoice> expected) =>
-        Suite(nameof(VerifyKraidMovementField), () => VerifyKraidMovementField(positions, expected, value => value.ThinkTimer));
+        Suite(nameof(VerifyKraidMovementField), () => VerifyKraidMovementField(positions, expected, value => value.ThinkUpdates));
 
     /// <summary>Exercises all weighted choices, including the fallback position row.</summary>
     private static void VerifyKraidMovementField(ushort[] positions,
@@ -92,13 +92,13 @@ internal static class KraidMovementChoicesVerification
             {
                 rng = (ushort)(choice * 4);
                 reads = 0;
-                part.ThinkTimer = 1;
+                part.ThinkWait.LastFor(1);
                 foot.AnimationClock.HoldFor(99);
                 var expected = Expected(body.Position.X.Whole, rng);
                 think(body, part);
                 bool right = expected.TargetX >= raw;
                 AssertEqual(expected.TargetX, state.WalkTargetX, "Actual target includes fallback row");
-                AssertEqual(expected.ThinkTimer, part.ThinkTimer, "Actual thinking delay includes weighted final choice");
+                AssertEqual(expected.ThinkUpdates, part.ThinkWait.UpdatesLeft, "Actual thinking delay includes weighted final choice");
                 AssertEqual(KraidFootPhase.SecondPhaseWalking, state.FootState.Phase, "A choice sets the foot walking");
                 AssertEqual(right ? HorizontalDirection.Right : HorizontalDirection.Left, state.FootState.WalkDirection, "He walks right to a target at or right of him, left otherwise (#2165, #2299)");
                 AssertEqual(
@@ -108,13 +108,16 @@ internal static class KraidMovementChoicesVerification
                 AssertEqual(1, foot.AnimationClock.Hold, "Choice restarts animation timer");
                 AssertEqual(1, reads, "Choice reads current RNG once");
             }
-            part.ThinkTimer = raw;
+            // A thinking of no updates is no walk's: every walk's pause is at least one update.
+            if (raw == 0)
+                continue;
+            part.ThinkWait.LastFor(raw);
             reads = 0;
             think(body, part);
             if (raw != 1)
             {
-                AssertEqual(raw - 1, part.ThinkTimer, "Only zero after decrement triggers choice");
-                AssertEqual(0, reads, "Unexpired thinking does not read RNG");
+                AssertEqual(raw - 1, part.ThinkWait.UpdatesLeft, "Only the thinking's last update chooses");
+                AssertEqual(0, reads, "Thinking still running does not read RNG");
             }
         }
         Console.WriteLine("Kraid choices: all indirect native pairs, every RNG word per row, 524288 actual coordinate/choice transitions and all timer words pass bus-free.");

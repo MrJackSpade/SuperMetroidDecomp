@@ -9,6 +9,12 @@ internal static class MotherBrainGlassShardDefinitions
     /// <summary>The random sample's field a shard's launch angle is: a whole turn of 256 steps.</summary>
     internal static readonly RandomSampleField LaunchAngle = new(0, 8);
 
+    /// <summary>A launched shard's sideways speed along its launch angle's sine, in whole pixels an update.</summary>
+    internal const int LaunchAcrossSpeed = 1;
+
+    /// <summary>A launched shard's vertical speed along its launch angle's negative cosine, in whole pixels an update.</summary>
+    internal const int LaunchDownSpeed = 4;
+
     /// <summary>
     /// A launched shard's jitter on each axis, 0 through 15 pixels less <see cref="ShardJitterCentre"/>.
     /// </summary>

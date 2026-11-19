@@ -12,13 +12,15 @@ internal static class KraidRandomDefinitions
     internal const int FakeKraidStartDelayBase = 2;
 
     /// <summary>
-    /// The random part of a Fake Kraid spike row's reload, 0 through 63 updates added to
-    /// <see cref="FakeKraidSpikeReloadBase"/>.
+    /// The random part of a Fake Kraid spike row's clock, 0 through 63 visits added to <see cref="FakeKraidSpikeReloadBase"/>.
     /// </summary>
     internal static readonly RandomSampleField FakeKraidSpikeReloadSpread = new(0, 6);
 
-    /// <summary>The fewest updates a Fake Kraid spike row waits after it fires before it can fire again: sixteen.</summary>
-    internal const int FakeKraidSpikeReloadBase = 16;
+    /// <summary>
+    /// The fewest of its clock's visits from a Fake Kraid spike row's spike to its next, the visit it next spikes on
+    /// included: seventeen.
+    /// </summary>
+    internal const int FakeKraidSpikeReloadBase = 17;
 
     /// <summary>
     /// The random part of how many walk steps Fake Kraid takes before it turns round, 0 through 3 added to
@@ -45,7 +47,7 @@ internal static class KraidRandomDefinitions
     internal static readonly RandomSampleField CeilingRockFallSpeedSpread = new(0, 6);
 
     /// <summary>The slowest a ceiling rock falls in Kraid's room: a quarter pixel an update.</summary>
-    internal static readonly SignedEightEight CeilingRockSlowestFall = SignedEightEight.FromParts(0, 64);
+    internal static readonly SignedEightEight CeilingRockSlowestFall = SignedEightEight.FromSixteenthsOfPixel(4);
 
     /// <summary>
     /// Kraid's thinking delay in steps of <see cref="KraidArenaDefinitions.ThinkingDelayStepUpdates"/>, chosen from eight rolls (#2510): a roll of one through seven takes that

@@ -377,17 +377,17 @@ internal static void VerifyEndingCreditsState()
     var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     var audio = SuperMetroid.Core.Audio.AudioQueues.Standalone();
     var ending = CreateRetailEndingFixture(audio, gameTimeHours: 2, gameTimeMinutes: 59);
-    EndingCreditsPhase previous = ending.Stage.Phase;
+    EndingCreditsPhase previous = ending.Phase;
     var reached = new HashSet<EndingCreditsPhase> { previous };
     int renderedTransitions = 0;
 
-    for (int frame = 0; frame < 60_000 && ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
+    for (int frame = 0; frame < 60_000 && ending.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
     {
         ending.Step();
         audio.AdvanceFrame(default);
-        if (ending.Stage.Phase != previous)
+        if (ending.Phase != previous)
         {
-            previous = ending.Stage.Phase;
+            previous = ending.Phase;
             reached.Add(previous);
             RgbaPixel[] pixels = ending.Render();
             AssertEqual(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels, pixels.Length,
@@ -396,7 +396,7 @@ internal static void VerifyEndingCreditsState()
         }
     }
 
-    AssertEqual(EndingCreditsPhase.SeeYouNextMission, ending.Stage.Phase,
+    AssertEqual(EndingCreditsPhase.SeeYouNextMission, ending.Phase,
         "ending reaches the retail final hold state");
     AssertTrue(reached.Contains(EndingCreditsPhase.ZebesExplosionAnimation),
         "ending executes the sprite-opcode-driven Zebes explosion");

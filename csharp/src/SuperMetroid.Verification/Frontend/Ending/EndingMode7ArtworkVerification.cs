@@ -47,11 +47,11 @@ internal static class EndingMode7ArtworkVerification
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
         var phases = new HashSet<EndingCreditsPhase>();
         for (int frame = 0; frame < 10000 &&
-            native.Stage.Phase != EndingCreditsPhase.ZebesExplosionHold; frame++)
+            native.Phase != EndingCreditsPhase.ZebesExplosionHold; frame++)
         {
-            AssertEqual(native.Stage.Phase, installed.Stage.Phase,
+            AssertEqual(native.Phase, installed.Phase,
                 $"installed ending Mode-7 art preserves phase at frame {frame}");
-            bool first = phases.Add(native.Stage.Phase);
+            bool first = phases.Add(native.Phase);
             if (first || frame % 173 == 0)
             {
                 LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
@@ -70,9 +70,9 @@ internal static class EndingMode7ArtworkVerification
             nativeAudio.AdvanceFrame(default);
             installedAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.ZebesExplosionHold, native.Stage.Phase,
+        AssertEqual(EndingCreditsPhase.ZebesExplosionHold, native.Phase,
             "ending art fixture reaches the explosion's hold");
-        AssertEqual(EndingCreditsPhase.ZebesExplosionHold, installed.Stage.Phase,
+        AssertEqual(EndingCreditsPhase.ZebesExplosionHold, installed.Phase,
             "installed art preserves the explosion's hold");
         AssertTrue(phases.Contains(EndingCreditsPhase.WaitForEscapeMusic) &&
                 phases.Contains(EndingCreditsPhase.FadeInTopAndBottomCloudEscape) &&

@@ -4,6 +4,8 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
@@ -43,7 +45,8 @@ internal static class PhantoonPositionVerification
             var state = boundary.Enemies.BossEncounters.Phantoon;
             PhantoonEnemyState boundaryState = state ?? throw new InvalidOperationException("Verification requires state.");
             boundaryState.Phase = PhantoonPhase.MoveInFigureEightThenOpenEye;
-            boundaryState.Round.EyeClosedTimer = timer;
+            // The cartridge's count from which the eye opens on this update, or below that, on its next update.
+            PrivateState.Set(boundaryState.Round.EyeClosedWait, nameof(BossCountdown.Count), timer - 1);
             boundary.StepFrame(0);
             AssertEqual(timer == 2 ? PhantoonPhase.MoveInFigureEightThenOpenEye : PhantoonPhase.WaitingOnEye,
                 boundaryState.Phase, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
@@ -54,7 +57,7 @@ internal static class PhantoonPositionVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);
         PhantoonEnemyState loaded = runtime.Enemies.BossEncounters.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.Phantoon.");
-        AssertEqual(120, loaded.PhaseTimer,
+        AssertEqual(120, loaded.PhaseWait.UpdatesLeft,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
         var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(40, 184));

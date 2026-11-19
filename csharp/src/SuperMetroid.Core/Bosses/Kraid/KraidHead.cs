@@ -16,7 +16,7 @@ internal sealed class KraidHead
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     private readonly KraidParts _parts;
-    /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's state and part lookups, part animations, phase waits, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;
@@ -87,7 +87,7 @@ internal sealed class KraidHead
     {
         state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
         _parts.PlaceLintsAtBodyHeights(body);
-        state.ThinkingTimer = ReadKraidThinkingTimer();
+        state.ThinkingWait.LastFor(ChooseKraidThinkingUpdates());
     }
 
     /// <summary>Advances the open-mouth attack and its head animation timing.</summary>
@@ -96,7 +96,7 @@ internal sealed class KraidHead
         if (AdvanceKraidHeadAnimation(state) == KraidHeadAnimationResult.AnimationEnded)
         {
             SetupKraidFirstPhaseThinking(body, state);
-            state.BodyState.HeadTimer = KraidArenaDefinitions.MouthClosedHeadDelayUpdates;
+            state.HoldClosedMouth();
 
             // A hit on his mouth or body marks a reopen: the closing mouth then spends one pending reopen and, while any
             // remain, waits to glow his eye again; otherwise every mark is forgotten.
@@ -106,7 +106,7 @@ internal sealed class KraidHead
                 if (state.PendingMouthReopens != 0)
                 {
                     state.BodyState.FightPhase = KraidFightPhase.WaitBeforeEyeGlow;
-                    state.BodyState.PhaseTimer = KraidArenaDefinitions.EyeGlowDelayUpdates;
+                    state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.EyeGlowDelayUpdates);
                     return;
                 }
             }
@@ -114,10 +114,10 @@ internal sealed class KraidHead
             return;
         }
 
-        // The open mouth stays shown for 64 frames. Kraid spits a rock on
-        // every sixteenth timer value, including the entry frame after the open-mouth setup reloads it.
+        // Kraid spits a rock on every sixteenth update left of the open mouth's hold, including the update the open mouth
+        // shows and starts it.
         if (state.DisplayedHeadFrame == KraidHeadFrame.Open &&
-            KraidCadenceDefinitions.SpitRockEverySixteenthMouthUpdate.IsDue(state.BodyState.HeadTimer))
+            KraidCadenceDefinitions.SpitRockEverySixteenthMouthUpdate.IsDue(state.HeadHold.UpdatesLeft))
         {
             SpawnKraidSpitRock(body);
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
@@ -125,20 +125,15 @@ internal sealed class KraidHead
     }
 
     /// <summary>
-    /// Counts the displayed head frame down and runs the head animation on when it expires. A cleared timer holds the
-    /// head, as does a timer still counting; a timer reaching zero gives the animation's result.
+    /// Steps the head's hold on its pose and plays the head animation on when the hold runs out on this update, giving the
+    /// animation's result; a hold still running, or one that has run out before, keeps the pose.
     /// </summary>
-    internal KraidHeadAnimationResult AdvanceKraidHeadAnimation(KraidEnemyState state)
-    {
-        KraidBodyState part = state.BodyState;
-        if (part.HeadTimer == 0)
-            return KraidHeadAnimationResult.PoseHeld;
-        return --part.HeadTimer == 0 ? RunKraidHeadAnimationStep(state) : KraidHeadAnimationResult.PoseHeld;
-    }
+    internal KraidHeadAnimationResult AdvanceKraidHeadAnimation(KraidEnemyState state) =>
+        state.HeadHold.StepRunsOut() ? RunKraidHeadAnimationStep(state) : KraidHeadAnimationResult.PoseHeld;
 
     /// <summary>
-    /// Plays Kraid's head animation to its next pose: cries on the way are announced, and a pose installs its duration as
-    /// the head timer and shows its image; at its segment's end the animation holds there.
+    /// Plays Kraid's head animation to its next pose: cries on the way are announced, and the head shows the pose and holds
+    /// it for its duration; at its segment's end the animation holds there.
     /// </summary>
     internal KraidHeadAnimationResult RunKraidHeadAnimationStep(KraidEnemyState state)
     {
@@ -154,9 +149,7 @@ internal sealed class KraidHead
                 return KraidHeadAnimationResult.AnimationEnded;
 
             case AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown:
-                state.BodyState.HeadTimer = shown.Duration;
-                // His body layer shows the pose over his body from here (#1515).
-                state.DisplayedHeadFrame = shown.Shown;
+                state.ShowHeadPose(shown);
                 return KraidHeadAnimationResult.PoseShown;
 
             case AnimationShown<KraidHeadSegment, KraidHeadFrame>.Paused or AnimationShown<KraidHeadSegment, KraidHeadFrame>.Ended:
@@ -191,14 +184,14 @@ internal sealed class KraidHead
         if (AdvanceKraidHeadAnimation(state) != KraidHeadAnimationResult.AnimationEnded)
             return;
         state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
-        state.BodyState.HeadTimer = KraidArenaDefinitions.MouthClosedHeadDelayUpdates;
+        state.HoldClosedMouth();
         if (state.MouthReopenPending)
         {
             state.RemoveOneMouthReopen();
             if (state.PendingMouthReopens != 0)
             {
                 state.BodyState.FightPhase = KraidFightPhase.WaitBeforeEyeGlow;
-                state.BodyState.PhaseTimer = KraidArenaDefinitions.EyeGlowDelayUpdates;
+                state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.EyeGlowDelayUpdates);
                 return;
             }
         }
@@ -254,6 +247,6 @@ internal sealed class KraidHead
     }
 
     /// <summary>Derives a thinking delay of one or more 64-update steps from the room RNG; a roll of none takes two.</summary>
-    internal int ReadKraidThinkingTimer() =>
+    internal int ChooseKraidThinkingUpdates() =>
         KraidRandomDefinitions.ThinkingDelaySteps.Choose(_room.Random.Read()) * KraidArenaDefinitions.ThinkingDelayStepUpdates;
 }

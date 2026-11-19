@@ -6,7 +6,7 @@ public enum KraidFootPhase
     /// <summary>The foot rests, doing nothing on its turn: between its walks and once Kraid grows or dies (#1870).</summary>
     Resting,
     /// <summary>
-    /// The first-phase foot thinks while its phase timer runs, then prepares its lunge
+    /// The first-phase foot thinks while its phase wait runs, then prepares its lunge
     /// (<see cref="PrepareFirstPhaseLunge"/>).
     /// </summary>
     FirstPhaseThinking,
@@ -14,14 +14,14 @@ public enum KraidFootPhase
     PrepareFirstPhaseLunge,
     /// <summary>Advances the first-phase forward lunge before retreat.</summary>
     FirstPhaseLunge,
-    /// <summary>Waits out the foot's phase timer after the lunge, then retreats (<see cref="FirstPhaseRetreat"/>).</summary>
+    /// <summary>Runs the foot's phase wait after the lunge, then retreats (<see cref="FirstPhaseRetreat"/>).</summary>
     WaitBeforeRetreat,
     /// <summary>Retreats from the first-phase lunge and restores the foot's thinking cycle.</summary>
     FirstPhaseRetreat,
     /// <summary>Walks to the second-phase starting point before its setup delay.</summary>
     SecondPhaseWalkToStart,
     /// <summary>
-    /// Waits out the foot's phase timer at the second-phase starting point, then sets its thinking up
+    /// Runs the foot's phase wait at the second-phase starting point, then sets its thinking up
     /// (<see cref="SecondPhaseInitialize"/>).
     /// </summary>
     WaitBeforeSecondPhase,

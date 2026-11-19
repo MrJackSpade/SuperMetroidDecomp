@@ -52,15 +52,11 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session) : IG
     /// <summary>One update of the escaped destruction, which loads the Zebes landing once finished.</summary>
     private void StepEscaped(ControllerButton controllerInput)
     {
-        // Each update begins a frame. A gameplay owner kept from Ceres
-        // counts it on the frame clock and latches input; without one the frontend counted it.
-        session.Runtime?.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        // Without a gameplay owner no loaded game has selected Japanese text, and the game shows English text.
-        CeresDestructionCinematicState destruction = session.ScreenAs<CeresDestructionCinematicState>() ??
-            session.Show(new CeresDestructionCinematicState(
-                session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
-                session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,
-                CeresDestructionOutcome.SamusEscaped, japaneseText: session.Runtime?.JapaneseText == true));
+        // Each update begins a frame on the gameplay runtime's frame clock, which latches its input (#2541): both ways in,
+        // the elevator's departure from Ceres and a saved game resumed at the destruction, show the cinematic with a
+        // runtime loaded.
+        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        CeresDestructionCinematicState destruction = session.ActiveCeresDestruction;
         destruction.Step();
         session.display.PublishCeresDestruction(destruction);
         if (destruction.Finished)

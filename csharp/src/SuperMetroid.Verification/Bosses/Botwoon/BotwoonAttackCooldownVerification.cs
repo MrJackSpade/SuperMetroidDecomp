@@ -58,6 +58,26 @@ internal static class BotwoonAttackCooldownVerification
     }
 
     /// <summary>
+    /// #2538: Botwoon waits in his hole <see cref="BotwoonFightDefinitions.OpeningDelay"/>, 256 updates, as the game
+    /// counted 256 down to zero, and chooses his first action on the update after.
+    /// </summary>
+    internal static void VerifyBotwoonOpeningWait()
+    {
+        (RoomEnemySystem enemies, RoomEnemyPlace head, BotwoonEnemyState state) = NewBotwoon();
+        AssertEqual(256, BotwoonFightDefinitions.OpeningDelay, "the opening wait lasts the 256 updates the game counted");
+        AssertEqual(BotwoonPhase.InitialDelay, state.Phase, "the fight starts in its opening wait");
+        state.OpeningWait.LastFor(BotwoonFightDefinitions.OpeningDelay);
+        for (int update = 1; update < BotwoonFightDefinitions.OpeningDelay; update++)
+        {
+            enemies.BotwoonBehavior.RunBotwoonMainAi(head, Frame());
+            AssertEqual(BotwoonPhase.InitialDelay, state.Phase, $"Botwoon still waits in his hole on update {update}");
+        }
+        enemies.BotwoonBehavior.RunBotwoonMainAi(head, Frame());
+        AssertEqual(BotwoonPhase.ChooseNextAction, state.Phase, "the opening wait runs out on its 256th update");
+        Console.WriteLine("  Botwoon opening wait: 256 updates in his hole, then he chooses his first action.");
+    }
+
+    /// <summary>
     /// #2267: once his tail has finished entering the wall after the fatal hit, Botwoon waits sixteen updates, that update
     /// included, and his head falls from the next: the game counted 240 up to 256 from that update.
     /// </summary>
@@ -132,6 +152,7 @@ internal static class BotwoonAttackCooldownVerification
         Suite(nameof(VerifyBotwoonAttackCooldown), () => VerifyBotwoonAttackCooldown());
         Suite(nameof(VerifyBotwoonPreFallWait), () => VerifyBotwoonPreFallWait());
         Suite(nameof(VerifyBotwoonSegmentFallWait), () => VerifyBotwoonSegmentFallWait());
+        Suite(nameof(VerifyBotwoonOpeningWait), () => VerifyBotwoonOpeningWait());
         return 0;
     }
 }

@@ -12,7 +12,7 @@ public enum KraidFightPhase
     /// <summary>Handles the shot/open-mouth reaction and pending mouth-reopen count.</summary>
     MouthOpenReaction,
     /// <summary>
-    /// Waits the body's phase timer before another mouth opening, then glows the eye (<see cref="InitializeEyeGlow"/>).
+    /// Runs the body's phase wait before another mouth opening, then glows the eye (<see cref="InitializeEyeGlow"/>).
     /// </summary>
     WaitBeforeEyeGlow,
     /// <summary>Initializes the collision-driven eye glow before another mouth opening.</summary>
@@ -22,7 +22,7 @@ public enum KraidFightPhase
     /// <summary>Restores the eye colours after its glow sequence.</summary>
     UnglowEye,
     /// <summary>
-    /// Processes Kraid's head animation while the body's phase timer runs, then grows him
+    /// Processes Kraid's head animation while the body's phase wait runs, then grows him
     /// (<see cref="KraidGrowthPhase.ReleaseCamera"/>).
     /// </summary>
     HeadAnimationBeforeGrowth,

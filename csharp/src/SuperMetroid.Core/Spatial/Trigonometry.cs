@@ -91,7 +91,7 @@ public static class Trigonometry
     /// <summary>The game's coarse half-wave, the sine in 256ths of its peak over the first half turn:
     /// min(255, floor(256*sin(step*pi/128))) for <paramref name="step"/> 256ths of a turn, 0..127.</summary>
     /// <remarks>
-    /// All 128 of the game's values match.
+    /// Each of the half turn's 128 steps gives the game's own value.
     /// Scale 256 before truncation; only the exact quarter-turn saturates to 255.
     /// A step outside the half turn throws ArgumentOutOfRangeException.
     /// Sign, radius truncation and separate whole/fraction negation belong to the motion that uses the wave.
@@ -105,7 +105,7 @@ public static class Trigonometry
     /// <summary>The game's unsigned half-wave, the sine in 65535ths of its peak over the first half turn:
     /// floor(65535*sin(step*pi/128)) for <paramref name="step"/> 256ths of a turn, 0..127.</summary>
     /// <remarks>
-    /// All 128 of the game's values match.
+    /// Each of the half turn's 128 steps gives the game's own value.
     /// Scale 65535, not saturated 65536; preserve quantization
     /// before multiplication and before <see cref="FineSignedSine"/>'s halving and sign.
     /// A step outside the half turn throws ArgumentOutOfRangeException.

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Tooling;
@@ -546,8 +547,11 @@ internal static class SaveSchemaTranslationVerification
         // The game binds the installed sheets with the ending, which draws its stars from them.
         var ending = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, Inventory = default, JapaneseText = false, CrittersEscaped = false },
             text.Typewriter(), InstalledFixtures.EndingBackdrops, InstalledFixtures.SpriteSheets);
-        ending.Stage.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
-        ending.Stage.PhaseTimer = 1;
+        // The ending stands on the item percentage's last move-down update, below the final logo.
+        _ = ending.CreditsRoll.StartItemPercentage();
+        PrivateState.Set(ending, nameof(EndingCreditsState.Scene), new EndingLogoScene(new EndingLogo(ending.Stage, () => { })));
+        PrivateState.Set(ending, nameof(EndingCreditsState.Phase), EndingCreditsPhase.ItemPercentageScrollDown);
+        PrivateState.Set(ending, nameof(EndingCreditsState.PhaseHold), UpdateCountdown.Lasting(1));
         frontend.Session.Show(ending);
         frontend.Session.Enter(EndingStep.Credits);
         int writes = 0;

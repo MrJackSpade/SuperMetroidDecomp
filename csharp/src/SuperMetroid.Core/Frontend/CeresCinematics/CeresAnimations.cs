@@ -87,10 +87,11 @@ internal static class CeresAnimations
         });
 
     /// <summary>
-    /// The invisible explosion spawner's animation (#2489), which the destruction's setup starts: after its opening wait it
-    /// spawns the first wave; after a longer wait it spawns the first repeating blast, on the first update of the stretch
-    /// before the final wave, and five more, at the regular beat between them; a short beat after the sixth it spawns the
-    /// final wave and ends.
+    /// The invisible explosion spawner's animation (#2489, #2541), which the destruction's setup starts: after its opening
+    /// wait it spawns the first wave; after a longer wait it plays its repeating blast once for each repeating blast's place
+    /// (<see cref="CeresExplosionDefinitions.RepeatingBlastPlaces"/>), each a short wait and then the next repeating blast,
+    /// so the first spawns on the first update of the stretch before the final wave; a short beat after the last it spawns
+    /// the final wave and ends.
     /// </summary>
     internal static CinematicAnimations<CeresAnimation, CinematicSpritePose, CeresExplosionSpawnerCue> ExplosionSpawner { get; } = new(
         new Dictionary<CeresAnimation, AnimationBeat<CinematicSpritePose, CeresExplosionSpawnerCue>[]>
@@ -99,25 +100,27 @@ internal static class CeresAnimations
             [
                 W.Show(S.Blank, 128),
                 W.Raise(CeresExplosionSpawnerCue.SpawnInitialWave),
-                W.Show(S.Blank, 81),
-                W.Raise(CeresExplosionSpawnerCue.SpawnRepeatingBlast),
+                W.Show(S.Blank, 69),
+            ],
+            [A.ExplosionSpawnerRepeatingBlast] =
+            [
                 W.Show(S.Blank, 12),
                 W.Raise(CeresExplosionSpawnerCue.SpawnRepeatingBlast),
-                W.Show(S.Blank, 12),
-                W.Raise(CeresExplosionSpawnerCue.SpawnRepeatingBlast),
-                W.Show(S.Blank, 12),
-                W.Raise(CeresExplosionSpawnerCue.SpawnRepeatingBlast),
-                W.Show(S.Blank, 12),
-                W.Raise(CeresExplosionSpawnerCue.SpawnRepeatingBlast),
-                W.Show(S.Blank, 12),
-                W.Raise(CeresExplosionSpawnerCue.SpawnRepeatingBlast),
+            ],
+            [A.ExplosionSpawnerFinalWave] =
+            [
                 W.Show(S.Blank, 3),
                 W.Raise(CeresExplosionSpawnerCue.SpawnFinalWave),
             ],
         },
         plays => new Dictionary<CeresAnimation, Animation<CeresAnimation>>
         {
-            [A.ExplosionSpawner] = plays.Through(A.ExplosionSpawner, AnimationEnd.Stops),
+            [A.ExplosionSpawner] = new(
+            [
+                plays.Whole(A.ExplosionSpawner),
+                plays.Repeated(A.ExplosionSpawnerRepeatingBlast, CeresExplosionDefinitions.RepeatingBlastPlaces.Count),
+                plays.Whole(A.ExplosionSpawnerFinalWave),
+            ], AnimationEnd.Stops),
         });
 
     /// <summary>A small explosion burning through its six pictures, three updates each.</summary>

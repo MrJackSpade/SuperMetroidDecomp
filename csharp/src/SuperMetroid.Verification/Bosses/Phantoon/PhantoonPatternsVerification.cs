@@ -33,7 +33,7 @@ internal static class PhantoonPatternsVerification
             var eye = enemies.Places.InUpdateOrder[1];
             var state = new PhantoonEnemyState(body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
             enemies.BeginPhantoonAsSetUp(state);
-            state.PhaseTimer = 1;
+            state.PhaseWait.LastFor(1);
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
             new Action<RoomEnemyPlace, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathPlace.Place, "Real rain cursor handoff");
@@ -88,11 +88,11 @@ internal static class PhantoonPatternsVerification
             shotBody.Health = 1000;
             shotBody.AiStates = EnemyAiStates.Hurt;
             shotState.Phase = PhantoonPhase.EyeTracksSamus;
-            shotState.PhaseTimer = 60;
+            shotState.PhaseWait.LastFor(60);
             shotState.Swoop.Requested = false;
             shotState.Round.Damage = 0;
             shot(shotBody, shotState, 0x100, 1);
-            AssertEqual(16, shotState.PhaseTimer, "Real shot window shortening preserved");
+            AssertEqual(16, shotState.PhaseWait.UpdatesLeft, "Real shot window shortening preserved");
             AssertEqual(raw + 1, shotCalls, "Shot consumes exactly one RNG call");
         }
         Console.WriteLine("Phantoon patterns: 41 native record/eye words, 8 bytes, all eight real eye octants, 2048 rain handoffs and 65536 bus-free shot reactions match.");

@@ -93,8 +93,8 @@ internal sealed class KraidRise
         body.Position = body.Position.WithWhole(KraidArenaDefinitions.RiseStart);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.BodyState.RisePhase = KraidRisePhase.RestrictSamusToFirstScreen;
-        state.BodyState.PhaseTimer = KraidArenaDefinitions.RiseWaitUpdates;
-        state.BodyState.HeadTimer = KraidArenaDefinitions.RiseHeadDelayUpdates;
+        state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.RiseWaitUpdates);
+        state.HoldHeadUntilRise();
 
         // The rocks' colours are the import's shade of them (#1512); his eyes start from his band's colours.
         state.Colours.ShowBandEyes(_head.BandEyes(KraidHead.InitialBand(body, state)));
@@ -133,7 +133,7 @@ internal sealed class KraidRise
     {
         state.BodyState.FightPhase = KraidFightPhase.SecondPhaseThinking;
         _parts.PlaceLintsAtBodyHeights(body);
-        state.ThinkingTimer = _head.ReadKraidThinkingTimer();
+        state.ThinkingWait.LastFor(_head.ChooseKraidThinkingUpdates());
     }
 
     /// <summary>Runs the current stage of Kraid's growth: his rise, the camera, his body and his colours.</summary>
@@ -207,7 +207,7 @@ internal sealed class KraidRise
         foreach (KraidLintPart part in Enum.GetValues<KraidLintPart>())
         {
             KraidLintState lintState = state.Lint(part);
-            lintState.PhaseTimer = KraidLints.InitialDelay(part);
+            lintState.PhaseWait.LastFor(KraidLints.InitialDelay(part));
             lintState.Phase = KraidLintPhase.AlignToKraidBeforeProducing;
             lintState.LintTravel = 0;
         }
@@ -216,7 +216,7 @@ internal sealed class KraidRise
         foreach (KraidNailState nailState in state.Nails)
         {
             nailState.Phase = KraidNailPhase.WaitBeforeLaunch;
-            nailState.PhaseTimer = nailDelay;
+            nailState.PhaseWait.LastFor(nailDelay);
             nailDelay += KraidArenaDefinitions.NailLaunchDelayUpdates;
         }
         state.SelectHeadAnimation(KraidHeadSegment.Roar);
@@ -258,7 +258,7 @@ internal sealed class KraidRise
         {
             case KraidRisePhase.RestrictSamusToFirstScreen:
                 RestrictSamusToKraidFirstScreen(samus);
-                if (state.BodyState.CountPhaseTimerDown())
+                if (state.BodyState.PhaseWait.StepRunsOut())
                     state.BodyState.RisePhase = KraidRisePhase.ShowBody;
                 return;
 
@@ -272,19 +272,19 @@ internal sealed class KraidRise
             case KraidRisePhase.StartQuakeAndMusic:
                 RestrictSamusToKraidFirstScreen(samus);
                 state.BodyState.RisePhase = KraidRisePhase.RocksEvery16Frames;
-                state.BodyState.RisingRockTimer = KraidArenaDefinitions.RiseSlowRocksUpdates;
+                state.BodyState.RisingRocksWait.LastFor(KraidArenaDefinitions.RiseSlowRocksUpdates);
                 _earthquake.RunFor(KraidArenaDefinitions.RiseShakeUpdates);
                 _access.RequestKraidMusic(MusicRequest.SelectTrack(MusicTrack.KraidAndPhantoonBattle));
                 return;
 
             case KraidRisePhase.RocksEvery16Frames:
                 RestrictSamusToKraidFirstScreen(samus);
-                if (--state.BodyState.RisingRockTimer == 0)
+                if (state.BodyState.RisingRocksWait.StepRunsOut())
                 {
                     state.BodyState.RisePhase = KraidRisePhase.RocksEvery8Frames;
-                    state.BodyState.RisingRockTimer = KraidArenaDefinitions.RiseFastRocksUpdates;
+                    state.BodyState.RisingRocksWait.LastFor(KraidArenaDefinitions.RiseFastRocksUpdates);
                 }
-                else if (KraidCadenceDefinitions.FirstRiseRockEverySixteenthUpdate.IsDue(state.BodyState.RisingRockTimer))
+                else if (KraidCadenceDefinitions.FirstRiseRockEverySixteenthUpdate.IsDue(state.BodyState.RisingRocksWait.UpdatesLeft))
                 {
                     RequestKraidRisingRock(body);
                 }
@@ -292,11 +292,11 @@ internal sealed class KraidRise
 
             case KraidRisePhase.RocksEvery8Frames:
                 RestrictSamusToKraidFirstScreen(samus);
-                if (--state.BodyState.RisingRockTimer == 0)
+                if (state.BodyState.RisingRocksWait.StepRunsOut())
                 {
                     state.BodyState.RisePhase = KraidRisePhase.RaiseBody;
                 }
-                else if (KraidCadenceDefinitions.FasterRiseRockEveryEighthUpdate.IsDue(state.BodyState.RisingRockTimer))
+                else if (KraidCadenceDefinitions.FasterRiseRockEveryEighthUpdate.IsDue(state.BodyState.RisingRocksWait.UpdatesLeft))
                 {
                     RequestKraidRisingRock(body);
                 }
@@ -314,14 +314,14 @@ internal sealed class KraidRise
                 {
                     body.Position = body.Position.WithWholeX(KraidArenaDefinitions.FirstPhaseX);
                     // The rise's last update goes on into the fight: it enters the thinking phase,
-                    // seeds the random thinking timer and selects the roar animation for the first attack.
+                    // starts its random thinking and selects the roar animation for the first attack.
                     state.SelectHeadAnimation(KraidHeadSegment.Roar);
                     _head.SetupKraidFirstPhaseThinking(body, state);
 
                     // The foot owns first-phase lunges independently of the body thinker.
                     // Its lunge delay starts on the exact rise-completion frame.
                     state.FootState.Phase = KraidFootPhase.FirstPhaseThinking;
-                    state.FootState.PhaseTimer = KraidArenaDefinitions.LungeDelayUpdates;
+                    state.FootState.PhaseWait.LastFor(KraidArenaDefinitions.LungeDelayUpdates);
                     state.ArmState.StartAnimation(KraidPartSegment.ArmNormal);
                 }
                 return;

@@ -9,6 +9,6 @@ internal sealed class EnemyAttractDemoHooks(KraidBehavior kraid) : IEnemyAttract
 {
     /// <inheritdoc/>
     /// <remarks>The demo reaches the encounter Kraid's body began through his parts, whose body holds it (#2218).</remarks>
-    public void SetKraidPhaseTimer(int frames) =>
-        kraid.Parts.Encounter.BodyState.PhaseTimer = frames;
+    public void StartKraidPhaseWait(int updates) =>
+        kraid.Parts.Encounter.BodyState.PhaseWait.LastFor(updates);
 }

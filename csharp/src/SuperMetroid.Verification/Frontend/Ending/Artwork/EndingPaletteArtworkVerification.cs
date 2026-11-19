@@ -159,11 +159,11 @@ internal static class EndingPaletteArtworkVerification
             "ending ROM guard rejects an otherwise valid non-palette cartridge source");
         var reached = new HashSet<EndingCreditsPhase>();
         for (int frame = 0; frame < 60_000 &&
-            nativeState.Stage.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
+            nativeState.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
         {
-            AssertEqual(nativeState.Stage.Phase, installedState.Stage.Phase,
+            AssertEqual(nativeState.Phase, installedState.Phase,
                 $"installed ending backdrops preserve phase at frame {frame}");
-            bool first = reached.Add(nativeState.Stage.Phase);
+            bool first = reached.Add(nativeState.Phase);
             if (first || frame % 173 == 0)
             {
                 LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeState);
@@ -182,9 +182,9 @@ internal static class EndingPaletteArtworkVerification
             nativeAudio.AdvanceFrame(default);
             installedAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.SeeYouNextMission, nativeState.Stage.Phase,
+        AssertEqual(EndingCreditsPhase.SeeYouNextMission, nativeState.Phase,
             "native ending reaches final hold in palette parity fixture");
-        AssertEqual(nativeState.Stage.Phase, installedState.Stage.Phase,
+        AssertEqual(nativeState.Phase, installedState.Phase,
             "installed ending reaches the same final hold");
         rejectAllCartridgeReads = false;
         foreach (EndingCreditsPhase phase in new[]

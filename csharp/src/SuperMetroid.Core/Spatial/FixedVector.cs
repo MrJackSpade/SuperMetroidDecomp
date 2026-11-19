@@ -13,7 +13,7 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
     /// <summary>No displacement.</summary>
     public static FixedVector<TSpace> Zero => default;
 
-    /// <summary>A whole-pixel displacement with zero fractions.</summary>
+    /// <summary>A displacement of whole pixels only.</summary>
     public static FixedVector<TSpace> FromWholePixels(Offset16<TSpace> offset) =>
         new(SignedSixteenSixteen.FromParts(offset.X, 0), SignedSixteenSixteen.FromParts(offset.Y, 0));
 
@@ -50,6 +50,9 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
     /// <summary>Subtracts whole pixels from each axis, wrapping each axis's whole pixels at 65536; fractions are unchanged.</summary>
     public static FixedVector<TSpace> operator -(FixedVector<TSpace> vector, Offset16<TSpace> wholePixels) =>
         vector - FromWholePixels(wholePixels);
+
+    /// <summary>The displacement reversed: each axis's whole pixels and fraction reversed together.</summary>
+    public static FixedVector<TSpace> operator -(FixedVector<TSpace> vector) => new(-vector.X, -vector.Y);
 
     /// <summary>Subtracts two displacements, fractions included, wrapping each axis at 65536 whole pixels.</summary>
     public static FixedVector<TSpace> operator -(FixedVector<TSpace> left, FixedVector<TSpace> right) =>

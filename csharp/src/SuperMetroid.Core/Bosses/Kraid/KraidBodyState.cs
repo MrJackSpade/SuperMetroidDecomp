@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's body's own state beside what every part holds: the stage he is in and the phase of it he runs, his
-/// head-animation timer, his growth's next ceiling rock and the rising-rock timer of his rise through the floor.
+/// Kraid's body's own state beside what every part holds: the stage he is in and the phase of it he runs, his growth's
+/// next ceiling rock and the rocks' wait of his rise through the floor.
 /// </summary>
 [ArchitectureReview("back-reference", "A part of Kraid's encounter (#2218): the encounter owns this part's state for the room and the part reads the encounter it joined at setup, so the two share one lifetime.")]
 public sealed class KraidBodyState : KraidPartState
@@ -89,11 +89,12 @@ public sealed class KraidBodyState : KraidPartState
     /// </summary>
     public ListStep<KraidCeilingRock>? NextCeilingRock { get; internal set; } = ListStep<KraidCeilingRock>.FirstOf(KraidCeilingRockDefinitions.Rocks);
 
-    /// <summary>The updates left in the body's current rising-rock phase; a rock falls at each multiple of its cadence.</summary>
-    public int RisingRockTimer { get; internal set; }
-
-    /// <summary>The body's head-animation timer.</summary>
-    public int HeadTimer { get; internal set; }
+    /// <summary>
+    /// The wait of the rise's current rock phase (#2538): <see cref="KraidArenaDefinitions.RiseSlowRocksUpdates"/>, then
+    /// <see cref="KraidArenaDefinitions.RiseFastRocksUpdates"/>; each phase moves on on its last update, and throws up a
+    /// rock on the updates its cadence finds in the updates left.
+    /// </summary>
+    public BossCountdown RisingRocksWait { get; } = new();
 
     /// <summary>The failure of reading a stage's phase while the body is in another.</summary>
     private InvalidOperationException NotIn(KraidBodyStage stage) =>

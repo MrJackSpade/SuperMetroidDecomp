@@ -20,7 +20,7 @@ internal sealed class PhantoonDeath
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Handles Phantoon's damage, death, and flame drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and phase timer, shared by every phase of the fight.</summary>
+    /// <summary>Phantoon's fades, health colors, wave amplitude and animations, shared by every phase of the fight.</summary>
     private readonly PhantoonPresentation _phantoonPresentation;
     /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>
     private readonly PhantoonPatterns _patterns;
@@ -74,7 +74,7 @@ internal sealed class PhantoonDeath
             return;
 
         state.Phase = PhantoonPhase.DyingExplosions;
-        state.PhaseTimer = PhantoonArenaDefinitions.FirstDyingExplosionUpdates;
+        state.PhaseWait.LastFor(PhantoonArenaDefinitions.FirstDyingExplosionUpdates);
         state.Death.NextExplosion = PhantoonDeathExplosions.First;
         state.Death.ExplosionPasses = 0;
     }
@@ -84,11 +84,11 @@ internal sealed class PhantoonDeath
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
+        if (!state.PhaseWait.StepRunsOut())
             return;
 
         PhantoonDeathExplosionDefinition explosion = state.Death.NextExplosion.Entry;
-        state.PhaseTimer = explosion.Delay;
+        state.PhaseWait.LastFor(explosion.Delay);
         Position16<RoomPixels> position = body.Position.Whole + explosion.Offset;
 
         _projectiles.SpawnDustOrExplosion(position, explosion.Type);
@@ -175,7 +175,7 @@ internal sealed class PhantoonDeath
         state.Translucent = false;
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.HideForGood;
         state.Phase = PhantoonPhase.Dead;
-        state.PhaseTimer = PhantoonArenaDefinitions.PowerReturnDelayUpdates;
+        state.PhaseWait.LastFor(PhantoonArenaDefinitions.PowerReturnDelayUpdates);
         state.BodyFade.Complete = false;
 
         _presentation.RequireBossBody().Clear();
@@ -187,11 +187,8 @@ internal sealed class PhantoonDeath
         PhantoonEnemyState state,
         SamusState samus)
     {
-        if (state.PhaseTimer != 0)
-        {
-            state.PhaseTimer--;
+        if (state.PhaseWait.StepKeepsRunning())
             return;
-        }
         if (!PhantoonCadenceDefinitions.PowerReturnStepEveryFourthUpdate.IsDue(_frameContext.FrameCounter))
             return;
 

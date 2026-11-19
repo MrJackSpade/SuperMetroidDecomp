@@ -30,14 +30,16 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
 
     /// <summary>Preserves controller edges across the box's own controller reads.</summary>
     private readonly ControllerInputState _controller = new();
-    /// <summary>Radius to publish on the next opening frame, after the current frame's window is drawn.</summary>
-    private int _nextOpeningRadiusPixels;
-    /// <summary>Radius to publish on the next closing frame.</summary>
-    private int _nextClosingRadiusPixels;
-    /// <summary>The answer chosen before the confirmation window starts closing; null for a message offering no choice.</summary>
-    private SaveChoice? _closingConfirmationResult;
-    /// <summary>Keeps an accepted gunship save result through its saving sound and completion notice.</summary>
-    private bool _gunshipCompletion;
+    /// <summary>
+    /// The window's half-height the next opening or closing update shows, after the current update's window is drawn: it
+    /// grows from zero while the window opens and shrinks from the full height while it closes.
+    /// </summary>
+    private int _nextRadiusPixels;
+    /// <summary>
+    /// The answer the box hands to what waited on it as it closes: the save choice a confirmation closed with, which the
+    /// gunship's accepted save keeps through its saving sound and completion notice; null for a message that asks nothing.
+    /// </summary>
+    private SaveChoice? _answer;
     /// <summary>Remaining frames before the gunship's SAVE COMPLETED notice reopens the box.</summary>
     private int _savingFramesRemaining;
 
@@ -46,9 +48,10 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// <summary>The controller bindings when the message began, whose Shoot or Dash button a panel's glyph shows.</summary>
     private ControllerBindings _bindings;
 
-    /// <summary>Whether the active message uses the two-choice save cursor and edge-based input polling.</summary>
-    private bool IsSaveConfirmation => MessageId is GameplayMessageId.SaveConfirmation or
-        GameplayMessageId.GunshipSaveConfirmation;
+    /// <summary>What the message the box shows asks the player to confirm.</summary>
+    /// <exception cref="InvalidOperationException">The box shows no message.</exception>
+    private GameplayMessageConfirmation Confirmation => ConfirmationOf(
+        MessageId ?? throw new InvalidOperationException("An active message box shows a message."));
 
     /// <summary>Whether the box currently pauses gameplay and owns the message window.</summary>
     public bool IsActive => Phase != GameplayMessageBoxPhase.Inactive;
@@ -73,7 +76,8 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// shoot or run binding, and the save choice a confirmation highlights; null while no message has begun.
     /// </summary>
     public ShownMessage? Shown => MessageId is not { } message ? null
-        : new ShownMessage(message, PanelButton(message), IsSaveConfirmation ? ConfirmationSelection : null);
+        : new ShownMessage(message, PanelButton(message),
+            ConfirmationOf(message) != GameplayMessageConfirmation.None ? ConfirmationSelection : null);
 
     /// <summary>
     /// The message the box's window exposes in the most recently completed frame (#2505): what the box shows, with the
@@ -113,17 +117,26 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
             throw new InvalidOperationException("A gameplay message box is already active.");
 
         _bindings = bindings;
+        _answer = null;
+        Show(messageId, controllerRead);
+        // The pause's first update is the gameplay update that opened the box.
+        _pauses.BeginBeforeOpening();
+    }
+
+    /// <summary>
+    /// Sets the box up to show <paramref name="messageId"/> from a closed window, paused before it opens: a message that
+    /// begins, or the gunship's completion notice after its saving sound.
+    /// </summary>
+    /// <param name="messageId">The message to show.</param>
+    /// <param name="controllerRead">The physical buttons held at the last controller read, which the box's own reads follow.</param>
+    private void Show(GameplayMessageId messageId, ControllerButton controllerRead)
+    {
         MessageId = messageId;
         RadiusPixels = 0;
         MinimumDisplayFramesRemaining = 0;
-        _nextOpeningRadiusPixels = 0;
-        _nextClosingRadiusPixels = GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels;
-        _closingConfirmationResult = null;
-        _gunshipCompletion = false;
+        _nextRadiusPixels = 0;
         ConfirmationSelection = SaveChoice.Yes;
         _controller.Latch(controllerRead);
-        // The pause's first update is the gameplay update that opened the box.
-        _pauses.BeginBeforeOpening();
         Phase = GameplayMessageBoxPhase.PausedBeforeOpening;
     }
 
@@ -159,10 +172,10 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
             case GameplayMessageBoxPhase.Opening:
                 // Each opening update shows the current radius before it grows. Radius
                 // zero is consequently a real update, even though it shows nothing.
-                RadiusPixels = _nextOpeningRadiusPixels;
+                RadiusPixels = _nextRadiusPixels;
                 if (RadiusPixels == GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels)
                 {
-                    if (IsSaveConfirmation)
+                    if (Confirmation != GameplayMessageConfirmation.None)
                     {
                         MinimumDisplayFramesRemaining = 0;
                         _saveChoiceInput.Begin();
@@ -176,7 +189,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     }
                 }
                 else
-                    _nextOpeningRadiusPixels += GameplayMessageBoxDefinitions.Timing.RadiusStepPixels;
+                    _nextRadiusPixels += GameplayMessageBoxDefinitions.Timing.RadiusStepPixels;
                 return MessageBoxStep.NothingAsked.Instance;
 
             case GameplayMessageBoxPhase.MinimumDisplay:
@@ -185,7 +198,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                 return MessageBoxStep.NothingAsked.Instance;
 
             case GameplayMessageBoxPhase.AwaitingInput:
-                if (IsSaveConfirmation)
+                if (Confirmation != GameplayMessageConfirmation.None)
                 {
                     switch (_saveChoiceInput.Advance())
                     {
@@ -206,9 +219,9 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     // neither moves the two-choice cursor.
                     ControllerButton newlyPressed = _controller.NewlyPressed;
                     if ((newlyPressed & ControllerButton.A) != ControllerButton.None)
-                        return BeginClosing(ConfirmationSelection);
+                        return Answer(ConfirmationSelection);
                     if ((newlyPressed & ControllerButton.B) != ControllerButton.None)
-                        return BeginClosing(SaveChoice.No);
+                        return Answer(SaveChoice.No);
                     ControllerButton horizontal = newlyPressed & (ControllerButton.Left | ControllerButton.Right | ControllerButton.Select);
                     if (horizontal != ControllerButton.None)
                     {
@@ -221,18 +234,15 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                 // An ordinary message closes on any held button, not a new press.
                 // This is observable when a player begins holding a button during the
                 // mandatory item fanfare.
-                return controllerInput != ControllerButton.None ? BeginClosing(null) : MessageBoxStep.NothingAsked.Instance;
+                return controllerInput != ControllerButton.None ? BeginClosing() : MessageBoxStep.NothingAsked.Instance;
 
             case GameplayMessageBoxPhase.GunshipSavingSound:
                 if (--_savingFramesRemaining == 0)
                 {
-                    // The completion notice opens only after the saving sound's wait.
-                    // Preserve YES across that message.
-                    Phase = GameplayMessageBoxPhase.Inactive;
-                    Begin(GameplayMessageId.SaveCompleted, _controller.Current, _bindings);
-                    // The second box's pause is shorter: the screen stayed set up for the first.
+                    // The completion notice opens only after the saving sound's wait, the accepted YES kept across it.
+                    // Its pause is shorter: the screen stayed set up for the first box.
+                    Show(GameplayMessageId.SaveCompleted, _controller.Current);
                     _pauses.BeginBeforeCompletionNotice();
-                    _gunshipCompletion = true;
                 }
                 return MessageBoxStep.NothingAsked.Instance;
 
@@ -244,11 +254,17 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         }
     }
 
-    /// <summary>Accepts the interaction; the window's first closing step runs in the same update.</summary>
-    private MessageBoxStep BeginClosing(SaveChoice? confirmationResult)
+    /// <summary>Accepts a confirmation's <paramref name="answer"/> and begins closing its window.</summary>
+    private MessageBoxStep Answer(SaveChoice answer)
     {
-        _closingConfirmationResult = confirmationResult;
-        _nextClosingRadiusPixels = GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels;
+        _answer = answer;
+        return BeginClosing();
+    }
+
+    /// <summary>Accepts the interaction; the window's first closing step runs in the same update.</summary>
+    private MessageBoxStep BeginClosing()
+    {
+        _nextRadiusPixels = GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels;
         Phase = GameplayMessageBoxPhase.Closing;
         return StepClosing();
     }
@@ -259,11 +275,11 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// </summary>
     private MessageBoxStep StepClosing()
     {
-        RadiusPixels = _nextClosingRadiusPixels;
-        _nextClosingRadiusPixels -= GameplayMessageBoxDefinitions.Timing.RadiusStepPixels;
-        if (_nextClosingRadiusPixels >= 0)
+        RadiusPixels = _nextRadiusPixels;
+        _nextRadiusPixels -= GameplayMessageBoxDefinitions.Timing.RadiusStepPixels;
+        if (_nextRadiusPixels >= 0)
             return MessageBoxStep.NothingAsked.Instance;
-        if (MessageId == GameplayMessageId.GunshipSaveConfirmation && _closingConfirmationResult == SaveChoice.Yes)
+        if (Confirmation == GameplayMessageConfirmation.SaveThenCompletionNotice && _answer == SaveChoice.Yes)
         {
             // The accepted gunship save pauses one update after closing, then waits out the saving sound.
             Phase = GameplayMessageBoxPhase.GunshipSavingSound;
@@ -283,14 +299,17 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     private MessageBoxStep.Closed Finish()
     {
         Phase = GameplayMessageBoxPhase.Inactive;
-        SaveChoice? answer = _gunshipCompletion ? SaveChoice.Yes : _closingConfirmationResult;
-        _gunshipCompletion = false;
-        _closingConfirmationResult = null;
+        SaveChoice? answer = _answer;
+        _answer = null;
         MessageId = null;
         MinimumDisplayFramesRemaining = 0;
         RadiusPixels = 0;
         return answer is { } choice ? new MessageBoxStep.Answered(choice) : MessageBoxStep.Closed.WithoutAnswer;
     }
+
+    /// <summary>What <paramref name="messageId"/> asks the player to confirm.</summary>
+    private static GameplayMessageConfirmation ConfirmationOf(GameplayMessageId messageId) =>
+        Ensure.Listed(GameplayMessageBoxDefinitions.Confirmations, messageId);
 
     /// <summary>
     /// The button <paramref name="messageId"/>'s panel names: the configured Shoot or Run binding's, as the glyph shows it;

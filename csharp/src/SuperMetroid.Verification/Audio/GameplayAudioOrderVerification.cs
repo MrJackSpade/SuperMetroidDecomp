@@ -41,7 +41,7 @@ internal static class GameplayAudioOrderVerification
         SoundRequestsMark enemyLibrary = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
 
         runtime.AudioRequests.BeginRecordedUpdate();
-        runtime.StepFrame(ControllerButton.X, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true } });
+        runtime.StepFrame(ControllerButton.X, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay });
 
         SoundEffectId missile = SamusProjectileSoundRoutingDefinitions.MissileRequest;
         SoundEffectId[] observed = [.. runtime.AudioRequests.SoundRequests.Select(request => request.SoundEffect)
@@ -66,14 +66,14 @@ internal static class GameplayAudioOrderVerification
         RoomEnemyPlace kiHunter = KiHunterAtItsSpit(runtime);
         SoundRequestsMark enemyLibrary = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
         runtime.AudioRequests.BeginRecordedUpdate();
-        runtime.StepFrame(0, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true } });
+        runtime.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay });
         AssertTrue(runtime.AudioRequests.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit),
             "the first update requests the Ki Hunter's spit");
 
         // The Ki Hunter's next step lies far ahead, so the second update's enemies request nothing.
         kiHunter.AnimationClock.HoldFor(200);
         runtime.AudioRequests.BeginRecordedUpdate();
-        runtime.StepFrame(0, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true } });
+        runtime.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay });
 
         AssertTrue(!runtime.AudioRequests.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit),
             "the second update requests no spit");

@@ -129,7 +129,9 @@ internal static class CinematicSpriteAnimationsVerification
             if (!native.Active)
                 return update + 1;
             AssertTrue(shows(actor.Shown, native.Spritemap), $"{at}: spritemap ${native.Spritemap:X4} draws {actor.Shown}");
-            if (NativeEnemyAnimationOracle.NativePlaysLeft(actor.Playback) is { } playsLeft)
+            // A list that repeats by its goto counter counts the plays a repeated phase has left in it; one whose installed
+            // routine raises the repeated cue keeps no such count, and its repeats are compared as the cues each update raises.
+            if (NativeEnemyAnimationOracle.NativePlaysLeft(actor.Playback) is { } playsLeft && native.CountsRepeats)
                 AssertEqual<int>(native.Timer.RawValue, playsLeft, $"{at}: plays left");
             AssertTrue(native.Cues.SequenceEqual(raised), $"{at}: owner cues");
         }
@@ -151,6 +153,8 @@ internal static class CinematicSpriteAnimationsVerification
         internal ushort Spritemap { get; private set; }
         /// <summary>The goto timer word.</summary>
         internal WrappingCountdown Timer { get; private set; }
+        /// <summary>Whether the list has set its goto timer, which then counts its repeats.</summary>
+        internal bool CountsRepeats { get; private set; }
         /// <summary>The owner instructions the latest update ran, as the family's cues.</summary>
         internal List<TCue> Cues { get; } = [];
         /// <summary>The installed routine that raises cues of its own, which runs before the list on every update, if any.</summary>
@@ -212,6 +216,7 @@ internal static class CinematicSpriteAnimationsVerification
                         continue;
                     case SharedWord.SetCounter:
                         Timer = WrappingCountdown.Start(operand);
+                        CountsRepeats = true;
                         cursor = unchecked((ushort)(cursor + 4));
                         continue;
                     case SharedWord.RepeatWhileCounting:

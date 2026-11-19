@@ -58,17 +58,17 @@ internal static class LookupSmallGameTablesVerification
     private static void VerifyCrocomireBridgeDustPositions(ISnesAddressSpace rom)
     {
         // $A4:8F35..: each unrolled spawn is LDA #X / STA / LDA #Y / STA / LDA #$15 / JSL, twenty bytes.
-        for (int puff = 0; puff < 7; puff++)
+        AssertEqual(7, CrocomireBridgeCollapseDefinitions.CollapseDust.Count, "Crocomire bridge dust puff count");
+        for (int puff = 0; puff < CrocomireBridgeCollapseDefinitions.CollapseDust.Count; puff++)
         {
             int call = 0xa48f35 + 20 * puff;
             AssertEqual((byte)0xa9, CrocomireBridgeDustPositionsRomByte(rom, call), $"Dust {puff} X operand opcode");
             AssertEqual((byte)0xa9, CrocomireBridgeDustPositionsRomByte(rom, call + 5), $"Dust {puff} Y operand opcode");
-            var dust = CrocomireBridgeCollapse.CrocomireBridgeDustPosition(puff);
+            var dust = CrocomireBridgeCollapseDefinitions.CollapseDust[puff];
             ushort x = dust.X, y = dust.Y;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((call + 1)), x, $"Crocomire bridge dust {puff} X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((call + 6)), y, $"Crocomire bridge dust {puff} Y");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBridgeCollapse.CrocomireBridgeDustPosition(7), "Dust upper bound");
     }
 
     /// <summary>Reads a retail opcode byte when checking Crocomire's unrolled dust spawns.</summary>

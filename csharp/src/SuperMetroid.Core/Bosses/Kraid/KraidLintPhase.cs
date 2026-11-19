@@ -6,7 +6,7 @@ public enum KraidLintPhase
     /// <summary>The inactive lint before projectile production begins.</summary>
     Inactive,
     /// <summary>
-    /// Horizontally aligns the lint to Kraid's body while its phase timer runs, then produces it
+    /// Horizontally aligns the lint to Kraid's body while its phase wait runs, then produces it
     /// (<see cref="Produce"/>).
     /// </summary>
     AlignToKraidBeforeProducing,

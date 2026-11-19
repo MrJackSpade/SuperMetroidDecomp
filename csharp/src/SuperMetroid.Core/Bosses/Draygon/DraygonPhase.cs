@@ -40,7 +40,12 @@ public enum DraygonPhase
     CarrySamus,
     /// <summary>Expands and raises the carry orbit, with RNG-selected incidental tail whips.</summary>
     FlailWithSamus,
-    /// <summary>Holds the grabbed pair together during a 64-frame whip, then resumes the spiral.</summary>
+    /// <summary>
+    /// Starts the pause a tail whip makes in the spiral (<see cref="DraygonGrabDefinitions.TailWhipUpdates"/>) on its
+    /// first update, holding the grabbed pair together, and starts the tail's whip.
+    /// </summary>
+    BeginTailWhipWithSamus,
+    /// <summary>Holds the grabbed pair together through the rest of the tail whip's pause, then resumes the spiral.</summary>
     TailWhipWithSamus,
     /// <summary>Starts the facing-specific four-repeat finishing tail-whip animation.</summary>
     FinalTailWhips,

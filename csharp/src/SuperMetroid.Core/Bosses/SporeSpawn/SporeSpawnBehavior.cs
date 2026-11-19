@@ -170,16 +170,12 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Angle = state.SwayStep.Turn(state.Angle);
     }
 
-    /// <summary>Aims Spore Spawn's death drift at the arena's centre: each axis's share of one pixel per update, signed toward it.</summary>
+    /// <summary>Aims Spore Spawn's death drift at the arena's centre: a pixel an update along his bearing to it.</summary>
     private static void SetupSporeSpawnDeathVelocity(RoomEnemyPlace body, SporeSpawnEnemyState state)
     {
         TrigonometryAngle direction = EnemyMath.CalculateBearing(
             new(SporeSpawnArenaDefinitions.CentreX - body.Position.X.Whole, SporeSpawnArenaDefinitions.CentreY - body.Position.Y.Whole)).ToTrigonometryAngle();
-        SignedSixteenSixteen across = EnemyMath.AbsoluteCosineSpeed(direction, 1).AsDisplacement();
-        SignedSixteenSixteen down = EnemyMath.AbsoluteSineSpeed(direction, 1).AsDisplacement();
-        state.DeathVelocity = new(
-            EnemyMath.CosineIsNegative(direction) ? -across : across,
-            EnemyMath.SineIsNegative(direction) ? -down : down);
+        state.DeathVelocity = EnemyMath.VelocityAlong(direction, 1);
     }
 
     /// <summary>Runs Spore Spawn's dying sequence.</summary>

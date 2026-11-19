@@ -32,8 +32,11 @@ public sealed class BotwoonEnemyState
 
     /// <summary>The trail ring's next place, 0 through 255 (<see cref="BotwoonTrailRing"/>); each moving update writes the head's position there and moves on one place.</summary>
     public int RingIndex { get; internal set; }
-    /// <summary>Frames left of the opening delay, seeded from <see cref="BotwoonFightDefinitions.OpeningDelay"/> and counted down to zero before normal traversal begins.</summary>
-    public int InitialDelayTimer { get; internal set; }
+    /// <summary>
+    /// His wait in his hole before his first traversal (#2538): his setup starts it for
+    /// <see cref="BotwoonFightDefinitions.OpeningDelay"/>, and he chooses his first action on the update after it runs out.
+    /// </summary>
+    public BossCountdown OpeningWait { get; } = new();
     /// <summary>
     /// His head's cooldown after a spit volley (#2267): it lasts the volley's <see cref="BotwoonSpitVolley.CooldownUpdates"/>,
     /// and when it runs out his head follows his movement again.
@@ -93,10 +96,12 @@ public sealed class BotwoonEnemyState
         : PictureShading.Standard;
     /// <summary>The health band his head and body show (#2266), or null while he still shows his own colours.</summary>
     public BotwoonHealthBand? HealthBand { get; internal set; }
+    /// <summary>The health his living setup starts him with, before combat can change it.</summary>
+    public int StartingHealth { get; internal set; }
     /// <summary>Half his starting health, rounded down: below it he moves at <see cref="BotwoonSpeedStageDefinitions.BelowHalf"/>.</summary>
-    public int HalfHealth { get; internal set; }
+    internal int HalfHealth => StartingHealth / BotwoonFightDefinitions.FasterBelowShareOfHealth;
     /// <summary>A quarter of his starting health, rounded down: below it he moves at <see cref="BotwoonSpeedStageDefinitions.BelowQuarter"/>.</summary>
-    public int QuarterHealth { get; internal set; }
+    internal int QuarterHealth => StartingHealth / BotwoonFightDefinitions.FastestBelowShareOfHealth;
     /// <summary>Whether the head travels within the wall/hole; crossing a hole rectangle toggles this state and hidden movement disables collision.</summary>
     public bool InsideHole { get; internal set; }
     /// <summary>Inside-hole state observed by the direct-movement behaviour on its previous update; a difference marks that traversal complete.</summary>

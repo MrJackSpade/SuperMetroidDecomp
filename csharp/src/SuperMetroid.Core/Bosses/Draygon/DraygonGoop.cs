@@ -37,7 +37,7 @@ internal sealed class DraygonGoop
 
         RoomEnemyPlace body = state.Body;
         body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? DraygonArenaDefinitions.OffscreenLeftX : state.RightSideResetX, DraygonArenaDefinitions.SwimLineY));
-        state.SwoopVelocity = new UnsignedSixteenSixteen(1, 0);
+        state.SwoopVelocity = UnsignedSixteenSixteen.FromWholePixels(1);
         state.GoopYOscillationAngle = RotationAngle.Zero;
         state.Phase = DraygonPhase.GoopApproach;
         state.BodyPart.StartAnimation(direction == HorizontalDirection.Right

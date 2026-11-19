@@ -36,7 +36,7 @@ internal sealed class CrocomireCombat
     /// <summary>Runs Crocomire's eight-color body hurt flash.</summary>
     internal void ApplyCrocomireHurtFlash(RoomEnemyPlace body, CrocomireEnemyState state)
     {
-        bool white = body.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.RandomEnemyCounter);
+        bool white = body.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount);
         // His body shows its fight colours or the white flash as the import's shades of them (#1512).
         state.Colours.ShowBody(white);
     }
@@ -139,11 +139,11 @@ internal sealed class CrocomireCombat
         private void RunCrocomireSpikeWallPiece(EnemyProjectile projectile)
         {
             CrocomireSpikeWallPieceState piece = projectile.StateOf<CrocomireSpikeWallPieceState>();
-            SignedSixteenSixteen maximumAcceleration = CrocomireSpikeMotion.MaximumAcceleration(piece.Piece);
+            SignedSixteenSixteen maximumAcceleration = piece.Piece.MaximumAcceleration;
             SignedSixteenSixteen acceleration = piece.Acceleration;
             if (acceleration != maximumAcceleration)
             {
-                acceleration += CrocomireSpikeMotion.AccelerationDelta(piece.Piece);
+                acceleration += piece.Piece.AccelerationGrowth;
                 if (acceleration >= maximumAcceleration)
                     acceleration = maximumAcceleration;
             }
@@ -152,7 +152,7 @@ internal sealed class CrocomireCombat
             // The velocity gains the acceleration as Crocomire's falling pieces gain speed (CrocomireSpeedGain), up to this
             // piece's fastest: the piece starts at rest and its whole velocity stays at or below its cap of at most six pixels.
             SignedEightEight xVelocity = CrocomireSpeedGain.Gained(projectile.Velocity.X, acceleration,
-                SignedEightEight.FromPixels(CrocomireSpikeMotion.MaximumVelocity(piece.Piece)));
+                SignedEightEight.FromPixels(piece.Piece.FastestSpeed));
             projectile.Velocity = projectile.Velocity.WithX(xVelocity);
 
             // The piece moves across by its velocity, a 256th of a pixel at its finest: its place within a 256th of a
@@ -169,10 +169,9 @@ internal sealed class CrocomireCombat
                 return;
 
             Position16<RoomPixels> impact = projectile.Position.Whole;
-            bool crumbles = CrocomireSpikeWallCrumbleSounds.Crumbles(piece.Piece);
             projectile.Delete();
-            if (crumbles)
-                access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
+            if (piece.Piece.CrumbleSound is { } crumble)
+                access.RequestCrocomireSound(crumble);
             projectiles.SpawnDustOrExplosion(impact, DustExplosionAnimation.BigDustCloud);
             access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
         }
@@ -334,7 +333,7 @@ internal sealed class CrocomireCombat
     /// <summary>Runs Crocomire's power-bomb reaction without applying normal power-bomb HP damage.</summary>
     private static void ResolveCrocomirePowerBombReaction(RoomEnemyPlace body, CrocomireEnemyState state)
     {
-        if (state.DeathPhase != CrocomireDeathPhase.Fighting)
+        if (state.DeathStage.Entry is not CrocomireDeathStage.Fighting)
             return;
 
         state.StepCounter = CrocomireFightDefinitions.PowerBombSteps;
@@ -369,15 +368,14 @@ internal sealed class CrocomireCombat
         }
     }
 
-    /// <summary>Projects a projectile angle into its sideways and vertical speeds: its sine and negative cosine scaled by the volley's multiplier.</summary>
+    /// <summary>Projects a projectile angle into its sideways and vertical speeds: its sine and negative cosine at the volley's speed.</summary>
     internal static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(Bearing bearing)
     {
-        // A negative sine scales exactly as a positive one does. The bearing is used as a heading without
-        // conversion, so X is its sine and Y its negative cosine.
+        // The bearing is used as a heading without conversion, so X is its sine and Y its negative cosine.
         TrigonometryAngle heading = bearing.ToMirroredTrigonometryAngle();
-        return EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(
-            Trigonometry.SignedSine(heading) * CrocomireProjectileDefinitions.VelocityMultiplier,
-            Trigonometry.SignedSine(heading - TrigonometryAngle.QuarterTurn) * CrocomireProjectileDefinitions.VelocityMultiplier);
+        return new(
+            EnemyMath.SineVelocity(heading, CrocomireProjectileDefinitions.VolleySpeed),
+            EnemyMath.SineVelocity(heading - TrigonometryAngle.QuarterTurn, CrocomireProjectileDefinitions.VolleySpeed));
     }
 
     /// <summary>Runs bridge-fragment vertical collision and gravity.</summary>

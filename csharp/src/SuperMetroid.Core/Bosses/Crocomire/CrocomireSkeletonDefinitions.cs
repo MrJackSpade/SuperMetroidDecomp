@@ -64,7 +64,4 @@ internal static class CrocomireSkeletonDefinitions
 
     /// <summary>Where the spike wall's top piece stands as the wall breaks.</summary>
     internal static readonly Position16<RoomPixels> SpikeWallTop = new(528, 56);
-
-    /// <summary>How far below the piece above it each spike-wall piece stands, in pixels.</summary>
-    internal const int SpikeWallPieceSpacing = 16;
 }

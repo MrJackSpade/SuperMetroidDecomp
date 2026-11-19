@@ -538,7 +538,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             // place; it then spawns the death explosion before the metal ninja Pirate's item drop spawns the drops.
             Position16<RoomPixels> dropOrigin = c.Enemy.Position.Whole;
             StartPirateDeath(c);
-            _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, count: 5, dropOrigin, c.Samus);
+            _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, GoldNinjaSpacePirateDefinitions.DropScatterCount, dropOrigin, c.Samus);
             return true;
         },
     };

@@ -73,14 +73,14 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
         {
             state.Speed = SignedSixteenSixteen.FromParts(8, 0);
-            state.SetGlowCycle(frame, ticks: 1);
+            state.SetGlowCycle(SuperMetroid.Core.Compatibility.DachoraGlowCycle.At(frame, 1));
             enemies.DachoraBehavior.AccelerateDachora(place, state, empty);
             CheckLive(DachoraColourPhase.Speed, frame);
         }
 
         for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
         {
-            state.SetGlowCycle(frame, ticks: 0);
+            state.SetGlowCycle(SuperMetroid.Core.Compatibility.DachoraGlowCycle.At(frame, 0));
             DachoraBehavior.StepDachoraShineGlow(place, state);
             CheckLive(DachoraColourPhase.Shine, frame);
             AssertEqual((frame + 1) % 4, state.GlowFrame,

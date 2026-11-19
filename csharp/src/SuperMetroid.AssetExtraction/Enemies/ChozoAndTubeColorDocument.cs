@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
@@ -7,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The import's tube-crack and Chozo-statue colours (#1637), import data only the import pre-colours their sheets from: each
 /// image's two ordered sixteen-color OBJ palettes as the cartridge stores them, transparent-slot words included.
 /// </summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the tube-crack and Chozo-statue colour rows, which only the import reads to pre-colour the glass tube's and the Chozo statues' sheets; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record ChozoAndTubeColorDocument
 {
     /// <summary>Color schema revision; loading currently requires version 1.</summary>

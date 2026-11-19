@@ -1,11 +1,9 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable JSON schema for the pause screen's reserve-energy strip artwork and placement.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the reserve tank's packed sprite parts, which only the import reads to compose its pictures; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportDocumentFiles), which the installer deletes before it publishes.")]
 public sealed record PauseReserveTankDocument
 {
     /// <summary>Gets the reserve-tank presentation schema version.</summary>

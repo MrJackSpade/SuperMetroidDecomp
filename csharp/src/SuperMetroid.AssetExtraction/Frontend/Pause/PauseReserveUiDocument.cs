@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Complete editable reserve UI schema; nested arrays and dictionaries are mutable authoring data copied into compiled presentation values.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the reserve controls' packed placements and colour rows, which only the import reads to picture and pre-colour them; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportDocumentFiles), which the installer deletes before it publishes.")]
 public sealed record PauseReserveUiDocument
 {
     /// <summary>Schema revision; loading requires <see cref="PauseReserveUiDefinitions.Version"/>.</summary>

@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -11,7 +10,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 /// holds them; it holds the pictures, and the layout the game binds (<see cref="FileSelectLayoutDocument"/>).
 /// </summary>
 /// <remarks>Init-only properties hold caller-owned mutable arrays and dictionaries.</remarks>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: file select's packed tile and sprite placements, which only the import reads to picture the screen; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportDocumentFiles), which the installer deletes before it publishes.")]
 public sealed record FileSelectArtworkDocument
 {
     /// <summary>Schema version; must equal <see cref="FileSelectPresentationFormat.ArtworkVersion"/>.</summary>

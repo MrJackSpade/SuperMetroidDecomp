@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Mutable JSON authoring data for SR388's six shell fragments, moving slime, and four slime-impact frames; actor physics and instruction timing are not stored here.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the egg effect's packed sprite parts, which only the import reads to compose its pictures; IntroCinematicArtworkFiles.Extract writes it to the opening cinematic's import data (its CompositionFiles), which the installer deletes before it publishes.")]
 public sealed record IntroEggEffectSpriteDocument
 {
     /// <summary>Gets the schema version, which must equal <see cref="IntroEggEffectSpriteFormat.Version"/> when loaded or written.</summary>

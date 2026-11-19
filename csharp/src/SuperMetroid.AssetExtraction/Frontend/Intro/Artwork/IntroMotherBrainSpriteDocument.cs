@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Mutable JSON authoring data for the intro flashback's Mother Brain, distinct from boss gameplay and the separate explosion sprites.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the opening Mother Brain's packed sprite parts, which only the import reads to compose her pictures; IntroCinematicArtworkFiles.Extract writes it to the opening cinematic's import data (its CompositionFiles), which the installer deletes before it publishes.")]
 public sealed record IntroMotherBrainSpriteDocument
 {
     /// <summary>Gets the schema revision, which must equal <see cref="IntroMotherBrainSpriteFormat.Version"/> when loaded or written.</summary>

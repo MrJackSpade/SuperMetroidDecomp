@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Editable health-band palette JSON, separate from rainbow cycling and death-fade artwork; array references, rows, and RGB5 entries remain caller-owned and mutable.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: Mother Brain's body and back-leg health colour rows, which only the import reads to pre-colour her shades; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportColourFiles), which the installer deletes before it publishes.")]
 public sealed record MotherBrainHealthPaletteDocument
 {
     /// <summary>Schema version required to match <see cref="MotherBrainHealthPaletteFile.Version"/> during loading or writing.</summary>

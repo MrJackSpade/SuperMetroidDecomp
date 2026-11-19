@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -7,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The import's body colour rows for charge, pseudo-Screw, and Hyper-shot playback (#1637), import data only the import
 /// pre-colours Samus's shades from; each row contains sixteen native OBJ slots, including the nonvisible transparent slot.
 /// </summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: Samus's charged-beam, pseudo Screw Attack and Hyper shot colour rows, which only the import reads to pre-colour her shades; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportColourFiles), which the installer deletes before it publishes.")]
 public sealed record SamusChargeColorDocument
 {
     /// <summary>Color schema revision; loading currently requires version 1.</summary>

@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 
@@ -9,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// cover-appearance, and tile-selection tables; pixels are supplied separately by <c>samus-arm-cannon-tiles.png</c>, and
 /// opening/closing mechanics remain runtime-owned. The installation holds only its layout (<see cref="SamusArmCannonLayoutDocument"/>).
 /// </summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the arm cannon cover's packed sprite parts, which only the import reads to compose its pictures; SamusArmCannonArtworkFiles.Extract writes it to the Samus body's import data, which the installer deletes before it publishes.")]
 public sealed record SamusArmCannonArtworkDocument
 {
     /// <summary>Document schema revision; loading requires <see cref="SamusArmCannonArtworkFormat.Version"/>.</summary>

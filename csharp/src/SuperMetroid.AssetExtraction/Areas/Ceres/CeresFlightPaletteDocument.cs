@@ -1,11 +1,9 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Editable JSON schema for the complete Ceres approach palette, also reused by the destruction scene; PNG transport palettes do not supply these rendered colors.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the Ceres flight's colours, which only the import reads to pre-colour the Ceres scenes' sheets; IntroCinematicArtworkFiles.Extract writes it to the opening cinematic's import data (its ImportDataFiles), which the installer deletes before it publishes.")]
 public sealed record CeresFlightPaletteDocument
 {
     /// <summary>Schema revision, which must equal <see cref="CeresFlightPaletteFormat.Version"/>.</summary>

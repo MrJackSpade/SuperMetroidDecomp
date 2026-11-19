@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
@@ -124,7 +123,6 @@ public static class SamusAtmosphericArtworkFiles
     }
 
     /// <summary>The extracted single small pieces for footsteps and the shared lava/dust effect.</summary>
-    [SuppressMessage("Design", "SME6463", Justification = "Import data: the footstep and lava-dust packed sprite parts, which only the import reads to compose the atmosphere sheet; SamusAtmosphericArtworkFiles.Extract writes it to the Samus body's import data, which the installer deletes before it publishes.")]
     private sealed record ArtworkDocument(int Version, SpriteVisualPart[] TypeOne, SpriteVisualPart[] SharedTypeFour);
     /// <summary>The extracted artwork's source revision.</summary>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);

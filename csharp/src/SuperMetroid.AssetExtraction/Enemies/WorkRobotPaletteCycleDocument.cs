@@ -1,11 +1,9 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>JSON schema for the six ordered Work Robot RGB5 palette records.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the work robot's colour cycle rows, which only the import reads to pre-colour its shades; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record WorkRobotPaletteCycleDocument
 {
     /// <summary>Schema revision; loading requires <see cref="WorkRobotPaletteCycleFormat.Version"/>.</summary>

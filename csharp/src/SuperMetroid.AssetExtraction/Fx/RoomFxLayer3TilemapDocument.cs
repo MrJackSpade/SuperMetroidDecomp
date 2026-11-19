@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Editable JSON definition of the six room-FX BG3 transfers, storing character selectors and BG attributes instead of packed SNES tilemap words.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the room effects' packed tile placements, which only the import reads to compose the effect pictures; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportDocumentFiles), which the installer deletes before it publishes.")]
 public sealed record RoomFxLayer3TilemapDocument
 {
     /// <summary>Schema revision; loading requires <see cref="RoomFxLayer3TilemapFormat.Version"/> before compiling any page.</summary>

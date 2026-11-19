@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
@@ -8,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// composes his body sheet's melt pictures from; mechanics are not configurable.
 /// </summary>
 [SpatialComponents("External format: the melting tilemap JSON stores its declared grid dimensions as width/height integers.")]
-[SuppressMessage("Design", "SME6463", Justification = "Import data: a Crocomire melt image's packed tile placements, which only the import reads to compose his body sheet's melt pictures; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record CrocomireMeltingTilemapDocument
 {
     /// <summary>Visual tile-layout revision; loading requires <see cref="CrocomireMeltingArtworkFormat.TilemapVersion"/>.</summary>

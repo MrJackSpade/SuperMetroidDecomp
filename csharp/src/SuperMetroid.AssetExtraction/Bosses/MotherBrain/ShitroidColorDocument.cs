@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Versioned editable RGB5 pulse and initialization-target images for the live Shitroid encounter, excluding timer, fade-destination, and sound behavior.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the Shitroid's and its Sidehoppers' colour rows, which only the import reads to pre-colour their shades; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record ShitroidColorDocument
 {
     /// <summary>Color schema revision; loading currently requires version 1.</summary>

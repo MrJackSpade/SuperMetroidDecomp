@@ -1,11 +1,9 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Editable RGB5 schema for the initial title palette, ambient color frames and copyright replacements; nested arrays remain caller-mutable until compilation.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the title's colour rows, which only the import reads to pre-colour the title's sheets; the installed SceneColourDocument holds its backdrop; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportColourFiles), which the installer deletes before it publishes.")]
 public sealed record TitlePaletteDocument
 {
     /// <summary>Schema revision; loading requires <see cref="TitlePaletteFormat.Version"/>.</summary>

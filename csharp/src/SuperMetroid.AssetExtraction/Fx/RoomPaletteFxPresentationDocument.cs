@@ -1,11 +1,9 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>The editable JSON schema for color samples used by room and cinematic palette-FX programs.</summary>
 /// <remarks>Each jagged array is ordered by native timed record, then by that record's emitted colors. RGB channels range from zero through thirty-one; record durations, skipped palette entries, destinations, and control side effects are compiled mechanics.</remarks>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the palette-effect records' colour rows, which only the import reads to pre-colour every palette effect's shades; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportColourFiles), which the installer deletes before it publishes.")]
 public sealed record RoomPaletteFxPresentationDocument
 {
     /// <summary>Gets the schema version; the reader accepts only <see cref="SuperMetroid.AssetExtraction.Fx.Artwork.RoomPaletteFxPresentationFormat.Version"/>.</summary>

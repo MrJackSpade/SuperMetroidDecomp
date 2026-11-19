@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
@@ -7,7 +6,6 @@ namespace SuperMetroid.AssetExtraction;
 /// The import's Tourian statue colours (#1637), import data only the import pre-colours the statue's entrance and
 /// unlock-effect shades from; boss selectors and animation timing stay in runtime code.
 /// </summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the Tourian statue's base, statue, eye and grey colour rows, which only the import reads to pre-colour the statue's shades; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record TourianStatueColorDocument
 {
     /// <summary>Palette schema revision; loading currently requires version 1.</summary>

@@ -1,8 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable appearance-only schema for trail timed records; its frame dictionary remains caller-mutable and contains no movement commands or frame durations.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the projectile trails' packed sprite parts, which only the import reads to compose their pictures; ProjectilePresentationFiles.Extract writes it to the projectiles' import data, which the installer deletes before it publishes.")]
 public sealed record ProjectileTrailDocument
 {
     /// <summary>Schema revision; loading requires <see cref="ProjectileTrailVisualDefinitions.Version"/>.</summary>

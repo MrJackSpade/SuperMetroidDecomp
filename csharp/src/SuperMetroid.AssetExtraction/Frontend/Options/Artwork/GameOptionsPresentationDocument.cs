@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -6,7 +5,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>Authored options-menu JSON: the layout the game binds and the heading and cursor compositions the options sheet is composed from (#1463).</summary>
 /// <remarks>Init-only properties retain caller-owned mutable arrays and dictionaries. The stream loader parses its own document before compiling the runtime presentation.</remarks>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the options screens' packed tile and sprite placements, which only the import reads to picture the screens; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportDocumentFiles), which the installer deletes before it publishes.")]
 public sealed record GameOptionsPresentationDocument : GameOptionsLayoutDocument
 {
     /// <summary>Exactly three menu-heading compositions and four missile-cursor frames, using sprite-part offsets from drawing anchors.</summary>

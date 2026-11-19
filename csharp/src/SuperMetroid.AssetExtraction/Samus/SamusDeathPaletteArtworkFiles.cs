@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Samus.Colours;
@@ -164,7 +163,6 @@ public static class SamusDeathPaletteArtworkFiles
     }
 
     /// <summary>Complete suited, suitless, whiteout, and explosion death-step payload, which only the import reads.</summary>
-    [SuppressMessage("Design", "SME6463", Justification = "Import data: Extract writes Samus's suited, suitless and whiteout colour rows to the Samus body's import data, the death-palette document only the import reads, to pre-colour her death shades; the installer deletes it before it publishes, and the installed death steps are StepDocument's colours.")]
     private sealed record ArtworkDocument(int Version, ushort[][][] Suited,
         ushort[][] Suitless, ushort[] Whiteout, ushort[] ExplosionPaletteIndices);
     /// <summary>

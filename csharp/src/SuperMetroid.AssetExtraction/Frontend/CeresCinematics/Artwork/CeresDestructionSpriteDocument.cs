@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Editable OAM composition schema for the Ceres explosion and Zebes reveal, separate from cinematic actors, motion, timing, and the shared approach artwork.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the Ceres destruction's packed sprite parts, which only the import reads to compose its sprite sheet's pictures; IntroCinematicArtworkFiles.Extract writes it to the opening cinematic's import data (its CompositionFiles), which the installer deletes before it publishes.")]
 public sealed record CeresDestructionSpriteDocument
 {
     /// <summary>Composition schema revision; loading currently requires version 1.</summary>

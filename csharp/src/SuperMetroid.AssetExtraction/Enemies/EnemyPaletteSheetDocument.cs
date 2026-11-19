@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
@@ -7,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// One enemy's sixteen colours as the cartridge stores them (#1637), import data only the import pre-colours the enemy's
 /// sheet from; the installation holds the pre-coloured sheet.
 /// </summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: one enemy header's sixteen colours, which only the import reads to pre-colour that enemy's sheet; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record EnemyPaletteSheetDocument
 {
     /// <summary>Schema revision, which must be 1 for this loader.</summary>

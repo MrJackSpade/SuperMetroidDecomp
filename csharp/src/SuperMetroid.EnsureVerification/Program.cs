@@ -89,7 +89,6 @@ internal static class Program
                 new AnalyzerSuite(nameof(CatalogDecisionAnalyzerTests.VerifyCatalogDecisionAnalyzer), CatalogDecisionAnalyzerTests.VerifyCatalogDecisionAnalyzer),
                 new AnalyzerSuite(nameof(WholeImageFixtureInLoopAnalyzerTests.VerifyWholeImageFixtureInLoopAnalyzer), WholeImageFixtureInLoopAnalyzerTests.VerifyWholeImageFixtureInLoopAnalyzer),
                 new AnalyzerSuite(nameof(PrivateInstallationAnalyzerTests.VerifyPrivateInstallationAnalyzer), PrivateInstallationAnalyzerTests.VerifyPrivateInstallationAnalyzer),
-                new AnalyzerSuite(nameof(InstalledDocumentHardwareAnalyzerTests.VerifyInstalledDocumentHardwareAnalyzer), InstalledDocumentHardwareAnalyzerTests.VerifyInstalledDocumentHardwareAnalyzer),
                 new AnalyzerSuite(nameof(HostConcernAnalyzerTests.VerifyHostConcernAnalyzer), HostConcernAnalyzerTests.VerifyHostConcernAnalyzer),
                 new AnalyzerSuite(nameof(DisplayRegisterAnalyzerTests.VerifyDisplayRegisterAnalyzer), DisplayRegisterAnalyzerTests.VerifyDisplayRegisterAnalyzer),
                 new AnalyzerSuite(nameof(AudioRequestAnalyzerTests.VerifyAudioRequestAnalyzer), AudioRequestAnalyzerTests.VerifyAudioRequestAnalyzer),

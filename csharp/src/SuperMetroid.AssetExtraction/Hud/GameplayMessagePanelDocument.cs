@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Editable large item-instruction panel schema; border arrays, panel dictionary and nested templates remain caller-mutable until compilation.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the message panels' packed tile placements, which only the import reads to picture them; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportDocumentFiles), which the installer deletes before it publishes.")]
 public sealed record GameplayMessagePanelDocument
 {
     /// <summary>Schema revision; loading requires <see cref="GameplayMessagePanelDefinitions.Version"/>.</summary>

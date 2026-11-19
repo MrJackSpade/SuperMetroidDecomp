@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Editable Mother Brain room-color schema; every supplied entry is a nonnull RGB5 color with channels 0..31, and nested arrays remain caller-mutable until compilation.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: Mother Brain's room flash, attack and recovery-light colour rows, which only the import reads to pre-colour those effects' pictures; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportColourFiles), which the installer deletes before it publishes.")]
 public sealed record MotherBrainRoomColorDocument
 {
     /// <summary>Schema revision; the reader accepts only <see cref="SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorFormat.Version"/>.</summary>

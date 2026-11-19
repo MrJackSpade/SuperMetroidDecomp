@@ -1,11 +1,9 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Editable JSON schema for Lower Norfair Ridley's initial OBJ palette and ordered arena-background reveal colors; reveal timing and the terminating step are not asset data.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: Norfair Ridley's initial and reveal colour rows, which only the import reads to pre-colour his shades; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record NorfairRidleyColorDocument
 {
     /// <summary>Schema version, which must equal <see cref="NorfairRidleyColorFormat.Version"/>.</summary>

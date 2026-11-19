@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The import's Samus full-body cycle colour rows (#1637), import data only the import pre-colours her shades from.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: Samus's Speed Booster, Screw Attack and shinespark cycle colour rows, which only the import reads to pre-colour her shades; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportColourFiles), which the installer deletes before it publishes.")]
 public sealed record SamusFullBodyCycleColorDocument
 {
     /// <summary>Gets the document schema revision.</summary>

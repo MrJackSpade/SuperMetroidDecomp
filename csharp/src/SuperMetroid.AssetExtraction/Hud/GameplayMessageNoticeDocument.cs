@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -6,7 +5,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Defines the editable collection of gameplay-message notices.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the message notices' packed tile placements, which only the import reads to picture them; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportDocumentFiles), which the installer deletes before it publishes.")]
 public sealed record GameplayMessageNoticeDocument
 {
     /// <summary>Gets the presentation schema version.</summary>

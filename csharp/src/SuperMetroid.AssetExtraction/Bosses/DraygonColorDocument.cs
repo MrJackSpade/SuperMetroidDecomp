@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Defines editable RGB5 colors for Draygon's opening, combat, flash, and health states.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: Draygon's intro, background, sprite and flash colour rows, which only the import reads to pre-colour his sheets and shades; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record DraygonColorDocument
 {
     /// <summary>Gets the document schema version.</summary>

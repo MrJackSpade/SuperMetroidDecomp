@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable subtitle-staging tile references for BG3 rows 24-27; glyph pixels, translated narration, and reveal timing are separate resources or runtime state.</summary>
-[SuppressMessage("Design", "SME6463", Justification = "Import data: the narration's subtitle line packed tile placements, which only the import reads to compose its picture; IntroCinematicArtworkFiles.Extract writes it to the opening cinematic's import data (its LayoutFiles), which the installer deletes before it publishes.")]
 public sealed record IntroFinalLineTilemapDocument
 {
     /// <summary>Schema revision, which loading requires to equal <see cref="IntroFinalLineTilemapFormat.Version"/>.</summary>

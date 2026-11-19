@@ -8,10 +8,10 @@ using SuperMetroid.EnsureVerification.Harness;
 
 namespace SuperMetroid.EnsureVerification.Contracts;
 
-/// <summary>Checks the #2510 hand-mapped random sample field rule, SME6460.</summary>
+/// <summary>Checks the #2510 hand-mapped random sample field rule, SME6461.</summary>
 internal static class RandomSampleSelectionAnalyzerTests
 {
-    /// <summary>The advice every SME6460 message ends with.</summary>
+    /// <summary>The advice every SME6461 message ends with.</summary>
     private const string Advice = " a value read from a random sample field; make the choice a named WeightedRandomChoice or RandomChance";
 
     /// <summary>
@@ -95,7 +95,7 @@ internal static class RandomSampleSelectionAnalyzerTests
         }
         """;
 
-    /// <summary>Compiles one source and compares the SME6460 count and an optional message fragment.</summary>
+    /// <summary>Compiles one source and compares the SME6461 count and an optional message fragment.</summary>
     private static void Expect(string source, string? message = null, int count = 1, string assemblyName = CoreLayerAnalyzer.CoreAssembly)
     {
         var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview),

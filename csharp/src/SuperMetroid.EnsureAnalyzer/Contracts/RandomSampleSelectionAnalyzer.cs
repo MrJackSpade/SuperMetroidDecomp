@@ -7,7 +7,7 @@ using SuperMetroid.EnsureAnalyzer.Modules;
 namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
-/// A random choice is a named choice, never a field read mapped by hand (SME6460, #2510): in <c>SuperMetroid.Core</c>,
+/// A random choice is a named choice, never a field read mapped by hand (SME6461, #2510): in <c>SuperMetroid.Core</c>,
 /// the value a call reads from a random sample through a <c>RandomSampleField</c> (its own <c>Of</c> and
 /// <c>OfAdvancedBy</c>, or any call that takes a field and returns a number, as the enemies' <c>Next</c> draw does) is
 /// not used to index a list or an <c>Ensure.Element</c> lookup, compared with a constant, matched against a constant
@@ -20,7 +20,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 public sealed class RandomSampleSelectionAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>Core maps a random sample field's value to an outcome by hand.</summary>
-    public const string HandMappedRandomFieldId = "SME6460";
+    public const string HandMappedRandomFieldId = "SME6461";
 
     /// <summary>The field type whose reads are tracked.</summary>
     private const string RandomSampleFieldType = "SuperMetroid.Core.Compatibility.RandomSampleField";

@@ -133,7 +133,7 @@ internal sealed class CeresRidleyBabyScene
     /// duration, counted off one each update, and the next pose is then shown.
     /// </summary>
     /// <param name="ridley">Ceres Ridley's encounter, which holds the Baby and the colours its cues show.</param>
-    internal void AdvanceCeresBabyAnimation(CeresRidleyState ridley)
+    private void AdvanceCeresBabyAnimation(CeresRidleyState ridley)
     {
         CeresBaby baby = ridley.Baby;
         if (!baby.Clock.Expire())

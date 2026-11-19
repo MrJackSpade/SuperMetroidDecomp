@@ -103,7 +103,7 @@ internal sealed record RoomScope
     public required CeresHazeState? CeresHaze { get; init; }
 
     /// <summary>The room's block animations: those its effect lists and the Wrecked Ship entrance treadmill a door's setup may start.</summary>
-    public required RoomBlockAnimations BlockAnimations { get; init; }
+    public required RoomBlockAnimations BlockAnimations { private get; init; }
 
     /// <summary>The room's Tourian statue animations and descent, or null for a room whose setup does not unlock the statues (#2287).</summary>
     public required TourianStatueSequence? TourianStatues { get; init; }

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class SuitShadeAtColourStep
 {
     /// <summary>Whether the suit's shade waits for the colour step.</summary>
-    public bool IsDue { get; private set; }
+    private bool IsDue { get; set; }
 
     /// <summary>A cancelled boost or a new pose shows the suit's shade at the colour step.</summary>
     internal void Show() => IsDue = true;

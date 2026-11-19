@@ -13,7 +13,7 @@ internal static class BabyMetroidEnemyStateAccess
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
         internal void ResumeMembrane(BabyMetroidMembranePace pace, BabyMetroidMembranePulse phase, int updates)
         {
-            self.MembranePace = pace;
+            global::SuperMetroid.Core.PrivateState.Set(self, "MembranePace", (global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidMembranePace)(pace));
             self.Membrane = BabyMetroidMembraneAnimations.StandingOn(pace, phase, updates);
         }
     }

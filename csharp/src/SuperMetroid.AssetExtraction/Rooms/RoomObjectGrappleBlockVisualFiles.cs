@@ -37,7 +37,7 @@ public static class RoomObjectGrappleBlockVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The published artwork identity of a Grapple-block draw.</summary>
-    internal static string VisualId(GrappleBlockDraw frame) => frame switch
+    private static string VisualId(GrappleBlockDraw frame) => frame switch
     {
         GrappleBlockDraw.Intact => "intact",
         GrappleBlockDraw.Rock => "rock",
@@ -48,7 +48,7 @@ public static class RoomObjectGrappleBlockVisualFiles
     };
 
     /// <summary>Enumerates the intact Grapple block, its rock, pieces and dust, and blank air in authored order.</summary>
-    internal static IEnumerable<RoomObjectGrappleBlockDrawDefinitions.DrawnBlock> All
+    private static IEnumerable<RoomObjectGrappleBlockDrawDefinitions.DrawnBlock> All
     {
         get
         {

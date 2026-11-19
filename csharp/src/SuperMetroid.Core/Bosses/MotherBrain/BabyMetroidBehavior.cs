@@ -58,7 +58,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Sets the Baby Metroid up when the room spawns it.</summary>
-    internal static void InitializeBabyMetroid(RoomEnemyPlace place, int cameraX)
+    private static void InitializeBabyMetroid(RoomEnemyPlace place, int cameraX)
     {
         // The Baby Metroid stops the Plasma Beam and animates.
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
@@ -90,7 +90,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="samus">Samus, when the update has one.</param>
     /// <param name="camera">The enemy pass's camera, which the wait for the camera and the off-screen test read.</param>
     /// <param name="samusBombs">Samus's bomb and projectile counters, which draining Samus locks.</param>
-    internal void RunBabyMetroidMain(
+    private void RunBabyMetroidMain(
         RoomEnemyPlace place,
         SamusState samus,
         Position16<RoomPixels> camera,
@@ -660,7 +660,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Plays one update of the eight-phase membrane pulse of the Baby Metroid in <paramref name="place"/>, which paces its cries,
     /// and shows the phase it moves on to.
     /// </summary>
-    internal void StepBabyMetroidMembranePulse(RoomEnemyPlace place, BabyMetroidEnemyState state)
+    private void StepBabyMetroidMembranePulse(RoomEnemyPlace place, BabyMetroidEnemyState state)
     {
         if (state.Membrane.StepToNewFrame(_ => CountBabyMetroidCry(state)) is not { } pulse)
             return;
@@ -691,7 +691,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Requires the Baby Metroid's victim: the enemy placed directly after it (<see cref="BabyMetroidVictim"/>).</summary>
-    internal RoomEnemyPlace RequireBabyMetroidVictim(RoomEnemyPlace place)
+    private RoomEnemyPlace RequireBabyMetroidVictim(RoomEnemyPlace place)
     {
         RoomEnemyPlace victim = BabyMetroidVictim.Of(_places.InUpdateOrder, place.Ordinal);
         if (victim.IsFree)

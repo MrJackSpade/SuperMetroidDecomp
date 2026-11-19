@@ -130,7 +130,7 @@ internal sealed class CrocomireMelting
     /// skull an update after them that shows none.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="pass"/> is not a melt image.</exception>
-    internal static int BandRound(CrocomireMeltingIllustration pass) => pass switch
+    private static int BandRound(CrocomireMeltingIllustration pass) => pass switch
     {
         CrocomireMeltingIllustration.Flesh => CrocomireMeltingDefinitions.FirstPassBandRound,
         CrocomireMeltingIllustration.BareSkull => CrocomireMeltingDefinitions.SecondPassBandRound,

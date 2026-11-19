@@ -148,11 +148,17 @@ try {
     }
     $backgroundRooms = @{}
     foreach ($stateFile in [IO.Directory]::GetFiles($roomStates, '*RoomStateDefinitions.cs')) {
+        # A state is named by its declared member, which the selections name; its installed key may keep an older name.
+        $declared = $null
         foreach ($line in [IO.File]::ReadAllLines($stateFile)) {
+            $declarationMatch = [regex]::Match($line, 'RoomStateSettings (\w+) \{ get; \} =')
+            if ($declarationMatch.Success) { $declared = $declarationMatch.Groups[1].Value }
             $stateMatch = [regex]::Match($line, 'new\("(\w+)",')
             $backgroundMatch = [regex]::Match($line, 'LibraryBackgroundDefinitions\.(\w+)')
             if (-not $stateMatch.Success -or -not $backgroundMatch.Success) { continue }
-            $state = $stateMatch.Groups[1].Value
+            if ($null -eq $declared) { throw "Room state $($stateMatch.Groups[1].Value) in $stateFile follows no declaration." }
+            $state = $declared
+            $declared = $null
             if (-not $stateRooms.ContainsKey($state)) { throw "Room state $state loads a library background but no room chooses it." }
             $background = $backgroundMatch.Groups[1].Value
             if (-not $backgroundRooms.ContainsKey($background)) { $backgroundRooms[$background] = [Collections.Generic.HashSet[string]]::new() }

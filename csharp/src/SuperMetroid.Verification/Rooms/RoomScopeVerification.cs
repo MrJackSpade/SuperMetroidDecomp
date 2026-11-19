@@ -90,7 +90,7 @@ internal static class RoomScopeVerification
         VerificationAssertions.AssertEqual(30, destination.Projectiles.Charge.UpdatesHeld, "the flare counter survives the load");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.FxOverlay, destination.FxOverlay) &&
             !ReferenceEquals(source.ColourEffects, destination.ColourEffects) &&
-            !ReferenceEquals(source.BlockAnimations, destination.BlockAnimations),
+            !ReferenceEquals(global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.World.RoomScope, global::SuperMetroid.Core.Fx.RoomBlockAnimations>(source, "BlockAnimations"), global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.World.RoomScope, global::SuperMetroid.Core.Fx.RoomBlockAnimations>(destination, "BlockAnimations")),
             "the destination builds its own FX and animated tiles");
         VerificationAssertions.AssertTrue(destination.CeresHaze is null && destination.TourianStatues is null &&
             destination.Main is null && destination.MaridiaElevatube is null && destination.CeresElevatorShaft is null,

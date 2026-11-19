@@ -319,7 +319,7 @@ internal sealed class CeresRidleyFlight
     /// Steers both axes of his velocity toward <paramref name="target"/>, where it lies from the room's origin, which
     /// may be above the chamber, at a negative height.
     /// </summary>
-    internal static void AccelerateRidleyToward(
+    private static void AccelerateRidleyToward(
         RoomEnemyPlace place,
         RidleyFlightState flight,
         Offset16<RoomPixels> target,

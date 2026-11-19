@@ -85,7 +85,7 @@ internal static class HoltzAnimations
     /// wingbeat loops on from the entry cue before it (#2061, #2276), and the climb shows its flames and holds its swept
     /// wings (#2512).
     /// </summary>
-    internal static IReadOnlyDictionary<HoltzSegment, Animation<HoltzSegment>> StartingAt { get; } = new Dictionary<HoltzSegment, Animation<HoltzSegment>>
+    private static IReadOnlyDictionary<HoltzSegment, Animation<HoltzSegment>> StartingAt { get; } = new Dictionary<HoltzSegment, Animation<HoltzSegment>>
     {
         [P.Idle] = Animation<HoltzSegment>.LeadingInto([Segments.Whole(P.Idle)], [Segments.Whole(P.IdleWingbeat)]),
         [P.PrepareToSwoop] = new([Segments.Whole(P.PrepareToSwoop)], AnimationEnd.Holds),

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>Where Samus is in Draygon's hold (<see cref="SamusDraygonGrabbedState.Phase"/>).</summary>
+/// <summary>Where Samus is in Draygon's hold (<c>Phase</c>).</summary>
 public enum SamusDraygonHoldPhase
 {
     /// <summary>Draygon does not hold her, and no release waits for Draygon to see it.</summary>

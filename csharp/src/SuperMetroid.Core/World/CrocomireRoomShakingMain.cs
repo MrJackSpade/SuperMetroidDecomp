@@ -21,7 +21,7 @@ internal sealed class CrocomireRoomShakingMain(CrocomireEnemyState crocomire) : 
     /// <summary>Crocomire's room shaking while his comeback hides the wall.</summary>
     /// <param name="crocomire">The room's Crocomire.</param>
     /// <param name="layers">Where the layers stand, whose foreground view the rumble shakes.</param>
-    internal static void Rumble(CrocomireEnemyState crocomire, BackgroundScrollState layers)
+    private static void Rumble(CrocomireEnemyState crocomire, BackgroundScrollState layers)
     {
         Ensure.NotNull(crocomire);
         Ensure.NotNull(layers);

@@ -66,7 +66,7 @@ public static class RoomObjectNoobTubeVisualFiles
         VisualId(RoomObjectDrawIdentity.FrameOf<NoobTubeDraw>(request, "n00b-tube draw with a visual ID"));
 
     /// <summary>Names the intact, cracking or opened glass, or the opened upper or lower rows.</summary>
-    internal static string VisualId(NoobTubeDraw frame) => frame switch
+    private static string VisualId(NoobTubeDraw frame) => frame switch
     {
         NoobTubeDraw.Intact => "intact",
         NoobTubeDraw.Cracking => "cracking",

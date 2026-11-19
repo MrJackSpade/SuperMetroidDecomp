@@ -109,7 +109,7 @@ internal static class SuperMetroidRuntimeAccess
             throw new InvalidOperationException("The loaded room's setup spawns no Ceres haze.");
 
         /// <summary>The loaded room's block animations: its effect's and a door's Wrecked Ship treadmill.</summary>
-        internal RoomBlockAnimations BlockAnimations => self.Room.LoadedScope.BlockAnimations;
+        internal RoomBlockAnimations BlockAnimations => global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.World.RoomScope, global::SuperMetroid.Core.Fx.RoomBlockAnimations>(self.Room.LoadedScope, "BlockAnimations");
 
         /// <summary>The loaded room's Maridia elevatube room main; the room must be the elevatube.</summary>
         internal MaridiaElevatubeRoomMainState MaridiaElevatube => self.Room.LoadedScope.MaridiaElevatube ??

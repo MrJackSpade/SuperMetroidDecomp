@@ -12,7 +12,7 @@ public readonly record struct FloorZoom : IComparable<FloorZoom>
     private const int TwoHundredFiftySixthsPerFloorPixel = 256;
 
     /// <summary>A zoom of <paramref name="twoHundredFiftySixths"/> 256ths of a floor pixel per screen pixel, zero or more.</summary>
-    internal FloorZoom(int twoHundredFiftySixths) => TwoHundredFiftySixths = Ensure.AtLeastZero(twoHundredFiftySixths);
+    private FloorZoom(int twoHundredFiftySixths) => TwoHundredFiftySixths = Ensure.AtLeastZero(twoHundredFiftySixths);
 
     /// <summary>The zoom in 256ths of a floor pixel per screen pixel, zero or more.</summary>
     [IntegerQuantity("turning-floor zoom in 256ths of a floor pixel per screen pixel")]

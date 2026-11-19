@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Spatial;
 public readonly record struct PixelFractionCarry
 {
     /// <summary>Keeps a part of a pixel already checked to lie within one pixel.</summary>
-    internal PixelFractionCarry(SignedEightEight part) => Part = part;
+    private PixelFractionCarry(SignedEightEight part) => Part = part;
 
     /// <summary>The part of a pixel carried: none up to, but not including, one pixel.</summary>
     private SignedEightEight Part { get; }

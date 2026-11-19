@@ -238,7 +238,7 @@ internal sealed class KraidCombat
         PlaceKraidPassBounds(body, KraidMouthHitboxes.ResolveCollision(shape));
 
     /// <summary>Places a mouth shape's left, top and bottom edges at Kraid's body position.</summary>
-    internal static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthCollisionEdges shape) =>
+    private static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthCollisionEdges shape) =>
         KraidPassBounds.Placed(
             body.Position.X.Whole + shape.Left,
             body.Position.Y.Whole + shape.Top,

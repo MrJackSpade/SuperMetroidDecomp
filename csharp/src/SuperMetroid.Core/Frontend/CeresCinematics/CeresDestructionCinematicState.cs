@@ -39,7 +39,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
     /// <summary>Binds the installed sprite sheets the scene's actors draw from.</summary>
     [MemberNotNull(nameof(spriteSheets))]
-    internal void BindSpriteSheets(InstalledSpriteSheets sheets)
+    private void BindSpriteSheets(InstalledSpriteSheets sheets)
     {
         spriteSheets = Ensure.NotNull(sheets);
     }
@@ -47,9 +47,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
     private readonly AudioQueues audio;
     /// <summary>What the scene shows behind and among its actors (#2541), which the scene moves on from one stage to the next.</summary>
-    internal CeresDestructionView View { get; private set; }
+    private CeresDestructionView View { get; set; }
     /// <summary>Whether the Zebes reveal's pictures and planet show in place of the station's (#1467).</summary>
-    internal bool ZebesRevealed => View is CeresDestructionView.ZebesReveal or CeresDestructionView.ZebesApproach or CeresDestructionView.ZebesClose;
+    private bool ZebesRevealed => View is CeresDestructionView.ZebesReveal or CeresDestructionView.ZebesApproach or CeresDestructionView.ZebesClose;
     /// <summary>
     /// The colour the scene shows behind every layer (#1512): black until the scene loads the flight's colours, then the
     /// installed flight's backdrop, which the engine flicker never recolours.
@@ -58,7 +58,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>The live actors' sprite entries, drawn from the scene's current sheet (#1358).</summary>
     internal readonly ScreenSprites screenSprites;
     /// <summary>The installed backdrops and actor placements, bound when the game is bound to its installed content (#1616).</summary>
-    internal IntroCinematicArtwork Artwork { get; private set; }
+    private IntroCinematicArtwork Artwork { get; set; }
     /// <summary>The installed sprite sheets the Ceres and Zebes actors draw from; artwork, never saved.</summary>
     private InstalledSpriteSheets spriteSheets;
 
@@ -94,7 +94,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// The scene's colour effects (#1733): none before the station is set up; from its setup the station's navigation
     /// lights; once the Zebes reveal's setup clears them, the gunship engine's flicker and the PLANET ZEBES caption's fades.
     /// </summary>
-    internal ColourEffectSystem ColourEffects { get; private set; } = ColourEffectSystem.ForScreen();
+    private ColourEffectSystem ColourEffects { get; set; } = ColourEffectSystem.ForScreen();
     /// <summary>
     /// The Japanese subtitle the title's cue has just spawned, which runs on the same update, after the title, before it
     /// joins the reveal's actors.
@@ -104,7 +104,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private readonly bool japaneseText;
 
     /// <summary>The camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
-    internal FixedVector<FloorPixels> FloorScroll { get; private set; } = new(
+    private FixedVector<FloorPixels> FloorScroll { get; set; } = new(
         SignedSixteenSixteen.FromWholePixels(CeresDestructionSceneDefinitions.Places.CeresInitialFloorScrollX),
         SignedSixteenSixteen.FromWholePixels(CeresDestructionSceneDefinitions.Places.CeresAndFlightFloorScrollY));
     /// <summary>
@@ -112,7 +112,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <see cref="CeresDestructionSceneDefinitions.Motion.FarZebesZoomLimit"/> plus one fast step, and the only decrease
     /// is guarded by the minimum-zoom test, so it never falls below zero.
     /// </summary>
-    internal FloorZoom Zoom { get; private set; } = FloorZoom.OwnSize;
+    private FloorZoom Zoom { get; set; } = FloorZoom.OwnSize;
     /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle;
     /// <summary>The screen's brightness, black at first, and its slow fades, one level on every second update.</summary>
@@ -141,7 +141,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     private int cinematicFrameCounter;
     /// <summary>The route when the escape timer expires while Samus remains aboard Ceres.</summary>
-    internal bool WithSamus { get; }
+    private bool WithSamus { get; }
 
     /// <param name="audio">The shared music and sound queue, whose music the scene waits on.</param>
     /// <param name="glowColors">Installed Power Bomb glow colours for the station explosion.</param>
@@ -190,7 +190,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// before the later engine-flicker colour effect starts, as the scene reloads the
     /// flight's colours only until then (#1512).
     /// </summary>
-    internal void BindArtwork(IntroCinematicArtwork value)
+    private void BindArtwork(IntroCinematicArtwork value)
     {
         Artwork = Ensure.NotNull(value);
         if (CeresDestructionPhaseGroups.ThroughFlightToZebesStart.Contains(Phase))
@@ -733,7 +733,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// effects shows, the station's navigation lights over Ceres and the gunship engine's flicker on the approach to Zebes,
     /// or the floor's standard colours while no effect has shown one.
     /// </summary>
-    internal PictureShading FloorShading
+    private PictureShading FloorShading
     {
         get
         {

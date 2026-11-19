@@ -707,7 +707,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Initializes a rain flame over a room column, falling after it hangs.</summary>
     /// <param name="body">Phantoon's body.</param>
-    /// <param name="columnX">The screen X of the rain column the flame falls in (<see cref="PhantoonFlameSpawns.RainXs"/>).</param>
+    /// <param name="columnX">The screen X of the rain column the flame falls in (<c>RainXs</c>).</param>
     /// <param name="hangUpdates">The updates from the flame's first to its fall, the flame hanging on every earlier one.</param>
     private bool SpawnPhantoonRainFlame(RoomEnemyPlace body, int columnX, int hangUpdates)
     {

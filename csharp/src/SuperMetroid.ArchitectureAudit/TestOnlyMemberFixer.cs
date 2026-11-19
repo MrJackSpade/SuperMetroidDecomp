@@ -61,8 +61,12 @@ internal static class TestOnlyMemberFixer
                 manual.Add($"MANUAL {Describe(solution.RepositoryRoot, symbol)} ({string.Join(", ", ways.Select(way => $"{way.Uses.Way} {way.Shape}"))}): {refusal}");
                 continue;
             }
-            foreach (var (tree, change) in Narrow(symbol))
-                Add(edits, tree, change);
+            // A member private already, whose generated access was deleted, only regains that access.
+            if (!IsPrivate(symbol))
+            {
+                foreach (var (tree, change) in Narrow(symbol))
+                    Add(edits, tree, change);
+            }
             Shims(solution.RepositoryRoot, shims, PrivateAccessShims.OwnerOf(symbol)).Add(symbol, Written(ways));
             narrowed.Add(symbol);
             fixedMembers++;
@@ -140,11 +144,13 @@ internal static class TestOnlyMemberFixer
                 return "property shape";
             case IPropertySymbol property when Partial(property, ways):
                 return "one accessor stays wider: checks reach the other through PrivateState";
-            case IFieldSymbol { IsConst: true }:
+            // A private constant is reached already as its access names it, never where a constant is required.
+            case IFieldSymbol { IsConst: true } when symbol.DeclaredAccessibility != Accessibility.Private:
                 return "constant: checks may name it where a constant is required";
             case IFieldSymbol field when field.Type.IsRefLikeType || field.Type.TypeKind == TypeKind.Pointer || field.IsFixedSizeBuffer:
                 return "ref struct, pointer or fixed buffer field";
-            case IFieldSymbol field when field.DeclaringSyntaxReferences[0].GetSyntax() is VariableDeclaratorSyntax
+            case IFieldSymbol field when field.DeclaredAccessibility != Accessibility.Private &&
+                                         field.DeclaringSyntaxReferences[0].GetSyntax() is VariableDeclaratorSyntax
             {
                 Parent: VariableDeclarationSyntax { Variables.Count: > 1 },
             }:
@@ -404,6 +410,11 @@ internal static class TestOnlyMemberFixer
         foreach (SyntaxToken other in accessibility.Skip(1))
             yield return new TextChange(TextSpan.FromBounds(other.SpanStart, other.GetNextToken().SpanStart), "");
     }
+
+    /// <summary>Whether a member, and each accessor it has, is private.</summary>
+    private static bool IsPrivate(ISymbol symbol) => symbol.DeclaredAccessibility == Accessibility.Private &&
+        (symbol is not IPropertySymbol property || property.GetMethod is null or { DeclaredAccessibility: Accessibility.Private } &&
+            property.SetMethod is null or { DeclaredAccessibility: Accessibility.Private });
 
     /// <summary>Whether a modifier states accessibility.</summary>
     private static bool IsAccessibility(SyntaxToken modifier) => modifier.Kind() is SyntaxKind.PublicKeyword or SyntaxKind.InternalKeyword or

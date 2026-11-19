@@ -89,7 +89,7 @@ internal static class GerutaAnimations
     /// and hold their one pose (#2512): only those placements move the flames, so placing them again each time the pose
     /// showed again would change nothing.
     /// </summary>
-    internal static IReadOnlyDictionary<GerutaSegment, Animation<GerutaSegment>> StartingAt { get; } = new Dictionary<GerutaSegment, Animation<GerutaSegment>>
+    private static IReadOnlyDictionary<GerutaSegment, Animation<GerutaSegment>> StartingAt { get; } = new Dictionary<GerutaSegment, Animation<GerutaSegment>>
     {
         [P.Idle] = Animation<GerutaSegment>.Looping([Segments.Whole(P.Idle)]),
         [P.StartDescending] = new([Segments.Whole(P.StartDescending)], AnimationEnd.Holds),

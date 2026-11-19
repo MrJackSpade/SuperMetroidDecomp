@@ -740,7 +740,7 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(0x0108, samus.Position.X.Whole, "right-facing owner placement X");
     AssertEqual(0x01a8, samus.Position.Y.Whole, "owner placement Y is body plus $28");
 
-    samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
+    global::SuperMetroid.Core.PrivateState.Set(samus, "SolidVerticalCollisionResult", (global::SuperMetroid.Core.Samus.Movement.SamusVerticalCollisionResult)(SamusVerticalCollisionResult.WallJump));
     SamusDraygonGrabbedState.StepMovement(samus);
     AssertEqual(SamusVerticalCollisionResult.None, samus.SolidVerticalCollisionResult,
         "type-$1A performs its sole STZ side effect on the stale vertical collision word");

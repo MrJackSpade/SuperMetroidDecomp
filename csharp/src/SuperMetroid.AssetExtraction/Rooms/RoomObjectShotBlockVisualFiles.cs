@@ -37,7 +37,7 @@ public static class RoomObjectShotBlockVisualFiles
 
     /// <summary>The published artwork identity of a shot-block draw: its shape and breakup stage, or its restoration (#1994).</summary>
     /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a shot-block draw.</exception>
-    internal static string VisualId(RoomObjectDraw draw) => draw switch
+    private static string VisualId(RoomObjectDraw draw) => draw switch
     {
         RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame: var breakup } => $"{BlockArrangementKeys.Installed.Of(breakup.Layout)}-{BlockBreakupStageKeys.Installed.Of(breakup.Stage)}",
         RoomObjectFrameDraw<ShotBlockObjectDraws.RestorationDraw> { Frame: var restoration } => $"{BlockArrangementKeys.Installed.Of(restoration.Layout)}-restore",
@@ -45,7 +45,7 @@ public static class RoomObjectShotBlockVisualFiles
     };
 
     /// <summary>The draw lists of every breakup and restoration draw, built from the calculated draws.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All => Calculated.Select(Export);
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All => Calculated.Select(Export);
 
     /// <summary>The draw list of a shot-block draw: its block shape written in its arrangement's runs (#1862).</summary>
     private static RoomObjectDrawLists.DrawList Export(RoomObjectDraw draw) => draw switch
@@ -58,7 +58,7 @@ public static class RoomObjectShotBlockVisualFiles
     };
 
     /// <summary>Yields breakup stages interleaved by shape, followed by the three restoration draws.</summary>
-    internal static IEnumerable<RoomObjectDraw> Calculated
+    private static IEnumerable<RoomObjectDraw> Calculated
     {
         get
         {

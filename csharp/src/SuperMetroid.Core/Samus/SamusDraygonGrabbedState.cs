@@ -157,7 +157,7 @@ public sealed class SamusDraygonGrabbedState
     /// Releases Samus as she breaks free: the release Draygon has not yet seen, which his next carry of her reports
     /// (<see cref="CarryTo"/>).
     /// </summary>
-    public void Release(SamusState samus)
+    private void Release(SamusState samus)
     {
         LetGo(samus);
         Phase = SamusDraygonHoldPhase.ReleasedUnseen;

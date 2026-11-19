@@ -83,13 +83,13 @@ public static class RoomObjectCollectibleVisualFiles
         : throw new InvalidOperationException($"Undefined {nameof(CollectibleDraw)} {draw}.");
 
     /// <summary>Whether the installed file holds <paramref name="draw"/>: every frame but a block pair's, which lies under the item's own picture (#1538).</summary>
-    internal static bool IsEditable(CollectibleDraw draw) => CollectibleObjectDraws.GroupOf(draw) != DrawGroup.OwnPicture;
+    private static bool IsEditable(CollectibleDraw draw) => CollectibleObjectDraws.GroupOf(draw) != DrawGroup.OwnPicture;
 
     /// <summary>The sixteen frames the installed file holds, in their published order.</summary>
-    internal static IEnumerable<RoomObjectCollectibleDrawFrame> Editable => All.Where(frame => IsEditable(frame.Draw));
+    private static IEnumerable<RoomObjectCollectibleDrawFrame> Editable => All.Where(frame => IsEditable(frame.Draw));
 
     /// <summary>Enumerates all 24 collectible one-cell draws in their published order.</summary>
-    internal static IEnumerable<RoomObjectCollectibleDrawFrame> All
+    private static IEnumerable<RoomObjectCollectibleDrawFrame> All
     {
         get
         {

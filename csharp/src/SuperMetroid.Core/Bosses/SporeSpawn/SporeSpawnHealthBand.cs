@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <summary>
 /// One of Spore Spawn's four health bands (#2242): the colours his body shows from his first damaging hit of an open
 /// phase on. He is in the highest band whose <see cref="MinimumHealth"/> his health reaches, and in
-/// <see cref="SporeSpawnHealthBandDefinitions.NearlyDead"/> below them all.
+/// <c>NearlyDead</c> below them all.
 /// </summary>
 public sealed class SporeSpawnHealthBand
 {

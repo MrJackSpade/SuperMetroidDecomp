@@ -65,7 +65,9 @@ internal static class Program
     /// steps, hands over the solution as its steps left it.
     /// </summary>
     internal static async Task<int> RunAsync(Solution solution, string repositoryRoot, AuditMode mode) =>
-        Run(await SolutionLoader.CompileAsync(solution, repositoryRoot), mode);
+        Run(await SolutionLoader.CompileAsync(solution, repositoryRoot,
+            // The fix regenerates the private access checks name, so it binds checks that lack it; shipped code compiles.
+            mode == AuditMode.FixTestOnlyMembers ? project => ProjectScope.IsCheck(project.AssemblyName) : null), mode);
 
     /// <summary>Runs the chosen mode on a compiled solution; returns the exit code.</summary>
     private static int Run(LoadedSolution solution, AuditMode mode)

@@ -19,10 +19,10 @@ internal static class LibraryBackgroundProgramDefinitionsPrivateAccess
             get => PrivateState.StaticGet<global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram>(typeof(global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitions), "ScrollingSkyLandingSite");
         }
 
-        /// <summary>The private property <c>ScrollingSkyWreckedShipEntrance</c>, reached by name.</summary>
-        internal static global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram ScrollingSkyWreckedShipEntrance
+        /// <summary>The private property <c>ScrollingSkyWestOcean</c>, reached by name.</summary>
+        internal static global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram ScrollingSkyWestOcean
         {
-            get => PrivateState.StaticGet<global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram>(typeof(global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitions), "ScrollingSkyWreckedShipEntrance");
+            get => PrivateState.StaticGet<global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram>(typeof(global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitions), "ScrollingSkyWestOcean");
         }
 
         /// <summary>The private property <c>ScrollingSkyEastOcean</c>, reached by name.</summary>
@@ -31,16 +31,16 @@ internal static class LibraryBackgroundProgramDefinitionsPrivateAccess
             get => PrivateState.StaticGet<global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram>(typeof(global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitions), "ScrollingSkyEastOcean");
         }
 
-        /// <summary>The private property <c>ScrollingSkyBowlingAlley</c>, reached by name.</summary>
-        internal static global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram ScrollingSkyBowlingAlley
+        /// <summary>The private property <c>ScrollingSkyPreBowling</c>, reached by name.</summary>
+        internal static global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram ScrollingSkyPreBowling
         {
-            get => PrivateState.StaticGet<global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram>(typeof(global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitions), "ScrollingSkyBowlingAlley");
+            get => PrivateState.StaticGet<global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram>(typeof(global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitions), "ScrollingSkyPreBowling");
         }
 
-        /// <summary>The private property <c>BrinstarKraidUpperLower</c>, reached by name.</summary>
-        internal static global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram BrinstarKraidUpperLower
+        /// <summary>The private property <c>KraidAlive</c>, reached by name.</summary>
+        internal static global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram KraidAlive
         {
-            get => PrivateState.StaticGet<global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram>(typeof(global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitions), "BrinstarKraidUpperLower");
+            get => PrivateState.StaticGet<global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram>(typeof(global::SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitions), "KraidAlive");
         }
 
         /// <summary>The private property <c>KraidDead</c>, reached by name.</summary>

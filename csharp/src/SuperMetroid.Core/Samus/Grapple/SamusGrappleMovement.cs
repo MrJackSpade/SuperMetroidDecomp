@@ -956,7 +956,7 @@ public static class SamusGrappleMovement
     /// Recomputes a firing beam's rope start and flare from Samus's final pose and position, the rope start at her
     /// projectile height and the flare at her picture's art origin.
     /// </summary>
-    internal static void RefreshFiringOrigins(
+    private static void RefreshFiringOrigins(
         SamusState samus,
         SamusGrappleState grapple)
     {

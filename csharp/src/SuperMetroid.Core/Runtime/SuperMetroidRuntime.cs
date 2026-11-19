@@ -1202,7 +1202,7 @@ internal sealed class SuperMetroidRuntime
     /// Samus's control in the most recent gameplay frame, which the display shows the X-ray beam's last step from: each
     /// gameplay frame replaces it whole as it begins, and a frame that runs no gameplay (a message box's) leaves it.
     /// </summary>
-    internal SamusControlFrame? LatestGameplayFrame { get; private set; }
+    private SamusControlFrame? LatestGameplayFrame { get; set; }
 
     /// <summary>The rest of a gameplay frame, held until a message box a room object opened during it closes.</summary>
     private SuspendedGameplayFrameTail? _suspendedFrameTail;

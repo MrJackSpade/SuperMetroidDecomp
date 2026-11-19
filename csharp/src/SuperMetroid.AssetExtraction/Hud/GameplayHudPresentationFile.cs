@@ -183,7 +183,7 @@ public static class GameplayHudPresentationFile
     }
 
     /// <summary>The cells the minimap covers: one for each of its area-map squares.</summary>
-    private static Extent16<CharacterCells> MinimapCells => new(GameplayHudPresentation.MinimapSize.X, GameplayHudPresentation.MinimapSize.Y);
+    private static Extent16<CharacterCells> MinimapCells => new(GameplayHudDefinitions.MinimapSize.X, GameplayHudDefinitions.MinimapSize.Y);
 
     /// <summary>Ensures an anchored rectangle fits within the mutable 32-by-3 HUD tilemap.</summary>
     private static Position16<CharacterCells> ValidateAnchor(Position16<CharacterCells> anchor, Extent16<CharacterCells> size, string name)

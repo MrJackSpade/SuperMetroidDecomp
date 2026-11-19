@@ -123,9 +123,9 @@ public sealed class NullableThenThrowAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>
-    /// The value a condition tests for null: <c>value is null</c>, <c>value == null</c>, <c>value is not { } v</c> and
-    /// <c>value is not null</c> are true when it is absent; <c>value is { } v</c>, <c>value is not null</c> negated and
-    /// <c>value != null</c> are true when it is present.
+    /// The value a condition tests for null: <c>value is null</c>, <c>value == null</c> and <c>value is not { } v</c> are
+    /// true when it is absent; <c>value is { } v</c>, <c>value is not null</c> and <c>value != null</c> are true when it is
+    /// present, and a negation turns one into the other.
     /// </summary>
     private static IOperation? NullTest(IOperation condition, out bool trueWhenNull)
     {

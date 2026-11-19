@@ -38,7 +38,7 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
         _escape = dependencies.Escape;
         Body = dependencies.RidleyBody;
         Flight = new CeresRidleyFlight(new CeresRidleyFlightDependencies { Lifecycle = dependencies.Lifecycle, Room = dependencies.Room, Audio = dependencies.Audio, Places = dependencies.Places, RidleyEncounter = _ridleyEncounter, Presentation = dependencies.Presentation });
-        BabyScene = new CeresRidleyBabyScene(dependencies.Room, dependencies.Earthquake, dependencies.Audio, dependencies.Presentation, _ridleyEncounter);
+        BabyScene = new CeresRidleyBabyScene(dependencies.Room, dependencies.Audio, dependencies.Presentation, _ridleyEncounter);
         Hits = new CeresRidleyHits(_ridleyEncounter);
     }
 

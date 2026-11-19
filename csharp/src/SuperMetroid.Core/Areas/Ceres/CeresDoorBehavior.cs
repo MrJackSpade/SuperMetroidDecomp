@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -29,8 +30,32 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
         Presentation = dependencies.Presentation;
         Projectiles = dependencies.Projectiles;
         Escape = dependencies.CeresEscape;
-        RidleyScene = dependencies.RidleyScene;
+        _earthquake = dependencies.Earthquake;
         EscapeQuake = new CeresEscapeQuake(dependencies.Room, dependencies.Earthquake, dependencies.CeresEscape);
+    }
+
+    /// <summary>The room's quake, which shakes the overlay of Ridley's room's door sideways.</summary>
+    private readonly RoomEarthquake _earthquake;
+
+    /// <summary>The door of Ceres Ridley's room once it has initialized; null in any other room.</summary>
+    private RoomEnemyPlace? _ridleyRoomDoor;
+
+    /// <summary>Attaches <paramref name="door"/> as the door of Ceres Ridley's room as it initializes.</summary>
+    internal void AttachRidleyRoomDoor(RoomEnemyPlace door) => _ridleyRoomDoor = Ensure.NotNull(door);
+
+    /// <summary>
+    /// Shows the door of Ridley's room as its fixed overlay picture while its look is the overlay (#2573): hidden as an
+    /// actor, the door shows the overlay at its place, shaken sideways by the room's quake, in the overlay's own standard
+    /// colours, which the door actor's looks never reach (#1512).
+    /// </summary>
+    internal void PublishRidleyRoomDoorOverlay(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
+    {
+        Ensure.NotNull(sprites);
+        if (_ridleyRoomDoor is not { } door || door.RequireSpeciesState<CeresRidleyRoomDoorState>().Look != CeresRidleyRoomDoorLook.Overlay)
+            return;
+        int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.RemainingFrames);
+        Presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyRoomDoorOverlay,
+            (door.Position.Whole + new Offset16<RoomPixels>(quakeXOffset, 0)).RelativeToCamera(camera), PictureShading.Standard);
     }
 
     /// <summary>Provides Ceres room artwork, boss status and the gameplay RNG.</summary>
@@ -47,9 +72,6 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
 
     /// <summary>Supplies Ridley's escape status and receives the elevator door's destruction.</summary>
     internal ICeresEscapeStatus Escape { get; }
-
-    /// <summary>Ceres Ridley's scene, which the door of his room attaches itself to.</summary>
-    internal ICeresRidleyScene RidleyScene { get; }
 
     /// <summary>The quake every door and the elevator room's wall keeps up while the station self-destructs.</summary>
     internal CeresEscapeQuake EscapeQuake { get; }
@@ -160,14 +182,14 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
             case CeresDoorCueKind.MakeTangible:
                 place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
                 return null;
-            case CeresDoorCueKind.HandDrawingToRidley:
-                place.RequireSpeciesState<CeresRidleyRoomDoorState>().Drawing = CeresRidleyRoomDoorDrawing.ByRidleysScene;
+            case CeresDoorCueKind.ShowOverlay:
+                place.RequireSpeciesState<CeresRidleyRoomDoorState>().Look = CeresRidleyRoomDoorLook.Overlay;
                 return null;
             case CeresDoorCueKind.MakeInvisible:
                 place.Presence = place.Presence.With(EnemyPresence.Hidden);
                 return null;
-            case CeresDoorCueKind.MakeVisibleAndTakeDrawingBack:
-                place.RequireSpeciesState<CeresRidleyRoomDoorState>().Drawing = CeresRidleyRoomDoorDrawing.ItsOwn;
+            case CeresDoorCueKind.MakeVisibleAndShowActor:
+                place.RequireSpeciesState<CeresRidleyRoomDoorState>().Look = CeresRidleyRoomDoorLook.Actor;
                 place.Presence = place.Presence.Without(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.MakeVisible:

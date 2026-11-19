@@ -24,8 +24,8 @@ internal enum CeresDoorCueKind
     RidleyRoomDoorWaits,
     /// <summary>The elevator room's wall appears: until Ceres Ridley has escaped, its owner starts it as a left-facing door.</summary>
     ElevatorRoomWallAppears,
-    /// <summary>Marks the door drawn by Ridley's scene.</summary>
-    HandDrawingToRidley,
+    /// <summary>The door of Ridley's room shows its fixed overlay picture instead of its actor frames (#2573).</summary>
+    ShowOverlay,
     /// <summary>Stops colliding with Samus.</summary>
     MakeIntangible,
     /// <summary>Hides the door.</summary>
@@ -34,8 +34,8 @@ internal enum CeresDoorCueKind
     MakeTangible,
     /// <summary>Shows the door.</summary>
     MakeVisible,
-    /// <summary>Shows the door and clears the drawn-by-Ridley mark.</summary>
-    MakeVisibleAndTakeDrawingBack,
+    /// <summary>Shows the door, its actor frames again in place of its overlay picture.</summary>
+    MakeVisibleAndShowActor,
     /// <summary>Queues the door's opening sound.</summary>
     PlayOpeningSound,
 }

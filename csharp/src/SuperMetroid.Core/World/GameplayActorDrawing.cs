@@ -353,11 +353,11 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus)
         {
-            // Once his animation starts, Ceres Ridley's scene draws the Baby Metroid (and the arena door's overlay) after
-            // every ordinary enemy layer, so the Baby shows at its own position in front of the frontmost enemies.
-            room.Enemies.Ceres.DrawCeresRidleyBabyAndDoorOverEnemies(
-                _sprites,
-                room.Camera.PixelPosition);
+            // Once Ceres Ridley's animation starts, his Baby's animation runs after the actors' drawing steps.
+            room.Enemies.Ceres.StepCeresBabyAfterActors();
+            // The Baby and the door of Ridley's room, while it shows its overlay, each show once, at their own place.
+            room.Enemies.Ceres.PublishCeresBaby(_sprites, room.Camera.PixelPosition);
+            room.Enemies.CeresDoorBehavior.PublishRidleyRoomDoorOverlay(_sprites, room.Camera.PixelPosition);
         }
     }
 }

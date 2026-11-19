@@ -743,7 +743,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             : CeresSteamVentsHoldingPlace.Instance);
         CeresFallingTiles = new CeresFallingTiles(Projectiles, Audio);
         SaveStationElectricity = new SaveStationElectricity(Projectiles);
-        CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter, RidleyScene = RidleyEncounter });
+        CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter });
         // A room with a turning floor alone places the elevator room's blocked door, which cycles the floor's platform (#2426).
         CeresElevatorDoorFactory? elevatorDoors = dependencies.Scenery.Floor is { } floor ? new CeresElevatorDoorFactory(CeresDoorBehavior, floor) : null;
         CacatacBehavior = new CacatacBehavior(Room, Projectiles, Audio);

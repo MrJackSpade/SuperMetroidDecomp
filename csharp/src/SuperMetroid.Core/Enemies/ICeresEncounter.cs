@@ -20,11 +20,14 @@ internal interface ICeresEncounter
     /// <summary>Resolves Samus's projectiles against Ceres Ridley before the enemy pass; returns the hits.</summary>
     int ResolveCeresRidleyProjectileHits(SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles);
 
-    /// <summary>Draws the Baby and door sprite during the enemy pass, before his animation starts.</summary>
-    void DrawCeresRidleyImmediateBabyAndDoor(SpriteFrameBuffer sprites, Position16<RoomPixels> camera);
+    /// <summary>Runs Ceres Ridley's Baby's animation as the enemy pass ends, until his animation starts (#2573).</summary>
+    void StepCeresBabyWithEnemyPass();
 
-    /// <summary>Draws the Baby and door sprite over every enemy, once his animation has started.</summary>
-    void DrawCeresRidleyBabyAndDoorOverEnemies(SpriteFrameBuffer sprites, Position16<RoomPixels> camera);
+    /// <summary>Runs Ceres Ridley's Baby's animation after the actors' drawing steps, once his animation has started (#2573).</summary>
+    void StepCeresBabyAfterActors();
+
+    /// <summary>Shows Ceres Ridley's Baby where it is, once, at its picture's own depth among the actors (#2573).</summary>
+    void PublishCeresBaby(SpriteFrameBuffer sprites, Position16<RoomPixels> camera);
 
     /// <summary>Runs the getaway room's main step over the arena's turning <paramref name="floor"/>.</summary>
     void RunCeresRidleyGetawayRoomMain(SamusState samus, RoomFloor floor, int frameCounter);

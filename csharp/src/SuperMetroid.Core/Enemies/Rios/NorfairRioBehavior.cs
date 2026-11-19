@@ -93,10 +93,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 // The same random number picks the dive's fast or slow downward launch.
                 state.Velocity = new PixelVelocity<RoomPixels>(
-                    RioLaunchDefinitions.NorfairXVelocity,
+                    RioLaunchDefinitions.NorfairXVelocity.Toward(RioLaunches.SideOfSamus(place, samus)),
                     RioLaunches.NorfairYVelocity(random));
-                if (samus.Position.X.Whole < place.Position.X.Whole)
-                    state.Velocity = state.Velocity.ReversedX();
                 StartNorfairRioSwoopAnimation(
                     place,
                     state,

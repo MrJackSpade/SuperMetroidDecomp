@@ -82,7 +82,7 @@ internal static class TypedSineProductsVerification
         for (int mark = 0; mark < QuadraticSpeedCurveDefinitions.MarkCount; mark++)
         {
             QuadraticCurveSpeed speed = QuadraticSpeedCurve.AtMark(mark);
-            SignedSixteenSixteen old = speed.CoarseToward(EnemySpeedSign.Positive);
+            SignedSixteenSixteen old = speed.CoarseToward(VerticalDirection.Down);
             if (speed.CoarseRise != old)
                 throw new InvalidDataException($"Mark {mark}: the coarse rise {speed.CoarseRise.RawValue} differs from {old.RawValue}.");
             compared++;
@@ -198,10 +198,12 @@ internal static class TypedSineProductsVerification
         });
         foreach (DraygonBurialEvirDefinition evir in DraygonBurialEvirDefinitions.InSpawnOrder)
         {
-            SignedSixteenSixteen across = EnemyMath.AbsoluteCosineSpeed(evir.Heading, 1).AsDisplacement();
-            SignedSixteenSixteen down = EnemyMath.AbsoluteSineSpeed(evir.Heading, 1).AsDisplacement();
-            var old = new FixedVector<RoomPixels>(EnemyMath.CosineIsNegative(evir.Heading) ? across : -across,
-                EnemyMath.SineIsNegative(evir.Heading) ? down : -down);
+            TrigonometryAngle acrossAngle = evir.Heading.TurnedBy(TrigonometryAngle.QuarterTurn);
+            TrigonometryAngle downAngle = evir.Heading.TurnedBy(TrigonometryAngle.HalfTurn);
+            SignedSixteenSixteen across = UnsignedSixteenSixteen.ShareOfWholePixels(1, Trigonometry.UnsignedHalfWave(acrossAngle.StepsIntoHalfTurn)).AsDisplacement();
+            SignedSixteenSixteen down = UnsignedSixteenSixteen.ShareOfWholePixels(1, Trigonometry.UnsignedHalfWave(downAngle.StepsIntoHalfTurn)).AsDisplacement();
+            var old = new FixedVector<RoomPixels>(acrossAngle.IsInSecondHalf ? across : -across,
+                downAngle.IsInSecondHalf ? down : -down);
             AssertEqual(old, DraygonDeath.BurialDrift(evir), $"the burial Evir heading {evir.Heading.RawValue} drifts back along it");
         }
 

@@ -91,10 +91,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 }
 
                 state.Velocity = new(
-                    RioLaunchDefinitions.LowerNorfairXVelocity,
+                    RioLaunchDefinitions.LowerNorfairXVelocity.Toward(RioLaunches.SideOfSamus(place, samus)),
                     RioLaunchDefinitions.LowerNorfairYVelocity);
-                if (samus.Position.X.Whole < place.Position.X.Whole)
-                    NegateLowerNorfairRioXVelocity(state);
                 StartLowerNorfairRioAnimation(
                     place,
                     state,

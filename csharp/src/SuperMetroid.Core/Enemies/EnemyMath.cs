@@ -109,37 +109,6 @@ internal static class EnemyMath
         CircleSine(angle.TurnedBy(TrigonometryAngle.HalfTurn), radius);
 
     /// <summary>
-    /// The share of a speed of <paramref name="wholePixels"/> whole pixels per update that <paramref name="angle"/>'s
-    /// unsigned half-wave gives, regardless of direction: the half-wave's share of the whole speed, its peak standing for
-    /// all of it, times the speed, in pixels per update to a fraction of a pixel. The speeds are whole pixels: a Draygon goop's is two, a Multiviola's its spawn speed. Computing the
-    /// half-wave deterministically avoids floating-point rounding, so each speed is exactly the game's product.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
-    /// <exception cref="OverflowException">The product is 65536 pixels or more.</exception>
-    internal static UnsignedSixteenSixteen UnsignedSineSpeed(TrigonometryAngle angle, int wholePixels) =>
-        UnsignedSixteenSixteen.ShareOfWholePixels(wholePixels, Trigonometry.UnsignedHalfWave(angle.StepsIntoHalfTurn));
-
-    /// <summary>
-    /// The horizontal part of a speed of <paramref name="wholePixels"/> whole pixels per update along
-    /// <paramref name="angle"/>, regardless of direction: <see cref="UnsignedSineSpeed"/> a quarter turn ahead.
-    /// </summary>
-    internal static UnsignedSixteenSixteen AbsoluteCosineSpeed(TrigonometryAngle angle, int wholePixels) =>
-        UnsignedSineSpeed(angle.TurnedBy(TrigonometryAngle.QuarterTurn), wholePixels);
-
-    /// <summary>
-    /// The vertical part of a speed of <paramref name="wholePixels"/> whole pixels per update along
-    /// <paramref name="angle"/>, regardless of direction: <see cref="UnsignedSineSpeed"/> a half turn ahead.
-    /// </summary>
-    internal static UnsignedSixteenSixteen AbsoluteSineSpeed(TrigonometryAngle angle, int wholePixels) =>
-        UnsignedSineSpeed(angle.TurnedBy(TrigonometryAngle.HalfTurn), wholePixels);
-
-    /// <summary>Whether an angle's cosine component is negative: the angle a quarter turn on lies in the turn's second half.</summary>
-    internal static bool CosineIsNegative(TrigonometryAngle angle) => angle.TurnedBy(TrigonometryAngle.QuarterTurn).IsInSecondHalf;
-
-    /// <summary>Whether an angle's sine component is negative: the angle a half turn on lies in the turn's second half.</summary>
-    internal static bool SineIsNegative(TrigonometryAngle angle) => angle.TurnedBy(TrigonometryAngle.HalfTurn).IsInSecondHalf;
-
-    /// <summary>
     /// The velocity of <paramref name="wholePixels"/> whole pixels per update along <paramref name="angle"/> (#2539), angle
     /// zero pointing right and a quarter turn on pointing up: the speed along each axis of the angle's share across and
     /// down (<see cref="FineUnitComponent"/>). Each component is the share of the speed rounded down and then given its

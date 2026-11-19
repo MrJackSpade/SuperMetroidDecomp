@@ -215,6 +215,19 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>, 
     public SignedEightEight WithSpeedAtLeast(SignedEightEight least) => IsNegative ? Min(this, -least) : Max(this, least);
 
     /// <summary>
+    /// The velocity sped up away from rest by <paramref name="acceleration"/> (#2569): one toward decreasing coordinates
+    /// lowered by it and any other, at rest included, raised by it, each wrapping as the velocity arithmetic does.
+    /// </summary>
+    public SignedEightEight SpedUpBy(SignedEightEight acceleration) => IsNegative ? this - acceleration : this + acceleration;
+
+    /// <summary>
+    /// The velocity dragged toward rest by <paramref name="drag"/> (#2569): one toward decreasing coordinates raised by it
+    /// and any other, at rest included, lowered by it, each wrapping as the velocity arithmetic does, so a drag larger than
+    /// the speed carries it past rest the other way.
+    /// </summary>
+    public SignedEightEight DraggedBy(SignedEightEight drag) => IsNegative ? this + drag : this - drag;
+
+    /// <summary>
     /// The velocity slowed by <paramref name="drag"/>: its speed lowered by the drag, stopping at rest, and its direction kept,
     /// as the game applies drag to a speed's magnitude.
     /// </summary>

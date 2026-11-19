@@ -48,27 +48,31 @@ internal static class EnemySpeedTableCodec
     }
 
     /// <summary>
-    /// The speed quadratic row <paramref name="row"/> of the table at <paramref name="table"/> stores for the direction
-    /// <paramref name="sign"/> names: the row's speed, or its stored negation.
+    /// The speed quadratic row <paramref name="row"/> of the table at <paramref name="table"/> stores toward
+    /// <paramref name="direction"/>: the row's speed downward, or its stored negation upward.
     /// </summary>
-    public static SignedSixteenSixteen QuadraticSpeedToward(IImportCartridgeSource cartridge, int table, int row, EnemySpeedSign sign)
+    public static SignedSixteenSixteen QuadraticSpeedToward(IImportCartridgeSource cartridge, int table, int row, VerticalDirection direction)
     {
         (SignedSixteenSixteen positive, SignedSixteenSixteen negative) = QuadraticRow(cartridge, table, row);
-        return sign == EnemySpeedSign.Negative ? negative : positive;
+        return direction == VerticalDirection.Up ? negative : positive;
     }
 
-    /// <summary>The speed of the linear row that starts <paramref name="byteOffset"/> bytes into the table, as native enemy state records it.</summary>
+    /// <summary>
+    /// The rightward speed of the linear row that starts <paramref name="byteOffset"/> bytes into the table, as native
+    /// enemy state records it.
+    /// </summary>
     /// <exception cref="InvalidDataException">The offset does not start a row.</exception>
-    public static EnemyLinearSpeed LinearSpeedAtOffset(int byteOffset) => byteOffset % RowBytes == 0
-        ? new EnemyLinearSpeed(EnemyLinearSpeedTable.Speed(byteOffset / RowBytes))
+    public static SignedSixteenSixteen LinearSpeedAtOffset(int byteOffset) => byteOffset % RowBytes == 0
+        ? EnemyLinearSpeedTable.Speed(byteOffset / RowBytes)
         : throw new InvalidDataException($"Linear speed-table offset {byteOffset} does not start a row.");
 
     /// <summary>
-    /// The coarse speed of quadratic row <paramref name="row"/>: the word one byte into the speed, the fraction's high
-    /// byte under the whole pixels' low byte, which the cartridge reads for jump heights and wing orbits.
+    /// The coarse speed of quadratic row <paramref name="row"/> toward <paramref name="direction"/>: the word one byte into
+    /// the stored speed, the fraction's high byte under the whole pixels' low byte, which the cartridge reads for jump
+    /// heights and wing orbits.
     /// </summary>
-    public static int QuadraticCoarseSpeed(IImportCartridgeSource cartridge, int row, EnemySpeedSign sign) =>
-        cartridge.ReadCartridgeWord(QuadraticTable + row * RowBytes + (sign == EnemySpeedSign.Negative ? NegativeOffset : 0) + 1);
+    public static int QuadraticCoarseSpeed(IImportCartridgeSource cartridge, int row, VerticalDirection direction) =>
+        cartridge.ReadCartridgeWord(QuadraticTable + row * RowBytes + (direction == VerticalDirection.Up ? NegativeOffset : 0) + 1);
 
     /// <summary>A linear speed: the signed whole word, then the fraction word.</summary>
     private static SignedSixteenSixteen LinearSpeed(IImportCartridgeSource cartridge, int address) =>

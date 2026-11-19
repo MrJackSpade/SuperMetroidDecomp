@@ -299,7 +299,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances its place along the curve.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        state.Extension = state.Extension.MovedBy(state.SpeedCurvePlace.Speed.Toward(state.CurlPhase == YappingMawCurlPhase.Retracting ? EnemySpeedSign.Negative : EnemySpeedSign.Positive));
+        state.Extension = state.Extension.MovedBy(state.CurlPhase.CurlChange(state.SpeedCurvePlace.Speed.Speed));
         state.SpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
     }
 

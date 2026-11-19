@@ -1101,14 +1101,14 @@ internal static class NativeEnemyFamilyStateImport
         {
             ripperVariant.Heading = unchecked((short)words.D) < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
             // The Ripper flies its placement's speed (#2450), which the recording's must be.
-            EnemyLinearSpeed recordedRipperSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearSpeedAtOffset(words.E);
+            SignedSixteenSixteen recordedRipperSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearSpeedAtOffset(words.E);
             // A grapple Ripper's placement keeps its patrol bounds beside its speed (#2512).
             SignedSixteenSixteen placementRipperSpeed = enemy.DefinitionId == EnemyDefinitionId.GrappleRipper
                 ? enemy.SpawnSettings<GrappleRipperSpawnSettings>().Speed
                 : enemy.SpawnSettings<RipperSpawnSettings>().Speed;
             SignedSixteenSixteen ripperRightward = RipperBehavior.FlyingVelocity(placementRipperSpeed, HorizontalDirection.Right);
-            if (recordedRipperSpeed.Speed != ripperRightward)
-                throw new InvalidDataException($"Recorded Ripper speed {recordedRipperSpeed.Speed} is not its placement's {ripperRightward}.");
+            if (recordedRipperSpeed != ripperRightward)
+                throw new InvalidDataException($"Recorded Ripper speed {recordedRipperSpeed} is not its placement's {ripperRightward}.");
         }
         if (enemies.NorfairLavaJumpingEnemyStates[index] is { } lavaJumper)
         {

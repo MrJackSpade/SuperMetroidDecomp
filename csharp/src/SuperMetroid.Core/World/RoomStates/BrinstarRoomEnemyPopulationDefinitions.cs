@@ -77,11 +77,11 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.WaterwayEnergyTank),
         [
-            new(EnemyDefinitionId.Skultera, new(320, 174), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 1, AngleDelta: 16)),
+            new(EnemyDefinitionId.Skultera, new(320, 174), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 1, AngleStep: RotationAngle.FromSteps(16))),
             new(EnemyDefinitionId.Puyo, new(361, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
             new(EnemyDefinitionId.Puyo, new(503, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
             new(EnemyDefinitionId.Puyo, new(548, 181), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
-            new(EnemyDefinitionId.Skultera, new(587, 174), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 1, AngleDelta: 16)),
+            new(EnemyDefinitionId.Skultera, new(587, 174), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 1, AngleStep: RotationAngle.FromSteps(16))),
             new(EnemyDefinitionId.Zero, new(1072, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
             new(EnemyDefinitionId.Zero, new(1520, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
         ], 7),

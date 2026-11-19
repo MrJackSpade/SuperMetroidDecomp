@@ -7,7 +7,7 @@ internal static class MaridiaLargeSnailMotionDefinitions
     /// How far toward Samus the snail reaches while it pushes her, in pixels: its move tests the terrain that much
     /// further ahead, then draws back.
     /// </summary>
-    internal const int PushReach = 16;
+    internal static readonly SignedSixteenSixteen PushReach = SignedSixteenSixteen.FromWholePixels(16);
 
     /// <summary>How far the snail shoves Samus sideways when she touches it, in pixels.</summary>
     internal const int ShoveDistance = 4;

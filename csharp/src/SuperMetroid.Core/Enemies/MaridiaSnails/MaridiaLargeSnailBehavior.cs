@@ -242,9 +242,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             // Temporarily extends the whole-pixel move toward Samus by the push's reach,
             // performs collision, then retracts the center. Net velocity remains one
             // pixel per frame while wall clipping naturally passes the lost distance to Samus.
-            speed = speed.WithWholePixels(speed.WholePixels + (movingLeft
-                ? -MaridiaLargeSnailMotionDefinitions.PushReach
-                : MaridiaLargeSnailMotionDefinitions.PushReach));
+            speed += movingLeft ? -MaridiaLargeSnailMotionDefinitions.PushReach : MaridiaLargeSnailMotionDefinitions.PushReach;
         }
 
         SignedSixteenSixteen displacement = speed;
@@ -255,10 +253,9 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
         if (temporarilyReachTowardSamus)
         {
-            place.Position = place.Position.WithWholeX(
-                place.Position.X.Whole + (movingLeft
-                    ? MaridiaLargeSnailMotionDefinitions.PushReach
-                    : -MaridiaLargeSnailMotionDefinitions.PushReach));
+            place.Position = place.Position.AdvanceX(movingLeft
+                ? MaridiaLargeSnailMotionDefinitions.PushReach
+                : -MaridiaLargeSnailMotionDefinitions.PushReach);
         }
 
         if (!collided)
@@ -290,7 +287,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (EnemyCollision.IsSamusStandingOn(place, samus))
         {
             // Unlike most moving-platform producers, Oum assigns—not adds—the vertical
-            // displacement. This preserves the last touching Oum's ownership.
+            // displacement. This preserves the last touching Oum's ownership. It assigns the whole pixels alone, so the
+            // fraction of a pixel an earlier carry this update left stays.
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(
                 place.Position.Y.Whole - previousPosition.Y);
         }

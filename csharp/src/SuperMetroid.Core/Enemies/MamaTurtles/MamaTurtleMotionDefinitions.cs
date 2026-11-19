@@ -9,11 +9,11 @@ internal static class MamaTurtleMotionDefinitions
     /// <summary>How long the quake lasts when the hovering Mama Turtle strikes a wall, in updates.</summary>
     internal const int WallQuakeDuration = 16;
 
-    /// <summary>The fastest the hovering Mama Turtle carries a landing Samus leftward, in whole pixels an update.</summary>
-    internal const int LargestLeftwardCarry = 16;
+    /// <summary>The fastest the hovering Mama Turtle carries a landing Samus leftward: sixteen pixels an update.</summary>
+    internal static readonly SignedSixteenSixteen LargestLeftwardCarry = SignedSixteenSixteen.FromWholePixels(16);
 
-    /// <summary>The downward speed a Mama Turtle knocked out of her hover starts falling at, in whole pixels an update.</summary>
-    internal const int KnockedDownFallSpeed = 2;
+    /// <summary>The downward speed a Mama Turtle knocked out of her hover starts falling at: two pixels an update.</summary>
+    internal static readonly SignedSixteenSixteen KnockedDownFallSpeed = SignedSixteenSixteen.FromWholePixels(2);
 
     /// <summary>How long the Mama Turtle rises before she hovers, in updates.</summary>
     internal const int RiseToHoverDuration = 16;
@@ -69,14 +69,14 @@ internal static class MamaTurtleMotionDefinitions
     /// <summary>How fast the Mama Turtle rises before she hovers, carrying a Samus standing on her, in whole pixels an update.</summary>
     internal const int RiseToHoverSpeed = 1;
 
-    /// <summary>How fast the Mama Turtle drifts sideways as she rises to hover, in whole pixels an update.</summary>
-    internal const int RiseToHoverDrift = 1;
+    /// <summary>How fast the Mama Turtle drifts sideways as she rises to hover: a pixel an update.</summary>
+    internal static readonly SignedSixteenSixteen RiseToHoverDrift = SignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>How much the hovering Mama Turtle's sideways speed changes each update, toward Samus's side: a sixteenth of a pixel.</summary>
     internal static SignedSixteenSixteen HoverAcceleration { get; } = SignedSixteenSixteen.FromPixelFraction(1, 16);
 
-    /// <summary>The fastest the hovering Mama Turtle moves sideways, in whole pixels an update.</summary>
-    internal const int FastestHover = 3;
+    /// <summary>The fastest the hovering Mama Turtle moves sideways: three pixels an update.</summary>
+    internal static readonly SignedSixteenSixteen FastestHover = SignedSixteenSixteen.FromWholePixels(3);
 
     /// <summary>The room height a Mama Turtle carrying Samus rises to before she pauses, in room pixels.</summary>
     internal const int RiddenAscentPeak = 488;
@@ -90,6 +90,6 @@ internal static class MamaTurtleMotionDefinitions
     /// <summary>How much the falling Mama Turtle's speed grows each update, an eighth of a pixel.</summary>
     internal static SignedSixteenSixteen FallAcceleration { get; } = SignedSixteenSixteen.FromPixelFraction(1, 8);
 
-    /// <summary>The fall speed from which the Mama Turtle stops accelerating, in whole pixels an update.</summary>
-    internal const int FastestFall = 4;
+    /// <summary>The fall speed from which the Mama Turtle stops accelerating: four pixels an update.</summary>
+    internal static readonly SignedSixteenSixteen FastestFall = SignedSixteenSixteen.FromWholePixels(4);
 }

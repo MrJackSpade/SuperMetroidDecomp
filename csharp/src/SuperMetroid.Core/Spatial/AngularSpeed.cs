@@ -41,6 +41,14 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>
     public static AngularSpeed FromFractionsOfStep(int fractionsOfStep) => new(fractionsOfStep);
 
     /// <summary>
+    /// The turning speed of one step an update for each pixel of <paramref name="speed"/> (#2555), its fraction turning
+    /// likewise: a 256th of a step for each 256th of a pixel, the speed's finer fraction dropped, toward decreasing angles
+    /// for a speed toward decreasing coordinates.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The speed turns half a turn or more an update.</exception>
+    public static AngularSpeed StepPerPixelOf(SignedSixteenSixteen speed) => new(speed.InTwoFiftySixths);
+
+    /// <summary>
     /// A speed of <paramref name="numerator"/> <paramref name="denominator"/>ths of a step an update (#2555), the denominator
     /// a power of two from 1 through 256 so the fraction is kept exactly: a step and a half an update, or a quarter step.
     /// </summary>

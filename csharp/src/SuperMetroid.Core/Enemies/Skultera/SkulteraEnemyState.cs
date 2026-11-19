@@ -37,5 +37,5 @@ public sealed class SkulteraEnemyState
     /// the Skultera swims the way it started, backward once a turn has brought it the other way (#2450).
     /// </summary>
     internal void AdvanceAngle(SkulteraSpawnSettings settings) =>
-        Angle = Angle.TurnedBySteps(Heading == Ensure.NotNull(settings).StartDirection ? settings.AngleDelta : -settings.AngleDelta);
+        Angle = Heading == Ensure.NotNull(settings).StartDirection ? Angle + settings.AngleStep : Angle - settings.AngleStep;
 }

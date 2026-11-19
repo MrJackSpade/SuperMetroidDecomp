@@ -82,7 +82,7 @@ internal static class TypedSineProductsVerification
         for (int mark = 0; mark < QuadraticSpeedCurveDefinitions.MarkCount; mark++)
         {
             QuadraticCurveSpeed speed = QuadraticSpeedCurve.AtMark(mark);
-            SignedSixteenSixteen old = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(speed.CoarseToward(EnemySpeedSign.Positive));
+            SignedSixteenSixteen old = speed.CoarseToward(EnemySpeedSign.Positive);
             if (speed.CoarseRise != old)
                 throw new InvalidDataException($"Mark {mark}: the coarse rise {speed.CoarseRise.RawValue} differs from {old.RawValue}.");
             compared++;

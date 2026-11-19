@@ -31,7 +31,7 @@ internal static class EnemyQuadraticSpeedsVerification
                     $"quadratic speed row {row} at {table:X6}: stored negation is the speed negated at use");
             }
             foreach (EnemySpeedSign sign in signs)
-                AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, row, sign), (int)unchecked((ushort)speeds.CoarseToward(sign)), "quadratic coarse speed");
+                AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, row, sign), (int)unchecked((ushort)speeds.CoarseToward(sign).InTwoFiftySixths), "quadratic coarse speed");
         }
         AssertThrows<InvalidDataException>(() => QuadraticSpeedCurve.AtMark(-1), "negative quadratic row");
         AssertThrows<InvalidDataException>(() => QuadraticSpeedCurve.AtMark(QuadraticSpeedCurveDefinitions.MarkCount), "quadratic row past the table");

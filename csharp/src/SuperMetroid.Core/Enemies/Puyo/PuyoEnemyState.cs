@@ -65,7 +65,7 @@ public sealed class PuyoEnemyState
         {
             case PuyoAction.Falling:
                 YSpeedCurvePlace += delta;
-                if (PuyoFallRestart.StartsOver(YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark))
+                if (PuyoFallRestart.StartsOver(YSpeedCurvePlace.WholeMarks))
                     YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
                 return;
             case PuyoAction.Rising:

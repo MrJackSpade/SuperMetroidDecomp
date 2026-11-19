@@ -17,13 +17,13 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("a Puyo whose fall carries its place along the speed curve to 128 marks starts the fall again from rest")]
 internal static class PuyoFallRestart
 {
-    /// <summary>The place along the curve, in 256ths of a mark, at which a fall starts over: 128 marks.</summary>
-    private const int RestartPlace = 128 * 256;
+    /// <summary>The whole marks along the curve at which a fall starts over.</summary>
+    private const int RestartMarks = 128;
 
     /// <summary>
-    /// Whether a fall stepped on to <paramref name="steppedTwoHundredFiftySixthsOfMark"/>, its place along the speed curve
-    /// in 256ths of a mark, starts again from the curve's start.
+    /// Whether a fall stepped on to a place <paramref name="steppedWholeMarks"/> whole marks along the speed curve starts
+    /// again from the curve's start.
     /// </summary>
-    /// <param name="steppedTwoHundredFiftySixthsOfMark">The place the fall's step reaches, in 256ths of a mark.</param>
-    internal static bool StartsOver(int steppedTwoHundredFiftySixthsOfMark) => steppedTwoHundredFiftySixthsOfMark >= RestartPlace;
+    /// <param name="steppedWholeMarks">The whole marks of the place the fall's step reaches.</param>
+    internal static bool StartsOver(int steppedWholeMarks) => steppedWholeMarks >= RestartMarks;
 }

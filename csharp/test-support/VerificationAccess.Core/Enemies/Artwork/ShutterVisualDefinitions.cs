@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// Four distinct bank-$A2 shutter OAM compositions. The forty-pixel frame is
+/// Four distinct bank-$A2 shutter OAM compositions. The fully grown frame is
 /// shared by the growing and plain vertical shutter programs; motion, collision,
 /// shot reactions and program timing remain compiled gameplay behavior.
 /// </summary>
@@ -12,7 +12,7 @@ internal static class ShutterVisualDefinitions
 
     /// <summary>
     /// Supplies the four shutter OAM compositions: three growing heights and the shared
-    /// forty-pixel vertical frame.
+    /// fully grown vertical frame.
     /// </summary>
     internal static NativeEnemySpritemapDefinition[] Frames() =>
     [

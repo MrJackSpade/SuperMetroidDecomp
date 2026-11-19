@@ -1960,16 +1960,16 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> shows for <c>ShutterDestroyable</c>, <c>ShutterShootable</c>.</summary>
     private static readonly EnemyFrameId[] ShutterDestroyableFrames =
     [
-        EnemyFrameId.ShutterFortyPixelsLong,
+        EnemyFrameId.ShutterFullyGrown,
     ];
 
     /// <summary>The frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> shows for <c>ShutterGrowing</c>.</summary>
     private static readonly EnemyFrameId[] ShutterGrowingFrames =
     [
-        EnemyFrameId.ShutterTenPixelsLong,
-        EnemyFrameId.ShutterTwentyPixelsLong,
-        EnemyFrameId.ShutterThirtyPixelsLong,
-        EnemyFrameId.ShutterFortyPixelsLong,
+        EnemyFrameId.ShutterQuarterGrown,
+        EnemyFrameId.ShutterHalfGrown,
+        EnemyFrameId.ShutterThreeQuartersGrown,
+        EnemyFrameId.ShutterFullyGrown,
     ];
 
     /// <summary>The frames <c>Enemies/Skree/SkreeBehavior.cs</c> shows.</summary>

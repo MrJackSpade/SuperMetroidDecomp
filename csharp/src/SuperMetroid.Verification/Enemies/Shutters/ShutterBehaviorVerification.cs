@@ -19,13 +19,13 @@ using SuperMetroid.Core.Fx.ColourEffects;
 internal static class ShutterBehaviorVerification
 {
     /// <summary>
-    /// Each initializer starts its animation: the growing shutter its ten-pixel pose, the shootable and destroyable vertical
-    /// shutters the shared forty-pixel pose, and Kamer its four-frame platform loop. A
+    /// Each initializer starts its animation: the growing shutter its quarter-grown pose, the shootable and destroyable vertical
+    /// shutters the shared fully grown pose, and Kamer its four-frame platform loop. A
     /// pose shows once and is held (#2276): it is new only on the update it shows.
     /// </summary>
     internal static void VerifyShutterBehavior()
     {
-        VerifyPose(EnemyDefinitionId.ShutterGrowing, ShutterSegment.GrowingTenPixels,
+        VerifyPose(EnemyDefinitionId.ShutterGrowing, ShutterSegment.QuarterGrown,
             (enemies, place) =>
             {
                 place.SetSpawnSettings(new GrowingShutterSpawnSettings(
@@ -36,7 +36,7 @@ internal static class ShutterBehaviorVerification
             enemies => enemies.Places.InUpdateOrder[0].EntityState<ShuttersEntity, GrowingShutterEnemyState>()?.Playback);
         foreach (EnemyDefinitionId definition in new[] { EnemyDefinitionId.ShutterShootable, EnemyDefinitionId.ShutterDestroyable })
         {
-            VerifyPose(definition, ShutterSegment.FortyPixels,
+            VerifyPose(definition, ShutterSegment.FullyGrown,
                 (enemies, place) =>
                 {
                     ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("Verification requires a bound shutter."))).Initialize();
@@ -108,15 +108,15 @@ internal static class ShutterBehaviorVerification
     }
 
     /// <summary>
-    /// The four exported shutter compositions are the poses the growing and forty-pixel programs show, and the
+    /// The four exported shutter compositions are the poses the growing and fully grown programs show, and the
     /// native growing maps between them hold the sprite counts their calculated addresses assume.
     /// </summary>
     internal static void VerifyShutterExportFrames(CartridgeImportAddressSpace rom)
     {
         ShutterSegment[] programs =
         [
-            ShutterSegment.GrowingTenPixels, ShutterSegment.GrowingTwentyPixels, ShutterSegment.GrowingThirtyPixels,
-            ShutterSegment.FortyPixels,
+            ShutterSegment.QuarterGrown, ShutterSegment.HalfGrown, ShutterSegment.ThreeQuartersGrown,
+            ShutterSegment.FullyGrown,
         ];
         NativeEnemySpritemapDefinition[] frames = ShutterVisualDefinitions.Frames();
         AssertEqual(programs.Length, frames.Length, "one exported shutter composition per pose");
@@ -190,7 +190,7 @@ internal static class ShutterBehaviorVerification
             place.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
             place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
                 LittleEndianBytes.Word(speedIndex, primaryDirection), 0, 0, LittleEndianBytes.Word(0, travelDistance), 0));
-            ShuttersBehavior.InitializeVerticalShutter(place, ShutterSegment.FortyPixels);
+            ShuttersBehavior.InitializeVerticalShutter(place, ShutterSegment.FullyGrown);
             VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
                 ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
             string context = $"primary direction {primaryDirection} at Y {spawnY}";

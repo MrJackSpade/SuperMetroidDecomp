@@ -14,21 +14,21 @@ internal static class ShutterAnimations
     internal static AnimationSegments<ShutterSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<ShutterSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.GrowingTenPixels] =
+        [P.QuarterGrown] =
         [
-            Hold(EnemyFrameId.ShutterTenPixelsLong),
+            Hold(EnemyFrameId.ShutterQuarterGrown),
         ],
-        [P.GrowingTwentyPixels] =
+        [P.HalfGrown] =
         [
-            Hold(EnemyFrameId.ShutterTwentyPixelsLong),
+            Hold(EnemyFrameId.ShutterHalfGrown),
         ],
-        [P.GrowingThirtyPixels] =
+        [P.ThreeQuartersGrown] =
         [
-            Hold(EnemyFrameId.ShutterThirtyPixelsLong),
+            Hold(EnemyFrameId.ShutterThreeQuartersGrown),
         ],
-        [P.FortyPixels] =
+        [P.FullyGrown] =
         [
-            Hold(EnemyFrameId.ShutterFortyPixelsLong),
+            Hold(EnemyFrameId.ShutterFullyGrown),
         ],
         [P.KamerPlatform] =
         [
@@ -42,10 +42,10 @@ internal static class ShutterAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<ShutterSegment, Animation<ShutterSegment>> StartingAt { get; } = new Dictionary<ShutterSegment, Animation<ShutterSegment>>
     {
-        [P.GrowingTenPixels] = new([Segments.Whole(P.GrowingTenPixels)], AnimationEnd.Holds),
-        [P.GrowingTwentyPixels] = new([Segments.Whole(P.GrowingTwentyPixels)], AnimationEnd.Holds),
-        [P.GrowingThirtyPixels] = new([Segments.Whole(P.GrowingThirtyPixels)], AnimationEnd.Holds),
-        [P.FortyPixels] = new([Segments.Whole(P.FortyPixels)], AnimationEnd.Holds),
+        [P.QuarterGrown] = new([Segments.Whole(P.QuarterGrown)], AnimationEnd.Holds),
+        [P.HalfGrown] = new([Segments.Whole(P.HalfGrown)], AnimationEnd.Holds),
+        [P.ThreeQuartersGrown] = new([Segments.Whole(P.ThreeQuartersGrown)], AnimationEnd.Holds),
+        [P.FullyGrown] = new([Segments.Whole(P.FullyGrown)], AnimationEnd.Holds),
         [P.KamerPlatform] = Animation<ShutterSegment>.Looping([Segments.Whole(P.KamerPlatform)]),
     };
 

@@ -6,14 +6,14 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// </summary>
 internal enum ShutterSegment
 {
-    /// <summary>The 10-pixel growing shutter animation.</summary>
-    GrowingTenPixels,
-    /// <summary>The 20-pixel growing shutter animation.</summary>
-    GrowingTwentyPixels,
-    /// <summary>The 30-pixel growing shutter animation.</summary>
-    GrowingThirtyPixels,
-    /// <summary>The 40-pixel growing shutter animation.</summary>
-    FortyPixels,
+    /// <summary>The growing shutter holding its first section alone, a quarter grown, as it starts.</summary>
+    QuarterGrown,
+    /// <summary>The growing shutter holding two of its four sections, half grown.</summary>
+    HalfGrown,
+    /// <summary>The growing shutter holding three of its four sections, three quarters grown.</summary>
+    ThreeQuartersGrown,
+    /// <summary>The shutter holding all four sections, fully grown: a growing shutter's last stage and a vertical shutter's pose.</summary>
+    FullyGrown,
     /// <summary>Kamer's light brightening from dark to bright, repeating.</summary>
     KamerPlatform,
 }

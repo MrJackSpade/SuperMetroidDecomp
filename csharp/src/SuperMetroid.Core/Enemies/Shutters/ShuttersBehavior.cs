@@ -110,7 +110,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         StartGrowingShutterAnimation(
             place,
             state,
-            ShutterSegment.GrowingTenPixels,
+            ShutterSegment.QuarterGrown,
             GrowthRadius(state.GrowthLevel));
     }
 
@@ -247,9 +247,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         ShutterSegment segment = state.GrowthLevel switch
         {
-            1 => ShutterSegment.GrowingTwentyPixels,
-            2 => ShutterSegment.GrowingThirtyPixels,
-            3 => ShutterSegment.FortyPixels,
+            1 => ShutterSegment.HalfGrown,
+            2 => ShutterSegment.ThreeQuartersGrown,
+            3 => ShutterSegment.FullyGrown,
             _ => throw new InvalidDataException(
                 $"Growing shutter advanced to invalid level {state.GrowthLevel}."),
         };

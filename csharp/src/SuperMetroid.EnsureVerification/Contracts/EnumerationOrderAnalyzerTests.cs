@@ -140,12 +140,12 @@ internal static class EnumerationOrderAnalyzerTests
     /// each, with a sorted set <c>all</c> and a list <c>listed</c> to put them in.
     /// </summary>
     private static string Unioned(string adding) => $$"""
-        private static IEnumerable<string> Written() => Enum.GetValues<Frame>().Select(Name);
+        private static IEnumerable<string> Spelled() => Enum.GetValues<Frame>().Select(Name);
                 internal static SortedSet<string> Union()
                 {
                     var all = new SortedSet<string>(StringComparer.Ordinal);
                     var listed = new List<string>();
-                    foreach (string name in Written())
+                    foreach (string name in Spelled())
                         {{adding}}
                     all.Add(listed.Count.ToString());
                     return all;

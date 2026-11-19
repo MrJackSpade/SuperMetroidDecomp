@@ -983,7 +983,7 @@ internal sealed class SuperMetroidRuntime
             // including its whole-pixel direction check, its added pixel and its previous tracking point. A second
             // frame-end absolute delta loses both the added pixel and the tracking point's timing.
             YardKickDistance.Record(camera.Speed.X);
-            samus.ProjectileInheritance.CameraYSubspeed = camera.Speed.Y.Fraction;
+            samus.ProjectileInheritance.CameraVerticalSpeed = camera.Speed.Y;
 
             // The camera keeps to the floor the room's bosses hold once both axes have tracked Samus, before the layer
             // scrolls and the sprites read where it stands: live Spore Spawn keeps it from looking above his arena.

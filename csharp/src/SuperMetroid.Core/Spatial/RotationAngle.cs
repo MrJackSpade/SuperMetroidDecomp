@@ -36,6 +36,9 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     /// <summary>Zero turns: the sine wave's zero angle.</summary>
     public static RotationAngle Zero { get; } = FromSteps(0);
 
+    /// <summary>The finest turn past none: a 256th of a step (#2555).</summary>
+    public static RotationAngle FinestTurn { get; } = new(1);
+
     /// <summary>One eighth of a turn on from <see cref="Zero"/>: the turn between neighbouring compass directions.</summary>
     public static RotationAngle EighthTurn { get; } = FromSteps(StepsPerTurn / 8);
 

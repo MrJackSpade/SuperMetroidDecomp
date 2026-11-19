@@ -38,8 +38,8 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x3000, QuicksandDefinitions.StationarySurfaceProbeLimit.RawValue, "stationary surface probe limit");
         AssertEqual(0x28000, QuicksandReactions.SurfacePhysics(gravitySuit: false).UpwardSpeedLimit.RawValue, "upward cap without Gravity");
         AssertEqual(0x10000, QuicksandReactions.SurfacePhysics(gravitySuit: true).StationaryDisplacement.RawValue, "stationary sink with Gravity");
-        AssertEqual(2, ConveyorBlockDefinitions.RightwardCarry, "rightward conveyor carry");
-        AssertEqual(-2, ConveyorBlockDefinitions.LeftwardCarry, "leftward conveyor carry");
+        AssertEqual(SignedSixteenSixteen.FromWholePixels(2), ConveyorBlockDefinitions.RightwardCarry, "rightward conveyor carry");
+        AssertEqual(SignedSixteenSixteen.FromWholePixels(-2), ConveyorBlockDefinitions.LeftwardCarry, "leftward conveyor carry");
 
         // The Fireflea shades are fade levels: the high bytes of the former shade words, below their channel bits.
         AssertEqual(2, new FirefleaDarkness(6).Level, "the sixth death's faint darkness level");

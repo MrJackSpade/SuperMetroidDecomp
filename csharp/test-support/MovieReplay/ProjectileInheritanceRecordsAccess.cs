@@ -40,7 +40,7 @@ internal readonly struct ProjectileInheritanceRecordsAccess(ProjectileLaunchInhe
     internal void Load(ReadOnlySpan<byte> bytes)
     {
         Ensure.LengthEqual(bytes, ByteCount);
-        inheritance.CameraYSubspeed = SnapshotWord(bytes, 0);
+        inheritance.CameraVerticalSpeed = SignedSixteenSixteen.FromParts(0, SnapshotWord(bytes, 0));
         inheritance.Record(HorizontalDirection.Left, SnapshotDistance(bytes, FirstRecordOffset));
         inheritance.Record(HorizontalDirection.Right, SnapshotDistance(bytes, FirstRecordOffset + RecordByteCount));
         inheritance.Record(VerticalDirection.Up, SnapshotDistance(bytes, FirstRecordOffset + RecordByteCount * 2));
@@ -58,7 +58,7 @@ internal readonly struct ProjectileInheritanceRecordsAccess(ProjectileLaunchInhe
             Write(offset, distance.UnsignedWholePixels);
             Write(offset + 2, distance.Fraction);
         }
-        Write(0, inheritance.CameraYSubspeed);
+        Write(0, inheritance.CameraVerticalSpeed.Fraction);
         WriteDistance(FirstRecordOffset, inheritance.Distance(HorizontalDirection.Left));
         WriteDistance(FirstRecordOffset + RecordByteCount, inheritance.Distance(HorizontalDirection.Right));
         WriteDistance(FirstRecordOffset + RecordByteCount * 2, inheritance.Distance(VerticalDirection.Up));

@@ -99,7 +99,7 @@ internal static class ProjectileInheritanceProbeVerification
         ushort[][] snapshots = InheritanceSnapshots;
         foreach (ushort[] snapshot in snapshots)
         {
-            var inheritance = new ProjectileLaunchInheritance { CameraYSubspeed = snapshot[0] };
+            var inheritance = new ProjectileLaunchInheritance { CameraVerticalSpeed = SignedSixteenSixteen.FromParts(0, snapshot[0]) };
             inheritance.Record(HorizontalDirection.Left, SixteenSixteenWords.ToDisplacement(unchecked((int)SixteenSixteenWords.Compose(snapshot[1], snapshot[2]))));
             inheritance.Record(HorizontalDirection.Right, SixteenSixteenWords.ToDisplacement(unchecked((int)SixteenSixteenWords.Compose(snapshot[3], snapshot[4]))));
             inheritance.Record(VerticalDirection.Up, SixteenSixteenWords.ToDisplacement(unchecked((int)SixteenSixteenWords.Compose(snapshot[5], snapshot[6]))));
@@ -158,7 +158,7 @@ internal static class ProjectileInheritanceProbeVerification
         AssertEqual(clipped.AcceptedDisplacement.UnsignedWholePixels,
             records.DistanceInteger(SamusCollisionDirection.Right),
             "Collision publishes clipped displacement, not the twenty-pixel request");
-        samus.ProjectileInheritance.CameraYSubspeed = 0xabcd;
+        samus.ProjectileInheritance.CameraVerticalSpeed = SignedSixteenSixteen.FromParts(0, 0xabcd);
         samus.ProjectileInheritance.ClearMovement();
         AssertEqual(unchecked((short)0xfcab), BeamFiring.LaunchVelocity(samus.ProjectileInheritance, SamusProjectileDirection.Left, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x400)).X.InTwoHundredFiftySixthsOfPixel,
             "Alpha reset preserves camera fractional high byte");

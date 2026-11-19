@@ -31,12 +31,10 @@ internal static class CompatibilitySubpixelInputsVerification
         AssertEqual(checkpoint, new RainbowBeamCameraCheckpoint().Consume(checkpoint), "no hide leaves the record as it was");
 
         var handOver = new RoomHandOver();
-        handOver.LeaveShots([0, last]);
-        AssertEqual(0, handOver.ShotHorizontalFraction(0), "a shot place hands over a zero fraction");
-        AssertEqual(last, handOver.ShotHorizontalFraction(1), "a shot place hands over the last fraction");
-        AssertThrows<ArgumentOutOfRangeException>(() => handOver.LeaveShots([last + 1]), "a shot fraction past the last");
-        AssertThrows<ArgumentOutOfRangeException>(() => handOver.LeaveShots([-1]), "a negative shot fraction");
-        AssertEqual(last, handOver.ShotHorizontalFraction(1), "a refused hand-over keeps what the room before left");
+        // The hand-over takes typed fractions of a pixel (#2555), which hold no value past the last or below none.
+        handOver.LeaveShots([PixelFraction.None, PixelFraction.Last]);
+        AssertEqual(PixelFraction.None, handOver.ShotHorizontalFraction(0), "a shot place hands over a zero fraction");
+        AssertEqual(PixelFraction.Last, handOver.ShotHorizontalFraction(1), "a shot place hands over the last fraction");
 
         var carryover = new RoomMainCarryover();
         carryover.LeaveFraction(last);

@@ -19,10 +19,10 @@ public static class SamusMovementDefinitions
     public const int FastFallAnimationTimer = 8;
 
     /// <summary>
-    /// The least whole downward speed at which Samus's landing is a hard landing, with its own sound; a slower landing
-    /// with any fraction of speed is a soft one.
+    /// The least downward speed at which Samus's landing is a hard landing, with its own sound: five pixels an update,
+    /// compared in whole pixels; a slower landing with any fraction of speed is a soft one.
     /// </summary>
-    public const int HardLandingWholeSpeed = 5;
+    public static UnsignedSixteenSixteen HardLandingSpeed { get; } = UnsignedSixteenSixteen.FromWholePixels(5);
 
     /// <summary>
     /// How far behind a spinning Samus a wall may lie for a wall jump, in pixels: the probe looks this far, and only a

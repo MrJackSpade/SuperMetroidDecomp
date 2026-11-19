@@ -124,7 +124,7 @@ public sealed class SamusProjectileSystem
     /// load clears Samus's shots (<see cref="RoomHandOver"/>, <see cref="LeftMuzzleSubpixelCarry"/>).
     /// </summary>
     internal void HandOverTo(RoomHandOver handOver) =>
-        Ensure.NotNull(handOver).LeaveShots(Enumerable.Range(0, PlaceCount).Select(Pool.SubpixelKeptOnClear));
+        Ensure.NotNull(handOver).LeaveShots(Enumerable.Range(0, PlaceCount).Select(Pool.FractionKeptOnClear));
 
     /// <summary>How many places Samus's shot pool has: how many ordinary shots she can have out at once; bombs have their own places.</summary>
     public const int PlaceCount = 5;

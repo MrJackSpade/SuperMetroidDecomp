@@ -82,8 +82,8 @@ internal sealed class SamusShotPool
     internal SamusProjectile Occupy(int place)
     {
         SamusProjectile replaced = _places[place];
-        int kept = MuzzleCarry.Start(place);
-        int fraction = replaced.IsOccupied ? replaced.Position.X.Fraction : kept;
+        PixelFraction kept = MuzzleCarry.Start(place);
+        PixelFraction fraction = replaced.IsOccupied ? replaced.Position.X.FractionOfPixel : kept;
         SamusProjectile projectile = OccupyAtRest(place);
         projectile.Position = projectile.Position.WithFractionX(fraction);
         return projectile;
@@ -113,7 +113,7 @@ internal sealed class SamusShotPool
         foreach (SamusProjectile projectile in _places)
         {
             if (projectile.IsOccupied)
-                MuzzleCarry.Keep(projectile.Place, projectile.Position.X.Fraction);
+                MuzzleCarry.Keep(projectile.Place, projectile.Position.X.FractionOfPixel);
             projectile.End();
         }
     }
@@ -123,10 +123,10 @@ internal sealed class SamusShotPool
     /// projectile's while one holds it, otherwise what it already keeps.
     /// </summary>
     /// <param name="place">The zero-based shot place.</param>
-    internal int SubpixelKeptOnClear(int place)
+    internal PixelFraction FractionKeptOnClear(int place)
     {
         SamusProjectile projectile = _places[place];
-        return projectile.IsOccupied ? projectile.Position.X.Fraction : MuzzleCarry.Kept(place);
+        return projectile.IsOccupied ? projectile.Position.X.FractionOfPixel : MuzzleCarry.Kept(place);
     }
 
     /// <summary>Each place's projectile in update order, highest place first.</summary>

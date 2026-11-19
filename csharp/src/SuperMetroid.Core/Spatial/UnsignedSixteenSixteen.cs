@@ -91,6 +91,12 @@ public readonly record struct UnsignedSixteenSixteen
     /// <summary>The fractions of a pixel the speed counts: 65536 to the pixel.</summary>
     private const int FractionsPerPixel = 65536;
 
+    /// <summary>
+    /// Whether this speed is faster than <paramref name="limit"/> when both are read to a 256th of a pixel (#2555), the
+    /// precision the game compares Samus's speed with a quicksand surface's upward cap at: finer fractions take no part.
+    /// </summary>
+    public bool IsFasterInTwoFiftySixthsThan(SignedSixteenSixteen limit) => InTwoFiftySixths > limit.InTwoFiftySixths;
+
     /// <summary>Whether this speed is slower than <paramref name="other"/>, comparing whole pixels and fraction together.</summary>
     public bool IsSlowerThan(UnsignedSixteenSixteen other) => RawValue < other.RawValue;
 

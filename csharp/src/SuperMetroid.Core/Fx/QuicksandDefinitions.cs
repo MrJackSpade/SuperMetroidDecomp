@@ -48,9 +48,6 @@ public static class QuicksandDefinitions
     /// <summary>How far a fast sandfall carries Samus down each frame she is inside it: 1.75 pixels.</summary>
     internal static readonly SignedSixteenSixteen FastSandfallDisplacement = SignedSixteenSixteen.FromPixelFraction(7, 4);
 
-    /// <summary>
-    /// The most a stationary Samus's downward probe may sink into a quicksand surface: three sixteenths of a pixel. The
-    /// surface limits the probe at a speed's precision, so any finer part of the probe is kept as it was.
-    /// </summary>
+    /// <summary>The most a stationary Samus's downward probe may sink into a quicksand surface: three sixteenths of a pixel.</summary>
     internal static readonly SignedSixteenSixteen StationarySurfaceProbeLimit = SignedSixteenSixteen.FromPixelFraction(3, 16);
 }

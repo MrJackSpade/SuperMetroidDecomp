@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal sealed class CrocomireEncounterAccess
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>
@@ -19,9 +19,9 @@ internal sealed class CrocomireEncounterAccess
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireEncounterAccess(BossFrameResultBuilder frameResults, EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
+    internal CrocomireEncounterAccess(EnemyPassEvents passEvents, EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
-        _frameResults = frameResults;
+        _passEvents = passEvents;
         _room = room;
         _projectiles = projectiles;
         _audio = audio;
@@ -43,7 +43,7 @@ internal sealed class CrocomireEncounterAccess
 
     /// <summary>Queues a room-object block change for later room processing.</summary>
     internal void PublishCrocomireObject(Position16<RoomBlocks> block, CrocomireArenaMutation mutation) =>
-        _frameResults.CrocomireObjects.Add(new RoomObjectSpawnRequest<CrocomireArenaMutation>(block, mutation));
+        _passEvents.Publish(new CrocomireArenaChange(new RoomObjectSpawnRequest<CrocomireArenaMutation>(block, mutation)));
 
     /// <summary>Draws the room's next random number for Crocomire effects and choices.</summary>
     internal int ReadCrocomireRandom() => _room.Random.Read();

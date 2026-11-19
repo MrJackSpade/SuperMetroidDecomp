@@ -80,7 +80,7 @@ internal sealed class SamusPresentation
         }
 
         samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(initialDelay.Ticks);
-        samus.PendingTransitionalPose = null;
+        samus.CuePose.Forget();
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ internal sealed class SamusPresentation
         samus.AnimatedPose = pose;
         samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(pose).Require(frame);
         samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
-        samus.PendingTransitionalPose = null;
+        samus.CuePose.Forget();
     }
 
     /// <summary>
@@ -314,19 +314,19 @@ internal sealed class SamusPresentation
                     SamusPoseId.NeutralJumpTransitionLeftPose or
                     SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
                     return;
-                if (!samus.Control.InputLocked && !demoPoseInput) samus.InputSnapshot.AutoJumpInputPending = true;
+                if (!samus.Control.InputLocked && !demoPoseInput) samus.InputSnapshot.AutoJump.Install();
                 // The transition neither selects a new delay nor advances the shown frame; the pose transitions that
                 // follow the animation consume it.
-                samus.PendingTransitionalPose = turn.Pose;
+                samus.CuePose.Name(turn.Pose);
                 return;
 
             case SamusAnimationItemAirborneTransition itemAirborne:
                 // Moving vertically means any vertical speed at all. Morph entry uses this to finish
                 // without guessing whether the transition walked off a ledge.
                 bool movingVertically = samus.Kinematics.VerticalVelocity.IsMoving;
-                samus.PendingTransitionalPose = samus.EquippedItems.HasAny(itemAirborne.Item)
+                samus.CuePose.Name(samus.EquippedItems.HasAny(itemAirborne.Item)
                     ? movingVertically ? itemAirborne.EquippedAirborne : itemAirborne.EquippedGrounded
-                    : movingVertically ? itemAirborne.UnequippedAirborne : itemAirborne.UnequippedGrounded;
+                    : movingVertically ? itemAirborne.UnequippedAirborne : itemAirborne.UnequippedGrounded);
                 return;
 
             case SamusAnimationWallJumpSelect wallJump:
@@ -340,18 +340,18 @@ internal sealed class SamusPresentation
 
             case SamusAnimationVerticalSpeedTransition verticalSpeed:
                 // Read only on a cue value's place (#1535): the pose depends on whether Samus has any vertical speed alone.
-                samus.PendingTransitionalPose = samus.Kinematics.VerticalVelocity.IsMoving
+                samus.CuePose.Name(samus.Kinematics.VerticalVelocity.IsMoving
                     ? verticalSpeed.Airborne
-                    : verticalSpeed.Grounded;
+                    : verticalSpeed.Grounded);
                 return;
 
             case SamusAnimationItemTransition item:
-                samus.PendingTransitionalPose = samus.EquippedItems.HasAny(item.Item) ? item.Equipped : item.Unequipped;
+                samus.CuePose.Name(samus.EquippedItems.HasAny(item.Item) ? item.Equipped : item.Unequipped);
                 return;
 
             case SamusAnimationTransition transition:
                 // Unlike a turn's transition, no selected jump supersedes it.
-                samus.PendingTransitionalPose = transition.Pose;
+                samus.CuePose.Name(transition.Pose);
                 return;
 
             case SamusAnimationRepeat repeat:

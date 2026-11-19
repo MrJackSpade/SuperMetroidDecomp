@@ -1,31 +1,26 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.Bosses;
-using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// What one enemy pass produced for the runtime to apply after it. Each value is applied at the point the game
-/// performs it; see <see cref="EnemyFramePhase"/>.
+/// What one enemy pass, or a room's enemy setup, did for the runtime to act on after it (#2562): the events its enemies
+/// published, in the order they published them. The runtime acts on each at the point the game performs it; see
+/// <see cref="EnemyFramePhase"/> and <see cref="EnemyRoomEffects"/>.
 /// </summary>
-/// <param name="Elevator">The elevator lifecycle event, if any.</param>
-/// <param name="ElevatorClearedProjectileData">The elevator cleared Samus's projectiles; the bomb owner completes it.</param>
-/// <param name="DraygonDiscardedSamusPoseRequests">Draygon grabbed or released Samus, discarding the input phase's pose requests.</param>
-/// <param name="CeresEscapeStarted">Ceres Ridley started the escape on this enemy pass.</param>
-/// <param name="CameraXOverride">The camera X in room pixels the Shitroid moves the view to, if any.</param>
-/// <param name="StopLiquidMotion">Mother Brain's tube landed, stopping the liquid surface's motion from the next frame.</param>
-/// <param name="Gunship">The gunship lifecycle event, if any.</param>
-/// <param name="RoomEffects">The room objects and room changes enemy AI requested.</param>
-/// <param name="Glow">The glow an enemy's placement started, if any, with the enemy it shows on: the gunship's glow (#1733, #1783).</param>
-[IndependentFlag("independent events one enemy frame reports to the runtime")]
-public readonly record struct EnemyFrameResult(
-    ElevatorFrameEvent Elevator,
-    bool ElevatorClearedProjectileData,
-    bool DraygonDiscardedSamusPoseRequests,
-    bool CeresEscapeStarted,
-    int? CameraXOverride,
-    bool StopLiquidMotion,
-    GunshipFrameEvent Gunship,
-    EnemyRoomEffectRequests RoomEffects,
-    EnemyGlowStart? Glow);
+/// <param name="Events">The pass's events, in publication order.</param>
+public readonly record struct EnemyFrameResult(IReadOnlyList<EnemyPassEvent> Events)
+{
+    /// <summary>Whether the pass published an event of kind <typeparamref name="TEvent"/>.</summary>
+    public bool Has<TEvent>() where TEvent : EnemyPassEvent => Events.OfType<TEvent>().Any();
+
+    /// <summary>The pass's events of kind <typeparamref name="TEvent"/>, in publication order.</summary>
+    public IEnumerable<TEvent> All<TEvent>() where TEvent : EnemyPassEvent => Events.OfType<TEvent>();
+
+    /// <summary>Whether the gunship took step <paramref name="step"/> in the pass.</summary>
+    public bool Reports(GunshipFrameEvent step) => All<GunshipEvent>().Any(gunship => gunship.Kind == step);
+
+    /// <summary>Whether the elevator's ride took step <paramref name="step"/> in the pass.</summary>
+    public bool Reports(ElevatorFrameEvent step) => All<ElevatorEvent>().Any(elevator => elevator.Kind == step);
+}

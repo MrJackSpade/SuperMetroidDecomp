@@ -16,6 +16,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.Frontend;
@@ -228,6 +229,10 @@ internal sealed class FrontendSession
     internal ScreenFade EscapeFade { get; } = new(DisplayBrightness.Full);
     /// <summary>The room state whose music was last queued.</summary>
     internal RoomStateSettings? LastAudioRoomState { get; set; }
+    /// <summary>The runtime whose room's enemies' start music was last queued (#2562).</summary>
+    private SuperMetroidRuntime? _startMusicQueuedForRuntime;
+    /// <summary>Which of that runtime's room loads it was: its count of rooms loaded then.</summary>
+    private int _startMusicQueuedForRoomLoad;
     /// <summary>Forgets the room whose music was last queued, so the next runtime's room music is queued from scratch.</summary>
     internal void ForgetQueuedAudio() => LastAudioRoomState = null;
     /// <summary>
@@ -402,9 +407,14 @@ internal sealed class FrontendSession
         }
         // The music this room's enemies start is queued after the room's own, with the shortest delay. Before the
         // first room load, such as while a Ceres save starts its destruction cinematic, there are no enemies.
-        if (runtime?.Room.Scope is { } scope)
-            foreach (MusicRequest request in scope.Enemies.Audio.ConsumeRoomEnemyStartMusic())
+        if (runtime?.Room.Scope is { Enemies: var enemies } &&
+            (runtime != _startMusicQueuedForRuntime || runtime.Room.RoomsLoaded != _startMusicQueuedForRoomLoad))
+        {
+            foreach (MusicRequest request in enemies.Audio.RoomStartMusic)
                 audio.QueueMusic(request);
+            _startMusicQueuedForRuntime = runtime;
+            _startMusicQueuedForRoomLoad = runtime.Room.RoomsLoaded;
+        }
 
         // The message box runs outside gameplay: the save choice's move, the gunship's saving sound as its accepted prompt
         // closes and the gunship's pad opening as its prompt returns are events of the box's updates, taken once, so

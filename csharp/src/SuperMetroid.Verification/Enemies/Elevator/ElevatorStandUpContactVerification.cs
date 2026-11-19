@@ -37,12 +37,12 @@ internal static class ElevatorStandUpContactVerification
         // Feet on the elevator's top surface; the standing body grows five pixels upward.
         samus.Position = samus.Position.WithWholeY((ushort)(DoorRow * 16 - samus.Kinematics.Radius.Y));
         ISamusRoomObjects roomObjects = SamusRoomObjectFixtures.Uninstalled;
-        AssertTrue(roomObjects.DoorContacts.HandOverElevatorStandFromLastUpdate() is false, "no contact before the stand-up");
+        AssertTrue(roomObjects.DoorContacts.ElevatorStand.Take() is false, "no contact before the stand-up");
 
         AssertTrue(SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(samus, level, SamusPoseId.FacingLeftNormalPose, 0, roomObjects: roomObjects),
             "the standing body fits above the elevator");
         AssertEqual(SamusPoseId.FacingLeftNormalPose, samus.Pose, "Samus stands");
-        AssertTrue(roomObjects.DoorContacts.HandOverElevatorStandFromLastUpdate(),
+        AssertTrue(roomObjects.DoorContacts.ElevatorStand.Take(),
             "the probe for the new standing pose ($02 < $09) arms the elevator");
         Console.WriteLine("  Elevator stand-up contact: standing up on the elevator arms it in the same frame.");
     }

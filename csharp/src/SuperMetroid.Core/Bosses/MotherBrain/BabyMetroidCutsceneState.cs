@@ -665,7 +665,7 @@ public sealed class BabyMetroidCutsceneState
 
         // After the Baby moves, its hit shake counts down and its hit flash plays on: a hit starts the shake with sixteen
         // updates left, so the next update shakes the Baby at sixteen and shows the flash's first hurt colours.
-        OnionRingHitShake.Step();
+        _ = OnionRingHitShake.Step();
         HurtFlash?.Step();
 
         return new BabyMetroidCutsceneStepResult(

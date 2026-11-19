@@ -89,7 +89,7 @@ internal static class PhantoonPatternsVerification
             shotBody.AiStates = EnemyAiStates.Hurt;
             shotState.Phase = PhantoonPhase.EyeTracksSamus;
             shotState.PhaseWait.LastFor(60);
-            shotState.Swoop.Requested = false;
+            shotState.WindowEnd = PhantoonWindowEnd.EyeCloses;
             shotState.Round.Damage = 0;
             shot(shotBody, shotState, 0x100, 1);
             AssertEqual(16, shotState.PhaseWait.UpdatesLeft, "Real shot window shortening preserved");

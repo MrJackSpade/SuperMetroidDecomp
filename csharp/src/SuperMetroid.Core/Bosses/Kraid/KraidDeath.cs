@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed class KraidDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
@@ -38,7 +38,7 @@ internal sealed class KraidDeath
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal KraidDeath(KraidDeathDependencies dependencies)
     {
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _earthquake = dependencies.Earthquake;
         _parts = dependencies.Parts;
@@ -157,7 +157,7 @@ internal sealed class KraidDeath
             _deathsAndDrops.StartGenericEnemyDeath(lint, EnemyDeathExplosion.Small, samus);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.
-        _frameResults.KraidObjects.Add(KraidObjectDefinitions.LiveDeathSpikes);
+        _passEvents.Publish(new KraidRoomChange(KraidObjectDefinitions.LiveDeathSpikes));
     }
 
     /// <summary>Moves the body downward through the authored sink sequence.</summary>
@@ -209,6 +209,6 @@ internal sealed class KraidDeath
         RoomObjectSpawnRequest<KraidRoomMutation> request = KraidObjects.ForSinkStep(step);
         // Each sinking rock starts at the left pixel edge of the removed block.
         _background.SpawnKraidCeilingRock(request.Block.ToRoomPixels().X);
-        _frameResults.KraidObjects.Add(request);
+        _passEvents.Publish(new KraidRoomChange(request));
     }
 }

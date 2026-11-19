@@ -345,7 +345,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(105, booster.SecondSpeedEchoPosition!.Value.X, "second speed echo X snapshot");
 
     booster.CancelRunningMomentum(SamusFacingDirection.Right);
-    AssertTrue(booster.SuitShadeRestoreRequested,
+    AssertTrue(booster.SuitShade.IsDue,
         "CancelSpeedBoost publishes normal-suit palette restoration");
     AssertEqual(SpeedEchoPhase.Departing, booster.SpeedEchoPhase,
         "right-facing cancellation enters high-bit echo departure");
@@ -424,7 +424,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertTrue(booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Standing, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
         "cancel copies normal suit palette through runtime seam");
     AssertEqual(0x0321, boostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0], "cancel restores ROM-authored Power Suit palette");
-    AssertTrue(!booster.SuitShadeRestoreRequested, "normal-suit palette request is one-shot");
+    AssertTrue(!booster.SuitShade.IsDue, "normal-suit palette request is one-shot");
 
     var boostedJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { EquippedItems = SamusEquipmentFlags.SpeedBooster };
     boostedJump.Kinematics.VerticalVelocity = boostedJump.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(4, 0xe000));

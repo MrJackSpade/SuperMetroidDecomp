@@ -58,6 +58,11 @@ internal sealed class IntroMotherBrainSpriteState
         new(0, IntroCinematicState.GameplayFlashbackVerticalScroll);
 
     /// <summary>True when the exploding behaviour's animation asks for the page the flashback leads into.</summary>
+    /// <remarks>
+    /// The scene's end, kept once its cue reaches it (#2562): the cinematic's phase step, which runs before the actors'
+    /// step on each update, starts the next page on the update after the cue, so the end lasts across that boundary; it is
+    /// set once and never cleared, and the next page's setup discards the scene.
+    /// </remarks>
     public bool NextPageRequested { get; private set; }
 
     /// <summary>Whether the actor still contributes its frame to the cinematic sprites: until page two's crossfade deletes it.</summary>

@@ -593,18 +593,9 @@ public static class SamusAerialMovement
         // Both vertical movers, downward and upward, publish this result after every move. A downward pass always
         // publishes one: Landed on a landing, otherwise Falling unless a wall jump's WallJump is retained.
         if (downwardDisplacement)
-        {
-            if (vertical.Collided)
-                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.Landed;
-            else if (samus.SolidVerticalCollisionResult != SamusVerticalCollisionResult.WallJump)
-                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.Falling;
-        }
+            samus.LeaveDownwardMoveResult(landed: vertical.Collided);
         else
-        {
-            samus.SolidVerticalCollisionResult = vertical.Collided
-                ? SamusVerticalCollisionResult.HitCeiling
-                : SamusVerticalCollisionResult.None;
-        }
+            samus.LeaveUpwardMoveResult(hitCeiling: vertical.Collided);
 
         hitCeiling = displacement.IsNegative && vertical.Collided;
         if (hitCeiling && ceilingResponse != SamusCeilingResponse.Deferred)
@@ -661,7 +652,7 @@ public static class SamusAerialMovement
         // before it reads the held direction; earlier frames leave it waiting.
         bool launchFrameReached = samus.AnimationHasReached(firstEligibleFrame);
         if (launchFrameReached)
-            samus.Kinematics.WithdrawWallJumpLaunchShake();
+            samus.Kinematics.WallJumpLaunch.Withdraw();
 
         bool heldLeft = (controllerInput & GameplayAction.Left) != GameplayAction.None;
         bool heldRight = (controllerInput & GameplayAction.Right) != GameplayAction.None;
@@ -696,11 +687,11 @@ public static class SamusAerialMovement
             // A wall jump off a solid enemy and one off terrain both record the wall jump as her vertical collision
             // result, which others read, as well as returning it; the result below also tells
             // the runtime to install the wall-jump pose explicitly.
-            samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
+            samus.LeaveWallJumpResult();
             // A launch off a solid or frozen enemy asks the next enemy pass to shake that enemy; a launch off
             // terrain asks nothing.
             if (probe.EnemyCollision is { Enemy: { } launchedFrom })
-                samus.Kinematics.RequestWallJumpLaunchShake(launchedFrom);
+                samus.Kinematics.WallJumpLaunch.Launch(launchedFrom);
         }
         return triggered;
     }

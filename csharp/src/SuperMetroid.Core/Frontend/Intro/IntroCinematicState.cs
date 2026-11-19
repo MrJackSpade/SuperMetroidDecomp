@@ -473,7 +473,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             // The page's text phase becomes its input wait once the narration's wait for that page starts.
             if (Phase == IntroCinematicPhase.PageText && CurrentNarration.AwaitingInputPage == Page)
                 Phase = IntroCinematicPhase.PageAwaitingInput;
-            if (CurrentNarration.IntroFinishRequested && Phase == IntroCinematicPhase.PageText)
+            if (CurrentNarration.FinalHoldEnded && Phase == IntroCinematicPhase.PageText)
             {
                 // The last page starts the final fade-out; the screen on this request frame is still the full-brightness
                 // last page.
@@ -806,7 +806,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Both the demo and locked movement modes end by resetting the
         // movement and pose-change state, so a later missile inherits only the
         // movement recorded in its own update.
-        SamusAerialPoseTransitions.DropPendingTransitionShot(FlashbackSamus);
+        SamusAerialPoseTransitions.DropTransitionShot(FlashbackSamus);
         FlashbackSamus.ProjectileInheritance.ClearMovement();
     }
 
@@ -907,7 +907,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             samus.KnockbackHold.IsRunning &&
             samus.KnockbackDirection == Samus.Movement.SamusKnockbackDirection.None)
         {
-            SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromPendingHit(samus), poseCollision: null);
+            SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromHurtState(samus), poseCollision: null);
             transitionAccepted = true;
         }
 

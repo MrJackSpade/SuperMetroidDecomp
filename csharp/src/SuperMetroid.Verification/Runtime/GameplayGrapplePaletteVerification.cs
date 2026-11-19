@@ -58,7 +58,7 @@ internal static class GameplayGrapplePaletteVerification
             runtime.StepFrame(0);
             runtime.Player.Colours.ShowBeams(SamusShades.Beam(SamusBeamCombinationTableOrder.FromTableIndex(beam)));
             runtime.StepFrame(ControllerButton.X);
-            AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "normal HUD input fires grapple");
+            AssertTrue(runtime.LatestGameplayFrame?.GrappleMovement is { Fired: true }, "normal HUD input fires grapple");
             AssertPalette("normal firing");
             samus.Pose = SamusPoseId.StandingAimDiagonalUpRightPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -66,7 +66,7 @@ internal static class GameplayGrapplePaletteVerification
             samus.CommitPoseHistory();
             runtime.Player.Colours.ShowBeams(SamusShades.Beam(SamusBeamCombinationTableOrder.FromTableIndex(beam)));
             runtime.StepFrame(ControllerButton.X);
-            AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "native pose-change window refires grapple");
+            AssertTrue(runtime.LatestGameplayFrame?.GrappleMovement is { Fired: true }, "native pose-change window refires grapple");
             AssertPalette("pose-change refiring");
             for (int frame = 0; frame < 4 && samus.Grapple.Phase != GrapplePhase.Inactive; frame++)
                 runtime.StepFrame(0);

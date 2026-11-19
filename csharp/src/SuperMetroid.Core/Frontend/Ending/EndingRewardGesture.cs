@@ -10,8 +10,8 @@ internal sealed class EndingRewardGesture
 {
     /// <summary>Reward actor set in spawn order, advanced before inactive actors are removed.</summary>
     private readonly List<CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardGestureCue>> actors = [];
-    /// <summary>Signals that the jumping-actor handoff must be consumed before another gesture tick.</summary>
-    public bool JumpRequested { get; private set; }
+    /// <summary>Whether the gesture has handed off to the jump, after which it takes no further step.</summary>
+    private bool handedOff;
 
     /// <summary>Spawns the suitless pair or the suited head, body, and arm in the reward's allocation order.</summary>
     public EndingRewardGesture(EndingReward reward)
@@ -21,13 +21,17 @@ internal sealed class EndingRewardGesture
             Spawn(actor);
     }
 
-    /// <summary>Advances active gesture actors once and records any cue-triggered jump handoff.</summary>
-    public void Step()
+    /// <summary>Advances active gesture actors once.</summary>
+    /// <returns>Whether the step's cue hands off to the jumping actors (#2562), which the scene's owner shows at once.</returns>
+    public bool Step()
     {
-        if (JumpRequested) throw new InvalidOperationException("Reward gesture handoff must be consumed before advancing again.");
+        if (handedOff) throw new InvalidOperationException("Reward gesture handoff must be consumed before advancing again.");
+        bool jumps = false;
         foreach (CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardGestureCue> actor in actors)
-            actor.Step(HandleCue);
+            actor.Step(cue => jumps |= HandleCue(cue));
         actors.RemoveAll(actor => !actor.IsActive);
+        handedOff = jumps;
+        return jumps;
     }
 
     /// <summary>Places current actors as the supplied sprite entries.</summary>
@@ -38,14 +42,13 @@ internal sealed class EndingRewardGesture
             actor.Draw(destination, installedArt: installedArt);
     }
 
-    /// <summary>Converts the jump cue into a suited or suitless handoff.</summary>
-    private void HandleCue(EndingRewardGestureCue cue)
+    /// <summary>Converts the jump cue into a suited or suitless handoff: whether <paramref name="cue"/> starts the jump.</summary>
+    private static bool HandleCue(EndingRewardGestureCue cue)
     {
         switch (cue)
         {
             case EndingRewardGestureCue.StartJump:
-                JumpRequested = true;
-                return;
+                return true;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EndingRewardGestureCue)} {cue}.");
         }

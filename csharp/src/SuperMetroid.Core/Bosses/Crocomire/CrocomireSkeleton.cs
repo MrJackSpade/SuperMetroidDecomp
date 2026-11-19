@@ -78,7 +78,7 @@ internal sealed class CrocomireSkeleton
         CrocomireDeathState death = state.Death;
         death.RumbleYOffset = 0;
         death.RumbleRepeatsLeft = UpdateCountdown.For(CrocomireRumbleDefinitions.Oscillations[0].Repeats);
-        state.DamageReactionPending = false;
+        state.StepBack.Forget();
         body.Radius = body.Radius.WithY(CrocomireSkeletonDefinitions.BehindWallReachY);
         state.AdvanceDeathStage();
     }

@@ -45,7 +45,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
                 EnemyInstructionRunner.Process(arguments);
             }
             AssertEqual(visible, state.FollowerVisible, $"Lower Norfair Rio {name} publishes follower visibility");
-            AssertEqual(signal, state.AnimationSignal, $"Lower Norfair Rio {name} animation signal");
+            AssertEqual(signal, state.Finish.IsRaised, $"Lower Norfair Rio {name} animation signal");
         }
 
         Suite(nameof(VerifyLowerNorfairRioInitializerSelections), () => VerifyLowerNorfairRioInitializerSelections());

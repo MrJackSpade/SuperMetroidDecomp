@@ -4,6 +4,11 @@ namespace SuperMetroid.Core.Enemies.Waver;
 /// Whether a Waver glides, spins or has just finished a spin (#2450): the animation it shows, and the update that ends a spin.
 /// Its values are arbitrary.
 /// </summary>
+/// <remarks>
+/// SpinFinished is a state of its course, not a request another owner stores for it (#2562): a cue, a touch or a shot ends
+/// the state before, and the game acts on it one update later, the state naming where it stands until then; the update
+/// that acts on it moves it on, as every other state's does. The update between is the game's.
+/// </remarks>
 public enum WaverAction
 {
     /// <summary>Flies its wave in its steady pose.</summary>

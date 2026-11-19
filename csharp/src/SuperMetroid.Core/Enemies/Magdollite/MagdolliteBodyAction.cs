@@ -3,6 +3,11 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <summary>
 /// What a Magdollite's rising body, its arm, is doing. Its values are arbitrary.
 /// </summary>
+/// <remarks>
+/// Released is a state of its course, not a request another owner stores for it (#2562): a cue, a touch or a shot ends
+/// the state before, and the game acts on it one update later, the state naming where it stands until then; the update
+/// that acts on it moves it on, as every other state's does. The update between is the game's.
+/// </remarks>
 public enum MagdolliteBodyAction
 {
     /// <summary>Holds the arm dormant below its origin until its head releases it.</summary>

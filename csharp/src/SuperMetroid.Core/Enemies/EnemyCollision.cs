@@ -535,7 +535,7 @@ internal sealed class EnemyCollision
             // The bomb collision marks the bomb before its reaction runs. Unlike an
             // ordinary beam impact, the bomb is already running its explosion animation, which the
             // common shot reaction leaves in place of an impact animation.
-            bomb.IsSpent = true;
+            bomb.Spend();
             var bombContext = new EnemyBombContext(
                 enemy,
                 bomb,

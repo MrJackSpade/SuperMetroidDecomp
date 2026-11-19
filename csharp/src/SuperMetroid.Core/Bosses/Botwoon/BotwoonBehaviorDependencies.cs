@@ -25,7 +25,7 @@ internal sealed record BotwoonBehaviorDependencies
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
     /// <summary>The boss's results for the frame, which carry the change to Botwoon's wall.</summary>
-    public required BossFrameResultBuilder FrameResults { get; init; }
+    public required EnemyPassEvents PassEvents { get; init; }
 
     /// <summary>The enemy update's sound and music requests.</summary>
     public required EnemyAudioQueue Audio { get; init; }

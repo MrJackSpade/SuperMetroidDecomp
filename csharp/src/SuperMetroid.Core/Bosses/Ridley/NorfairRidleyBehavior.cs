@@ -170,7 +170,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                         NorfairRidleyPhase.SwoopAimUp,
                         NorfairRidleyMotionDefinitions.SwoopTurnUpdates))
                 {
-                    state.Tail.WhipRequested = true;
+                    state.Tail.Whip.Give();
                 }
                 return;
 

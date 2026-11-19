@@ -88,7 +88,7 @@ internal static class GameOverMenuIndexesVerification
             answered.SkipToPhase(GameOverMenuPhase.Main);
             answered.Step(0);
             answered.Step(ControllerButton.A);
-            AssertEqual(ceres, answered.CeresArrivalRequested, $"Yes on loading state $1F={ceres} requests the Ceres loader");
+            AssertEqual(ceres, (answered.Outcome == GameOverMenuOutcome.CeresArrival), $"Yes on loading state $1F={ceres} requests the Ceres loader");
             AssertEqual(ceres ? GameOverMenuPhase.Main : GameOverMenuPhase.FadeOutToContinue, answered.Phase,
                 "only an area-map continue fades out");
         }

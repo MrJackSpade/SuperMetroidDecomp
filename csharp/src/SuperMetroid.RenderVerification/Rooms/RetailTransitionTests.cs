@@ -48,7 +48,7 @@ internal static class RetailTransitionTests
             var audio = AudioQueues.Standalone();
             var menu = new GameOverMenuState(audio, RenderRetailFixture.Maps, MenuSheetFixtures.For(RenderRetailFixture.Maps), continueLoadsCeresArrival: false);
             bool toggled = false, released = false;
-            for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)
+            for (int tick = 0; tick < 300 && menu.Outcome != GameOverMenuOutcome.Continue && menu.Outcome != GameOverMenuOutcome.Title; tick++)
             {
                 var expected = menu.Render();
                 menuCount++;
@@ -64,7 +64,7 @@ internal static class RetailTransitionTests
                 menu.Step(input); audio.AdvanceFrame(default);
                 Check(packet, expected, $"retained game-over tick {tick}");
             }
-            if (menu.TitleRequested != chooseNo || menu.ContinueRequested == chooseNo)
+            if ((menu.Outcome == GameOverMenuOutcome.Title) != chooseNo || (menu.Outcome == GameOverMenuOutcome.Continue) == chooseNo)
                 throw new InvalidOperationException("Game-over fixture did not reach selected outcome.");
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {cinematicCount} Ceres/Zebes samples across {phases.Count} phases and {menuCount} game-over frames match.");

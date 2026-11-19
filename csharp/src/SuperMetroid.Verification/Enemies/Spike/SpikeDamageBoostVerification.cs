@@ -188,7 +188,7 @@ internal static class SpikeDamageBoostVerification
             new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(SixteenSixteenWords.Compose(samus.Kinematics.Position.X), SixteenSixteenWords.Compose(samus.Kinematics.Position.Y), samus.Kinematics.VerticalVelocity.Speed.RawValue),
             "underwater turn floor contact preserves native accumulated speed");
         AssertEqual(SamusPoseId.FallingLeftPose, samus.Pose, "turn animation completes at floor");
-        AssertEqual(false, (runtime.Player.LastAerialSamusMovement ?? throw new InvalidOperationException("Verification requires runtime.Player.LastAerialSamusMovement.")).Landed,
+        AssertEqual(false, (runtime.LatestGameplayFrame?.AerialMovement ?? throw new InvalidOperationException("Verification requires runtime.LatestGameplayFrame?.AerialMovement.")).Landed,
             "turn suppresses collision-owned landing presentation");
         runtime.StepFrame((ControllerButton.Left | ControllerButton.A));
         AssertEqual(new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(0x0062c000u, 0x00ebffffu, 0u),

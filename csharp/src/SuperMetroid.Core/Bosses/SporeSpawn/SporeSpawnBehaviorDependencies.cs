@@ -32,7 +32,7 @@ internal sealed record SporeSpawnBehaviorDependencies
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
     /// <summary>The enemy pass's results, which Spore Spawn's fight writes.</summary>
-    public required BossFrameResultBuilder FrameResults { get; init; }
+    public required EnemyPassEvents PassEvents { get; init; }
 
     /// <summary>The enemy update's sound and music requests.</summary>
     public required EnemyAudioQueue Audio { get; init; }

@@ -55,7 +55,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         place.SetSpeciesState(new NorfairRioEnemyState(NorfairRioAction.WaitForAttackOpportunity)
         {
-            AnimationSignal = false,
             FollowerYOffset = 0,
             Flames = NorfairRioFlames.Ascending,
             Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle), AnimationPlace.StartOfAnimation),
@@ -83,9 +82,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (RioLaunchDefinitions.AttackHeldBack.IsTakenBy(random) ||
                     Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= RioLaunchDefinitions.NorfairTriggerDistance)
                 {
-                    if (state.AnimationSignal)
+                    if (state.Finish.Take())
                     {
-                        state.AnimationSignal = false;
                         RestNorfairRio(place, state);
                     }
                     return;
@@ -103,9 +101,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case NorfairRioAction.WaitForTakeoffAnimation:
-                if (!state.AnimationSignal)
+                if (!state.Finish.Take())
                     return;
-                state.AnimationSignal = false;
                 StartNorfairRioSwoopAnimation(
                     place,
                     state,
@@ -142,9 +139,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.NorfairGravity);
-                if (state.AnimationSignal)
+                if (state.Finish.Take())
                 {
-                    state.AnimationSignal = false;
                     StartNorfairRioSwoopAnimation(
                         place,
                         state,
@@ -170,7 +166,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case NorfairRioCue.SwoopStartFinished:
-                state.AnimationSignal = true;
+                state.Finish.Raise();
                 break;
             case NorfairRioCue.PlaceFlames placeFlames:
                 state.FollowerYOffset = placeFlames.Below;

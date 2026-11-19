@@ -54,11 +54,11 @@ internal static class DoorDefinitionsVerification
         AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, contacts.EnteredDoor,
             "the first door Samus enters is the one she goes through (#2545)");
         contacts.Meet(DoorContact.Of(DoorBlockExit.ElevatorPseudoDoor, SamusCollisionPose.StandingNormal));
-        AssertTrue(contacts.HandOverElevatorStandFromLastUpdate(),
+        AssertTrue(contacts.ElevatorStand.Take(),
             "a stand at the elevator's door reaches the elevator on the next update's enemies (#2545)");
-        AssertTrue(!contacts.HandOverElevatorStandFromLastUpdate(), "the stand reaches the elevator once");
+        AssertTrue(!contacts.ElevatorStand.Take(), "the stand reaches the elevator once");
         contacts.Meet(DoorContact.Of(DoorBlockExit.ElevatorPseudoDoor, SamusCollisionPose.RanIntoWallRight));
-        AssertTrue(!contacts.HandOverElevatorStandFromLastUpdate(), "a pose other than standing only brushes the elevator's door");
+        AssertTrue(!contacts.ElevatorStand.Take(), "a pose other than standing only brushes the elevator's door");
         contacts.ForgetEnteredDoor();
         AssertTrue(contacts.EnteredDoor is null, "the reserve refill's beginning forgets the entered door");
 

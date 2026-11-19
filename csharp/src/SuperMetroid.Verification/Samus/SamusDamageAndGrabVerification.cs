@@ -175,9 +175,9 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
     right.Drained.Release(right);
     AssertEqual(4, right.AnimationNumber, "standing release writes byte index four");
     AssertEqual(1, right.AnimationFrameTimer.RawValue, "standing release writes timer one");
-    for (int tick = 0; tick < 8 && right.PendingTransitionalPose is null; tick++)
+    for (int tick = 0; tick < 8 && right.CuePose.Named is null; tick++)
         SamusPresentation.Animate(right, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, right.PendingTransitionalPose,
+    AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, right.CuePose.Named,
         "standing drained release reaches ROM FD operand");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(right),
         "right drained release applies standing transition");
@@ -199,9 +199,9 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
     left.Drained.Release(left);
     AssertEqual(13, left.AnimationNumber,
         "crouched release preserves literal operand-adjacent byte index thirteen");
-    for (int tick = 0; tick < 64 && left.PendingTransitionalPose is null; tick++)
+    for (int tick = 0; tick < 64 && left.CuePose.Named is null; tick++)
         SamusPresentation.Animate(left, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertEqual<SamusPoseId?>(SamusPoseId.FacingLeftNormalPose, left.PendingTransitionalPose,
+    AssertEqual<SamusPoseId?>(SamusPoseId.FacingLeftNormalPose, left.CuePose.Named,
         "left crouched release reaches asymmetric FD operand");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(left),
         "left drained release applies standing transition");
@@ -733,7 +733,7 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(SamusDraygonHoldPhase.Held, samus.DraygonGrabbed.Phase, "the grab holds Samus");
     AssertTrue(samus.DraygonGrabbed.IsActive && samus.DraygonGrabbed.OwnsMovement, "the grab holds Samus and keeps her still");
 
-    samus.DraygonGrabbed.ApplyOwnerPosition(
+    _ = samus.DraygonGrabbed.CarryTo(
         samus, ownerPosition: new(0x0100, 0x0180), draygonFacing: HorizontalDirection.Right);
     AssertEqual(8, samus.Position.X.Whole - 0x0100,
         "right-facing claw offset is +8");
@@ -809,10 +809,8 @@ internal static void VerifySamusGrabbedByDraygon()
         "release clears X acceleration mode");
     AssertEqual(SamusDraygonHoldPhase.ReleasedUnseen, samus.DraygonGrabbed.Phase, "the release waits for Draygon to see it");
     AssertTrue(!samus.DraygonGrabbed.IsActive && !samus.DraygonGrabbed.OwnsMovement, "the release ends the hold");
-    AssertTrue(samus.DraygonGrabbed.ConsumeOwnerReleaseSignal(),
-        "release publishes one owner-consumed bit");
-    AssertTrue(!samus.DraygonGrabbed.ConsumeOwnerReleaseSignal(),
-        "owner release bit is one-shot");
+    AssertTrue(samus.DraygonGrabbed.CarryTo(samus, ownerPosition: new(0x0100, 0x0180), draygonFacing: HorizontalDirection.Right),
+        "Draygon's next carry reports the release");
     AssertEqual(SamusDraygonHoldPhase.Inactive, samus.DraygonGrabbed.Phase, "Draygon seeing the release frees Samus");
     samus.DraygonGrabbed.RelinquishMovement();
     AssertEqual(SamusDraygonHoldPhase.Inactive, samus.DraygonGrabbed.Phase, "a hold that is over gives up no movement");
@@ -824,7 +822,7 @@ internal static void VerifySamusGrabbedByDraygon()
         "another owner taking her movement leaves Draygon holding her");
     AssertTrue(samus.DraygonGrabbed.IsActive && !samus.DraygonGrabbed.OwnsMovement,
         "a hold whose movement another owner took still holds her but no longer keeps her still");
-    samus.DraygonGrabbed.ApplyOwnerPosition(
+    _ = samus.DraygonGrabbed.CarryTo(
         samus, ownerPosition: new(0x0100, 0x0180), draygonFacing: HorizontalDirection.Left);
     AssertEqual(-8, samus.Position.X.Whole - 0x0100,
         "left-facing claw offset is -8");

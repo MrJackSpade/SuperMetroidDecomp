@@ -17,7 +17,7 @@ public static class SamusPostDrawAudio
     public static void Step(SamusState samus,
         SamusMovementType previousMovement, GameplayAction controllerInput)
     {
-        SamusHurtFlash.ConsumeResumeChargingBeamSound(samus, controllerInput);
+        SamusHurtFlash.ResumeChargingBeamSound(samus, controllerInput);
         var speed = samus.HorizontalSpeed;
         if (speed.EchoSoundPlaying &&
             !speed.SpeedBoostCounter.IsAtFullStage)
@@ -34,6 +34,6 @@ public static class SamusPostDrawAudio
         // held.
         if (samus.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter) &&
             (controllerInput & GameplayAction.Shoot) != GameplayAction.None)
-            samus.ResumeChargingBeamSoundPending = true;
+            samus.ChargingSound.Arm();
     }
 }

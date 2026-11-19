@@ -96,13 +96,13 @@ internal static class NativeEnemyFamilyStateImport
                 // by every step.
                 PhantoonFadeProgress fade = phantoon.Phase == PhantoonPhase.Dead ? phantoon.ShipPowerOn : phantoon.BodyFade;
                 fade.Steps = words.E;
-                phantoon.BodyFade.Complete = words.F != 0;
+                PrivateState.Set(phantoon.BodyFade, nameof(PhantoonFadeProgress.IsFinished), words.F != 0);
                 phantoon.RageWaveCount = words.F;
                 PhantoonNativeWords.ImportDeathMosaic(phantoon.Death, words.C);
             }
             else if (part == EnemyDefinitionId.PhantoonTentacles)
             {
-                phantoon.Swoop.Requested = words.A != 0;
+                phantoon.WindowEnd = (words.A != 0) ? PhantoonWindowEnd.Swoop : PhantoonWindowEnd.EyeCloses;
                 phantoon.Round.Damage = words.B;
                 phantoon.Swoop.Velocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
                 PhantoonNativeWords.ImportSwoopTarget(phantoon.Swoop, words.E);
@@ -289,7 +289,10 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {
             crocomireRecord.DeathStage = CrocomireNativeWords.DeathStages.Decode(words.A, "recorded Crocomire death stage");
-            crocomireRecord.DamageReactionPending = CrocomireNativeWords.DamageReactionPending(words.B);
+            if (CrocomireNativeWords.DamageReactionPending(words.B))
+                crocomireRecord.StepBack.Ask();
+            else
+                crocomireRecord.StepBack.Forget();
             // The fight table's first entry, which no live fight selects, stands for a defeated room's corpse, which keeps its
             // constructed phase and never runs it (#1939).
             if (words.C != 0)
@@ -985,7 +988,7 @@ internal static class NativeEnemyFamilyStateImport
             rio.SavedHorizontalVelocity = new SignedEightEight(words.A);
             rio.Action = RiosNativeWords.RioActions.Decode(words.B, "recorded RioAction");
             rio.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
-            rio.AnimationFinished = words.E != 0;
+            if (words.E != 0) rio.Finish.Raise(); else rio.Finish.Forget();
         }
         if (enemy.EntityState<NorfairRioEntity, NorfairRioEnemyState>() is { } norfairRio)
         {

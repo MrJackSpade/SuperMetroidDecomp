@@ -41,7 +41,7 @@ internal sealed class NorfairRidleyDeath
     {
         state.GrabState = RidleyGrabState.Released;
         Ensure.NotNull(samus).Control.Unlock();
-        state.Tail.WhipRequested = true;
+        state.Tail.Whip.Give();
         state.Tail.Action = RidleyTailAction.Neutral;
         // The hurt timer is left untouched once death owns the fight.
         if (state.FightMode != RidleyFightMode.Dying)

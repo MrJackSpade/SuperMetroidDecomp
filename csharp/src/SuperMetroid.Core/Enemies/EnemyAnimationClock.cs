@@ -32,10 +32,12 @@ public sealed class EnemyAnimationClock
     public int Hold { get; private set; }
 
     /// <summary>
-    /// Whether the animation showed a new frame on this update: set when a step shows one, cleared on each update its
-    /// frame holds. A boss body shows its part's frame on the update the part shows a new one.
+    /// Whether the animation showed a new frame on this update: the clock's own record of its last step, set when a step
+    /// shows a frame and cleared on each update its frame holds or its clock waits, and once its animation halts
+    /// (<see cref="Halt"/>). A boss body shows its part's frame on the update the part shows a new one; the draw pass asks
+    /// the part's clock, because only the draw pass knows whether it reaches the part.
     /// </summary>
-    public bool ShowsNewFrame { get; internal set; }
+    public bool ShowsNewFrame { get; private set; }
 
     /// <summary>
     /// Whether the clock is stopped (#2213): its animation takes no step, and shows no new frame, until its owner starts or
@@ -84,6 +86,16 @@ public sealed class EnemyAnimationClock
     /// steps it again.
     /// </summary>
     internal void Stop() => IsStopped = true;
+
+    /// <summary>
+    /// Halts the animation for good as its occupant stops animating (#2562): the clock stops and shows no new frame, so a
+    /// boss body its part showed keeps its last frame.
+    /// </summary>
+    internal void Halt()
+    {
+        Stop();
+        ShowsNewFrame = false;
+    }
 
     /// <summary>Runs the clock again with <paramref name="hold"/> updates, one or more, left before the animation's next step.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="hold"/> is below one.</exception>

@@ -61,7 +61,7 @@ internal static class RoomDefinitionIntegrationVerification
         ushort initialCameraY = actual.Room.LoadedCamera.PixelPosition.Y;
         int frames = 0;
         bool cameraMoved = false;
-        while (actual.Enemies.LastEnemyFrame.Gunship != GunshipFrameEvent.LandingCompleted &&
+        while (!actual.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted) &&
                frames < PostCeresLandingMaximumFrames)
         {
             expected.StepFrame(0);
@@ -78,8 +78,8 @@ internal static class RoomDefinitionIntegrationVerification
                 new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(expected.Player.IntroducedSamus.Kinematics.Position.X), SixteenSixteenWords.Compose(expected.Player.IntroducedSamus.Kinematics.Position.Y)),
                 new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(actual.Player.IntroducedSamus.Kinematics.Position.X), SixteenSixteenWords.Compose(actual.Player.IntroducedSamus.Kinematics.Position.Y)),
                 $"guarded post-Ceres carried-Samus trajectory frame {frames}");
-            AssertEqual(expected.Enemies.LastEnemyFrame.Gunship,
-                actual.Enemies.LastEnemyFrame.Gunship,
+            AssertTrue(expected.Enemies.LastEnemyFrame.All<GunshipEvent>().SequenceEqual(
+                actual.Enemies.LastEnemyFrame.All<GunshipEvent>()),
                 $"guarded post-Ceres gunship boundary frame {frames}");
             cameraMoved |= actual.Room.LoadedCamera.PixelPosition.Y != initialCameraY;
             frames++;
@@ -87,8 +87,7 @@ internal static class RoomDefinitionIntegrationVerification
 
         AssertTrue(cameraMoved,
             "post-Ceres production trajectory moves the camera through Landing Site");
-        AssertEqual(GunshipFrameEvent.LandingCompleted,
-            actual.Enemies.LastEnemyFrame.Gunship,
+        AssertTrue(actual.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted),
             "guarded post-Ceres production trajectory reaches landing completion");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production entry and camera trajectory perform no compiled-definition ROM reads");

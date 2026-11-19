@@ -83,17 +83,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// </summary>
     public bool IsWaitingOutDisplayFrame { get; private set; }
 
-    /// <summary>Sticky request raised when the accepted Yes answer has faded fully to black; the outer game-state loop opens file-select map view rather than reloading the save inside this scene.</summary>
-    public bool ContinueRequested { get; private set; }
-
-    /// <summary>
-    /// Sticky request raised on the frame Yes is accepted while the save resumes at the Ceres
-    /// elevator: it publishes the Ceres game state and reloads the save without fading.
-    /// </summary>
-    public bool CeresArrivalRequested { get; private set; }
-
-    /// <summary>Sticky request raised when the accepted No answer has faded fully to black; the outer game-state loop enters its soft-reset path toward the title.</summary>
-    public bool TitleRequested { get; private set; }
+    /// <summary>How the menu hands off to the outer game-state loop (#2562), kept once it reaches one.</summary>
+    public GameOverMenuOutcome Outcome { get; private set; }
 
     /// <summary>
     /// Binds the installed map artwork when the game is bound to its installed content and refreshes only
@@ -194,7 +185,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                     // fade owner continues drawing.
                     baby.HoldShownFrameFor(GameOverMenuDefinitions.AcceptedAnswerHoldDuration);
                     if (SelectedItem == YesNoChoice.Yes && continueLoadsCeresArrival)
-                        CeresArrivalRequested = true;
+                        Outcome = GameOverMenuOutcome.CeresArrival;
                     else
                         Phase = SelectedItem == YesNoChoice.Yes
                             ? GameOverMenuPhase.FadeOutToContinue
@@ -205,13 +196,13 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             case GameOverMenuPhase.FadeOutToContinue:
                 StepBabyMetroid();
                 if (fade.Darken())
-                    ContinueRequested = true;
+                    Outcome = GameOverMenuOutcome.Continue;
                 break;
 
             case GameOverMenuPhase.FadeOutToTitle:
                 StepBabyMetroid();
                 if (fade.Darken())
-                    TitleRequested = true;
+                    Outcome = GameOverMenuOutcome.Title;
                 break;
 
             default:

@@ -138,7 +138,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         }
 
         // The stop is the one the previous update asked for; this update asks again only after it rolls.
-        if (state.StopMovementNextFrame)
+        if (state.InputStop.IsHeld)
             return;
 
         // The cooldown lasts its whole duration and then stays run out until Oum attacks (#2340).
@@ -278,7 +278,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         Position16<RoomPixels> previousPosition,
         HorizontalDirection? pushSide)
     {
-        state.StopMovementNextFrame = false;
+        state.InputStop.Release();
         if (EnemyCollision.IsSamusStandingOn(place, samus))
         {
             // Unlike most moving-platform producers, Oum assigns—not adds—the vertical
@@ -330,7 +330,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (!stop)
             return;
 
-        state.StopMovementNextFrame = true;
+        state.InputStop.HoldNextUpdate();
         place.Position = place.Position.WithWholeX(previousPosition.X);
     }
 

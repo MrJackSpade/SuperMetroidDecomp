@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed class CeresEscape : IGameplayShadingSource
 {
     /// <summary>The enemy pass's results, which the self-destruct writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>Provides room services and the floor's frames.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Queues the getaway's and the warning's sounds and music.</summary>
@@ -47,7 +47,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     internal CeresEscape(CeresEscapeDependencies dependencies)
     {
         _bossArtwork = dependencies.BossArtwork;
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _audio = dependencies.Audio;
         _presentation = dependencies.Presentation;
@@ -305,7 +305,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
                 // The escape-text sequence records the area boss's defeat inside Ridley's AI, so enemies listed after
                 // him (the room's exit door) observe it in this same enemy update.
                 _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
-                _frameResults.CeresEscapeStarted = true;
+                _passEvents.Publish(new CeresEscapeStarted());
                 return;
 
             default:

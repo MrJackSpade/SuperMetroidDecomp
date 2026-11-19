@@ -33,6 +33,9 @@ internal sealed class ActiveRoomState
     /// <summary>The completed scope of the loaded room, or null before the first load.</summary>
     internal RoomScope? Scope { get; private set; }
 
+    /// <summary>How many rooms the runtime has loaded, counting each completed room load (#2562).</summary>
+    internal int RoomsLoaded { get; private set; }
+
     /// <summary>The scope a room load is building; null between loads.</summary>
     private RoomScopeConstruction? _construction;
 
@@ -54,6 +57,7 @@ internal sealed class ActiveRoomState
     internal void Adopt(RoomScope scope)
     {
         Scope = Ensure.NotNull(scope);
+        RoomsLoaded++;
         _construction = null;
     }
 

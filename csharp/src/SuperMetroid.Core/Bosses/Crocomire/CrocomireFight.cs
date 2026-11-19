@@ -257,7 +257,7 @@ internal sealed class CrocomireFight
     private static bool StepMoves(CrocomireStepCondition condition, CrocomireEnemyState state, RoomEnemyPlace body, int cameraX) => condition switch
     {
         CrocomireStepCondition.Always => true,
-        CrocomireStepCondition.UnlessHitPending => !state.DamageReactionPending,
+        CrocomireStepCondition.UnlessHitPending => !state.StepBack.IsAwaited,
         CrocomireStepCondition.WhileOnScreen => CrocomireBodyIsOnScreen(body, cameraX),
         _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireStepCondition)} {condition}."),
     };
@@ -344,9 +344,8 @@ internal sealed class CrocomireFight
                 return null;
 
             case CrocomirePhase.SteppingForward:
-                if (state.DamageReactionPending)
+                if (state.StepBack.Take())
                 {
-                    state.DamageReactionPending = false;
                     if (state.StepCounter != 0)
                     {
                         state.Phase = CrocomirePhase.SteppingBack;
@@ -362,9 +361,8 @@ internal sealed class CrocomireFight
                 return null;
 
             case CrocomirePhase.ProjectileAttack:
-                if (state.DamageReactionPending)
+                if (state.StepBack.Take())
                 {
-                    state.DamageReactionPending = false;
                     state.Phase = CrocomirePhase.SteppingBack;
                     return CrocomireBodyAnimation.StepBack;
                 }
@@ -380,9 +378,8 @@ internal sealed class CrocomireFight
                 return CrocomireBodyAnimation.StepForwardAfterDelay;
 
             case CrocomirePhase.NearSpikeWallCharge:
-                if (state.DamageReactionPending)
+                if (state.StepBack.Take())
                 {
-                    state.DamageReactionPending = false;
                     state.Phase = CrocomirePhase.SteppingBack;
                     return CrocomireBodyAnimation.StepBack;
                 }
@@ -442,9 +439,8 @@ internal sealed class CrocomireFight
         CrocomireEnemyState state,
         CrocomirePhase damagedDestination)
     {
-        if (!state.DamageReactionPending)
+        if (!state.StepBack.Take())
             return null;
-        state.DamageReactionPending = false;
         state.Phase = damagedDestination;
         return CrocomireBodyAnimation.StepBack;
     }

@@ -30,21 +30,18 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// along the beam's current angle.
     /// </summary>
     /// <param name="samus">Samus, pinned by the beam.</param>
-    /// <param name="cameraCheckpoint">The session's record of what the push hides from the camera.</param>
     public MotherBrainForcedSamusMovementResult MoveTowardWall(
-        SamusState samus,
-        RainbowBeamCameraCheckpoint cameraCheckpoint)
+        SamusState samus)
     {
         Ensure.NotNull(samus);
-        Ensure.NotNull(cameraCheckpoint);
 
         FixedPosition<RoomPixels> before = Capture(samus);
-        bool reachedWall = MoveHorizontallyTowardWall(samus, cameraCheckpoint, MotherBrainRainbowBeamPushDefinitions.PushSpeed);
+        bool reachedWall = MoveHorizontallyTowardWall(samus, MotherBrainRainbowBeamPushDefinitions.PushSpeed);
 
         if (!reachedWall)
         {
             // The vertical part is the push's speed times the cosine of the beam's angle, in 256ths of a pixel.
-            MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, CalculateYVelocity(speed: MotherBrainRainbowBeamPushDefinitions.PushSpeed, RainbowBeamAngle));
+            MoveVerticallyTowardCeilingOrFloor(samus, CalculateYVelocity(speed: MotherBrainRainbowBeamPushDefinitions.PushSpeed, RainbowBeamAngle));
 
             // The wall step reports only whether Samus reached the wall; the vertical clamp
             // is reported separately and does not end the forced movement.
@@ -60,16 +57,14 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// up by a quarter pixel above it. Does not snap to the target and can oscillate.
     /// </summary>
     /// <param name="samus">Samus, pinned by the beam.</param>
-    /// <param name="cameraCheckpoint">The session's record of what the push hides from the camera.</param>
-    public static MotherBrainForcedSamusMovementResult MoveTowardMiddleOfWall(SamusState samus, RainbowBeamCameraCheckpoint cameraCheckpoint)
+    public static MotherBrainForcedSamusMovementResult MoveTowardMiddleOfWall(SamusState samus)
     {
         Ensure.NotNull(samus);
-        Ensure.NotNull(cameraCheckpoint);
 
         FixedPosition<RoomPixels> before = Capture(samus);
 
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(
-            samus, cameraCheckpoint,
+            samus,
             MotherBrainRainbowBeamPushDefinitions.MiddleOfWallSpeed.Toward(
                 samus.Position.Y.Whole <= MotherBrainRainbowBeamPushDefinitions.MiddleOfWallY ? VerticalDirection.Down : VerticalDirection.Up));
 
@@ -92,22 +87,20 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// the arena's bounds.
     /// </summary>
     /// <param name="samus">Samus, falling from the beam.</param>
-    /// <param name="cameraCheckpoint">The session's record of what the push hides from the camera.</param>
-    public MotherBrainForcedSamusMovementResult StepFallingAfterRainbowBeam(SamusState samus, RainbowBeamCameraCheckpoint cameraCheckpoint)
+    public MotherBrainForcedSamusMovementResult StepFallingAfterRainbowBeam(SamusState samus)
     {
         Ensure.NotNull(samus);
-        Ensure.NotNull(cameraCheckpoint);
 
         FixedPosition<RoomPixels> before = Capture(samus);
 
         // The leftward speed slows by two units each update; as soon as it reaches zero or above it is
         // clamped to exact zero.
         CustomVelocity = CustomVelocity.WithX(SignedEightEight.Min(CustomVelocity.X + MotherBrainRainbowBeamPushDefinitions.FallingPushSlowing, SignedEightEight.Zero));
-        MoveHorizontallyTowardWall(samus, cameraCheckpoint, CustomVelocity.X);
+        MoveHorizontallyTowardWall(samus, CustomVelocity.X);
 
         CustomVelocity += MotherBrainRainbowBeamPushDefinitions.FallGravity;
         bool reachedVerticalBoundary =
-            MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, CustomVelocity.Y);
+            MoveVerticallyTowardCeilingOrFloor(samus, CustomVelocity.Y);
 
         // The wait step ends when the vertical move reaches the ceiling or floor. Whether the
         // horizontal move met a wall is intentionally ignored.
@@ -131,13 +124,12 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// <summary>Applies the vertical movement, copies the result into the previous position, and clamps to arena Y=48..192.</summary>
     private static bool MoveVerticallyTowardCeilingOrFloor(
         SamusState samus,
-        RainbowBeamCameraCheckpoint cameraCheckpoint,
         SignedEightEight velocity)
     {
         FixedCoordinate moved = MoveByPushVelocity(samus.Position.Y, velocity);
         // The push hides the coarse part of its movement within a pixel from the camera, and every
         // exit records the new whole Y as where Samus was: the camera sees no whole-pixel movement.
-        cameraCheckpoint.HideCoarseVerticalMovement(moved.FractionOfPixel);
+        samus.PreviousPositionCorrections.RainbowPush.HideCoarseVerticalMovement(moved.FractionOfPixel);
 
         // The push moves her a pixel or two an update between the ceiling and the floor, so she meets either bound long
         // before the room's top.
@@ -147,7 +139,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             int boundary = aboveCeiling ? MotherBrainRainbowBeamPushDefinitions.Ceiling : MotherBrainRainbowBeamPushDefinitions.Floor;
             samus.Position = samus.Position.WithY(FixedCoordinate.FromWhole(boundary));
             samus.WritePreviousYPosition(boundary);
-            cameraCheckpoint.HideVerticalMovement(PixelFraction.None);
+            samus.PreviousPositionCorrections.RainbowPush.HideVerticalMovement(PixelFraction.None);
             return true;
         }
 
@@ -157,17 +149,17 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>Applies the sideways movement, copies the result into the previous position, and clamps at the right wall X=235.</summary>
-    private static bool MoveHorizontallyTowardWall(SamusState samus, RainbowBeamCameraCheckpoint cameraCheckpoint, SignedEightEight velocity)
+    private static bool MoveHorizontallyTowardWall(SamusState samus, SignedEightEight velocity)
     {
         FixedCoordinate moved = MoveByPushVelocity(samus.Position.X, velocity);
         // Every store is hidden from the camera's horizontal record.
-        cameraCheckpoint.HideCoarseHorizontalMovement(moved.FractionOfPixel);
+        samus.PreviousPositionCorrections.RainbowPush.HideCoarseHorizontalMovement(moved.FractionOfPixel);
 
         if (moved.Whole >= MotherBrainRainbowBeamPushDefinitions.WallX)
         {
             samus.Position = samus.Position.WithX(FixedCoordinate.FromWhole(MotherBrainRainbowBeamPushDefinitions.WallX));
             samus.WritePreviousXPosition(MotherBrainRainbowBeamPushDefinitions.WallX);
-            cameraCheckpoint.HideHorizontalMovement(PixelFraction.None);
+            samus.PreviousPositionCorrections.RainbowPush.HideHorizontalMovement(PixelFraction.None);
             return true;
         }
 

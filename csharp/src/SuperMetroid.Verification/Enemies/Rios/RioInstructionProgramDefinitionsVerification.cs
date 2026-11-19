@@ -46,16 +46,16 @@ internal static class RioInstructionProgramDefinitionsVerification
 
         foreach (RioSegment swoop in new[] { RioSegment.SwoopOpening, RioSegment.SwoopCooldown })
         {
-            state.AnimationFinished = false;
+            state.Finish.Forget();
             state.Playback = new(RioAnimations.StartingWith(swoop), AnimationPlace.StartOfAnimation);
             rio.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(RioAnimationsConstants.Spritemaps(swoop), Enumerable.Repeat(3, 5)),
                 EnemyInstructionRunner.ShownFrames(rio, 5 * 3),
                 $"Rio {swoop} shows its five poses");
-            AssertTrue(!state.AnimationFinished, $"Rio {swoop} is still showing its last pose");
+            AssertTrue(!state.Finish.IsRaised, $"Rio {swoop} is still showing its last pose");
             // The finished cue runs when the last pose's time runs out, on the next update.
             _ = EnemyInstructionRunner.ShownFrames(rio, 1);
-            AssertTrue(state.AnimationFinished, $"Rio {swoop} tells main AI it has finished");
+            AssertTrue(state.Finish.IsRaised, $"Rio {swoop} tells main AI it has finished");
         }
 
         state.Playback = new(RioAnimations.StartingWith(RioSegment.SwoopLoop), AnimationPlace.StartOfAnimation);

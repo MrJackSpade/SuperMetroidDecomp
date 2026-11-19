@@ -36,8 +36,7 @@ internal static class BotwoonAttackCooldownVerification
 
         (RoomEnemySystem hidden, RoomEnemyPlace hiddenHead, BotwoonEnemyState hiddenState) = NewBotwoon();
         hiddenState.Phase = BotwoonPhase.SpitWhileHidden;
-        hiddenState.HeadAction = BotwoonHeadAction.WaitForSpitFrame;
-        hiddenState.SpitFrameReached = true;
+        hiddenState.HeadAction = BotwoonHeadAction.SpitAimedVolley;
 
         hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead, Frame());
         AssertEqual(BotwoonHeadAction.AttackCooldown, hiddenState.HeadAction, "the aimed volley starts the cooldown");
@@ -85,7 +84,7 @@ internal static class BotwoonAttackCooldownVerification
     {
         (RoomEnemySystem enemies, RoomEnemyPlace head, BotwoonEnemyState state) = NewBotwoon();
         state.Phase = BotwoonPhase.FollowAuthoredPath;
-        state.PendingDeath = true;
+        state.FatallyHit = true;
         state.ExitTransitionComplete = true;
         for (int update = 1; update <= 15; update++)
         {

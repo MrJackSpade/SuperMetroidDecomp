@@ -51,7 +51,7 @@ internal static class CeresEscapeHandoffVerification
         AssertTrue(samus.CeresRidleyEjection.IsActive, "room-main request installs Ridley ejection");
         AssertTrue(!samus.Control.InputLocked, "installed ejection replaces movement but not pose input");
 
-        bool initializationWasPending = samus.CeresRidleyEjection.InitializationPending;
+        bool initializationWasPending = samus.CeresRidleyEjection.IsStarting;
         FixedCoordinate xBeforeInitialization = samus.Kinematics.Position.X;
         FixedCoordinate yBeforeInitialization = samus.Kinematics.Position.Y;
         samus.CeresRidleyEjection.Step(
@@ -60,7 +60,7 @@ internal static class CeresEscapeHandoffVerification
             samus,
             cameraX: 0,
             frameCounter: 0);
-        AssertTrue(initializationWasPending && !samus.CeresRidleyEjection.InitializationPending,
+        AssertTrue(initializationWasPending && !samus.CeresRidleyEjection.IsStarting,
             "first ejection gamma initializes state");
         AssertEqual(SamusMovementType.Standing, samus.PoseHistory.MovementBeforePrevious, "ejection initialization shifts prior metadata");
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.PoseHistory.PreviousPose, "ejection initialization publishes hurt pose");

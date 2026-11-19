@@ -43,17 +43,17 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
             StationAccessTimingDefinitions.Segments, StationAccessTimingDefinitions.Use);
 
     /// <summary>
-    /// The access Samus's touch accepted, which the station's next update starts the arm at, or null while no touch waits
-    /// for it (#2545). A later accepted touch before that update replaces it.
+    /// Whether the access arm is idle, about to start at a touch accepted since its last update, in use at the access Samus
+    /// used, or waiting for the map screen to close.
     /// </summary>
-    public StationAccessUse? PendingAccess { get; private set; }
-
-    /// <summary>Whether the access arm is idle, in use at the access Samus used, or waiting for the map screen to close.</summary>
     public StationOperationPhase OperationPhase { get; private set; } = StationOperationPhase.Idle;
+
+    /// <summary>Whether the station accepts Samus's touch: while idle, or before its next update takes a touch it accepted.</summary>
+    internal bool AcceptsTouch => OperationPhase == StationOperationPhase.Idle || OperationPhase is StationOperationPhase.TouchAccepted;
 
     /// <summary>Samus's accepted <paramref name="access"/> at <paramref name="accessBlock"/>, which the station's next update takes.</summary>
     internal void Trigger(Position16<RoomBlocks> accessBlock, StationAccess access) =>
-        PendingAccess = new StationAccessUse(accessBlock, access);
+        OperationPhase = new StationOperationPhase.TouchAccepted(new StationAccessUse(accessBlock, access));
 
     /// <summary>
     /// Leaving the map screen returns a map station waiting for it to idle. Unpause can arrive before the final access-art
@@ -76,14 +76,14 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         // triggering update itself; the countdown only
         // runs on later updates.
         bool operationStartedThisUpdate = false;
-        if (PendingAccess is { } pending)
+        if (OperationPhase is StationOperationPhase.TouchAccepted { Use: var pending })
         {
-            PendingAccess = null;
             if (Rule.Refill is { } refill && refill.IsFull(samus))
             {
                 // The full-resource branch releases Samus before the access ends. A refill between the touch and this
                 // update must release her too.
                 samus.Control.Unlock();
+                OperationPhase = StationOperationPhase.Idle;
             }
             else
             {

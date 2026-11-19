@@ -24,7 +24,13 @@ public sealed class SamusBomb
     /// Whether the bomb has already struck an enemy: its explosion keeps running, but it no longer launches Samus and
     /// later enemy collision skips it.
     /// </summary>
-    public bool IsSpent { get; internal set; }
+    public bool IsSpent { get; private set; }
+
+    /// <summary>The bomb strikes an enemy (#2562): its explosion runs on, but it no longer launches Samus or meets enemies.</summary>
+    internal void Spend() => IsSpent = true;
+
+    /// <summary>The bomb's explosion passes through an enemy as though it had struck nothing (#2562).</summary>
+    internal void FlyOn() => IsSpent = false;
 
     /// <summary>What the bomb is; <see cref="SamusProjectileType.None"/> before it is placed and once it ends.</summary>
     public SamusProjectileType Type { get; internal set; }

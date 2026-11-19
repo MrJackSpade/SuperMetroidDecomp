@@ -17,7 +17,7 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // A fast swing makes the camera scroll slowly.
-        grapple.SlowScrolling = grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed;
+        grapple.FollowSwing(grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed);
         // The swing places the rope by the same collision point the terrain probes use. Besides scaling the
         // angle's signed sine and cosine, it applies the block-side 7/8 endpoint bias documented in
         // CalculateCollisionPoint; using one point prevents visible art from disagreeing
@@ -323,9 +323,9 @@ public static class SamusGrappleSwing
                     collision.StruckPointFromHand < GrappleBeamDefinitions.Swing.StoppingPointsNearHand;
                 if (closeCollision)
                 {
-                    // This flag asks the swing to compare against the eight exact locked and
+                    // At rest close to her hand, the swing compares against the eight exact locked and
                     // wallgrab angles. Velocity is stopped instead of reflected.
-                    grapple.CloseCollision = true;
+                    grapple.RestCloseToHand();
                     grapple.AngularVelocity = AngularSpeed.Zero;
                     grapple.JumpImpulse = AngularSpeed.Zero;
                 }
@@ -346,11 +346,11 @@ public static class SamusGrappleSwing
             throw new InvalidDataException("Grapple angle sweep exceeded one full revolution.");
 
         // No sampled angle collided, so preserve the full fine target, clear the special
-        // angle request, age the kick window, and damp the extra velocity. Every one of
+        // angle rest, age the kick window, and damp the extra velocity. Every one of
         // these operations is bypassed by the collision return above.
         grapple.Angle = targetAngle;
         grapple.MirroredAngle = targetAngle;
-        grapple.CloseCollision = false;
+        grapple.SwingFreely();
 
         grapple.CollisionBounceTimer.Step();
 

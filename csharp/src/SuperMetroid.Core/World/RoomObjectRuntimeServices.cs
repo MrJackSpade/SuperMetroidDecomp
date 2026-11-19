@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus;
@@ -56,12 +57,12 @@ internal sealed class RoomObjectRuntimeServices(
     /// <summary>Lets a room object disable the Draygon wall cannon it controls.</summary>
     public void DisableDraygonCannon(DraygonWallCannon cannon) => Enemies.RoomObjectSpawns.DisableDraygonCannon(cannon);
 
-    /// <summary>Starts the room's Chozo statue hand sequence, then applies the room-object work it requests at once.</summary>
+    /// <summary>Starts the room's Chozo statue hand sequence, then spawns the room objects it asks for at once.</summary>
     public void ActivateChozoStatueHand(RoomLevelData level)
     {
-        RoomEnemySystem enemies = Enemies;
-        enemies.RoomObjectRequests.ActivateChozoStatueHandTrigger();
-        enemies.RoomObjectRequests.ApplyPendingChozoStatueObjects(level, (destination.RoomObjects
-            ?? throw new InvalidOperationException("A Chozo hand activated before the room's room objects were built.")).ChozoStatue);
+        ChozoStatueObjects statueObjects = (destination.RoomObjects
+            ?? throw new InvalidOperationException("A Chozo hand activated before the room's room objects were built.")).ChozoStatue;
+        foreach (RoomObjectSpawnRequest<ChozoStatueRoomObject> request in Enemies.RoomObjectRequests.ActivateChozoStatueHandTrigger())
+            statueObjects.TrySpawnChozoStatueObject(level, request);
     }
 }

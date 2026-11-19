@@ -1047,8 +1047,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
             projectiles, sharedProjectiles),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
-        observedNormalRidleyPalette |= !state.BodyFlashing;
-        observedFlashRidleyPalette |= state.BodyFlashing;
+        observedNormalRidleyPalette |= !state.HurtFlashShows.Body;
+        observedFlashRidleyPalette |= state.HurtFlashShows.Body;
         if (hit == 49)
             AssertEqual(0x7000, Shown()[0xf1],
                 "Ceres Ridley 50-hit health palette");
@@ -1206,24 +1206,24 @@ internal static void VerifyCeresRidleyRoomEntry()
     for (int frame = 0; frame < 127; frame++)
     {
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-        AssertTrue(!enemies.LastEnemyFrame.CeresEscapeStarted,
+        AssertTrue(!enemies.LastEnemyFrame.Has<CeresEscapeStarted>(),
             $"Ceres escape does not publish early on hold frame {frame}");
         AssertEqual(CeresSelfDestructPhase.HoldingTitle, enemies.CeresEscape.Warning.Phase,
             $"Ceres English warning still holds its title on hold update {frame + 1} of 128");
     }
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-    AssertTrue(!enemies.LastEnemyFrame.CeresEscapeStarted,
+    AssertTrue(!enemies.LastEnemyFrame.Has<CeresEscapeStarted>(),
         "Ceres escape does not skip the English warning after its 128-frame title hold");
     AssertEqual(CeresSelfDestructPhase.TypingWarning, enemies.CeresEscape.Warning.Phase,
         "Ceres English warning enters the typewriter phase");
 
     int typewriterFrames = 0;
-    while (!enemies.LastEnemyFrame.CeresEscapeStarted && typewriterFrames < 512)
+    while (!enemies.LastEnemyFrame.Has<CeresEscapeStarted>() && typewriterFrames < 512)
     {
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         typewriterFrames++;
     }
-    AssertTrue(enemies.LastEnemyFrame.CeresEscapeStarted,
+    AssertTrue(enemies.LastEnemyFrame.Has<CeresEscapeStarted>(),
         "Ceres escape starts only after the complete English warning is typed");
     AssertTrue(ceresBossDefeated,
         "$A6:C131 sets the area-boss bit within the escape-start enemy pass");

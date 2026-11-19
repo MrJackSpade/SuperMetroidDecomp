@@ -4,6 +4,11 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// The behaviour Oum's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
+/// <remarks>
+/// AttackFinished is a state of its course, not a request another owner stores for it (#2562): a cue, a touch or a shot ends
+/// the state before, and the game acts on it one update later, the state naming where it stands until then; the update
+/// that acts on it moves it on, as every other state's does. The update between is the game's.
+/// </remarks>
 public enum MaridiaLargeSnailAction
 {
     /// <summary>Completes settling bounces, then selects an idle facing and enters rolling when Samus is strictly within 24 horizontal pixels.</summary>

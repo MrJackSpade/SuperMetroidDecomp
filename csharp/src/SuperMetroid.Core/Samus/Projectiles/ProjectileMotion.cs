@@ -298,7 +298,8 @@ internal sealed class ProjectileMotion
         link.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
         link.PicturedBeams = owner.PicturedBeams;
         link.Direction = owner.Direction;
-        link.IsSpent = owner.IsSpent;
+        if (owner.IsSpent)
+            link.Spend();
         link.Position = link.Position.WithWhole(owner.Position.Whole);
 
         // The link then takes the muzzle's position for Samus's pose as it is now, over the owner's coordinates; the two

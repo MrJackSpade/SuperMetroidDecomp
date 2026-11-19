@@ -54,7 +54,7 @@ internal static class SamusGrappleMovementAccess
             // Landing Site regression does exactly that), so only a beam acquired through the
             // block dispatcher opts into bank-$9B's per-frame connection revalidation.
             grapple.ValidatedAnchor = null;
-            grapple.CloseCollision = false;
+            grapple.SwingFreely();
             grapple.WallJumpTimer = UpdateCountdown.Ended();
             grapple.CancelFromConnectedPose = false;
             SamusGrappleBeamDrawing.InitializeBeamAnimation(grapple);

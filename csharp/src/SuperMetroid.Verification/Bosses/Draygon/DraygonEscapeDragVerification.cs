@@ -28,7 +28,7 @@ internal static class DraygonEscapeDragVerification
         AssertEqual((ushort)(0x013b - 8), samus.Position.X.Whole, "the escaped Samus is placed eight pixels left of Draygon");
         AssertEqual((ushort)(0x0176 + 0x28), samus.Position.Y.Whole, "the escaped Samus is placed 40 pixels below Draygon");
         AssertEqual(DraygonPhase.FlyStraightUp, state.Phase, "Draygon then sees the escape and flies up");
-        AssertTrue(!samus.DraygonGrabbed.ConsumeOwnerReleaseSignal(), "the placement consumed the escape bit");
+        AssertEqual(SamusDraygonHoldPhase.Inactive, samus.DraygonGrabbed.Phase, "the placement reported the escape, which Draygon has seen");
         Console.WriteLine("  Draygon escape drag: the first carry call after an escape still places Samus.");
     }
 

@@ -148,7 +148,7 @@ internal sealed class EnemyProjectileEngine
                 // enemy, so a freshly fired Super Missile (or its invisible link) does not explode on the update it was
                 // fired. The shot acts on the mark as it moves on the next projectile pass.
                 if (!shot.Type.HasAnyBeam(SamusBeamFlags.Plasma))
-                    shot.IsSpent = true;
+                    shot.Spend();
 
                 if (enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.IndestructibleDud)
                 {
@@ -668,7 +668,7 @@ internal sealed class EnemyProjectileEngine
             RoomEffectActorKind.DudShot,
             graphics: default);
         QueueDudSound(SoundRequestPriority.Low);
-        projectile.IsSpent = true;
+        projectile.Spend();
     }
 
     /// <summary>

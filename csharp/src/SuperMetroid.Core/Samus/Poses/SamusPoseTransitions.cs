@@ -162,7 +162,7 @@ internal static class SamusPoseTransitions
             SettleAcceptedLanding(samus, leavingScrewAttack);
         else if (leavingScrewAttack)
             // Shade restoration belongs to the pose change, before the blocked-collision gate on settling.
-            samus.HorizontalSpeed.RequestSuitShadeRestore();
+            samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
@@ -222,7 +222,7 @@ internal static class SamusPoseTransitions
     {
         // The landing sets the same one-shot pose input a turn animation's transition installs.
         // Its short held-Jump window is evaluated in the next input phase, not during landing.
-        if (!samus.Control.InputLocked) samus.InputSnapshot.AutoJumpInputPending = true;
+        if (!samus.Control.InputLocked) samus.InputSnapshot.AutoJump.Install();
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
@@ -231,7 +231,7 @@ internal static class SamusPoseTransitions
         // wall-jump movement while Screw Attack is equipped. The suit shade shows
         // at the later shade phase, so the landing requests it here.
         if (leavingScrewAttack)
-            samus.HorizontalSpeed.RequestSuitShadeRestore();
+            samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
     }
 
     /// <summary>
@@ -287,7 +287,7 @@ internal static class SamusPoseTransitions
     /// </summary>
     public static bool ApplyPendingAnimationTransition(SamusState samus)
     {
-        if (samus.PendingTransitionalPose is not SamusPoseId targetPose)
+        if (samus.CuePose.Named is not SamusPoseId targetPose)
             return false;
 
         // The game's pose initialization computes its own local delay without replacing

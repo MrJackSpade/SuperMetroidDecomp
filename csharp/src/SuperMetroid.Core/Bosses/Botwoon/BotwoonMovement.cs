@@ -7,4 +7,9 @@ public enum BotwoonMovement
     MoveTowardHole,
     /// <summary>Walks his authored path, as many steps an update as his speed stage takes, until he walks off its end.</summary>
     FollowAuthoredPath,
+    /// <summary>
+    /// He has crossed into or out of the wall, or walked off his path's end: he stands still until his next update, which
+    /// chooses what follows instead of moving.
+    /// </summary>
+    Finished,
 }

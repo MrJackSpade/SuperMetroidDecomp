@@ -97,7 +97,7 @@ internal sealed class BeamFiring
             return new(sound, sound is null ? null : SoundRequestPriority.Essential);
         }
 
-        if (samus.PendingTransitionShot is not null)
+        if (samus.TransitionShot.Handed is not null)
         {
             // Charging forces release before testing held Shoot. This is why a
             // charged beam can leave the OLD gun direction while a normal-jump or moonwalk
@@ -151,7 +151,7 @@ internal sealed class BeamFiring
                 // failed family selection leaves charge intact, including its ammo debit.
                 _charge.ClearCount();
                 _charge.ClearFlare();
-                samus.HorizontalSpeed.RequestSuitShadeRestore();
+                samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
                 return new(comboSound, SoundRequestPriority.Normal);
             }
             return new(null, null);
@@ -194,7 +194,7 @@ internal sealed class BeamFiring
 
         if (!_charge.PreviousCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
             return new(null, null);
-        samus.ResumeChargingBeamSoundPending = false;
+        samus.ChargingSound.Cancel();
         return new(SamusSound.Silence, Priority: SoundRequestPriority.Essential);
     }
 
@@ -228,7 +228,7 @@ internal sealed class BeamFiring
         // the fifth place holds. With every place held the shot takes the last place over the shot there (#2468).
         int place = _pool.PlaceForBeam();
 
-        SamusProjectileDirection? direction = samus.PendingTransitionShot is { } transitionShot
+        SamusProjectileDirection? direction = samus.TransitionShot.Handed is { } transitionShot
             ? transitionShot.Aim
             : SamusPoseMetadata.ReadAimDirection(samus);
 
@@ -251,7 +251,7 @@ internal sealed class BeamFiring
         InteractionImmunity = UpdateCountdown.Lasting(ProjectileTimingDefinitions.BeamInteractionImmunity);
         // The shot cancels a pending resume of the charging sound where it requests its own sound, before the projectile
         // is set up, so the next post-draw sound pass does not resume the charge after it (#1689).
-        samus.ResumeChargingBeamSoundPending = false;
+        samus.ChargingSound.Cancel();
 
         // The combination selects one projectile: Spazer's three streaks are one picture of one projectile, so no
         // further projectiles are created here.
@@ -340,7 +340,7 @@ internal sealed class BeamFiring
         InitializePosition(samus, projectile);
         InteractionImmunity = UpdateCountdown.Lasting(ProjectileTimingDefinitions.BeamInteractionImmunity);
         // As for ordinary beams, the shot cancels a pending resume of the charging sound where it requests its own (#1689).
-        samus.ResumeChargingBeamSoundPending = false;
+        samus.ChargingSound.Cancel();
 
         // The Hyper Beam is a charged Plasma beam for its projectile data and animation even though
         // acquisition equips Wave and Plasma, whose pictures its shots show; its damage is its own.

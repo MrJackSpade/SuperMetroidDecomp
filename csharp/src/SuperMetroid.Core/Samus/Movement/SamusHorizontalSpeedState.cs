@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -81,14 +82,21 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public bool EchoSoundPlaying { get; set; }
 
-    /// <summary>Which attack Samus's body is when an enemy touches her; her run's fourth boost stage makes it the Speed Booster's.</summary>
+    /// <summary>
+    /// Which attack Samus's body is when an enemy touches her; her run's fourth boost stage makes it the Speed Booster's. It
+    /// is her state from one movement phase to the next: each movement phase begins with none and its movers leave the
+    /// attack they make, which the next update's enemies and her terrain, hazards and shots read.
+    /// </summary>
     public SamusBodyAttack BodyAttack { get; set; }
+
+    /// <summary>Her movement phase begins with no body attack, after the update's enemies have read the last movement's.</summary>
+    internal void BeginMovementWithoutBodyAttack() => BodyAttack = SamusBodyAttack.None;
 
     /// <summary>
     /// Whether cancelling a speed boost asked for the suit's shade back at once. Movement cancels the boost and the
     /// colour step, later in the same frame, shows the suit.
     /// </summary>
-    public bool SuitShadeRestoreRequested { get; private set; }
+    public SuitShadeAtColourStep SuitShade { get; } = new();
 
     /// <summary>
     /// What the speed echoes are doing. Ordinary active Speed Booster captures alternate between the first and second
@@ -312,7 +320,7 @@ public sealed class SamusHorizontalSpeedState
     {
         Ensure.NotNull(colours);
 
-        bool shadeCopied = ApplyPendingSuitShadeRestore(colours, frame.EquippedItems);
+        bool shadeCopied = ShowDueSuitShade(colours, frame.EquippedItems);
         SamusSuit suit = frame.EquippedItems.ShownSuit();
 
         // The stored shine's and the shinespark's suit colourings take priority. Cancellation's
@@ -388,23 +396,22 @@ public sealed class SamusHorizontalSpeedState
     /// Defers restoring Samus's normal suit colours until just before this update's suit colourings run.
     /// The game's pose initialization performs this when leaving a Screw Attack spin family.
     /// </summary>
-    public void RequestSuitShadeRestore() => SuitShadeRestoreRequested = true;
+    public void ShowSuitShadeAtColourStep() => SuitShade.Show();
 
     /// <summary>
     /// Shows at once the suit colours requested by momentum cancellation and
     /// pose initialization. These precede charge and special colouring handling, which may
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
-    public bool ApplyPendingSuitShadeRestore(
+    public bool ShowDueSuitShade(
         SamusColours colours,
         SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
-        if (!SuitShadeRestoreRequested)
+        if (!SuitShade.Take())
             return false;
 
         SamusSuitShade.Show(colours, equippedItems);
-        SuitShadeRestoreRequested = false;
         return true;
     }
 
@@ -493,7 +500,7 @@ public sealed class SamusHorizontalSpeedState
             HasRunningMomentum = false;
             SpeedBoostCounter = default;
             SamusGlowPlay.Restart(FullBodyGlow, FullBodyGlowStart);
-            SuitShadeRestoreRequested = true;
+            SuitShade.Show();
         }
 
         // This block is intentionally outside the momentum test. Every movement can

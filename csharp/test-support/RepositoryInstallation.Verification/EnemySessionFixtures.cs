@@ -17,7 +17,7 @@ internal static class EnemySessionFixtures
     /// draws, so a case that draws none loads none.
     /// </summary>
     internal static EnemySession WithInstalledServices() =>
-        new(GameplayAudioRequests.Standalone(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new RainbowBeamCameraCheckpoint(),
+        new(GameplayAudioRequests.Standalone(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads,
             new SheetsOnFirstDraw(() => EnemySheetFixtures.For(InstalledFixtures.EnemyTiles)), InstalledFixtures.EnemyFrameDisplays);
 
     /// <summary>A fresh power-on enemy session drawing from <paramref name="tiles"/>' sheets and frame displays.</summary>
@@ -25,7 +25,7 @@ internal static class EnemySessionFixtures
     internal static EnemySession WithInstalledServices(EnemyTileSourceArtwork tiles)
     {
         ArgumentNullException.ThrowIfNull(tiles);
-        return new(GameplayAudioRequests.Standalone(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new RainbowBeamCameraCheckpoint(),
+        return new(GameplayAudioRequests.Standalone(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads,
             EnemySheetFixtures.For(tiles), tiles.FrameDisplays ?? throw new InvalidOperationException(
                 "The fixture's enemy artwork holds only one of the two enemy frame documents, so it has no frame displays."));
     }
@@ -37,8 +37,7 @@ internal static class EnemySessionFixtures
     internal static EnemySession WithInstalledFrames(EnemyTileSourceArtwork tiles)
     {
         ArgumentNullException.ThrowIfNull(tiles);
-        return new(GameplayAudioRequests.Standalone(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads,
-            new RainbowBeamCameraCheckpoint(), EnemySheetFixtures.For(tiles), InstalledFixtures.EnemyFrameDisplays);
+        return new(GameplayAudioRequests.Standalone(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, EnemySheetFixtures.For(tiles), InstalledFixtures.EnemyFrameDisplays);
     }
 
     /// <summary>
@@ -51,7 +50,7 @@ internal static class EnemySessionFixtures
     internal static EnemySession ContinuingWithFixturePopulations(EnemySession session)
     {
         ArgumentNullException.ThrowIfNull(session);
-        return new EnemySession(session.AudioRequests, session.Overreads, session.BossOverreads, session.RainbowBeamCameraCheckpoint,
+        return new EnemySession(session.AudioRequests, session.Overreads, session.BossOverreads,
             new SheetsOnFirstDraw(() => EnemySheetFixtures.For(InstalledFixtures.EnemyTiles)), session.FrameDisplays)
         {
             CeresStatus = session.CeresStatus,

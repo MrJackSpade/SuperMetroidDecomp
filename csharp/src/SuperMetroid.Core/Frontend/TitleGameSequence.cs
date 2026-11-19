@@ -69,7 +69,7 @@ internal sealed class TitleGameSequence(FrontendSession session) : IGamePhase
     {
         session.ActiveTitle.Step(controllerInput);
         session.display.PublishMenu(session.ActiveTitle);
-        if (session.ActiveTitle.FileSelectRequested)
+        if (session.ActiveTitle.Outcome == TitleSequenceOutcome.FileSelect)
         {
             // The title enters file select only after the slow fade reaches black.
             session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.ScreenContent,
@@ -77,7 +77,7 @@ internal sealed class TitleGameSequence(FrontendSession session) : IGamePhase
             session.Enter(FileSelectStep.SaveSlots);
             session.display.PublishMenu(session.ActiveFileSelect);
         }
-        else if (session.ActiveTitle.DemoRequested)
+        else if (session.ActiveTitle.Outcome == TitleSequenceOutcome.Demo)
         {
             session.Demo.RequestFromTitle();
             session.Enter(AttractDemoStep.Loading);

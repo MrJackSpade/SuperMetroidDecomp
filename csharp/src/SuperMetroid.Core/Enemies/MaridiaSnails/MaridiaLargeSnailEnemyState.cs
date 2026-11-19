@@ -40,10 +40,11 @@ public sealed class MaridiaLargeSnailEnemyState
     public bool AttackAllowsRotation { get; internal set; }
 
     /// <summary>
-    /// Whether the snail stops moving on its next update: set after its update and read by the next, as the game
-    /// stops it one update later.
+    /// The stop Samus's push against the snail asks of its next update (#2562): its carry, which runs after its update, holds
+    /// it when she pushes against it, and its next update stops moving, as the game stops it one update later; each carry
+    /// decides afresh.
     /// </summary>
-    public bool StopMovementNextFrame { get; internal set; }
+    public NextUpdateHold InputStop { get; } = new();
 
     /// <summary>The outer action.</summary>
     public MaridiaLargeSnailAction Action { get; internal set; }

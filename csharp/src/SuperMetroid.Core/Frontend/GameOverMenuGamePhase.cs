@@ -32,7 +32,7 @@ internal sealed class GameOverMenuGamePhase(FrontendSession session) : IGamePhas
                 SaveLoadingGameState.CeresElevatorArrival));
         gameOver.Step(controllerInput);
         session.display.PublishMenu(gameOver);
-        if (gameOver.CeresArrivalRequested)
+        if (gameOver.Outcome == GameOverMenuOutcome.CeresArrival)
         {
             // Starting a game publishes the Ceres load and reloads the save slot in the same update;
             // the Ceres loader runs on the next update. Gameplay owners are
@@ -42,7 +42,7 @@ internal sealed class GameOverMenuGamePhase(FrontendSession session) : IGamePhas
             session.ReleaseRuntime();
             session.Enter(GameDataLoadRoute.SelectedGame);
         }
-        else if (gameOver.ContinueRequested)
+        else if (gameOver.Outcome == GameOverMenuOutcome.Continue)
         {
             // The game-over menu's continue enters the area map after the fully black
             // frame. Keep that boundary separate from save reload.
@@ -50,7 +50,7 @@ internal sealed class GameOverMenuGamePhase(FrontendSession session) : IGamePhas
             session.Enter(FileSelectStep.AreaMap);
             session.display.PublishBlack();
         }
-        else if (gameOver.TitleRequested)
+        else if (gameOver.Outcome == GameOverMenuOutcome.Title)
         {
             // The game-over menu's exit step soft-resets only after its fade reaches black.
             session.Close<GameOverMenuState>();

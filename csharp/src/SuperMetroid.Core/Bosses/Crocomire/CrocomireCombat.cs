@@ -306,11 +306,8 @@ internal sealed class CrocomireCombat
         if (!bodyLeftEdgeIsOnScreen || stepCount != 0)
         {
             state.StepCounter += stepCount;
-            if (!state.DamageReactionPending)
-            {
+            if (state.StepBack.Ask())
                 body.AnimationClock.Extend(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
-            }
-            state.DamageReactionPending = true;
         }
 
         body.HurtFlash.Lengthen(CrocomireFightDefinitions.MouthShotFlash);

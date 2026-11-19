@@ -412,13 +412,13 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         Pose = SamusPoseId.NormalJumpGunExtendedRightPose,
     }.WithBeamChargeCount(BeamChargeDefinitions.ChargeSoundStartCounter);
     SamusPostDrawAudio.Step(resumeCharge, SamusMovementType.SpinJumping, GameplayAction.Shoot);
-    AssertTrue(resumeCharge.ResumeChargingBeamSoundPending, "spin exit defers charge resume");
+    AssertTrue(resumeCharge.ChargingSound.IsArmed, "spin exit defers charge resume");
     AssertEqual(1, resumeCharge.LiquidPhysics.SoundRequests.Count, "only stop is queued on spin exit");
     resumeCharge.LiquidPhysics.BeginFrameSoundRequests();
     SamusPostDrawAudio.Step(resumeCharge, SamusMovementType.NormalJumping, GameplayAction.Shoot);
     AssertEqual(new SoundRequest(SamusSound.ResumeChargingBeam, SoundRequestPriority.High),
         resumeCharge.LiquidPhysics.SoundRequests.Single(), "next frame resumes charge after stop");
-    AssertTrue(!resumeCharge.ResumeChargingBeamSoundPending, "the resumed charge sound clears the pending resume");
+    AssertTrue(!resumeCharge.ChargingSound.IsArmed, "the resumed charge sound clears the pending resume");
 
     var spaceLaunch = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
@@ -496,9 +496,9 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Fire preserves fractional vertical speed");
     AssertEqual(SamusAccelerationMode.Decelerating, spinFire.HorizontalSpeed.AccelerationMode,
         "spin Fire retains extra-run aerial acceleration");
-    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right), spinFire.PendingTransitionShot,
+    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right), spinFire.TransitionShot.Handed,
         "spin Fire publishes target shot direction");
-    AssertTrue(spinFire.HorizontalSpeed.SuitShadeRestoreRequested,
+    AssertTrue(spinFire.HorizontalSpeed.SuitShade.IsDue,
         "leaving Screw Attack requests normal suit palette");
 
     // `$91:A9EC` is the retail `$83` wall-jump input table. Its Shot record is literally
@@ -531,9 +531,9 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         "wall-jump Shot preserves whole vertical speed");
     AssertEqual(0x2345, wallFire.Kinematics.VerticalVelocity.Speed.Fraction,
         "wall-jump Shot preserves fractional vertical speed");
-    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right), wallFire.PendingTransitionShot,
+    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right), wallFire.TransitionShot.Handed,
         "wall-jump Shot publishes target shot direction");
-    AssertTrue(wallFire.HorizontalSpeed.SuitShadeRestoreRequested,
+    AssertTrue(wallFire.HorizontalSpeed.SuitShade.IsDue,
         "leaving Screw wall-jump requests normal suit palette");
 
     // Down during a left spin selects compact normal-jump pose `$18`. It enters the same
@@ -569,7 +569,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Down preserves whole vertical speed");
     AssertEqual(0x3456, spinAimDown.Kinematics.VerticalVelocity.Speed.Fraction,
         "spin Down preserves fractional vertical speed");
-    AssertEqual<SamusTransitionShot?>(null, spinAimDown.PendingTransitionShot,
+    AssertEqual<SamusTransitionShot?>(null, spinAimDown.TransitionShot.Handed,
         "spin Down without Shoot does not publish a projectile bridge");
 
     static SamusState CreateFallingSpin(SamusPoseId pose, ushort items, ushort speed, ushort subspeed) => new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
@@ -731,7 +731,7 @@ empty, screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump, roomObjects: Sa
     // A Screw landing requests the same normal palette reload performed by `$91:F433`.
     SamusPoseTransitions.ApplyAerialLanding(screwRepeat, wasSpinning: true, controllerInput: GameplayAction.None);
     AssertEqual(SamusPoseId.SpinLandingRightPose, screwRepeat.Pose, "Screw Attack lands through spin landing");
-    AssertTrue(screwRepeat.HorizontalSpeed.SuitShadeRestoreRequested,
+    AssertTrue(screwRepeat.HorizontalSpeed.SuitShade.IsDue,
         "Screw Attack landing requests normal palette restore");
 
     Console.WriteLine(

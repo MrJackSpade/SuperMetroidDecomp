@@ -31,7 +31,7 @@ internal static class RidleyMissedLungeVerification
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(NorfairRidleyPhase.HoverSetup, state.Phase,
             "low missed lunge exits immediately when Ridley Y + 35 reaches Samus Y");
-        AssertTrue(state.Tail.WhipRequested, "missed lunge requests native tail whip");
+        AssertTrue(state.Tail.Whip.IsWaiting, "missed lunge requests native tail whip");
         ushort lowY = place.Position.Y.Whole;
         for (int frame = 0; frame < 32; frame++)
         {
@@ -50,7 +50,7 @@ internal static class RidleyMissedLungeVerification
             state.Flight.HitRoomBoundary = false;
             state.ZeroHealthLungeCount = 0;
             state.FightMode = RidleyFightMode.Fighting;
-            state.Tail.WhipRequested = false;
+            _ = state.Tail.Whip.Take();
         }
         // The native Y comparison is >=, and applies even when the claw's X misses.
         ResetLunge(160, 384);

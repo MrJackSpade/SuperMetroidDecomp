@@ -43,8 +43,8 @@ internal sealed class EndingTypewriter
 
     /// <summary>Set after the text and any percentage hold have finished.</summary>
     public bool Completed { get; private set; }
-    /// <summary>Set when the item-percentage text's hold ends and the scene may move the text down.</summary>
-    public bool RequestedItemPercentageScroll { get; private set; }
+    /// <summary>Whether the text is the item percentage's, whose completion lets the scene move the text down (#2562).</summary>
+    internal bool TypesItemPercentage => sequence == EndingTextSequence.ItemPercentage;
 
     /// <summary>The installed characters.</summary>
     private EndingTextCharacter[] Characters { get; set; }
@@ -74,8 +74,6 @@ internal sealed class EndingTypewriter
                 shownPercentage = ItemPercentage();
                 return;
             case EndingTypewriterCue.Complete:
-                if (sequence == EndingTextSequence.ItemPercentage)
-                    RequestedItemPercentageScroll = true;
                 Completed = true;
                 return;
             default:

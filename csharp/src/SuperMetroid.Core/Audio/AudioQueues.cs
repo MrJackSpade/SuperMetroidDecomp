@@ -37,7 +37,7 @@ public sealed class AudioQueues
     /// The request the music queue fetched and is waiting out the delay of, or none when its next pass fetches the
     /// next request from the queue.
     /// </summary>
-    internal PendingMusicDispatch? PendingMusic { get; private set; }
+    internal FetchedMusicRequest? FetchedMusic { get; private set; }
     /// <summary>
     /// The sound-queue passes, <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimePasses"/> from a music change, for
     /// which the change withdraws every library's sound request: counted once on each pass it withdraws them.
@@ -85,7 +85,7 @@ public sealed class AudioQueues
     public void Reset()
     {
         Music.Clear();
-        PendingMusic = null;
+        FetchedMusic = null;
         foreach (SoundQueue queue in SoundQueues.Values)
             queue.Clear();
         SoundHandshakes.Reset();
@@ -198,7 +198,7 @@ public sealed class AudioQueues
         MusicTrack? roomTrack = PlayingTrack;
 
         Music.Clear();
-        PendingMusic = null;
+        FetchedMusic = null;
 
         QueueMusic(MusicRequest.SelectTrack(AudioQueueDefinitions.PermanentItemTrack));
         ScheduleMusic(
@@ -284,12 +284,12 @@ public sealed class AudioQueues
     /// </summary>
     private void HandleMusicQueue(List<AudioRequest> requests)
     {
-        if (PendingMusic is PendingMusicDispatch pending)
+        if (FetchedMusic is FetchedMusicRequest pending)
         {
             // A fetched request waits at least the shortest delay, so its wait ends on its last pass.
             if (!pending.Wait.Count())
                 return;
-            PendingMusic = null;
+            FetchedMusic = null;
 
             if (pending.Request is MusicRequest.ChangeDataSet change)
             {
@@ -314,7 +314,7 @@ public sealed class AudioQueues
         }
 
         if (Music.TryPeek(out QueuedMusic? next))
-            PendingMusic = new PendingMusicDispatch(next.Request, UpdateCountdown.Lasting(next.Delay.Updates));
+            FetchedMusic = new FetchedMusicRequest(next.Request, UpdateCountdown.Lasting(next.Delay.Updates));
     }
 
     /// <summary>The area theme of <paramref name="dataSet"/>, the data set loaded as an area-theme request plays.</summary>

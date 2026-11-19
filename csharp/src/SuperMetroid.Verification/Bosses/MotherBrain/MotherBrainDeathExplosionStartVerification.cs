@@ -50,7 +50,7 @@ internal static class MotherBrainDeathExplosionStartVerification
         sequence.Encounter.PhaseTimer.LastFor(33);
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), 2);
         PrivateState.SetField(state.Bursts, "burstWait", UpdateCountdown.For(0 + 1));
-        var frame = MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0) with { NextRandomNumber = () => 0 };
+        var frame = MotherBrainLateFightFixtures.QuietFrame(0, 0) with { NextRandomNumber = () => 0 };
         MotherBrainRainbowBeamAttackStepResult first = sequence.Step(runtime.Player.IntroducedSamus, frame);
         AssertEqual(MotherBrainDeathDefinitions.EscapeDoorDustPositions[2],
             (first.EscapeDoorExplosion ?? throw new InvalidOperationException("The door's first dust did not burst.")).Position,

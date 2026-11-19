@@ -281,7 +281,7 @@ public sealed class SamusShinesparkState
                 "Only the six directional shinespark poses launch a spark.");
 
         samus.InputSnapshot.ShinesparkPoseInputLocked = true;
-        samus.InputSnapshot.AutoJumpInputPending = false;
+        samus.InputSnapshot.AutoJump.Reinstate();
         samus.HorizontalSpeed.ClearSpeedEchoes();
         AudioRequests.QueueSound(RoomSound.Shinespark, SoundRequestPriority.High);
     }

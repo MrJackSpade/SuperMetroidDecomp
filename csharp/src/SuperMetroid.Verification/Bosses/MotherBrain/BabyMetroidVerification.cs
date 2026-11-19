@@ -169,8 +169,8 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(MotherBrainDrainedPhase.TakenAback, motherBrain.Encounter.DrainedPhase,
         "Baby installs Mother Brain $BE38 for the following actor turn");
 
-    MotherBrainRainbowBeamAttackStepResult takenAback = motherBrain.Step(samus, MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0));
-    AssertTrue(takenAback.RainbowColours, "the taken-aback setup falls through into regain balance, which runs her rainbow colours");
+    MotherBrainRainbowBeamAttackStepResult takenAback = motherBrain.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
+    AssertTrue(takenAback.Starts(MotherBrainStepEffect.RainbowColours), "the taken-aback setup falls through into regain balance, which runs her rainbow colours");
     AssertEqual(MotherBrainDrainedPhase.RegainBalance,
         motherBrain.Encounter.DrainedPhase,
         "Mother Brain taken-aback setup falls through into regain balance");
@@ -187,7 +187,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     int regainCalls = 1;
     while ((motherBrain.Encounter.Stage == MotherBrainBodyStage.DrainedByBaby && motherBrain.Encounter.DrainedPhase == MotherBrainDrainedPhase.RegainBalance))
     {
-        motherBrain.Step(samus, MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0));
+        motherBrain.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         regainCalls++;
     }
     AssertEqual(49, regainCalls, "Mother Brain regain balance includes setup fallthrough call");

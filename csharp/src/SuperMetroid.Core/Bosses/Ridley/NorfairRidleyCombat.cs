@@ -165,7 +165,7 @@ internal sealed class NorfairRidleyCombat
                 (wall == RidleyWallSweepTarget.WallBehind ? RidleyMovementTargets.WallBehind : RidleyMovementTargets.WallAhead).For(facing),
                 int.Min(samus.Position.Y.Whole, NorfairRidleyArenaDefinitions.PogoZoneTopY)),
             ReadRidleyHealthMovementDivisor(state));
-        state.Tail.WhipRequested = true;
+        state.Tail.Whip.Give();
 
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
         {
@@ -543,7 +543,7 @@ internal sealed class NorfairRidleyCombat
             return;
         }
         state.Phase = NorfairRidleyPhase.HoverSetup;
-        state.Tail.WhipRequested = true;
+        state.Tail.Whip.Give();
     }
 
     /// <summary>Recovers from a missed lunge with a Power Bomb out.</summary>

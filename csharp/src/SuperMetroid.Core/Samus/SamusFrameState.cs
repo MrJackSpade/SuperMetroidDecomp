@@ -1,16 +1,13 @@
 using SuperMetroid.Core.Samus.Colours;
-using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// Samus and her per-frame state: the actor, movement mode, prospective poses, the last movement and X-ray
-/// results, death-sequence and colour effect steps, and load appearance.
+/// Samus and her state across frames: the actor, movement mode, prospective poses, colours and load appearance. What one
+/// frame's movement, grapple, X-ray and death steps did is that frame's own (<see cref="SamusControlFrame"/>).
 /// </summary>
 internal sealed class SamusFrameState : IRoomSamusAccess
 {
@@ -80,42 +77,6 @@ internal sealed class SamusFrameState : IRoomSamusAccess
     public SamusMovementType PreviousMovementTypeForXray { get; internal set; }
 
     /// <summary>
-    /// Horizontal and vertical collision results from the most recent grounded
-    /// movement pass. Null before movement, and always null for the cinematic stimulus.
-    /// </summary>
-    public GroundedMovementResult? LastGroundedSamusMovement { get; internal set; }
-
-    /// <summary>Most recent ordinary-air collision result.</summary>
-    public AerialMovementResult? LastAerialSamusMovement { get; internal set; }
-
-    /// <summary>Most recent ordinary Morph-Ball collision result.</summary>
-    public MorphBallMovementResult? LastMorphBallMovement { get; internal set; }
-
-    /// <summary>Most recent bomb-jump movement result.</summary>
-    public BombJumpMovementResult? LastBombJumpMovement { get; internal set; }
-
-    /// <summary>Most recent knockback movement result.</summary>
-    public KnockbackMovementResult? LastKnockbackMovement { get; internal set; }
-
-    /// <summary>Most recent connected-grapple update result.</summary>
-    public GrappleMovementResult? LastGrappleMovement { get; internal set; }
-
-    /// <summary>Most recent stored-shine windup or active shinespark movement result.</summary>
-    public ShinesparkMovementResult? LastShinesparkMovement { get; internal set; }
-
-    /// <summary>Most recent Crystal Flash start, ammo-drain, or finish movement result.</summary>
-    public CrystalFlashMovementResult? LastCrystalFlashMovement { get; internal set; }
-
-    /// <summary>The latest result of the X-ray scope's setup, beam or deactivation step.</summary>
-    public XrayBeamStepResult? LastXrayBeamStep { get; internal set; }
-
-    /// <summary>The latest step of the death sequence's animation, shade and artwork.</summary>
-    public SamusDeathSequenceStepResult? LastDeathSequenceStep { get; internal set; }
-
-    /// <summary>Most recent update of drained Samus's fall.</summary>
-    public DrainedSamusMovementResult? LastDrainedSamusMovement { get; internal set; }
-
-    /// <summary>
     /// Forgets the pending pose change: the input transition the input phase selected and the grapple cancel's fallback
     /// pose, so the pose-transition phase applies neither.
     /// </summary>
@@ -123,22 +84,5 @@ internal sealed class SamusFrameState : IRoomSamusAccess
     {
         ProspectiveSamusPose = null;
         ProspectiveSamusFallbackPose = null;
-    }
-
-    /// <summary>
-    /// Forgets the previous update's movement results before this update's movement runs: the grounded, aerial, Morph
-    /// Ball, bomb-jump, knockback, Shinespark, Crystal Flash and drained-fall results. The grapple's result is the grapple
-    /// update's own, and the X-ray scope's steps publish theirs outside the movement.
-    /// </summary>
-    internal void ClearMovementResults()
-    {
-        LastGroundedSamusMovement = null;
-        LastAerialSamusMovement = null;
-        LastMorphBallMovement = null;
-        LastBombJumpMovement = null;
-        LastKnockbackMovement = null;
-        LastShinesparkMovement = null;
-        LastCrystalFlashMovement = null;
-        LastDrainedSamusMovement = null;
     }
 }

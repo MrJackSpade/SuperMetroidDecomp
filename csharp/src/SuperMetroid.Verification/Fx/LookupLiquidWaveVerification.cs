@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Verification.Fx;
 

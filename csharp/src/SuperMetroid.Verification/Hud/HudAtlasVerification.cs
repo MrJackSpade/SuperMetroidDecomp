@@ -14,6 +14,7 @@ using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Hud;
 
 //// <summary>Checks installed HUD artwork against the native characters and rendered minimap pixels.</summary>

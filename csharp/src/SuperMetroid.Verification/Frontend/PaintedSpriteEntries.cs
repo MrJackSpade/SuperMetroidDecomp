@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend;

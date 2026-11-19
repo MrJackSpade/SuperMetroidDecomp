@@ -24,14 +24,6 @@ public static class RoomEffectPictures
         RoomFxTypes.ShowsLiquid(type) ? [SurfaceName(type), BodyName(type)] : [AtmosphereName(type)];
 
     /// <summary>
-    /// The artwork room effect <paramref name="type"/> shows, from <paramref name="sheet"/>, while the room's appearance
-    /// inputs take the values <paramref name="appearance"/> reads, each picture as its part behind and its part in front (#1634).
-    /// </summary>
-    /// <exception cref="InvalidDataException">The sheet pictures no artwork of the effect, or none for those values.</exception>
-    public static RoomEffectArtwork Artwork(WrittenPictureSheet sheet, RoomFxType type, RoomAppearanceView appearance) =>
-        RoomFxTypes.ShowsLiquid(type) ? Liquid(sheet, type, appearance) : Atmosphere(sheet, type, appearance);
-
-    /// <summary>
     /// The surface strip and body liquid effect <paramref name="type"/> shows, from <paramref name="sheet"/>, while the
     /// room's appearance inputs take the values <paramref name="appearance"/> reads (#2505).
     /// </summary>

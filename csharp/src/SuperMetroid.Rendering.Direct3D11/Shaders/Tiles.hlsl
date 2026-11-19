@@ -39,7 +39,7 @@ StructuredBuffer<uint> RoomLevels : register(t3);
 // overlay, a boss body, the X-ray reveal, a library background, the HUD, a pictured plane or a picture grid.
 // SourceWrittenOverBackground added to it lays words written over the background on top.
 static const uint SourceForeground = 1, SourceBackground = 2, SourceSky = 3, SourceFxOverlay = 4;
-static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackground = 8;
+static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackground = 8, SourceNothing = 9;
 // The HUD's placed pictures (PicturedHud, #1466), at the HUD's place at the top of the screen.
 static const uint SourceHud = 10;
 // A pictured plane (PicturedPlane, #1467, #1555), its table at room level word TableWord: the count of its pictures, then two
@@ -584,6 +584,9 @@ bool SourcePicture(uint part, uint2 sampleScreen, int2 scroll, uint2 screen, out
         shown = RevealPicture(scrolled, part, picture, within);
     else if (source == SourceLibraryBackground)
         shown = LibraryBackgroundPicture(position, part, picture, within);
+    // A background showing nothing draws no picture (#2544).
+    else if (source == SourceNothing)
+        shown = false;
     // The HUD's, a pictured plane's and a picture grid's pictures are whole, drawn in one pass (#1634): they have no
     // in-front part, and show their one picture as the part behind.
     else if (source == SourceHud)

@@ -152,15 +152,30 @@ internal static class RoomPaletteFxDefinitionsVerification
         foreach (ushort pointer in pointers)
         {
             ColourEffectDefinition definition = ColourEffectAnimations.DefinitionAt(pointer);
-            var systemSession = new ColourEffectSessionState();
-            var system = new ColourEffectSystem(systemSession);
-            system.BindAudioRequests(GameplayAudioRequests.Standalone());
-            system.Start(pointer, equippedItems: 0);
+            // An effect only a frontend screen shows starts on a screen; every other on gameplay's pictures (#2544).
+            ColourEffectColours colours = definition.Colours;
+            bool onGameplay = ColourEffectRoomColourDefinitions.RoomColours.Contains(colours) || ColourEffectSamusColourDefinitions.SuitColours.Contains(colours) ||
+                colours == ColourEffectEnemyColourDefinitions.EscapeShutterColours || ColourEffectEnemyColourDefinitions.EnemyColours.Contains(colours);
+            bool screenOnly = !onGameplay && ColourEffectScreenColourDefinitions.FrontendScreenGroups.Contains(colours);
+            if (!onGameplay && !screenOnly)
+            {
+                // An effect whose colours its own owner shows (Samus's Hyper Beam) has no target a start could hand it.
+                AssertThrows<InvalidOperationException>(
+                    () => new ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()).Start(pointer, equippedItems: 0),
+                    $"${pointer:X4}, which no gameplay picture shows, does not start in gameplay");
+                continue;
+            }
+            ColourEffectSystem system = screenOnly ? ColourEffectSystem.ForScreen()
+                : new ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+            if (screenOnly)
+                system.StartScreen(PaletteFxObjectAccess.FromNative(pointer));
+            else
+                system.Start(pointer, equippedItems: 0);
             RoomColourEffect effect = ActiveColourEffect(system);
             AssertEqual(pointer, effect.Id, $"${pointer:X4} production ID");
             // Every native start installs a pre-instruction that does nothing, the intro's included: no condition is
             // watched before the effect's first frame.
-            AssertEqual(null, effect.WatchedCondition, $"${pointer:X4} production condition");
+            AssertEqual<ColourEffectCondition>(ColourEffectCondition.WatchesNothing.Instance, effect.WatchedCondition, $"${pointer:X4} production condition");
             AssertEqual(definition.Condition, effect.Condition, $"${pointer:X4} the definition's condition");
             Animation<ColourEffectSegment> expected = definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
                 ? ColourEffectHeatAnimations.Shimmer(ColourEffectHeatSuit.Power)
@@ -181,14 +196,13 @@ internal static class RoomPaletteFxDefinitionsVerification
     /// </summary>
     internal static void VerifyColourEffectConditionWatchedAfterFirstFrame()
     {
-        var system = new ColourEffectSystem(new ColourEffectSessionState());
-        system.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var system = new ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         system.Start(ColourEffectId.SporeSpawnBlueBackgroundSpores, 0, areaMiniBossDefeated: false);
         RoomColourEffect spores = system.effects.Single();
         AssertEqual(ColourEffectColours.BrinstarBlueSpores, spores.Colours, "the spores' colours are their definition's from the start");
         AssertEqual<ColourEffectCondition?>(ColourEffectCondition.EndsWhenAreaMiniBossDies.Instance, spores.Condition,
             "the spores' condition is their definition's from the start");
-        AssertEqual<ColourEffectCondition?>(null, spores.WatchedCondition, "nothing is watched before the first frame");
+        AssertEqual<ColourEffectCondition>(ColourEffectCondition.WatchesNothing.Instance, spores.WatchedCondition, "nothing is watched before the first frame");
 
         var defeated = new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = true };
         system.Step(defeated);
@@ -210,8 +224,7 @@ internal static class RoomPaletteFxDefinitionsVerification
     /// </summary>
     internal static void VerifyColourEffectTurnOrder()
     {
-        var system = new ColourEffectSystem(new ColourEffectSessionState());
-        system.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var system = new ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         system.StartScreen(ColourEffectId.TitleScreenFlickeringDisplays);
         system.StartScreen(ColourEffectId.FadeInSuperMetroidTitleLogo);
         system.StartScreen(ColourEffectId.TitleScreenBabyMetroidTubeLight);
@@ -244,8 +257,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             system.FrameOf(ColourEffectColours.NintendoCopyright), "the copyright shows its first frame on its first turn");
 
         // No cap holds the effects back (#1598): a ninth effect starts like the first.
-        var many = new ColourEffectSystem(new ColourEffectSessionState());
-        many.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var many = new ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         for (int started = 0; started < 9; started++)
             many.StartScreen(ColourEffectId.TitleScreenFlickeringDisplays);
         AssertEqual(9, many.effects.Count, "any number of effects run at once");
@@ -263,29 +275,35 @@ internal static class RoomPaletteFxDefinitionsVerification
         foreach (ColourEffectId effect in PaletteFxObjectAccess.All)
         {
             ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
-            var screen = new ColourEffectSystem(new ColourEffectSessionState());
-            if (definition.Start != ColourEffectStart.Plain || definition.Condition is not null)
+            var screen = ColourEffectSystem.ForScreen();
+            if (definition.Start != ColourEffectStart.Plain || definition.Condition is not ColourEffectCondition.WatchesNothing)
             {
                 AssertThrows<InvalidOperationException>(() => screen.StartScreen(effect),
                     $"{effect}, which needs gameplay to start or watch, does not start on a screen");
                 continue;
             }
-            screen.StartScreen(effect);
             if (!ColourEffectScreenColourDefinitions.FrontendScreenGroups.Contains(definition.Colours))
+            {
+                // A screen shows its effects on its own pictures (#2544): one in colours no screen shows is refused as it starts.
+                AssertThrows<InvalidOperationException>(() => screen.StartScreen(effect), $"{effect}, which no screen shows, does not start on a screen");
                 continue;
+            }
+            screen.StartScreen(effect);
             screenEffects++;
-            var gameplay = new ColourEffectSystem(new ColourEffectSessionState());
-            gameplay.Start(effect, SamusEquipmentFlags.None);
+            // A gameplay start shows an effect on a gameplay picture (#2544): one only a screen shows is refused there.
+            var gameplay = new ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+            AssertThrows<InvalidOperationException>(() => gameplay.Start(effect, SamusEquipmentFlags.None),
+                $"{effect}, which only a screen shows, does not start in gameplay");
+            // The screen plays the effect's own animation from its start, in its own frames, until the animation ends.
             for (int update = 0; update < Updates; update++)
             {
                 screen.StepScreen();
-                gameplay.StepScreen();
-                AssertTrue(screen.Shown.SequenceEqual(gameplay.Shown), $"{effect} shows the same frame on update {update} from either start");
-                AssertEqual(gameplay.IsRunning(effect), screen.IsRunning(effect), $"{effect} runs as long from either start");
+                AssertTrue(screen.Shown.All(shown => shown.Colours == definition.Colours && shown.Frame.Effect == effect),
+                    $"{effect} shows its own frames in its own colours on update {update}");
             }
         }
         AssertTrue(screenEffects > 0, "the frontend screens' effects start on a screen");
-        Console.WriteLine($"  Screen start: {screenEffects} screen effects play as their gameplay start; gameplay-conditioned effects are refused.");
+        Console.WriteLine($"  Screen start: {screenEffects} screen effects play their own animation on a screen and are refused in gameplay; gameplay-conditioned effects are refused on a screen.");
     }
 
     /// <summary>Enumerates native fixed-size definition records within one bank-$8D range.</summary>

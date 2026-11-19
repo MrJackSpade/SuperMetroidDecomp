@@ -268,11 +268,9 @@ internal static class TitleGradientVerification
 
         var guardedBus = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var nativeSession = new ColourEffectSessionState();
-        var native = new ColourEffectSystem(nativeSession);
-        native.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         var installedSession = new ColourEffectSessionState();
-        var installed = new ColourEffectSystem(installedSession);
-        installed.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
                  TitleScreenAmbientPaletteOwners.All)
         {

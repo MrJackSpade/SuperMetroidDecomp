@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// One colour effect running in a room or on a screen (#1554, #1598, #1600, #1982): the glow, flash, fade or shimmer it
-/// shows, the colours it shows its frames in and the condition it watches (both its definition's), and the animation it
-/// plays on the shared animation player (#2488). Its definitions are <see cref="ColourEffectAnimations"/>; the
+/// shows, the colours it shows its frames in and the condition it watches (both its definition's), what it shows its
+/// frames on (#2544), and the animation it plays on the shared animation player (#2488). Its definitions are <see cref="ColourEffectAnimations"/>; the
 /// <see cref="ColourEffectSystem"/> that started it gives it its turn.
 /// </summary>
 internal sealed class RoomColourEffect
@@ -17,16 +17,16 @@ internal sealed class RoomColourEffect
     /// </summary>
     /// <param name="effect">What the effect shows.</param>
     /// <param name="framesOf">The effect whose frames it shows and whose animation it plays: its own, or the pulse of the suit the heat shimmer's start chose.</param>
-    /// <param name="litTorizo">The Torizo whose belly the effect lights, or null for an effect that lights none.</param>
-    /// <param name="glowingEnemy">The enemy whose placement started the effect and which shows its frames, or null.</param>
-    internal RoomColourEffect(ColourEffectId effect, ColourEffectId framesOf, ILitTorizo? litTorizo, IGlowingEnemy? glowingEnemy)
+    /// <param name="target">What the effect shows its frames on, which its start hands it.</param>
+    /// <exception cref="InvalidOperationException">The target shows none of the effect's colours, or watches a condition it does not.</exception>
+    internal RoomColourEffect(ColourEffectId effect, ColourEffectId framesOf, ColourEffectTarget target)
     {
         Effect = effect;
         ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
+        Ensure.NotNull(target).Accept(effect, definition);
         Colours = definition.Colours;
         Condition = definition.Condition;
-        LitTorizo = litTorizo;
-        GlowingEnemy = glowingEnemy;
+        Target = target;
         FramesOf = framesOf;
         play = AnimationPlayer<ColourEffectSegment, int, ColourEffectCue>.Starting(
             ColourEffectAnimations.Segments, ColourEffectAnimations.Definition(framesOf).Animation);
@@ -45,28 +45,24 @@ internal sealed class RoomColourEffect
     internal ColourEffectId FramesOf { get; private set; }
 
     /// <summary>
-    /// The Torizo whose belly the effect lights (#1700), which <see cref="ColourEffectCondition.EndsWhenTorizoDies"/>
-    /// watches; none for every other effect.
+    /// What the effect shows its frames on (#2544): the room's pictures, Samus's suit, the escape's shutters, the enemy whose
+    /// placement started it (#1733, #1783), the Torizo whose belly it lights and whose defeat it watches (#1700), or a
+    /// frontend screen's pictures.
     /// </summary>
-    internal ILitTorizo? LitTorizo { get; }
-
-    /// <summary>
-    /// The enemy whose placement started the effect (#1733), which shows each of its frames in enemy colours on its own draws
-    /// for as long as the effect runs (#1783); none for an effect no enemy started.
-    /// </summary>
-    internal IGlowingEnemy? GlowingEnemy { get; }
+    internal ColourEffectTarget Target { get; }
 
     /// <summary>The colours the effect shows its frames in.</summary>
     internal ColourEffectColours Colours { get; }
 
-    /// <summary>The condition the effect's definition names, or null for an effect that watches nothing.</summary>
-    internal ColourEffectCondition? Condition { get; }
+    /// <summary>The condition the effect's definition names: <see cref="ColourEffectCondition.WatchesNothing"/> for an effect that watches nothing.</summary>
+    internal ColourEffectCondition Condition { get; }
 
     /// <summary>
     /// The condition the effect checks at the start of its turn: its condition from the update after it shows its first
-    /// frame, as the game set the watch up with the effect's first step; none before.
+    /// frame, as the game set the watch up with the effect's first step; <see cref="ColourEffectCondition.WatchesNothing"/>
+    /// before.
     /// </summary>
-    internal ColourEffectCondition? WatchedCondition => Frame is null ? null : Condition;
+    internal ColourEffectCondition WatchedCondition => Frame is null ? ColourEffectCondition.WatchesNothing.Instance : Condition;
 
     /// <summary>Whether the effect animates its colours now: it is running and has shown its first frame in them.</summary>
     internal bool AnimatesColours => !Ended && Frame is not null;

@@ -13,6 +13,16 @@ public abstract record ColourEffectCondition
     }
 
     /// <summary>
+    /// The effect watches nothing (#2544): the condition of an effect whose definition names none, and of every effect before
+    /// it shows its first frame.
+    /// </summary>
+    public sealed record WatchesNothing : ColourEffectCondition
+    {
+        /// <summary>The one condition.</summary>
+        public static WatchesNothing Instance { get; } = new();
+    }
+
+    /// <summary>
     /// While Samus stands higher in the room than <see cref="Height"/>, the effect restarts its cycle, the phase its
     /// animation loops from, on every update, so it shows the cycle's first frame each update instead of its flashes: the
     /// Crateria lightning stays calm while Samus is high on the surface.

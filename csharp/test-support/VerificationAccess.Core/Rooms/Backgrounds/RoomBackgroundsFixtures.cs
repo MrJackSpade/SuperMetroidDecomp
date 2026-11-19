@@ -74,8 +74,8 @@ internal static class RoomBackgroundsFixtures
         }
         // BG2 shows the tilemap the fixture loaded at the gameplay BG2 tilemap, as a library background's image (#1403).
         return new(new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks),
-            blocks).Cells, RoomBlockFixtures.Pictures(definitions, image, palette)), null,
-            BackgroundImage: RoomBlockFixtures.LoadedBackground(image, palette, GameplayVramLayout.Bg2TilemapWord));
+            blocks).Cells, RoomBlockFixtures.Pictures(definitions, image, palette)),
+            new SuperMetroid.Core.Gameplay.LibraryImageBackground(RoomBlockFixtures.LoadedBackground(image, palette, GameplayVramLayout.Bg2TilemapWord)));
     }
 
     /// <summary>
@@ -415,7 +415,7 @@ internal static class RoomBackgroundsFixtures
         }
         RgbColor[] scene = pictureColours ?? new RgbColor[SnesCgram.ColorCount];
         RoomOverlayPictures? written = overlay ? SeededOverlayRun(random, scene, random.Next(8, 24)) : null;
-        return new RoomBackgrounds(bg1, bg2, source, written,
-            BackgroundImage: bg2 is null ? SeededBackground(random, scene) : null);
+        return new RoomBackgrounds(bg1, bg2 is not null ? new SuperMetroid.Core.Gameplay.RoomPlaneBackground(bg2)
+            : new SuperMetroid.Core.Gameplay.LibraryImageBackground(SeededBackground(random, scene)), source, written);
     }
 }

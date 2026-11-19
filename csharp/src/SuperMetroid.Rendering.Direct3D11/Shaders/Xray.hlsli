@@ -82,6 +82,9 @@ uint XrayBackgroundPart(uint roomSource, int2 position, uint part)
             shown = RevealPicture(scrolled, part, picture, within);
         else if (source == SourceLibraryBackground)
             shown = LibraryBackgroundPicture(position, part, picture, within);
+        // A background showing nothing draws no picture (#2544).
+        else if (source == SourceNothing)
+            shown = false;
         else
             shown = RoomTile(source, position, part, entry, within, picture);
     }

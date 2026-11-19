@@ -66,11 +66,9 @@ internal static class RoomPaletteFxPresentationVerification
 
         var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var nativeSession = new ColourEffectSessionState();
-        var native = new ColourEffectSystem(nativeSession);
-        native.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         var installedSession = new ColourEffectSessionState();
-        var installed = new ColourEffectSystem(installedSession);
-        installed.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         foreach (NorfairEnvironmentalPaletteFxColorDefinition definition in
                  NorfairEnvironmentalPaletteFxColorDefinitions.All)
         {
@@ -241,11 +239,9 @@ internal static class RoomPaletteFxPresentationVerification
 
             var guard = NewTitlePresentationReadBus(bus, forbidden, forbidReads: true);
             var nativeSession = new ColourEffectSessionState();
-            var native = new ColourEffectSystem(nativeSession);
-            native.BindAudioRequests(GameplayAudioRequests.Standalone());
+            var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             var installedSession = new ColourEffectSessionState();
-            var installed = new ColourEffectSystem(installedSession);
-            installed.BindAudioRequests(GameplayAudioRequests.Standalone());
+            var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             ushort equipment = definition.Suit switch
             {
                 ColourEffectHeatSuit.Power => 0,
@@ -304,11 +300,11 @@ internal static class RoomPaletteFxPresentationVerification
         {
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var nativeSession = new ColourEffectSessionState();
-            var native = new ColourEffectSystem(nativeSession);
-            native.BindAudioRequests(GameplayAudioRequests.Standalone());
+            var nativeSounds = SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone();
+            var native = new ColourEffectSystem(nativeSession, nativeSounds);
             var installedSession = new ColourEffectSessionState();
-            var installed = new ColourEffectSystem(installedSession);
-            installed.BindAudioRequests(GameplayAudioRequests.Standalone());
+            var installedSounds = SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone();
+            var installed = new ColourEffectSystem(installedSession, installedSounds);
             StartFamily(native, shape, definition);
             StartFamily(installed, shape, definition);
             var nativeCgram = new SnesCgram();
@@ -323,7 +319,7 @@ internal static class RoomPaletteFxPresentationVerification
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed {description} definition ${definition:X4} equals native " +
                     $"output on frame {frame}");
-                AssertTrue(native.SoundRequests.SequenceEqual(installed.SoundRequests),
+                AssertTrue(nativeSounds.SoundRequests.SequenceEqual(installedSounds.SoundRequests),
                     $"installed {description} definition ${definition:X4} preserves native " +
                     $"audio requests on frame {frame}");
             }
@@ -369,11 +365,9 @@ internal static class RoomPaletteFxPresentationVerification
         {
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var nativeSession = new ColourEffectSessionState();
-            var native = new ColourEffectSystem(nativeSession);
-            native.BindAudioRequests(GameplayAudioRequests.Standalone());
+            var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             var installedSession = new ColourEffectSessionState();
-            var installed = new ColourEffectSystem(installedSession);
-            installed.BindAudioRequests(GameplayAudioRequests.Standalone());
+            var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             native.Start(definition, equippedItems: 0);
             installed.Start(definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
@@ -424,11 +418,9 @@ internal static class RoomPaletteFxPresentationVerification
 
         var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var nativeSession = new ColourEffectSessionState();
-        var native = new ColourEffectSystem(nativeSession);
-        native.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         var installedSession = new ColourEffectSessionState();
-        var installed = new ColourEffectSystem(installedSession);
-        installed.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         foreach (MaridiaEnvironmentalPaletteFxColorDefinition definition in
                  MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {

@@ -79,8 +79,7 @@ internal static class FirefleaFxVerification
             AssertEqual(retained, state.Tint, "frozen death level retains its exact shade");
         }
         // A room without the effect has no Fireflea darkness and shows no Fireflea shade; the darkness lives with its room.
-        fx = RoomFxOverlayState.ForRoom(null, null, 0);
-        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
+        fx = RoomFxOverlayState.ForRoom(null, null, 0, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false });
         AssertTrue(fx.Fireflea is null, "a non-Fireflea room has no Fireflea darkness");
         if (includeXrayCapture) VerifyFirefleaXrayCapture();

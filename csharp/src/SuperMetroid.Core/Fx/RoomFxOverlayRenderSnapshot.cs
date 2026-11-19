@@ -1,8 +1,9 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Immutable gameplay effect overlay values published by one frame boundary, with how the effect's overlay blends with the
-/// room (#1545), or null when the effect describes no blend. <c>Liquid</c> is the liquid the effect fills the room with, or null for an effect
+/// Immutable gameplay effect overlay values published by one frame boundary, with what the effect shows on the overlay and
+/// how it blends with the room (<paramref name="Look"/>, #1545, #2544): its liquid or its atmosphere, each with its blend; a
+/// frame whose effect shows nothing there publishes no snapshot. <c>Liquid</c> is the liquid the effect fills the room with, or null for an effect
 /// with none (#1695). <c>Surface</c> is the liquid surface's room line, or null with
 /// no surface; <paramref name="WaterSurfaceScreenY"/> its screen line, or null while no surface is placed on the screen (#1546).
 /// <c>Scroll</c> is an atmosphere's scroll; a liquid scrolls only across, and lies on the screen where
@@ -10,7 +11,7 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 public readonly record struct RoomFxOverlayRenderSnapshot(
     RoomFxType Type,
-    RoomEffectBlend? Blend,
+    RoomEffectOverlayLook Look,
     Position16<OverlayPixels> Scroll,
     int? Surface,
     RoomLiquid? Liquid = null,
@@ -18,6 +19,9 @@ public readonly record struct RoomFxOverlayRenderSnapshot(
     int WaterBackgroundWavePhase = 0,
     int? WaterSurfaceScreenY = null)
 {
+    /// <summary>How the effect's overlay blends with the room (#1545): its look's blend.</summary>
+    public RoomEffectBlend Blend => Look.Blend;
+
     /// <summary>
     /// The phase of the lava or acid heat haze over the background, circular over its sixteen samples. Zero is the phase
     /// the haze shows first after it starts; each later phase steps the samples backward one place.

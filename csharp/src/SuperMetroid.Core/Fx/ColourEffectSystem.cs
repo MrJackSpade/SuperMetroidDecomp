@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms;
@@ -37,33 +38,42 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// colours, without taking a turn, until an effect showing the same colours settles after it or the room ends.
     /// </summary>
     private readonly List<RoomColourEffect> settled = [];
-    /// <summary>The frames Samus's suit groups showed during the current update, in order (#1512).</summary>
-    private readonly List<ShownColourEffectFrame> suitShown = [];
-    /// <summary>The frames the escape's shutter flash showed during the current update, in order (#1512).</summary>
-    private readonly List<ColourEffectFrame> shutterFlashShown = [];
-    /// <summary>The frames the effects enemies show showed during the current update, in order, each for the enemy its start handed it (#1783).</summary>
-    private readonly List<ShownEnemyGlow> glowsShown = [];
+    /// <summary>
+    /// The frames Samus's suit groups, the escape's shutter flash and the effects enemies show showed during the current
+    /// update, in order (#1512, #1783, #2544).
+    /// </summary>
+    private readonly ColourEffectFramesOnOwners shownOnOwners = new();
     /// <summary>Whether the effects run at all and the heat phases, which outlive each room's effects.</summary>
     private readonly ColourEffectSessionState _session;
 
-    /// <summary>Creates one room's colour effects, none running yet, over the session's lasting state.</summary>
+    /// <summary>
+    /// The sound requests the colour effects' sounds join as they make them (#2057, #2544): the update's of the runtime
+    /// running them, given as the room's effects are built. A frontend screen's effects make no sound
+    /// (<see cref="ForScreen"/>).
+    /// </summary>
+    private readonly GameplaySoundRequests sounds;
+
+    /// <summary>
+    /// Creates one room's colour effects, none running yet, over the session's lasting state, their sounds joining
+    /// <paramref name="sounds"/>.
+    /// </summary>
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
-    public ColourEffectSystem(ColourEffectSessionState session) => _session = Ensure.NotNull(session);
+    /// <param name="sounds">The update's sound requests of the runtime running the effects.</param>
+    internal ColourEffectSystem(ColourEffectSessionState session, GameplaySoundRequests sounds)
+    {
+        _session = Ensure.NotNull(session);
+        this.sounds = Ensure.NotNull(sounds);
+    }
+
+    /// <summary>
+    /// A frontend screen's colour effects, none running yet (#2223, #2544): a screen shares no session with gameplay, and
+    /// its effects make no sound, which <see cref="StartScreen"/> checks of each, so the effects have no sounds to join.
+    /// </summary>
+    internal static ColourEffectSystem ForScreen() =>
+        new(new ColourEffectSessionState(), new GameplaySoundRequests(new ScreenWithoutSounds()));
 
     /// <summary>Whether the colour effects run at all, checked first each update; it lives on the session.</summary>
     public bool ColourEffectsRun => _session.ColourEffectsRun;
-
-    /// <summary>
-    /// The audio requests the colour effects' sounds join as they make them: the runtime's update's, which it binds before
-    /// any effect sounds (#2057). A frontend screen's effects make no sound and bind none.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">No runtime has bound its audio requests: an effect sounding then has no request to join.</exception>
-    internal GameplaySoundRequests AudioRequests { get => field
-        ?? throw new InvalidOperationException("A colour effect made a sound before a runtime bound its update's audio requests."); private set;
-    }
-
-    /// <summary>Points the colour effects' sounds at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
-    internal void BindAudioRequests(GameplaySoundRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
     /// <summary>
     /// Starts an effect outside the room's effect during gameplay: Samus's load appearance, a background statue's grey-out
@@ -77,7 +87,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated = false)
     {
-        if (!TryStart(effect, equippedItems, areaMiniBossDefeated, litTorizo: null, glowingEnemy: null))
+        if (!TryStart(effect, equippedItems, areaMiniBossDefeated, ColourEffectTarget.OfGameplay(effect)))
             throw new InvalidOperationException($"Colour effect {effect} could not start.");
     }
 
@@ -89,7 +99,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <exception cref="InvalidOperationException">The effect did not start: its start skips it, or no enemy shows it.</exception>
     internal void StartShownOn(ColourEffectId effect, IGlowingEnemy enemy, SamusEquipmentFlags equippedItems)
     {
-        if (!TryStart(effect, equippedItems, areaMiniBossDefeated: false, litTorizo: null, Ensure.NotNull(enemy)))
+        if (!TryStart(effect, equippedItems, areaMiniBossDefeated: false, new ColourEffectTarget.OnGlowingEnemy(enemy)))
             throw new InvalidOperationException($"Colour effect {effect} could not start.");
     }
 
@@ -99,17 +109,19 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// starts plays its own animation from its start and watches nothing.
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    /// The effect's start chooses from Samus's equipment or the area's mini-boss, or the effect watches a condition, which
-    /// only gameplay has.
+    /// The effect's start chooses from Samus's equipment or the area's mini-boss, the effect watches a condition, which only
+    /// gameplay has, makes a sound, which no screen's effect makes, or shows colours no frontend screen shows.
     /// </exception>
     internal void StartScreen(ColourEffectId effect)
     {
         ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
         if (definition.Start != ColourEffectStart.Plain)
             throw new InvalidOperationException($"Colour effect {effect} starts by {definition.Start}, which no frontend screen has.");
-        if (definition.Condition is { } condition)
-            throw new InvalidOperationException($"Colour effect {effect} watches {condition}, which no frontend screen has.");
-        effects.Add(new RoomColourEffect(effect, framesOf: effect, litTorizo: null, glowingEnemy: null));
+        if (definition.Condition is not ColourEffectCondition.WatchesNothing)
+            throw new InvalidOperationException($"Colour effect {effect} watches {definition.Condition}, which no frontend screen has.");
+        if (ColourEffectShownFrames.Steps(effect).Any(beat => beat is AnimationBeat<int, ColourEffectCue>.Event { Raised: ColourEffectCue.QueueSound }))
+            throw new InvalidOperationException($"Colour effect {effect} makes a sound, which no frontend screen's effect makes.");
+        effects.Add(new RoomColourEffect(effect, framesOf: effect, ColourEffectTarget.ScreenPictures));
     }
 
     /// <summary>
@@ -121,7 +133,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     internal void StartEnemyGlow(EnemyGlowStart start, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(start);
-        if (!TryStart(start.Glow, equippedItems, areaMiniBossDefeated: false, litTorizo: null, Ensure.NotNull(start.Enemy)))
+        if (!TryStart(start.Glow, equippedItems, areaMiniBossDefeated: false, new ColourEffectTarget.OnGlowingEnemy(start.Enemy)))
             throw new InvalidOperationException($"Enemy glow {start.Glow} could not start.");
     }
 
@@ -137,25 +149,28 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         // The glow shows on the Torizo that lit it (#2240), as the gunship's shows on the gunship (#1783).
-        if (!TryStart(glow, equippedItems, areaMiniBossDefeated: false, Ensure.NotNull(torizo), glowingEnemy: torizo))
+        if (!TryStart(glow, equippedItems, areaMiniBossDefeated: false, new ColourEffectTarget.OnLitTorizo(torizo)))
             throw new InvalidOperationException($"Torizo belly glow {glow} could not start.");
     }
 
     /// <summary>
-    /// Builds one room's colour effects: exactly the colour effects the room's effect starts.
+    /// Builds one room's colour effects: exactly the colour effects the room's effect starts, their sounds joining
+    /// <paramref name="sounds"/>.
     /// </summary>
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
     /// <param name="fx">The room state's effect selection, from which <paramref name="door"/> picks the room's effect.</param>
     /// <param name="door">The entry door, which selects the room's effect.</param>
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent animations.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
-    public static ColourEffectSystem ForRoom(
+    /// <param name="sounds">The update's sound requests of the runtime running the effects.</param>
+    internal static ColourEffectSystem ForRoom(
         ColourEffectSessionState session,
         RoomFxSelection? fx,
         DoorDefinition? door,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        bool areaMiniBossDefeated) =>
-        ForEffect(session, fx, door, equippedItems, areaMiniBossDefeated, null);
+        bool areaMiniBossDefeated,
+        GameplaySoundRequests sounds) =>
+        ForEffect(session, fx, door, equippedItems, areaMiniBossDefeated, null, sounds);
 
     /// <summary>Builds one room's colour effects from the colour effects the selected or supplied room effect starts.</summary>
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
@@ -164,16 +179,17 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent animations.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     /// <param name="suppliedEffect">A room effect to use instead of the door's selection.</param>
+    /// <param name="sounds">The update's sound requests of the runtime running the effects.</param>
     internal static ColourEffectSystem ForEffect(ColourEffectSessionState session, RoomFxSelection? fx, DoorDefinition? door,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
-        RoomEffectDefinition? suppliedEffect)
+        RoomEffectDefinition? suppliedEffect, GameplaySoundRequests sounds)
     {
-        var system = new ColourEffectSystem(session);
+        var system = new ColourEffectSystem(session, sounds);
         if ((suppliedEffect ?? fx?.Select(door)) is { } roomEffect)
         {
             // Colour effects and block animations have separate owners and lists; the room effect's colour effects start in its order.
             foreach (ColourEffectId effect in roomEffect.ColourEffects)
-                system.TryStart(effect, equippedItems, areaMiniBossDefeated, litTorizo: null, glowingEnemy: null);
+                system.TryStart(effect, equippedItems, areaMiniBossDefeated, ColourEffectTarget.OfGameplay(effect));
         }
         return system;
     }
@@ -190,7 +206,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     public void Step(ColourEffectInputs conditions)
     {
         Ensure.NotNull(conditions);
-        RunTurns(effect => CheckCondition(effect, conditions), ShowGameplayFrame);
+        RunTurns(effect => CheckCondition(effect, conditions));
     }
 
     /// <summary>
@@ -204,28 +220,27 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// </exception>
     internal void StepScreen()
     {
-        RunTurns(RefuseScreenCondition, ShowScreenFrame);
+        RunTurns(RefuseScreenCondition);
     }
 
     /// <summary>
     /// Gives each running effect its turn, in the order they started: <paramref name="checkCondition"/> checks its
-    /// condition, it counts down, and when its next step is due runs its steps to the next frame, which goes to
-    /// <paramref name="show"/>. Effects that end are dropped from the turns once every turn has run; one that settled
-    /// keeps its final frame shown.
+    /// condition, it counts down, and when its next step is due runs its steps to the next frame, which it shows on its
+    /// target (#2544). Effects that end are dropped from the turns once every turn has run; one that settled keeps its
+    /// final frame shown.
     /// </summary>
-    private void RunTurns(Action<RoomColourEffect> checkCondition, Action<RoomColourEffect, ColourEffectFrame> show)
+    private void RunTurns(Action<RoomColourEffect> checkCondition)
     {
-        suitShown.Clear();
-        shutterFlashShown.Clear();
-        glowsShown.Clear();
+        shownOnOwners.Clear();
 
         foreach (RoomColourEffect effect in effects)
         {
             checkCondition(effect);
             if (effect.Ended)
                 continue;
-            if (effect.TakeTurn(cue => CarryOut(effect, cue)) is { } frame)
-                show(effect, frame);
+            // A frame of an effect an owner shows is kept for that owner, which lays its shade over its own draws.
+            if (effect.TakeTurn(cue => CarryOut(effect, cue)) is { } frame && effect.Target is ColourEffectTarget.OnOwner owner)
+                owner.Show(new ShownColourEffectFrame(effect.Colours, frame), shownOnOwners);
         }
         foreach (RoomColourEffect effect in effects)
         {
@@ -241,23 +256,16 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <param name="effect">The effect to start.</param>
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent animations.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
-    /// <param name="litTorizo">The Torizo whose belly the effect lights, which it watches for its defeat, or null.</param>
-    /// <param name="glowingEnemy">The enemy whose placement started the effect, which shows its frames, or null.</param>
+    /// <param name="target">What the effect shows its frames on (#2544), which accepts only an effect showing its colours.</param>
     /// <returns>Whether the effect started.</returns>
-    /// <exception cref="InvalidOperationException">The effect names a start of no defined kind.</exception>
+    /// <exception cref="InvalidOperationException">The effect names a start of no defined kind, or its target shows none of its colours.</exception>
     private bool TryStart(
         ColourEffectId effect,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated,
-        ILitTorizo? litTorizo,
-        IGlowingEnemy? glowingEnemy)
+        ColourEffectTarget target)
     {
         ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
-        // An effect an enemy shows starts with the enemy that shows it, and only such an effect does (#2288).
-        if (ColourEffectEnemyColourDefinitions.EnemyColours.Contains(definition.Colours) != glowingEnemy is not null)
-            throw new InvalidOperationException(glowingEnemy is null
-                ? $"Colour effect {effect} shows on an enemy, which its start must hand it."
-                : $"Colour effect {effect} shows on no enemy, but its start handed it one.");
         ColourEffectId framesOf;
         switch (definition.Start)
         {
@@ -277,7 +285,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
                 throw new InvalidOperationException($"Colour effect {effect} has undefined start {definition.Start}.");
         }
 
-        effects.Add(new RoomColourEffect(effect, framesOf, litTorizo, glowingEnemy));
+        effects.Add(new RoomColourEffect(effect, framesOf, target));
         return true;
     }
 
@@ -290,12 +298,11 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     {
         switch (effect.WatchedCondition)
         {
-            case null:
+            case ColourEffectCondition.WatchesNothing:
                 return;
             case ColourEffectCondition.EndsWhenTorizoDies:
-                ILitTorizo torizo = effect.LitTorizo
-                    ?? throw new InvalidOperationException($"Colour effect {effect.Effect} watches for a Torizo's defeat but lights no Torizo.");
-                if (torizo.IsDefeated)
+                // An effect watching for a Torizo's defeat lights that Torizo, its target (ColourEffectTarget.OnLitTorizo.Accept).
+                if (effect.Target is ColourEffectTarget.OnLitTorizo { Torizo.IsDefeated: true })
                     effect.End();
                 return;
             case ColourEffectCondition.EndsWhenAreaMiniBossDies:
@@ -321,8 +328,8 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <exception cref="InvalidOperationException">The effect watches a condition.</exception>
     private static void RefuseScreenCondition(RoomColourEffect effect)
     {
-        if (effect.WatchedCondition is { } condition)
-            throw new InvalidOperationException($"Colour effect {effect.Effect} watches {condition}, which no frontend screen has.");
+        if (effect.WatchedCondition is not ColourEffectCondition.WatchesNothing)
+            throw new InvalidOperationException($"Colour effect {effect.Effect} watches {effect.WatchedCondition}, which no frontend screen has.");
     }
 
     /// <summary>
@@ -345,7 +352,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
             if (ColourEffectHeatData.DamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
                 burned.Health > ColourEffectHeatData.DamageSoundEnergyThreshold)
             {
-                AudioRequests.QueueSound(RoomSound.IncrementalEnergy, ColourEffectHeatData.DamageSoundPriority);
+                sounds.QueueSound(RoomSound.IncrementalEnergy, ColourEffectHeatData.DamageSoundPriority);
             }
         }
 
@@ -367,39 +374,30 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
                 _session.PublishedHeatPhase = publishHeatPhase.Phase;
                 return;
             case ColourEffectCue.QueueSound queueSound:
-                AudioRequests.QueueSound(queueSound.Sound, ColourEffectSoundPriorities.CueSound);
+                sounds.QueueSound(queueSound.Sound, ColourEffectSoundPriorities.CueSound);
                 return;
             default:
                 throw new InvalidOperationException($"Colour effect {effect.Effect} raised undefined step {cue}.");
         }
     }
 
-    /// <summary>Checks one frame a frontend screen's effect shows (#1512): its colours must be a screen's.</summary>
-    /// <exception cref="InvalidOperationException">The frame is shown in colours no screen shows.</exception>
-    private static void ShowScreenFrame(RoomColourEffect effect, ColourEffectFrame frame)
-    {
-        ColourEffectColours animated = effect.Colours;
-        if (!ColourEffectScreenColourDefinitions.FrontendScreenGroups.Contains(animated))
-            throw new InvalidOperationException($"Colour effect {effect.Effect} showed {animated}, which no frontend screen shows.");
-    }
-
     /// <summary>
     /// The frames Samus's suit groups showed during the last update, in order (#1512): she lays the shade of each over
     /// her suit, as each frame overwrote her suit's colours then.
     /// </summary>
-    internal IReadOnlyList<ShownColourEffectFrame> SuitShown => suitShown;
+    internal IReadOnlyList<ShownColourEffectFrame> SuitShown => shownOnOwners.Suit;
 
     /// <summary>
     /// The frames the escape's shutter flash showed during the last update, in order (#1512, #2288): the room's destroyable
     /// shutters lay the shade of each over their draws, as each frame overwrote their colours then.
     /// </summary>
-    internal IReadOnlyList<ColourEffectFrame> ShutterFlashShown => shutterFlashShown;
+    internal IReadOnlyList<ColourEffectFrame> ShutterFlashShown => shownOnOwners.ShutterFlash;
 
     /// <summary>
     /// The frames the effects enemies show showed during the last update, in order (#1783, #2288): each is shown by the enemy
     /// its start handed it, which lays its shade over that enemy's draws.
     /// </summary>
-    internal IReadOnlyList<ShownEnemyGlow> GlowsShown => glowsShown;
+    internal IReadOnlyList<ShownEnemyGlow> GlowsShown => shownOnOwners.Glows;
 
     /// <summary>
     /// The frame <paramref name="colours"/> show now (#1512, #1597, #1598): the frame laid last on them, in the order
@@ -426,16 +424,17 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     internal bool Animates(ColourEffectColours colours) => effects.Exists(effect => effect.AnimatesColours && effect.Colours == colours);
 
     /// <summary>
-    /// Lays the shade of each look the room's colour groups show now over the room's pictures (#1512, #1597), in the order
-    /// <see cref="Shown"/> gives them: the settled effects' final frames, then the running effects' frames in turn order.
+    /// Lays the shade of each look the effects showing on the room's pictures show now over them (#1512, #1597, #2544), in
+    /// the order <see cref="Shown"/> gives them: the settled effects' final frames, then the running effects' frames in turn
+    /// order.
     /// </summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {
         Ensure.NotNull(frame);
-        foreach ((ColourEffectColours colours, ColourEffectFrame shown) in ShownFrames())
+        foreach (ShowingEffect showing in ShowingEffects())
         {
-            if (ColourEffectRoomColourDefinitions.RoomColours.Contains(colours))
-                frame.Shade(GameplayPictures.Room, ColourEffectShades.Of(colours, shown));
+            if (showing.Effect.Target == ColourEffectTarget.RoomPictures)
+                frame.Shade(GameplayPictures.Room, ColourEffectShades.Of(showing.Effect.Colours, showing.Frame));
         }
     }
 
@@ -444,51 +443,42 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// then each running effect's frame in turn order. An effect its condition ended shows nothing, and no effect's frame
     /// outlasts it.
     /// </summary>
-    private List<ShownColourEffectFrame> ShownFrames()
+    private List<ShownColourEffectFrame> ShownFrames() =>
+        [.. ShowingEffects().Select(showing => new ShownColourEffectFrame(showing.Effect.Colours, showing.Frame))];
+
+    /// <summary>
+    /// Each effect that shows a look now with the frame it shows, in the order the looks are laid (#1597, #1598): each settled
+    /// effect's final frame in the order they settled, then each running effect's frame in turn order.
+    /// </summary>
+    private IEnumerable<ShowingEffect> ShowingEffects()
     {
-        var shown = new List<ShownColourEffectFrame>(settled.Count + effects.Count);
         foreach (RoomColourEffect effect in settled)
         {
             if (effect.Frame is { } frame)
-                shown.Add(new ShownColourEffectFrame(effect.Colours, frame));
+                yield return new ShowingEffect(effect, frame);
         }
         foreach (RoomColourEffect effect in effects)
         {
             if (!effect.Ended && effect.Frame is { } frame)
-                shown.Add(new ShownColourEffectFrame(effect.Colours, frame));
+                yield return new ShowingEffect(effect, frame);
         }
-        return shown;
     }
 
+    /// <summary>An effect that shows a look now, with the frame it shows.</summary>
+    /// <param name="Effect">The effect.</param>
+    /// <param name="Frame">The frame it shows.</param>
+    private readonly record struct ShowingEffect(RoomColourEffect Effect, ColourEffectFrame Frame);
+
     /// <summary>
-    /// Shows one frame in the colours the effect shows during gameplay (#1512, #1597): the effect holds the frame, which
-    /// the room's pictures take as a shade, and a frame of Samus's or an enemy's group is also kept for that owner, which
-    /// lays its shade over its own draws.
+    /// The sound queues of a frontend screen's colour effects, which make no sound (#2544): <see cref="StartScreen"/> starts
+    /// no effect that raises one, so no request ever reaches these.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The frame is shown in colours no room picture, Samus nor enemy shows.</exception>
-    private void ShowGameplayFrame(RoomColourEffect effect, ColourEffectFrame frame)
+    private sealed class ScreenWithoutSounds : IGameplaySoundQueue
     {
-        ColourEffectColours animated = effect.Colours;
-        if (ColourEffectRoomColourDefinitions.RoomColours.Contains(animated))
-            return;
-        if (ColourEffectSamusColourDefinitions.SuitColours.Contains(animated))
-        {
-            suitShown.Add(new ShownColourEffectFrame(animated, frame));
-            return;
-        }
-        if (animated == ColourEffectEnemyColourDefinitions.EscapeShutterColours)
-        {
-            // The escape's shutter flash shows on whichever destroyable shutters the room holds.
-            shutterFlashShown.Add(frame);
-            return;
-        }
-        if (ColourEffectEnemyColourDefinitions.EnemyColours.Contains(animated))
-        {
-            // An effect an enemy shows shows on the enemy its start handed it (#2288).
-            glowsShown.Add(new ShownEnemyGlow(effect.GlowingEnemy ?? throw new InvalidOperationException(
-                $"Colour effect {effect.Effect} shows on an enemy but holds none."), frame));
-            return;
-        }
-        throw new InvalidOperationException($"Colour effect {effect.Effect} showed {animated}, which no gameplay picture shows.");
+        /// <inheritdoc/>
+        /// <exception cref="InvalidOperationException">Always: a frontend screen's colour effect made a sound, which none makes.</exception>
+        public SoundQueueAdmission QueueSound(SoundRequest request) =>
+            throw new InvalidOperationException($"A frontend screen's colour effect requested {request}, which no screen's effect makes.");
     }
+
 }

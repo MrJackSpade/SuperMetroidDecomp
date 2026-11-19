@@ -59,11 +59,9 @@ internal static class RoomFxRecordDefinitionsVerification
         RoomFxOverlayState nativeFx;
         RoomFxOverlayState compiledFx;
         nativeFx = RoomFxOverlayState.ForRoom(room.State.Fx,
-            station.Door, randomNumber: 0, room.Definition);
-        nativeFx.BindAudioRequests(GameplayAudioRequests.Standalone());
+            station.Door, randomNumber: 0, room: room.Definition, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         compiledFx = RoomFxOverlayState.ForRoom(room.State.Fx,
-            station.Door, randomNumber: 0, room.Definition);
-        compiledFx.BindAudioRequests(GameplayAudioRequests.Standalone());
+            station.Door, randomNumber: 0, room: room.Definition, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
         AssertEqual(nativeFx.BaseY?.Whole, compiledFx.BaseY?.Whole, "Ceres compiled FX base Y");
         AssertEqual(nativeFx.TargetSurface, compiledFx.TargetSurface, "Ceres compiled FX target Y");
@@ -82,9 +80,9 @@ internal static class RoomFxRecordDefinitionsVerification
         var compiledPaletteSession = new ColourEffectSessionState();
         ColourEffectSystem compiledPalette;
         nativePalette = ColourEffectSystem.ForRoom(nativePaletteSession, room.State.Fx, station.Door,
-            equippedItems: 0, areaMiniBossDefeated: false);
+            equippedItems: 0, areaMiniBossDefeated: false, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         compiledPalette = ColourEffectSystem.ForRoom(compiledPaletteSession, room.State.Fx, station.Door,
-            equippedItems: 0, areaMiniBossDefeated: false);
+            equippedItems: 0, areaMiniBossDefeated: false, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         AssertEqual(nativePalette.ActiveCount, compiledPalette.ActiveCount,
             "Ceres compiled palette-FX object count");
 

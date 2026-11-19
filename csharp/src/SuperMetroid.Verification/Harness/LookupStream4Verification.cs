@@ -116,8 +116,7 @@ internal static class LookupStream4Verification
         AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.DeleteInstructionPointer, "Derived foreground terminal address");
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new ColourEffectSessionState();
-        var fx = new ColourEffectSystem(fxSession);
-        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var fx = new ColourEffectSystem(fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         var cgram = new SnesCgram();
         fx.StartScreen(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer);
         int ticks = 0;
@@ -210,8 +209,7 @@ internal static class LookupStream4Verification
             AssertEqual(cursor, (int)definition.LoopInstructionPointer, "Calculated terminal layout");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
             var fxSession = new ColourEffectSessionState();
-            var fx = new ColourEffectSystem(fxSession);
-            fx.BindAudioRequests(GameplayAudioRequests.Standalone());
+            var fx = new ColourEffectSystem(fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             var cgram = new SnesCgram();
             fx.StartScreen(definition.DefinitionPointer);
             for (int cycle = 0; cycle < 2; cycle++)
@@ -246,8 +244,7 @@ internal static class LookupStream4Verification
         var selected = TitlePaletteFile.Read(new MemoryStream(json));
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new ColourEffectSessionState();
-        var fx = new ColourEffectSystem(fxSession);
-        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var fx = new ColourEffectSystem(fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         foreach (var program in TitleScreenAmbientPaletteOwners.All)
             fx.StartScreen(program.DefinitionPointer);
         for (int tick = 0; tick <= 80; tick++)
@@ -313,10 +310,8 @@ internal static class LookupStream4Verification
         {
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var nativeSession = new ColourEffectSessionState();
-            var native = new ColourEffectSystem(nativeSession); var installedSession = new ColourEffectSessionState();
-            native.BindAudioRequests(GameplayAudioRequests.Standalone());
-                                                                 var installed = new ColourEffectSystem(installedSession);
-                                                                 installed.BindAudioRequests(GameplayAudioRequests.Standalone());
+            var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()); var installedSession = new ColourEffectSessionState();
+                                                                 var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.Start(definition.DefinitionPointer, 0);
             installed.Start(definition.DefinitionPointer, 0);
@@ -359,10 +354,8 @@ internal static class LookupStream4Verification
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
             var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
             var nativeSession = new ColourEffectSessionState();
-            var native = new ColourEffectSystem(nativeSession); var installedSession = new ColourEffectSessionState();
-            native.BindAudioRequests(GameplayAudioRequests.Standalone());
-                                                                 var installed = new ColourEffectSystem(installedSession);
-                                                                 installed.BindAudioRequests(GameplayAudioRequests.Standalone());
+            var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()); var installedSession = new ColourEffectSessionState();
+                                                                 var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.StartScreen(definition.DefinitionPointer);
             installed.StartScreen(definition.DefinitionPointer);
@@ -1958,7 +1951,6 @@ internal static class LookupStream4Verification
                 NorfairRidleyState state = enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.");
                 state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; enemies.NorfairRidleyBehavior.BeginRoarHold(state);
                 RoomFxOverlayState liquid = enemies.RoomFx.FxOverlay;
-                liquid.BindAudioRequests(GameplayAudioRequests.Standalone());
                 // The hold before take-off runs the arena reveal; the reveal's end takes him off (#2229).
                 for (int call = 0; call < 46; call++)
                 {

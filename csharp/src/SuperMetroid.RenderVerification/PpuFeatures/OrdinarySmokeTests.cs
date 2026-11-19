@@ -25,11 +25,10 @@ internal static class OrdinarySmokeTests
         // Even HDMA cases show BG2 from a room plane; case one from the sky's rows (#1347); case three from a library
         // background's image (#1403), which no 64x64 map ever shows, so a room plane there.
         var rooms = RoomBackgroundsFixtures.Seeded(random, new(511, 255), new(65535, 511), door: true, overlay: true);
-        var loaded = rooms with { Background = null, BackgroundImage = RoomBackgroundsFixtures.SeededBackground(random, colors) };
+        var loaded = rooms with { Background = new SuperMetroid.Core.Gameplay.LibraryImageBackground(RoomBackgroundsFixtures.SeededBackground(random, colors)) };
         var sky = rooms with
         {
-            Background = null,
-            Sky = new SkyPictures(RoomBackgroundsFixtures.SeededSky(random, colors)),
+            Background = new SuperMetroid.Core.Gameplay.SkyBackground(new SkyPictures(RoomBackgroundsFixtures.SeededSky(random, colors))),
         };
         // Line scrolls described as shapes (#1468): a falling sixteen-sample ramp across, eight pixels a step, and a rising one
         // down, three pixels a step.
@@ -78,7 +77,7 @@ internal static class OrdinarySmokeTests
                 $"{device.Kind}: ordinary {count}, block pictures, layers {flags}, HDMA {hdma}");
         }
         // A library background drawn from its image and rebound cells' pictures (#1392), through each map size BG2 takes.
-        var background = pictured with { Background = null, BackgroundImage = RoomBackgroundsFixtures.SeededBackground(random, colors) };
+        var background = pictured with { Background = new SuperMetroid.Core.Gameplay.LibraryImageBackground(RoomBackgroundsFixtures.SeededBackground(random, colors)) };
         foreach (var geometry in new[] { new OrdinarySmokeRunCase(64, 32), new OrdinarySmokeRunCase(32, 64), new OrdinarySmokeRunCase(32, 32) })
         for (int hdma = 0; hdma < 4; hdma += 3)
         {
@@ -94,8 +93,7 @@ internal static class OrdinarySmokeTests
         // scrolls.
         var boss = rooms with
         {
-            Background = null,
-            BossBody = RoomBackgroundsFixtures.SeededBody(random, colors, 128, new Extent16<BackgroundPixels>(512, 512)),
+            Background = new SuperMetroid.Core.Gameplay.BossBodyBackground(RoomBackgroundsFixtures.SeededBody(random, colors, 128, new Extent16<BackgroundPixels>(512, 512))),
         };
         for (int hdma = 0; hdma < 4; hdma++)
         {
@@ -106,6 +104,23 @@ internal static class OrdinarySmokeTests
             var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, boss BG2 tilemap, HDMA {hdma}");
+        }
+        // A background showing nothing (#2544), as Kraid's room once he is dead: it draws as the room with its background
+        // hidden does, and the words written over it still show.
+        {
+            var shown = new GameplaySceneView(new Offset16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511),
+                ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
+            var hidden = shown with { ShownLayers = ScreenLayers.Foreground | ScreenLayers.Sprites };
+            var nothing = rooms with { Background = SuperMetroid.Core.Gameplay.ShownRoomBackground.Nothing, BackgroundText = null };
+            DisplayPacket Frame(GameplaySceneView view, SuperMetroid.Core.Gameplay.RoomBackgrounds shownRooms) =>
+                new(0, new LayeredScene(memory, new DisplayLayer[] { new GameplaySceneLayer(view, shownRooms, default) }, 15));
+            count++;
+            PixelComparison.Verify(Frame(shown, nothing), renderer.RenderForReadback(Frame(hidden, rooms with { BackgroundText = null })),
+                renderer.RenderForReadback(Frame(shown, nothing)), $"{device.Kind}: ordinary {count}, a background showing nothing");
+            var written = nothing with { BackgroundText = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
+            count++;
+            PixelComparison.Verify(Frame(shown, written), DisplayRendering.Render(Frame(shown, written)), renderer.RenderForReadback(Frame(shown, written)),
+                $"{device.Kind}: ordinary {count}, words written over a background showing nothing");
         }
         // Words written over BG2 drawn from their pictures (#1392), some still from their characters, over each BG2 map size.
         var typed = pictured with { BackgroundText = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
@@ -151,7 +166,7 @@ internal static class OrdinarySmokeTests
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             DisplayPacket Frame(ShownBossBodyPart part) => new(0, new LayeredScene(memory, new DisplayLayer[]
             {
-                new GameplaySceneLayer(registers, rooms with { Background = null, BossBody = new ShownBossBody(seeded.Parts.SetItem(0, part)) }, default),
+                new GameplaySceneLayer(registers, rooms with { Background = new SuperMetroid.Core.Gameplay.BossBodyBackground(new ShownBossBody(seeded.Parts.SetItem(0, part))) }, default),
             }, 15));
             count++;
             DisplayPacket frame = Frame(masked);

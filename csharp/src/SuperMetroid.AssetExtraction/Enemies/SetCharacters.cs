@@ -30,10 +30,10 @@ internal sealed class SetCharacters
     private readonly IReadOnlyList<RottingCorpseCells> corpses;
 
     /// <summary>Each combination of looks' characters, by the looks it shows.</summary>
-    private readonly Dictionary<string, SpriteArtwork> pages = new(StringComparer.Ordinal);
+    private readonly Dictionary<EncounterLookCombination, SpriteArtwork> pages = [];
 
     /// <summary>Each combination of looks' character table, by the looks it shows.</summary>
-    private readonly Dictionary<string, byte[]> lookTables = new(StringComparer.Ordinal);
+    private readonly Dictionary<EncounterLookCombination, byte[]> lookTables = [];
 
     /// <summary>
     /// The table as the room load leaves it, the encounters the set's members play, and the corpses that rot in the set's
@@ -174,7 +174,7 @@ internal sealed class SetCharacters
     /// <summary>The characters with every look of each part up to the one <paramref name="combination"/> names copied in order.</summary>
     internal SpriteArtwork Page(IReadOnlyList<FrameLookPart> parts, int[] combination)
     {
-        string key = Key(parts, combination);
+        var key = new EncounterLookCombination(parts, combination);
         if (pages.TryGetValue(key, out SpriteArtwork? page))
             return page;
         byte[] characters = Characters(parts, combination);
@@ -191,7 +191,7 @@ internal sealed class SetCharacters
     {
         if (combination.All(look => look == 0))
             return table;
-        string key = Key(parts, combination);
+        var key = new EncounterLookCombination(parts, combination);
         if (lookTables.TryGetValue(key, out byte[]? known))
             return known;
         byte[] shown = [.. table];
@@ -203,10 +203,6 @@ internal sealed class SetCharacters
         lookTables.Add(key, shown);
         return shown;
     }
-
-    /// <summary>The key of <paramref name="combination"/>'s characters: each part's encounter and the look it shows.</summary>
-    private static string Key(IReadOnlyList<FrameLookPart> parts, int[] combination) =>
-        string.Concat(parts.Select((part, index) => $"|{part.Encounter.Encounter}={combination[index]}"));
 
     /// <summary>The bytes of <paramref name="characters"/>'s characters <paramref name="read"/> names, spelled for comparing.</summary>
     private static string Shown(byte[] characters, int[] read) =>

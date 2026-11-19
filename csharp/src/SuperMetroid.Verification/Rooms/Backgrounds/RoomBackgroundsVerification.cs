@@ -127,8 +127,8 @@ internal static class RoomBackgroundsVerification
             RoomBackgrounds published = runtime.Display.LatchedOrdinaryRoom.Rooms;
             RoomLevelData level = runtime.Room.LoadedLevelData;
             AssertTrue(ReferenceEquals(level.ForegroundPlane.Cells, published.Foreground.Blocks), $"{room.Name} BG1 is the room's foreground plane");
-            AssertEqual(streams, published.Background is not null, $"{room.Name} BG2 comes from level data only when layer 2 streams");
-            if (published.Background is { } bg2)
+            AssertEqual(streams, published.Background is SuperMetroid.Core.Gameplay.RoomPlaneBackground, $"{room.Name} BG2 comes from level data only when layer 2 streams");
+            if (published.Background is SuperMetroid.Core.Gameplay.RoomPlaneBackground { Plane: var bg2 })
             {
                 AssertTrue(ReferenceEquals(level.BackgroundPlane.Cells, bg2.Blocks), $"{room.Name} BG2 is the room's layer-2 plane");
             }

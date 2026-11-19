@@ -38,7 +38,7 @@ internal static class OceanSkyVerification
         // The sky pages the import pictured, which are import data (#1638); the runtime holds only their picture (#1466).
         SkyTilemap shown = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SkyTilemaps
             .Tilemap(sky.Sky);
-        AssertTrue(ordinary.Rooms.Sky is not null, "the ocean's BG2 shows the published sky rows");
+        AssertTrue(ordinary.Rooms.Background is SuperMetroid.Core.Gameplay.SkyBackground, "the ocean's BG2 shows the published sky rows");
         // Every row the camera can show, at each tile-row step down the room, is the ocean ROM chunk's row.
         for (ushort cameraY = 0; cameraY <= 768; cameraY += 8)
         {

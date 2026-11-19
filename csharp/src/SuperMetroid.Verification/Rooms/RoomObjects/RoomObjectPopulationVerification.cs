@@ -632,8 +632,7 @@ internal static class RoomObjectPopulationVerification
 
         RoomFxOverlayState CreateFx(ushort baseY, int? targetY, ushort velocity, byte timer)
         {
-            var fx = new RoomFxOverlayState();
-            fx.BindAudioRequests(GameplayAudioRequests.Standalone());
+            var fx = new RoomFxOverlayState(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             fx.SetLiquidLevel(baseY);
             if (targetY is int target)
                 fx.MoveLiquidTo(target, new SignedEightEight(velocity), timer);

@@ -17,8 +17,7 @@ internal static class RoomPaletteFxSystemAccess
             ushort equippedItems, bool areaMiniBossDefeated)
         {
             Ensure.NotNull(definition);
-            ColourEffectSystem system = ColourEffectSystem.ForEffect(session, null, null, SamusEquipmentWordCodec.FromEquipmentWord(equippedItems), areaMiniBossDefeated, (RoomEffectDefinition?)(definition));
-            system.BindAudioRequests(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+            ColourEffectSystem system = ColourEffectSystem.ForEffect(session, null, null, SamusEquipmentWordCodec.FromEquipmentWord(equippedItems), areaMiniBossDefeated, (RoomEffectDefinition?)(definition), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             return system;
         }
     }

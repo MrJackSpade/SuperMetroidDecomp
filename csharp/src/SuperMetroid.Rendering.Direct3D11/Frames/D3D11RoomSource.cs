@@ -19,6 +19,8 @@ internal enum D3D11RoomSource : uint
     XrayReveal = 7,
     /// <summary>A room's library background, drawn from its image and its rebound cells' pictures (#1392).</summary>
     LibraryBackground = 8,
+    /// <summary>A background showing nothing (#2544): the pass draws no picture, but the text written over the background.</summary>
+    Nothing = 9,
     /// <summary>The HUD's placed pictures, at the HUD's place at the top of the screen (#1466).</summary>
     Hud = 10,
     /// <summary>A pictured plane's placed pictures, scrolled and repeating at the plane's edges (#1467).</summary>

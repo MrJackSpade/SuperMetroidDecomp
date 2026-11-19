@@ -21,6 +21,12 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// and the collections built from it, and one local variable. A numeric format (<c>{kind:D}</c>) writes the value, not
 /// the name, and is SME6450's read.
 /// <para>
+/// A name helper is followed too (#2544): text that becomes the result of an unmarked method, local function or
+/// property of the same assembly is reported when any call of that helper hands its result to an installed key or a
+/// collection's keys, directly, through a local, or through another helper's result. <c>string.Create</c>'s interpolated
+/// text inside such a helper (<c>RoomBlockPictureNames.OfCollectible</c>'s) is therefore an installed key's.
+/// </para>
+/// <para>
 /// Its sibling SME6462 reports an identity keyed or read by its members' names: an enum member's name made a
 /// dictionary's or set's key (an <c>Add</c>, <c>TryGetValue</c>, <c>ContainsKey</c> or indexer key, or a
 /// <c>ToDictionary</c> key selector), <c>Enum.Parse</c>, <c>Enum.TryParse</c> and <c>Enum.GetNames</c>, and
@@ -57,7 +63,8 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
         description: "An installed key is the name the import writes into the installation and the game looks content up by. " +
             "Spelling it from an enum member's source name ties the installation to an identifier: renaming the member " +
             "changes the key without a format change, and installed content stops matching. Each key is written out, as " +
-            "RidleyShades.BabyKeys, TorizoLook's key table and the identities' InstalledKeys tables do (#2409, #2472, #2511, #2520).");
+            "RidleyShades.BabyKeys, TorizoLook's key table and the identities' InstalledKeys tables do (#2409, #2472, #2511, #2520).",
+        customTags: [WellKnownDiagnosticTags.CompilationEnd]);
 
     private static readonly DiagnosticDescriptor KeyedRule = new(
         EnumNameKeyedId,
@@ -70,7 +77,8 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
         description: "A dictionary keyed by an enum's member names, Enum.Parse, Enum.TryParse, Enum.GetNames and " +
             "JsonStringEnumConverter read and write an identity by its source names, so renaming a member silently changes " +
             "the documents the import installs and the saves the game writes, or stops reading them. The identity's " +
-            "InstalledKeys table is its one codec at the import and export boundary (#2520).");
+            "InstalledKeys table is its one codec at the import and export boundary (#2520).",
+        customTags: [WellKnownDiagnosticTags.CompilationEnd]);
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule, KeyedRule];
@@ -85,46 +93,103 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
             if (start.Compilation.AssemblyName is not (CoreLayerAnalyzer.CoreAssembly or ExtractionAssembly))
                 return;
             INamedTypeSymbol? marker = start.Compilation.GetTypeByMetadataName(MarkerName);
-            start.RegisterOperationBlockStartAction(block => AnalyzeBlock(block, marker));
+            var helpers = new NameHelperFlows();
+            IAssemblySymbol assembly = start.Compilation.Assembly;
+            start.RegisterOperationBlockStartAction(block => AnalyzeBlock(block, marker, helpers, assembly));
             start.RegisterOperationAction(AnalyzeNameRead, OperationKind.Invocation, OperationKind.ObjectCreation, OperationKind.TypeOf);
+            start.RegisterCompilationEndAction(end => helpers.Report(write => Report(end.ReportDiagnostic, write.Write, write.Key)));
         });
     }
 
     /// <summary>
     /// Reports each enum name a block writes into an installed key or a collection's keys, directly or through a local the
-    /// block then hands to one.
+    /// block then hands to one, and records for <paramref name="helpers"/> each name the block makes its member's result and
+    /// each call of a name helper of <paramref name="assembly"/> whose result reaches a key or the member's result.
     /// </summary>
-    private static void AnalyzeBlock(OperationBlockStartAnalysisContext block, INamedTypeSymbol? marker)
+    private static void AnalyzeBlock(OperationBlockStartAnalysisContext block, INamedTypeSymbol? marker, NameHelperFlows helpers,
+        IAssemblySymbol assembly)
     {
         var written = new ConcurrentDictionary<ILocalSymbol, ConcurrentBag<EnumNameWrite>>(SymbolEqualityComparer.Default);
+        var called = new ConcurrentDictionary<ILocalSymbol, ConcurrentBag<ISymbol>>(SymbolEqualityComparer.Default);
         var keyed = new ConcurrentDictionary<ILocalSymbol, KeyDestination>(SymbolEqualityComparer.Default);
+        var returned = new ConcurrentDictionary<ILocalSymbol, ISymbol>(SymbolEqualityComparer.Default);
         block.RegisterOperationAction(operation =>
         {
             if (NameWrite(operation.Operation) is not { } write)
                 return;
-            KeyDestination? key = Destination(write.Text, operation.ContainingSymbol, marker, out ILocalSymbol? local);
+            KeyDestination? key = Destination(write.Text, operation.ContainingSymbol, marker, out ILocalSymbol? local, out ISymbol? result);
             if (key is { } destination)
                 Report(operation.ReportDiagnostic, write, destination);
             else if (local is not null)
                 written.GetOrAdd(local, _ => []).Add(write);
+            else if (result is not null)
+                helpers.Returns(result, write);
         }, OperationKind.Interpolation, OperationKind.InterpolatedStringAppendFormatted, OperationKind.Invocation,
             OperationKind.Binary, OperationKind.NameOf);
         block.RegisterOperationAction(operation =>
         {
+            if (NameHelper(operation.Operation, assembly) is not { } helper)
+                return;
+            KeyDestination? key = Destination(operation.Operation, operation.ContainingSymbol, marker, out ILocalSymbol? local, out ISymbol? result);
+            if (key is { } destination)
+                helpers.Feeds(helper, destination);
+            else if (local is not null)
+                called.GetOrAdd(local, _ => []).Add(helper);
+            else if (result is not null)
+                helpers.ReturnsResultOf(result, helper);
+        }, OperationKind.Invocation, OperationKind.PropertyReference);
+        block.RegisterOperationAction(operation =>
+        {
             var reference = (ILocalReferenceOperation)operation.Operation;
-            if (Destination(reference, operation.ContainingSymbol, marker, out _) is { } key)
+            if (Destination(reference, operation.ContainingSymbol, marker, out _, out ISymbol? result) is { } key)
                 keyed.TryAdd(reference.Local, key);
+            else if (result is not null)
+                returned.TryAdd(reference.Local, result);
         }, OperationKind.LocalReference);
         block.RegisterOperationBlockEndAction(end =>
         {
             foreach (KeyValuePair<ILocalSymbol, KeyDestination> entry in keyed)
             {
-                if (!written.TryGetValue(entry.Key, out ConcurrentBag<EnumNameWrite>? writes))
-                    continue;
-                foreach (EnumNameWrite write in writes)
-                    Report(end.ReportDiagnostic, write, entry.Value);
+                if (written.TryGetValue(entry.Key, out ConcurrentBag<EnumNameWrite>? writes))
+                {
+                    foreach (EnumNameWrite write in writes)
+                        Report(end.ReportDiagnostic, write, entry.Value);
+                }
+                if (called.TryGetValue(entry.Key, out ConcurrentBag<ISymbol>? feeding))
+                {
+                    foreach (ISymbol helper in feeding)
+                        helpers.Feeds(helper, entry.Value);
+                }
+            }
+            foreach (KeyValuePair<ILocalSymbol, ISymbol> entry in returned)
+            {
+                if (written.TryGetValue(entry.Key, out ConcurrentBag<EnumNameWrite>? writes))
+                {
+                    foreach (EnumNameWrite write in writes)
+                        helpers.Returns(entry.Value, write);
+                }
+                if (called.TryGetValue(entry.Key, out ConcurrentBag<ISymbol>? inner))
+                {
+                    foreach (ISymbol helper in inner)
+                        helpers.ReturnsResultOf(entry.Value, helper);
+                }
             }
         });
+    }
+
+    /// <summary>
+    /// The name helper an operation calls or reads: a method, local function or property of <paramref name="assembly"/>
+    /// whose result is text; null for any other operation.
+    /// </summary>
+    private static ISymbol? NameHelper(IOperation operation, IAssemblySymbol assembly)
+    {
+        ISymbol? helper = operation switch
+        {
+            IInvocationOperation { TargetMethod: { ReturnType.SpecialType: SpecialType.System_String } method } => method.OriginalDefinition,
+            IPropertyReferenceOperation { Property: { Type.SpecialType: SpecialType.System_String, IsIndexer: false } property } => property.OriginalDefinition,
+            _ => null,
+        };
+        return helper is not null && SymbolEqualityComparer.Default.Equals(helper.ContainingAssembly, assembly) ? helper : null;
     }
 
     /// <summary>Reports one enum name written into the installed key or collection keys <paramref name="key"/>.</summary>
@@ -241,11 +306,14 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// The installed key or collection keys <paramref name="text"/> becomes part of, or null when it reaches none; a text
-    /// first held in a local is given as <paramref name="local"/>.
+    /// first held in a local is given as <paramref name="local"/>, and a text that becomes the result of an unmarked member,
+    /// a name helper whose callers may hand it on to a key, as <paramref name="result"/>.
     /// </summary>
-    private static KeyDestination? Destination(IOperation text, ISymbol owner, INamedTypeSymbol? marker, out ILocalSymbol? local)
+    private static KeyDestination? Destination(IOperation text, ISymbol owner, INamedTypeSymbol? marker, out ILocalSymbol? local,
+        out ISymbol? result)
     {
         local = null;
+        result = null;
         IOperation current = text;
         IOperation? parent = current.Parent;
         while (parent is not null)
@@ -288,7 +356,12 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
                         parent = selector.Invocation.Parent;
                         continue;
                     }
-                    return ReturningMember(parent, owner) is { } member && IsKey(member, marker) ? new KeyDestination(member.Name, false) : null;
+                    if (ReturningMember(parent, owner) is not { } member)
+                        return null;
+                    if (IsKey(member, marker))
+                        return new KeyDestination(member.Name, false);
+                    result = member.OriginalDefinition;
+                    return null;
                 case ISimpleAssignmentOperation assignment when ReferenceEquals(assignment.Value, current):
                     return Assigned(assignment.Target, marker, out local);
                 case IVariableInitializerOperation { Parent: IVariableDeclaratorOperation declarator }:

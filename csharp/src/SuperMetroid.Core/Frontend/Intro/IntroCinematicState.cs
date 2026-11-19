@@ -154,7 +154,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// The opening's colour effects (#1733): the old Mother Brain fight's background lights, from the end of the crossfade
     /// into the fight until page two's crossfade recolours the room.
     /// </summary>
-    internal ColourEffectSystem ColourEffects { get; private set; } = new(new ColourEffectSessionState());
+    internal ColourEffectSystem ColourEffects { get; private set; } = ColourEffectSystem.ForScreen();
     /// <summary>Samus gameplay state shared by the Mother Brain and SR388 flashbacks.</summary>
     internal SamusState? CurrentFlashbackSamus { get; private set; }
     /// <summary>Samus in the Mother Brain flashback, which exists while the flashback runs.</summary>
@@ -402,7 +402,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 {
                     // The crossfade recolours every colour from the opening's own, so the fight lights' last record no
                     // longer shows.
-                    ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
+                    ColourEffects = ColourEffectSystem.ForScreen();
                     StartPageCrossfade(IntroCrossfadeScene.Flashback);
                 }
                 break;

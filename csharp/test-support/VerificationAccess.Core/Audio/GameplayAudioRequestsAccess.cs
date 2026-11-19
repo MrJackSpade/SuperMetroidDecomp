@@ -83,20 +83,6 @@ internal static class GameplayAudioRequestsAccess
         internal IReadOnlyList<DelayedMusicRequest> MusicRequests => self.Requests.ScheduledMusic;
     }
 
-    /// <summary>Reads the effect overlay's sound requests.</summary>
-    extension(RoomFxOverlayState self)
-    {
-        /// <summary>The recorded sound requests of the requests the effect's sounds join, in request order.</summary>
-        internal IReadOnlyList<SoundRequest> SoundRequests => self.AudioRequests.SoundRequests;
-    }
-
-    /// <summary>Reads the colour effects' sound requests.</summary>
-    extension(ColourEffectSystem self)
-    {
-        /// <summary>The recorded sound requests of the requests the colour effects' sounds join, in request order.</summary>
-        internal IReadOnlyList<SoundRequest> SoundRequests => self.AudioRequests.SoundRequests;
-    }
-
     /// <summary>Reads Samus's movement and liquid sound requests and begins a check's update of them.</summary>
     extension(SamusLiquidPhysicsState self)
     {

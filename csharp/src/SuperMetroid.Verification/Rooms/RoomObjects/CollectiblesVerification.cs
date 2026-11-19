@@ -77,9 +77,8 @@ internal static class CollectiblesVerification
             ushort location = unchecked((ushort)(128 + kindIndex));
             // The Chozo-orb Speed Booster's message starts its room's lava rising, so its room has liquid to rise.
             RoomFxOverlayState? roomFx = header == RoomObjectKind.ChozoSpeedBooster
-                ? RoomFxOverlayState.ForRoom(RoomFxDefinitions.Suffix(0x8600), null, 0)
+                ? RoomFxOverlayState.ForRoom(RoomFxDefinitions.Suffix(0x8600), null, 0, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone())
                 : null;
-            roomFx?.BindAudioRequests(GameplayAudioRequests.Standalone());
             CollectibleFixture fixture = LoadCollectible(bus, header: RoomObjectNativeWords.Word(header), roomArgument: location, precollected: false, roomFx: roomFx);
 
             AssertEqual(1, fixture.RoomObjects.CollectibleObjects.Collectibles.Count,

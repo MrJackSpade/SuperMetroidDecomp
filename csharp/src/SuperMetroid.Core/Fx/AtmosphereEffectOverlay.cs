@@ -28,9 +28,8 @@ public sealed record AtmosphereEffectOverlay : ShownRoomEffectOverlay
     /// <summary>The atmosphere the effect captured as <paramref name="fx"/> shows with <paramref name="artwork"/>.</summary>
     /// <param name="fx">The atmosphere's display state.</param>
     /// <param name="artwork">Its repeating picture.</param>
-    /// <exception cref="InvalidDataException">The effect describes no blend.</exception>
     public static AtmosphereEffectOverlay Of(RoomFxOverlayRenderSnapshot fx, AtmosphereArtwork artwork) =>
-        new(artwork, fx.Scroll, BlendOf(fx));
+        new(artwork, fx.Scroll, fx.Blend);
 
     /// <inheritdoc/>
     public override TResult Map<TResult>(IRoomEffectOverlayMapping<TResult> mapping) => Ensure.NotNull(mapping).Atmosphere(this);

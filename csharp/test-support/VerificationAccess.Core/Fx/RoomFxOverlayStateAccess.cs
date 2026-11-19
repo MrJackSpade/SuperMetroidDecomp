@@ -9,22 +9,28 @@ internal static class RoomFxOverlayStateAccess
     extension(RoomFxOverlayState)
     {
         /// <summary>
-        /// Builds room FX from an explicit immutable FX definition through the normal room-load path, its sounds joining a
-        /// check's own audio requests, as a runtime binds its update's (#2057).
+        /// Builds room FX from an explicit immutable FX definition through the normal room-load path, its sounds joining
+        /// requests of their own, as a runtime hands the effect its update's (#2057, #2544).
         /// </summary>
-        internal static RoomFxOverlayState ForDefinition(RoomEffectDefinition definition, ushort randomNumber)
+        internal static RoomFxOverlayState ForDefinition(RoomEffectDefinition definition, ushort randomNumber) =>
+            ForDefinition(definition, randomNumber, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+
+        /// <summary>
+        /// Builds room FX from an explicit immutable FX definition through the normal room-load path, its sounds joining the
+        /// check's <paramref name="sounds"/>, which it reads (#2544).
+        /// </summary>
+        internal static RoomFxOverlayState ForDefinition(RoomEffectDefinition definition, ushort randomNumber,
+            SuperMetroid.Core.Audio.GameplaySoundRequests sounds)
         {
             Ensure.NotNull(definition);
-            RoomFxOverlayState fx = RoomFxOverlayState.ForSource(new RoomFxLoadSource
+            return RoomFxOverlayState.ForSource(new RoomFxLoadSource
             {
                 Fx = null,
                 Door = null,
                 RandomNumber = randomNumber,
                 Room = null,
                 SuppliedDefinition = definition,
-            });
-            fx.BindAudioRequests(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
-            return fx;
+            }, sounds);
         }
     }
 

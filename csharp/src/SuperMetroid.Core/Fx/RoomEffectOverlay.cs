@@ -25,21 +25,14 @@ public abstract record RoomEffectOverlay
 
     /// <summary>
     /// The overlay the room effect captured as <paramref name="fx"/> shows (#2505): nothing without an effect showing one,
-    /// otherwise its liquid or its atmosphere, its artwork drawn from <paramref name="pictures"/> for the values
+    /// otherwise the liquid or the atmosphere its look shows (#2544), its artwork drawn from <paramref name="pictures"/> for the values
     /// <paramref name="appearance"/> reads.
     /// </summary>
     /// <param name="fx">The room effect's display state, or null while the room's effect shows nothing on the overlay.</param>
     /// <param name="pictures">The room's effect overlay pictures.</param>
     /// <param name="appearance">The values the room's appearance inputs take now.</param>
-    /// <exception cref="InvalidDataException">The effect describes no blend, or the sheet pictures no artwork of it for those values.</exception>
+    /// <exception cref="InvalidDataException">The sheet pictures no artwork of the effect for those values.</exception>
     /// <exception cref="InvalidOperationException">The resolver's sheet pictures another layer's pictures.</exception>
     internal static RoomEffectOverlay Latch(RoomFxOverlayRenderSnapshot? fx, WrittenPictureResolver pictures, RoomAppearanceView appearance) =>
-        fx is not { } shown ? Nothing
-            : RoomFxTypes.ShowsLiquid(shown.Type) ? LiquidEffectOverlay.Of(shown, pictures.Liquid(shown.Type, appearance))
-            : AtmosphereEffectOverlay.Of(shown, pictures.Atmosphere(shown.Type, appearance));
-
-    /// <summary>The blend an effect that shows its overlay describes (#1545).</summary>
-    /// <exception cref="InvalidDataException">The effect describes no blend, which the import never installs for an effect that shows its overlay.</exception>
-    private protected static RoomEffectBlend BlendOf(RoomFxOverlayRenderSnapshot fx) =>
-        fx.Blend ?? throw new InvalidDataException($"Room FX type {fx.Type} shows artwork but describes no blend.");
+        fx is { } shown ? shown.Look.Latch(shown, pictures, appearance) : Nothing;
 }

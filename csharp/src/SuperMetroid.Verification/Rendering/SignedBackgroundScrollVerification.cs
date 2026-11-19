@@ -28,8 +28,8 @@ internal static class SignedBackgroundScrollVerification
         RoomBackgroundImagePlane sky = RoomBackgroundsFixtures.SeededSky(random, colours);
         RoomBackgroundImagePlane library = RoomBackgroundsFixtures.SeededBackground(random, colours);
         RoomBackgrounds blank = RoomBackgroundsFixtures.Blank();
-        AssertRepeats("the scrolling sky", blank with { Background = null, Sky = new SkyPictures(sky) }, sky.Area, colours);
-        AssertRepeats("a library background", blank with { Background = null, BackgroundImage = library }, library.Area, colours);
+        AssertRepeats("the scrolling sky", blank with { Background = new SuperMetroid.Core.Gameplay.SkyBackground(new SkyPictures(sky)) }, sky.Area, colours);
+        AssertRepeats("a library background", blank with { Background = new SuperMetroid.Core.Gameplay.LibraryImageBackground(library) }, library.Area, colours);
         Console.WriteLine("Signed background scroll: the sky and a library background repeat by their own size above and left of their origins.");
     }
 

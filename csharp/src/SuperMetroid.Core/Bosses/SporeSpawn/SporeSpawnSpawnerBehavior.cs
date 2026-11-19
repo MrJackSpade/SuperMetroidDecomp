@@ -13,6 +13,9 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, SporeSpawnSporeBehavior spores)
     : EnemyProjectileMotionBehavior<SporeSpawnSpawnerMotion>(SporeSpawnSpawnerMotion.Releasing), IEnemyProjectileCues<SporeSpawnProjectileCue>
 {
+    /// <summary>The Spore Spawn that set each spawner up and the way its spores drift, given as it opens.</summary>
+    internal EnemyProjectileStates<SporeSpawnEmitterState> Emitters { get; } = new();
+
     /// <inheritdoc/>
     internal override EnemyProjectileAnimation ShotAnimation() =>
         new SporeSpawnProjectileAnimation(this, SporeSpawnProjectileSegment.SpawnerClosed);
@@ -40,7 +43,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
             case SporeSpawnProjectileCue.SpawnSpore:
                 // The spore takes the colours of the Spore Spawn that set the spawner up.
                 EnemyProjectile spawner = context.Projectile;
-                SporeSpawnEmitterState emitter = spawner.StateOf<SporeSpawnEmitterState>();
+                SporeSpawnEmitterState emitter = Emitters.Of(spawner);
                 SpawnSporeSpawnSpore(spawner.Position.Whole, emitter.Drift, emitter.SporeSpawn);
                 return;
             case SporeSpawnProjectileCue.SetImpactProperties or SporeSpawnProjectileCue.QueueKilledSound or SporeSpawnProjectileCue.RequestDrop
@@ -69,13 +72,13 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
         spore.StartAnimation(new SporeSpawnProjectileAnimation(spores, SporeSpawnProjectileSegment.Spore));
         spore.Position = spore.Position.WithWhole(position);
 
-        spore.State = new SporeSpawnSporeState(drift);
+        spores.Drifts.Start(spore, new SporeSpawnSporeState(drift));
     }
 
     /// <summary>Releases spores from a ceiling spawner on its random cadence while Spore Spawn lets it.</summary>
     private void ReleaseSpores(EnemyProjectile spawner)
     {
-        SporeSpawnEmitterState emitter = spawner.StateOf<SporeSpawnEmitterState>();
+        SporeSpawnEmitterState emitter = Emitters.Of(spawner);
         if (emitter.SporeSpawn.SporeGenerationSuppressed)
             return;
 

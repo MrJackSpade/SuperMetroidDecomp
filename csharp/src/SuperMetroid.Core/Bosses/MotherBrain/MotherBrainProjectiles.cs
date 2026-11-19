@@ -114,6 +114,33 @@ internal sealed class MotherBrainProjectiles
         IEnemyProjectileCues<MotherBrainEffectCue>,
         IEnemyProjectileCues<MotherBrainHandBeamCue>
     {
+        /// <summary>The Mother Brain each of her beams, breaths and rainbow charges belongs to, given as she sets it off.</summary>
+        internal EnemyProjectileStates<MotherBrainProjectileState> MotherBrains { get; } = new();
+
+        /// <summary>Each bomb's Mother Brain, bounce speed and afterburns, given as she fires it.</summary>
+        internal EnemyProjectileStates<MotherBrainBombState> Bombs { get; } = new();
+
+        /// <summary>Each onion ring's Mother Brain and its wait at her mouth, given as she breathes it.</summary>
+        internal EnemyProjectileStates<MotherBrainOnionRingState> OnionRings { get; } = new();
+
+        /// <summary>Each drool's Mother Brain and the mouth it hangs from, given as she drools it.</summary>
+        internal EnemyProjectileStates<MotherBrainDroolState> Drools { get; } = new();
+
+        /// <summary>Each room turret's Mother Brain, its arc, its way and its timers, given as the room raises it.</summary>
+        internal EnemyProjectileStates<MotherBrainTurretState> Turrets { get; } = new();
+
+        /// <summary>Each body explosion's Mother Brain and its place on her, given as it goes off.</summary>
+        internal EnemyProjectileStates<MotherBrainBodyExplosionState> BodyExplosions { get; } = new();
+
+        /// <summary>Each escape door fragment's fall, given as the door breaks.</summary>
+        internal EnemyProjectileStates<MotherBrainDoorFragmentState> DoorFragments { get; } = new();
+
+        /// <summary>Each falling top tube's drop, given as it breaks away.</summary>
+        internal EnemyProjectileStates<MotherBrainTopTubeState> TopTubes { get; } = new();
+
+        /// <summary>Where each rainbow explosion sits from Samus, given as it goes off.</summary>
+        internal EnemyProjectileStates<MotherBrainFollowingExplosionState> FollowingExplosions { get; } = new();
+
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation? TouchAnimation() =>
             touch is { } segment ? new MotherBrainEffectAnimation(this, segment) : null;
@@ -177,7 +204,7 @@ internal sealed class MotherBrainProjectiles
                     PinMotherBrainRainbowCharge(projectile);
                     break;
                 case MotherBrainProjectileMotion.RainbowImpactTracking:
-                    AdvanceMotherBrainRainbowExplosion(projectile, context.Samus);
+                    AdvanceMotherBrainRainbowExplosion(this, projectile, context.Samus);
                     break;
                 case MotherBrainProjectileMotion.DeathExplosionTracking:
                     RunMotherBrainDeathExplosion(projectile);
@@ -219,7 +246,7 @@ internal sealed class MotherBrainProjectiles
             switch (cue)
             {
                 case MotherBrainHandBeamCue.SpawnNextBeam:
-                    SpawnMotherBrainHandBeamFired(context.Projectile.StateOf<MotherBrainProjectileState>().MotherBrain);
+                    SpawnMotherBrainHandBeamFired(MotherBrains.Of(context.Projectile).MotherBrain);
                     return;
                 case MotherBrainHandBeamCue.Delete:
                     context.Projectile.Delete();
@@ -242,7 +269,7 @@ internal sealed class MotherBrainProjectiles
                     projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole + MotherBrainFightDefinitions.DroolReleaseDrop);
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.EndSmallPurpleBreath }:
-                    projectile.StateOf<MotherBrainProjectileState>().MotherBrain.SmallPurpleBreathActive = false;
+                    MotherBrains.Of(projectile).MotherBrain.SmallPurpleBreathActive = false;
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.ReleaseDrool }:
                     projectile.StartMotion(this, MotherBrainProjectileMotion.DroolFalling);
@@ -264,7 +291,7 @@ internal sealed class MotherBrainProjectiles
             SamusBombProjectileSystem samusBombs,
             SamusState samus)
         {
-            MotherBrainBombState bombState = bomb.StateOf<MotherBrainBombState>();
+            MotherBrainBombState bombState = Bombs.Of(bomb);
             MotherBrainEnemyState state = bombState.MotherBrain;
             if (TryDestroyMotherBrainBombWithSamusBomb(bomb, state, samusBombs, samus))
                 return;
@@ -334,7 +361,7 @@ internal sealed class MotherBrainProjectiles
             MotherBrainEnemyState state)
         {
             Position16<RoomPixels> impact = bomb.Position.Whole;
-            int afterburnCount = bomb.StateOf<MotherBrainBombState>().Afterburns;
+            int afterburnCount = Bombs.Of(bomb).Afterburns;
             DeleteMotherBrainBomb(bomb, state);
 
             // The bomb's explosion frees the bomb's place before both spawns. They therefore use
@@ -350,9 +377,9 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>Advances a death explosion projectile through its installed animation.</summary>
-        internal static void RunMotherBrainDeathExplosion(EnemyProjectile projectile)
+        internal void RunMotherBrainDeathExplosion(EnemyProjectile projectile)
         {
-            MotherBrainBodyExplosionState explosion = projectile.StateOf<MotherBrainBodyExplosionState>();
+            MotherBrainBodyExplosionState explosion = BodyExplosions.Of(projectile);
             projectile.Position = projectile.Position.WithWhole(explosion.MotherBrain.Body.Position.Whole + explosion.Offset);
         }
 
@@ -365,7 +392,7 @@ internal sealed class MotherBrainProjectiles
             fragment.Velocity = fragment.Velocity.WithY(fragment.Velocity.Y + MotherBrainDeathDefinitions.DoorFragmentGravity);
             fragment.Position = fragment.Position.Advance(fragment.Velocity.ToDisplacement());
             // The fragment turns to dust as its lifetime runs out.
-            MotherBrainDoorFragmentState fragmentState = fragment.StateOf<MotherBrainDoorFragmentState>();
+            MotherBrainDoorFragmentState fragmentState = DoorFragments.Of(fragment);
             if (fragmentState.Lifetime.StepKeepsRunning()) return;
             Position16<RoomPixels> dust = fragment.Position.Whole - new Offset16<RoomPixels>(0, MotherBrainDeathDefinitions.DoorDustYOffset);
             fragment.Delete();
@@ -375,7 +402,7 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Moves the four falling ceiling-tube pieces.</summary>
         private void DropMotherBrainTopTube(EnemyProjectile projectile)
         {
-            MotherBrainTopTubeState tube = projectile.StateOf<MotherBrainTopTubeState>();
+            MotherBrainTopTubeState tube = TopTubes.Of(projectile);
             if (tube.DustPending)
             {
                 dependencies.Projectiles.SpawnDustOrExplosion(
@@ -485,15 +512,15 @@ internal sealed class MotherBrainProjectiles
             }
 
             beam.Velocity = PixelVelocity<RoomPixels>.Zero;
-            beam.State = new MotherBrainProjectileState(state);
+            Spawned.MotherBrains.Start(beam, new MotherBrainProjectileState(state));
             beam.StartAnimation(new MotherBrainHandBeamAnimation(Spawned));
         }
 
         /// <summary>Holds Mother Brain's drool at its point on her mouth as her head moves.</summary>
-        internal static void HoldMotherBrainDroolAtMouth(
+        internal void HoldMotherBrainDroolAtMouth(
             EnemyProjectile drool)
         {
-            MotherBrainDroolState droolState = drool.StateOf<MotherBrainDroolState>();
+            MotherBrainDroolState droolState = Drools.Of(drool);
             RoomEnemyPlace head = droolState.MotherBrain.Head;
             Offset16<RoomPixels> mouth = droolState.MouthPoint;
 
@@ -511,7 +538,7 @@ internal sealed class MotherBrainProjectiles
             int cameraX)
         {
             // The ring stays pinned to the mouth while its attach delay runs out.
-            MotherBrainOnionRingState ringState = ring.StateOf<MotherBrainOnionRingState>();
+            MotherBrainOnionRingState ringState = OnionRings.Of(ring);
             MotherBrainEnemyState state = ringState.MotherBrain;
             if (ringState.MouthWait.StepKeepsRunning())
             {
@@ -585,7 +612,7 @@ internal sealed class MotherBrainProjectiles
             EnemyProjectile turret,
             Position16<RoomPixels> camera)
         {
-            MotherBrainEnemyState state = turret.StateOf<MotherBrainTurretState>().MotherBrain;
+            MotherBrainEnemyState state = Turrets.Of(turret).MotherBrain;
             bool onScreen = MotherBrainTurretIsOnScreen(turret, camera);
 
             // Off-screen turrets deliberately freeze both timers until scrolled into view. Once
@@ -606,11 +633,11 @@ internal sealed class MotherBrainProjectiles
             }
 
             // Each wait starts again as it runs out.
-            MotherBrainTurretState turretState = turret.StateOf<MotherBrainTurretState>();
+            MotherBrainTurretState turretState = Turrets.Of(turret);
             if (turretState.RotationWait.StepRunsOut())
             {
                 ResetMotherBrainTurretRotationTimer(turret);
-                SelectNextMotherBrainTurretDirection(turret);
+                SelectNextMotherBrainTurretDirection(this, turret);
                 turret.StartAnimation(new MotherBrainTurretAnimation(this, MotherBrainTurretPose.Turret(turretState.Direction)));
             }
 
@@ -625,14 +652,14 @@ internal sealed class MotherBrainProjectiles
         internal void ResetMotherBrainTurretRotationTimer(EnemyProjectile turret)
         {
             int sample = dependencies.Room.Random.Next(MotherBrainRandomDefinitions.TurretRotationWait);
-            turret.StateOf<MotherBrainTurretState>().RotationWait.LastFor(Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay));
+            Turrets.Of(turret).RotationWait.LastFor(Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay));
         }
 
         /// <summary>Restarts the turret's pause between fired bullets.</summary>
         internal void ResetMotherBrainTurretCooldown(EnemyProjectile turret)
         {
             int sample = dependencies.Room.Random.Next(MotherBrainRandomDefinitions.TurretFiringWait);
-            turret.StateOf<MotherBrainTurretState>().FiringWait.LastFor(Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown));
+            Turrets.Of(turret).FiringWait.LastFor(Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown));
         }
 
         /// <summary>Runs turret-bullet initialization.</summary>
@@ -647,7 +674,7 @@ internal sealed class MotherBrainProjectiles
                 RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
                 turretBullet,
                 MotherBrainTurretDefinitions.Graphics);
-            MotherBrainTurretDirection direction = turret.StateOf<MotherBrainTurretState>().Direction;
+            MotherBrainTurretDirection direction = Turrets.Of(turret).Direction;
             MotherBrainTurretDirectionDefinition definition =
                 MotherBrainTurrets.ForDirection(direction);
             bullet.Velocity = definition.BulletVelocity;
@@ -657,16 +684,16 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>Pins the charging effect to the head while the beam winds up.</summary>
-        internal static void PinMotherBrainRainbowCharge(
+        internal void PinMotherBrainRainbowCharge(
             EnemyProjectile projectile)
         {
-            RoomEnemyPlace head = projectile.StateOf<MotherBrainProjectileState>().MotherBrain.Head;
+            RoomEnemyPlace head = MotherBrains.Of(projectile).MotherBrain.Head;
             projectile.Position = projectile.Position.WithWhole(head.Position.Whole);
         }
     }
 
     /// <summary>Advances a bomb through its trajectory and reports arena-boundary expiry.</summary>
-    private static bool MoveMotherBrainBomb(
+    private bool MoveMotherBrainBomb(
         EnemyProjectile bomb,
         SignedEightEight acceleration)
     {
@@ -683,7 +710,7 @@ internal sealed class MotherBrainProjectiles
             return false;
 
         bomb.Position = bomb.Position.WithWholeY(MotherBrainBombBounceDefinitions.FloorY);
-        SignedEightEight bounceSpeed = bomb.StateOf<MotherBrainBombState>().BounceSpeed;
+        SignedEightEight bounceSpeed = Bombs.Of(bomb).BounceSpeed;
         bomb.Velocity = new(bounceSpeed.AlongDirectionOf(bomb.Velocity.X), MotherBrainBombBounceDefinitions.BounceRise);
         return true;
     }
@@ -822,9 +849,9 @@ internal sealed class MotherBrainProjectiles
         OffRoomPlaces.Signed(projectile.Position.Whole);
 
     /// <summary>Turns the turret one direction the way it turns, or back the other way when that leaves its arc.</summary>
-    internal static void SelectNextMotherBrainTurretDirection(EnemyProjectile turret)
+    internal static void SelectNextMotherBrainTurretDirection(MotherBrainProjectileBehavior owner, EnemyProjectile turret)
     {
-        MotherBrainTurretState state = turret.StateOf<MotherBrainTurretState>();
+        MotherBrainTurretState state = owner.Turrets.Of(turret);
         MotherBrainTurretDirection candidate = MotherBrainTurrets.Turned(state.Direction, state.Turning);
         if (MotherBrainTurrets.IsRotationAllowed(state.Turret, candidate))
         {
@@ -868,9 +895,10 @@ internal sealed class MotherBrainProjectiles
 
     /// <summary>Advances the rainbow impact effect through its timed lifetime.</summary>
     internal static void AdvanceMotherBrainRainbowExplosion(
+        MotherBrainProjectileBehavior owner,
         EnemyProjectile projectile,
         SamusState samus)
     {
-        projectile.Position = projectile.Position.WithWhole(samus.Position.Whole + projectile.StateOf<MotherBrainFollowingExplosionState>().Offset);
+        projectile.Position = projectile.Position.WithWhole(samus.Position.Whole + owner.FollowingExplosions.Of(projectile).Offset);
     }
 }

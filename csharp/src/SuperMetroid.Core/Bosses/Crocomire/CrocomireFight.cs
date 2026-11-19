@@ -478,6 +478,6 @@ internal sealed class CrocomireFight
         projectile.Velocity = CrocomireFightDefinitions.SpitVelocity;
         projectile.Position = projectile.Position.WithWhole(body.Position.Whole + CrocomireFightDefinitions.SpitOffset);
         projectile.Position = projectile.Position.WithoutFractions();
-        projectile.State = new CrocomireProjectileState(gradient);
+        _combat.MouthShot.Gradients.Start(projectile, new CrocomireProjectileState(gradient));
     }
 }

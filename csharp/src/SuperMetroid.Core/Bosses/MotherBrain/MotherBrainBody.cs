@@ -325,7 +325,7 @@ internal sealed class MotherBrainBody
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle),
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
-        beam.State = new MotherBrainProjectileState(state);
+        _projectileAttacks.Projectile.MotherBrains.Start(beam, new MotherBrainProjectileState(state));
         beam.StartAnimation(new MotherBrainHandBeamAnimation(_projectileAttacks.Projectile));
     }
 
@@ -370,7 +370,7 @@ internal sealed class MotherBrainBody
             MotherBrainTurretDefinitions.Graphics);
 
         turret.Position = turret.Position.WithWhole(definition.Position);
-        turret.State = new MotherBrainTurretState(state, definition);
+        _projectileAttacks.Projectile.Turrets.Start(turret, new MotherBrainTurretState(state, definition));
         turret.StartAnimation(new MotherBrainTurretAnimation(_projectileAttacks.Projectile, MotherBrainTurretPose.Turret(definition.InitialDirection)));
 
         // A new turret draws a random number for each of its two waits, its turning wait first.

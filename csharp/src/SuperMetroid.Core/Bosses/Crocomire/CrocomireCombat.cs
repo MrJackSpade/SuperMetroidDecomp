@@ -74,6 +74,12 @@ internal sealed class CrocomireCombat
         CrocomireProjectileSegment? shot = null)
         : EnemyProjectileMotionBehavior<CrocomireProjectileMotion>(StartingMotions), IEnemyProjectileCues<CrocomireProjectileCue>
     {
+        /// <summary>The gradient each mouth shot flies along, given as Crocomire spits it.</summary>
+        internal EnemyProjectileStates<CrocomireProjectileState> Gradients { get; } = new();
+
+        /// <summary>Which piece of the spike wall each falling piece is, given as the wall breaks.</summary>
+        internal EnemyProjectileStates<CrocomireSpikeWallPieceState> SpikeWallPieces { get; } = new();
+
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() =>
             shot is { } segment ? new CrocomireProjectileAnimation(this, segment) : base.ShotAnimation();
@@ -134,7 +140,7 @@ internal sealed class CrocomireCombat
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
 
             // The shot keeps the gradient its volley fires it along. The angle starts at up, not right: Y uses negative cosine.
-            int gradient = projectile.StateOf<CrocomireProjectileState>().Gradient;
+            int gradient = Gradients.Of(projectile).Gradient;
             projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateAimAngle(new(-CrocomireProjectileDefinitions.AimReachLeft, gradient)));
             projectile.StartMotion(this, CrocomireProjectileMotion.ShotFlying);
         }
@@ -142,7 +148,7 @@ internal sealed class CrocomireCombat
         /// <summary>Runs the shard motion, exact to the 256th of a pixel, whose limits each piece takes from its place in the wall.</summary>
         private void RunCrocomireSpikeWallPiece(EnemyProjectile projectile)
         {
-            CrocomireSpikeWallPieceState piece = projectile.StateOf<CrocomireSpikeWallPieceState>();
+            CrocomireSpikeWallPieceState piece = SpikeWallPieces.Of(projectile);
             SignedSixteenSixteen maximumAcceleration = piece.Piece.MaximumAcceleration;
             SignedSixteenSixteen acceleration = piece.Acceleration;
             if (acceleration != maximumAcceleration)

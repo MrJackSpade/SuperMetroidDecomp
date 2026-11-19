@@ -67,18 +67,18 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         switch (piece.Definition)
         {
             case NoobTubeProjectileDefinition.Crack:
-                projectile.State = new NoobTubeCrackState();
+                TubePieces.Pieces.Start(projectile, new NoobTubeDebrisState(place.X));
                 projectile.Position = projectile.Position.WithWhole(place);
                 return;
 
             case NoobTubeProjectileDefinition.Shard:
-                projectile.State = new NoobTubeDebrisState(place.X);
+                TubePieces.Pieces.Start(projectile, new NoobTubeDebrisState(place.X));
                 projectile.Position = projectile.Position.WithWholeY(place.Y);
                 projectile.Velocity = piece.Velocity;
                 return;
 
             case NoobTubeProjectileDefinition.ReleasedAirBubble:
-                projectile.State = new NoobTubeDebrisState(place.X);
+                TubePieces.Pieces.Start(projectile, new NoobTubeDebrisState(place.X));
                 projectile.Position = projectile.Position.WithWholeY(place.Y);
                 // The bubble sets only its rise: it sways by its own arc, and the sideways speed its place's previous
                 // projectile left passes on to the next projectile spawned there (EnemyProjectileHandOver).
@@ -96,26 +96,26 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         projectile.Position = projectile.Position.AdvanceY(NoobTubeDebrisDefinitions.CrackFallVelocity.ToSixteenSixteenDelta());
 
     /// <summary>Flies a newly emitted shard by its velocity and deletes it once it leaves the screen vertically.</summary>
-    private static void FlyNoobTubeShard(EnemyProjectile projectile, int cameraY)
+    private static void FlyNoobTubeShard(NoobTubeProjectileBehavior owner, EnemyProjectile projectile, int cameraY)
     {
-        AdvanceNoobTubeShardX(projectile, projectile.Velocity.X);
+        AdvanceNoobTubeShardX(owner, projectile, projectile.Velocity.X);
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
         EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
     }
 
     /// <summary>Sways a falling shard along its arc, drops it, and deletes it once it leaves the screen vertically.</summary>
-    private static void DropNoobTubeShard(EnemyProjectile projectile, int cameraY)
+    private static void DropNoobTubeShard(NoobTubeProjectileBehavior owner, EnemyProjectile projectile, int cameraY)
     {
-        MoveNoobTubeProjectileHorizontallyAlongArc(projectile, swaySteps: 1);
+        MoveNoobTubeProjectileHorizontallyAlongArc(owner, projectile, swaySteps: 1);
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
         EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
     }
 
     /// <summary>Sways a falling bubble along its arc, then moves it vertically once as a flying bubble does.</summary>
-    private static void DropNoobTubeBubble(EnemyProjectile projectile)
+    private static void DropNoobTubeBubble(NoobTubeProjectileBehavior owner, EnemyProjectile projectile)
     {
-        MoveNoobTubeProjectileHorizontallyAlongArc(projectile, swaySteps: 2);
-        MoveNoobTubeBubbleVertically(projectile);
+        MoveNoobTubeProjectileHorizontallyAlongArc(owner, projectile, swaySteps: 2);
+        MoveNoobTubeBubbleVertically(owner, projectile);
     }
 
     /// <summary>Advances the debris's own horizontal position by one update's <paramref name="velocity"/>.</summary>
@@ -128,19 +128,20 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     /// lies at the end of the axis, and its mirror image across the tube just past the room's right edge, as the reflected
     /// flicker places it.
     /// </remarks>
-    private static void AdvanceNoobTubeShardX(EnemyProjectile projectile, SignedEightEight velocity)
+    private static void AdvanceNoobTubeShardX(NoobTubeProjectileBehavior owner, EnemyProjectile projectile, SignedEightEight velocity)
     {
-        NoobTubeDebrisState debris = projectile.StateOf<NoobTubeDebrisState>();
+        NoobTubeDebrisState debris = owner.Pieces.Of(projectile);
         debris.X = debris.X.MovedBy(velocity);
     }
 
     /// <summary>Uses the sine of the debris's sway to advance its own horizontal position, then steps the sway.</summary>
     internal static void MoveNoobTubeProjectileHorizontallyAlongArc(
+        NoobTubeProjectileBehavior owner,
         EnemyProjectile projectile,
         int swaySteps)
     {
-        NoobTubeDebrisState debris = projectile.StateOf<NoobTubeDebrisState>();
-        AdvanceNoobTubeShardX(projectile, SwayVelocity(debris.SwayAngle));
+        NoobTubeDebrisState debris = owner.Pieces.Of(projectile);
+        AdvanceNoobTubeShardX(owner, projectile, SwayVelocity(debris.SwayAngle));
         debris.AdvanceSway(swaySteps);
     }
 
@@ -151,9 +152,9 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     internal static SignedEightEight SwayVelocity(TrigonometryAngle angle) => EnemyMath.SineVelocity(angle, 1).DividedRoundingDown(4);
 
     /// <summary>Advances the bubble by its vertical velocity and publishes its own horizontal position.</summary>
-    private static void MoveNoobTubeBubbleVertically(EnemyProjectile projectile)
+    private static void MoveNoobTubeBubbleVertically(NoobTubeProjectileBehavior owner, EnemyProjectile projectile)
     {
-        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).WithWholeX(projectile.StateOf<NoobTubeDebrisState>().X.Whole);
+        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).WithWholeX(owner.Pieces.Of(projectile).X.Whole);
     }
 
     /// <summary>The tube's crack, shards and released-air bubbles (#1760): their spawner starts their animations.</summary>
@@ -162,8 +163,14 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     /// <summary>A crack, shard or bubble: the crack's, shards' and bubbles' movers, and their animations' cues.</summary>
     /// <param name="room">The loaded room, whose random numbers set a falling piece's sway.</param>
     internal sealed class NoobTubeProjectileBehavior(EnemyRoomBinding room)
-        : EnemyProjectileMotionBehavior<NoobTubePieceMotion>(StartingMotions), IEnemyProjectileCues<NoobTubeProjectileCue>
+        : EnemyProjectileMotionBehavior<NoobTubePieceMotion>(StartingMotions)
     {
+        /// <summary>What each of the tube's pieces keeps: its column, its flicker and its sway, given as the tube breaks.</summary>
+        internal EnemyProjectileStates<NoobTubeDebrisState> Pieces { get; } = new();
+
+        /// <inheritdoc/>
+        internal override bool IsHidden(EnemyProjectile projectile) => Pieces.Of(projectile).IsHidden;
+
         /// <summary>A shard flies from its spawn; the crack and the bubbles hold still until their animations start them.</summary>
         private static readonly Dictionary<RoomEnemyProjectileKind, NoobTubePieceMotion?> StartingMotions = new()
         {
@@ -185,16 +192,16 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                     DropNoobTubeCrack(projectile);
                     break;
                 case NoobTubePieceMotion.ShardFlying:
-                    FlyNoobTubeShard(projectile, context.Camera.Y);
+                    FlyNoobTubeShard(this, projectile, context.Camera.Y);
                     break;
                 case NoobTubePieceMotion.ShardFalling:
-                    DropNoobTubeShard(projectile, context.Camera.Y);
+                    DropNoobTubeShard(this, projectile, context.Camera.Y);
                     break;
                 case NoobTubePieceMotion.BubbleFalling:
-                    DropNoobTubeBubble(projectile);
+                    DropNoobTubeBubble(this, projectile);
                     break;
                 case NoobTubePieceMotion.BubbleFlying:
-                    MoveNoobTubeBubbleVertically(projectile);
+                    MoveNoobTubeBubbleVertically(this, projectile);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(NoobTubePieceMotion)} {motion}.");
@@ -202,18 +209,25 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         }
 
         /// <inheritdoc/>
-        public void RunCue(EnemyProjectileCueContext context, NoobTubeProjectileCue cue) =>
-            ApplyNoobTubeProjectileCue(context.Projectile, context.ShortCounter, cue);
+        /// <summary>
+        /// Carries out one event of a piece's animation, which hands the behaviour the mirroring of the frames it shows: a
+        /// shard's reflected flicker shows its mirrored frames on the updates it draws at its mirror image.
+        /// </summary>
+        /// <param name="context">The piece and the pass it runs in.</param>
+        /// <param name="cue">The event the piece's animation raised.</param>
+        /// <param name="mirroring">Whether the piece's animation shows its mirrored frames.</param>
+        internal void RunCue(EnemyProjectileCueContext context, NoobTubeProjectileCue cue, NoobTubeShardMirroring mirroring) =>
+            ApplyNoobTubeProjectileCue(context.Projectile, context.ShortCounter, cue, Ensure.NotNull(mirroring));
 
         /// <summary>
         /// Flickers the crack: alternate values of <paramref name="shortCounter"/> hide it and show it. The crack keeps
         /// whichever its flicker last chose once it falls.
         /// </summary>
-        private static void FlickerNoobTubeCrack(EnemyProjectile projectile, int shortCounter) =>
-            projectile.StateOf<NoobTubeCrackState>().IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsSetIn(shortCounter);
+        private void FlickerNoobTubeCrack(EnemyProjectile projectile, int shortCounter) =>
+            Pieces.Of(projectile).IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsSetIn(shortCounter);
 
         /// <summary>Carries out one cue of the crack, shard and bubble animations; <paramref name="shortCounter"/> times the flicker.</summary>
-        private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, int shortCounter, NoobTubeProjectileCue cue)
+        private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, int shortCounter, NoobTubeProjectileCue cue, NoobTubeShardMirroring mirroring)
         {
             bool atOwnColumn = NoobTubeCadenceDefinitions.DebrisAtOwnColumn.IsSetIn(shortCounter);
             switch (cue.Kind)
@@ -222,23 +236,23 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                     // The shard shows itself at its column, or its mirror image mirrored across the tube. A column past the
                     // room's left edge lies at the end of the room's axis (AdvanceNoobTubeShardX), and its mirror image
                     // lies as far past the room's right edge, on the axis as OffRoomPlaces keeps it (#2537).
-                    int column = projectile.StateOf<NoobTubeDebrisState>().X.Whole;
+                    int column = Pieces.Of(projectile).X.Whole;
                     projectile.Position = projectile.Position.WithWholeX(atOwnColumn
                         ? column
                         : OffRoomPlaces.Place(NoobTubeDebrisDefinitions.ShardMirrorSpan - column));
-                    ShardAnimation(projectile).ShowsMirroredFrame = !atOwnColumn;
+                    mirroring.ShowsMirroredFrame = !atOwnColumn;
                     break;
                 case NoobTubeProjectileCueKind.FlickerHidden:
                     // The shard shows at its column on odd updates and is hidden on even ones.
-                    projectile.Position = projectile.Position.WithWholeX(projectile.StateOf<NoobTubeDebrisState>().X.Whole);
-                    projectile.StateOf<NoobTubeDebrisState>().IsHidden = !atOwnColumn;
+                    projectile.Position = projectile.Position.WithWholeX(Pieces.Of(projectile).X.Whole);
+                    Pieces.Of(projectile).IsHidden = !atOwnColumn;
                     break;
                 case NoobTubeProjectileCueKind.AssignShardFallingAngle:
-                    projectile.StateOf<NoobTubeDebrisState>().StartSway(NoobTubeDebrisDefinitions.FallingSwayStart.Of(room.Random.Generate()));
+                    Pieces.Of(projectile).StartSway(NoobTubeDebrisDefinitions.FallingSwayStart.Of(room.Random.Generate()));
                     projectile.Velocity = projectile.Velocity.WithY(NoobTubeDebrisDefinitions.ShardFallYVelocity);
                     break;
                 case NoobTubeProjectileCueKind.AssignBubbleFallingAngle:
-                    projectile.StateOf<NoobTubeDebrisState>().StartSway(NoobTubeDebrisDefinitions.FallingSwayStart.Of(room.Random.Generate()));
+                    Pieces.Of(projectile).StartSway(NoobTubeDebrisDefinitions.FallingSwayStart.Of(room.Random.Generate()));
                     break;
                 case NoobTubeProjectileCueKind.StartCrackFlicker:
                     projectile.StartMotion(this, NoobTubePieceMotion.CrackFlickering);
@@ -265,7 +279,4 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     }
 
     /// <summary>The typed animation a shard's flicker cue runs in.</summary>
-    private static NoobTubeProjectileAnimation ShardAnimation(EnemyProjectile projectile) =>
-        projectile.Animation as NoobTubeProjectileAnimation
-        ?? throw new InvalidOperationException($"A n00b-tube flicker cue ran outside its typed animation; the projectile runs {projectile.Animation}.");
 }

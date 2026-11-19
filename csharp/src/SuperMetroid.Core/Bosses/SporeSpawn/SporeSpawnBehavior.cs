@@ -565,7 +565,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             SpriteGraphics.SpawnedBy(body));
         spawner.StartAnimation(new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.SpawnerClosed));
         spawner.Position = spawner.Position.WithWhole(emitter.Place);
-        spawner.State = new SporeSpawnEmitterState(state, emitter.Drift);
+        Spawner.Emitters.Start(spawner, new SporeSpawnEmitterState(state, emitter.Drift));
     }
 
     /// <summary>

@@ -3,13 +3,14 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>
-/// What a n00b-tube shard or released air bubble keeps: its own horizontal position, which the flicker draws at or
-/// mirrors, whether a shard's hiding flicker hides it, and how far along its swaying fall it is.
+/// What a n00b-tube piece keeps (#2571): a shard's or released air bubble's own horizontal position, which the flicker
+/// draws at or mirrors, whether the crack's or a shard's flicker hides it, and how far along its swaying fall it is. The
+/// crack keeps only whether its flicker hides it, which it keeps once it falls (#2455).
 /// </summary>
 /// <param name="column">The column the debris starts at.</param>
-internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState, IFlickeringProjectileState
+internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState
 {
-    /// <summary>Whether a shard's hiding flicker hides it on this update (#2455); a bubble never hides.</summary>
+    /// <summary>Whether the crack's or a shard's flicker hides it on this update (#2455); a bubble never hides.</summary>
     public bool IsHidden { get; internal set; }
 
     /// <summary>The debris's own horizontal position, with its fraction; the drawn position follows it or hides.</summary>

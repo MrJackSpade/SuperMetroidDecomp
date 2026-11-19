@@ -681,10 +681,10 @@ internal sealed class PhantoonPatterns
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return false;
-        flame.State = new PhantoonOrbitingFlameState(phantoon, start.Angle)
+        _combat.DestroyableFlame.Orbits.Start(flame, new PhantoonOrbitingFlameState(phantoon, start.Angle)
         {
             TurnPerUpdate = PhantoonFlameSpawns.RageTurnPerUpdate(start),
-        };
+        });
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
         flame.StartMotion(_combat.DestroyableFlame, PhantoonFlameMotion.RageOrbiting);
         return true;
@@ -699,7 +699,7 @@ internal sealed class PhantoonPatterns
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return false;
-        flame.State = new PhantoonOrbitingFlameState(phantoon, start);
+        _combat.DestroyableFlame.Orbits.Start(flame, new PhantoonOrbitingFlameState(phantoon, start));
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.FlameCircleCentre);
         flame.StartMotion(_combat.DestroyableFlame, PhantoonFlameMotion.SpiralOrbiting);
         return true;
@@ -714,7 +714,7 @@ internal sealed class PhantoonPatterns
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return false;
-        flame.State = new PhantoonRainFlameState(hangUpdates);
+        _combat.DestroyableFlame.Rains.Start(flame, new PhantoonRainFlameState(hangUpdates));
         flame.Position = flame.Position.WithWholeX(columnX);
         flame.Position = flame.Position.WithWholeY(PhantoonArenaDefinitions.RainStartY);
         flame.StartMotion(_combat.DestroyableFlame, PhantoonFlameMotion.RainFalling);

@@ -15,6 +15,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFireballMotion>, IEnemyProjectileCues<RidleyFireballCue>
 {
+    /// <summary>How many afterburns each fireball and afterburn has left to raise, given as it spawns.</summary>
+    internal EnemyProjectileStates<RidleyAfterburnChainState> Afterburns { get; } = new();
+
     /// <summary>The loaded room, whose area selects Ridley's projectile damage.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns places used by fireballs and successive afterburn projectiles.</summary>
@@ -84,7 +87,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         ApplyRidleyProjectileAreaDamage(projectile);
         projectile.Position = projectile.Position.WithWhole(Muzzle(ridley, state));
         projectile.Velocity = state.FireballVelocity;
-        projectile.State = new RidleyAfterburnChainState(afterburns);
+        Afterburns.Start(projectile, new RidleyAfterburnChainState(afterburns));
     }
 
     /// <summary>Ridley's mouth for the way he faces: facing right or the screen mirrors his left-facing mouth.</summary>
@@ -133,7 +136,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         center.Position = center.Position.WithWhole(position);
         // The afterburn's centre starts at rest; a new projectile otherwise keeps the velocity its place last held.
         center.Velocity = PixelVelocity<RoomPixels>.Zero;
-        center.State = new RidleyAfterburnChainState(remaining);
+        Afterburns.Start(center, new RidleyAfterburnChainState(remaining));
     }
 
     /// <summary>Emits the left/right or up/down branches from an impact center.</summary>
@@ -168,7 +171,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         ApplyRidleyProjectileAreaDamage(afterburn);
         afterburn.Position = afterburn.Position.WithWhole(source.Position.Whole);
         afterburn.Velocity = velocity;
-        afterburn.State = new RidleyAfterburnChainState(source.StateOf<RidleyAfterburnChainState>().Remaining);
+        Afterburns.Start(afterburn, new RidleyAfterburnChainState(Afterburns.Of(source).Remaining));
     }
 
     /// <summary>
@@ -178,7 +181,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     /// </summary>
     internal void SpawnNextAfterburn(EnemyProjectile source)
     {
-        RidleyAfterburnChainState chain = source.StateOf<RidleyAfterburnChainState>();
+        RidleyAfterburnChainState chain = Afterburns.Of(source);
         if (chain.Remaining == 0)
             return;
         chain.Remaining--;
@@ -288,7 +291,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         if (horizontalCollision || verticalCollision)
         {
             Position16<RoomPixels> impact = projectile.Position.Whole;
-            int count = projectile.StateOf<RidleyAfterburnChainState>().Remaining;
+            int count = Afterburns.Of(projectile).Remaining;
             projectile.Delete();
             if (count != 0)
                 SpawnAfterburnCenter(horizontalCollision ? Axis.Vertical : Axis.Horizontal, impact, count);

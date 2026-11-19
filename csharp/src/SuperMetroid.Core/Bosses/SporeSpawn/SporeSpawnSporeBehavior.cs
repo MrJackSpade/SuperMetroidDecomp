@@ -12,6 +12,9 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops)
     : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving), IEnemyProjectileCues<SporeSpawnProjectileCue>
 {
+    /// <summary>The way each spore drifts and its step along its path, given as its spawner releases it.</summary>
+    internal EnemyProjectileStates<SporeSpawnSporeState> Drifts { get; } = new();
+
     /// <inheritdoc/>
     internal override EnemyProjectileAnimation ShotAnimation() =>
         new SporeSpawnProjectileAnimation(this, SporeSpawnProjectileSegment.SporeShot);
@@ -47,9 +50,9 @@ internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops
     }
 
     /// <summary>Drifts a spore one step along its path, deleting it once it falls below the room.</summary>
-    internal static void DriftSpore(EnemyProjectile spore)
+    internal void DriftSpore(EnemyProjectile spore)
     {
-        SporeSpawnSporeState drift = Ensure.NotNull(spore).StateOf<SporeSpawnSporeState>();
+        SporeSpawnSporeState drift = Drifts.Of(Ensure.NotNull(spore));
         Offset16<RoomPixels> movement = drift.PathStep.Entry;
         int xDelta = movement.X;
         if (drift.Drift == HorizontalDirection.Left)

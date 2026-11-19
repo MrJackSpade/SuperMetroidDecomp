@@ -53,6 +53,12 @@ internal sealed class DraygonShots
         Func<DraygonShotBehavior, EnemyProjectileAnimation>? touch = null)
         : EnemyProjectileMotionBehavior<DraygonShotMotion>(initial), IEnemyProjectileCues<DraygonProjectileCue>
     {
+        /// <summary>The heading and speed each goop and turret shot flies along, given as it is fired.</summary>
+        internal EnemyProjectileStates<AngledFlightState> Flights { get; } = new();
+
+        /// <summary>Where each goop stuck to Samus sits in her stack, given as it sticks.</summary>
+        internal EnemyProjectileStates<DraygonGoopAttachedState> Attached { get; } = new();
+
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() => shot(this);
 
@@ -140,7 +146,7 @@ internal sealed class DraygonShots
                 return;
 
             samus.SlowdownLevel = nextDivisor;
-            goop.State = new DraygonGoopAttachedState(nextDivisor);
+            Attached.Start(goop, new DraygonGoopAttachedState(nextDivisor));
             goop.StartMotion(this, DraygonShotMotion.GoopStuckToSamus);
             goop.BlocksSamusProjectiles = false;
             goop.CanDamageSamus = false;
@@ -152,7 +158,7 @@ internal sealed class DraygonShots
         /// <param name="goop">The goop stuck to Samus.</param>
         /// <param name="samus">Samus, whom the goop follows.</param>
         /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which frees the goop's place.</param>
-        internal static void RunAttachedDraygonGoop(
+        internal void RunAttachedDraygonGoop(
             EnemyProjectile goop,
             SamusState samus,
             SamusPowerBombExplosionState powerBomb)
@@ -165,7 +171,7 @@ internal sealed class DraygonShots
                 return;
             }
 
-            DraygonGoopAttachedState attached = goop.StateOf<DraygonGoopAttachedState>();
+            DraygonGoopAttachedState attached = Attached.Of(goop);
             // The stack's top lies 12 pixels above Samus's centre, which stays more than her radius below the arena's
             // solid ceiling, so a stuck goop stays in the room.
             goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, samus.Position.Y.Whole + attached.StackPosition * DraygonArenaDefinitions.GoopStackSpacing + DraygonArenaDefinitions.GoopStackTop));
@@ -194,8 +200,8 @@ internal sealed class DraygonShots
         }
     }
     /// <summary>Moves a Draygon projectile along its angle at its speed.</summary>
-    internal static void MoveDraygonProjectile(EnemyProjectile projectile) =>
-        projectile.StateOf<AngledFlightState>().Advance(projectile);
+    internal void MoveDraygonProjectile(EnemyProjectile projectile) =>
+        Flights.Of(projectile).Advance(projectile);
 
     /// <summary>Deletes a projectile that has left Draygon's room.</summary>
     private static void DeleteDraygonProjectileOutsideRoom(EnemyProjectile projectile)

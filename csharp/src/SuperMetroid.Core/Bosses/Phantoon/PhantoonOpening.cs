@@ -122,7 +122,7 @@ internal sealed class PhantoonOpening
         flame.Position = flame.Position.WithoutFractions();
         flame.Velocity = PixelVelocity<RoomPixels>.Zero;
         var orbit = new PhantoonOrbitingFlameState(phantoon, start);
-        flame.State = orbit;
+        _combat.StartingFlame.Orbits.Start(flame, orbit);
         PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, orbit.Angle, radius: PhantoonFlameMotionDefinitions.IntroCircleRadius);
         flame.StartMotion(_combat.StartingFlame, PhantoonFlameMotion.IntroWaiting);
         return true;

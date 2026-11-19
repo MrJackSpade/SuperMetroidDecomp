@@ -51,7 +51,7 @@ internal sealed class D3D11ImageAtlas : IDisposable
     /// <summary>Reused copy of one image's texels while it is copied in.</summary>
     private uint[] texels = new uint[TexelWords * 64 * 64];
     /// <summary>The places of the keys found while one image is copied in, reused for each.</summary>
-    private readonly D3D11KeyPlaces keyPlaces = new();
+    private readonly ColourKeyPlaces keyPlaces = new();
 
     /// <summary>Creates the empty texture.</summary>
     internal D3D11ImageAtlas(ID3D11Device device, ID3D11DeviceContext context)
@@ -186,7 +186,7 @@ internal sealed class D3D11ImageAtlas : IDisposable
     /// its stored colour as it is; for a visible pixel, the place of its colour key among its sheet's
     /// (<see cref="SpriteImage.ColourKeys"/>) in the low sixteen bits, with <see cref="BlendsMark"/> where the frame blends or
     /// the sheet's blend map marks the pixel. A key's place is found among the sheet's keys the first time its colour and
-    /// recolour region show, and read from <see cref="D3D11KeyPlaces"/> after that: a whole turning floor holds a million
+    /// recolour region show, and read from <see cref="ColourKeyPlaces"/> after that: a whole turning floor holds a million
     /// pixels.
     /// </summary>
     internal readonly ref struct KeyWords
@@ -202,13 +202,13 @@ internal sealed class D3D11ImageAtlas : IDisposable
         /// <summary>The sheet's blend map, empty where its pictures blend as their frames say.</summary>
         private readonly ReadOnlySpan<bool> blending;
         /// <summary>The places of the keys found so far while this image is copied in.</summary>
-        private readonly D3D11KeyPlaces found;
+        private readonly ColourKeyPlaces found;
 
         /// <summary>
         /// Reads the key words of <paramref name="image"/>'s sheet pixels, holding the places of the keys it finds in
         /// <paramref name="found"/>, which it empties first.
         /// </summary>
-        internal KeyWords(SpriteSheetFrame image, D3D11KeyPlaces found)
+        internal KeyWords(SpriteSheetFrame image, ColourKeyPlaces found)
         {
             this.image = Ensure.NotNull(image);
             this.found = Ensure.NotNull(found);
@@ -229,18 +229,18 @@ internal sealed class D3D11ImageAtlas : IDisposable
             if (shown.A == 0)
                 return ClearMark;
             int region = regions.IsEmpty ? 0 : regions[pixel];
-            if (!found.TryGet(shown, region, out uint place))
+            if (!found.TryGet(shown, region, out int place))
             {
                 if (sheet.ColourKeys.Length > MostColourKeys)
                     throw new InvalidDataException(
                         $"Sheet {sheet.Name} has {sheet.ColourKeys.Length} colour keys, more than the {MostColourKeys} a key word can place.");
                 ColourKey key = sheet.KeyAt(pixel);
-                place = (uint)(sheet.PlaceOf(key)
-                    ?? throw new InvalidDataException($"Sheet {sheet.Name}'s colour keys do not hold {key}, the key of its visible pixel {pixel}."));
+                place = sheet.PlaceOf(key)
+                    ?? throw new InvalidDataException($"Sheet {sheet.Name}'s colour keys do not hold {key}, the key of its visible pixel {pixel}.");
                 found.Set(shown, region, place);
             }
             bool blends = image.Blends || (!blending.IsEmpty && blending[pixel]);
-            return place | (blends ? BlendsMark : 0);
+            return (uint)place | (blends ? BlendsMark : 0);
         }
     }
 

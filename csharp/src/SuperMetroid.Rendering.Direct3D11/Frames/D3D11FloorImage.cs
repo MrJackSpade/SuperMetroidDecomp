@@ -29,7 +29,7 @@ internal sealed class D3D11FloorImage : IDisposable
     /// <summary>The image's texels, reused while each new floor of the same extent is laid out.</summary>
     private uint[] texels = [];
     /// <summary>The places of the keys found while one picture is laid out, reused for each.</summary>
-    private readonly D3D11KeyPlaces keyPlaces = new();
+    private readonly ColourKeyPlaces keyPlaces = new();
 
     /// <summary>Creates the image of no floor yet: one clear texel, which no floor pass reads.</summary>
     internal D3D11FloorImage(ID3D11Device device, ID3D11DeviceContext context)

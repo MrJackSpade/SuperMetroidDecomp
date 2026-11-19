@@ -823,14 +823,17 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 CheckValue(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), nativeSpritemap == 0 ? 0 : global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(nativeSpritemap));
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
-            foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
+            for (int place = 0; place < SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount; place++)
             {
-                int index = projectile.Place * 2;
-                string owner = $"Enemy projectile {projectile.Place}";
-                // Identical cartridge definitions that differ only in their way or look name one kind (#2278).
-                Check(owner + " identity", EnemyProjectileNativeWords.IdentityWord(projectile.Kind, W(NativeSnapshotMemory.EnemyProjectileId + index)),
+                int index = place * 2;
+                string owner = $"Enemy projectile {place}";
+                EnemyProjectile? latest = runtime.Enemies.Projectiles.LatestInPlace(place);
+                // Identical cartridge definitions that differ only in their way or look name one kind (#2278); a place the room
+                // has spawned nothing into holds none.
+                Check(owner + " identity", EnemyProjectileNativeWords.IdentityWord(latest?.Kind ?? RoomEnemyProjectileKind.None,
+                        W(NativeSnapshotMemory.EnemyProjectileId + index)),
                     NativeSnapshotMemory.EnemyProjectileId + index);
-                if (!projectile.IsActive || W(NativeSnapshotMemory.EnemyProjectileId + index) == 0) continue;
+                if (latest is not { IsActive: true } projectile || W(NativeSnapshotMemory.EnemyProjectileId + index) == 0) continue;
                 Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.EnemyProjectileX + index);
                 Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.EnemyProjectileY + index);
                 // The port holds a tile base and colouring; they are compared, with the row holding the colouring, as the native

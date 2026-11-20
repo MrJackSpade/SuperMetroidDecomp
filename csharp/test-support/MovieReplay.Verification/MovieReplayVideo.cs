@@ -26,6 +26,9 @@ internal sealed class MovieReplayVideo : IMovieRecorder, IDisposable
     private readonly FileStream audio;
     private readonly short[] samples = new short[AudioSession.PcmSamplesPerFrame];
     private Process? encoder;
+
+    /// <inheritdoc/>
+    public bool RecordsAudio => true;
     private Extent16<ScreenPixels> size;
     private long sequence;
 

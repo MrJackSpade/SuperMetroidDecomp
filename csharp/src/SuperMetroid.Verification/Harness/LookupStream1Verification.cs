@@ -1471,11 +1471,11 @@ internal static class LookupStream1Verification
         for (int kind = 0; kind < 2; kind++)
         for (int frame = 0; frame < 4; frame++)
         {
-            AssertTrue(stock.TryResolve(kind == 0 ? 1 : 4, frame, out SpritePart installed), "atmospheric installed frame resolves");
+            AssertTrue(stock.TryResolve(kind == 0 ? SamusAtmosphericPictures.FootstepSplash : SamusAtmosphericPictures.LavaAndDust, frame, out SpritePart installed), "atmospheric installed frame resolves");
             AssertEqual((kind == 0 ? one : shared)[frame], installed, "atmospheric installed appearance matches native");
         }
-        AssertTrue(!stock.TryResolve(2, 0, out _), "atmospheric null pointer remains outside installed domain");
-        AssertTrue(!stock.TryResolve(1, 4, out _), "atmospheric next frame rejected");
+        AssertTrue(!SamusAtmosphericTypeCodec.TryDecode(2, out _), "atmospheric null pointer remains outside installed domain");
+        AssertTrue(!stock.TryResolve(SamusAtmosphericPictures.FootstepSplash, 4, out _), "atmospheric next frame rejected");
         Console.WriteLine("Atmospheric attributes: eight installed native appearances and the canonical stock identity pass.");
     }
 

@@ -207,7 +207,8 @@ internal static class SamusBodyArtworkVerification
             int source = SamusSourceDefinitions.MovementBank.Value | (pointer + frame * sizeof(ushort));
             // The cartridge's attribute word is decoded by the import codec into the single piece it describes.
             SpritePart expectedAttributes = new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(source)).ToSinglePart();
-            AssertTrue(stock.Atmosphere.TryResolve(type, frame, out SpritePart installedAttributes),
+            AssertTrue(SamusAtmosphericTypeCodec.TryDecode(type, out SamusAtmosphericPictures pictures), $"atmospheric type {type} draws single-piece pictures");
+            AssertTrue(stock.Atmosphere.TryResolve(pictures, frame, out SpritePart installedAttributes),
                 $"atmospheric type {type} frame {frame} has installed artwork");
             AssertEqual(expectedAttributes, installedAttributes,
                 $"atmospheric type {type} frame {frame} imported the native character, palette row, priority and flips");
@@ -224,7 +225,7 @@ internal static class SamusBodyArtworkVerification
                 nativeEffects.All[0].StepUpdatesLeft == installedEffects.All[0].StepUpdatesLeft,
                 $"direct atmospheric type {type} frame {frame} installed/native OAM and timing parity");
         }
-        AssertTrue(!stock.Atmosphere.TryResolve(2, 0, out _),
+        AssertTrue(!SamusAtmosphericTypeCodec.TryDecode(2, out _),
             "atmospheric type two retains its retail pointer-zero address-space path");
         var deathSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {

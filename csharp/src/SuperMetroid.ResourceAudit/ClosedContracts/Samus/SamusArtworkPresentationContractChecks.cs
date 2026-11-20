@@ -29,7 +29,7 @@ internal static class SamusArtworkPresentationContractChecks
                     body.OriginRise(0, default(SuperMetroid.Core.Samus.Poses.SamusAnimationFrame));
                     compositions.TryGetFrame(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Top, 0), out _);
                     compositions.TryGetFrame(new SamusBodyHalfFrame((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1), SamusBodyHalf.Top, 0), out _);
-                    atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);
+                    atmosphere.TryResolve(SuperMetroid.AssetExtraction.Samus.SamusAtmosphericPictures.FootstepSplash, byte.MaxValue, out _);
                     arm.Descriptors.PoseDescriptor(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
                     arm.Descriptors.PoseDescriptor((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1));
                     arm.Descriptors.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount - 1);

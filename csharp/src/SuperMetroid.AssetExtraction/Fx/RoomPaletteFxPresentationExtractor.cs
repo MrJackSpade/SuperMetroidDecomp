@@ -18,7 +18,7 @@ internal static class RoomPaletteFxPresentationExtractor
         RoomPaletteFxPresentationFile.Write(json, new RoomPaletteFxPresentationDocument
         {
             Version = RoomPaletteFxPresentationFormat.Version,
-            Programs = RoomPaletteFxPrograms.All.ToDictionary(program => program.Key, program => ExtractFrames(program.Frames[0]), StringComparer.Ordinal),
+            Programs = RoomPaletteFxPrograms.All.ToDictionary(program => program.Key, program => ExtractFrames(program.Runs[0].Frames), StringComparer.Ordinal),
         });
         return json.ToArray();
 

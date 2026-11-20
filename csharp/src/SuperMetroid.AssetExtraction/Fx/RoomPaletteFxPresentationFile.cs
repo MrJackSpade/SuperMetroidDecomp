@@ -32,8 +32,8 @@ public static class RoomPaletteFxPresentationFile
         foreach (RoomPaletteFxProgram program in RoomPaletteFxPrograms.All)
         {
             document.Programs.TryGetValue(program.Key, out PaletteRgb5[][]? frames);
-            foreach (PaletteFxColorFrames colorFrames in program.Frames)
-                ValidateAndCompile(program.Description, frames, colorFrames, colors);
+            foreach (RoomPaletteFxRun run in program.Runs)
+                ValidateAndCompile(run.Owner, frames, run.Frames, colors);
         }
         return new RoomPaletteFxPresentation(colors);
     }

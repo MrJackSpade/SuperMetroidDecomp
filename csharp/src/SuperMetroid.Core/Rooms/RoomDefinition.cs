@@ -13,25 +13,17 @@ namespace SuperMetroid.Core.Rooms;
 /// <param name="Area">The room's area.</param>
 /// <param name="MapPosition">The area-map cell of the room's top-left screen; each of its screens shows one cell further right or down.</param>
 /// <param name="Size">The room's size in scroll screens.</param>
-/// <param name="CameraLead">How far above Samus the camera aims its top as she falls and as she rises (#2482).</param>
-/// <param name="DoorTransition">How door transitions into or out of this room draw the screen.</param>
 public sealed record RoomDefinition(
     [InstalledKey] string Name,
     AreaId Area,
     Position16<MapTiles> MapPosition,
-    Extent16<RoomScreens> Size,
-    RoomCameraLead CameraLead,
-    RoomDoorTransitionStyle DoorTransition)
+    Extent16<RoomScreens> Size)
 {
-    /// <summary>A room with the standard camera lead whose door transitions draw the whole screen.</summary>
-    /// <param name="name">The room's name.</param>
-    /// <param name="area">The room's area.</param>
-    /// <param name="mapPosition">The area-map cell of the room's top-left screen.</param>
-    /// <param name="size">The room's size in scroll screens.</param>
-    public RoomDefinition([InstalledKey] string name, AreaId area, Position16<MapTiles> mapPosition, Extent16<RoomScreens> size)
-        : this(name, area, mapPosition, size, RoomCameraLeads.Standard, RoomDoorTransitionStyle.Standard)
-    {
-    }
+    /// <summary>How far above Samus the camera aims its top as she falls and as she rises (#2482); the standard lead unless the room names its own (#2557).</summary>
+    public RoomCameraLead CameraLead { get; init; } = RoomCameraLeads.Standard;
+
+    /// <summary>How door transitions into or out of this room draw the screen; the whole screen unless the room says otherwise (#2557).</summary>
+    public RoomDoorTransitionStyle DoorTransition { get; init; } = RoomDoorTransitionStyle.Standard;
 
     /// <summary>
     /// Whether the X-ray, where it keeps the room's backgrounds rather than revealing its blocks, also hides the room's

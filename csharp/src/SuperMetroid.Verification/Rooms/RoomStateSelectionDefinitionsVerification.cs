@@ -22,7 +22,7 @@ internal static class RoomStateSelectionDefinitionsVerification
             .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)
             .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer."))).Distinct().Order().ToArray();
         AssertEqual(261, rooms.Length, "Original retail room selector identities");
-        var uncompiled = new RoomDefinition("uncompiled fixture room", AreaId.Crateria, new(0, 0), new(1, 1), RoomCameraLeads.None, RoomDoorTransitionStyle.Standard);
+        var uncompiled = new RoomDefinition("uncompiled fixture room", AreaId.Crateria, new(0, 0), new(1, 1)) { CameraLead = RoomCameraLeads.None };
         AssertThrows<ArgumentOutOfRangeException>(() => RoomStateSelection.Select(uncompiled, RoomStateSelectionContexts.NoProgress),
             "Uncompiled room selector rejects before condition evaluation");
         AssertThrows<ArgumentOutOfRangeException>(() => RoomStateSelection.GetStatePointers(uncompiled),

@@ -5,7 +5,6 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.NoobTube;

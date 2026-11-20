@@ -109,7 +109,7 @@ internal static class EnemyAnimationPlayback
         Play(place, segments, ref playback, Shown, (TEvent cue) =>
         {
             apply(cue);
-            return (AnimationContinuation<TSegment>?)null;
+            return null;
         });
 
     /// <summary>
@@ -129,7 +129,7 @@ internal static class EnemyAnimationPlayback
         Advance(place, segments, read, write, (TState state, TEvent cue) =>
         {
             apply(state, cue);
-            return (AnimationContinuation<TSegment>?)null;
+            return null;
         });
 
     /// <summary>

@@ -281,9 +281,15 @@ internal sealed class EnemyDeathsAndDrops
         // Unlike a finished death explosion, a direct drop becomes a pickup in any place for
         // an enemy projectile, the first included. The roll reads the drop's definition straight back from
         // the pickup that holds it.
-        pickup.StartAnimation(new EnemyDeathAndDropAnimation(this, kind == EnemyPickupKind.NoDrop
-            ? ConfigureDormantPickup(pickup)
-            : ConfigurePickup(pickup, kind, KilledEnemy.None)));
+        if (kind == EnemyPickupKind.NoDrop)
+        {
+            // A direct drop that drops nothing came from no enemy, which its pause's respawn cue reads, rather than
+            // whatever an earlier pickup in its place came from.
+            Pickups.Start(pickup, new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, KilledEnemy.None));
+            pickup.StartAnimation(new EnemyDeathAndDropAnimation(this, ConfigureDormantPickup(pickup)));
+            return;
+        }
+        pickup.StartAnimation(new EnemyDeathAndDropAnimation(this, ConfigurePickup(pickup, kind, KilledEnemy.None)));
     }
 
     /// <summary>

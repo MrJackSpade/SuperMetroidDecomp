@@ -53,6 +53,6 @@ public sealed class PrivateStateMemberAnalyzer : DiagnosticAnalyzer
             context.Compilation.Options.MetadataImportOptions != MetadataImportOptions.All)
             return;
         context.ReportDiagnostic(Diagnostic.Create(Rule, missing.Site.GetLocation(), missing.Call, missing.Kind, missing.Name,
-            missing.Owner.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)));
+            missing.Owner.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
     }
 }

@@ -307,7 +307,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         Earthquake = Ensure.NotNull(dependencies.Earthquake);
         PuyoCeilingTurn = compatibility.PuyoCeilingTurn;
         EffectActors = new RoomEffectActors(Presentation, compatibility.EffectActorPlaces, PuyoCeilingTurn);
-        Projectiles = new EnemyProjectileEngine(Room, Presentation, EffectActors, Earthquake, Audio);
+        Projectiles = new EnemyProjectileEngine(Room, Presentation, EffectActors, Earthquake, Audio, new EnemyProjectilePlaces());
         Terrain = new EnemyTerrain(dependencies.BreakableTerrain);
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, Lifecycle, compatibility.PowerBombRadius, Audio);
         Collision = new EnemyCollision(new EnemyCollisionDependencies { Lifecycle = Lifecycle, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, Projectiles = Projectiles, EffectActors = EffectActors, Places = Places, PowerBombRadius = compatibility.PowerBombRadius });

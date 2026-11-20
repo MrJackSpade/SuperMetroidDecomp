@@ -311,7 +311,7 @@ internal sealed class ProjectileMotion
         link.Install(SamusShotBehaviors.SuperMissileLink,
             new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
-        ownerState.LinkPlace = link.Place;
+        ownerState.LinkChainPosition = link.Place;
         _pool.ShotCount.CountShot();
     }
 
@@ -335,7 +335,7 @@ internal sealed class ProjectileMotion
         SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
     {
-        if (!ownerState.Ignition.HasIgnited || ownerState.LinkPlace is not { } linkPlace)
+        if (!ownerState.Ignition.HasIgnited || ownerState.LinkChainPosition is not { } linkPlace)
             return;
         SamusProjectile link = _pool.Shots[linkPlace];
         if (!link.IsActive)

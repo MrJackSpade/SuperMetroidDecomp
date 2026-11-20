@@ -44,8 +44,8 @@ internal static class CollectiblePicturesVerification
     {
         var pairs = new CollectibleBlockPairs();
         CollectibleBlockPairs.Pair[] taken = [.. Enumerable.Range(0, Items.Length).Select(_ => pairs.Take())];
-        AssertTrue(taken.SequenceEqual([CollectibleBlockPairs.Pair.First, CollectibleBlockPairs.Pair.Second,
-                CollectibleBlockPairs.Pair.Third, CollectibleBlockPairs.Pair.Fourth, CollectibleBlockPairs.Pair.First]),
+        AssertTrue(taken.SequenceEqual([CollectibleBlockPairs.Pair.Solid, CollectibleBlockPairs.Pair.FirstDoor,
+                CollectibleBlockPairs.Pair.SecondDoor, CollectibleBlockPairs.Pair.ThirdDoor, CollectibleBlockPairs.Pair.Solid]),
             "collectibles take the four block pairs in turn, the fifth taking the first again");
 
         var bus = new TestAddressSpace();

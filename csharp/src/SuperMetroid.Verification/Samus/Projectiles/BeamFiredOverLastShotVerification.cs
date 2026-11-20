@@ -273,7 +273,7 @@ internal static class BeamFiredOverLastShotVerification
         state.Ignite(ignition is SamusMissileIgnition.PendingAfterReflection
             ? SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed
             : SamusProjectileMotionDefinitions.MissileIgnitionSpeed);
-        state.LinkPlace = ignitedLinkPlace;
+        state.LinkChainPosition = ignitedLinkPlace;
         missile.Install(SamusShotBehaviors.SuperMissile, state);
         return missile;
     }

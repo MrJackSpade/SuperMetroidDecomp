@@ -327,19 +327,16 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // the projectile pool selects.
         balloon.Place.Health = 0;
         balloon.Place.Presence = balloon.Place.Presence.With(EnemyPresence.Deleted);
-        int? lastSpikePlace = SpawnPowampSpikeBurst(body, body.Shading);
-        _deathsAndDrops.StartGenericEnemyDeath(body, ExplosionAfterBurst(lastSpikePlace), samus);
+        SpawnPowampSpikeBurst(body, body.Shading);
+        _deathsAndDrops.StartGenericEnemyDeath(body, ExplosionAfterBurst(), samus);
     }
 
     /// <summary>
-    /// The explosion a Powamp shot dead dies in after a burst whose last spike took pool place
-    /// <paramref name="lastSpikePlace"/>, or whose spikes found the pool full when it is null: the explosion twice that
-    /// place names (<see cref="LeftoverNumberDeathExplosion{TExplosion}"/>), so the first three places give the small, normal and big
-    /// explosions and any later place, or a full pool, which leaves no explosion's number, the small one.
+    /// The explosion a Powamp shot dead dies in after its burst: the one the place its last spike took names, or the small
+    /// one when its spikes found the pool full (<see cref="LeftoverNumberDeathExplosion{TExplosion}.LeftByLatestSpawn"/>).
     /// </summary>
-    /// <param name="lastSpikePlace">The zero-based pool place of the burst's last spike, or null when the pool was full.</param>
-    private static EnemyDeathExplosion ExplosionAfterBurst(int? lastSpikePlace) =>
-        EnemyDeathExplosionDefinitions.LeftoverNumbered.LeftByProjectilePlace(lastSpikePlace);
+    private EnemyDeathExplosion ExplosionAfterBurst() =>
+        EnemyDeathExplosionDefinitions.LeftoverNumbered.LeftByLatestSpawn(_projectiles.Places);
 
     /// <summary>Finishes a touch on a Powamp's body: when it kills the Powamp, its balloon goes and its spikes burst out.</summary>
     private void ResolvePowampTouch(RoomEnemyPlace body, SamusState samus, PseudoScrewCharge pseudoScrew)
@@ -563,22 +560,20 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!PlacementRefusesContact(context.Place))
             ResolvePowampTouch(context.Place, context.Samus, context.PseudoScrew);
     }
-    /// <summary>Fires the Powamp's spikes in eight directions, drawn in <paramref name="look"/>.</summary>
+    /// <summary>
+    /// Fires the Powamp's spikes in eight directions, drawn in <paramref name="look"/>, until the pool is full; the latest
+    /// spawn's place selects a shot Powamp's explosion (<see cref="ExplosionAfterBurst"/>).
+    /// </summary>
     /// <param name="body">The Powamp firing them.</param>
     /// <param name="look">The colours the spikes are drawn in.</param>
-    /// <returns>
-    /// The projectile pool place of the last spike the burst fired, which selects a shot Powamp's explosion
-    /// (<see cref="ExplosionAfterBurst"/>), or null when the pool was full before all eight had fired.
-    /// </returns>
-    private int? SpawnPowampSpikeBurst(RoomEnemyPlace body, PictureShading look)
+    private void SpawnPowampSpikeBurst(RoomEnemyPlace body, PictureShading look)
     {
-        int? lastSpikePlace = null;
         // The spikes fire in their authored order, each taking the last free enemy-projectile place afresh.
         foreach (CompassDirection direction in PowampMotionDefinitions.SpikeFiringOrder)
         {
             EnemyProjectile? spike = _projectiles.AllocateEnemyProjectile();
             if (spike is null)
-                return null;
+                return;
 
             // The spike starts as its definition has it, with its animation, size and damage, still, at the Powamp.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
@@ -590,9 +585,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
             spike.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
             Spike.States.Start(spike, new PowampSpikeState(direction));
-            lastSpikePlace = spike.Place;
         }
-        return lastSpikePlace;
     }
 
     /// <summary>Flies the Powamp spike for one update.</summary>

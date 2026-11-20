@@ -13,14 +13,13 @@ using SuperMetroid.Core.Enemies.Deaths;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The enemy-projectile engine: the room's enemy-projectile places (<see cref="PlaceCount"/>), spawning a fresh projectile into a free
+/// The enemy-projectile engine: the room's enemy-projectile places (<see cref="EnemyProjectilePlaces"/>), spawning a fresh projectile into a free
 /// place and its definition setup, the per-frame pass (motions, then each animation), the animation runner,
 /// both draw-priority passes and the Samus collision passes. Each projectile runs through the behaviour its spawner bound
 /// to it (<see cref="EnemyProjectileBehavior"/>, #1760); the engine names no species.
 /// <para>
-/// The places are ordered, and gameplay reads the order: spawns take the free place searched from the last down, and
-/// every pass (movement and animations, collisions, drawing) runs from the last place down, so a projectile spawned below
-/// the one being run runs later in the same pass and one spawned above it waits for the next.
+/// The places are ordered, and gameplay reads the order: the compatibility service <see cref="EnemyProjectilePlaces"/>
+/// holds their number and the order spawns search them and every pass runs them.
 /// </para>
 /// </summary>
 [RoomLifetime]
@@ -56,27 +55,29 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Queues species projectile sounds under queue limits.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Connects the room's enemy projectiles to room sprites, earthquakes and audio.</summary>
+    /// <summary>Connects the room's enemy projectiles to their places, room sprites, earthquakes and audio.</summary>
     internal EnemyProjectileEngine(EnemyRoomBinding room, EnemyPresentation presentation, RoomEffectActors effectActors,
-        RoomEarthquake earthquake, EnemyAudioQueue audio)
+        RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyProjectilePlaces places)
     {
         _room = room;
         _presentation = presentation;
         _effectActors = effectActors;
         _earthquake = earthquake;
         _audio = audio;
+        Places = Ensure.NotNull(places);
     }
-    /// <summary>The number of enemy-projectile places.</summary>
-    internal const int PlaceCount = 18;
+
+    /// <summary>The room's enemy-projectile places, the order spawns search them and passes run them, and what the latest spawn took.</summary>
+    internal EnemyProjectilePlaces Places { get; }
 
     /// <summary>
     /// Each place's latest projectile of this room, live or gone, or null while the room has spawned none into it: the place
     /// is free while it holds none, or its projectile is gone or has freed it.
     /// </summary>
-    private readonly EnemyProjectile?[] _places = new EnemyProjectile?[PlaceCount];
+    private readonly EnemyProjectile?[] _places = new EnemyProjectile?[EnemyProjectilePlaces.Capacity];
 
     /// <summary>What each new projectile starts from: what its place's previous projectile left there, in this room or the room before.</summary>
-    private readonly EnemyProjectilePlaceLeftovers _leftovers = new(PlaceCount);
+    private readonly EnemyProjectilePlaceLeftovers _leftovers = new(EnemyProjectilePlaces.Capacity);
 
     /// <summary>The latest projectile of each place the room has spawned into, live or gone, in place order.</summary>
     public IEnumerable<EnemyProjectile> EnemyProjectiles => _places.OfType<EnemyProjectile>();
@@ -86,7 +87,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>The latest projectile of <paramref name="place"/>, live or gone, or null while the room has spawned none into it.</summary>
     /// <param name="place">The zero-based enemy-projectile place, zero for the last place spawns search.</param>
-    public EnemyProjectile? LatestInPlace(int place) => _places[Ensure.BetweenInclusive(0, PlaceCount - 1, place)];
+    public EnemyProjectile? LatestInPlace(int place) => _places[Ensure.BetweenInclusive(0, EnemyProjectilePlaces.Capacity - 1, place)];
 
     /// <summary>
     /// The latest projectile of the place spawns search last, live or gone, or null while the room has spawned none into it:
@@ -127,9 +128,7 @@ internal sealed class EnemyProjectileEngine
         Ensure.NotNull(projectiles);
         Ensure.NotNull(samusBombs);
 
-        for (int enemyProjectileIndex = _places.Length - 1;
-             enemyProjectileIndex >= 0;
-             enemyProjectileIndex--)
+        foreach (int enemyProjectileIndex in Places.InRunOrder)
         {
             if (_places[enemyProjectileIndex] is not { IsActive: true } enemyProjectile ||
                 !enemyProjectile.BlocksSamusProjectiles ||
@@ -197,7 +196,7 @@ internal sealed class EnemyProjectileEngine
         // snapshot. The distinction is observable whenever a motion or animation cue spawns another projectile:
         // spawns search from the last place down, so one spawned below the place being run is reached later in THIS
         // pass, and one spawned above it waits for the next.
-        for (int place = _places.Length - 1; place >= 0; place--)
+        foreach (int place in Places.InRunOrder)
         {
             if (_places[place] is not { IsActive: true } projectile)
                 continue;
@@ -228,7 +227,7 @@ internal sealed class EnemyProjectileEngine
             return;
 
         KnockbackHorizontalDirection? finalKnockbackXDirection = null;
-        for (int index = _places.Length - 1; index >= 0; index--)
+        foreach (int index in Places.InRunOrder)
         {
             if (_places[index] is { IsActive: true } projectile)
             {
@@ -301,7 +300,7 @@ internal sealed class EnemyProjectileEngine
         bool timeIsFrozen)
     {
         Offset16<RoomPixels> shake = _earthquake.GetEnemyProjectileShake(timeIsFrozen);
-        for (int place = _places.Length - 1; place >= 0; place--)
+        foreach (int place in Places.InRunOrder)
         {
             if (_places[place] is not { IsActive: true } projectile ||
                 BehaviorOf(projectile).IsHidden(projectile) ||
@@ -326,12 +325,16 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     internal EnemyProjectile? AllocateEnemyProjectile()
     {
-        for (int place = _places.Length - 1; place >= 0; place--)
+        foreach (int place in Places.InRunOrder)
         {
             EnemyProjectile? previous = _places[place];
             if (previous is not { IsActive: true })
+            {
+                Places.RecordSpawn(place);
                 return _places[place] = new EnemyProjectile(place, _leftovers.StartOf(place, previous?.LeftInPlace));
+            }
         }
+        Places.RecordSpawn(null);
         return null;
     }
 

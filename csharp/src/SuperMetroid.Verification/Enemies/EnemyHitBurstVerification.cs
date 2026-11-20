@@ -152,10 +152,10 @@ internal static class EnemyHitBurstVerification
         (SamusProjectileSystem shots, SamusBombProjectileSystem bombs) = ShotAt(SamusBeamCombination.Power);
         enemies.Collision.ResolveOrdinaryProjectileHit(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus: RoomEnemyFrameFixtures.StandaloneSamus(), place, Position16<RoomPixels>.Zero);
         RoomEffectActor burst = Bursts(enemies).Single();
-        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1, enemies.EffectActors.PlaceOf(burst), "the burst takes the highest place");
+        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1, enemies.EffectActors.PlaceOf(burst)?.Number, "the burst takes the highest place");
 
         RoomEffectActor dud = SpawnDud(enemies);
-        int? dudPlace = enemies.EffectActors.PlaceOf(dud);
+        int? dudPlace = enemies.EffectActors.PlaceOf(dud)?.Number;
         AssertEqual<int?>(EffectActorPlaces.PlaceCount - 2, dudPlace, "a dud flash after the burst takes the next place down");
         KraidPassBounds bounds = KraidPassBounds.Placed(left: 0, top: 0, bottom: 0);
         bounds.LeaveAfterDud(dudPlace, Place);
@@ -183,7 +183,7 @@ internal static class EnemyHitBurstVerification
             enemies.EffectActors.StepRoomEffectActors();
         AssertTrue(!burst.IsActive, "the burst has ended after its eight updates");
         RoomEffectActor next = SpawnDud(enemies);
-        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1, enemies.EffectActors.PlaceOf(next), "the ended burst's place is the next one taken");
+        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1, enemies.EffectActors.PlaceOf(next)?.Number, "the ended burst's place is the next one taken");
         Console.WriteLine("  Hit burst places: the burst takes a place before a later dud, frees it as it ends, and its draw is a Puyo-visible sprite-object draw.");
     }
 
@@ -287,7 +287,7 @@ internal static class EnemyHitBurstVerification
     {
         AssertEqual(Place, burst.Position.Whole, $"{kind}: the burst lies at the enemy's position");
         AssertEqual(default(SpriteGraphics), burst.Graphics, $"{kind}: the burst draws with the room's graphics");
-        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1, enemies.EffectActors.PlaceOf(burst), $"{kind}: the burst takes the highest free place");
+        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1, enemies.EffectActors.PlaceOf(burst)?.Number, $"{kind}: the burst takes the highest free place");
         for (int update = 0; update < BurstFrames.Length; update++)
         {
             AssertTrue(burst.IsActive, $"{kind}: the burst shows on update {update}");

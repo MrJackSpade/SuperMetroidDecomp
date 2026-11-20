@@ -65,7 +65,7 @@ internal static class StraddledTerrainVerification
                 ?? throw new InvalidOperationException($"The {block}'s frame writes no pair block.");
             AssertEqual(RoomBlockAppearance.Of(block), written.Appearance, $"The {block}'s frame writes the pair block");
             RoomTerrainBlock stored = RoomLevelWordCodec.Decode(RoomLevelWordEncoder.Encode(written));
-            RoomCollisionType expectedCollision = block.Pair == CollectibleBlockPairs.Pair.First
+            RoomCollisionType expectedCollision = block.Pair == CollectibleBlockPairs.Pair.Solid
                 ? RoomCollisionType.SolidBlock : RoomCollisionType.DoorBlock;
             for (int value = 0; value <= ushort.MaxValue; value++)
             {

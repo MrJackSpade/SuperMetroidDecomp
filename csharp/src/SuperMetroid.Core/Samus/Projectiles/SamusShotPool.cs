@@ -6,18 +6,12 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// projectile holds; the projectile update and drawing run in update order, from the highest place down, and enemy
 /// collision from the lowest up. With every place held a beam takes the last place over the shot holding it
 /// (<see cref="PlaceForBeam"/>). Gameplay names some places: a special attack's particles replace the shots in the first
-/// four (<see cref="SpecialAttackReplacesFirstShots"/>), each playing its part (<see cref="SpecialAttackParticleDefinitions"/>); the crash echoes take the last two (<see cref="FirstEchoPlace"/>, <see cref="SecondEchoPlace"/>); an unlinked Super Missile names
+/// four (<see cref="SpecialAttackReplacesFirstShots"/>), each playing its part (<see cref="SpecialAttackParticleDefinitions"/>); the crash echoes take the last two (<see cref="ShinesparkCrashEchoPlaces"/>); an unlinked Super Missile names
 /// the first (<see cref="UnlinkedSuperMissileLink"/>); and some enemies react to the first place's projectile or to the
 /// highest one.
 /// </remarks>
 internal sealed class SamusShotPool
 {
-    /// <summary>The place a shinespark crash's first echo takes: the one before the last.</summary>
-    internal const int FirstEchoPlace = SamusProjectileSystem.PlaceCount - 2;
-
-    /// <summary>The place a shinespark crash's second echo takes: the last.</summary>
-    internal const int SecondEchoPlace = SamusProjectileSystem.PlaceCount - 1;
-
     /// <summary>Each place's projectile, live or the last one that ended there; occupancy does not replace <see cref="ShotCount"/>.</summary>
     private readonly SamusProjectile[] _places =
         Enumerable.Range(0, SamusProjectileSystem.PlaceCount).Select(place => new SamusProjectile(place)).ToArray();

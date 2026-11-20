@@ -52,11 +52,11 @@ internal static class GoldNinjaDeathDropsVerification
         AssertEqual(0, pirate.Health, "the shot kills the Gold Ninja Pirate");
 
         var projectiles = runtime.Enemies.Projectiles;
-        int explosion = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount - 1;
+        int explosion = SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity - 1;
         while (explosion >= 0 && projectiles.LatestInPlace(explosion)?.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
             explosion--;
         AssertTrue(explosion >= 0, "EnemyDeath spawns the death explosion");
-        for (int slot = explosion + 1; slot < SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount; slot++)
+        for (int slot = explosion + 1; slot < SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity; slot++)
             AssertTrue(projectiles.LatestInPlace(slot)?.Kind != RoomEnemyProjectileKind.EnemyDeathPickup,
                 $"no drop sits above the explosion (slot {slot})");
         AssertEqual(5, Enumerable.Range(0, explosion).Count(place => projectiles.LatestInPlace(place)?.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),

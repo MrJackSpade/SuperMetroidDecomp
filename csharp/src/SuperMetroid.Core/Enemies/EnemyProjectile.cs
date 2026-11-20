@@ -19,7 +19,7 @@ public sealed class EnemyProjectile
     /// <param name="left">What the place's previous projectile left there.</param>
     internal EnemyProjectile(int place, EnemyProjectileHandOver left)
     {
-        Place = Ensure.BetweenInclusive(0, EnemyProjectileEngine.PlaceCount - 1, place);
+        Place = Ensure.BetweenInclusive(0, EnemyProjectilePlaces.Capacity - 1, place);
         Position = FixedPosition<RoomPixels>.FromWhole(left.Position);
         Velocity = left.Velocity;
         Vacate();

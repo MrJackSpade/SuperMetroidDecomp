@@ -48,9 +48,9 @@ internal static class RoomObjectCollectibleDrawDefinitions
     internal static readonly IReadOnlyDictionary<CollectibleBlockPairs.Pair, CollectibleLookDraws> BlockPairLooks =
         new Dictionary<CollectibleBlockPairs.Pair, CollectibleLookDraws>
         {
-            [CollectibleBlockPairs.Pair.First] = new(Primary: D.FirstBlockPairPrimaryLook, Alternate: D.FirstBlockPairAlternateLook),
-            [CollectibleBlockPairs.Pair.Second] = new(Primary: D.SecondBlockPairPrimaryLook, Alternate: D.SecondBlockPairAlternateLook),
-            [CollectibleBlockPairs.Pair.Third] = new(Primary: D.ThirdBlockPairPrimaryLook, Alternate: D.ThirdBlockPairAlternateLook),
-            [CollectibleBlockPairs.Pair.Fourth] = new(Primary: D.FourthBlockPairPrimaryLook, Alternate: D.FourthBlockPairAlternateLook),
+            [CollectibleBlockPairs.Pair.Solid] = new(Primary: D.SolidPairPrimaryLook, Alternate: D.SolidPairAlternateLook),
+            [CollectibleBlockPairs.Pair.FirstDoor] = new(Primary: D.FirstDoorPairPrimaryLook, Alternate: D.FirstDoorPairAlternateLook),
+            [CollectibleBlockPairs.Pair.SecondDoor] = new(Primary: D.SecondDoorPairPrimaryLook, Alternate: D.SecondDoorPairAlternateLook),
+            [CollectibleBlockPairs.Pair.ThirdDoor] = new(Primary: D.ThirdDoorPairPrimaryLook, Alternate: D.ThirdDoorPairAlternateLook),
         };
 }

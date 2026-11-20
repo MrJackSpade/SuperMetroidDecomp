@@ -14,6 +14,6 @@ public static class KraidBackgroundArtworkFormat
     public const string RoomBackgroundFileName = "kraid-room-background.png";
 
     /// <summary>Import-data JSON filename of the 32-by-11 head tilemap the import names by <paramref name="importKey"/> (<see cref="KraidHeadTilemapFormat.ImportKey"/>).</summary>
-    public static string HeadFileName(int importKey) => $"kraid-head-{importKey}.json";
+    internal static string HeadFileName(string importKey) => $"kraid-head-{importKey}.json";
 
 }

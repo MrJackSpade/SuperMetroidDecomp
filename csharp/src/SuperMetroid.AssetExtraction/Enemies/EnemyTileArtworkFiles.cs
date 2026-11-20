@@ -232,7 +232,7 @@ public static class EnemyTileArtworkFiles
             upperKraid);
         File.WriteAllBytes(Path.Combine(importData, KraidBackgroundArtworkFormat.LowerFileName),
             lowerKraid);
-        var kraidHeadHashes = new Dictionary<int, string>();
+        var kraidHeadHashes = new Dictionary<string, string>();
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
         {
             byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -649,7 +649,7 @@ public static class EnemyTileArtworkFiles
         string MotherBrainEscapeTextSha256,
         Dictionary<string, string> MotherBrainSpecialSpritesSha256,
         string KraidUpperSha256, string KraidLowerSha256,
-        Dictionary<int, string> KraidHeadsSha256,
+        Dictionary<string, string> KraidHeadsSha256,
         string KraidRoomBackgroundSha256,
         string KraidColorsSha256,
         string KraidEyeColoursSha256,

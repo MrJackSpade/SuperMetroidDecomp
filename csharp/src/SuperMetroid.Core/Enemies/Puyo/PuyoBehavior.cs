@@ -221,7 +221,9 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // A normal landing returns a giant hop to the small hop. A wall or ceiling collision that turns the Puyo back
-        // leaves it dropping instead, its hop and its airborne behaviour the drop's.
+        // leaves it dropping instead, its hop and its airborne behaviour the drop's. The game decides by the turn-back
+        // request, not by the terrain the hop met (#2560): a ceiling strike that does not turn the Puyo back grounds the
+        // giant hop as a landing does, so the request is what the step reads.
         if (state.TurnBack is null)
         {
             state.HopType = PuyoHopType.NormalSmall;

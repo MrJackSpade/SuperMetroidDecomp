@@ -29,11 +29,14 @@ internal sealed class AttractDemoSchedule
     /// </summary>
     private UpdateCountdown? load;
 
-    /// <summary>Whether live controller input cancelled the scene.</summary>
-    internal bool Cancelled { get; private set; }
+    /// <summary>How the scene last begun ended: played to its end, or cancelled by a press (#2560).</summary>
+    private AttractPlaybackEnd end;
 
-    /// <summary>Whether another scene follows before returning to the title.</summary>
-    internal bool HasNextScene { get; private set; }
+    /// <summary>
+    /// Where the attract mode goes after the scene (#2560): the set's next scene, the title at its title screen after a
+    /// cancelled scene, or the title from its beginning once the set has played through.
+    /// </summary>
+    internal AttractDemoRoute RouteAfterScene { get; private set; }
 
     /// <summary>Whether the next scene's runtime has yet to be created.</summary>
     internal bool AwaitsScene => load is null;
@@ -70,7 +73,7 @@ internal sealed class AttractDemoSchedule
         Playback = UpdateCountdown.For(scene.Duration);
         ScenesBegun++;
         Hold = UpdateCountdown.Ended();
-        Cancelled = false;
+        end = AttractPlaybackEnd.Completed;
         load = UpdateCountdown.Lasting(GameLoadingDefinitions.EnemySetupWaits);
     }
 
@@ -89,7 +92,7 @@ internal sealed class AttractDemoSchedule
     }
 
     /// <summary>Records how the scene ended.</summary>
-    internal void Finish(bool cancelled) => Cancelled = cancelled;
+    internal void Finish(AttractPlaybackEnd ended) => end = ended;
 
     /// <summary>
     /// After a scene: an uncancelled demo continues with the set's next scene, and once the set is exhausted the set that
@@ -99,14 +102,19 @@ internal sealed class AttractDemoSchedule
     internal void AdvanceAfterScene(IReadOnlyList<AttractDemoSet> playlist)
     {
         Ensure.NotNull(playlist);
-        HasNextScene = false;
-        if (Cancelled)
+        if (end == AttractPlaybackEnd.Cancelled)
+        {
+            RouteAfterScene = AttractDemoRoute.TitleAtItsScreen;
             return;
-        HasNextScene = NextScene is not null;
-        if (HasNextScene)
+        }
+        if (NextScene is not null)
+        {
+            RouteAfterScene = AttractDemoRoute.NextScene;
             return;
+        }
         Set = SetAfter(playlist, Set);
         ScenesBegun = 0;
+        RouteAfterScene = AttractDemoRoute.TitleFromBeginning;
     }
 
     /// <summary>The next scene of the set loads afresh.</summary>

@@ -83,7 +83,9 @@ public sealed class BabyMetroidEnemyState
 
     /// <summary>
     /// Whether Samus's touch, shots and power bombs reach the Baby Metroid's private reactions: set while
-    /// it hovers near Samus or follows her after a release, cleared while it is dormant or latched on.
+    /// it hovers near Samus or follows her after a release, cleared while it is dormant or latched on. It is a fact of the
+    /// Baby's history, not of its action alone (#2560): a Baby dormant after it followed Samus out still reacts, one dormant
+    /// before its entrance does not, so no one action names it.
     /// </summary>
     public bool ReactsToSamus { get; internal set; }
 }

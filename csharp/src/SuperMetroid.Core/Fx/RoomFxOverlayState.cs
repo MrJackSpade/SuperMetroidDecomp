@@ -767,17 +767,18 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Adds the tide's displacement to the base liquid surface, giving the surface's room line, negative once the tide
-    /// carries it above the room's top; a liquid with no surface has none, and no room effect gives one a tide.
+    /// carries it above the room's top; a liquid with no surface has none. Only a liquid with a surface has a tide, which
+    /// each room effect's definition checks once (<see cref="RoomEffectDefinition.LiquidStartLevel"/>), so a liquid with no
+    /// surface has no displacement to add.
     /// </summary>
-    /// <exception cref="InvalidOperationException">A liquid with no surface has a tide.</exception>
-    private int? ComputeTidalYPosition()
-    {
-        if (BaseY is { } baseY)
-            return RoomLineOf(baseY.MovedBy(TideOffset));
-        return TideOffset.IsZero
-            ? null
-            : throw new InvalidOperationException("A room liquid with no surface has a tide.");
-    }
+    private int? ComputeTidalYPosition() => BaseY is { } baseY ? RoomLineOf(baseY.MovedBy(TideOffset)) : null;
+
+    /// <summary>
+    /// The line the room's lava or acid lies at for what rises from it: the live surface of a room whose liquid is lava or
+    /// acid, and otherwise, as for lava or acid with no surface, the line a missing surface lies at
+    /// (<see cref="AbsentLiquidSurfaceDepth"/>).
+    /// </summary>
+    internal int LavaAcidLine => AbsentLiquidSurfaceDepth.Of(Liquid is RoomLavaOrAcid ? Surface : null);
 
     /// <summary>
     /// Ends the liquid's wave: no later update's liquid wave moves the liquid, queues its ambient sound or

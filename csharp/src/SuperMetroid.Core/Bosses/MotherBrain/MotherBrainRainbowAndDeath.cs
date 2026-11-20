@@ -79,7 +79,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 ? state.Body.Presence.With(EnemyPresence.Hidden)
                 : state.Body.Presence.Without(EnemyPresence.Hidden);
             if (step.DeathFadeImage is { } deathFade)
-                state.Colours.ShowDeathFade(deathFade);
+                state.Colours.ShowFade(deathFade);
         }
         if (step.Starts(MotherBrainStepEffect.BodyCleared))
         {
@@ -259,12 +259,12 @@ internal sealed class MotherBrainRainbowAndDeath
         // Her revival shows over the drain's last grey step, which it leaves showing in two of her colours.
         if (step.DrainColourImage is { } drain)
         {
-            state.Colours.ShowDrain(drain);
+            state.Colours.ShowFade(drain);
             return;
         }
         if (step.RevivalColourImage is { } revival)
         {
-            state.Colours.ShowRevival(revival);
+            state.Colours.ShowFade(revival);
             return;
         }
         if (step.Starts(MotherBrainStepEffect.BeamEnded))

@@ -609,12 +609,9 @@ internal sealed class EnemyDeathsAndDrops
             RequestDeathSound(EnemySoundEffectDefinitions.DeathContactKilledSound);
             return null;
         },
-        [EnemyDeathAndDropCueKind.BecomePickup] = (projectile, samus) =>
-        {
-            if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
-                throw new InvalidDataException($"Enemy projectile {projectile.Kind} reached the become-pickup cue, which only a death explosion runs.");
-            return ConvertEnemyDeathExplosionToPickup(projectile, samus);
-        },
+        // The explosions' animations raise the cue, which reads the explosion its place last held, as the game's
+        // instruction reads the place's explosion variables.
+        [EnemyDeathAndDropCueKind.BecomePickup] = (projectile, samus) => ConvertEnemyDeathExplosionToPickup(projectile, samus),
         [EnemyDeathAndDropCueKind.RespawnEnemy] = (projectile, samus) =>
         {
             // Only a death explosion, or the pickup it became, came from a killed enemy: a drop spawned directly came

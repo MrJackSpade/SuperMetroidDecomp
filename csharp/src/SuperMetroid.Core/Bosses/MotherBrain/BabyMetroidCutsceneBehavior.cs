@@ -205,13 +205,12 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             ShowBabyMetroidFade(colours, image);
 
         if (step.RecoveryLightsImage is { } lights)
-            colours.ShowLightsRecovering(lights);
+            colours.ShowFade(lights);
     }
 
     /// <summary>Shows <paramref name="image"/> of the Baby's fade to black from its installed colours.</summary>
-    /// <exception cref="ArgumentException">The image is not one of the Baby's fade's.</exception>
     private static void ShowBabyMetroidFade(MotherBrainColours colours, MotherBrainFadeImage image) =>
-        Ensure.NotNull(colours).ShowBabyFade(image);
+        Ensure.NotNull(colours).ShowFade(image);
 
     /// <summary>Runs BabyMetroidCutscene's main AI.</summary>
     internal void RunBabyMetroidCutsceneMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

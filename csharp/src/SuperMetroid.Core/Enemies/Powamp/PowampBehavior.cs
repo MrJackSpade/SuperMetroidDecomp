@@ -67,7 +67,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             Spawn = place.Position.Whole,
         };
         place.SetSpeciesState(balloon);
-        StartPowampBalloonAnimation(place, balloon, PowampSegment.BalloonDeflated);
+        StartPowampBalloonAnimation(place, balloon, PowampMotionDefinitions.Deflated);
     }
 
     /// <summary>Initializes a Powamp's body with its own state (#1845), resting, joined to the balloon its room lists before it.</summary>
@@ -114,7 +114,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (TickPowampTimer(state))
         {
-            StartPowampBalloonAnimation(balloon.Place, balloon.State, PowampSegment.BalloonInflatingFromDeflated);
+            StartPowampBalloonAnimation(balloon.Place, balloon.State, PowampMotionDefinitions.InflatingFromDeflated);
             state.Action = PowampAction.Inflating;
             state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.InflationDuration);
         }
@@ -279,7 +279,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             // it has no pose to restart from.
             if (inflation.PosesShown == 0)
                 throw new InvalidDataException("Powamp death saw a sinking balloon that had shown none of its poses.");
-            if (PowampMotionDefinitions.SunkBalloonRestarts.TryGetValue(inflation.Pose, out PowampSegment restart))
+            if (PowampMotionDefinitions.SunkBalloonRestarts.TryGetValue(inflation.Pose, out PowampBalloonStart? restart))
                 StartPowampBalloonAnimation(balloon.Place, balloon.State, restart);
         }
 
@@ -406,7 +406,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Action = PowampAction.Deflating;
         state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.InflationDuration);
-        StartPowampBalloonAnimation(balloon.Place, balloon.State, PowampSegment.BalloonStartSinking);
+        StartPowampBalloonAnimation(balloon.Place, balloon.State, PowampMotionDefinitions.StartSinking);
     }
 
     /// <summary>Counts one update of the body's action off its timer; true on the update it runs out.</summary>
@@ -420,15 +420,13 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyAnimationPlayback.Start(place, PowampAnimations.StartingWith(segment));
 
     /// <summary>
-    /// Restarts the balloon's animation at <paramref name="segment"/> on the next animation pass, and its sequence where
-    /// that animation starts it (#1845).
+    /// Restarts the balloon's animation at <paramref name="start"/>'s segment on the next animation pass, and its sequence
+    /// where that start puts it (#1845).
     /// </summary>
-    private static void StartPowampBalloonAnimation(RoomEnemyPlace balloon, PowampBalloonState state, PowampSegment segment)
+    private static void StartPowampBalloonAnimation(RoomEnemyPlace balloon, PowampBalloonState state, PowampBalloonStart start)
     {
-        state.Playback = StartPowampAnimation(balloon, segment);
-        state.Inflation = PowampMotionDefinitions.BalloonAnimationStarts.TryGetValue(segment, out PowampBalloonInflation start)
-            ? start
-            : throw new InvalidOperationException($"Powamp balloon started body animation {segment}.");
+        state.Playback = StartPowampAnimation(balloon, start.Segment);
+        state.Inflation = start.Inflation;
     }
 
     /// <summary>Checks, as the body is placed, that the enemy listed before it, placed before it, is its balloon half.</summary>

@@ -201,15 +201,16 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         },
     });
 
-    /// <summary>Runs a Rinka's main AI for one update through all four of its actions.</summary>
+    /// <summary>
+    /// Runs a Rinka's main AI for one update through all four of its actions. Every special Rinka has chosen its spawn
+    /// point by then: the door's loading checks, as its scroll finishes, that it reached every place whose setup it
+    /// deferred, and no enemy runs before.
+    /// </summary>
     private void RunRinkaMain(
         RoomEnemyOccupant occupant, RoomEnemyPlace place,
         RinkaEnemyState state,
         SamusState samus)
     {
-        if (_deferredRinkaSpawns.Count != 0)
-            throw new InvalidOperationException(
-                "A Rinka ran before the door loader chose every special Rinka's spawn point.");
         if (IsSpecialRinka(occupant) && _rinkaTerminationFlag)
         {
             ReleaseSpecialRinkaSpawn(state);

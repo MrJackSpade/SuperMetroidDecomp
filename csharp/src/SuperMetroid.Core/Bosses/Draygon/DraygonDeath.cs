@@ -168,21 +168,13 @@ internal sealed class DraygonDeath
     private static FixedVector<RoomPixels> BurialDrift(DraygonBurialEvirDefinition evir) =>
         -EnemyMath.VelocityAlong(evir.Heading, 1);
 
-    /// <summary>Drifts the six burial Evirs, in the order they spawned, by their definitions' headings.</summary>
+    /// <summary>
+    /// Drifts the six burial Evirs, in the order they spawned, by their definitions' headings: each Evir the burial spawned,
+    /// as the burial holds it.
+    /// </summary>
     private static void MoveDraygonDeathEvirs(DraygonEnemyState state)
     {
         foreach (DraygonBurialEvir evir in Ensure.NotNull(state).BurialEvirs)
-        {
-            RoomEffectActor sprite = evir.Sprite;
-            if (!sprite.IsActive || sprite.Kind is not (
-                    RoomEffectActorKind.EvirFacingLeft or
-                    RoomEffectActorKind.EvirFacingRight))
-            {
-                throw new InvalidDataException(
-                    $"Draygon burial movement expected the burial Evir that started at {evir.Definition.Start} to be live.");
-            }
-
-            sprite.Position = sprite.Position.Advance(BurialDrift(evir.Definition));
-        }
+            evir.Sprite.Position = evir.Sprite.Position.Advance(BurialDrift(evir.Definition));
     }
 }

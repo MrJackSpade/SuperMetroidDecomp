@@ -73,6 +73,7 @@ internal sealed class MotherBrainBody
     internal void InitializeMotherBrainBody(RoomEnemyOccupant occupant)
     {
         RoomEnemyPlace body = occupant.Place;
+        _room.Services.MotherBrain.ConfirmGlassLoaded();
         body.AnimationClock.StepOnNextUpdate();
         body.Contact = body.Contact.With(EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus);
         body.Presence = body.Presence.With(EnemyPresence.Hidden);

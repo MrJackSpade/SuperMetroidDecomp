@@ -511,7 +511,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// </summary>
     private bool TrySelectNeighbour(ImmutableArray<PauseUpgradeControl> column, ColumnSearch direction)
     {
-        int selected = column.IndexOf((PauseUpgradeControl)SelectedControl);
+        int selected = PlaceInColumn(column, SelectedControl);
         return TrySelectEquipmentFrom(column, direction == ColumnSearch.Down ? selected + 1 : selected - 1, direction);
     }
 
@@ -624,11 +624,24 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         MoveEquipmentSelectorForPauseEquipmentCategory[SelectedControl.Category](left, right, up, down, beams, suits, boots);
     }
 
+    /// <summary>
+    /// Where <paramref name="control"/> stands in <paramref name="column"/>, the column of its own category: each control
+    /// stands in the column its category names, which the selector's moves search from.
+    /// </summary>
+    private static int PlaceInColumn<TControl>(ImmutableArray<TControl> column, PauseEquipmentControl control)
+        where TControl : PauseEquipmentControl
+    {
+        int place = 0;
+        while (!ReferenceEquals(column[place], control))
+            place++;
+        return place;
+    }
+
     /// <summary>The selected reserve control's neighbour in <paramref name="direction"/>.</summary>
     private PauseReserveControl ReserveNeighbour(ColumnSearch direction)
     {
         ImmutableArray<PauseReserveControl> reserves = PauseEquipmentControls.Reserves;
-        int selected = reserves.IndexOf((PauseReserveControl)SelectedControl);
+        int selected = PlaceInColumn(reserves, SelectedControl);
         return reserves[direction == ColumnSearch.Down ? selected + 1 : selected - 1];
     }
 

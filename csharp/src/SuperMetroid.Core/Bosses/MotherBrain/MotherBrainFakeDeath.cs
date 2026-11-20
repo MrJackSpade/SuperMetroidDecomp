@@ -54,7 +54,7 @@ internal sealed class MotherBrainFakeDeath
         if (state.FakeDeathGreying.Step() is { } image)
         {
             // The fake-death fade greys only her brain; the room stays as it is.
-            state.Colours.ShowFakeDeathToGrey(image);
+            state.Colours.ShowFade(image);
         }
         else if (state.FakeDeathGreying.IsOver)
         {
@@ -307,7 +307,7 @@ internal sealed class MotherBrainFakeDeath
         if (state.FromFakeDeathGrey.Step() is { } image)
         {
             // Only her brain's colours return from grey.
-            state.Colours.ShowFakeDeathFromGrey(image);
+            state.Colours.ShowFade(image);
             return;
         }
         if (!state.FromFakeDeathGrey.IsOver)

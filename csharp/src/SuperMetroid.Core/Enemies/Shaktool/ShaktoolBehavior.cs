@@ -352,23 +352,11 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The seven segments of the chain a segment found when it was placed, <paramref name="anySegment"/> among them, each
-    /// validated as initialized.
+    /// The seven segments of the chain a segment found when it was placed, <paramref name="anySegment"/> among them. Each
+    /// segment's state is read in its place (<see cref="RequireShaktoolState"/>): the chain keeps moving through the rest of
+    /// the update that kills a segment, reaching the killed segment's cleared state.
     /// </summary>
-    private IReadOnlyList<ShaktoolChainSegment> GetShaktoolGroup(RoomEnemyPlace anySegment)
-    {
-        IReadOnlyList<ShaktoolChainSegment> group = ChainOf(anySegment).Segments;
-        foreach (ShaktoolChainSegment segment in group)
-        {
-            // The chain keeps moving through the rest of the update that kills a segment, reaching the killed segment's cleared state.
-            if (segment.Place.FoundOrClearedState<ShaktoolSegmentState>() is null)
-            {
-                throw new InvalidDataException(
-                    $"Shaktool group rooted at place {group[0].Place.Ordinal} is missing its segment at place {segment.Place.Ordinal}.");
-            }
-        }
-        return group;
-    }
+    private IReadOnlyList<ShaktoolChainSegment> GetShaktoolGroup(RoomEnemyPlace anySegment) => ChainOf(anySegment).Segments;
 
     /// <summary>The enemy listed after a linked segment center, which it found when it was placed.</summary>
     private RoomEnemyPlace GetNextShaktoolSegment(RoomEnemyPlace place) =>

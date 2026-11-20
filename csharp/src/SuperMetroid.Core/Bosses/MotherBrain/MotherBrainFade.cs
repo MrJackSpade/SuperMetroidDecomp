@@ -14,9 +14,11 @@ public sealed class MotherBrainFade
     /// <param name="key">The name of its installed shades.</param>
     /// <param name="imageCount">The images it shows, in order.</param>
     /// <param name="imageUpdates">The updates each image shows for before the next, or before the fade is over.</param>
-    internal MotherBrainFade([InstalledKey] string key, int imageCount, int imageUpdates)
+    /// <param name="layer">The colouring of the encounter its images show on.</param>
+    internal MotherBrainFade([InstalledKey] string key, int imageCount, int imageUpdates, MotherBrainFadeLayer layer)
     {
         Key = Ensure.NotNull(key);
+        Layer = layer;
         Images = [.. Enumerable.Range(0, Ensure.BetweenInclusive(1, int.MaxValue, imageCount)).Select(step => new MotherBrainFadeImage(this, step))];
         ImageUpdates = Ensure.BetweenInclusive(1, int.MaxValue, imageUpdates);
         Segments = new(new Dictionary<MotherBrainFadeSegment, AnimationBeat<MotherBrainFadeImage, NoAnimationCue>[]>
@@ -28,6 +30,9 @@ public sealed class MotherBrainFade
 
     /// <summary>The name of its installed shades.</summary>
     public string Key { get; }
+
+    /// <summary>The colouring of the encounter its images show on.</summary>
+    public MotherBrainFadeLayer Layer { get; }
 
     /// <summary>Its images, in the order it shows them.</summary>
     public IReadOnlyList<MotherBrainFadeImage> Images { get; }

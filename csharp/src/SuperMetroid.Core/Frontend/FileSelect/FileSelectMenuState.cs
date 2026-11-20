@@ -335,8 +335,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         }
         if (SelectedItem is FileSelectItem.Copy or FileSelectItem.Clear)
         {
-            if (!HasAnySave)
-                throw new InvalidOperationException("Hidden data-management item became selectable.");
+            // The game opens the page whether or not a save exists.
             QueueCursorSound();
             Phase = SelectedItem == FileSelectItem.Copy ? new FileSelectPhase.FadeOutToCopy() : new FileSelectPhase.FadeOutToClear();
             return;
@@ -378,7 +377,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Starts <paramref name="mode"/> on the first occupied slot and builds its page.</summary>
     private void InitializeDataManagementScreen(FileSelectDataMode mode)
     {
-        submenuSelection = FileSelectItemRows.ForSaveSlot(FindFirstNonemptySlot());
+        submenuSelection = FirstDataManagementSelection();
         operationSourceSlot = SaveSlot.A;
         confirmationSelection = YesNoChoice.Yes;
         if (mode == FileSelectDataMode.Copy)
@@ -586,15 +585,18 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         QueueCursorSound();
     }
 
-    /// <summary>Finds the initial data-management selection and rejects entry with no occupied slot.</summary>
-    private SaveSlot FindFirstNonemptySlot()
+    /// <summary>
+    /// The data-management page's first selection: the first occupied slot's row, or Exit, the row after the slots, when
+    /// every slot is empty, as the game's search runs on past the slots.
+    /// </summary>
+    private FileSelectItem FirstDataManagementSelection()
     {
         foreach (SaveSlot slot in SaveSlots.All)
         {
             if (saveSlots[slot] is not null)
-                return slot;
+                return FileSelectItemRows.ForSaveSlot(slot);
         }
-        throw new InvalidOperationException("Data-management screen requires at least one nonempty save slot.");
+        return FileSelectItem.Exit;
     }
 
     /// <summary>Places the cursor on the active main, slot, or confirmation row at the installed presentation's anchor.</summary>

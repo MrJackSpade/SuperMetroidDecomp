@@ -295,12 +295,9 @@ public static class SamusGrappleSwing
         // A turning swing is never at rest here: a still one returned above.
         int stepDirection = Math.Sign(combined.FractionsOfStep);
 
-        // At the maximum velocity this loop executes at most five times. Keep an
-        // explicit one-turn guard anyway: it documents the cyclic angle domain and turns a
-        // future corrupt state into a diagnostic rather than an infinite loop.
-        for (int angleSteps = 0;
-             lastSafeStep != targetStep && angleSteps < RotationAngle.StepsPerTurn;
-             angleSteps++)
+        // The walk steps the way the swing turns toward its target, which the cyclic angle reaches within one turn; at the
+        // maximum velocity it takes at most five steps.
+        while (lastSafeStep != targetStep)
         {
             TrigonometryAngle candidateStep = lastSafeStep.TurnedBySteps(stepDirection);
             GrappleSwingCollisionResult collision = ProbeSwingingBody(
@@ -338,9 +335,6 @@ public static class SamusGrappleSwing
 
             lastSafeStep = candidateStep;
         }
-
-        if (lastSafeStep != targetStep)
-            throw new InvalidDataException("Grapple angle sweep exceeded one full revolution.");
 
         // No sampled angle collided, so preserve the full fine target, clear the special
         // angle rest, age the kick window, and damp the extra velocity. Every one of

@@ -44,4 +44,13 @@ public sealed record RoomEffectDefinition(
     /// </summary>
     /// <exception cref="ArgumentException">The liquid is not the kind the effect has.</exception>
     public RoomLiquid? Liquid { get; } = RoomLiquid.OfEffect(Type, Liquid);
+
+    /// <summary>
+    /// The line the liquid's surface starts at, or null when the effect's liquid has no surface. Only a liquid with a
+    /// surface rises and falls with a tide, which the definition checks once as it is built.
+    /// </summary>
+    /// <exception cref="ArgumentException">The liquid has a tide but no surface.</exception>
+    public int? LiquidStartLevel { get; } = LiquidStartLevel is null && Liquid is { Tide: not LiquidTide.None }
+        ? throw new ArgumentException("A room liquid with a tide has a surface for it to move.", nameof(LiquidStartLevel))
+        : LiquidStartLevel;
 }

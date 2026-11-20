@@ -87,7 +87,8 @@ internal static class DownwardGateProjectileAnimations
     /// <summary>
     /// The gate's travel, each stage named by the animation that starts it, and the stage each takes the gate on to
     /// (#2284): the moving gate slides down three blocks and stops closed; once woken, the closed gate rises three blocks
-    /// and vanishes. Each block the gate passes, and the wake, takes it on to the next stage; the vanishing gate has none.
+    /// and vanishes. Each block the gate passes, and the wake, takes it on to the next stage. The vanishing gate deletes
+    /// itself as its stage starts, so it goes on to no other: it stays vanishing.
     /// </summary>
     internal static IReadOnlyDictionary<DownwardGateProjectileSegment, DownwardGateProjectileSegment> NextStage { get; } =
         new Dictionary<DownwardGateProjectileSegment, DownwardGateProjectileSegment>
@@ -101,6 +102,7 @@ internal static class DownwardGateProjectileAnimations
             [P.RisenOneBlock] = P.RisenTwoBlocks,
             [P.RisenTwoBlocks] = P.RisenThreeBlocks,
             [P.RisenThreeBlocks] = P.Vanishing,
+            [P.Vanishing] = P.Vanishing,
         };
 
     /// <summary>The stage a moving gate starts at, sliding down.</summary>

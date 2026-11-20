@@ -146,16 +146,13 @@ internal sealed class BlockReactionObjects
 
         // A Speed Booster block lets Samus through unless its reaction refuses her. When every place is held no reaction
         // takes a place, so nothing can refuse her: she passes and the block stays as it is, unbroken.
-        if (_places.IsFull)
-            return true;
-
         bool activeSpeedBooster = samus.IsActivelySpeedBoosting;
         bool activeShinespark = samus.IsShinesparking;
         if (!activeSpeedBooster && !activeShinespark)
-            return false;
+            return _places.IsFull;
 
         if (_places.Spawn() is not { } place)
-            return false;
+            return true;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         place.Block = position;

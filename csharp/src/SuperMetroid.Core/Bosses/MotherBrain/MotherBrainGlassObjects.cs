@@ -48,14 +48,19 @@ internal sealed class MotherBrainGlassObjects
     /// </summary>
     public void CountHeadShotOnGlass()
     {
-        if (!MotherBrainGlassWasLoaded)
-        {
-            throw new InvalidOperationException(
-                "Mother Brain head damage requires Mother Brain's glass room object to be loaded.");
-        }
-
         if (TryGetMotherBrainGlass(out MotherBrainGlassObject? glass))
             glass.CountHeadShot();
+    }
+
+    /// <summary>
+    /// Confirms, as Mother Brain's body sets up, that her room set her glass up, which her head shots count on: the room's
+    /// objects are set up before its enemies, so her room's data is checked once, as she spawns.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Her room set up no glass.</exception>
+    public void ConfirmGlassLoaded()
+    {
+        if (!MotherBrainGlassWasLoaded)
+            throw new InvalidDataException("Mother Brain's room sets her glass up before she spawns; her head shots count on it.");
     }
 
     /// <summary>Whether Mother Brain, the area boss, is dead.</summary>

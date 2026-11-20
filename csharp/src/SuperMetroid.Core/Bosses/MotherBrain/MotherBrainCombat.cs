@@ -166,14 +166,8 @@ internal sealed class MotherBrainCombat
         }
         else
         {
-            MotherBrainShotReactionResult reaction =
-                MotherBrainShotReaction.Resolve(state.Form, reactionProjectile, state.WalkCounter);
-            if (reaction.HyperBeamRecoil)
-            {
-                throw new InvalidOperationException(
-                    "Mother Brain took a third-phase Hyper Beam recoil without her third-phase sequence.");
-            }
-            state.WalkCounter = reaction.WalkCredit;
+            // Her third phase begins only within her late fight's sequence, so without it she is in an earlier form.
+            state.WalkCounter = MotherBrainShotReaction.BeforeThirdPhase(reactionProjectile, state.WalkCounter);
         }
 
         if (state.Form == MotherBrainForm.FakeDeath)

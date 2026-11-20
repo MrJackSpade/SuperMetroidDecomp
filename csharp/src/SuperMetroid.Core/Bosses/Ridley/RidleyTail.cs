@@ -43,20 +43,7 @@ internal sealed class RidleyTail
         SamusState samus,
         SamusProjectileSystem samusProjectiles)
     {
-        if (state.Tail.Action != RidleyTailAction.None)
-        {
-            state.Tail.MinimumClockwiseAngle = RidleyTailReach.MinimumClockwise(state.Flight.FacingDirection);
-            state.Tail.MaximumCounterClockwiseAngle = RidleyTailReach.MaximumCounterClockwise(state.Flight.FacingDirection);
-
-            if (state.Tail.Action == RidleyTailAction.Neutral)
-            {
-                HandleRidleyNeutralTailControl(place, state, samus, samusProjectiles);
-                foreach (RidleyTailLink link in state.Tail.Links)
-                    TickRidleyTailLink(state.Tail, link);
-            }
-            else
-                TickRidleyPogoTail(place, state, samus);
-        }
+        state.Tail.Action.Steer(this, place, state, samus, samusProjectiles);
 
         // The tail composition always composes positions, but only the selected tail action
         // updates offsets. With no tail action, and on the stagger and stop returns, the offsets stay.
@@ -81,6 +68,20 @@ internal sealed class RidleyTail
 
         UpdateRidleyTailDistances(state.Tail);
         ResolveRidleyTailSamusContact(place, state, samus);
+    }
+
+    /// <summary>Steers the neutral tail: its reach for his facing, its whip and fling trigger, and each link's swing.</summary>
+    internal void SteerNeutralTail(
+        RoomEnemyPlace place,
+        RidleyEncounterState state,
+        SamusState samus,
+        SamusProjectileSystem samusProjectiles)
+    {
+        state.Tail.MinimumClockwiseAngle = RidleyTailReach.MinimumClockwise(state.Flight.FacingDirection);
+        state.Tail.MaximumCounterClockwiseAngle = RidleyTailReach.MaximumCounterClockwise(state.Flight.FacingDirection);
+        HandleRidleyNeutralTailControl(place, state, samus, samusProjectiles);
+        foreach (RidleyTailLink link in state.Tail.Links)
+            TickRidleyTailLink(state.Tail, link);
     }
 
     /// <summary>
@@ -443,36 +444,23 @@ internal sealed class RidleyTail
         return false;
     }
 
-    /// <summary>Runs the live pogo tail.</summary>
-    internal void TickRidleyPogoTail(RoomEnemyPlace place, RidleyEncounterState state, SamusState samus)
+    /// <summary>Runs the live pogo tail at its step <paramref name="action"/>.</summary>
+    internal void TickRidleyPogoTail(RoomEnemyPlace place, RidleyEncounterState state, SamusState samus, RidleyPogoTailAction action)
     {
-        RidleyTailAction action = state.Tail.Action;
-        bool pointed = action is RidleyTailAction.PogoSetup or RidleyTailAction.PointDown or RidleyTailAction.Stab;
-
         state.Tail.MinimumClockwiseAngle = RidleyTailReach.MinimumClockwise(state.Flight.FacingDirection);
         state.Tail.MaximumCounterClockwiseAngle = RidleyTailReach.MaximumCounterClockwise(state.Flight.FacingDirection);
-        if (pointed)
+        if (action.PointedSwing is { } swing)
         {
-            state.Tail.SwingStep = action == RidleyTailAction.Stab ? RidleyTailDefinitions.StabSwing : RidleyTailDefinitions.WhipSwing;
+            state.Tail.SwingStep = swing;
             state.Tail.ClockwiseWhipTarget = state.Flight.FacingDirection == RidleyFacing.Left ? null : RidleyTailDefinitions.DownAngle;
             state.Tail.CounterClockwiseWhipTarget = state.Flight.FacingDirection == RidleyFacing.Left ? RidleyTailDefinitions.DownAngle : null;
         }
-        bool restsWhileFalling = HandleRidleyPogoTailControl(place, state, samus, action == RidleyTailAction.StabSetup);
+        bool restsWhileFalling = HandleRidleyPogoTailControl(place, state, samus, action.ReadiesStab);
         foreach (RidleyTailLink link in state.Tail.Links)
             TickRidleyTailLink(state.Tail, link);
         // The tail's setup points it down next; a tail pointing down becomes a pogo once none of its links is active; a
         // pogo readies its stab, and a readied stab stabs, once its links rest while Ridley falls; a stab keeps stabbing.
-        state.Tail.Action = action switch
-        {
-            RidleyTailAction.PogoSetup => RidleyTailAction.PointDown,
-            RidleyTailAction.PointDown => state.Tail.Links.Any(link => link.Active) ? RidleyTailAction.PointDown : RidleyTailAction.Pogo,
-            RidleyTailAction.Pogo => restsWhileFalling ? RidleyTailAction.StabSetup : RidleyTailAction.Pogo,
-            RidleyTailAction.StabSetup => restsWhileFalling ? RidleyTailAction.Stab : RidleyTailAction.StabSetup,
-            RidleyTailAction.Stab => RidleyTailAction.Stab,
-            RidleyTailAction.None or RidleyTailAction.Neutral =>
-                throw new InvalidDataException($"Ridley's pogo tail has no behaviour for action {action}."),
-            _ => throw new InvalidOperationException($"Undefined {nameof(RidleyTailAction)} {action}."),
-        };
+        state.Tail.Action = action.After(state.Tail.Links.Any(link => link.Active), restsWhileFalling);
     }
 
     /// <summary>

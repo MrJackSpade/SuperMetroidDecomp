@@ -16,14 +16,6 @@ public readonly record struct MotherBrainFadeImage
     /// <summary>The image's place in its fade, from zero: the step of its installed shade.</summary>
     public int Step { get; }
 
-    /// <summary>
-    /// This image, which <paramref name="expected"/>'s owner shows only from that fade.
-    /// </summary>
-    /// <exception cref="ArgumentException">The image belongs to another fade.</exception>
-    internal MotherBrainFadeImage Of(MotherBrainFade expected) => ReferenceEquals(Fade, expected)
-        ? this
-        : throw new ArgumentException($"Image {Step} of {Fade} is not an image of {expected}.", nameof(expected));
-
     /// <inheritdoc/>
     public override string ToString() => $"{Fade} {Step}";
 }

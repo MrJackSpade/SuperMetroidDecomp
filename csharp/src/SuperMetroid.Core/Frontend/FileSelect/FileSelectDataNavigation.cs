@@ -25,16 +25,13 @@ internal static class FileSelectDataNavigation
     }
 
     /// <summary>
-    /// Validates the selected row, gives Up priority, and moves to the nearest selectable row that way on the copy and clear
-    /// pages (<see cref="FileSelectItemRows.Data"/>), staying put when there is none.
+    /// Gives Up priority and moves from the selected row to the nearest selectable row that way on the copy and clear pages
+    /// (<see cref="FileSelectItemRows.Data"/>), staying put when there is none. The search starts from the selected row's
+    /// place on the page, as the game's does.
     /// </summary>
     private static FileSelectItem Move(FileSelectItem selected, IReadOnlySet<SaveSlot> enabledSlots, ControllerButton pressed)
     {
-        if (!Selectable(selected))
-            throw new InvalidDataException($"Submenu item {selected} is not selectable.");
-
-        // The selection is checked even on an update with no press, and Up wins when both directions are pressed. The
-        // file select plays the sound.
+        // Up wins when both directions are pressed. The file select plays the sound.
         Menus.MenuRowOrder<FileSelectItem> rows = FileSelectItemRows.Data;
         IEnumerable<FileSelectItem> onward;
         if ((pressed & ControllerButton.Up) != ControllerButton.None)

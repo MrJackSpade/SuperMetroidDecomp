@@ -56,8 +56,11 @@ internal sealed class CeresEscape : IGameplayShadingSource
         _unauthoredBoostCadence = Ensure.NotNull(dependencies.UnauthoredBoostCadence);
     }
 
-    /// <summary>Where the escape stands.</summary>
-    private CeresEscapeStage Stage { get; set; } = CeresEscapeStage.AwaitingGetaway;
+    /// <summary>
+    /// Where the escape stands once it has begun: Ridley's AI hands it his step only from his getaway on, and before it the
+    /// room main runs no getaway, whose floor shows only from its beginning (<see cref="BeginGetaway"/>).
+    /// </summary>
+    private CeresEscapeStage Stage { get; set; } = CeresEscapeStage.Getaway;
 
     /// <summary>The getaway's turning floor.</summary>
     private CeresTurningFloor Floor { get; } = new();
@@ -110,7 +113,8 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// <param name="frameCounter">The game's frame counter, which beats the capsule and the wings.</param>
     public void RunGetawayRoomMain(SamusState samus, RoomFloor floor, int frameCounter)
     {
-        if (Stage != CeresEscapeStage.Getaway)
+        // The getaway's floor shows from its beginning until its end hands on to the self-destruct.
+        if (!Floor.Active)
             return;
         // The update after the curves' last ends the getaway.
         if (Floor.Flight is not { } flying)
@@ -204,10 +208,6 @@ internal sealed class CeresEscape : IGameplayShadingSource
         },
         [CeresEscapeStage.SelfDestruct] = ridleyFrameCounter => TickSelfDestruct(ridleyFrameCounter),
         [CeresEscapeStage.AlarmOnly] = ridleyFrameCounter => StepAlarm(ridleyFrameCounter),
-        [CeresEscapeStage.AwaitingGetaway] = ridleyFrameCounter =>
-        {
-            throw new InvalidOperationException("Ceres Ridley handed his step to an escape that has not begun.");
-        },
     });
 
     /// <summary>

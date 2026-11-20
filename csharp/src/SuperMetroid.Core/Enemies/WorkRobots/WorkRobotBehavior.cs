@@ -296,9 +296,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies a powered robot's recoil after the bomb damage it takes, which it never rejects once powered.</summary>
-    internal EnemyBombReaction PoweredWorkRobotBombReaction { get; } = new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal EnemyBombReaction PoweredWorkRobotBombReactionOf(WorkRobotEnemyState state) => new()
     {
-        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
+        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, state, c.Samus),
     };
 
     /// <summary>An unpowered robot takes the bomb damage, which it never rejects, and nothing more: it has no recoil.</summary>
@@ -332,9 +333,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 : null);
 
     /// <summary>The powered robot's shot reaction: the common damage, then its recoil.</summary>
-    internal EnemyShotReaction WorkRobotShotReaction { get; } = new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal EnemyShotReaction WorkRobotShotReactionOf(WorkRobotEnemyState state) => new()
     {
-        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
+        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, state, c.Samus),
     };
 
     /// <summary>Routes robot contact to its four-pixel external push without Samus damage.</summary>

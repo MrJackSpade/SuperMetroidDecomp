@@ -10,6 +10,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnBabyMetroidShotReaction => field ??= species.BabyMetroidShotReactionOf(State);
+
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal BabyMetroidEnemyState State { get; } = BabyMetroidBehavior.SetUpBabyMetroid(place, setup.SurroundingsOf(place));
 
@@ -27,13 +30,13 @@ internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyPl
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            BabyMetroidBehavior.ReactToBabyMetroidTouch(context);
+            BabyMetroidBehavior.ReactToBabyMetroidTouch(context, State);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>Baby Metroid's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.BabyMetroidShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnBabyMetroidShotReaction : base.ShotReaction;
 
     /// <summary>Runs Baby Metroid's its own bomb reaction, which comes before the ignoring check, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

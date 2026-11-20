@@ -11,6 +11,12 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 internal abstract class RipperEntity(RipperBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
+    private EnemyBombReaction OwnRipperBombReaction => field ??= RipperBehavior.RipperBombReactionOf(State);
+
+    /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnRipperShotReaction => field ??= RipperBehavior.RipperShotReactionOf(State);
+
     /// <summary>The Ripper species owner.</summary>
     protected RipperBehavior Species => species;
 
@@ -24,12 +30,12 @@ internal abstract class RipperEntity(RipperBehavior species, RoomEnemyPlace plac
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RipperBehavior.AdvanceRipperTypedAnimation(Place, State, context);
 
     /// <summary>The grapple Ripper and jet Ripper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? RipperBehavior.RipperShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnRipperShotReaction : base.ShotReaction;
 
     /// <summary>The grapple Ripper and jet Ripper's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? RipperBehavior.RipperBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot is null ? OwnRipperBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The grapple Ripper and jet Ripper's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

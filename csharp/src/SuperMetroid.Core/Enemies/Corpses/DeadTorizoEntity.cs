@@ -8,6 +8,12 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyPlac
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
         IShowsCorpseRotRows
 {
+    /// <summary>The enemy's own Power Bomb reaction, built over its state (#2554).</summary>
+    private EnemyPowerBombReaction OwnDeadTorizoPowerBombReaction => field ??= species.DeadTorizoPowerBombReactionOf(State);
+
+    /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnDeadTorizoShotReaction => field ??= species.DeadTorizoShotReactionOf(State);
+
     /// <inheritdoc/>
     public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(Place, State);
 
@@ -28,13 +34,13 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyPlac
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            DeadTorizoBehavior.ReactToDeadTorizoTouch(context);
+            DeadTorizoBehavior.ReactToDeadTorizoTouch(context, State);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The dead Torizo's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.DeadTorizoShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnDeadTorizoShotReaction : base.ShotReaction;
 
     /// <summary>Runs the dead Torizo's own bomb reaction in place of common bomb damage, for a bomb whose hit selects the corpse's own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
@@ -47,7 +53,7 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyPlac
     }
 
     /// <summary>The dead Torizo's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.DeadTorizoPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? OwnDeadTorizoPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The dead Torizo's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

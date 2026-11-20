@@ -419,12 +419,13 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Marks projectile collision while withholding damage until the transformed corpse can decay.</summary>
     /// <remarks>The common projectile prelude always marks the shot, but the private reaction ignores it until the
     /// victim is fully drained. Even then it starts rotting without vulnerability damage or impact.</remarks>
-    internal static EnemyShotReaction DeadSidehopperShotReaction { get; } = new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal static EnemyShotReaction DeadSidehopperShotReactionOf(DeadSidehopperEnemyState state) => new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-            ResolveDeadSidehopperShot(c.Enemy);
+            ResolveDeadSidehopperShot(c.Enemy, state);
             return true;
         },
     };

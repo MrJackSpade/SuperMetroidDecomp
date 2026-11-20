@@ -219,13 +219,15 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts corpse rotting on a power bomb without common damage handling.</summary>
-    internal EnemyPowerBombReaction DeadTorizoPowerBombReaction => field ??= new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal EnemyPowerBombReaction DeadTorizoPowerBombReactionOf(DeadTorizoEnemyState state) => new()
     {
-        ReplacesCommon = c => TriggerDeadTorizoPowerBomb(c.Enemy),
+        ReplacesCommon = c => TriggerDeadTorizoPowerBomb(c.Enemy, state),
     };
 
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
-    internal EnemyShotReaction DeadTorizoShotReaction => field ??= new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal EnemyShotReaction DeadTorizoShotReactionOf(DeadTorizoEnemyState state) => new()
     {
         // The dead corpses and Baby Metroid receive the projectile prelude but never an impact or vulnerability.
         // Its private reaction runs after the ordinary collision prelude but before common impact/vulnerability
@@ -233,14 +235,14 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-            TriggerDeadTorizoRotting(c.Enemy);
+            TriggerDeadTorizoRotting(c.Enemy, state);
             return true;
         },
     };
 
     /// <summary>Starts the corpse rotting when Samus touches it.</summary>
-    internal static void ReactToDeadTorizoTouch(EnemyTouchContext context) =>
+    internal static void ReactToDeadTorizoTouch(EnemyTouchContext context, DeadTorizoEnemyState state) =>
         // Touch and shot share one reaction. Contact does no damage: it makes the corpse ignore Samus and starts it
         // rotting at once.
-        TriggerDeadTorizoRotting(context.Place);
+        TriggerDeadTorizoRotting(context.Place, state);
 }

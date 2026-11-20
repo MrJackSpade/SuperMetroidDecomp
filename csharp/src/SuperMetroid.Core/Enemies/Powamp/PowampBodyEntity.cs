@@ -10,6 +10,9 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
+    private EnemyBombReaction OwnPowampBombReaction => field ??= species.PowampBombReactionOf(State);
+
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal PowampBodyState State { get; } = species.InitializePowampBody(place);
 
@@ -27,7 +30,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace pl
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToPowampBodyTouch(context);
+            species.ReactToPowampBodyTouch(context, State);
         else
             base.ReactToTouch(context);
     }
@@ -38,7 +41,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace pl
     /// <summary>The Powamp's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? species.PowampBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot is null ? OwnPowampBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The body's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.PowampBodyPowerBombReaction : base.PowerBombReaction;

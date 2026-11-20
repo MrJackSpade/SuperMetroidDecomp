@@ -8,6 +8,12 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
+    private EnemyBombReaction OwnBeetomBombReaction => field ??= BeetomBehavior.BeetomBombReactionOf(State);
+
+    /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnBeetomShotReaction => field ??= BeetomBehavior.BeetomShotReactionOf(State);
+
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal BeetomEnemyState State { get; } = species.SetUpBeetom(place, setup.SurroundingsOf(place));
 
@@ -31,12 +37,12 @@ internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyPlace place,
     }
 
     /// <summary>The Beetom's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? BeetomBehavior.BeetomShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnBeetomShotReaction : base.ShotReaction;
 
     /// <summary>The Beetom's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        LeavesShotToSpecies && context.SelectedShot is null ? BeetomBehavior.BeetomBombReaction : base.CommonBombDamageReaction(context);
+        LeavesShotToSpecies && context.SelectedShot is null ? OwnBeetomBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Beetom's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

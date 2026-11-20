@@ -744,21 +744,22 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>
-    internal EnemyShotReaction BabyMetroidShotReaction => field ??= new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal EnemyShotReaction BabyMetroidShotReactionOf(BabyMetroidEnemyState state) => new()
     {
         // Like Dead Torizo, Baby Metroid receives the projectile prelude but never creates an impact or
         // enters vulnerability damage. Its own reaction converts shot strength and the first shot's aim into recoil.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-            ResolveBabyMetroidShot(c.Enemy, c.Projectile.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots));
+            ResolveBabyMetroidShot(c.Enemy, state, c.Projectile.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots));
             return true;
         },
     };
 
     /// <summary>Uses cutscene latching or recoil on contact instead of ordinary Samus damage.</summary>
-    internal static void ReactToBabyMetroidTouch(EnemyTouchContext context) =>
+    internal static void ReactToBabyMetroidTouch(EnemyTouchContext context, BabyMetroidEnemyState state) =>
         // The Baby Metroid's touch replaces normal touch damage entirely. Depending on its current cutscene state, contact either
         // starts pursuit/latching or adds a spin-jump recoil vector to the actor itself; Samus is never hurt here.
-        ResolveBabyMetroidTouch(context.Place, context.Samus);
+        ResolveBabyMetroidTouch(context.Place, state, context.Samus);
 }

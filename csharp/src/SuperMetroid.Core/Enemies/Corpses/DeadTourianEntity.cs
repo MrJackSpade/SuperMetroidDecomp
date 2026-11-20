@@ -8,6 +8,12 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyPl
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
         IShowsCorpseRotRows
 {
+    /// <summary>The enemy's own Power Bomb reaction, built over its state (#2554).</summary>
+    private EnemyPowerBombReaction OwnDeadTourianPowerBombReaction => field ??= DeadTourianBehavior.DeadTourianPowerBombReactionOf(State);
+
+    /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnDeadTourianShotReaction => field ??= DeadTourianBehavior.DeadTourianShotReactionOf(State);
+
     /// <inheritdoc/>
     public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(Place, State);
 
@@ -28,13 +34,13 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyPl
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            DeadTourianBehavior.ReactToDeadTourianTouch(context);
+            DeadTourianBehavior.ReactToDeadTourianTouch(context, State);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The dead Tourian corpse's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? DeadTourianBehavior.DeadTourianShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnDeadTourianShotReaction : base.ShotReaction;
 
     /// <summary>Runs the dead Tourian corpse's own bomb reaction in place of common bomb damage, for a bomb whose hit selects the corpse's own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
@@ -47,7 +53,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyPl
     }
 
     /// <summary>The dead Tourian corpse's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? DeadTourianBehavior.DeadTourianPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? OwnDeadTourianPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The dead Tourian corpse's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

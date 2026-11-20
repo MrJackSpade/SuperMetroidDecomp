@@ -472,12 +472,13 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes bomb hits through common shot logic and mirrors damage state to the balloon.</summary>
-    internal EnemyBombReaction PowampBombReaction => field ??= new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal EnemyBombReaction PowampBombReactionOf(PowampBodyState state) => new()
     {
         RunsGenericDeath = false,
         // Powamp's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
+        AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy, state),
     };
 
     /// <summary>
@@ -549,9 +550,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Applies touch behavior to the body before its fatal-shot state begins.</summary>
-    internal void ReactToPowampBodyTouch(EnemyTouchContext context)
+    internal void ReactToPowampBodyTouch(EnemyTouchContext context, PowampBodyState state)
     {
-        if (!BodyRefusesContact(context.Place))
+        if (!BodyRefusesContact(context.Place, state))
             ResolvePowampTouch(context.Place, context.Samus, context.PseudoScrew);
     }
 

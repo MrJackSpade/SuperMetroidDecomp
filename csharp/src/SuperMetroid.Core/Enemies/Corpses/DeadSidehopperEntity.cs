@@ -8,6 +8,9 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
         IShowsCorpseRotRows
 {
+    /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnDeadSidehopperShotReaction => field ??= DeadSidehopperBehavior.DeadSidehopperShotReactionOf(State);
+
     /// <inheritdoc/>
     public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(Place, State);
 
@@ -34,7 +37,7 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     }
 
     /// <summary>The dead Sidehopper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? DeadSidehopperBehavior.DeadSidehopperShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnDeadSidehopperShotReaction : base.ShotReaction;
 
     /// <summary>Runs the dead Sidehopper's own bomb reaction in place of common bomb damage, for a bomb whose hit selects the corpse's own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

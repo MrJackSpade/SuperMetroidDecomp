@@ -148,27 +148,29 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The power-bomb response, which ignores corpses already marked decomposed.</summary>
-    internal static EnemyPowerBombReaction DeadTourianPowerBombReaction { get; } = new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal static EnemyPowerBombReaction DeadTourianPowerBombReactionOf(DeadTourianCorpseEnemyState state) => new()
     {
-        ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy),
+        ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy, state),
     };
 
     /// <summary>Shot handling that applies the collision prelude and starts decomposition without health damage.</summary>
     /// <remarks>The species reactions run after the ordinary projectile prelude, set process-offscreen plus
     /// intangibility, and select their species rot reaction. No vulnerability, health damage, or projectile impact
     /// follows.</remarks>
-    internal static EnemyShotReaction DeadTourianShotReaction { get; } = new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal static EnemyShotReaction DeadTourianShotReactionOf(DeadTourianCorpseEnemyState state) => new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-            TriggerDeadTourianCorpseRotting(c.Enemy);
+            TriggerDeadTourianCorpseRotting(c.Enemy, state);
             return true;
         },
     };
 
     /// <summary>Starts decomposition on physical contact without applying ordinary enemy contact damage.</summary>
-    internal static void ReactToDeadTourianTouch(EnemyTouchContext context) =>
+    internal static void ReactToDeadTourianTouch(EnemyTouchContext context, DeadTourianCorpseEnemyState state) =>
         // Touching a dead Zoomer, Ripper or Skree starts its rot just as a shot does; a corpse never deals contact damage.
-        TriggerDeadTourianCorpseRotting(context.Place);
+        TriggerDeadTourianCorpseRotting(context.Place, state);
 }

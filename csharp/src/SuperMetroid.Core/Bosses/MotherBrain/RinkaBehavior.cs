@@ -344,12 +344,13 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool IsSpecialRinka(RoomEnemyPlace place) => place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint is not null;
 
     /// <summary>Rinka's reaction to a bomb: the common damage without the generic death, then, when the hit kills it, Rinka's own death.</summary>
-    internal EnemyBombReaction RinkaBombReaction => field ??= new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal EnemyBombReaction RinkaBombReactionOf(RinkaEnemyState state) => new()
     {
         RunsGenericDeath = false,
         // Rinka's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveRinkaCombatAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveRinkaCombatAfterCommon(c.Enemy, state),
     };
 
     /// <summary>Runs Rinka's main AI.</summary>
@@ -369,15 +370,17 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
     /// <summary>Skips invisible actors and applies the private death lifecycle after power-bomb damage.</summary>
-    internal EnemyPowerBombReaction RinkaPowerBombReaction => field ??= new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal EnemyPowerBombReaction RinkaPowerBombReactionOf(RinkaEnemyState state) => new()
     {
         SkipsEnemy = enemy => enemy.Presence.HasAny(EnemyPresence.Hidden),
         ExemptFromGenericDeath = true,
-        AfterCommon = c => ResolveRinkaCombatAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveRinkaCombatAfterCommon(c.Enemy, state),
     };
 
     /// <summary>Rinka's reaction to a shot: its own death follows the damage, but not a shot that freezes it at once.</summary>
-    internal EnemyShotReaction RinkaShotReaction => field ??= new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal EnemyShotReaction RinkaShotReactionOf(RinkaEnemyState state) => new()
     {
         // Rinka's own death follows damage only; a shot that freezes it at once skips it.
         ExemptFromGenericDeath = true,
@@ -386,15 +389,15 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c =>
         {
             if (!c.Froze)
-                ResolveRinkaCombatAfterCommon(c.Enemy);
+                ResolveRinkaCombatAfterCommon(c.Enemy, state);
         },
     };
 
     /// <summary>Applies normal contact damage before the Rinka-specific lethal-health lifecycle.</summary>
-    internal void ReactToRinkaTouch(EnemyTouchContext context)
+    internal void ReactToRinkaTouch(EnemyTouchContext context, RinkaEnemyState state)
     {
         _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
-        ResolveRinkaCombatAfterCommon(context.Place);
+        ResolveRinkaCombatAfterCommon(context.Place, state);
     }
 
     /// <inheritdoc/>

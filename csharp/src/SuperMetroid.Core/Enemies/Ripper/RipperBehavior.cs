@@ -185,9 +185,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Preserves the direction-specific frozen frame after common bomb reactions.</summary>
-    internal static EnemyBombReaction RipperBombReaction { get; } = new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal static EnemyBombReaction RipperBombReactionOf(RipperEnemyState state) => new()
     {
-        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy, state),
     };
 
     /// <summary>Runs grapple Ripper's main AI.</summary>
@@ -209,8 +210,9 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Pins grapple Ripper and jet Ripper frozen visuals after accepted shot reactions.</summary>
-    internal static EnemyShotReaction RipperShotReaction { get; } = new()
+    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
+    internal static EnemyShotReaction RipperShotReactionOf(RipperEnemyState state) => new()
     {
-        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy, state),
     };
 }

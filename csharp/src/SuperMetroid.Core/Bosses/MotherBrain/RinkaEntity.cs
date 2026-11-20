@@ -9,6 +9,15 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
+    private EnemyBombReaction OwnRinkaBombReaction => field ??= species.RinkaBombReactionOf(State);
+
+    /// <summary>The enemy's own Power Bomb reaction, built over its state (#2554).</summary>
+    private EnemyPowerBombReaction OwnRinkaPowerBombReaction => field ??= species.RinkaPowerBombReactionOf(State);
+
+    /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnRinkaShotReaction => field ??= species.RinkaShotReactionOf(State);
+
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal RinkaEnemyState State { get; } = species.InitializeRinka(place);
 
@@ -26,21 +35,21 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyPlace place, E
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToRinkaTouch(context);
+            species.ReactToRinkaTouch(context, State);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>Rinka's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.RinkaShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnRinkaShotReaction : base.ShotReaction;
 
     /// <summary>Rinka's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? species.RinkaBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot is null ? OwnRinkaBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>Rinka's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.RinkaPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? OwnRinkaPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>Runs a frozen Rinka's own step before the common thaw; true when it ended the turn.</summary>
     public override bool PreemptFrozenTurn() => species.ThawOrDieWhileFrozen(Place, State);

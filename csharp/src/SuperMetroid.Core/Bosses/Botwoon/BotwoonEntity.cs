@@ -9,6 +9,15 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 internal sealed class BotwoonEntity(BotwoonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
+    private EnemyBombReaction OwnBotwoonBombReaction => field ??= species.BotwoonBombReactionOf(State);
+
+    /// <summary>The enemy's own Power Bomb reaction, built over its state (#2554).</summary>
+    private EnemyPowerBombReaction OwnBotwoonPowerBombReaction => field ??= species.BotwoonPowerBombReactionOf(State);
+
+    /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnBotwoonShotReaction => field ??= species.BotwoonShotReactionOf(State);
+
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal BotwoonEnemyState State { get; } = species.InitializeBotwoon(place);
 
@@ -26,21 +35,21 @@ internal sealed class BotwoonEntity(BotwoonBehavior species, RoomEnemyPlace plac
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToBotwoonTouch(context);
+            species.ReactToBotwoonTouch(context, State);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>Botwoon's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.BotwoonShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnBotwoonShotReaction : base.ShotReaction;
 
     /// <summary>Botwoon's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? species.BotwoonBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot is null ? OwnBotwoonBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>Botwoon's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.BotwoonPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? OwnBotwoonPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>Botwoon's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

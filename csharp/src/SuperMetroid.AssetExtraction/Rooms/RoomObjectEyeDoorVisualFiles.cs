@@ -86,12 +86,16 @@ public static class RoomObjectEyeDoorVisualFiles
     private static string VisualId(RoomObjectDraw request) => VisualKeys.TryGetValue(request, out string? key) ? key
         : throw new InvalidDataException($"Eye-door draw {request} has no visual ID.");
 
-    /// <summary>Spells each frame's published key: the shared clear picture's, then each side's looks'.</summary>
+    /// <summary>The published key of the clear picture both sides' clear frames show.</summary>
+    private const string SharedClearKey = "left-eye-clear";
+
+    /// <summary>Spells each frame's published key: the shared clear picture's, which both sides' clear frames show, then each side's looks'.</summary>
     private static Dictionary<RoomObjectDraw, string> PublishedKeys()
     {
         var keys = new Dictionary<RoomObjectDraw, string>
         {
-            [EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Left))] = "left-eye-clear",
+            [EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Left))] = SharedClearKey,
+            [EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Right))] = SharedClearKey,
         };
         foreach ((EyeDoorOrientation side, string sideName) in SideNames)
         {

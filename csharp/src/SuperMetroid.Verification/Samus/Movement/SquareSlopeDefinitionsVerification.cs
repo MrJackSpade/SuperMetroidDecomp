@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Samus.Movement;
@@ -53,9 +54,10 @@ internal static class SquareSlopeDefinitionsVerification
                     $"non-square slope shape {shape} has no square quadrants");
         }
 
-        var missile = new Func<RoomCollisionBlock, SamusProjectile, bool>(ProjectileMotion.MissileSlopePointReaction);
+        var missile = new Func<RoomCollisionBlock, SamusProjectileOccupant, bool>(ProjectileMotion.MissileSlopePointReaction);
         var bus = NewSlopeHeightNoReadBus();
         var projectile = new SamusProjectile(0);
+        SamusProjectileOccupant held = projectile.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileDamage.Read(SamusProjectileKind.Missile));
         int cases = 0;
         for (int raw = 0; raw < 256; raw++)
         {
@@ -70,7 +72,7 @@ internal static class SquareSlopeDefinitionsVerification
                 int row = (raw & 128) != 0 ? 15 - y : y;
                 bool expected = native[shape * 4 + row / 8 * 2 + column / 8] != 0;
                 projectile.Position = projectile.Position.WithWhole(new(x, y));
-                AssertEqual(expected, missile(block, projectile), "Actual missile square quadrant");
+                AssertEqual(expected, missile(block, held), "Actual missile square quadrant");
                 cases++;
             }
         }

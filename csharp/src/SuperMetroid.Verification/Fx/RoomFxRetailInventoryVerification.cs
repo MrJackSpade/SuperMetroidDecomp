@@ -940,8 +940,8 @@ internal static class RoomFxRetailInventoryVerification
 
         int expectedMaximum =
             fx.Liquid?.Tide == LiquidTide.Small
-                ? LiquidTideDefinitions.Small.PeakPixels
-                : LiquidTideDefinitions.Large.PeakPixels;
+                ? LiquidTideDefinitions.Motions[LiquidTide.Small].PeakPixels
+                : LiquidTideDefinitions.Motions[LiquidTide.Large].PeakPixels;
         AssertTrue(maximumAbsoluteOffset > 0 && maximumAbsoluteOffset <= expectedMaximum,
             $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} tide moves within ±{expectedMaximum} pixels");

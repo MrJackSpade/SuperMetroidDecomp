@@ -34,7 +34,7 @@ internal static class ContactDamageSoundVerification
         int healthBefore = sciser.Health;
 
         runtime.AudioRequests.BeginRecordedUpdate();
-        runtime.Enemies.Collision.ResolveOrdinaryTouch(sciser, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), TouchDeathAnimation.Play);
+        runtime.Enemies.Collision.ResolveOrdinaryTouch(sciser.HeldOccupant(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), TouchDeathAnimation.Play);
 
         AssertTrue(sciser.Health < healthBefore, "the speed booster damages the Sciser");
         SoundRequest request = runtime.Enemies.Audio.SoundRequests.Single();

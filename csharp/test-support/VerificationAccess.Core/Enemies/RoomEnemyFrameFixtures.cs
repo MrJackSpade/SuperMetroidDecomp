@@ -126,7 +126,7 @@ internal static class RoomEnemyFrameFixtures
         internal void ResolveShotsOnInteractiveEnemies(SamusProjectileSystem projectiles, SamusBombProjectileSystem samusBombs, AreaId roomArea, SamusState samus)
         {
             foreach (RoomEnemyPlace enemy in self.ProcessingWindow.InteractiveEnemies)
-                self.Collision.ResolveOrdinaryProjectileHit(projectiles, samusBombs, roomArea, samus, enemy, Position16<RoomPixels>.Zero);
+                self.Collision.ResolveOrdinaryProjectileHit(projectiles, samusBombs, roomArea, samus, enemy.HeldOccupant(), Position16<RoomPixels>.Zero);
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ internal static class RoomEnemyFrameFixtures
         internal void ResolveBombsOnInteractiveEnemies(SamusBombProjectileSystem bombs, SamusProjectileSystem ordinaryProjectiles, SamusState samus)
         {
             foreach (RoomEnemyPlace enemy in self.ProcessingWindow.InteractiveEnemies)
-                self.Collision.ResolveOrdinaryBombHit(bombs, ordinaryProjectiles, samus, enemy, Position16<RoomPixels>.Zero);
+                self.Collision.ResolveOrdinaryBombHit(bombs, ordinaryProjectiles, samus, enemy.HeldOccupant(), Position16<RoomPixels>.Zero);
         }
     }
 

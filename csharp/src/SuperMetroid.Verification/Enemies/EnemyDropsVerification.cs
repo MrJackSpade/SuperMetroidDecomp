@@ -64,7 +64,7 @@ internal static class EnemyDropsVerification
             killed.Bind(EnemyDefinitionId.Mellow, mellow);
             killed.Presence = respawns ? EnemyPresence.RespawnsIfKilled : EnemyPresence.None;
 
-            fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, EnemyDeathExplosion.Small, fixture.Samus);
+            fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed.HeldOccupant(), EnemyDeathExplosion.Small, fixture.Samus);
 
             AssertTrue(killed.Occupant is null, $"respawns {respawns}: the killed enemy leaves its place");
             AssertEqual(respawns, killed.AwaitsRespawn, $"respawns {respawns}: the place awaits the enemy's respawn");
@@ -77,7 +77,7 @@ internal static class EnemyDropsVerification
         RoomEnemyPlace place = rebuilt.System.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Mellow, mellow);
         place.Presence = EnemyPresence.RespawnsIfKilled;
-        rebuilt.System.DeathsAndDrops.StartGenericEnemyDeath(place, EnemyDeathExplosion.Small, rebuilt.Samus);
+        rebuilt.System.DeathsAndDrops.StartGenericEnemyDeath(place.HeldOccupant(), EnemyDeathExplosion.Small, rebuilt.Samus);
         place.Bind(EnemyDefinitionId.Mellow, mellow);
         AssertTrue(!place.AwaitsRespawn, "rebuilding the enemy in its place ends the wait");
         AssertEqual(rebuilt.System.Places.InUpdateOrder[1], EnemyPlaceOrder.FirstFree(rebuilt.System.Places.InUpdateOrder),
@@ -379,7 +379,7 @@ internal static class EnemyDropsVerification
         enemy.Presence = EnemyPresence.RespawnsIfKilled;
 
         // A Fireflea touched with health nine left dies in the small explosion.
-        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy,
+        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy.HeldOccupant(),
             deathAnimation: EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(9), fixture.Samus);
         AssertTrue(enemy.AwaitsRespawn && enemy.Occupant is null,
             "respawning death leaves the enemy's place awaiting its respawn");

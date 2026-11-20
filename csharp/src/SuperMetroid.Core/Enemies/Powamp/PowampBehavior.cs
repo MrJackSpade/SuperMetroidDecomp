@@ -328,7 +328,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         balloon.Place.Health = 0;
         balloon.Place.Presence = balloon.Place.Presence.With(EnemyPresence.Deleted);
         int? lastSpikePlace = SpawnPowampSpikeBurst(occupant, body, body.Shading);
-        _deathsAndDrops.StartGenericEnemyDeath(body, ExplosionAfterBurst(lastSpikePlace), samus);
+        _deathsAndDrops.StartGenericEnemyDeath(occupant, ExplosionAfterBurst(lastSpikePlace), samus);
     }
 
     /// <summary>
@@ -346,7 +346,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The spikes take the body's colours from before the touch, which may change them.
         PictureShading lookBeforeTouch = body.Shading;
-        _collision.ResolveOrdinaryTouch(body, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(occupant, samus, pseudoScrew);
         if (body.Health != 0)
             return;
 

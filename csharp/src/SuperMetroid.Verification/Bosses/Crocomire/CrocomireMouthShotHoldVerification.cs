@@ -71,7 +71,7 @@ internal static class CrocomireMouthShotHoldVerification
             state.StepBack.Forget();
             body.AnimationClock.HoldFor(StartingHold);
             body.HurtFlash.End();
-            enemies.CrocomireBehavior.Combat.ReactToCrocomireBomb(new EnemyBombContext(body, bomb, ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
+            enemies.CrocomireBehavior.Combat.ReactToCrocomireBomb(new EnemyBombContext(body.HeldOccupant(), bomb, ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
                 CrocomireReactions.MouthShot, UsesFrameHitboxes: true, new Position16<RoomPixels>(cameraX, 0))
             {
                 StruckOccupant = body.OccupantStates,

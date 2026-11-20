@@ -548,7 +548,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Starts a Pirate's death by a shot: the big explosion its shot's death animation rule chooses.</summary>
     private void StartPirateDeath(EnemyShotContext c) =>
         _deathsAndDrops.StartGenericEnemyDeath(
-            c.Enemy,
+            c.Occupant,
             EnemyDeathsAndDrops.ShotKillExplosion(c.Enemy, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion),
             c.Samus);
 

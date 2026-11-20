@@ -31,7 +31,7 @@ internal static class WorkRobotBombRejectionVerification
                 Type = SamusProjectileType.Of(SamusProjectileFamily.Bomb),
                 Position = FixedPosition<RoomPixels>.FromWhole(place.Position.Whole),
             };
-            var context = new EnemyBombContext(place, bomb, ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
+            var context = new EnemyBombContext(place.HeldOccupant(), bomb, ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
                 SelectedShot: null, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0))
             {
                 StruckOccupant = place.OccupantStates,

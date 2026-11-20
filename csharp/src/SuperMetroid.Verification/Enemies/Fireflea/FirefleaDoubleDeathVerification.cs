@@ -32,7 +32,7 @@ internal static class FirefleaDoubleDeathVerification
         samus.EquippedItems = SamusEquipmentFlags.ScrewAttack;
         int killsBefore = runtime.Enemies.RoomStatus.EnemiesKilled;
 
-        runtime.Enemies.FirefleaBehavior.ResolveFirefleaTouch(fireflea, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
+        runtime.Enemies.FirefleaBehavior.ResolveFirefleaTouch(fireflea.HeldOccupant(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
 
         var explosions = runtime.Enemies.Projectiles.EnemyProjectiles
             .Where(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion).ToArray();

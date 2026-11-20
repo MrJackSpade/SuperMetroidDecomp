@@ -279,8 +279,9 @@ internal sealed class KraidCombat
     /// <summary>Checks the body hitbox and applies contact damage to Samus.</summary>
     /// <remarks>These collision checks belong to actor AI rather than generic interactive hitboxes. The body's
     /// permanent intangible flag and lint's ignoring touch reaction do not suppress these private paths.</remarks>
-    internal void ResolveKraidBodyContact(RoomEnemyPlace body, KraidEnemyState state, SamusState samus, PseudoScrewCharge pseudoScrew)
+    internal void ResolveKraidBodyContact(RoomEnemyOccupant kraid, KraidEnemyState state, SamusState samus, PseudoScrewCharge pseudoScrew)
     {
+        RoomEnemyPlace body = kraid.Place;
         if (!state.BodyState.Fights)
             return;
         int relativeY = samus.Position.Y.Whole - body.Position.Y.Whole;
@@ -295,7 +296,7 @@ internal sealed class KraidCombat
             ? state.EjectionLimitY : ejected.Y);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(KraidContactDefinitions.PushBack);
         if (samus.InvincibilityTimer.IsZero)
-            _collision.ResolveOrdinaryTouch(body, samus, pseudoScrew);
+            _collision.ResolveOrdinaryTouch(kraid, samus, pseudoScrew);
     }
 
     /// <summary>

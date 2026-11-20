@@ -8,14 +8,21 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public sealed class PopulatedEnemyPlace : EnemyPlaceHistory
 {
-    /// <summary>Starts the history of <paramref name="place"/> with its first occupant.</summary>
+    /// <summary>Starts the history of <paramref name="place"/> with the first occupant it creates there.</summary>
     /// <param name="place">The place the history belongs to.</param>
-    /// <param name="first">The first enemy spawned there.</param>
-    internal PopulatedEnemyPlace(RoomEnemyPlace place, RoomEnemyOccupant first)
+    /// <param name="firstSpawn">The population entry the first enemy spawned there is spawned from.</param>
+    internal PopulatedEnemyPlace(RoomEnemyPlace place, RoomEnemyPlacement firstSpawn)
     {
         Place = Ensure.NotNull(place);
-        Occupancy = new OccupiedEnemyPlace(first);
+        LatestOccupant = new RoomEnemyOccupant(this, firstSpawn);
+        Occupancy = new OccupiedEnemyPlace(LatestOccupant);
     }
+
+    /// <summary>
+    /// The enemy last spawned in the place, which holds it now or has left it; a second death reaching the place after
+    /// its kill acts on it again.
+    /// </summary>
+    public RoomEnemyOccupant LatestOccupant { get; private set; }
 
     /// <summary>The place whose history this is.</summary>
     public RoomEnemyPlace Place { get; }
@@ -32,8 +39,15 @@ public sealed class PopulatedEnemyPlace : EnemyPlaceHistory
     /// </summary>
     internal bool AwaitsRespawn => Occupancy is AwaitingRespawnEnemyPlace;
 
-    /// <summary>Records that <paramref name="occupant"/> now holds the place.</summary>
-    internal void Occupy(RoomEnemyOccupant occupant) => Occupancy = new OccupiedEnemyPlace(occupant);
+    /// <summary>Creates the occupant spawned in the place from <paramref name="spawn"/>, which now holds it.</summary>
+    /// <param name="spawn">The population entry the occupant is spawned from.</param>
+    /// <returns>The new occupant, which knows this history.</returns>
+    internal RoomEnemyOccupant Occupy(RoomEnemyPlacement spawn)
+    {
+        LatestOccupant = new RoomEnemyOccupant(this, spawn);
+        Occupancy = new OccupiedEnemyPlace(LatestOccupant);
+        return LatestOccupant;
+    }
 
     /// <summary>Records that the place's occupant left it, keeping its entry, with no respawn pending.</summary>
     internal void Vacate() => Occupancy = new VacatedEnemyPlace(LastSpawn);

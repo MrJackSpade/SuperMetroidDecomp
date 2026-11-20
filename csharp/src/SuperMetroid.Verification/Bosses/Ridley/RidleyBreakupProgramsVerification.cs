@@ -92,7 +92,7 @@ internal static class RidleyBreakupProgramsVerification
         expiringState.Lifetime.LastFor(1);
         expiringState.Velocity = default;
         expiring.Position = expiring.Position.WithFractionX(0).WithFractionY(0);
-        enemies.NorfairRidleyBehavior.Death.RunNorfairRidleyExplosionMain(expiring, RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.NorfairRidleyBehavior.Death.RunNorfairRidleyExplosionMain(expiring.HeldOccupant(), RoomEnemyFrameFixtures.StandaloneSamus());
         AssertTrue(expiring.Occupant is null, "native breakup expiry clears the actor immediately");
         var explosion = enemies.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         AssertEqual(deathX, explosion.Position.X.Whole, "fragment death effect retains final X");

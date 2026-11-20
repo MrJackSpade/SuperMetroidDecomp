@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>One exploding normal bomb overlapping one enemy in the ordinary bomb pass.</summary>
-/// <param name="Enemy">The enemy whose selected shot reaction runs.</param>
+/// <param name="Occupant">The enemy whose selected shot reaction runs, which a killing hit kills.</param>
 /// <param name="Bomb">The exploding bomb, already marked with its hit direction.</param>
 /// <param name="OrdinaryProjectiles">Samus's beams and missiles (reactions read the first shot's aim).</param>
 /// <param name="Samus">Samus.</param>
@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <remarks>The stages around common damage receive it as an <see cref="EnemyBombHitContext"/>, which adds the sampled health.</remarks>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal record EnemyBombContext(
-    RoomEnemyPlace Enemy,
+    RoomEnemyOccupant Occupant,
     SamusBomb Bomb,
     SamusProjectileSystem OrdinaryProjectiles,
     SamusState Samus,
@@ -23,6 +23,9 @@ internal record EnemyBombContext(
     bool UsesFrameHitboxes,
     Position16<RoomPixels> Camera)
 {
+    /// <summary>The place the struck occupant was spawned in, which the reaction reads and writes.</summary>
+    internal RoomEnemyPlace Enemy => Occupant.Place;
+
     /// <summary>
     /// The species states of the occupant the bomb struck, taken as the pass finds the overlap (#1543). A killing hit
     /// removes the occupant from its place before <see cref="EnemyBombReaction.AfterCommon"/> runs; a reaction that still

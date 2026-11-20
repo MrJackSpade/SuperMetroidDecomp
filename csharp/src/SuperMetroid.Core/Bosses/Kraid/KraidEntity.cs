@@ -21,7 +21,7 @@ internal abstract class KraidEntity(KraidBehavior species, RoomEnemyOccupant occ
     /// <inheritdoc/>
     public void Initialize()
     {
-        reference.Join(Place);
+        reference.Join(Occupant);
         SetUp();
     }
 

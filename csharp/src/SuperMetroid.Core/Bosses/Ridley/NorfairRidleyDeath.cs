@@ -236,8 +236,9 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>Runs a breakup piece's update: flicker, drag, gravity, movement, and lifetime.</summary>
-    internal void RunNorfairRidleyExplosionMain(RoomEnemyPlace fragment, SamusState samus)
+    internal void RunNorfairRidleyExplosionMain(RoomEnemyOccupant piece, SamusState samus)
     {
+        RoomEnemyPlace fragment = piece.Place;
         if (RidleyCadenceDefinitions.BreakupFragmentHidden.IsSetIn(fragment.FrameCounter))
             fragment.Presence = fragment.Presence.With(EnemyPresence.Hidden);
         else
@@ -256,6 +257,6 @@ internal sealed class NorfairRidleyDeath
 
         // A piece's lifetime ends in the small enemy death: it leaves its place at once, and the explosion it
         // becomes keeps its definition and position for the pickup it may leave.
-        _deathsAndDrops.StartGenericEnemyDeath(fragment, EnemyDeathExplosion.Small, samus);
+        _deathsAndDrops.StartGenericEnemyDeath(piece, EnemyDeathExplosion.Small, samus);
     }
 }

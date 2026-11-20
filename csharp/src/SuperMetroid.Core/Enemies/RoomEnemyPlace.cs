@@ -139,11 +139,15 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     internal void Bind(RoomEnemyPlacement spawn, RoomEnemyDefinition definition)
     {
         ReleaseEntity();
-        var occupant = new RoomEnemyOccupant(spawn);
+        RoomEnemyOccupant occupant;
         if (History is PopulatedEnemyPlace populated)
-            populated.Occupy(occupant);
+            occupant = populated.Occupy(spawn);
         else
-            History = new PopulatedEnemyPlace(this, occupant);
+        {
+            var first = new PopulatedEnemyPlace(this, spawn);
+            History = first;
+            occupant = first.LatestOccupant;
+        }
         Definition = definition;
         OccupantStates = new();
         AnimationClock = new();
@@ -160,24 +164,6 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         BoundEntity = null;
         if (leaving is IEnemyDeparture departure)
             departure.Leave();
-    }
-
-    /// <summary>
-    /// Empties the place when its enemy is killed (<see cref="Clear"/>) and, for a respawning enemy, keeps it taken until
-    /// its death explosion rebuilds it (<see cref="AwaitsRespawn"/>). A place already cleared is killed again when a second
-    /// death reaches it in the same update.
-    /// </summary>
-    /// <param name="respawns">Whether the killed enemy respawns from the place's entry.</param>
-    /// <returns>The place's history, which keeps the entry a respawn rebuilds the enemy from.</returns>
-    /// <exception cref="InvalidOperationException">No enemy has been spawned in the place, so none can be killed there.</exception>
-    internal PopulatedEnemyPlace Kill(bool respawns)
-    {
-        if (History is not PopulatedEnemyPlace populated)
-            throw new InvalidOperationException($"Enemy place {Ordinal} is killed, but no enemy has been spawned there.");
-        Clear();
-        if (respawns)
-            populated.AwaitRespawn();
-        return populated;
     }
 
     /// <summary>
@@ -300,7 +286,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// Empties the place when its occupant is killed: its identity, its species states and the place's live values. The
     /// kill clears what the occupant leaves, so the enemies that read the place find no species state there. The
     /// population entry the occupant was spawned from survives the kill in the place's <see cref="History"/>: a respawn
-    /// rebuilds the enemy from it (#2256).
+    /// rebuilds the enemy from it (#2256). Only a kill of its occupant clears a place (<see cref="RoomEnemyOccupant.Kill"/>).
     /// </summary>
     internal void Clear()
     {

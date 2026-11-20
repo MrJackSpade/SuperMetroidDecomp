@@ -70,18 +70,20 @@ internal sealed class EnemyCollision
     /// <param name="pseudoScrew">Samus's held charge, which her Pseudo Screw contact spends.</param>
     /// <param name="controllerInput">Current held input used by touch responses.</param>
     /// <param name="level">Room terrain required by collision-aware touch responses.</param>
-    /// <param name="place">The enemy the enemy pass is processing; one that is not interactive touches nothing.</param>
+    /// <param name="occupant">
+    /// The enemy the enemy pass is processing, read through its place; one that is not interactive touches nothing.
+    /// </param>
     /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads.</param>
     public void ResolveOrdinarySamusContact(
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         GameplayAction controllerInput,
         RoomLevelData level,
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant,
         Position16<RoomPixels> camera)
     {
         Ensure.NotNull(samus);
-        Ensure.NotNull(place);
+        RoomEnemyPlace place = Ensure.NotNull(occupant).Place;
         SamusBodyAttack bodyAttack = samus.HorizontalSpeed.BodyAttack;
         if (bodyAttack == SamusBodyAttack.None && !samus.InvincibilityTimer.IsZero)
             return;
@@ -143,7 +145,7 @@ internal sealed class EnemyCollision
         }
 
         touch.ReactToTouch(new EnemyTouchContext(
-            place,
+            occupant,
             samus,
             pseudoScrew,
             controllerInput,
@@ -161,19 +163,21 @@ internal sealed class EnemyCollision
     /// <param name="samusBombs">Shared bomb-projectile owner passed to projectile impact handling.</param>
     /// <param name="roomArea">The area of the room the enemies are in, which decides how long a shot's freeze lasts.</param>
     /// <param name="samus">Live player state for enemy-specific shot reactions.</param>
-    /// <param name="enemy">The enemy the enemy pass is processing; one that is not interactive takes no shot.</param>
+    /// <param name="occupant">
+    /// The enemy the enemy pass is processing, read through its place; one that is not interactive takes no shot.
+    /// </param>
     /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads.</param>
     public void ResolveOrdinaryProjectileHit(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem samusBombs,
         AreaId roomArea,
         SamusState samus,
-        RoomEnemyPlace enemy,
+        RoomEnemyOccupant occupant,
         Position16<RoomPixels> camera)
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(samusBombs);
-        Ensure.NotNull(enemy);
+        RoomEnemyPlace enemy = Ensure.NotNull(occupant).Place;
         if (!_lifecycle.InteractiveEnemies.Contains(enemy))
             return;
 
@@ -257,7 +261,7 @@ internal sealed class EnemyCollision
 
             bool selectedIgnore = hitboxShot == EnemyReaction.Ignore;
             var shot = new EnemyShotContext(
-                enemy,
+                occupant,
                 projectile,
                 projectiles,
                 samus,
@@ -342,7 +346,7 @@ internal sealed class EnemyCollision
                     if (reaction.ReplacesGenericDeath?.Invoke(hitShot) != true)
                     {
                         _deathsAndDrops.StartGenericEnemyDeath(
-                            enemy,
+                            occupant,
                             EnemyDeathsAndDrops.ShotKillExplosion(enemy, projectileType, rule: ShotDeathAnimationRule.ByProjectile),
                             samus);
                     }
@@ -448,18 +452,18 @@ internal sealed class EnemyCollision
     /// <param name="bombs">Samus's bombs, whose exploding bombs may hit.</param>
     /// <param name="ordinaryProjectiles">Samus's beams and missiles, which reactions read.</param>
     /// <param name="samus">Samus.</param>
-    /// <param name="enemy">The enemy the enemy pass is processing.</param>
+    /// <param name="occupant">The enemy the enemy pass is processing, read through its place.</param>
     /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads.</param>
     public void ResolveOrdinaryBombHit(
         SamusBombProjectileSystem bombs,
         SamusProjectileSystem ordinaryProjectiles,
         SamusState samus,
-        RoomEnemyPlace enemy,
+        RoomEnemyOccupant occupant,
         Position16<RoomPixels> camera)
     {
         Ensure.NotNull(bombs);
         Ensure.NotNull(ordinaryProjectiles);
-        Ensure.NotNull(enemy);
+        RoomEnemyPlace enemy = Ensure.NotNull(occupant).Place;
 
         EnemyReaction? radiusShot = ShotReactionOf(enemy);
         bool usesCommonShot = radiusShot == EnemyReaction.OrdinaryShot;
@@ -535,7 +539,7 @@ internal sealed class EnemyCollision
             // common shot reaction leaves in place of an impact animation.
             bomb.Spend();
             var bombContext = new EnemyBombContext(
-                enemy,
+                occupant,
                 bomb,
                 ordinaryProjectiles,
                 samus,
@@ -565,7 +569,7 @@ internal sealed class EnemyCollision
                         ShowHitBurst(enemy);
                     }
                     if (hit != NormalBombHit.Dud && (reaction?.RunsGenericDeath ?? true))
-                        StartNormalBombDeathIfKilled(enemy, samus);
+                        StartNormalBombDeathIfKilled(occupant, samus);
                     reaction?.AfterCommon?.Invoke(hitBomb);
                 }
             }
@@ -622,12 +626,13 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>Starts the death of an enemy a bomb's damage killed.</summary>
-    private void StartNormalBombDeathIfKilled(RoomEnemyPlace enemy, SamusState samus)
+    private void StartNormalBombDeathIfKilled(RoomEnemyOccupant killed, SamusState samus)
     {
+        RoomEnemyPlace enemy = killed.Place;
         if (enemy.Health != 0)
             return;
         _deathsAndDrops.StartGenericEnemyDeath(
-            enemy,
+            killed,
             EnemyDeathsAndDrops.ShotKillExplosion(enemy, SamusBombProjectileSystem.NormalBombType),
             samus);
     }
@@ -685,7 +690,7 @@ internal sealed class EnemyCollision
             // the sweep; the vertical reach is unchanged.
             horizontalRadius = _powerBombRadius.HorizontalRadius(horizontalRadius);
             // A place with no enemy, a place awaiting its enemy's respawn among them, is passed.
-            if (enemy.Occupant is null ||
+            if (enemy.Occupant is not { } occupant ||
                 enemy.Invincibility.IsRunning ||
                 enemy.Presence.HasAny(EnemyPresence.Deleted))
             {
@@ -711,7 +716,7 @@ internal sealed class EnemyCollision
             EnemyPowerBombReaction? reaction = (enemy.Entity as IEnemyPowerBombReaction)?.PowerBombReaction;
             if (reaction?.SkipsEnemy?.Invoke(enemy) == true)
                 continue;
-            var context = new EnemyPowerBombContext(enemy, samus, level, camera);
+            var context = new EnemyPowerBombContext(occupant, samus, level, camera);
 
             // A reaction of the enemy's own replaces the common Power Bomb damage, and the
             // enemy still goes on updating off screen once the blast's ellipse reaches it.
@@ -736,7 +741,7 @@ internal sealed class EnemyCollision
                 if (reaction?.ReplacesGenericDeath is { } replaceDeath)
                     replaceDeath(context);
                 else
-                    _deathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.Small, samus);
+                    _deathsAndDrops.StartGenericEnemyDeath(occupant, EnemyDeathExplosion.Small, samus);
             }
 
             reaction?.AfterCommon?.Invoke(context);
@@ -914,28 +919,29 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Handles the touch <paramref name="context"/> reached: the ordinary touch of its enemy by its Samus
-    /// (<see cref="ResolveOrdinaryTouch(RoomEnemyPlace, SamusState, PseudoScrewCharge, TouchDeathAnimation)"/>).
+    /// (<see cref="ResolveOrdinaryTouch(RoomEnemyOccupant, SamusState, PseudoScrewCharge, TouchDeathAnimation)"/>).
     /// </summary>
     internal void ResolveOrdinaryTouch(
         EnemyTouchContext context,
         TouchDeathAnimation deathAnimation = TouchDeathAnimation.Play) =>
-        ResolveOrdinaryTouch(context.Place, context.Samus, context.PseudoScrew, deathAnimation);
+        ResolveOrdinaryTouch(context.Occupant, context.Samus, context.PseudoScrew, deathAnimation);
 
     /// <summary>
     /// Handles Samus touching one already-overlapping ordinary actor. An ordinary touch, with no
     /// attacking contact, damages Samus; Speed Booster, shinespark, Screw Attack, and pseudo-Screw instead read
     /// their own entries from the enemy's vulnerabilities and damage the actor.
     /// </summary>
-    /// <param name="enemy">The touched enemy.</param>
+    /// <param name="touched">The touched enemy, read through its place.</param>
     /// <param name="samus">Samus, who touched it.</param>
     /// <param name="pseudoScrew">Samus's held charge, which her Pseudo Screw contact spends.</param>
     /// <param name="deathAnimation">Whether a lethal touch starts the enemy's death here.</param>
     internal void ResolveOrdinaryTouch(
-        RoomEnemyPlace enemy,
+        RoomEnemyOccupant touched,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         TouchDeathAnimation deathAnimation = TouchDeathAnimation.Play)
     {
+        RoomEnemyPlace enemy = Ensure.NotNull(touched).Place;
         SamusBodyAttack bodyAttack = samus.HorizontalSpeed.BodyAttack;
         int baseDamage;
         EnemyContactVulnerability contact = EnemyVulnerabilities.Of(enemy.Definition).Contact;
@@ -992,7 +998,7 @@ internal sealed class EnemyCollision
         if (deathAnimation == TouchDeathAnimation.Skip)
             return;
 
-        _deathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.SamusContact, samus);
+        _deathsAndDrops.StartGenericEnemyDeath(touched, EnemyDeathExplosion.SamusContact, samus);
     }
 
     /// <summary>Uses the strict radius test, excluding contact where either axis is only tangent.</summary>

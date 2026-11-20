@@ -14,7 +14,7 @@ internal static class FirefleaBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Fireflea.FirefleaBehavior self)
     {
         /// <summary>The private method <c>ResolveFirefleaTouch</c>, invoked by name.</summary>
-        internal void ResolveFirefleaTouch(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Enemies.PseudoScrewCharge pseudoScrew) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Fireflea.FirefleaBehavior>(self, "ResolveFirefleaTouch", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Enemies.PseudoScrewCharge)], new object?[] { place, samus, pseudoScrew });
+        internal void ResolveFirefleaTouch(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant fireflea, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Enemies.PseudoScrewCharge pseudoScrew) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Fireflea.FirefleaBehavior>(self, "ResolveFirefleaTouch", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Enemies.PseudoScrewCharge)], new object?[] { fireflea, samus, pseudoScrew });
     }
 }

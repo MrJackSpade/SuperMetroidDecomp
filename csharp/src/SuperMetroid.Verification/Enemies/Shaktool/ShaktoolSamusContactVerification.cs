@@ -39,7 +39,7 @@ internal static class ShaktoolSamusContactVerification
         runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(
             new Position16<RoomPixels>(0, 0));
         runtime.Enemies.Collision.ResolveOrdinarySamusContact(
-            samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, segment, Position16<RoomPixels>.Zero);
+            samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, segment.HeldOccupant(), Position16<RoomPixels>.Zero);
 
         AssertTrue(samus.Health < healthBefore, "$AA:DF2F deals common contact damage");
         AssertTrue(!samus.InvincibilityTimer.IsZero, "Shaktool contact damage starts invincibility");

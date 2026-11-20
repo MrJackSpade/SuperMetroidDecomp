@@ -168,7 +168,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (IsSpecialRinka(occupant) && _rinkaTerminationFlag)
         {
             ReleaseSpecialRinkaSpawn(state);
-            RunRinkaDeathAnimation(place);
+            RunRinkaDeathAnimation(occupant);
             return;
         }
 
@@ -229,7 +229,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         ReleaseSpecialRinkaSpawn(state);
         if (!IsSpecialRinka(occupant))
         {
-            RunRinkaDeathAnimation(place);
+            RunRinkaDeathAnimation(occupant);
             return;
         }
 
@@ -246,15 +246,16 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs a frozen Rinka's own step before the common thaw: outside its flight window it thaws at once, and once the
     /// Rinkas are ending it dies; true when it died.
     /// </summary>
-    internal bool ThawOrDieWhileFrozen(RoomEnemyPlace place)
+    internal bool ThawOrDieWhileFrozen(RoomEnemyOccupant occupant)
     {
+        RoomEnemyPlace place = occupant.Place;
         if (RinkaIsOutsideFlightWindow(place))
             place.Freeze.End();
         if (!_rinkaTerminationFlag)
             return false;
 
         ReleaseSpecialRinkaSpawn(place.RequireSpeciesState<RinkaEnemyState>());
-        RunRinkaDeathAnimation(place);
+        RunRinkaDeathAnimation(occupant);
         return true;
     }
 
@@ -416,9 +417,10 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Removes a dying Rinka in its small death explosion: an ordinary Rinka respawns from its population entry when the
     /// explosion ends, and a terminated special Rinka, which does not respawn, is gone.
     /// </summary>
-    internal void RunRinkaDeathAnimation(RoomEnemyPlace place)
+    internal void RunRinkaDeathAnimation(RoomEnemyOccupant rinka)
     {
+        RoomEnemyPlace place = rinka.Place;
         _deathsAndDrops.RecordKill(place);
-        _deathsAndDrops.RemoveKilledEnemy(place, EnemyDeathExplosion.Small, respawns: place.Presence.HasAny(EnemyPresence.RespawnsIfKilled));
+        _deathsAndDrops.RemoveKilledEnemy(rinka, EnemyDeathExplosion.Small, respawns: place.Presence.HasAny(EnemyPresence.RespawnsIfKilled));
     }
 }

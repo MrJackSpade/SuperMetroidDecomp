@@ -46,7 +46,7 @@ internal static class EnemyBombShotReactionVerification
                 new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
 
             enemies.Audio.BeginFrame();
-            enemies.Collision.ResolveOrdinaryBombHit(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), place, Position16<RoomPixels>.Zero);
+            enemies.Collision.ResolveOrdinaryBombHit(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), place.HeldOccupant(), Position16<RoomPixels>.Zero);
 
             bool immune = kind == "immune";
             AssertTrue(bomb.IsSpent, $"{kind}: the hit marks the bomb");
@@ -99,7 +99,7 @@ internal static class EnemyBombShotReactionVerification
                 new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
 
             enemies.Audio.BeginFrame();
-            enemies.Collision.ResolveOrdinaryBombHit(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), enemy, Position16<RoomPixels>.Zero);
+            enemies.Collision.ResolveOrdinaryBombHit(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), enemy.HeldOccupant(), Position16<RoomPixels>.Zero);
             AssertEqual(hit, bomb.IsSpent, $"{kind}: the hit marks the bomb");
             AssertEqual(hit ? 1000 - 30 : 1000, enemy.Health, $"{kind}: the Mellow's health after the bomb");
         }

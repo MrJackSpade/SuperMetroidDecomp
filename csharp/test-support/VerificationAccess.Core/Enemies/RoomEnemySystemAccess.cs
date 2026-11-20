@@ -283,7 +283,7 @@ internal static class RoomEnemySystemAccess
             self.Places.InUpdateOrder.Select(place => place.EntityState<BabyMetroidEntity, BabyMetroidEnemyState>()).OfType<BabyMetroidEnemyState>().Single();
 
         /// <summary>Native $40-byte slot offsets selected by the most recent activity scan.</summary>
-        internal IReadOnlyList<RoomEnemyPlace> ActiveEnemies => self.ProcessingWindow.ActiveEnemies;
+        internal IReadOnlyList<RoomEnemyOccupant> ActiveEnemies => self.ProcessingWindow.ActiveEnemies;
 
         /// <summary>Typed native state for every physical Etecoon slot.</summary>
         internal IReadOnlyList<EtecoonEnemyState?> EtecoonStates =>
@@ -415,7 +415,7 @@ internal static class RoomEnemySystemAccess
             // Each body resolves its own contact with the encounter it holds (#2231).
             RoomEnemyPlace body = self.Places.InUpdateOrder.First(place => place.Entity is SuperMetroid.Core.Bosses.Ridley.RidleyEntity);
             SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState ridley = SuperMetroid.Core.Bosses.Ridley.RidleyEntityConstants.EncounterOf(body);
-            self.RidleyBody.Contact.ResolveSamusContact(body, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
+            self.RidleyBody.Contact.ResolveSamusContact(body.HeldOccupant(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
             SuperMetroid.Core.Bosses.Ridley.RidleyTail.ResolveRidleyTailSamusContact(body, ridley, samus);
         }
     }

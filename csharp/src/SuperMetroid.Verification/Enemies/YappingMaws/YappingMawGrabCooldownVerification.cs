@@ -81,7 +81,7 @@ internal static class YappingMawGrabCooldownVerification
 
     /// <summary>Samus touching the Maw's mouth.</summary>
     private static EnemyTouchContext Touch(RoomEnemyPlace place, SamusState samus) =>
-        new(place, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), default, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)),
+        new(place.HeldOccupant(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), default, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)),
             UsesFrameHitboxes: false, HitboxTouch: null, Position16<RoomPixels>.Zero);
 
     /// <summary>A standing Samus.</summary>

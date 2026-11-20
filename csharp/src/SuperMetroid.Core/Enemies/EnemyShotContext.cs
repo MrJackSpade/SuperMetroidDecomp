@@ -6,7 +6,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>One Samus projectile overlapping one enemy in the ordinary shot pass.</summary>
-/// <param name="Enemy">The enemy whose shot reaction runs.</param>
+/// <param name="Occupant">The enemy whose shot reaction runs, which a killing hit kills.</param>
 /// <param name="Projectile">The overlapping beam or missile.</param>
 /// <param name="Projectiles">Samus's projectile owner, for collision preludes, impacts and reflection.</param>
 /// <param name="Samus">Samus.</param>
@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <remarks>The stages from vulnerability on receive it as an <see cref="EnemyShotHitContext"/>, which adds the sampled health.</remarks>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal record EnemyShotContext(
-    RoomEnemyPlace Enemy,
+    RoomEnemyOccupant Occupant,
     SamusProjectile Projectile,
     SamusProjectileSystem Projectiles,
     SamusState Samus,
@@ -32,6 +32,9 @@ internal record EnemyShotContext(
     EnemyReaction? HitboxShot,
     Position16<RoomPixels> Camera)
 {
+    /// <summary>The place the struck occupant was spawned in, which the reaction reads and writes.</summary>
+    internal RoomEnemyPlace Enemy => Occupant.Place;
+
     /// <summary>Whether the common shot reaction froze the enemy at once; set for <see cref="EnemyShotReaction.AfterCommon"/>.</summary>
     internal bool Froze { get; init; }
 

@@ -27,7 +27,7 @@ internal static class KraidPartsAccess
             ];
             for (int place = 0; place < roomOrder.Length; place++)
             {
-                roomOrder[place].Reference.Join(enemies.InUpdateOrder[place]);
+                roomOrder[place].Reference.Join(enemies.InUpdateOrder[place].HeldOccupant());
                 KraidEncounterAccess.AttachKraidPart(roomOrder[place].State);
             }
             return state;

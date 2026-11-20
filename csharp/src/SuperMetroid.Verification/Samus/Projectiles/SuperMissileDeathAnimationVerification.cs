@@ -59,7 +59,7 @@ internal static class SuperMissileDeathAnimationVerification
         shot.Radius = new(4, 4);
         shot.Animation = ProjectileFixturePlaybacks.Active();
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
-            enemy, Position16<RoomPixels>.Zero);
+            enemy.HeldOccupant(), Position16<RoomPixels>.Zero);
 
         EnemyProjectile explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);

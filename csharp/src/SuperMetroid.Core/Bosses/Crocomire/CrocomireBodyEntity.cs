@@ -25,7 +25,7 @@ internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOc
     internal override CrocomireEnemyState Encounter => Place.RequireSpeciesState<CrocomireEnemyState>();
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunCrocomireMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunCrocomireMainAi(Occupant, frame);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceCrocomireTypedAnimation(Place, context);

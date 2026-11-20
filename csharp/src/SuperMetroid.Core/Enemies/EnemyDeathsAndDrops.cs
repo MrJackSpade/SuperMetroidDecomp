@@ -82,21 +82,22 @@ internal sealed class EnemyDeathsAndDrops
     /// while the death explosion retains the definition, position, and optional respawn index until
     /// its authored animation reaches its become-pickup cue.
     /// </summary>
-    /// <param name="enemy">The dying enemy.</param>
+    /// <param name="killed">The dying enemy, whose place its death empties.</param>
     /// <param name="deathAnimation">The explosion it dies in.</param>
     /// <param name="samus">Samus, whose grapple a grappled enemy's death drops.</param>
     internal void StartGenericEnemyDeath(
-        RoomEnemyPlace enemy,
+        RoomEnemyOccupant killed,
         EnemyDeathExplosion deathAnimation,
         SamusState samus)
     {
         Ensure.NotNull(samus);
+        RoomEnemyPlace enemy = Ensure.NotNull(killed).Place;
         RecordKill(enemy);
         // The death puts the grapple into its dropped phase before clearing the enemy.
         // Only an enemy the grapple kills outright counts, not one it reacts to otherwise.
         if (enemy.AiStates == EnemyAiStates.Grappled)
             samus.Grapple.Phase = GrapplePhase.Dropped;
-        RemoveKilledEnemy(enemy, deathAnimation, respawns: enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled));
+        RemoveKilledEnemy(killed, deathAnimation, respawns: enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled));
         _roomStatus.RecordKill();
     }
 
@@ -107,16 +108,17 @@ internal sealed class EnemyDeathsAndDrops
     /// cue rebuilds the enemy from that entry. When every projectile place is held the explosion is lost, and with it the
     /// enemy's drop and its only respawn cue.
     /// </summary>
-    /// <param name="enemy">The killed enemy.</param>
+    /// <param name="killed">The killed enemy, whose place is emptied.</param>
     /// <param name="deathAnimation">The explosion it dies in.</param>
     /// <param name="respawns">Whether the explosion's respawn cue rebuilds the enemy.</param>
-    internal void RemoveKilledEnemy(RoomEnemyPlace enemy, EnemyDeathExplosion deathAnimation, bool respawns)
+    internal void RemoveKilledEnemy(RoomEnemyOccupant killed, EnemyDeathExplosion deathAnimation, bool respawns)
     {
-        Ensure.NotNull(enemy);
+        RoomEnemyPlace enemy = Ensure.NotNull(killed).Place;
         EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathExplosion, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard);
         Position16<RoomPixels> killedAt = enemy.Position.Whole;
+        // A second death of an occupant already killed finds its place holding none, and its explosion drops nothing.
         RoomEnemyOccupant? dropper = enemy.Occupant;
-        PopulatedEnemyPlace killedIn = enemy.Kill(respawns);
+        PopulatedEnemyPlace killedIn = killed.Kill(respawns);
         if (explosion is not null)
         {
             explosion.Position = explosion.Position.WithWhole(killedAt);

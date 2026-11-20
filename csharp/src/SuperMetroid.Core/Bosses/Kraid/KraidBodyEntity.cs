@@ -17,7 +17,7 @@ internal sealed class KraidBodyEntity(KraidBehavior species, RoomEnemyOccupant o
     protected override void SetUp() => Species.Rise.InitializeKraidBody(Place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunKraidMainAi(Place, Encounter, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunKraidMainAi(Occupant, Encounter, frame);
 
     /// <summary>
     /// The shared Power Bomb reaction; Kraid's body leaves the blast to the species, which has no reaction to it, and fails

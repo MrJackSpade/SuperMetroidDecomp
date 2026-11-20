@@ -100,7 +100,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// before the death setup runs in this same update.
     /// </summary>
     private void RunKraidBodyMain(
-        RoomEnemyPlace body,
+        RoomEnemyOccupant kraid,
         KraidEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
@@ -108,18 +108,20 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusProjectileSystem samusProjectiles,
         SamusBombProjectileSystem samusBombs)
     {
+        RoomEnemyPlace body = kraid.Place;
         IReadOnlyList<KraidPassProjectile> tested = TestedByShotPasses(samusProjectiles, samusBombs);
         Combat.ResolveKraidMouthProjectileHits(body, state, tested);
         Head.RunKraidHurtColours(body, state);
         Combat.ResolveKraidBodyProjectileHits(body, state, tested);
-        Combat.ResolveKraidBodyContact(body, state, samus, pseudoScrew);
+        Combat.ResolveKraidBodyContact(kraid, state, samus, pseudoScrew);
         RunKraidBodyStage(body, state, camera.X, samus);
     }
 
     /// <summary>Runs Kraid's main AI for his body in <paramref name="place"/>.</summary>
-    internal void RunKraidMainAi(RoomEnemyPlace place, KraidEnemyState state, IEnemyAiFrame frame)
+    internal void RunKraidMainAi(RoomEnemyOccupant kraid, KraidEnemyState state, IEnemyAiFrame frame)
     {
-        RunKraidBodyMain(place, state, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SamusBombs);
+        RoomEnemyPlace place = kraid.Place;
+        RunKraidBodyMain(kraid, state, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SamusBombs);
     }
 
     /// <summary>

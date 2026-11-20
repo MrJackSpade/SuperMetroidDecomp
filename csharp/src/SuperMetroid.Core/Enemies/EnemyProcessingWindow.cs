@@ -23,12 +23,12 @@ internal sealed class EnemyProcessingWindow
         _places = places;
     }
     /// <summary>The enemies scheduled for AI this frame, including forced off-screen actors, in place order.</summary>
-    private readonly List<RoomEnemyPlace> _activeEnemies = new();
+    private readonly List<RoomEnemyOccupant> _activeEnemies = new();
     /// <summary>The active enemies still eligible for Samus interaction and grapple endpoint scans, in place order.</summary>
     private readonly List<RoomEnemyPlace> _interactiveEnemies = new();
 
     /// <summary>The enemies scheduled for AI this frame, in place order.</summary>
-    internal IReadOnlyList<RoomEnemyPlace> ActiveEnemies => _activeEnemies;
+    internal IReadOnlyList<RoomEnemyOccupant> ActiveEnemies => _activeEnemies;
 
     /// <summary>The active enemies still eligible for Samus interaction, in place order.</summary>
     internal IReadOnlyList<RoomEnemyPlace> InteractiveEnemies => _interactiveEnemies;
@@ -41,7 +41,7 @@ internal sealed class EnemyProcessingWindow
         foreach (RoomEnemyPlace place in _places.InUpdateOrder)
         {
             // A place with no enemy, one awaiting its enemy's respawn among them, is not processed.
-            if (place.Occupant is null)
+            if (place.Occupant is not { } occupant)
                 continue;
             if (place.Presence.HasAny(EnemyPresence.Deleted))
             {
@@ -56,7 +56,7 @@ internal sealed class EnemyProcessingWindow
             if (!active)
                 continue;
 
-            _activeEnemies.Add(place);
+            _activeEnemies.Add(occupant);
             if (!place.Contact.HasAny(EnemyContact.IgnoresSamus))
                 _interactiveEnemies.Add(place);
         }

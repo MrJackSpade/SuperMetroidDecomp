@@ -54,7 +54,7 @@ internal static class MockballBoostContactVerification
                 enemy.Health = 1000;
                 samus.InvincibilityTimer = WrappingCountdown.Start(1); // Non-attacking control cannot hurt Samus.
                 fixture.System.ProcessingWindow.DetermineWhichEnemiesToProcess(Position16<RoomPixels>.Zero);
-                fixture.System.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, floor, enemy, Position16<RoomPixels>.Zero);
+                fixture.System.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, floor, enemy.HeldOccupant(), Position16<RoomPixels>.Zero);
                 AssertEqual(500, enemy.Health, $"pose {(int)SamusPoseNumbers.Number(pose):X2} mockball frame {frame} inflicts native 500 boost damage");
                 AssertEqual(SamusBodyAttack.SpeedBooster, speed.BodyAttack, "moving ball republishes Speed Booster contact attack");
                 AssertEqual(7, speed.ExtraRunSpeed.Whole, "moving ball retains boost momentum");

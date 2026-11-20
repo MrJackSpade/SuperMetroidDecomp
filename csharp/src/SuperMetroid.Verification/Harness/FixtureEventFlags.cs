@@ -6,7 +6,7 @@ namespace SuperMetroid.Verification.Harness;
 /// Event bits a focused enemy fixture installs (#633). An operation the fixture did not install fails
 /// at the dependency, as a host without the service would.
 /// </summary>
-internal sealed class FixtureEventFlags : IGlobalEventFlags
+internal sealed class FixtureEventFlags : IStoryEvents
 {
     /// <summary>Answers event queries.</summary>
     public Func<StoryEvent, bool>? HasEvent { get; init; }

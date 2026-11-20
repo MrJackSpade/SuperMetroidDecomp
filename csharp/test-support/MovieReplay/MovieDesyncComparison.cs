@@ -40,7 +40,7 @@ internal static class MovieDesyncComparison
     /// The health the cartridge refills the Baby Metroid to on each of its main AI steps, though nothing damages it; the
     /// port keeps its definition's health, which nothing reads (#2257).
     /// </summary>
-    private const int RefilledShitroidNativeHealth = 32767;
+    private const int RefilledBabyMetroidNativeHealth = 32767;
 
     /// <summary>Prints port and native state at a converted update to diagnose the first replay divergence.</summary>
     internal static void TraceMovieSamus(SuperMetroidGame game, NativeCheckpointMemory memory, int update, ConvertedMovieUpdate step)
@@ -284,5 +284,5 @@ internal static class MovieDesyncComparison
     /// main AI holds the refilled health.
     /// </summary>
     private static int NativeHealth(RoomEnemyPlace actor) =>
-        actor.DefinitionId == EnemyDefinitionId.BabyMetroid && actor.FrameCounter != 0 ? RefilledShitroidNativeHealth : actor.Health;
+        actor.DefinitionId == EnemyDefinitionId.BabyMetroid && actor.FrameCounter != 0 ? RefilledBabyMetroidNativeHealth : actor.Health;
 }

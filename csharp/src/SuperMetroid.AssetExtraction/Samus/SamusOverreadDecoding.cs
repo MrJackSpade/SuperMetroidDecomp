@@ -166,7 +166,7 @@ internal static class SamusOverreadDecoding
                 Leading(ProgressionSliceLayout.UsedSaveStationsOffset, ProgressionSliceLayout.MapStationsOffset))), LoadStationDefinitions.Usable, station => station.Name),
             ProgressionTableCodec.AreaMapsPrefix(Leading(ProgressionSliceLayout.MapStationsOffset, ProgressionSliceLayout.LoadingGameStateOffset))
                 .ToDictionary(area => AreaIdKeys.Installed.Of(area.Key), area => area.Value),
-            loadingState is int word ? SaveLoadingGameStateKeys.Installed.Of(SaveLoadingGameStateCodec.Route(word)) : null);
+            loadingState is int word ? SaveStartupRouteKeys.Installed.Of(SaveStartupRouteCodec.Route(word)) : null);
     }
 
     /// <summary>

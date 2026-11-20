@@ -14,13 +14,13 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
     IEnemyRandomNumbers Random { get; }
 
     /// <summary>The story events that have happened.</summary>
-    IGlobalEventFlags Events { get; }
+    IStoryEvents Events { get; }
 
     /// <summary>How many Zebetites have been destroyed.</summary>
     IZebetiteProgress ZebetiteProgress { get; }
 
     /// <summary>The current area's defeated bosses.</summary>
-    IAreaBossFlags Bosses { get; }
+    IDefeatedBossesRecorder Bosses { get; }
 
     /// <summary>The active room-object population.</summary>
     IRoomObjectPresence RoomObjects { get; }

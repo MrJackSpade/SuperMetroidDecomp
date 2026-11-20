@@ -52,7 +52,7 @@ internal static class ClosedPresentationIdentityDefinitions
             .Select(definition => (int)definition.Id).ToArray(),
         ("KraidColorCatalog", "Resolve", "source") => Enum.GetValues<KraidPaletteSource>().Select(id => (int)id).ToArray(),
         ("DachoraColorCatalog", "Resolve", "phase") => Enum.GetValues<DachoraColourPhase>().Select(id => (int)id).ToArray(),
-        ("ShitroidColorCatalog", "TargetColor", "target") => Enum.GetValues<ShitroidColorTarget>().Select(id => (int)id).ToArray(),
+        ("BabyMetroidColorCatalog", "TargetColor", "target") => Enum.GetValues<BabyMetroidColorTarget>().Select(id => (int)id).ToArray(),
         ("EscapeTypewriterPresentation", "Get", "id") => Enum.GetValues<EscapeTypewriterMessageId>().Select(id => (int)id).ToArray(),
         ("IntroNarrationPresentation", "GetLines" or "Compile", "page") =>
             Enum.GetValues<IntroNarrationPageId>().Select(id => (int)id).ToArray(),

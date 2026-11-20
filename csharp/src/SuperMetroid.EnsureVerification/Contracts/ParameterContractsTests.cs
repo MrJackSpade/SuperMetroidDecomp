@@ -26,7 +26,7 @@ internal static class ParameterContractsTests
             "IOldTourianWallExplosion wall = effects; IDraygonCannonControl cannon = effects;");
         VerifyContract("a PLM family cannot reach another family's effect", "noobTube.DisableDraygonCannon(0);", "CS1061");
         VerifyContract("PLM boss reads are read-only", "bossReader.SetDefeated(DefeatedBosses.AreaTorizo);", "CS1061");
-        VerifyContract("area boss flags satisfy the PLM reader", "IAreaBossFlagReader reader = bosses;");
+        VerifyContract("area boss flags satisfy the PLM reader", "IDefeatedBossesReader reader = bosses;");
         VerifyContract("PLM services require Samus", "_ = new RoomObjectServices { Bosses = bossReader, Events = events, " +
             "TourianStatue = statue, RoomFx = fx, Earthquake = earthquake, Enemies = effects };", "CS9035");
         VerifyContract("PLM services require the room's FX (#2015)", "_ = new RoomObjectServices { Samus = samus, " +
@@ -67,8 +67,8 @@ internal static class ParameterContractsTests
             class ContractCaller
             {
                 void Run(IRoomEnemyServices enemies, IChozoStatueRoomServices chozo, IMotherBrainRoomServices motherBrain,
-                    IRoomObjectEnemyEffects effects, INoobTubeProjectileSpawner noobTube, IAreaBossFlags bosses,
-                    IAreaBossFlagReader bossReader, IRoomSamusAccess samus, IGlobalEventFlags events,
+                    IRoomObjectEnemyEffects effects, INoobTubeProjectileSpawner noobTube, IDefeatedBossesRecorder bosses,
+                    IDefeatedBossesReader bossReader, IRoomSamusAccess samus, IStoryEvents events,
                     ITourianStatueProgress statue, IRoomObjectFx fx, IRoomEarthquakeWriter earthquake,
                     DemoInputState demo)
                 {

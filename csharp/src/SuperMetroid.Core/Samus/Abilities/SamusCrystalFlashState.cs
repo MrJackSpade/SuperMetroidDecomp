@@ -293,7 +293,7 @@ public sealed class SamusCrystalFlashState
         // end of the rise. Anything else that moved Samus up or down makes her whole vertical position step down one
         // pixel each update it differs from the raised height.
         if (samus.Position.Y.Whole != RaisedHeight)
-            samus.Position += new Offset16<RoomPixels>(0, 1);
+            samus.Position += CrystalFlashDefinitions.SettleStep;
 
         // The pose's animation ends in a transition to the facing standing pose, which occurs after movement.
         // Therefore cleanup naturally happens on the following movement phase, once standing movement is

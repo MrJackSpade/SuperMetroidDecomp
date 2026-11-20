@@ -39,7 +39,7 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
     internal bool HitCountArmed { get; private set; }
 
     /// <summary>How long the glass holds before its next step: its first update, then each image's own updates.</summary>
-    private readonly BossCountdown _holdBeforeNextStep = BossCountdown.Lasting(1);
+    private readonly BossCountdown _holdBeforeNextStep = BossCountdown.LastingOneUpdate();
 
     /// <summary>
     /// A Missile or Super Missile that strikes the glass's block counts a hit as it lands once the glass counts hits (#2562):

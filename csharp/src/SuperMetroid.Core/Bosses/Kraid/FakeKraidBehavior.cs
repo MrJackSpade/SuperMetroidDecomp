@@ -359,7 +359,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Fake Kraid's initialization AI.</summary>
-    internal void RunFakeKraidInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    internal void SetUpFakeKraid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         InitializeFakeKraid(place, surroundings.Samus);
     }
@@ -410,7 +410,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ReactToFakeKraidTouch(EnemyTouchContext context)
     {
         int healthBefore = context.Place.Health;
-        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
+        _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
         if (healthBefore != 0 && context.Place.Health == 0)
             KillFakeKraid(context.Place, context.Samus);
     }

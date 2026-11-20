@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
@@ -6,6 +8,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusBodyPlacementSourceDefinitions
 {
+    /// <summary>
+    /// Where the unsuited forward-facing body's chest cover sits from Samus's world point: seven pixels left of it and
+    /// seventeen above it.
+    /// </summary>
+    internal static Offset16<ScreenPixels> ChestCoverFromWorldPoint { get; } = new(-7, -17);
+
     /// <summary>The landing table's bytes: four landing poses, the right- and left-facing normal and spin landings.</summary>
     internal const int LandingByteCount = 16;
 

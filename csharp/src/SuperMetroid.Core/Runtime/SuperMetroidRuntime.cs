@@ -59,9 +59,6 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The room objects' part of each update: the room's objects run, and an item's or station's message box opens.</summary>
     internal RoomObjectFramePhase RoomObjectPhase { get; }
 
-    /// <summary>The rooms' own behaviour each update: Ceres's falling debris, Crocomire's comeback and the block animations.</summary>
-    internal RoomMainRoutines RoomMains { get; }
-
     /// <summary>Sets up the HUD when gameplay starts.</summary>
     internal GameplayHudSetup HudSetup { get; }
 
@@ -238,7 +235,6 @@ internal sealed class SuperMetroidRuntime
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, SuitPickup = SuitPickup, System = System });
         RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { PlayerActions = PlayerActions, PlayerButtons = PlayerButtons, Options = Options, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, SuitPickup = SuitPickup});
-        RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, System = System });
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { AttractDemo = AttractDemo, PlayerActions = PlayerActions, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, System = System, DoorPassage = DoorTransition.Passage });
 
         // Gameplay starts with Samus in her starting shades; every other picture shows its standard colours (#1512).
@@ -1087,7 +1083,7 @@ internal sealed class SuperMetroidRuntime
     /// <returns>What the room's main did that the update acts on; a room with no main does nothing (#2545).</returns>
     private RoomMainOutcome RunRoomMains(bool gameInMainGameplay, RoomScope room, SamusState samus)
     {
-        RoomMains.RunBlockAnimations(room, samus);
+        room.StepBlockAnimations(samus, System);
 
         // The room's main runs after gameplay drawing and the HUD, and before the room shakes (#2287). The Ceres elevator
         // shaft's main publishes a tilt for the following frame's presentation and may take Samus onto the Ceres elevator
@@ -1097,7 +1093,8 @@ internal sealed class SuperMetroidRuntime
         return main.Run(new RoomMainUpdate
         {
             Room = room,
-            Mains = RoomMains,
+            BackgroundScroll = BackgroundScroll,
+            RandomNumber = System.RandomNumber,
             Escape = EscapeEffects,
             Player = Player,
             FrameCounter = Clock.Counter,

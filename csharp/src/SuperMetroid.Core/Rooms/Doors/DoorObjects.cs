@@ -104,7 +104,7 @@ internal sealed class DoorObjects
         RoomLevelData level,
         RoomObjectPlace place,
         ColoredDoorVariant variant,
-        LockedDoorArgument door)
+        DoorLock door)
     {
         ApplyColoredDoorSetup(level, place.Block);
         place.BecomeDoor(new ColoredDoorObject(variant, new PlacedDoor(door)));

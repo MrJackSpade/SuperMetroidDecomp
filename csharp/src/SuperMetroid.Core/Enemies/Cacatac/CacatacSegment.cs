@@ -9,17 +9,17 @@ internal enum CacatacSegment
     /// <summary>
     /// Standing upright on its patrol, its spikes splaying, drawing in, gathering tall and stretching out, repeating.
     /// </summary>
-    UpsideUpIdle,
+    OnFloorIdle,
     /// <summary>
     /// Standing upright, puffing up and firing five spikes in a fan above it with their sound, then idling again.
     /// </summary>
-    UpsideUpAttack,
+    OnFloorAttack,
     /// <summary>The upside-down idle's start: its restore-patrol cue.</summary>
-    UpsideDownIdle,
+    OnCeilingIdle,
     /// <summary>Hanging upside down, its spikes splaying, drawing in, gathering tall and stretching out, eight updates each.</summary>
-    UpsideDownIdlePoses,
+    OnCeilingIdlePoses,
     /// <summary>
     /// Hanging upside down, puffing up and firing five spikes in a fan below it with their sound, then idling again.
     /// </summary>
-    UpsideDownAttack,
+    OnCeilingAttack,
 }

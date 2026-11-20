@@ -191,7 +191,7 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
     };
     SamusPoseMetadata.RefreshCollisionRadii(left);
     SamusPresentation.InitializeAnimation(left);
-    left.Drained.PutCrouchingOrFalling(left);
+    left.Drained.CrouchDrained(left);
     AssertEqual(SamusPoseId.DrainedCrouchingLeftPose, left.Pose,
         "controller four selects left crouching/falling pose");
     AssertEqual(8, left.AnimationNumber, "controller four writes byte index eight");
@@ -270,7 +270,7 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
 
     // The handler survives the later controller-four pose change. It accepts Up only from
     // left drained `$E9` at frame >=8, writes 13/1, and replaces itself with RTS.
-    able.Drained.PutCrouchingOrFalling(able);
+    able.Drained.CrouchDrained(able);
     AssertTrue(!able.Drained.RunGetUpCheck(able, newlyPressedInput: 0),
         "able timer handler ignores absent Up edge");
     AssertTrue(able.Drained.RunGetUpCheck(able, newlyPressedInput: GameplayAction.Up),
@@ -288,7 +288,7 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
     SamusPoseMetadata.RefreshCollisionRadii(unable);
     SamusPresentation.InitializeAnimation(unable);
     unable.Drained.SetupForRainbowBeamUnableToStand(unable);
-    unable.Drained.PutCrouchingOrFalling(unable);
+    unable.Drained.CrouchDrained(unable);
     AssertEqual(DrainedGetUpCheck.UnableToStand, unable.Drained.GetUpCheck,
         "rainbow command $18 installs failed-stand timer handler");
     AssertTrue(unable.Drained.RunGetUpCheck(unable, newlyPressedInput: GameplayAction.Up),
@@ -756,9 +756,9 @@ internal static void VerifySamusGrabbedByDraygon()
     SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, rightUpShoot.ProspectivePose);
     AssertEqual(SamusPoseId.DraygonGrabbedAimUpRightPose, samus.Pose,
         "right grabbed aim transition applies");
-    AssertEqual(SamusNoInputFallback.ToPose(SamusPoseId.DraygonGrabbedNeutralRightPose),
-        SamusPoseMetadata.ReadNoInputFallback(samus), "right grabbed aim fallback is $EC");
-    SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, SamusPoseMetadata.ReadNoInputFallback(samus).From(samus.Pose));
+    AssertEqual(SamusNoInputPose.ToPose(SamusPoseId.DraygonGrabbedNeutralRightPose),
+        SamusPoseMetadata.ReadNoInputPose(samus), "right grabbed aim fallback is $EC");
+    SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, SamusPoseMetadata.ReadNoInputPose(samus).From(samus.Pose));
     AssertThrows<InvalidOperationException>(
         () => SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, 
             SamusPoseId.DraygonGrabbedNeutralLeftPose),
@@ -782,7 +782,7 @@ internal static void VerifySamusGrabbedByDraygon()
     samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(3, 0x4000);
     samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0x8000);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
-    samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(4, 0xc000), SamusVerticalDirection.Down);
+    samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(4, 0xc000), SamusVerticalDirection.Down);
     samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
 
     bool release = repeatedUp;

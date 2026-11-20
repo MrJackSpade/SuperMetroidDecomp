@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Area boss bosses a focused enemy fixture installs (#633), per <see cref="DefeatedBosses"/> kind.</summary>
-internal sealed class FixtureAreaBossFlags : IAreaBossFlags
+internal sealed class FixtureAreaBossFlags : IDefeatedBossesRecorder
 {
     /// <summary>Answers the area-boss query.</summary>
     public Func<bool>? IsBossDefeated { get; init; }

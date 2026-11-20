@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using SuperMetroid.EnsureAnalyzer.CartridgeEncoding;
@@ -23,37 +22,6 @@ public sealed class CatalogDecisionAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>A Core catalog file holds a decision or a procedure.</summary>
     public const string CatalogDecisionId = "SME6451";
-
-    /// <summary>Methods that take a predicate and decide which elements of a sequence count.</summary>
-    private static readonly ImmutableHashSet<string> PredicateMethods =
-    [
-        "Where", "Any", "All", "First", "FirstOrDefault", "Single", "SingleOrDefault", "Last", "LastOrDefault",
-        "Count", "LongCount", "TakeWhile", "SkipWhile", "Find", "FindIndex", "FindLast", "FindLastIndex", "FindAll",
-        "Exists", "TrueForAll", "RemoveAll",
-    ];
-
-    /// <summary>The decision syntax a catalog may not hold, each with how the diagnostic names it.</summary>
-    private static readonly ImmutableDictionary<SyntaxKind, string> Decisions = new Dictionary<SyntaxKind, string>
-    {
-        [SyntaxKind.IfStatement] = "an 'if'",
-        [SyntaxKind.SwitchStatement] = "a 'switch' statement",
-        [SyntaxKind.SwitchExpression] = "a 'switch' expression",
-        [SyntaxKind.ConditionalExpression] = "a conditional '?:'",
-        [SyntaxKind.CoalesceExpression] = "a null-coalescing '??'",
-        [SyntaxKind.CoalesceAssignmentExpression] = "a null-coalescing '??'",
-        [SyntaxKind.ConditionalAccessExpression] = "a null-conditional access",
-        [SyntaxKind.ForStatement] = "a loop",
-        [SyntaxKind.ForEachStatement] = "a loop",
-        [SyntaxKind.ForEachVariableStatement] = "a loop",
-        [SyntaxKind.WhileStatement] = "a loop",
-        [SyntaxKind.DoStatement] = "a loop",
-        [SyntaxKind.GotoStatement] = "a 'goto'",
-        [SyntaxKind.GotoCaseStatement] = "a 'goto'",
-        [SyntaxKind.GotoDefaultStatement] = "a 'goto'",
-        [SyntaxKind.IsPatternExpression] = "a pattern test",
-        [SyntaxKind.IsExpression] = "a pattern test",
-        [SyntaxKind.WhereClause] = "a query predicate",
-    }.ToImmutableDictionary();
 
     private static readonly DiagnosticDescriptor Rule = new(
         CatalogDecisionId,
@@ -80,13 +48,7 @@ public sealed class CatalogDecisionAnalyzer : DiagnosticAnalyzer
         {
             if (start.Compilation.AssemblyName != CoreLayerAnalyzer.CoreAssembly)
                 return;
-            start.RegisterSyntaxNodeAction(AnalyzeDecision, [.. Decisions.Keys]);
-            start.RegisterSyntaxNodeAction(AnalyzeComparison,
-                SyntaxKind.EqualsExpression, SyntaxKind.NotEqualsExpression, SyntaxKind.LessThanExpression,
-                SyntaxKind.LessThanOrEqualExpression, SyntaxKind.GreaterThanExpression,
-                SyntaxKind.GreaterThanOrEqualExpression, SyntaxKind.LogicalAndExpression, SyntaxKind.LogicalOrExpression);
-            start.RegisterSyntaxNodeAction(AnalyzePredicate, SyntaxKind.InvocationExpression);
-            start.RegisterSyntaxNodeAction(AnalyzeBody, SyntaxKind.Block);
+            start.RegisterSyntaxNodeAction(Analyze, CatalogDecisions.Kinds);
         });
     }
 
@@ -94,71 +56,16 @@ public sealed class CatalogDecisionAnalyzer : DiagnosticAnalyzer
     internal static bool IsCatalog(SyntaxTree tree) =>
         CartridgeEncodingScanner.IsCatalogFile(tree.FilePath) && !CartridgeEncodingScanner.IsBuildGenerated(tree.FilePath);
 
-    /// <summary>Reports a branch, loop, jump, test or query predicate.</summary>
-    private static void AnalyzeDecision(SyntaxNodeAnalysisContext context)
-    {
-        if (!IsCatalog(context.Node.SyntaxTree))
-            return;
-        Report(context, context.Node.GetFirstToken().GetLocation(), Decisions[context.Node.Kind()]);
-    }
-
-    /// <summary>Reports a comparison or logical test whose value is not a compile-time constant.</summary>
-    private static void AnalyzeComparison(SyntaxNodeAnalysisContext context)
+    /// <summary>Reports a decision or procedure in a catalog file.</summary>
+    private static void Analyze(SyntaxNodeAnalysisContext context)
     {
         if (!IsCatalog(context.Node.SyntaxTree) ||
-            context.SemanticModel.GetConstantValue(context.Node, context.CancellationToken).HasValue)
+            CatalogDecisions.Describe(context.Node, context.SemanticModel, context.CancellationToken) is not { } decision)
         {
             return;
         }
-        var binary = (BinaryExpressionSyntax)context.Node;
-        Report(context, binary.OperatorToken.GetLocation(), $"a comparison '{binary.OperatorToken.Text}'");
+        Report(context, decision.Location, decision.What);
     }
-
-    /// <summary>Reports a call that filters or searches a sequence with a predicate.</summary>
-    private static void AnalyzePredicate(SyntaxNodeAnalysisContext context)
-    {
-        if (!IsCatalog(context.Node.SyntaxTree))
-            return;
-        var invocation = (InvocationExpressionSyntax)context.Node;
-        string? name = invocation.Expression switch
-        {
-            MemberAccessExpressionSyntax member => member.Name.Identifier.Text,
-            MemberBindingExpressionSyntax binding => binding.Name.Identifier.Text,
-            _ => null,
-        };
-        if (name is null || !PredicateMethods.Contains(name) ||
-            !invocation.ArgumentList.Arguments.Any(argument => IsPredicate(context, argument)))
-        {
-            return;
-        }
-        Report(context, invocation.ArgumentList.GetLocation(), $"a predicate passed to '{name}'");
-    }
-
-    /// <summary>
-    /// Whether <paramref name="argument"/> is a predicate: it converts to a delegate that answers yes or no. A lookup
-    /// that shares a predicate method's name but takes a key, such as a name, decides nothing.
-    /// </summary>
-    private static bool IsPredicate(SyntaxNodeAnalysisContext context, ArgumentSyntax argument) =>
-        context.SemanticModel.GetTypeInfo(argument.Expression, context.CancellationToken).ConvertedType is
-            INamedTypeSymbol { TypeKind: TypeKind.Delegate, DelegateInvokeMethod.ReturnType.SpecialType: SpecialType.System_Boolean };
-
-    /// <summary>
-    /// Reports a body with statements beyond a single <c>return</c>: a method, constructor, accessor, operator,
-    /// local function or lambda that runs a procedure rather than producing a value.
-    /// </summary>
-    private static void AnalyzeBody(SyntaxNodeAnalysisContext context)
-    {
-        var block = (BlockSyntax)context.Node;
-        if (!IsCatalog(block.SyntaxTree) || !IsBody(block))
-            return;
-        if (block.Statements.Count == 0 || (block.Statements.Count == 1 && block.Statements[0] is ReturnStatementSyntax))
-            return;
-        Report(context, block.OpenBraceToken.GetLocation(), "a body with statements");
-    }
-
-    /// <summary>Whether <paramref name="block"/> is the body of a member, accessor, local function or lambda.</summary>
-    private static bool IsBody(BlockSyntax block) => block.Parent is BaseMethodDeclarationSyntax or AccessorDeclarationSyntax or
-        LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax;
 
     /// <summary>Reports one finding against the type that declares it, or against the file outside any type.</summary>
     private static void Report(SyntaxNodeAnalysisContext context, Location location, string what)

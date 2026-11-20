@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// Where a door block leads (#2090): through a physical door definition, or to the elevator's pseudo-door
-/// (<see cref="ElevatorPseudoDoor"/>).
+/// (<see cref="ElevatorRide"/>).
 /// </summary>
 /// <remarks>
 /// The game tells them apart by the destination: the pseudo-door leads to no room, so collision treats the block as solid
@@ -11,21 +11,21 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </remarks>
 public readonly record struct DoorBlockExit
 {
-    /// <summary>Holds a physical door, or none for the elevator pseudo-door.</summary>
+    /// <summary>Holds a physical door, or none for the elevator ride.</summary>
     private DoorBlockExit(DoorDefinition? door) => Door = door;
 
-    /// <summary>The physical door, or null for the elevator pseudo-door.</summary>
+    /// <summary>The physical door, or null for the elevator ride.</summary>
     public DoorDefinition? Door { get; }
 
-    /// <summary>True for the elevator pseudo-door, which leads to no room.</summary>
-    public bool IsElevatorPseudoDoor => Door is null;
+    /// <summary>True for the elevator ride, which leads to no room.</summary>
+    public bool IsElevatorRide => Door is null;
 
     /// <summary>A door block leading through <paramref name="door"/>.</summary>
     public static DoorBlockExit Physical(DoorDefinition door) => new(Ensure.NotNull(door));
 
-    /// <summary>A door block leading to the elevator pseudo-door.</summary>
-    public static DoorBlockExit ElevatorPseudoDoor { get; } = new(null);
+    /// <summary>A door block leading to the elevator ride.</summary>
+    public static DoorBlockExit ElevatorRide { get; } = new(null);
 
-    /// <summary>The door's name, or "elevator pseudo-door".</summary>
-    public override string ToString() => Door?.Name ?? "elevator pseudo-door";
+    /// <summary>The door's name, or "elevator ride".</summary>
+    public override string ToString() => Door?.Name ?? "elevator ride";
 }

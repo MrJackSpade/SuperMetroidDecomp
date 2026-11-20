@@ -252,8 +252,8 @@ internal static class SpcSoundStreamDefinitions
         internal const ushort Sound34SpikeShootingPlantSpikes = 0x3f97;
         /// <summary>SPC $3F9F, sound2AnimationScripts_sound35; ROM pointer entry $CFA623. Etecoon&apos;s theme</summary>
         internal const ushort Sound35EtecoonSTheme = 0x3f9f;
-        /// <summary>SPC $401F, sound2AnimationScripts_sound36; ROM pointer entry $CFA625. Shot rio / Norfair lava-jumping enemy / lava seahorse</summary>
-        internal const ushort Sound36ShotRioNorfairLavaJumpingEnemyLavaSeahorse = 0x401f;
+        /// <summary>SPC $401F, sound2AnimationScripts_sound36; ROM pointer entry $CFA625. Shot rio / Squeept / lava seahorse</summary>
+        internal const ushort Sound36ShotRioSqueeptLavaSeahorse = 0x401f;
         /// <summary>SPC $4036, sound2AnimationScripts_sound37; ROM pointer entry $CFA627. Refill/map station engaged</summary>
         internal const ushort Sound37RefillMapStationEngaged = 0x4036;
         /// <summary>SPC $4066, sound2AnimationScripts_sound38; ROM pointer entry $CFA629. Refill/map station disengaged</summary>
@@ -335,7 +335,7 @@ internal static class SpcSoundStreamDefinitions
         /// <summary>SPC $4310, sound2AnimationScripts_sound5E; ROM pointer entry $CFA675. Sidehopper landed</summary>
         internal const ushort Sound5ESidehopperLanded = 0x4310;
         /// <summary>SPC $4322, sound2AnimationScripts_sound5F; ROM pointer entry $CFA677. Shot Lower Norfair rio / desgeega / Norfair slow fireball / walking lava seahorse / Botwoon</summary>
-        internal const ushort Sound5FShotLowerNorfairRioDesgeegaNorfairSlowFireballWalkingLavaSeahorseBotwoon = 0x4322;
+        internal const ushort Sound5FShotHoltzDesgeegaNorfairSlowFireballWalkingLavaSeahorseBotwoon = 0x4322;
         /// <summary>SPC $4334, sound2AnimationScripts_sound60; ROM pointer entry $CFA679. Unnamed sound command; original instruction-list identity.</summary>
         internal const ushort Sound60 = 0x4334;
         /// <summary>SPC $433C, sound2AnimationScripts_sound61; ROM pointer entry $CFA67B. Unnamed sound command; original instruction-list identity.</summary>

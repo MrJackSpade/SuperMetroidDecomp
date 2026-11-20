@@ -166,7 +166,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     SamusPoseMetadata.RefreshCollisionRadii(turn);
     turn.HorizontalSpeed.BaseSpeed = turn.HorizontalSpeed.BaseSpeed.WithWhole(1);
     turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x8000);
-    turn.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(turn.Kinematics.VerticalVelocity.Speed.WithWhole(2), SamusVerticalDirection.Up);
+    turn.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(turn.Kinematics.VerticalVelocity.Speed.WithWhole(2), SamusVerticalDirection.Up);
     turn.Kinematics.YAcceleration = turn.Kinematics.YAcceleration.WithFraction(0x2800);
     AssertTrue(SamusAerialPoseTransitions.TryApplyAerialTurn(turn, level, SamusPoseId.TurningRightToLeftJumpPose, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled), "diagonal-up aerial turn installs");
     FixedCoordinate turnXBefore = turn.Kinematics.Position.X;
@@ -222,7 +222,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         SamusPresentation.InitializeAnimation(endpoint);
         endpoint.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         ushort timerBeforeRelease = endpoint.AnimationFrameTimer.RawValue;
-        SamusGroundedPoseTransitions.ApplyTurnInputFallback(endpoint, SamusPoseMetadata.ReadMovementType(endpoint));
+        SamusGroundedPoseTransitions.TurnForNoTransition(endpoint, SamusPoseMetadata.ReadMovementType(endpoint));
         AssertEqual(SamusAccelerationMode.Accelerating, endpoint.HorizontalSpeed.AccelerationMode, "released turn invokes momentum command two");
         AssertEqual(source, endpoint.Pose, "released turn retains unfinished pose");
         AssertEqual(timerBeforeRelease, endpoint.AnimationFrameTimer.RawValue, "released turn does not restart animation");
@@ -440,7 +440,7 @@ level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects:
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(0));
         samus.AnimationNumber = animationFrame;
-        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(2), SamusVerticalDirection.Up);
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(2), SamusVerticalDirection.Up);
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x2800);
         return samus;
     }
@@ -456,7 +456,7 @@ level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects:
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(0));
         samus.AnimationNumber = animationFrame;
-        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(2), SamusVerticalDirection.Up);
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(2), SamusVerticalDirection.Up);
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x2800);
         return samus;
     }
@@ -877,7 +877,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
         KnockbackHold = UpdateCountdown.Ended(),
     };
     floorClipOverlap.Kinematics.Position = floorClipOverlap.Kinematics.Position.WithFractionX(0xffff).WithFractionY(0xffff);
-    floorClipOverlap.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(0xffff, 0xac00), SamusVerticalDirection.None);
+    floorClipOverlap.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(0xffff, 0xac00), SamusVerticalDirection.None);
     floorClipOverlap.PoseHistory.Restore(SamusPoseId.TurningLeftToRightJumpAimDownPose, floorClipOverlap.PoseHistory.PreviousMovement, floorClipOverlap.PoseHistory.MovementBeforePrevious);
     SamusPoseMetadata.RefreshCollisionRadii(floorClipOverlap);
 

@@ -8,6 +8,6 @@ internal static class CrawlerOrientationOrder
 {
     /// <summary>The four surface orientations in the order the two-bit orientation index counts them.</summary>
     internal static readonly IdentitySequence<CrawlerSurfaceOrientation> Orientations = new(
-        CrawlerSurfaceOrientation.UpsideRight, CrawlerSurfaceOrientation.UpsideLeft,
-        CrawlerSurfaceOrientation.UpsideDown, CrawlerSurfaceOrientation.UpsideUp);
+        CrawlerSurfaceOrientation.OnLeftWall, CrawlerSurfaceOrientation.OnRightWall,
+        CrawlerSurfaceOrientation.OnCeiling, CrawlerSurfaceOrientation.OnFloor);
 }

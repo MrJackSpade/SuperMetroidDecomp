@@ -266,10 +266,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         }
         else if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            // Lava and acid start their heat haze at its first phase, which the room's load counts as shown for one
-            // update: the game's first haze step set that phase and started its wait, so the first phase moves on one
-            // update sooner than the later ones.
-            lavaAcidHaze = new WaveCycle(Phase: 0, UpdatesShown: 1);
+            // Lava and acid start their heat haze where the room's load leaves it: the game's first haze step set its
+            // first phase and started its wait, so the first phase moves on sooner than the later ones.
+            lavaAcidHaze = LavaAcidWaveDefinitions.HazeStart;
         }
         else if (Type == RoomFxType.Rain)
         {
@@ -518,7 +517,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// Cuts the liquid's wait to its next update, as the Speed Booster escape does once Samus has run far enough: a liquid
     /// already waiting starts moving on its next pass.
     /// </summary>
-    internal void EndLiquidWaitNextUpdate() => LiquidMoveDelay = WrappingCountdown.Start(1);
+    internal void EndLiquidWaitNextUpdate() => LiquidMoveDelay = WrappingCountdown.OneFrame;
 
     /// <summary>
     /// Halts the liquid where it stands, as the Speed Booster escape does when Samus has no Speed Booster: it loses its

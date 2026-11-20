@@ -29,7 +29,7 @@ internal static class XrayRevealFixtures
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         foreach (BlockReaction? reaction in BlockReactionFamilies.ReadingsOf(type))
-            if (XrayRevealTable.Find(type, reaction) is { } command && InstalledXrayReveals.IsDrawable(command))
+            if (XrayReveals.Find(type, reaction) is { } command && InstalledXrayReveals.IsDrawable(command))
                 entries.Add(new(type, reaction, shown(command)));
         return entries;
     }

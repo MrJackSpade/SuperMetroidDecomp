@@ -153,7 +153,7 @@ internal static class TitleColourFadesVerification
                     "the idle title screen starts as the copyright's cartridge hold ends");
             }
             int logoDraws = 0, copyrightDraws = 0;
-            foreach (SpriteDraw draw in title.CaptureRenderSnapshot().Paint.SpriteDraws)
+            foreach (SpriteDraw draw in title.ComposeScene().Paint.SpriteDraws)
             {
                 var image = (ImageSpriteDraw)draw;
                 PictureShading shading = image.Shading ?? throw new InvalidOperationException($"Title update {update} drew {image} in no shading.");

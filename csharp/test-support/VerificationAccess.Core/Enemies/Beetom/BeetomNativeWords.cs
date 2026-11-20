@@ -17,7 +17,7 @@ internal static class BeetomNativeWords
         new(new Dictionary<(BeetomAction Action, HorizontalDirection? Heading), ushort>
         {
             [(BeetomAction.DecideAction, null)] = 0xb814,
-            [(BeetomAction.DecideActionSamusNotInProximity, null)] = 0xb82f,
+            [(BeetomAction.ChooseIdleCrawlOrHop, null)] = 0xb82f,
             [(BeetomAction.StartIdling, null)] = 0xb84f,
             [(BeetomAction.StartCrawling, HorizontalDirection.Left)] = 0xb85f,
             [(BeetomAction.StartCrawling, HorizontalDirection.Right)] = 0xb873,
@@ -25,7 +25,7 @@ internal static class BeetomNativeWords
             [(BeetomAction.StartShortHop, HorizontalDirection.Right)] = 0xb8a9,
             [(BeetomAction.StartLongHop, HorizontalDirection.Left)] = 0xb8cb,
             [(BeetomAction.StartLongHop, HorizontalDirection.Right)] = 0xb8ed,
-            [(BeetomAction.DecideActionSamusInProximity, null)] = 0xb90f,
+            [(BeetomAction.StartLunge, null)] = 0xb90f,
             [(BeetomAction.StartDraining, HorizontalDirection.Left)] = 0xb952,
             [(BeetomAction.StartDraining, HorizontalDirection.Right)] = 0xb966,
             [(BeetomAction.StartDropping, null)] = 0xb97a,

@@ -116,7 +116,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.EscapeDoorObject is { } doorObject)
             _access.RequestMotherBrainObject(doorObject.Block, doorObject.RoomObject);
         foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Fragment);
-        if (step.Starts(MotherBrainStepEffect.TimeBombSetSubtitle))
+        if (step.Starts(MotherBrainStepEffect.EscapeSubtitle))
         {
             var subtitle = _projectiles.AllocateEnemyProjectile();
             if (subtitle is not null)
@@ -165,7 +165,7 @@ internal sealed class MotherBrainRainbowAndDeath
         MotherBrainRainbowBeamAttackSequence sequence,
         SamusState samus,
         int enemyFrameCounter,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         MotherBrainEnemyState state = Ensure.NotNull(sequence).Encounter;
         bool typewriterFinished = false;
@@ -180,9 +180,9 @@ internal sealed class MotherBrainRainbowAndDeath
                 WriteZebesTypewriterGlyph(typed.Glyph);
             if (typing is EscapeTypewriterStep.TypedWithClick) _motherBrainEncounter.RequestCueSound(EscapeTypewriterDefinitions.ZebesClick);
         }
-        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, EnemyPassCount = _frameContext.EnemyPassCount, PowerBombActive = sharedProjectiles.PowerBombExplosion.IsActive, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, RoomEarthquakeStopped = !_earthquake.IsShaking });
+        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, EnemyPassCount = _frameContext.EnemyPassCount, PowerBombActive = samusBombs.PowerBombExplosion.IsActive, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, RoomEarthquakeStopped = !_earthquake.IsShaking });
         _passEvents.Publish(new MotherBrainDeathStepTaken(step));
-        ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
+        ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, samusBombs);
     }
 
     /// <summary>
@@ -194,11 +194,11 @@ internal sealed class MotherBrainRainbowAndDeath
         MotherBrainRainbowBeamAttackSequence sequence,
         MotherBrainRainbowBeamAttackStepResult current,
         SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(state);
         Ensure.NotNull(sequence);
-        Ensure.NotNull(sharedProjectiles);
+        Ensure.NotNull(samusBombs);
         if (current.Starts(MotherBrainStepEffect.FinalBeamFired))
             state.NextRainbowImage = MotherBrainRainbowImage.CycleStart;
         ApplyMotherBrainBeamColours(state, current);
@@ -228,7 +228,7 @@ internal sealed class MotherBrainRainbowAndDeath
         // The attack gives Samus's shared projectile cooldown as its neck lowers, as the beam starts and as it ends;
         // her next update's firing reads it.
         if (current.SamusProjectileCooldown is int samusCooldown)
-            sharedProjectiles.SetSharedCooldown(samusCooldown);
+            samusBombs.SetSharedCooldown(samusCooldown);
 
         if (current.Starts(MotherBrainStepEffect.BabySpawn))
             _roomActors.SpawnBabyMetroid(sequence);

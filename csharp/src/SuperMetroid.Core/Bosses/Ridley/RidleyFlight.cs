@@ -20,9 +20,6 @@ internal sealed class RidleyFlight
         _earthquake = earthquake;
     }
 
-    /// <summary>The heading a swoop climbs toward, turned the swooping way: fifteen thirty-seconds of a turn.</summary>
-    internal static readonly RotationAngle SwoopClimbTarget = RotationAngle.FromSteps(120);
-
     /// <summary>Applies Ridley's motion and arena clamps, invoking impact only at the strict left bound.</summary>
     internal void IntegrateMovement(
         RoomEnemyPlace place,

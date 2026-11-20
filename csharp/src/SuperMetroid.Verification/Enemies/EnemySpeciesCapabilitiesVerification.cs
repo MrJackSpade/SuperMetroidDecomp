@@ -82,7 +82,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             [EnemyDefinitionId.BabyTurtle] = leftToSpecies,
             [EnemyDefinitionId.Owtch] = leftToSpecies,
             [EnemyDefinitionId.Rinka] = leftToSpecies,
-            [EnemyDefinitionId.Oum] = [MaridiaLargeSnailReactions.Shot],
+            [EnemyDefinitionId.Oum] = [OumReactions.Shot],
             [EnemyDefinitionId.GrappleRipper] = leftToSpecies,
             [EnemyDefinitionId.JetRipper] = leftToSpecies,
             [EnemyDefinitionId.Dragon] = leftToSpecies,
@@ -163,7 +163,7 @@ internal static class EnemySpeciesCapabilitiesVerification
         RidleyReactions.FrameHitboxTouch, RidleyReactions.Shot,
         SporeSpawnReactions.Touch, SporeSpawnReactions.Shot,
         TorizoReactions.Touch, TorizoReactions.Shot, TorizoReactions.StandUpSitDownShot, TorizoReactions.GoldenShot,
-        MaridiaLargeSnailReactions.DamagingTouch, MaridiaLargeSnailReactions.NonDamagingTouch, MaridiaLargeSnailReactions.Shot,
+        OumReactions.DamagingTouch, OumReactions.NonDamagingTouch, OumReactions.Shot,
         SpacePirateReactions.Touch, SpacePirateReactions.Shot, SpacePirateReactions.GoldNinjaVulnerableHitboxShot,
         SpacePirateReactions.GoldNinjaInvincibleHitboxShot,
     ];

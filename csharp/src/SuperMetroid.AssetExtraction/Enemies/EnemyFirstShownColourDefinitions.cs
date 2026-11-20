@@ -35,15 +35,15 @@ internal static class EnemyFirstShownColourDefinitions
     /// hurt), which the statue's fragments, his orbs and his frames first show in. Spore Spawn's initialization loads his
     /// spores' colours into their row. Mother Brain's body first shows after her room entry's glass-and-tube load and her
     /// ascent's phase-two load of her attack and rear-leg rows; the objects that show before the ascent take their own
-    /// colourings (<see cref="FrameColouringDefinitions"/>). The Shitroid's initialization and its victim Sidehopper's draw
-    /// both in the Shitroid encounter's target colours from the room's start (#1513): their room's graphics set loads all its
-    /// records into one row and none into the Shitroid's draw row, so neither is ever drawn in the colours that load leaves.
+    /// colourings (<see cref="FrameColouringDefinitions"/>). The Baby Metroid's initialization and its victim Sidehopper's draw
+    /// both in the Baby Metroid encounter's target colours from the room's start (#1513): their room's graphics set loads all its
+    /// records into one row and none into the Baby Metroid's draw row, so neither is ever drawn in the colours that load leaves.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, PictureShade[]> Shades { get; } = new Dictionary<EnemyDefinitionId, PictureShade[]>
     {
         [EnemyDefinitionId.BabyMetroidCutscene] = [MotherBrainShades.BabyArrives],
-        [EnemyDefinitionId.BabyMetroid] = [TourianCorpseShades.ShitroidTargets],
-        [EnemyDefinitionId.CorpseSidehopper] = [TourianCorpseShades.ShitroidTargets],
+        [EnemyDefinitionId.BabyMetroid] = [TourianCorpseShades.BabyMetroidTargets],
+        [EnemyDefinitionId.CorpseSidehopper] = [TourianCorpseShades.BabyMetroidTargets],
         [EnemyDefinitionId.RidleyCeres] =
         [
             RidleyShades.CeresStart,

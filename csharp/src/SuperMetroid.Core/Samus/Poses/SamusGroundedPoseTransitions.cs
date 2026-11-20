@@ -15,7 +15,7 @@ internal static class SamusGroundedPoseTransitions
     /// so the turn is abandoned for left-facing crouch art regardless of its direction.
     /// Because the pose changes, the prospective pose's step skips the stop; only the pose setup runs.
     /// </summary>
-    public static void ApplyAimedCrouchingTurnInputFallback(SamusState samus, SamusPoseId targetPose)
+    public static void TurnAimedCrouchingForNoTransition(SamusState samus, SamusPoseId targetPose)
     {
         if (!SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose))
             throw new InvalidOperationException($"Aimed crouching turn fallback requires a turning-while-jumping crouching turn, not {samus.Pose}.");
@@ -30,7 +30,7 @@ internal static class SamusGroundedPoseTransitions
     /// all stop her when her input chooses none. This stops reverse acceleration without
     /// restarting the unfinished turn animation or erasing velocity.
     /// </summary>
-    public static void ApplyTurnInputFallback(SamusState samus, SamusMovementType movementType)
+    public static void TurnForNoTransition(SamusState samus, SamusMovementType movementType)
     {
         if (movementType is not (SamusMovementType.TurningOnGround or
             SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling))
@@ -171,13 +171,13 @@ internal static class SamusGroundedPoseTransitions
                 ? SamusCollisionDirection.Left
                 : SamusCollisionDirection.Right;
             SolidEnemyCollisionResult enemyProbe = SamusSolidEnemyCollision.Probe(
-                samus.Kinematics, samus.Kinematics.InteractiveEnemies, direction, UnsignedSixteenSixteen.FromWholePixels(1));
+                samus.Kinematics, samus.Kinematics.InteractiveEnemies, direction, UnsignedSixteenSixteen.OnePixel);
             samus.Kinematics.RecordSolidEnemyCollision(direction, enemyProbe.Enemy);
             if (enemyProbe.Collided)
                 return SelectRanIntoWallPose(target);
         }
 
-        SignedSixteenSixteen onePixelForward = SignedSixteenSixteen.FromWholePixels(1).Toward(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
+        SignedSixteenSixteen onePixelForward = SignedSixteenSixteen.OnePixel.Toward(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
         onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
         return onePixelProbe.Value.Collided
             ? SelectRanIntoWallPose(target)

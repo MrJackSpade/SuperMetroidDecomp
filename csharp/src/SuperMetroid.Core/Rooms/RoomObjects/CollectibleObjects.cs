@@ -17,7 +17,7 @@ internal sealed class CollectibleObjects
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;
     /// <summary>The room's effect overlay FX.</summary>
-    private readonly IRoomFxMotion _roomFx;
+    private readonly IRoomLiquid _roomFx;
     /// <summary>Updates level blocks and queues their draws.</summary>
     private readonly IRoomObjectDrawing _drawing;
     /// <summary>The room's places, searched for the item a touch or a shot reaches and for the items the room holds.</summary>
@@ -26,7 +26,7 @@ internal sealed class CollectibleObjects
     /// Connects the collectibles to room state and drawing, and to the room's block pairs, which its collectibles that
     /// show their own picture take in turn.
     /// </summary>
-    internal CollectibleObjects(SharedGameState system, IRoomSamusAccess samus, IRoomFxMotion roomFx, IRoomObjectDrawing drawing, RoomObjectPlaceList places,
+    internal CollectibleObjects(SharedGameState system, IRoomSamusAccess samus, IRoomLiquid roomFx, IRoomObjectDrawing drawing, RoomObjectPlaceList places,
         CollectibleBlockPairs blockPairs, RoomObjectSoundQueue sounds)
     {
         _sounds = Ensure.NotNull(sounds);
@@ -147,7 +147,7 @@ internal sealed class CollectibleObjects
         RoomObjectRoom room,
         RoomObjectPlace place,
         PermanentCollectibleObject item,
-        CollectedItemArgument placed)
+        CollectibleIdentity placed)
     {
         Ensure.NotNull(placed);
         RoomLevelData level = room.Level;

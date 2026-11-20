@@ -90,7 +90,7 @@ internal static class EndingShootingStarsTests
         var scene = new EndingCreditsState(AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0, Inventory = default, JapaneseText = false, CrittersEscaped = false }, maps.EndingText,
             installed.LoadEndingBackdrops(), SuperMetroid.TestSupport.RepositoryInstallation.Verification.EndingSheetFixtures.WithEnding(
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects));
-        scene.InstalledArtwork.LoadCreditsAndPostCreditsAssets();
+        scene.InstalledArtwork.ShowCreditsColours();
         scene.CreditsRoll.SetupPostCreditsBlank();
         scene.ShowCastPhase(EndingCreditsPhase.PostCreditsBlank);
         PrivateState.Set(scene, nameof(EndingCreditsState.PhaseHold), UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.PostCreditsBlankFrames));
@@ -99,7 +99,7 @@ internal static class EndingShootingStarsTests
         {
             scene.Step();
             if (scene.Brightness == 0 || !seen.Add(scene.Phase)) continue;
-            var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+            var snapshot = EndingCreditsPresentation.ComposeScene(scene);
             byte[] snapshotVram = scene.ShownVram();
             // The text-only screen covers the stars, so it draws none (#1514); every other post-credits screen shows them.
             bool hidden = scene.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;
@@ -114,7 +114,7 @@ internal static class EndingShootingStarsTests
             var packet = new DisplayPacket((ushort)tick, snapshot);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Post-credits stars on this device match the WARP reference device");
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Star rendering is repeatable");
-            Require(EndingCreditsPresentation.CaptureRenderSnapshot(scene).SpriteParts().SequenceEqual(snapshot.SpriteParts()), "Capture does not advance star animation");
+            Require(EndingCreditsPresentation.ComposeScene(scene).SpriteParts().SequenceEqual(snapshot.SpriteParts()), "Capture does not advance star animation");
             if (hidden) break;
         }
         Require(seen.Contains(EndingCreditsPhase.PostCreditsFadeIn) && seen.Contains(EndingCreditsPhase.PostCreditsShootingStars) &&
@@ -126,7 +126,7 @@ internal static class EndingShootingStarsTests
         PrivateState.Set(scene, nameof(EndingCreditsState.Phase), EndingCreditsPhase.PostCreditsLogo);
         PrivateState.Set(logo, nameof(EndingLogo.Completed), true);
         PrivateState.Set(logo, nameof(EndingLogo.CrossfadeStarted), true);
-        var final = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+        var final = EndingCreditsPresentation.ComposeScene(scene);
         Require(final.SpriteDraws.Length > 0 && final.LayersOf<SpritesLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");
         Console.WriteLine($"{device.Kind}: 40 native star definitions, delay/trajectory/animation/reset, visible ending stars, phase masks and late-scene ownership passed.");
 

@@ -63,7 +63,7 @@ public sealed class InstalledXrayReveals
     /// </summary>
     public XrayRevealDefinition? Apply(RoomCollisionType type, RoomBlockBehavior behavior)
     {
-        if (XrayRevealTable.Find(type, behavior) is not { } shape) return null;
+        if (XrayReveals.Find(type, behavior) is not { } shape) return null;
         if (!IsDrawable(shape)) return new XrayRevealDefinition(shape, null);
         if (!blocks.TryGetValue(new XrayRevealVisualKey(type, behavior.ReactionUnder(type)), out XrayRevealVisualBlocks visual))
             throw new InvalidDataException($"Missing X-ray visual {type}/behaviour {behavior}.");

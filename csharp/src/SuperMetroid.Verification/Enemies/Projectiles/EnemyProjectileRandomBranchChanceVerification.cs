@@ -13,7 +13,7 @@ internal static class EnemyProjectileRandomBranchChanceVerification
     internal static void VerifyEnemyProjectileRandomBranchChance()
     {
         for (int sample = 0; sample <= ushort.MaxValue; sample++)
-            AssertSameAt(((sample >> 14) & 3) == 3, EnemyProjectileRandomBranchDefinitions.OneInFourBranch.IsTakenBy(sample), "one-in-four branch", sample);
+            AssertSameAt(((sample >> 14) & 3) == 3, EnemyProjectileRandomBranchDefinitions.RandomAnimationChange.IsTakenBy(sample), "one-in-four branch", sample);
 
         Console.WriteLine("Enemy projectile random branch chance: all 65536 samples decide as the comparison it replaces.");
     }

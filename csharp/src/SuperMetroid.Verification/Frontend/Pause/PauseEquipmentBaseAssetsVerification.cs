@@ -37,7 +37,7 @@ internal static class PauseEquipmentBaseAssetsVerification
             var shownInstalled = installed.ShownVram(original);
             AssertTrue(shownNative.SequenceEqual(shownInstalled),
                 "equipment base migration retains exact native VRAM through both page transitions");
-            AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()),
+            AssertTrue(ScenePixels.Same(native.ComposeScene(), installed.ComposeScene()),
                 "equipment base migration retains native pixels with its source forbidden");
         }
         AssertEqual(PauseScreenMode.Map, installed.ScreenMode, "equipment base fixture returns to the map page");

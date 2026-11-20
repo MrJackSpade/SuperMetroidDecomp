@@ -32,7 +32,7 @@ internal static class YardSurfaceLossVerification
             var state = new YardEnemyState(YardMovement.HoldingStill)
             {
                 Movement = YardMovement.Crawling,
-                Crawl = YardDirection.UpsideUpMovingRight,
+                Crawl = YardDirection.OnFloorMovingRight,
                 Behavior = YardBehavior.NormalCrawling,
                 CrawlingVelocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256)),
                 ConsecutiveTurnCounter = counted,

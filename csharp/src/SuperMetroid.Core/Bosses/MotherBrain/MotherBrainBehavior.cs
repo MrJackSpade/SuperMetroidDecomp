@@ -95,14 +95,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace body,
         MotherBrainEnemyState state,
         SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         _ = Ensure.NotNull(body);
         // The body main advances the independent room-colour animation before it
         // runs the body phase. Keeping that order is visible on the exact frame
         // the fake-death flash begins and later when the main tube stops the loop.
         RunMotherBrainRoomFlash(state);
-        RunMotherBrainBodyPhase(state, samus, sharedProjectiles);
+        RunMotherBrainBodyPhase(state, samus, samusBombs);
         // Every body phase ends with her contact with Samus; her first phase also checks contact within its own phase,
         // so it checks twice.
         MotherBrainBody.ResolveMotherBrainSamusCollision(state, samus);
@@ -115,11 +115,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunMotherBrainBodyPhase(
         MotherBrainEnemyState state,
         SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         if (state.RainbowBeamSequence is { } lateFight)
         {
-            RainbowAndDeath.RunLiveMotherBrainRainbowBeam(lateFight, samus, state.Body.FrameCounter, sharedProjectiles);
+            RainbowAndDeath.RunLiveMotherBrainRainbowBeam(lateFight, samus, state.Body.FrameCounter, samusBombs);
             return;
         }
         switch (state.Stage)

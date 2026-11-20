@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal interface IRoomObjectFamilySetups
 {
     /// <summary>Sets up a coloured door's cap, <paramref name="door"/>.</summary>
-    void SetUpColoredDoor(ColoredDoorVariant door, LockedDoorArgument lockedBy);
+    void SetUpColoredDoor(ColoredDoorVariant door, DoorLock lockedBy);
 
     /// <summary>Sets up a grey door's cap, <paramref name="door"/>.</summary>
-    void SetUpGreyDoor(GreyDoorVariant door, GreyDoorArgument opening);
+    void SetUpGreyDoor(GreyDoorVariant door, GreyDoorOpening opening);
 
     /// <summary>Sets up a scroll trigger running <paramref name="change"/>.</summary>
     void SetUpScrollTrigger(RoomScrollChange change);
@@ -22,19 +22,19 @@ internal interface IRoomObjectFamilySetups
     void SetUpScrollExtension(ScrollExtension extension);
 
     /// <summary>Sets up a permanent item, <paramref name="item"/>.</summary>
-    void SetUpCollectible(PermanentCollectibleObject item, CollectedItemArgument collected);
+    void SetUpCollectible(PermanentCollectibleObject item, CollectibleIdentity collected);
 
     /// <summary>Sets up an eye door's eye facing <paramref name="orientation"/>.</summary>
-    void SetUpEyeDoorEye(EyeDoorOrientation orientation, LockedDoorArgument lockedBy);
+    void SetUpEyeDoorEye(EyeDoorOrientation orientation, DoorLock lockedBy);
 
     /// <summary>Sets up an eye door's body or bottom, <paramref name="part"/>.</summary>
-    void SetUpEyeDoorPart(EyeDoorPart part, LockedDoorArgument lockedBy);
+    void SetUpEyeDoorPart(EyeDoorPart part, DoorLock lockedBy);
 
     /// <summary>Sets up a Draygon wall cannon as its placement's <paramref name="setup"/> carries it.</summary>
     void SetUpDraygonCannon(DraygonWallCannonSetup setup);
 
     /// <summary>Sets up a save station saving at <paramref name="savesAt"/>.</summary>
-    void SetUpSaveStation(SaveStationArgument savesAt);
+    void SetUpSaveStation(SaveStationPlace savesAt);
 
     /// <summary>Sets up a map, energy or missile station used by <paramref name="station"/>.</summary>
     void SetUpAccessStation(StationAccessRule station);
@@ -49,7 +49,7 @@ internal interface IRoomObjectFamilySetups
     void SetUpBombTorizoHand();
 
     /// <summary>Sets up the Metroid room's clearance.</summary>
-    void SetUpMetroidRoomClearance(MetroidRoomArgument watches);
+    void SetUpMetroidRoomClearance(WatchedMetroidRoom watches);
 
     /// <summary>Sets up an escape room's held place.</summary>
     void SetUpEscapeRoomHeldPlace();
@@ -70,5 +70,5 @@ internal interface IRoomObjectFamilySetups
     void SetUpDownwardGate();
 
     /// <summary>Sets up a downward gate's shot block.</summary>
-    void SetUpDownwardGateShotBlock(GateTriggerArgument trigger);
+    void SetUpDownwardGateShotBlock(GateShotTrigger trigger);
 }

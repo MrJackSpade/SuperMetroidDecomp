@@ -150,7 +150,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Runs the blue Brinstar face block's initialization AI.</summary>
-    internal void RunBlueBrinstarFaceBlockInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    internal void SetUpBlueBrinstarFaceBlock(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         InitializeBlueBrinstarFaceBlock(place, surroundings.Samus);
     }

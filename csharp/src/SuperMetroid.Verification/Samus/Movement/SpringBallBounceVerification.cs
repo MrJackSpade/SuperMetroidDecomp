@@ -26,7 +26,7 @@ internal static class SpringBallBounceVerification
             };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
-            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Up);
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Up);
             samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
 
             SamusMorphBallMovement.StepSpringBallInAir(room, samus, GameplayAction.Right, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);

@@ -11,6 +11,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainFightDefinitions
 {
+    /// <summary>The parts her room lists after her body: her head, right after it (#2218).</summary>
+    internal const int PartsAfterBody = 1;
+
     /// <summary>The health of her brain in the glass, her first phase.</summary>
     internal const int FirstPhaseHealth = 3000;
 

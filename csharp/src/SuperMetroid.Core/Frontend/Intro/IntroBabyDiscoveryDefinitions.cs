@@ -23,4 +23,14 @@ internal static class IntroBabyDiscoveryDefinitions
 
     /// <summary>How far above Samus the dancing baby keeps, in pixels.</summary>
     internal const int DanceHeightAboveSamus = 8;
+
+
+    /// <summary>The hatched baby's fastest vertical speed either way: two and an eighth pixels an update.</summary>
+    internal static readonly SignedEightEight VerticalSpeedLimit = SignedEightEight.FromPixelFraction(17, 8);
+
+    /// <summary>The dancing baby's fastest horizontal speed either way: two and a half pixels an update.</summary>
+    internal static readonly SignedEightEight HorizontalSpeedLimit = SignedEightEight.FromPixelFraction(5, 2);
+
+    /// <summary>How much the baby's speed changes toward its target on each update: an eighth of a pixel an update.</summary>
+    internal static readonly SignedEightEight BabyAcceleration = SignedEightEight.FromPixelFraction(1, 8);
 }

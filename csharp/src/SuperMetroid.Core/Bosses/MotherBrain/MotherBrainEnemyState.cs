@@ -253,7 +253,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public ListStep<MotherBrainRainbowImage> NextRainbowImage { get; internal set; } = MotherBrainRainbowImage.CycleStart;
 
     /// <summary>Whether her brain's draw appends five articulated neck joints: while her head's last main drew her neck.</summary>
-    public bool DrawNeck => BrainActionDrawn == MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn;
+    public bool DrawNeck => BrainActionDrawn == MotherBrainBrainAction.ShowsBrainOnNeck;
 
     /// <summary>
     /// Her neck (#2314): the lower joints hang from her body on the lower angle, the upper joints from the last lower joint

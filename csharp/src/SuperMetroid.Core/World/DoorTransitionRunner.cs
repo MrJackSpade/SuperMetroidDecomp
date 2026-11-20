@@ -51,7 +51,7 @@ internal sealed class DoorTransitionRunner
     /// <summary>Runs one update of the door's wait for its sounds to finish: enemies and drawing, without Samus's movement.</summary>
     public void RunDoorSoundWaitFrame(ControllerButton controllerInput, RoomScope room, SamusState samus)
     {
-        RunDoorSoundWaitPrologue(controllerInput, room, samus);
+        RunDoorWaitOpening(controllerInput, room, samus);
         DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, room, samus);
     }
 
@@ -61,7 +61,7 @@ internal sealed class DoorTransitionRunner
     /// precedes the door's own step, so its room-FX sound requests are queued before the door cancels and disables
     /// sounds.
     /// </summary>
-    public void RunDoorSoundWaitPrologue(ControllerButton controllerInput, RoomScope room, SamusState samus)
+    public void RunDoorWaitOpening(ControllerButton controllerInput, RoomScope room, SamusState samus)
     {
         _frameBoundary.BeginAcceptedFrame(controllerInput);
         AdvanceEffectsAndRandom(room, samus);

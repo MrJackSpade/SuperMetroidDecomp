@@ -234,7 +234,7 @@ internal static class NativeSnapshotImport
         samus.HyperBeamEnabled = SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam));
         if (SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound))) samus.ChargingSound.Arm(); else samus.ChargingSound.Cancel();
         PrivateState.Set(samus.InputSnapshot, nameof(SamusInputSnapshot.PreviousDrawHeldInput), GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredHeld), "native Samus filtered held input"));
-        samus.InputSnapshot.PreviousDrawNewInput = GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredNew), "native Samus filtered new input");
+        samus.InputSnapshot.PressesSeenLastUpdate = GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredNew), "native Samus filtered new input");
         samus.InputSnapshot.AutoJumpTimer = W(NativeSnapshotMemory.SamusAutoJumpTimer);
         samus.PreviousHealthForHurtCheck = SamusCountWords.Decode(W(NativeSnapshotMemory.SamusPreviousHealthForFlash));
         VerificationAssertions.AssertTrue(W(NativeSnapshotMemory.SamusInputHandler) is
@@ -269,7 +269,7 @@ internal static class NativeSnapshotImport
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationModeImport.FromNative(W(NativeSnapshotMemory.AccelerationMode));
         samus.HorizontalSpeed.HasRunningMomentum = W(NativeSnapshotMemory.Momentum) != 0;
         samus.HorizontalSpeed.SpeedBoostCounter = SamusSnapshotWords.DecodeSpeedBoostCounter(W(NativeSnapshotMemory.BoostCounter));
-        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(W(NativeSnapshotMemory.VerticalSpeed), W(NativeSnapshotMemory.VerticalFraction)), SamusVerticalDirectionCodec.FromNative(W(NativeSnapshotMemory.VerticalDirection)));
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(W(NativeSnapshotMemory.VerticalSpeed), W(NativeSnapshotMemory.VerticalFraction)), SamusVerticalDirectionCodec.FromNative(W(NativeSnapshotMemory.VerticalDirection)));
         samus.Kinematics.Radius = new(W(NativeSnapshotMemory.SamusXRadius), W(NativeSnapshotMemory.SamusYRadius));
         samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.Gravity), W(NativeSnapshotMemory.GravityFraction));
         samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(W(NativeSnapshotMemory.ExtraXDisplacement), W(NativeSnapshotMemory.ExtraXDisplacementFraction), W(NativeSnapshotMemory.ExtraYDisplacement), W(NativeSnapshotMemory.ExtraYDisplacementFraction));
@@ -317,7 +317,7 @@ internal static class NativeSnapshotImport
                 new(W(NativeSnapshotMemory.AtmosphericX + place * 2), W(NativeSnapshotMemory.AtmosphericY + place * 2)));
         }
         samus.ExtraAnimationDelay = W(NativeSnapshotMemory.AnimationFrameBuffer);
-        PrivateState.Set(samus.LiquidPhysics, nameof(SamusLiquidPhysicsState.LiquidPhysicsType), SamusLiquidMediumCodec.FromNative(W(NativeSnapshotMemory.LiquidPhysicsType)));
+        PrivateState.Set(samus.LiquidPhysics, nameof(SamusLiquidPhysicsState.MediumLastEntered), SamusLiquidMediumCodec.FromNative(W(NativeSnapshotMemory.LiquidPhysicsType)));
         PrivateState.Set(samus.PeriodicDamage, nameof(SamusPeriodicDamage.Pending), SuperMetroid.Core.Compatibility.EnergyAmount.FromStoredParts(W(NativeSnapshotMemory.PeriodicDamage), W(NativeSnapshotMemory.PeriodicSubDamage)));
 
         // The snapshot was recorded after the entering door PLM deleted itself.

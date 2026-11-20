@@ -39,8 +39,8 @@ internal sealed class IntroCeresFlightState
 
     /// <summary>The floor point the scene places at the screen's top-left, advanced with the star actor or rear-view drift.</summary>
     private FixedVector<FloorPixels> background = new(
-        SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.FrontInitialBackgroundX),
-        SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.FrontInitialBackgroundY));
+        SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.FrontInitialFloorScrollX),
+        SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.FrontInitialFloorScrollY));
     /// <summary>
     /// The floor's zoom: two floor pixels per screen pixel at the start, narrowed by the slow step per update while at
     /// least an eighth (ending at a sixteenth) for the front approach, then widened by the slow step below twelve and by
@@ -199,7 +199,7 @@ internal sealed class IntroCeresFlightState
     /// floor in front of them, or, once the caption is typed, the sprites with the caption over them; and the rear view's
     /// white flash over everything.
     /// </summary>
-    public LayeredScene CaptureRenderSnapshot()
+    public LayeredScene ComposeScene()
     {
         PrepareRenderSprites();
         // The stars, the station, its asteroids and the vortex lie beyond the gunship: they are drawn behind its floor,
@@ -271,8 +271,8 @@ internal sealed class IntroCeresFlightState
     private void SetupRearView()
     {
         // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
-        background = new(SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.RearViewBackgroundX),
-            SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.RearViewBackgroundY));
+        background = new(SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.RearViewFloorScrollX),
+            SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.RearViewFloorScrollY));
         angle = CeresFlightSceneDefinitions.RearViewAngle;
 
         // The actors spawn, update and draw in their spawn order. Their visual animations
@@ -285,7 +285,7 @@ internal sealed class IntroCeresFlightState
 
         // The flash washes the rear view, sprites and backdrop toward white. It begins fully white and takes one step
         // off the wash per frame, from the next, until none is left.
-        rearViewFlash = WhiteWash.FullWhite(updatesPerStep: 1, firstStepUpdate: 1);
+        rearViewFlash = WhiteWash.FullWhite(CeresFlightSceneDefinitions.RearViewFlashUpdatesPerStep, CeresFlightSceneDefinitions.RearViewFlashFirstStepUpdate);
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
         // The rear view's setup starts the gunship engine's flicker, then the station's blinking navigation lights (#1733).
         ColourEffects.StartScreen(CeresFlightSceneDefinitions.GunshipEngineFlicker);

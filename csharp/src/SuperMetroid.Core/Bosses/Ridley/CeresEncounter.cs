@@ -18,8 +18,8 @@ internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehav
     public CeresEscapeStatus CeresStatus { get => encounter.CeresStatus; set => encounter.CeresStatus = value; }
 
     /// <inheritdoc/>
-    public int ResolveCeresRidleyProjectileHits(SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles) =>
-        ceresRidley.Hits.ResolveCeresRidleyProjectileHits(projectiles, sharedProjectiles);
+    public int ResolveCeresRidleyProjectileHits(SamusProjectileSystem projectiles, SamusBombProjectileSystem samusBombs) =>
+        ceresRidley.Hits.ResolveCeresRidleyProjectileHits(projectiles, samusBombs);
 
     /// <inheritdoc/>
     public void StepCeresBabyWithEnemyPass() => ceresRidley.BabyScene.StepCeresBabyWithEnemyPass();

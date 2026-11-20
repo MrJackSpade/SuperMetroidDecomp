@@ -44,4 +44,11 @@ internal static class EndingCadenceDefinitions
     /// every second update after, and ends on the update it takes its last step.
     /// </summary>
     internal const int ExplosionCrossfadeUpdatesPerStep = 2;
+
+
+    /// <summary>The updates each step off the post-credits white flash takes: one, a step fewer each update.</summary>
+    internal const int PostCreditsFlashUpdatesPerStep = 1;
+
+    /// <summary>The update of the post-credits white flash its first step off white comes on: the first.</summary>
+    internal const int PostCreditsFlashFirstStepUpdate = 1;
 }

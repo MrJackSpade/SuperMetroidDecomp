@@ -329,7 +329,7 @@ internal sealed class IntroBabyDiscoveryState
             confusedBaby.ScreenPlace.Y,
             targetY,
             BabyVelocity.Y,
-            limit: VerticalSpeedLimit));
+            limit: IntroBabyDiscoveryDefinitions.VerticalSpeedLimit));
         confusedBaby.Position = WithEightEightVelocity(confusedBaby.Position, Axis.Vertical, BabyVelocity.Y);
 
         // The first non-negative velocity marks the top of the initial arc. The baby
@@ -366,7 +366,7 @@ internal sealed class IntroBabyDiscoveryState
             confusedBaby.ScreenPlace.X,
             Samus.Position.X.Whole,
             BabyVelocity.X,
-            limit: HorizontalSpeedLimit));
+            limit: IntroBabyDiscoveryDefinitions.HorizontalSpeedLimit));
         // A baby moving left draws over Samus; otherwise Samus draws first.
         SamusDisplay = BabyVelocity.X.IsNegative
             ? IntroSamusDisplay.BehindActors
@@ -378,18 +378,10 @@ internal sealed class IntroBabyDiscoveryState
             confusedBaby.ScreenPlace.Y,
             targetY,
             BabyVelocity.Y,
-            limit: VerticalSpeedLimit));
+            limit: IntroBabyDiscoveryDefinitions.VerticalSpeedLimit));
         confusedBaby.Position = WithEightEightVelocity(confusedBaby.Position, Axis.Vertical, BabyVelocity.Y);
     }
 
-    /// <summary>The hatched baby's fastest vertical speed either way.</summary>
-    private static readonly SignedEightEight VerticalSpeedLimit = SignedEightEight.FromPixelFraction(17, 8);
-
-    /// <summary>The dancing baby's fastest horizontal speed either way.</summary>
-    private static readonly SignedEightEight HorizontalSpeedLimit = SignedEightEight.FromPixelFraction(5, 2);
-
-    /// <summary>How much the baby's speed changes toward its target on each update.</summary>
-    private static readonly SignedEightEight BabyAcceleration = SignedEightEight.FromPixelFraction(1, 8);
 
     /// <summary>
     /// Adjusts a velocity toward a target by one acceleration step without passing <paramref name="limit"/> either
@@ -402,8 +394,8 @@ internal sealed class IntroBabyDiscoveryState
         SignedEightEight current,
         SignedEightEight limit) =>
         target >= position
-            ? SignedEightEight.Min(limit, current + BabyAcceleration)
-            : SignedEightEight.Max(-limit, current - BabyAcceleration);
+            ? SignedEightEight.Min(limit, current + IntroBabyDiscoveryDefinitions.BabyAcceleration)
+            : SignedEightEight.Max(-limit, current - IntroBabyDiscoveryDefinitions.BabyAcceleration);
 
     /// <summary><paramref name="position"/> moved by one axis of a velocity, fraction included.</summary>
     private static FixedVector<ScreenPixels> WithEightEightVelocity(FixedVector<ScreenPixels> position, Axis axis, SignedEightEight velocity) =>

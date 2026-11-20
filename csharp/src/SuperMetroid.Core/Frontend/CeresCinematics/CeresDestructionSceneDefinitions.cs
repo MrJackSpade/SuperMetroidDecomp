@@ -77,6 +77,11 @@ internal static class CeresDestructionSceneDefinitions
         internal const int ZebesHoldFrames = 64;
         /// <summary>Updates each step of the cinematic's slow fades takes: one level every second update.</summary>
         internal const int FadeUpdatesPerStep = 2;
+        /// <summary>
+        /// Updates the screen's first fade, from black, waits before each step, the first included: one, a level every
+        /// second update, as <see cref="FadeUpdatesPerStep"/> paces the later fades.
+        /// </summary>
+        internal const int FirstFadeWaitBeforeEachStep = 1;
     }
 
     /// <summary>
@@ -140,16 +145,16 @@ internal static class CeresDestructionSceneDefinitions
     }
 
     /// <summary>The floor's scroll over the station and on the approach to Zebes, and where the reveal's actors leave.</summary>
-    internal static class Sprites
+    internal static class Places
     {
         /// <summary>The floor's starting horizontal scroll over Ceres, in pixels.</summary>
-        internal const int CeresInitialBackgroundX = -44;
+        internal const int CeresInitialFloorScrollX = -44;
         /// <summary>The floor's vertical scroll over Ceres, and again as the gunship flies toward Zebes, in pixels.</summary>
-        internal const int CeresAndFlightBackgroundY = -112;
+        internal const int CeresAndFlightFloorScrollY = -112;
         /// <summary>The Zebes approach's starting horizontal scroll, in pixels.</summary>
-        internal const int ZebesInitialBackgroundX = 128;
+        internal const int ZebesInitialFloorScrollX = 128;
         /// <summary>The Zebes approach's starting vertical scroll, in pixels.</summary>
-        internal const int ZebesInitialBackgroundY = -104;
+        internal const int ZebesInitialFloorScrollY = -104;
         /// <summary>The horizontal scroll, in pixels, the turn toward Zebes passes to close in on the planet.</summary>
         internal const int TurnTowardZebesEndX = -128;
         /// <summary>The screen row a sliding reveal actor rises above before it deletes itself.</summary>

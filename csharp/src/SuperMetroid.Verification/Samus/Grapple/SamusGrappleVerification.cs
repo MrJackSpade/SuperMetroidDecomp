@@ -1038,7 +1038,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         "grapple wall jump preserves Dash fraction");
     AssertTrue(wallGrabSamus.HorizontalSpeed.HasRunningMomentum,
         "grapple wall jump preserves Dash momentum flag");
-    AssertEqual(0, wallGrabSamus.BeamCharge.FlareCounter,
+    AssertEqual(0, wallGrabSamus.BeamCharge.UpdatesHeld,
         "grapple wall jump clears the active projectile flare counter");
     AssertEqual(new SoundRequest(SamusSound.GrappleEnd, SoundRequestPriority.Essential), wallGrabSamus.LiquidPhysics.SoundRequests.Single(),
         "grapple wall jump queues generic library-one sound seven");

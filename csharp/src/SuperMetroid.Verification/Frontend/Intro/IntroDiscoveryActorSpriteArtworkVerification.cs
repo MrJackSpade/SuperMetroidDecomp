@@ -74,7 +74,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
         (stockState.CurrentBabyDiscovery ?? throw new InvalidOperationException("Verification requires discovery.")).Step(0, crossfadeFinishing: false);
         // The scene is where production reads the discovery actors' artwork: composing it draws every actor, and the
         // renderer that would draw its pixels holds only installed pictures, never the cartridge (#2060).
-        _ = stockState.CaptureRenderSnapshot();
+        _ = stockState.ComposeScene();
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production discovery actors never reread nineteen native spritemaps");
 

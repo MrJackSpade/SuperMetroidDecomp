@@ -64,16 +64,8 @@ internal static class BotwoonNavigation
             : throw new InvalidDataException($"Botwoon's path from {path.From} to {path.To} has no step {step}.");
 
     /// <summary>The one-pixel movement a path step stands for.</summary>
-    private static Offset16<RoomPixels> Movement(BotwoonPathStep step) => step switch
-    {
-        BotwoonPathStep.Up => new(0, -1),
-        BotwoonPathStep.UpRight => new(1, -1),
-        BotwoonPathStep.Right => new(1, 0),
-        BotwoonPathStep.DownRight => new(1, 1),
-        BotwoonPathStep.Down => new(0, 1),
-        BotwoonPathStep.DownLeft => new(-1, 1),
-        BotwoonPathStep.Left => new(-1, 0),
-        BotwoonPathStep.UpLeft => new(-1, -1),
-        _ => throw new InvalidDataException($"Undefined Botwoon path step {step}."),
-    };
+    private static Offset16<RoomPixels> Movement(BotwoonPathStep step) =>
+        BotwoonNavigationDefinitions.StepMovements.TryGetValue(step, out Offset16<RoomPixels> movement)
+            ? movement
+            : throw new InvalidDataException($"Undefined Botwoon path step {step}.");
 }

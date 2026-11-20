@@ -35,8 +35,8 @@ public enum MotherBrainStepEffect
     EscapeMusicTrack,
     /// <summary>The escape's warning text starts typing over the background.</summary>
     EscapeTypewriterSetup,
-    /// <summary>The time-bomb-set subtitle spawns.</summary>
-    TimeBombSetSubtitle,
+    /// <summary>The escape's subtitle spawns.</summary>
+    EscapeSubtitle,
     /// <summary>Samus's drained get-up ends, because the escape countdown takes its place.</summary>
     GetUpRelease,
     /// <summary>The escape countdown starts.</summary>

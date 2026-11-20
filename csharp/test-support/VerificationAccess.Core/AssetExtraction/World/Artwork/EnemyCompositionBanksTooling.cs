@@ -15,11 +15,11 @@ internal static class EnemyCompositionBanksTooling
         /// <summary>Bank $A2 used to resolve ordinary Rio visual frames.</summary>
         internal static byte RioBank => 0xa2;
 
-        /// <summary>Bank $A2 used to resolve Lower Norfair Rio frames.</summary>
-        internal static byte LowerNorfairRioBank => 0xa2;
+        /// <summary>Bank $A2 used to resolve Holtz frames.</summary>
+        internal static byte HoltzBank => 0xa2;
 
-        /// <summary>Bank $A2 used to resolve Norfair Rio frames.</summary>
-        internal static byte NorfairRioBank => 0xa2;
+        /// <summary>Bank $A2 used to resolve Geruta frames.</summary>
+        internal static byte GerutaBank => 0xa2;
 
         /// <summary>Bank $A2 containing Puyo composition pointers.</summary>
         internal static byte PuyoBank => 0xa2;

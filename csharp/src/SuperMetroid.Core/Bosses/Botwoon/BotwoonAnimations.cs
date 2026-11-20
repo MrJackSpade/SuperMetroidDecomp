@@ -178,9 +178,9 @@ internal static class BotwoonAnimations
     /// </summary>
     internal static Extent16<RoomPixels> HeadRadius(CompassDirection facing) => facing switch
     {
-        CompassDirection.Up or CompassDirection.Down => new(8, 16),
-        CompassDirection.Left or CompassDirection.Right => new(16, 8),
-        CompassDirection.UpRight or CompassDirection.DownRight or CompassDirection.DownLeft or CompassDirection.UpLeft => new(12, 12),
+        CompassDirection.Up or CompassDirection.Down => BotwoonFightDefinitions.VerticalHeadRadius,
+        CompassDirection.Left or CompassDirection.Right => BotwoonFightDefinitions.HorizontalHeadRadius,
+        CompassDirection.UpRight or CompassDirection.DownRight or CompassDirection.DownLeft or CompassDirection.UpLeft => BotwoonFightDefinitions.DiagonalHeadRadius,
         _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
     };
 

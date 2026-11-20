@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The one shake Mother Brain, the Baby Metroid and the Tourian Shitroid share (#1947).</summary>
+/// <summary>The one shake Mother Brain, the Baby Metroid and the Tourian Baby Metroid share (#1947).</summary>
 internal static class MotherBrainShakeDefinitions
 {
     /// <summary>
-    /// The four offsets Mother Brain, the Baby Metroid and the Tourian Shitroid shake through, in order: her brain and neck
+    /// The four offsets Mother Brain, the Baby Metroid and the Tourian Baby Metroid shake through, in order: her brain and neck
     /// while she shakes or is struck, the Baby while it latches onto her or Samus, is struck or takes the fatal blow, and the
-    /// Shitroid while it feeds. Each shake's cadence (<see cref="MotherBrainCadenceDefinitions"/>) picks the step.
+    /// Baby Metroid while it feeds. Each shake's cadence (<see cref="MotherBrainCadenceDefinitions"/>) picks the step.
     /// </summary>
     internal static readonly Offset16<RoomPixels>[] Offsets =
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];

@@ -32,4 +32,7 @@ internal static class SamusPoseCollisionDefinitions
     /// <summary>The pixels a jump started from a crouch raises Samus before the jump begins.</summary>
     internal const int CrouchJumpLift = 10;
 
+    /// <summary>How far a pose change from a normal jump lifts Samus: one pixel up, taken off her position.</summary>
+    internal static Offset16<RoomPixels> NormalJumpLift { get; } = new(0, 1);
+
 }

@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// it never finds its door opened again.
 /// </summary>
 /// <param name="placed">The door and its persistence, as the placement named them.</param>
-internal sealed class PlacedDoor(LockedDoorArgument placed)
+internal sealed class PlacedDoor(DoorLock placed)
 {
     /// <summary>The door and its persistence, as the placement named them.</summary>
-    internal LockedDoorArgument Placed { get; } = Ensure.NotNull(placed);
+    internal DoorLock Placed { get; } = Ensure.NotNull(placed);
 
     /// <summary>Whether the object recorded its door opened for good, after which it keeps no door.</summary>
     internal bool Spent { get; private set; }

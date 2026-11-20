@@ -73,7 +73,7 @@ internal static class RoomRevealPresentationContractChecks
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         foreach (BlockReaction? reaction in BlockReactionFamilies.ReadingsOf(type))
-            if (XrayRevealTable.Find(type, reaction) is { } command && InstalledXrayReveals.IsDrawable(command))
+            if (XrayReveals.Find(type, reaction) is { } command && InstalledXrayReveals.IsDrawable(command))
                 entries.Add(new(type, reaction, XrayRevealVisualBlocks.ForShape(command,
                     [.. new[] { 1, 2, 3, 4 }.Take(XrayRevealVisualBlocks.CountFor(command))])));
         // The overlays are required with the reveals (#1596); every required room overlay shows one block.

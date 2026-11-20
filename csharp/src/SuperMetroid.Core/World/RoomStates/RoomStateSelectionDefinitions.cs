@@ -198,15 +198,15 @@ public static class RoomStateSelectionDefinitions
         ]),
         [RoomDefinitions.BlueHopper] = new(TourianRoomStateDefinitions.BlueHopperDefault,
         [
-            new(RoomStateCondition.Event(StoryEvent.ShitroidEncounterMusicSkipped), TourianRoomStateDefinitions.BlueHopperWhenShitroidEncounterMusicSkipped),
+            new(RoomStateCondition.Event(StoryEvent.BabyMetroidEncounterMusicSkipped), TourianRoomStateDefinitions.BlueHopperWhenBabyMetroidEncounterMusicSkipped),
         ]),
         [RoomDefinitions.DustTorizo] = new(TourianRoomStateDefinitions.DustTorizoDefault,
         [
-            new(RoomStateCondition.Event(StoryEvent.ShitroidEncounterMusicSkipped), TourianRoomStateDefinitions.DustTorizoWhenShitroidEncounterMusicSkipped),
+            new(RoomStateCondition.Event(StoryEvent.BabyMetroidEncounterMusicSkipped), TourianRoomStateDefinitions.DustTorizoWhenBabyMetroidEncounterMusicSkipped),
         ]),
         [RoomDefinitions.BigBoy] = new(TourianRoomStateDefinitions.BigBoyDefault,
         [
-            new(RoomStateCondition.Event(StoryEvent.ShitroidEncounterMusicSkipped), TourianRoomStateDefinitions.BigBoyWhenShitroidEncounterMusicSkipped),
+            new(RoomStateCondition.Event(StoryEvent.BabyMetroidEncounterMusicSkipped), TourianRoomStateDefinitions.BigBoyWhenBabyMetroidEncounterMusicSkipped),
         ]),
         [RoomDefinitions.MotherBrain] = new(TourianRoomStateDefinitions.MotherBrainDefault,
         [

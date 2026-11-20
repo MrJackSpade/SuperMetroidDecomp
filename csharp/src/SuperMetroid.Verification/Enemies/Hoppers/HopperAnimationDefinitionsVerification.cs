@@ -28,11 +28,11 @@ internal static class HopperAnimationDefinitionsVerification
         for (int selector = 0; selector < tables.Length; selector++)
         {
             HopperKind kind = HoppersNativeWords.HopperKinds.Decode(variant, "hopper variant");
-            bool upsideDown = (selector & 1) != 0;
+            bool onCeiling = (selector & 1) != 0;
             bool jumping = (selector & 2) != 0;
             AssertEqual(ReadHopperAnimationWord(rom, tables[selector] + variant * 2),
                 NativeEnemyAnimationOracle.EntryOf(HopperNativeListAddresses.Entries,
-                    HopperAnimationChoices.Animation(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, jumping ? HopperPhase.Jumping : HopperPhase.Landed)),
+                    HopperAnimationChoices.Animation(kind, onCeiling ? HopperSurface.Ceiling : HopperSurface.Floor, jumping ? HopperPhase.Jumping : HopperPhase.Landed)),
                 $"hopper animation variant {variant}, selector {selector}");
         }
         foreach (EnemyDefinitionId hopper in new[]
@@ -57,7 +57,7 @@ internal static class HopperAnimationDefinitionsVerification
         for (ushort variant = 0; variant < 4; variant++)
         for (int orientation = 0; orientation < 2; orientation++)
         {
-            bool upsideDown = orientation != 0;
+            bool onCeiling = orientation != 0;
             HopperKind kind = HoppersNativeWords.HopperKinds.Decode(variant, "hopper variant");
             string context = $"{kind}/{orientation}";
             var enemies = EnemySystemFixtures.New((artwork is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(artwork.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artwork?.Bosses);
@@ -67,12 +67,12 @@ internal static class HopperAnimationDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(definitions[variant], place.Definition);
             place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-            place.SetSpawnParameter1(EnemyDefinitionId.Sidehopper, upsideDown ? (ushort)1 : (ushort)0);
+            place.SetSpawnParameter1(EnemyDefinitionId.Sidehopper, onCeiling ? (ushort)1 : (ushort)0);
             enemies.HoppersBehavior.InitializeHopper(place);
             HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
             AssertEqual(kind, state.Kind, $"hopper kind {context}");
-            HopperSegment landed = HopperAnimationChoices.Animation(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Landed);
-            HopperSegment jumping = HopperAnimationChoices.Animation(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Jumping);
+            HopperSegment landed = HopperAnimationChoices.Animation(kind, onCeiling ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Landed);
+            HopperSegment jumping = HopperAnimationChoices.Animation(kind, onCeiling ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Jumping);
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper initial landed program {context}");
 
             state.Heading = HorizontalDirection.Right;

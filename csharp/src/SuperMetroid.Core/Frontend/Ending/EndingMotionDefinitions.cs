@@ -100,4 +100,11 @@ public static class EndingMotionDefinitions
 
     /// <summary>The angle the final fly-to-camera turn approaches, separate from the slow-spin target.</summary>
     public static RotationAngle PlanetExitTargetAngle => RotationAngle.FromSteps(16);
+
+
+    /// <summary>How far a right side cloud of the escape drifts each update: one pixel left and two up.</summary>
+    public static Offset16<ScreenPixels> RightSideCloudDrift { get; } = new(-1, -2);
+
+    /// <summary>How far a left side cloud of the escape drifts each update: one pixel right and two down.</summary>
+    public static Offset16<ScreenPixels> LeftSideCloudDrift { get; } = new(1, 2);
 }

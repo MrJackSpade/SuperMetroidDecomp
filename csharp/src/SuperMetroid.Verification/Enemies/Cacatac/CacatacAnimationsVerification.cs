@@ -28,7 +28,7 @@ internal static class CacatacAnimationsVerification
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                     }, $"{at}: operand {index}");
                 }),
-            onlyRunOnInto: new HashSet<CacatacSegment> { CacatacSegment.UpsideDownIdlePoses });
+            onlyRunOnInto: new HashSet<CacatacSegment> { CacatacSegment.OnCeilingIdlePoses });
         Console.WriteLine($"  Cacatac animations: {Entries.Length} segments ({beats} beats) and {CacatacAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

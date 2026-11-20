@@ -77,7 +77,7 @@ internal sealed class EnemyFramePhase
         bool hyperBeamBefore = samus.HyperBeamEnabled;
         if (processingList == EnemyProcessingList.Unprepared)
             room.Enemies.ProcessingWindow.PrepareEnemyProcessingList(room.Camera.PixelPosition);
-        EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _playerActions.NewlyPressed, Level = room.LevelData, ControllerInput = _playerActions.Current, SamusProjectiles = room.Projectiles, ShortCounter = _clock.ShortCounter, SharedProjectiles = room.BombProjectiles, FrameCounter = _clock.Counter, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
+        EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _playerActions.NewlyPressed, Level = room.LevelData, ControllerInput = _playerActions.Current, SamusProjectiles = room.Projectiles, ShortCounter = _clock.ShortCounter, SamusBombs = room.BombProjectiles, FrameCounter = _clock.Counter, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
         var effectSite = EnemyRoomEffectSite.Of(room, samus);
         _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result, effectSite);
         EnemyRoomEffects.StartEnemyGlows(result, effectSite);
@@ -116,13 +116,13 @@ internal sealed class EnemyFramePhase
         }
         foreach (EnemyCameraXWrite cameraMove in result.All<EnemyCameraXWrite>())
         {
-            int shitroidCameraX = cameraMove.CameraX;
+            int babyMetroidCameraX = cameraMove.CameraX;
             // The camera's and the foreground's positions hold the written X to the room's coordinates (#1627).
-            // The Shitroid writes the camera X position during the enemy pass, before the ordinary
+            // The Baby Metroid writes the camera X position during the enemy pass, before the ordinary
             // scrolling later in this frame. Do not route it through entry
             // placement, which would clear the camera's fraction of a pixel and its ideal position.
-            room.Camera.SetCameraXFromEnemyAi(shitroidCameraX);
-            _backgroundScroll.ForegroundPosition = _backgroundScroll.ForegroundPosition.WithX(shitroidCameraX);
+            room.Camera.SetCameraXFromEnemyAi(babyMetroidCameraX);
+            _backgroundScroll.ForegroundPosition = _backgroundScroll.ForegroundPosition.WithX(babyMetroidCameraX);
         }
         // The landing tube stops the liquid surface's motion; the next frame shows it still.
         if (result.Has<LiquidSurfaceStilled>())

@@ -33,7 +33,7 @@ internal sealed class ProjectileEnemyImpacts
     /// enemy reaction which returns without entering ordinary impact conversion. This is
     /// shared by extended hitboxes and radius-based custom reactions such as shutters.
     /// </summary>
-    public void ApplyEnemyCollisionPrelude(SamusProjectile projectile, bool markCollisionState)
+    public void TouchEnemyWithoutImpact(SamusProjectile projectile, bool markCollisionState)
     {
         SamusProjectile shot = Ensure.NotNull(projectile);
         if (!shot.HasEnemyCollisionPayload)
@@ -131,10 +131,10 @@ internal sealed class ProjectileEnemyImpacts
     /// cinematic sets the line and the projectile system explodes the missile as a wall does.
     /// </remarks>
     public bool TryImpactIntroMotherBrainMissile(
-        SamusBombProjectileSystem sharedProjectiles,
+        SamusBombProjectileSystem samusBombs,
         int impactLine)
     {
-        Ensure.NotNull(sharedProjectiles);
+        Ensure.NotNull(samusBombs);
 
         foreach (SamusProjectile shot in _pool.InUpdateOrder)
         {
@@ -146,7 +146,7 @@ internal sealed class ProjectileEnemyImpacts
             if (shot.Position.X.Whole >= impactLine)
                 return false;
 
-            _terrainCollision.KillMissile(shot, sharedProjectiles);
+            _terrainCollision.KillMissile(shot, samusBombs);
             return true;
         }
 
@@ -159,11 +159,11 @@ internal sealed class ProjectileEnemyImpacts
     /// projectile owner alone changes the shot and the shared cooldown.
     /// </summary>
     public bool TryStartEnemyImpact(
-        SamusBombProjectileSystem sharedProjectiles,
+        SamusBombProjectileSystem samusBombs,
         SamusProjectile projectile,
         bool blocksPlasmaBeam = false)
     {
-        Ensure.NotNull(sharedProjectiles);
+        Ensure.NotNull(samusBombs);
         SamusProjectile shot = Ensure.NotNull(projectile);
         if (!shot.HasEnemyCollisionPayload)
             return false;
@@ -174,7 +174,7 @@ internal sealed class ProjectileEnemyImpacts
             // hit deletion (and Spazer's paired deletion) in their next update;
             // replacing that response with a beam explosion loses their family lifecycle.
             // Plasma normally pierces, unless the target explicitly stops Plasma beams.
-            ApplyEnemyCollisionPrelude(shot,
+            TouchEnemyWithoutImpact(shot,
                 blocksPlasmaBeam || !shot.Type.BeamCombination.HasPlasma);
             return true;
         }
@@ -196,7 +196,7 @@ internal sealed class ProjectileEnemyImpacts
                 return true;
             case SamusProjectileFamily.Missile:
             case SamusProjectileFamily.SuperMissile:
-                _terrainCollision.KillMissile(shot, sharedProjectiles);
+                _terrainCollision.KillMissile(shot, samusBombs);
                 return true;
             case SamusProjectileFamily.PowerBomb:
             case SamusProjectileFamily.Bomb:

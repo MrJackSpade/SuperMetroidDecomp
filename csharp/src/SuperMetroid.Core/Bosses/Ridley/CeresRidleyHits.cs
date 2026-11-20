@@ -23,10 +23,10 @@ internal sealed class CeresRidleyHits
     /// </summary>
     public int ResolveCeresRidleyProjectileHits(
         SamusProjectileSystem projectiles,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(projectiles);
-        Ensure.NotNull(sharedProjectiles);
+        Ensure.NotNull(samusBombs);
 
         // Only a room Ceres Ridley has initialized in, before he gets away, meets these shots.
         if (_ridleyEncounter.CeresRidley is not { } ceres || _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
@@ -46,7 +46,7 @@ internal sealed class CeresRidleyHits
             {
                 continue;
             }
-            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile))
+            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(samusBombs, projectile))
                 continue;
 
             ResolveCeresRidleyShotAfterCollision(place, ceres.Ridley);

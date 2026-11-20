@@ -16,7 +16,7 @@ internal static class ContactDamageSoundVerification
 {
     /// <summary>
     /// When a speed-boosting, sparking or screw-attacking Samus damages an enemy by touch,
-    /// NormalEnemyTouchAI queues library-two $0B with QueueSound_Lib2_Max1 ($A0:A55A). In the
+    /// OrdinaryTouchAI queues library-two $0B with QueueSound_Lib2_Max1 ($A0:A55A). In the
     /// 13% movie Samus speed-boosts through an enemy before a door; the queued sound holds
     /// the door's sound wait for an extra frame.
     /// </summary>
@@ -34,7 +34,7 @@ internal static class ContactDamageSoundVerification
         int healthBefore = sciser.Health;
 
         runtime.AudioRequests.BeginRecordedUpdate();
-        runtime.Enemies.Collision.ResolveNormalEnemyTouch(sciser, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), TouchDeathAnimation.Play);
+        runtime.Enemies.Collision.ResolveOrdinaryTouch(sciser, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), TouchDeathAnimation.Play);
 
         AssertTrue(sciser.Health < healthBefore, "the speed booster damages the Sciser");
         SoundRequest request = runtime.Enemies.Audio.SoundRequests.Single();

@@ -71,7 +71,7 @@ public sealed record SuperMetroidSaveSnapshot
     public required GameClockReading GameTime { get; init; }
 
     /// <summary>The startup route the save resumes by.</summary>
-    public required SaveLoadingGameState StartupRoute { get; init; }
+    public required SaveStartupRoute StartupRoute { get; init; }
 
     /// <summary>The load station the save resumes at.</summary>
     public required LoadStation Checkpoint { get; init; }

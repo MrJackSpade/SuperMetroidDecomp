@@ -72,8 +72,8 @@ internal static class CeresEnginePaletteBindingVerification
                 $"#1150 the restored scene shows the running scene's engine colour, tick {frame}");
             AssertEqual(scene.Phase, restoredScene.Phase, "palette rebind preserves cinematic phase");
             AssertEqual(scene.Zoom, restoredScene.Zoom, "palette rebind preserves camera scale");
-            AssertEqual(scene.Background.X, restoredScene.Background.X, "palette rebind preserves camera X");
-            AssertEqual(scene.Background.Y, restoredScene.Background.Y, "palette rebind preserves camera Y");
+            AssertEqual(scene.FloorScroll.X, restoredScene.FloorScroll.X, "palette rebind preserves camera X");
+            AssertEqual(scene.FloorScroll.Y, restoredScene.FloorScroll.Y, "palette rebind preserves camera Y");
             AssertEqual(game.FrameNumber, restored.FrameNumber, "palette rebind preserves frame clock");
         }
         Console.WriteLine("#1150: stock engine flicker record cadence, restored-state rebind and unchanged scene clock/camera pass.");

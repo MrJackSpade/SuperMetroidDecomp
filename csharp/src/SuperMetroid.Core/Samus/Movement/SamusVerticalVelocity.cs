@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 public readonly record struct SamusVerticalVelocity
 {
     /// <summary>The velocity of <paramref name="speed"/> heading <paramref name="direction"/>.</summary>
-    private SamusVerticalVelocity(UnsignedSixteenSixteen speed, SamusVerticalDirection direction)
+    internal SamusVerticalVelocity(UnsignedSixteenSixteen speed, SamusVerticalDirection direction)
     {
         Speed = speed;
         Direction = direction switch
@@ -38,13 +38,6 @@ public readonly record struct SamusVerticalVelocity
 
     /// <summary>A fall at <paramref name="speed"/>.</summary>
     public static SamusVerticalVelocity Falling(UnsignedSixteenSixteen speed) => new(speed, SamusVerticalDirection.Down);
-
-    /// <summary>
-    /// The velocity of <paramref name="speed"/> heading <paramref name="direction"/>, as a state recorded in those two parts
-    /// gives it.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is undefined.</exception>
-    public static SamusVerticalVelocity Of(UnsignedSixteenSixteen speed, SamusVerticalDirection direction) => new(speed, direction);
 
     /// <summary>
     /// The velocity <paramref name="velocity"/> gives, downward positive: a fall for a downward one, a rise for an upward

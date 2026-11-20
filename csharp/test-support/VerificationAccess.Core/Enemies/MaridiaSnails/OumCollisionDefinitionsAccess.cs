@@ -1,0 +1,47 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
+namespace SuperMetroid.Core.Enemies.MaridiaSnails;
+
+/// <summary>Verification's native view of <see cref="OumCollisionDefinitions"/>: frames and hitbox lists by bank-$A2 address.</summary>
+internal static class OumCollisionDefinitionsAccess
+{
+    /// <summary>$A2:D034, Hitbox_Oum_FacingLeft_0, the first of the contiguous hitbox lists.</summary>
+    private const ushort FirstList = 0xd034;
+
+    /// <summary>Each frame's hitbox list in the frames' native order, which is the order the cartridge stores the lists in.</summary>
+    private static readonly EnemyCollisionHitbox[][] ListsInNativeOrder =
+    [
+        .. OumCollisionDefinitionsConstants.FramePointers.Select(frame =>
+            OumCollisionDefinitions.Frames.Of(RoomEnemyPlaceFrameAccess.FrameAt(OumCollisionDefinitions.Bank, frame))),
+    ];
+
+    /// <summary>The hitbox lists laid over their native run.</summary>
+    private static readonly CollisionRecordRuns<EnemyCollisionHitbox> NativeLists =
+        CollisionRecordRuns<EnemyCollisionHitbox>.HitboxLists(
+            new CollisionRecordRun<EnemyCollisionHitbox>(FirstList, ListsInNativeOrder));
+
+    /// <summary>Native views of the catalog.</summary>
+    extension(OumCollisionDefinitions)
+    {
+        /// <summary>Bank $A2, which holds Oum's code and frames.</summary>
+        internal static byte Bank => 0xa2;
+
+        /// <summary>Native roots for the Oum collision hitbox lists.</summary>
+        internal static IEnumerable<ushort> HitboxPointers => NativeLists.Pointers;
+
+        /// <summary>Whether <paramref name="frame"/> is one of Oum's frame addresses.</summary>
+        internal static bool HasFrame(ushort frame) => OumCollisionDefinitionsConstants.FramePointers.Contains(frame);
+
+        /// <summary>The native address of the hitbox list the frame at <paramref name="frame"/> selects.</summary>
+        internal static ushort HitboxListAt(ushort frame) => HasFrame(frame)
+            ? NativeLists.PointerAt(Array.IndexOf(ListsInNativeOrder,
+                OumCollisionDefinitions.Frames.Of(RoomEnemyPlaceFrameAccess.FrameAt(OumCollisionDefinitions.Bank, frame))))
+            : throw new InvalidDataException($"Oum frame $A2:{frame:X4} has no compiled collision.");
+
+        /// <summary>The hitbox list at native address <paramref name="list"/>.</summary>
+        internal static ReadOnlySpan<EnemyCollisionHitbox> HitboxesAt(ushort list) =>
+            NativeLists.TryGet(list, out EnemyCollisionHitbox[] hitboxes)
+                ? hitboxes
+                : throw new InvalidDataException($"Oum hitbox list $A2:{list:X4} is not compiled.");
+    }
+}

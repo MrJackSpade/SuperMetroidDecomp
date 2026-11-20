@@ -146,7 +146,7 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
         foreach (IParameterSymbol parameter in parameters)
         {
             if (IsTracked(parameter.Type))
-                flows.Body((IParameterSymbol)parameter.OriginalDefinition);
+                flows.Body(parameter.OriginalDefinition);
         }
         foreach (IOperation operation in operations)
         {

@@ -222,7 +222,7 @@ internal static class RoomEnemySpeciesAccess
         internal ShuttersBehavior ShuttersBehavior => Owner<ShuttersBehavior>(self);
 
         /// <summary>The Baby Metroid in Mother Brain's fight, which drains her and gives Samus its life.</summary>
-        internal ShitroidBehavior ShitroidBehavior => Owner<ShitroidBehavior>(self);
+        internal BabyMetroidBehavior BabyMetroidBehavior => Owner<BabyMetroidBehavior>(self);
 
         /// <summary>Shaktool, the Maridia digger that clears the sand from its tunnel.</summary>
         internal ShaktoolBehavior ShaktoolBehavior => Owner<ShaktoolBehavior>(self);
@@ -273,10 +273,10 @@ internal static class RoomEnemySpeciesAccess
         internal NuclearWaffleBehavior NuclearWaffleBehavior => Owner<NuclearWaffleBehavior>(self);
 
         /// <summary>Norfair's Rios, which swoop at Samus from the ceiling.</summary>
-        internal NorfairRioBehavior NorfairRioBehavior => Owner<NorfairRioBehavior>(self);
+        internal GerutaBehavior GerutaBehavior => Owner<GerutaBehavior>(self);
 
         /// <summary>The enemies that leap out of Norfair's lava and fall back in.</summary>
-        internal NorfairLavaJumpingEnemyBehavior NorfairLavaJumpingEnemyBehavior => Owner<NorfairLavaJumpingEnemyBehavior>(self);
+        internal SqueeptBehavior SqueeptBehavior => Owner<SqueeptBehavior>(self);
 
         /// <summary>Maridia's glass tube, which a power bomb shatters.</summary>
         internal NoobTubeBehavior NoobTubeBehavior => Owner<NoobTubeBehavior>(self);
@@ -303,7 +303,7 @@ internal static class RoomEnemySpeciesAccess
         internal MetareeBehavior MetareeBehavior => Owner<MetareeBehavior>(self);
 
         /// <summary>Maridia's large snails, which crawl over the room's surfaces.</summary>
-        internal MaridiaLargeSnailBehavior MaridiaLargeSnailBehavior => Owner<MaridiaLargeSnailBehavior>(self);
+        internal OumBehavior OumBehavior => Owner<OumBehavior>(self);
 
         /// <summary>Maridia's mama turtle and her babies.</summary>
         internal MamaTurtleBehavior MamaTurtleBehavior => Owner<MamaTurtleBehavior>(self);
@@ -312,7 +312,7 @@ internal static class RoomEnemySpeciesAccess
         internal MagdolliteBehavior MagdolliteBehavior => Owner<MagdolliteBehavior>(self);
 
         /// <summary>Lower Norfair's Rios, which swoop at Samus from the ceiling.</summary>
-        internal LowerNorfairRioBehavior LowerNorfairRioBehavior => Owner<LowerNorfairRioBehavior>(self);
+        internal HoltzBehavior HoltzBehavior => Owner<HoltzBehavior>(self);
 
         /// <summary>The Kzans, spiked crushers that drop and rise again, carrying Samus on top.</summary>
         internal KzanBehavior KzanBehavior => Owner<KzanBehavior>(self);

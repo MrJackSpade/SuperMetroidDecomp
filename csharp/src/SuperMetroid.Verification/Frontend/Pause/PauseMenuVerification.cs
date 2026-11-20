@@ -122,7 +122,7 @@ internal static class PauseMenuVerification
             "pause equipment reserve-supply tens digit renders current supply");
         AssertEqual(0x080b, pause.ReadReserveSupplyDigit(presentation.Game, 2).Raw,
             "pause equipment reserve-supply ones digit renders current supply");
-        HudLayer drawnHud = pause.CaptureRenderSnapshot().Layers.ToArray().OfType<HudLayer>().First();
+        HudLayer drawnHud = pause.ComposeScene().Layers.ToArray().OfType<HudLayer>().First();
         AssertTrue(ReferenceEquals(MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseHud).Frame(HudTopRowImage.Instance.FrameName),
             drawnHud.Hud.Pictures[0].Picture), "pause retains and draws the gameplay HUD's top row on the HUD's layer");
         AssertEqual(124, pause.MapScroll.X,
@@ -132,7 +132,7 @@ internal static class PauseMenuVerification
         // The import installs the frame's pictures one pixel row above their page cells and the map scrolls with the frame
         // (#2207): the screen shows the frame and the map from their second row against the marker placed from the first,
         // exactly where it showed them while the screen raised them itself.
-        DisplayLayer[] shownLayers = pause.CaptureRenderSnapshot().Layers.ToArray();
+        DisplayLayer[] shownLayers = pause.ComposeScene().Layers.ToArray();
         PicturedPlaneLayer frameLayer = shownLayers.OfType<PicturedPlaneLayer>().First();
         AssertTrue(frameLayer.Plane.Pictures.Length != 0 && frameLayer.Plane.Pictures.All(picture => (picture.Corner.Y + 1) % 8 == 0),
             "pause frame pictures lie one row above their page cells");
@@ -284,7 +284,7 @@ internal static class PauseMenuVerification
 
     /// <summary>The sprite draws the pause screen's display packet shows, frontmost first.</summary>
     private static ImageSpriteDraw[] ShownSpriteDraws(PauseMenuState pause) =>
-        [.. pause.CaptureRenderSnapshot().Layers.ToArray().OfType<SpritesLayer>().Single().Draws.Cast<ImageSpriteDraw>()];
+        [.. pause.ComposeScene().Layers.ToArray().OfType<SpritesLayer>().Single().Draws.Cast<ImageSpriteDraw>()];
 
     /// <summary>
     /// The one draw of the display packet showing the suits and boots categories' selector frame for the selector's

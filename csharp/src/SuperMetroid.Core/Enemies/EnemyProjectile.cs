@@ -179,7 +179,7 @@ public sealed class EnemyProjectile
     internal void StartAnimation(EnemyProjectileAnimation animation)
     {
         Animation = Ensure.NotNull(animation);
-        FrameHold = WrappingCountdown.Start(1);
+        FrameHold = WrappingCountdown.OneFrame;
     }
 
     /// <summary>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// samples an ordinary comparison would refuse.
 /// </summary>
 /// <remarks>
-/// Consulted at each roll, as the boss's update draws its sample: which way Mother Brain's breath, the Shitroid's remorse
+/// Consulted at each roll, as the boss's update draws its sample: which way Mother Brain's breath, the Baby Metroid's remorse
 /// cry, Ceres Ridley's fireball jitter, Norfair Ridley's breakup fragments and Crocomire's dust and step go depends on
 /// these halves exactly. The samples come from the shared random sequence (<see cref="SharedRandomState"/>), 0 through
 /// 65535. Evidence: each roll's original routine reads the sample, or the sample less its threshold, as a signed

@@ -13,10 +13,10 @@ public sealed class EnemyReaction
     private EnemyReaction(string name) => Name = name;
 
     /// <summary>The ordinary contact reaction: Samus takes the definition's damage, or her contact attack damages the enemy.</summary>
-    public static EnemyReaction NormalEnemyTouch { get; } = new(nameof(NormalEnemyTouch));
+    public static EnemyReaction OrdinaryTouch { get; } = new(nameof(OrdinaryTouch));
 
     /// <summary>The ordinary shot reaction: the enemy takes the weapon's damage by its vulnerabilities.</summary>
-    public static EnemyReaction NormalEnemyShot { get; } = new(nameof(NormalEnemyShot));
+    public static EnemyReaction OrdinaryShot { get; } = new(nameof(OrdinaryShot));
 
     /// <summary>The shot glances off as a dud.</summary>
     public static EnemyReaction DudShot { get; } = new(nameof(DudShot));

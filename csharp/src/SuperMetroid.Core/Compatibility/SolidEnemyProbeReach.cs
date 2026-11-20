@@ -19,6 +19,9 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("Samus's solid-enemy probe tests one pixel past her reach inside a pixel, two past it when the reach's fraction crosses a pixel's edge, but pixel 0 itself when the crossing lands there")]
 public static class SolidEnemyProbeReach
 {
+    /// <summary>The step to the next pixel toward larger coordinates, which a probe moving back takes the other way.</summary>
+    private const int NextPixelForward = 1;
+
     /// <summary>
     /// The pixel tested when Samus's centre at <paramref name="centre"/> reaches <paramref name="reach"/> towards larger
     /// coordinates (right or down), 0 through 65535.
@@ -29,7 +32,7 @@ public static class SolidEnemyProbeReach
     {
         FixedCoordinate reached = centre.MovedForward(reach);
         bool crossedPixelEdge = centre.CrossesPixelEdgeMovingForward(reach);
-        return Stepped(reached, crossedPixelEdge, step: 1);
+        return Stepped(reached, crossedPixelEdge, NextPixelForward);
     }
 
     /// <summary>
@@ -42,7 +45,7 @@ public static class SolidEnemyProbeReach
     {
         FixedCoordinate reached = centre.MovedBack(reach);
         bool crossedPixelEdge = centre.CrossesPixelEdgeMovingBack(reach);
-        return Stepped(reached, crossedPixelEdge, step: -1);
+        return Stepped(reached, crossedPixelEdge, -NextPixelForward);
     }
 
     /// <summary>

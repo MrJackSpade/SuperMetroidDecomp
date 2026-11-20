@@ -97,7 +97,7 @@ public static class XrayRevealVisualFiles
             XrayRevealDefinition? native = ReadNative(bus, type, value) is { } read &&
                 (read.Shape != XrayRevealShape.CopyBrinstar || area == AreaId.Brinstar) ? read : null;
             RoomBlockBehavior behavior = RoomBlockBehaviorCodec.Decode(area, value);
-            if (native?.Shape != XrayRevealTable.Find(type, behavior))
+            if (native?.Shape != XrayReveals.Find(type, behavior))
                 throw new InvalidDataException(
                     $"Compiled X-ray command {type}/behaviour ${value:X2} in {area} differs from the cartridge.");
             // Every behaviour holding the same reaction for the kind must reveal the same blocks: the installation names the
@@ -212,7 +212,7 @@ public static class XrayRevealVisualFiles
                 entry.Reactions.Any(name => name is null ||
                     !ReactionsOf(entry.CollisionType).Any(reaction => string.Equals(reaction.Key, name, StringComparison.Ordinal))))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid reaction group.");
-            if (XrayRevealTable.Find(entry.CollisionType, ReadingsNamed(entry)[0]) is not { } command ||
+            if (XrayReveals.Find(entry.CollisionType, ReadingsNamed(entry)[0]) is not { } command ||
                 !InstalledXrayReveals.IsDrawable(command) || entry.Shape != NameOf(command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
             if (entry.Blocks is null || entry.Blocks.Length != XrayRevealVisualBlocks.CountFor(command))
@@ -377,7 +377,7 @@ public static class XrayRevealVisualFiles
 
     /// <summary>The compiled copy shape of an entry <see cref="ValidateStructure"/> has admitted.</summary>
     private static XrayRevealShape ShapeOf(XrayRevealVisualEntry entry) =>
-        XrayRevealTable.Find(entry.CollisionType, ReadingsNamed(entry)[0])
+        XrayReveals.Find(entry.CollisionType, ReadingsNamed(entry)[0])
             ?? throw new InvalidOperationException($"Admitted X-ray visual {entry.CollisionType} has no reveal rule.");
 
     /// <summary>A collision kind and the reaction it reads, for checking that each is revealed alike.</summary>

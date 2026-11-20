@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public static class BombSpecialBlockReactions
 {
     /// <summary>The plain solid special blocks a normal bomb shows as Speed Booster blocks in every area.</summary>
-    private static readonly SpecialBlockBombRunOn<SpecialBlockReaction, BlockReactionChange> RunOn =
+    private static readonly BombRevealedSpeedBlockLookalikes<SpecialBlockReaction, BlockReactionChange> SpeedBlockLookalikes =
         new([SpecialBlockReaction.BombRevealsSpeedBlock], SpeedBoosterBlockObjectDefinitions.BombReveal);
 
     /// <summary>
@@ -20,7 +20,7 @@ public static class BombSpecialBlockReactions
     {
         SpecialBlockReaction read = reaction ??
             throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "The block has no special-block reaction for a bomb.");
-        if (RunOn.TryShowAsSpeedBlock(read, out BlockReactionChange? shown))
+        if (SpeedBlockLookalikes.TryShowAsSpeedBlock(read, out BlockReactionChange? shown))
             return shown;
         return read switch
         {

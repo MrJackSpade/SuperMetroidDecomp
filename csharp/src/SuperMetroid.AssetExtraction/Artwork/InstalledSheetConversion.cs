@@ -58,6 +58,8 @@ internal static class InstalledSheetConversion
         if (composed.Colours is null || composed.Colours.Length != tableColours)
             throw new InvalidDataException($"A {composed.Palette} sheet names {composed.Colours?.Length ?? 0} colours, not {tableColours}.");
         RgbColor[] table = [.. composed.Colours.Select(RgbColor.FromWord)];
+        // Each colour as the opaque pixel showing it, which every composed pixel of its index is checked against.
+        RgbaPixel[] tablePixels = [.. table.Select(colour => colour.ToRgbaPixel())];
         // A clear pixel takes part in no colour key: it lies in no group.
         const int Unkeyed = -1;
         var groupOf = new int[area];
@@ -82,7 +84,8 @@ internal static class InstalledSheetConversion
                 groupOf[pixel] = Unkeyed;
                 continue;
             }
-            if (composedPixel.A == 0 || new RgbColor(composedPixel.R, composedPixel.G, composedPixel.B) != table[index])
+            RgbaPixel tablePixel = tablePixels[index];
+            if (composedPixel.A == 0 || composedPixel.R != tablePixel.R || composedPixel.G != tablePixel.G || composedPixel.B != tablePixel.B)
                 throw new InvalidDataException($"A {composed.Palette} sheet's pixel {pixel} of palette index {index} is composed as {composedPixel}, not opaque {table[index]}.");
             shown[pixel] = composedPixel;
             blending[pixel] = kind == ComposedPixelKind.Blending;

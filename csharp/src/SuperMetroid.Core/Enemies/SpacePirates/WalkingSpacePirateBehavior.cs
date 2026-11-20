@@ -460,7 +460,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             // selected reaction runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
             // rejected and reflected hits return before that shared path. An enemy that stops the Plasma Beam also
             // forces the mark.
-            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
         {
@@ -524,7 +524,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.HitboxShot),
         ReplacesGenericDeath = c =>
         {
-            if (c.HitboxShot == EnemyReaction.NormalEnemyShot)
+            if (c.HitboxShot == EnemyReaction.OrdinaryShot)
                 return false;
             StartPirateDeath(c);
             return true;
@@ -539,13 +539,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         ShowsHitBurst = c => PirateHitboxShotActions.GoldNinjaShowsHitBurst(c.HitboxShot),
         ReplacesGenericDeath = c =>
         {
-            if (c.HitboxShot == EnemyReaction.NormalEnemyShot)
+            if (c.HitboxShot == EnemyReaction.OrdinaryShot)
                 return false;
             // The Gold Ninja's death records its position as the drop origin before the enemy's death clears the
             // place; it then spawns the death explosion before the metal ninja Pirate's item drop spawns the drops.
             Position16<RoomPixels> dropOrigin = c.Enemy.Position.Whole;
             StartPirateDeath(c);
-            _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, count: 5, dropOrigin, c.Samus);
+            _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, GoldNinjaSpacePirateDefinitions.DropScatterCount, dropOrigin, c.Samus);
             return true;
         },
     };
@@ -554,7 +554,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     private void StartPirateDeath(EnemyShotContext c) =>
         _deathsAndDrops.StartGenericEnemyDeath(
             c.Enemy,
-            EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(c.Enemy, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion),
+            EnemyDeathsAndDrops.ShotKillExplosion(c.Enemy, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion),
             c.Samus);
 
     /// <summary>Skips frozen contact and rejects unsupported extended hitbox reactions before normal touch damage.</summary>
@@ -570,6 +570,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // While the Pirate is frozen, touching it deals neither Samus nor the Pirate contact damage.
         if (context.Place.Freeze.IsRunning)
             return;
-        _collision.ResolveNormalEnemyTouch(context);
+        _collision.ResolveOrdinaryTouch(context);
     }
 }

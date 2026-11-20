@@ -17,8 +17,8 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, DoorDefinitions.LandingSiteDemoEntry),
     ]);
 
-    /// <summary>The ScrollingSkyWreckedShipEntrance library-background program.</summary>
-    public static LibraryBackgroundProgram ScrollingSkyWreckedShipEntrance { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyWreckedShipEntrance, [
+    /// <summary>The ScrollingSkyWestOcean library-background program.</summary>
+    public static LibraryBackgroundProgram ScrollingSkyWestOcean { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyWestOcean, [
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.BowlingAlleyPathToWestOcean),
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(5), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.MoatToWestOcean),
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(1), LibraryBackgroundDestination.BackgroundSecondPage, 2048, WreckedShipDoorDefinitions.BowlingAlleyToWestOcean),
@@ -33,13 +33,13 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(5), LibraryBackgroundDestination.BackgroundFirstPage, 2048, WreckedShipDoorDefinitions.ElectricDeathToEastOcean),
     ]);
 
-    /// <summary>The ScrollingSkyBowlingAlley library-background program.</summary>
-    public static LibraryBackgroundProgram ScrollingSkyBowlingAlley { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyBowlingAlley, [
+    /// <summary>The ScrollingSkyPreBowling library-background program.</summary>
+    public static LibraryBackgroundProgram ScrollingSkyPreBowling { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyPreBowling, [
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
     ]);
 
-    /// <summary>The BrinstarKraidUpperLower library-background program.</summary>
-    public static LibraryBackgroundProgram BrinstarKraidUpperLower { get; } = new(LibraryBackgroundDefinitions.BrinstarKraidUpperLower, [
+    /// <summary>The KraidAlive library-background program.</summary>
+    public static LibraryBackgroundProgram KraidAlive { get; } = new(LibraryBackgroundDefinitions.KraidAlive, [
         new(LibraryBackgroundCommand.TransferForKraid, LibraryBackgroundSource.HudCharacters, LibraryBackgroundDestination.KraidLayer3Characters, 4096, null),
         new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarKraidUpper), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.KraidBackgroundPages, 4096, null),
@@ -472,10 +472,10 @@ public static partial class LibraryBackgroundProgramDefinitions
     public static IReadOnlyList<LibraryBackgroundProgram> All { get; } =
     [
         ScrollingSkyLandingSite,
-        ScrollingSkyWreckedShipEntrance,
+        ScrollingSkyWestOcean,
         ScrollingSkyEastOcean,
-        ScrollingSkyBowlingAlley,
-        BrinstarKraidUpperLower,
+        ScrollingSkyPreBowling,
+        KraidAlive,
         KraidDead,
         CrocomireDefault,
         CrocomireWhenAreaMiniBossDead,

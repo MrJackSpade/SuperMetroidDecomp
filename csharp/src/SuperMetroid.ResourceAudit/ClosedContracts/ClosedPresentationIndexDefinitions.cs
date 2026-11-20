@@ -34,8 +34,8 @@ internal static class ClosedPresentationIndexDefinitions
     internal static ProviderIndexDomain? Get(string type, string method, string parameter) => new ClosedPresentationIndexGetCase(type, method, parameter) switch
     {
         ("GameplayHudPresentation", "EnergyTank", "tank") => new(0, GameplayHudDefinitions.EnergyTankCount),
-        ("GameplayHudPresentation", "MinimapCell", "output.X") => new(0, GameplayHudPresentation.MinimapSize.X),
-        ("GameplayHudPresentation", "MinimapCell", "output.Y") => new(0, GameplayHudPresentation.MinimapSize.Y),
+        ("GameplayHudPresentation", "MinimapCell", "output.X") => new(0, GameplayHudDefinitions.MinimapSize.X),
+        ("GameplayHudPresentation", "MinimapCell", "output.Y") => new(0, GameplayHudDefinitions.MinimapSize.Y),
         ("FileSelectPresentation", "Slot" or "DrawHelmet", "slot") => new(0, 3),
         ("FileSelectPresentation", "DrawCursor", "frame") => new(0, 4),
         ("FileSelectPresentation", "DrawHelmet", "frame") => new(0, 8),
@@ -93,9 +93,9 @@ internal static class ClosedPresentationIndexDefinitions
         ("EnemyAuxiliaryColorCatalog", "Resolve", "frame") => new(0, EnemyAuxiliaryColorDefinitions.All.Max(definition => definition.FrameCount)),
         ("EnemyAuxiliaryColorCatalog", "Resolve", "color") => new(0, EnemyAuxiliaryColorDefinitions.All.Max(definition => definition.ColorCount)),
         ("KraidColorCatalog", "Resolve", "index") => new(0, KraidPalettes.ColorCount(KraidPaletteSource.Health)),
-        ("ShitroidColorCatalog", "NormalColor", "frame") => new(0, ShitroidColorDefinitions.NormalFrameCount),
-        ("ShitroidColorCatalog", "NormalColor", "color") => new(0, ShitroidColorDefinitions.NormalColorsPerFrame),
-        ("ShitroidColorCatalog", "TargetColor", "color") => new(0, ShitroidColorDefinitions.TargetColorCount),
+        ("BabyMetroidColorCatalog", "NormalColor", "frame") => new(0, BabyMetroidColorDefinitions.NormalFrameCount),
+        ("BabyMetroidColorCatalog", "NormalColor", "color") => new(0, BabyMetroidColorDefinitions.NormalColorsPerFrame),
+        ("BabyMetroidColorCatalog", "TargetColor", "color") => new(0, BabyMetroidColorDefinitions.TargetColorCount),
         ("DachoraColorCatalog", "Resolve", "frame") => new(0, DachoraColorDefinitions.AnimatedFrameCount),
         ("DachoraColorCatalog", "Resolve", "color") => new(0, DachoraColorFormat.ColorsPerFrame),
         ("CreditsPresentation", "GetRow", "index") => new(0, CreditsPresentationDefinitions.RowCount),

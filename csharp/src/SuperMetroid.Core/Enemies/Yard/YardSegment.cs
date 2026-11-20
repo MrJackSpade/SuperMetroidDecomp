@@ -11,190 +11,190 @@ internal enum YardSegment
     /// Rounding an outside corner from crawling up with its back to the right, a quarter turn in three steps, then
     /// crawling left with its back up.
     /// </summary>
-    OutsideTurnUpsideRightMovingUp,
+    OutsideTurnOnLeftWallMovingUp,
     /// <summary>
     /// Crawling left with its back up, its legs tucking, spreading and stepping, repeating; it can hide from here.
     /// </summary>
-    CrawlingUpsideUpMovingLeft,
+    CrawlingOnFloorMovingLeft,
     /// <summary>
     /// Rounding an outside corner from crawling left with its back up, a quarter turn in three steps, then crawling
     /// down with its back to the left.
     /// </summary>
-    OutsideTurnUpsideUpMovingLeft,
+    OutsideTurnOnFloorMovingLeft,
     /// <summary>
     /// Crawling down with its back to the left, its legs tucking, spreading and stepping, repeating; it can hide from
     /// here.
     /// </summary>
-    CrawlingUpsideLeftMovingDown,
+    CrawlingOnRightWallMovingDown,
     /// <summary>
     /// Rounding an outside corner from crawling down with its back to the left, a quarter turn in three steps, then
     /// crawling right with upside down.
     /// </summary>
-    OutsideTurnUpsideLeftMovingDown,
+    OutsideTurnOnRightWallMovingDown,
     /// <summary>
     /// Crawling right with upside down, its legs tucking, spreading and stepping, repeating; it can hide from here.
     /// </summary>
-    CrawlingUpsideDownMovingRight,
+    CrawlingOnCeilingMovingRight,
     /// <summary>
     /// Rounding an outside corner from crawling right with upside down, a quarter turn in three steps, then crawling up
     /// with its back to the right.
     /// </summary>
-    OutsideTurnUpsideDownMovingRight,
+    OutsideTurnOnCeilingMovingRight,
     /// <summary>
     /// Crawling up with its back to the right, its legs tucking, spreading and stepping, repeating; it can hide from
     /// here.
     /// </summary>
-    CrawlingUpsideRightMovingUp,
+    CrawlingOnLeftWallMovingUp,
     /// <summary>
     /// Rounding an outside corner from crawling up with its back to the left, a quarter turn in three steps, then
     /// crawling right with its back up.
     /// </summary>
-    OutsideTurnUpsideLeftMovingUp,
+    OutsideTurnOnRightWallMovingUp,
     /// <summary>
     /// Crawling right with its back up, its legs tucking, spreading and stepping, repeating; it can hide from here.
     /// </summary>
-    CrawlingUpsideUpMovingRight,
+    CrawlingOnFloorMovingRight,
     /// <summary>
     /// Rounding an outside corner from crawling right with its back up, a quarter turn in three steps, then crawling
     /// down with its back to the right.
     /// </summary>
-    OutsideTurnUpsideUpMovingRight,
+    OutsideTurnOnFloorMovingRight,
     /// <summary>
     /// Crawling down with its back to the right, its legs tucking, spreading and stepping, repeating; it can hide from
     /// here.
     /// </summary>
-    CrawlingUpsideRightMovingDown,
+    CrawlingOnLeftWallMovingDown,
     /// <summary>
     /// Rounding an outside corner from crawling down with its back to the right, a quarter turn in three steps, then
     /// crawling left with upside down.
     /// </summary>
-    OutsideTurnUpsideRightMovingDown,
+    OutsideTurnOnLeftWallMovingDown,
     /// <summary>
     /// Crawling left with upside down, its legs tucking, spreading and stepping, repeating; it can hide from here.
     /// </summary>
-    CrawlingUpsideDownMovingLeft,
+    CrawlingOnCeilingMovingLeft,
     /// <summary>
     /// Rounding an outside corner from crawling left with upside down, a quarter turn in three steps, then crawling up
     /// with its back to the left.
     /// </summary>
-    OutsideTurnUpsideDownMovingLeft,
+    OutsideTurnOnCeilingMovingLeft,
     /// <summary>
     /// Crawling up with its back to the left, its legs tucking, spreading and stepping, repeating; it can hide from
     /// here.
     /// </summary>
-    CrawlingUpsideLeftMovingUp,
+    CrawlingOnRightWallMovingUp,
     /// <summary>
     /// Turning into an inside corner from crawling left with its back up, a quarter turn in three steps, then crawling
     /// up with its back to the right.
     /// </summary>
-    InsideTurnUpsideUpMovingLeft,
+    InsideTurnOnFloorMovingLeft,
     /// <summary>
     /// Turning into an inside corner from crawling up with its back to the right, a quarter turn in three steps, then
     /// crawling right with upside down.
     /// </summary>
-    InsideTurnUpsideRightMovingUp,
+    InsideTurnOnLeftWallMovingUp,
     /// <summary>
     /// Turning into an inside corner from crawling right with upside down, a quarter turn in three steps, then crawling
     /// down with its back to the left.
     /// </summary>
-    InsideTurnUpsideDownMovingRight,
+    InsideTurnOnCeilingMovingRight,
     /// <summary>
     /// Turning into an inside corner from crawling down with its back to the left, a quarter turn in three steps, then
     /// crawling left with its back up.
     /// </summary>
-    InsideTurnUpsideLeftMovingDown,
+    InsideTurnOnRightWallMovingDown,
     /// <summary>
     /// Turning into an inside corner from crawling right with its back up, a quarter turn in three steps, then crawling
     /// up with its back to the left.
     /// </summary>
-    InsideTurnUpsideUpMovingRight,
+    InsideTurnOnFloorMovingRight,
     /// <summary>
     /// Turning into an inside corner from crawling up with its back to the left, a quarter turn in three steps, then
     /// crawling left with upside down.
     /// </summary>
-    InsideTurnUpsideLeftMovingUp,
+    InsideTurnOnRightWallMovingUp,
     /// <summary>
     /// Turning into an inside corner from crawling left with upside down, a quarter turn in three steps, then crawling
     /// down with its back to the right.
     /// </summary>
-    InsideTurnUpsideDownMovingLeft,
+    InsideTurnOnCeilingMovingLeft,
     /// <summary>
     /// Turning into an inside corner from crawling down with its back to the right, a quarter turn in three steps, then
     /// crawling right with its back up.
     /// </summary>
-    InsideTurnUpsideRightMovingDown,
+    InsideTurnOnLeftWallMovingDown,
     /// <summary>
     /// Tucking its legs in to hide while crawling left with its back up, then shut in its shell before it crawls on.
     /// </summary>
-    HidingUpsideUpMovingLeft,
+    HidingOnFloorMovingLeft,
     /// <summary>The closed shell of a hiding Yard upside up moving left, shown again however often its update ends (#2180, #2276).</summary>
-    ShellClosedUpsideUpMovingLeft,
+    ShellClosedOnFloorMovingLeft,
     /// <summary>
     /// Shut in its shell with its back up facing left, then its legs showing again before it crawls left.
     /// </summary>
-    HiddenUpsideUpMovingLeft,
+    HiddenOnFloorMovingLeft,
     /// <summary>
     /// Tucking its legs in to hide while crawling left with upside down, then shut in its shell before it crawls on.
     /// </summary>
-    HidingUpsideDownMovingLeft,
+    HidingOnCeilingMovingLeft,
     /// <summary>The closed shell of a hiding Yard upside down moving left, shown again however often its update ends (#2180, #2276).</summary>
-    ShellClosedUpsideDownMovingLeft,
+    ShellClosedOnCeilingMovingLeft,
     /// <summary>The hidden shell of a Yard upside down moving left before the Yard crawls on (#2276).</summary>
-    HiddenUpsideDownMovingLeft,
+    HiddenOnCeilingMovingLeft,
     /// <summary>
     /// Tucking its legs in to hide while crawling right with upside down, then shut in its shell before it crawls on.
     /// </summary>
-    HidingUpsideDownMovingRight,
+    HidingOnCeilingMovingRight,
     /// <summary>The closed shell of a hiding Yard upside down moving right, shown again however often its update ends (#2180, #2276).</summary>
-    ShellClosedUpsideDownMovingRight,
+    ShellClosedOnCeilingMovingRight,
     /// <summary>The hidden shell of a Yard upside down moving right before the Yard crawls on (#2276).</summary>
-    HiddenUpsideDownMovingRight,
+    HiddenOnCeilingMovingRight,
     /// <summary>
     /// Tucking its legs in to hide while crawling right with its back up, then shut in its shell before it crawls on.
     /// </summary>
-    HidingUpsideUpMovingRight,
+    HidingOnFloorMovingRight,
     /// <summary>The closed shell of a hiding Yard upside up moving right, shown again however often its update ends (#2180, #2276).</summary>
-    ShellClosedUpsideUpMovingRight,
+    ShellClosedOnFloorMovingRight,
     /// <summary>
     /// Shut in its shell with its back up facing right, then its legs showing again before it crawls right.
     /// </summary>
-    HiddenUpsideUpMovingRight,
+    HiddenOnFloorMovingRight,
     /// <summary>
     /// Tucking its legs in to hide while crawling up with its back to the right, then shut in its shell before it
     /// crawls on.
     /// </summary>
-    HidingUpsideRightMovingUp,
+    HidingOnLeftWallMovingUp,
     /// <summary>The closed shell of a hiding Yard upside right moving up, shown again however often its update ends (#2180, #2276).</summary>
-    ShellClosedUpsideRightMovingUp,
+    ShellClosedOnLeftWallMovingUp,
     /// <summary>The hidden shell of a Yard upside right moving up before the Yard crawls on (#2276).</summary>
-    HiddenUpsideRightMovingUp,
+    HiddenOnLeftWallMovingUp,
     /// <summary>
     /// Tucking its legs in to hide while crawling up with its back to the left, then shut in its shell before it crawls
     /// on.
     /// </summary>
-    HidingUpsideLeftMovingUp,
+    HidingOnRightWallMovingUp,
     /// <summary>The closed shell of a hiding Yard upside left moving up, shown again however often its update ends (#2180, #2276).</summary>
-    ShellClosedUpsideLeftMovingUp,
+    ShellClosedOnRightWallMovingUp,
     /// <summary>The hidden shell of a Yard upside left moving up before the Yard crawls on (#2276).</summary>
-    HiddenUpsideLeftMovingUp,
+    HiddenOnRightWallMovingUp,
     /// <summary>
     /// Tucking its legs in to hide while crawling down with its back to the left, then shut in its shell before it
     /// crawls on.
     /// </summary>
-    HidingUpsideLeftMovingDown,
+    HidingOnRightWallMovingDown,
     /// <summary>The closed shell of a hiding Yard upside left moving down, shown again however often its update ends (#2180, #2276).</summary>
-    ShellClosedUpsideLeftMovingDown,
+    ShellClosedOnRightWallMovingDown,
     /// <summary>The hidden shell of a Yard upside left moving down before the Yard crawls on (#2276).</summary>
-    HiddenUpsideLeftMovingDown,
+    HiddenOnRightWallMovingDown,
     /// <summary>
     /// Tucking its legs in to hide while crawling down with its back to the right, then shut in its shell before it
     /// crawls on.
     /// </summary>
-    HidingUpsideRightMovingDown,
+    HidingOnLeftWallMovingDown,
     /// <summary>The closed shell of a hiding Yard upside right moving down, shown again however often its update ends (#2180, #2276).</summary>
-    ShellClosedUpsideRightMovingDown,
+    ShellClosedOnLeftWallMovingDown,
     /// <summary>The hidden shell of a Yard upside right moving down before the Yard crawls on (#2276).</summary>
-    HiddenUpsideRightMovingDown,
+    HiddenOnLeftWallMovingDown,
     /// <summary>Shut in its shell as it flies off facing left, then tumbling.</summary>
     AirborneFacingLeft,
     /// <summary>The airborne shell facing left tumbling, looped (#2276).</summary>

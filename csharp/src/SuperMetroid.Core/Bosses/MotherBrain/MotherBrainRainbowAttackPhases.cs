@@ -37,14 +37,14 @@ internal sealed class MotherBrainRainbowAttackPhases
     public BossCountdown ExplosionTimer { get; } = new();
 
     /// <summary>
-    /// The next beam explosion's offset among <see cref="MotherBrainRainbowBeamAttackSequence.ExplosionOffsets"/>, cycling
+    /// The next beam explosion's offset among <see cref="MotherBrainBeamDefinitions.ExplosionOffsets"/>, cycling
     /// through them in order.
     /// </summary>
     public ListStep<Offset16<RoomPixels>> NextExplosion { get; private set; } = FirstExplosion;
 
     /// <summary>The beam's first explosion offset, which every beam bursts first.</summary>
     private static ListStep<Offset16<RoomPixels>> FirstExplosion =>
-        ListStep<Offset16<RoomPixels>>.FirstOf(MotherBrainRainbowBeamAttackSequence.ExplosionOffsets);
+        ListStep<Offset16<RoomPixels>>.FirstOf(MotherBrainBeamDefinitions.ExplosionOffsets);
 
     /// <summary>Whether the rainbow attack has started its beam and not yet ended it.</summary>
     public bool BeamActive { get; internal set; }
@@ -301,7 +301,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         requests.Movement = _movement.MoveTowardWall(samus);
         if (requests.Movement.Value.ReachedVerticalBoundary)
         {
-            Encounter.RainbowPhase = MotherBrainRainbowPhase.OneFrameDelay;
+            Encounter.RainbowPhase = MotherBrainRainbowPhase.PinSamusToWall;
             Encounter.PhaseTimer.LastFor(1);
         }
         return false;
@@ -443,7 +443,7 @@ internal sealed class MotherBrainRainbowAttackPhases
                 _state.RequestWalkForward(
                     _state.BodyPosition.X + MotherBrainLateFightDefinitions.FinishOffStepX, MotherBrainWalkSpeed.ReallySlow);
                 _state.BabyMetroidSpawned = false;
-                Encounter.FinishOffPhase = MotherBrainFinishOffPhase.GetSamusToLowEnergy;
+                Encounter.FinishOffPhase = MotherBrainFinishOffPhase.AttackUntilSamusIsLow;
             }
         }
         return false;
@@ -462,7 +462,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         MotherBrainRainbowPhase.ExtendNeckDown => LowerNeckToFire(requests),
         MotherBrainRainbowPhase.StartFiring => WidenBeamUntilItTakesHold(samus, frame, requests),
         MotherBrainRainbowPhase.MoveSamusTowardWall => PushSamusToWall(samus, requests),
-        MotherBrainRainbowPhase.OneFrameDelay => PinSamusToWall(samus, requests),
+        MotherBrainRainbowPhase.PinSamusToWall => PinSamusToWall(samus, requests),
         MotherBrainRainbowPhase.StartDrainingSamus => StartDrainingSamus(requests),
         MotherBrainRainbowPhase.DrainingSamus => DrainSamus(samus, frame, requests),
         MotherBrainRainbowPhase.FinishFiring => NarrowBeamAndReleaseSamus(samus, requests),

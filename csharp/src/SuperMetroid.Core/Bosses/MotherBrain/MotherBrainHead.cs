@@ -87,15 +87,15 @@ internal sealed class MotherBrainHead
         // Her brain's action decides whether her own draw shows her neck with her brain.
         switch (state.BrainAction)
         {
-            case MotherBrainBrainAction.SetupBrainToBeDrawn:
-                state.BrainActionDrawn = MotherBrainBrainAction.SetupBrainToBeDrawn;
+            case MotherBrainBrainAction.ShowsBrainAlone:
+                state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainAlone;
                 return;
-            case MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn:
+            case MotherBrainBrainAction.ShowsBrainOnNeck:
                 StepMotherBrainNeck(
                     state,
                     samus);
                 head.Position = head.Position.WithWhole(state.Neck.BrainAnchor.Position + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
-                state.BrainActionDrawn = MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn;
+                state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainOnNeck;
                 return;
             default:
                 throw new InvalidDataException(

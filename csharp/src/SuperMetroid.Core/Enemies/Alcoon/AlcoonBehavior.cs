@@ -207,7 +207,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             StartAlcoonAnimation(place, state, AlcoonSegment.WalkingRight);
         }
         state.Action = AlcoonAction.WalkingAndFiring;
-        state.WalkCyclesBeforeVolley = UpdateCountdown.Lasting(1);
+        state.WalkCyclesBeforeVolley = UpdateCountdown.Lasting(AlcoonWalkDefinitions.EmergedWalkCycles);
     }
 
     /// <summary>Maintains floor contact, starts a retreat at the spawn-distance limit, or begins a forward volley.</summary>
@@ -366,7 +366,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyAlcoonFireball(context.Projectile, context.Level));
 
     /// <summary>Runs Alcoon's initialization AI.</summary>
-    internal void RunAlcoonInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    internal void SetUpAlcoon(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         InitializeAlcoon(place, surroundings.Level);
     }

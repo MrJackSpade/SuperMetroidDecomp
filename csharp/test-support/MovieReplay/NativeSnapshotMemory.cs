@@ -122,7 +122,7 @@ internal static class NativeSnapshotMemory
 
     /// <summary>$0DFE: held input history published by the draw and main-loop epilogues.</summary>
     public const int SamusFilteredHeld = 0x0dfe;
-    /// <summary>$0E00: Samus draw-time PreviousDrawNewInput state.</summary>
+    /// <summary>$0E00: Samus draw-time PressesSeenLastUpdate state.</summary>
     public const int SamusFilteredNew = 0x0e00;
     /// <summary>$0AF4: Samus draw-time AutoJumpTimer state.</summary>
     public const int SamusAutoJumpTimer = 0x0af4;

@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>
 /// Where the cartridge keeps the Tourian encounter's tables extraction reads (#1413): Mother Brain, the Baby Metroid and
-/// the Shitroid. The import pipeline's private knowledge of the cartridge, decoded once into the installed colour
+/// the Baby Metroid. The import pipeline's private knowledge of the cartridge, decoded once into the installed colour
 /// documents and definitions.
 /// </summary>
 [EncodingOwner("cartridge addresses of the Tourian encounter's tables")]
@@ -155,8 +155,8 @@ internal static class MotherBrainSourceDefinitions
         internal const int PulseColors = 0xa6fd87;
     }
 
-    /// <summary>The Shitroid's bank-$A9 colour images.</summary>
-    internal static class Shitroid
+    /// <summary>The Baby Metroid's bank-$A9 colour images.</summary>
+    internal static class BabyMetroidEnemy
     {
         /// <summary>$A9:F6D1..$A9:F710, the eight consecutive four-colour innard-pulse rows.</summary>
         internal const int NormalCycle = 0xa9f6d1;
@@ -164,8 +164,8 @@ internal static class MotherBrainSourceDefinitions
         /// <summary>$A9:F8C6, the sixteen-colour target image for the sidehopper victim.</summary>
         internal const int SidehopperTarget = 0xa9f8c6;
 
-        /// <summary>$A9:F8E6, the sixteen-colour target image for the Shitroid.</summary>
-        internal const int ShitroidTarget = 0xa9f8e6;
+        /// <summary>$A9:F8E6, the sixteen-colour target image for the Baby Metroid.</summary>
+        internal const int BabyMetroidTarget = 0xa9f8e6;
 
         /// <summary>$A9:F8A6, the sixteen-colour target image for the dead sidehopper; the first of the three targets.</summary>
         internal const int DeadSidehopperTarget = 0xa9f8a6;

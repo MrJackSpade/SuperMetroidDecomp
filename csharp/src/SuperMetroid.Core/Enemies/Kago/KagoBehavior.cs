@@ -59,8 +59,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void ResolveKagoShotAfterCommon(RoomEnemyPlace place, KagoEnemyState state)
     {
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground),
-            KagoDefinitions.ShotQuakeDuration);
+        _earthquake.Start(KagoDefinitions.ShotQuake, KagoDefinitions.ShotQuakeDuration);
 
         // The first hit speeds the shell's loop up for good.
         if (state.HitsTaken == 0)

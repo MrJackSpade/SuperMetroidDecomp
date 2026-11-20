@@ -5,11 +5,11 @@ namespace SuperMetroid.Verification.Enemies.Rios;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Norfair Rio state the species owns: the follower selection.</summary>
+/// <summary>Checks the Geruta state the species owns: the follower selection.</summary>
 internal static class RioOwnedStateVerification
 {
     /// <summary>
-    /// Confirms a Norfair Rio keeps its population's follower selection, and its follower follows its parent.
+    /// Confirms a Geruta keeps its population's follower selection, and its follower follows its parent.
     /// </summary>
     internal static void VerifyRioOwnedState()
     {
@@ -17,16 +17,16 @@ internal static class RioOwnedStateVerification
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Bind(EnemyDefinitionId.Geruta, parent.Definition);
-        NorfairRioBehavior.InitializeNorfairRio(parent);
+        GerutaBehavior.InitializeGeruta(parent);
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, EnemyParameterMasks.FollowerBit);
         follower.Bind(EnemyDefinitionId.Geruta, follower.Definition);
-        enemies.NorfairRioBehavior.InitializeNorfairRioFollower(follower);
+        enemies.GerutaBehavior.InitializeGerutaFollower(follower);
         // The placement builds the part's own entity (#2164): the parent a Rio, the follower its flames.
-        AssertTrue(parent.EntityState<NorfairRioEntity, NorfairRioEnemyState>() is not null &&
-            parent.SpeciesState<NorfairRioFollowerState>() is null &&
-            follower.EntityState<NorfairRioFollowerEntity, NorfairRioFollowerState>() is not null &&
-            follower.SpeciesState<NorfairRioEnemyState>() is null,
+        AssertTrue(parent.EntityState<GerutaEntity, GerutaEnemyState>() is not null &&
+            parent.SpeciesState<GerutaFollowerState>() is null &&
+            follower.EntityState<GerutaFollowerEntity, GerutaFollowerState>() is not null &&
+            follower.SpeciesState<GerutaEnemyState>() is null,
             "parameter one's sign bit selects the follower, which keeps only its own follower state");
         Console.WriteLine("Rio owned state: the follower selection matches.");
     }

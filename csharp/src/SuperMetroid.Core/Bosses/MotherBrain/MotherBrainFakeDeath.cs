@@ -249,7 +249,7 @@ internal sealed class MotherBrainFakeDeath
         }
 
         StopMotherBrainRoomFlash(state);
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundBackgroundAndEnemies), MotherBrainTubeCollapseDefinitions.LandingShakeUpdates);
+        _earthquake.Start(MotherBrainTubeCollapseDefinitions.LandingShake, MotherBrainTubeCollapseDefinitions.LandingShakeUpdates);
         // The fake death removes the room's liquid effects, and any X-ray cone, for the rest of the encounter.
         _passEvents.Publish(new LiquidSurfaceStilled());
         state.Head.Position = state.Head.Position.WithWholeY(MotherBrainFightDefinitions.BrainFloorY);

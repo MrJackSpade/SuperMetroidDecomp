@@ -63,7 +63,7 @@ internal sealed class BeamFiring
         SamusState samus,
         GameplayAction controllerInput,
         GameplayAction controllerNewInput,
-        SamusBombProjectileSystem sharedProjectiles,
+        SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
     {
         const GameplayAction shoot = GameplayAction.Shoot;
@@ -74,7 +74,7 @@ internal sealed class BeamFiring
         if (samus.HyperBeamEnabled)
         {
             SoundEffectId? sound = (controllerInput & shoot) != GameplayAction.None
-                ? TryFireHyperBeam(level, samus, sharedProjectiles, roomObjects)?.Sound
+                ? TryFireHyperBeam(level, samus, samusBombs, roomObjects)?.Sound
                 : null;
             return new(sound, sound is null ? null : SoundRequestPriority.Essential);
         }
@@ -90,7 +90,7 @@ internal sealed class BeamFiring
                     level,
                     samus,
                     controllerNewInput,
-                    sharedProjectiles,
+                    samusBombs,
                     roomObjects,
                     charged: false)?.Sound
                 : null;
@@ -111,7 +111,7 @@ internal sealed class BeamFiring
                 level,
                 samus,
                 controllerNewInput,
-                sharedProjectiles,
+                samusBombs,
                 roomObjects,
                 charged: forcedChargedRelease));
         }
@@ -124,14 +124,14 @@ internal sealed class BeamFiring
             if (!_charge.HasCharged(BeamChargeDefinitions.SpecialAttackCounter))
             {
                 _charge.CountChargeUpdate();
-                if (_charge.FlareCounter == 1)
+                if (_charge.UpdatesHeld == 1)
                 {
                     _charge.ClearFlare();
                     SoundEffectId? sound = TryFireBeam(
                         level,
                         samus,
                         controllerNewInput,
-                        sharedProjectiles,
+                        samusBombs,
                         roomObjects,
                         charged: false)?.Sound;
                     return new(sound, sound is null ? null : SoundRequestPriority.Essential);
@@ -139,12 +139,12 @@ internal sealed class BeamFiring
 
                 // The charging sound starts once, on the input phase that advances the flare count to
                 // BeamChargeDefinitions.ChargeSoundStartCounter; drawing the flare queues nothing.
-                if (_charge.FlareCounter == BeamChargeDefinitions.ChargeSoundStartCounter)
+                if (_charge.UpdatesHeld == BeamChargeDefinitions.ChargeSoundStartCounter)
                 {
                     return new(SamusSound.ChargingBeam, Priority: SoundRequestPriority.High);
                 }
             }
-            else if (_combos.TryActivateCombo(samus, sharedProjectiles, out SoundEffectId? comboSound))
+            else if (_combos.TryActivateCombo(samus, samusBombs, out SoundEffectId? comboSound))
             {
                 // The game tries the special beam attack only on the update after the charge reaches its clamp.
                 // Successful activation clears flare animation and restores the suit;
@@ -168,7 +168,7 @@ internal sealed class BeamFiring
             level,
             samus,
             controllerNewInput,
-            sharedProjectiles,
+            samusBombs,
             roomObjects,
             charged: releaseCharged));
     }
@@ -203,7 +203,7 @@ internal sealed class BeamFiring
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerNewInput,
-        SamusBombProjectileSystem sharedProjectiles,
+        SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects,
         bool charged)
     {
@@ -214,14 +214,14 @@ internal sealed class BeamFiring
         // frame and the beam cooldown supplies the rate limit; charged releases reach
         // the same gate once.
         if (_pool.ShotCount.Count >= SamusProjectileSystem.PlaceCount ||
-            sharedProjectiles.CooldownTimer != 0)
+            samusBombs.CooldownTimer != 0)
         {
             return null;
         }
 
         // A fire attempt sets the shared cooldown before it takes a place, so a shot count that disagrees
         // with the free places shows rather than being repaired.
-        sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.FireAttempt);
+        samusBombs.SetSharedCooldown(SamusProjectileCooldownDefinitions.FireAttempt);
         _pool.ShotCount.CountShot();
 
         // The shot count can read lower than the places held: a special attack sets it to its particle count whatever
@@ -276,7 +276,7 @@ internal sealed class BeamFiring
         int cooldown = beamType.CanBeEquipped
             ? SamusProjectileCooldowns.Read(beamType, shot)
             : _unauthoredFiring.Cooldown(beamType, shot);
-        sharedProjectiles.SetSharedCooldown(cooldown);
+        samusBombs.SetSharedCooldown(cooldown);
 
         SoundEffectId? sound = SamusProjectileSoundRouting.Resolve(charged, beamType);
         if (charged)
@@ -310,18 +310,18 @@ internal sealed class BeamFiring
     internal BeamShot? TryFireHyperBeam(
         RoomLevelData level,
         SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles,
+        SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
     {
         // Admission is shared with normal beams: five counted shots and a running cooldown reject firing before any
         // projectile is created.
         if (_pool.ShotCount.Count >= SamusProjectileSystem.PlaceCount ||
-            sharedProjectiles.CooldownTimer != 0)
+            samusBombs.CooldownTimer != 0)
         {
             return null;
         }
 
-        sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.FireAttempt);
+        samusBombs.SetSharedCooldown(SamusProjectileCooldownDefinitions.FireAttempt);
         _pool.ShotCount.CountShot();
         // As for ordinary beams, with every place held the shot takes the last place over the shot there (#2468).
         int place = _pool.PlaceForBeam();
@@ -365,7 +365,7 @@ internal sealed class BeamFiring
         InitializePowerBeamVelocity(samus.ProjectileInheritance, projectile, _unauthoredFiring);
 
         // The shot starts the Hyper Beam's own suit glow, and its flare in place of the charge.
-        sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.HyperBeamShot);
+        samusBombs.SetSharedCooldown(SamusProjectileCooldownDefinitions.HyperBeamShot);
         _charge.ChargedShotGlow = ChargedShotGlow.StartHyperBeamGlow();
         _charge.StartHyperBeamFlare();
 
@@ -379,7 +379,7 @@ internal sealed class BeamFiring
         SamusState samus,
         GameplayAction controllerNewInput,
         GameplayAction controllerPreviousNewInput,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         const GameplayAction shoot = GameplayAction.Shoot;
 
@@ -397,12 +397,12 @@ internal sealed class BeamFiring
         int ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
         int admissionLimit = isSuperMissile ? SuperMissileDefinitions.AdmissionLimit : SamusProjectileSystem.PlaceCount;
         if (_pool.ShotCount.Count >= admissionLimit ||
-            sharedProjectiles.CooldownTimer != 0)
+            samusBombs.CooldownTimer != 0)
         {
             return null;
         }
 
-        sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.FireAttempt);
+        samusBombs.SetSharedCooldown(SamusProjectileCooldownDefinitions.FireAttempt);
         if (ammo == 0)
             return null;
 
@@ -448,7 +448,7 @@ internal sealed class BeamFiring
         // missile returns it, ending that request, before the ordinary empty-ammo fallback. Murder Beam uses this exact path
         // to begin charging safely while the missile cooldown suppresses its unsafe initial
         // uncharged shot.
-        sharedProjectiles.SetSharedCooldown(isSuperMissile
+        samusBombs.SetSharedCooldown(isSuperMissile
             ? SamusProjectileCooldownDefinitions.SuperMissileShot
             : SamusProjectileCooldownDefinitions.MissileShot);
         if (samus.AutoCancelledItem != HudItem.Beam)

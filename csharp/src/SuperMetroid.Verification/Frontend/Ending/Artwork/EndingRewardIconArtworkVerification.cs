@@ -42,10 +42,10 @@ internal static class EndingRewardIconArtworkVerification
             if (nativeScene.Phase == EndingCreditsPhase.PostCreditsJump)
             {
                 jumpFrames++;
-                LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeScene);
+                LayeredScene expected = EndingCreditsPresentation.ComposeScene(nativeScene);
                 RgbColor[] expectedColours = EndingShownColours.Of(nativeScene);
                 byte[] expectedVram = nativeScene.ShownVram();
-                LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installedScene);
+                LayeredScene actual = EndingCreditsPresentation.ComposeScene(installedScene);
                 RgbColor[] actualColours = EndingShownColours.Of(installedScene);
                 byte[] actualVram = installedScene.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&

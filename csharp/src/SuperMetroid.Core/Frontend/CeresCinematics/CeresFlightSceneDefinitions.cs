@@ -7,16 +7,16 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class CeresFlightSceneDefinitions
 {
     /// <summary>The front approach's starting horizontal floor scroll, in pixels.</summary>
-    internal const int FrontInitialBackgroundX = -72;
+    internal const int FrontInitialFloorScrollX = -72;
     /// <summary>The front approach's starting vertical floor scroll, in pixels.</summary>
-    internal const int FrontInitialBackgroundY = -104;
+    internal const int FrontInitialFloorScrollY = -104;
     /// <summary>The front approach's starting floor angle.</summary>
     internal static RotationAngle FrontInitialAngle => RotationAngle.FromSteps(224);
 
     /// <summary>The rear view's horizontal floor scroll, in pixels.</summary>
-    internal const int RearViewBackgroundX = -32;
+    internal const int RearViewFloorScrollX = -32;
     /// <summary>The rear view's vertical floor scroll, in pixels.</summary>
-    internal const int RearViewBackgroundY = -128;
+    internal const int RearViewFloorScrollY = -128;
     /// <summary>The rear view's floor angle.</summary>
     internal static RotationAngle RearViewAngle => RotationAngle.FromSteps(32);
 
@@ -56,4 +56,11 @@ internal static class CeresFlightSceneDefinitions
         {
             [CeresSpriteColouring.Station] = ColourEffectColours.CeresNavigationLightsSprite,
         };
+
+
+    /// <summary>The updates each step off the rear view's white flash takes: one, a step every update.</summary>
+    internal const int RearViewFlashUpdatesPerStep = 1;
+
+    /// <summary>The update of the rear view's white flash its first step off white comes on: the first.</summary>
+    internal const int RearViewFlashFirstStepUpdate = 1;
 }

@@ -92,7 +92,7 @@ internal static class FileSelectPresentationVerification
                 $"installed file-select selection matches frame {comparedFrames}");
             AssertTrue(native.BackgroundTilemap(InstalledFixtures.ImportOf(original)).SequenceEqual(installed.BackgroundTilemap(InstalledFixtures.ImportOf(original))),
                 $"installed file-select tilemap matches frame {comparedFrames}");
-            AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()),
+            AssertTrue(ScenePixels.Same(native.ComposeScene(), installed.ComposeScene()),
                 $"installed file-select pixels match frame {comparedFrames}");
             native.Step(input);
             installed.Step(input);

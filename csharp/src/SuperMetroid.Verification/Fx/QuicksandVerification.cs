@@ -30,7 +30,7 @@ internal static class QuicksandVerification
             var body = samus.Kinematics;
             body.Position = body.Position.WithWhole(new(24, 24));
             body.Radius = body.Radius.WithY(8);
-            body.VerticalVelocity = SamusVerticalVelocity.Of(body.VerticalVelocity.Speed.WithWhole(5), direction);
+            body.VerticalVelocity = SamusVerticalVelocityConstants.Of(body.VerticalVelocity.Speed.WithWhole(5), direction);
             samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(4, 0xffff);
             samus.HorizontalSpeed.HasRunningMomentum = true;
             SamusInsideBlockReactions.PrepareFrame(level, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
@@ -95,7 +95,7 @@ internal static class QuicksandVerification
             SamusKinematicsState body = samus.Kinematics;
             body.Position = body.Position.WithWhole(new(24, 24));
             body.Radius = body.Radius.WithY(8);
-            body.VerticalVelocity = SamusVerticalVelocity.Of(body.VerticalVelocity.Speed.WithWhole(5), direction);
+            body.VerticalVelocity = SamusVerticalVelocityConstants.Of(body.VerticalVelocity.Speed.WithWhole(5), direction);
             SamusInsideBlockReactions.PrepareFrame(
                 level, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
             QuicksandSurfacePhysics physics =
@@ -121,7 +121,7 @@ internal static class QuicksandVerification
         {
             var body = new SamusKinematicsState
             {
-                VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(4, 0), SamusVerticalDirection.Down),
+                VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(4, 0), SamusVerticalDirection.Down),
                 YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00),
             };
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(2, 32768);
@@ -220,7 +220,7 @@ internal static class QuicksandVerification
         SamusKinematicsState body = samus.Kinematics;
         body.Position = body.Position.WithWhole(new(24, 24));
         body.Radius = body.Radius.WithY(8);
-        body.VerticalVelocity = SamusVerticalVelocity.Of(body.VerticalVelocity.Speed, SamusVerticalDirection.Up);
+        body.VerticalVelocity = SamusVerticalVelocityConstants.Of(body.VerticalVelocity.Speed, SamusVerticalDirection.Up);
         SignedSixteenSixteen limit = QuicksandReactions.SurfacePhysics(gravitySuit: false).UpwardSpeedLimit;
         // 255/65536 of a pixel above the limit: below the resolution of the middle-word comparison.
         SignedSixteenSixteen justAbove = limit + SignedSixteenSixteen.FromParts(wholePixels: 0, fraction: 255);
@@ -247,7 +247,7 @@ internal static class QuicksandVerification
             int expected = middle > 0x30 ? (probe & unchecked((int)0xff0000ff)) | 0x3000 : probe;
             var body = new SamusKinematicsState
             {
-                VerticalVelocity = SamusVerticalVelocity.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.None),
+                VerticalVelocity = SamusVerticalVelocityConstants.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.None),
             };
             SignedSixteenSixteen displacement = SixteenSixteenWords.ToDisplacement(probe);
             SamusInsideBlockReactions.ReactCollision(

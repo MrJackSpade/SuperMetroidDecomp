@@ -16,7 +16,7 @@ internal static class CacatacAnimations
     internal static AnimationSegments<CacatacSegment, EnemyFrameId, CacatacCue> Segments { get; } = new(
         new Dictionary<CacatacSegment, AnimationBeat<EnemyFrameId, CacatacCue>[]>
     {
-        [P.UpsideUpIdle] =
+        [P.OnFloorIdle] =
         [
             Cue(new CacatacCue.Signal(K.RestorePatrol)),
             Show(EnemyFrameId.CacatacUprightSplayed, 8),
@@ -28,7 +28,7 @@ internal static class CacatacAnimations
             Show(EnemyFrameId.CacatacUprightSpreading, 8),
             Show(EnemyFrameId.CacatacUprightStretched, 8),
         ],
-        [P.UpsideUpAttack] =
+        [P.OnFloorAttack] =
         [
             Show(EnemyFrameId.CacatacUprightSplayed, 21),
             Show(EnemyFrameId.CacatacUprightPuffingUp, 5),
@@ -41,27 +41,27 @@ internal static class CacatacAnimations
             Cue(new CacatacCue.SpawnSpike(D.UpRight)),
             Cue(new CacatacCue.SpawnSpike(D.RightFacingUp)),
         ],
-        [P.UpsideDownIdle] =
+        [P.OnCeilingIdle] =
         [
             Cue(new CacatacCue.Signal(K.RestorePatrol)),
         ],
-        [P.UpsideDownIdlePoses] =
+        [P.OnCeilingIdlePoses] =
         [
-            Show(EnemyFrameId.CacatacUpsideDownSplayed, 8),
-            Show(EnemyFrameId.CacatacUpsideDownDrawingIn, 8),
-            Show(EnemyFrameId.CacatacUpsideDownDrawnIn, 8),
-            Show(EnemyFrameId.CacatacUpsideDownCrouching, 8),
-            Show(EnemyFrameId.CacatacUpsideDownGathered, 8),
-            Show(EnemyFrameId.CacatacUpsideDownGatheredTall, 8),
-            Show(EnemyFrameId.CacatacUpsideDownSpreading, 8),
-            Show(EnemyFrameId.CacatacUpsideDownStretched, 8),
+            Show(EnemyFrameId.CacatacOnCeilingSplayed, 8),
+            Show(EnemyFrameId.CacatacOnCeilingDrawingIn, 8),
+            Show(EnemyFrameId.CacatacOnCeilingDrawnIn, 8),
+            Show(EnemyFrameId.CacatacOnCeilingCrouching, 8),
+            Show(EnemyFrameId.CacatacOnCeilingGathered, 8),
+            Show(EnemyFrameId.CacatacOnCeilingGatheredTall, 8),
+            Show(EnemyFrameId.CacatacOnCeilingSpreading, 8),
+            Show(EnemyFrameId.CacatacOnCeilingStretched, 8),
         ],
-        [P.UpsideDownAttack] =
+        [P.OnCeilingAttack] =
         [
-            Show(EnemyFrameId.CacatacUpsideDownSplayed, 21),
-            Show(EnemyFrameId.CacatacUpsideDownPuffingUp, 5),
-            Show(EnemyFrameId.CacatacUpsideDownPuffedUp, 21),
-            Show(EnemyFrameId.CacatacUpsideDownPuffingUp, 5),
+            Show(EnemyFrameId.CacatacOnCeilingSplayed, 21),
+            Show(EnemyFrameId.CacatacOnCeilingPuffingUp, 5),
+            Show(EnemyFrameId.CacatacOnCeilingPuffedUp, 21),
+            Show(EnemyFrameId.CacatacOnCeilingPuffingUp, 5),
             Cue(new CacatacCue.Signal(K.PlaySpikeSound)),
             Cue(new CacatacCue.SpawnSpike(D.LeftFacingDown)),
             Cue(new CacatacCue.SpawnSpike(D.DownLeft)),
@@ -77,10 +77,10 @@ internal static class CacatacAnimations
     /// </summary>
     internal static IReadOnlyDictionary<CacatacSegment, Animation<CacatacSegment>> StartingAt { get; } = new Dictionary<CacatacSegment, Animation<CacatacSegment>>
     {
-        [P.UpsideUpIdle] = Animation<CacatacSegment>.Looping([Segments.Whole(P.UpsideUpIdle)]),
-        [P.UpsideUpAttack] = Animation<CacatacSegment>.LeadingInto([Segments.Whole(P.UpsideUpAttack)], [Segments.Whole(P.UpsideUpIdle)]),
-        [P.UpsideDownIdle] = Animation<CacatacSegment>.LeadingInto([Segments.Whole(P.UpsideDownIdle)], [Segments.Whole(P.UpsideDownIdlePoses)]),
-        [P.UpsideDownAttack] = Animation<CacatacSegment>.LeadingInto([Segments.Whole(P.UpsideDownAttack), Segments.Whole(P.UpsideDownIdle)], [Segments.Whole(P.UpsideDownIdlePoses)]),
+        [P.OnFloorIdle] = Animation<CacatacSegment>.Looping([Segments.Whole(P.OnFloorIdle)]),
+        [P.OnFloorAttack] = Animation<CacatacSegment>.LeadingInto([Segments.Whole(P.OnFloorAttack)], [Segments.Whole(P.OnFloorIdle)]),
+        [P.OnCeilingIdle] = Animation<CacatacSegment>.LeadingInto([Segments.Whole(P.OnCeilingIdle)], [Segments.Whole(P.OnCeilingIdlePoses)]),
+        [P.OnCeilingAttack] = Animation<CacatacSegment>.LeadingInto([Segments.Whole(P.OnCeilingAttack), Segments.Whole(P.OnCeilingIdle)], [Segments.Whole(P.OnCeilingIdlePoses)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

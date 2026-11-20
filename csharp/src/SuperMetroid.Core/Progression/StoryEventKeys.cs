@@ -10,7 +10,7 @@ internal static class StoryEventKeys
     internal static InstalledKeys<StoryEvent> Installed { get; } = new(new Dictionary<StoryEvent, string>
     {
         [StoryEvent.ZebesAwake] = "ZebesAwake",
-        [StoryEvent.ShitroidAteSidehopper] = "ShitroidAteSidehopper",
+        [StoryEvent.BabyMetroidAteSidehopper] = "ShitroidAteSidehopper",
         [StoryEvent.MotherBrainGlassDestroyed] = "MotherBrainGlassDestroyed",
         [StoryEvent.PhantoonStatueGrey] = "PhantoonStatueGrey",
         [StoryEvent.RidleyStatueGrey] = "RidleyStatueGrey",
@@ -26,7 +26,7 @@ internal static class StoryEventKeys
         [StoryEvent.FirstMetroidShaftCleared] = "FirstMetroidShaftCleared",
         [StoryEvent.SecondMetroidHallCleared] = "SecondMetroidHallCleared",
         [StoryEvent.SecondMetroidShaftCleared] = "SecondMetroidShaftCleared",
-        [StoryEvent.ShitroidEncounterMusicSkipped] = "ShitroidEncounterMusicSkipped",
+        [StoryEvent.BabyMetroidEncounterMusicSkipped] = "ShitroidEncounterMusicSkipped",
         [StoryEvent.OutranSpeedBoosterLavaquake] = "OutranSpeedBoosterLavaquake",
     });
 
@@ -37,7 +37,7 @@ internal static class StoryEventKeys
     internal static IReadOnlyList<StoryEvent> SavedOrder { get; } =
     [
         StoryEvent.ZebesAwake,
-        StoryEvent.ShitroidAteSidehopper,
+        StoryEvent.BabyMetroidAteSidehopper,
         StoryEvent.MotherBrainGlassDestroyed,
         StoryEvent.PhantoonStatueGrey,
         StoryEvent.RidleyStatueGrey,
@@ -53,7 +53,7 @@ internal static class StoryEventKeys
         StoryEvent.FirstMetroidShaftCleared,
         StoryEvent.SecondMetroidHallCleared,
         StoryEvent.SecondMetroidShaftCleared,
-        StoryEvent.ShitroidEncounterMusicSkipped,
+        StoryEvent.BabyMetroidEncounterMusicSkipped,
         StoryEvent.OutranSpeedBoosterLavaquake,
     ];
 }

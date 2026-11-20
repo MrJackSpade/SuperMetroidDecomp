@@ -54,7 +54,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
 
         fixture.System.DeathsAndDrops.Pickups.Of(dying).Lifetime = UpdateCountdown.Lasting(1);
         fixture.System.DeathsAndDrops.TendEnemyPickup(dying, samus);
-        AssertEqual(EnemyDeathAndDropSegment.RespawnTail, ProgramOf(dying), "an expired drop starts the respawn tail");
+        AssertEqual(EnemyDeathAndDropSegment.RespawnPause, ProgramOf(dying), "an expired drop starts the respawn tail");
         for (int update = 0; update < 70 && dying.IsActive; update++)
             fixture.System.Projectiles.AdvanceEnemyProjectileAnimations(dying, samus, Position16<RoomPixels>.Zero, shortCounter: 0);
         AssertTrue(!dying.IsActive, "the respawn tail deletes the drop after its blank frame");

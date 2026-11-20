@@ -26,21 +26,21 @@ internal static class EndingWavySamusTests
         var scene = new EndingCreditsState(AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0, Inventory = default, JapaneseText = false, CrittersEscaped = false }, maps.EndingText,
             installed.LoadEndingBackdrops(), SuperMetroid.TestSupport.RepositoryInstallation.Verification.EndingSheetFixtures.WithEnding(
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects));
-        scene.InstalledArtwork.LoadCreditsAndPostCreditsAssets();
+        scene.InstalledArtwork.ShowCreditsColours();
         scene.CreditsRoll.SetupPostCreditsBlank();
         // The ending stands on the backdrop fade's last update.
-        var lastFadeUpdate = UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames);
-        PrivateState.Set(lastFadeUpdate, nameof(UpdateCountdown.Age), EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames - 1);
+        var lastFadeUpdate = UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps);
+        PrivateState.Set(lastFadeUpdate, nameof(UpdateCountdown.Age), EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps - 1);
         scene.ShowCastPhase(EndingCreditsPhase.PostCreditsShootingStars);
         PrivateState.Set(scene, nameof(EndingCreditsState.PhaseHold), lastFadeUpdate);
         scene.Stage.Fade.Show(DisplayBrightness.Full);
-        Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<AddedPicturedPlaneLayer>().Any(), "Wave must not start during the palette fade");
+        Require(!EndingCreditsPresentation.ComposeScene(scene).LayersOf<AddedPicturedPlaneLayer>().Any(), "Wave must not start during the palette fade");
         scene.Step();
         RgbaPixel[]? previous = null;
         for (int age = 0; age < 180; age++)
         {
             Require(scene.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop, "Native wave lasts exactly the 180-frame hold");
-            var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+            var snapshot = EndingCreditsPresentation.ComposeScene(scene);
             var added = snapshot.LayersOf<AddedPicturedPlaneLayer>().Single();
             Require(added.VerticalScroll == age * 2, $"Native vertical scroll age {age}");
             if (age < 2) Require(added.HorizontalWave is null, $"The setup-only frames show no wave, age {age}");
@@ -69,7 +69,7 @@ internal static class EndingWavySamusTests
             scene.Step();
         }
         Require(scene.Phase == EndingCreditsPhase.PostCreditsWaitingSamus, "Result panel replaces the wave after its wait");
-        Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<AddedPicturedPlaneLayer>().Any(), "Result panel disables BG3 addition");
+        Require(!EndingCreditsPresentation.ComposeScene(scene).LayersOf<AddedPicturedPlaneLayer>().Any(), "Result panel disables BG3 addition");
         Console.WriteLine($"{device.Kind}: ending wave description and native line scrolls, moving blue pixels and 180-frame lifecycle passed.");
 
         ushort NativeX(int age, int line)

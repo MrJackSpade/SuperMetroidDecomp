@@ -94,7 +94,7 @@ internal static class SamusHudDefinitionsVerification
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings));
             for (int frame = 0; frame < 10; frame++)
                 shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
-            AssertEqual(10, shots.Charge.FlareCounter, "Fixture charge earned through real producer");
+            AssertEqual(10, shots.Charge.UpdatesHeld, "Fixture charge earned through real producer");
             metadataPose = samus.Pose = pose;
             setTurn(samus, turn);
             SamusHudSelectionMode handler = HandlerOf(rom, movement);
@@ -104,7 +104,7 @@ internal static class SamusHudDefinitionsVerification
             shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
             // An admitted nonzero turn handoff forces release before held-input charge
             // processing; with no new Shoot edge this partial charge emits no projectile.
-            AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.Charge.FlareCounter, $"Actual projectile HUD charge preservation movement={movement:X2} pose={(int)SamusPoseNumbers.Number(pose):X2} turn={turn}");
+            AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.Charge.UpdatesHeld, $"Actual projectile HUD charge preservation movement={movement:X2} pose={(int)SamusPoseNumbers.Number(pose):X2} turn={turn}");
             AssertTrue(shots.Shots.All(slot => !slot.IsActive), "Held partial charge does not emit shot");
         }
         AssertThrows<ArgumentOutOfRangeException>(

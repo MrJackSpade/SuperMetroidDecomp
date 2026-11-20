@@ -77,7 +77,7 @@ public sealed class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActor
         // The descent samples the old Samus position for the pad, then increments
         // Samus. That one-pixel separation is visible throughout the descent.
         pad.Actor.Position = pad.Actor.Position.WithY(MovingPadUnder(samus).Y);
-        samus.Position += new Offset16<RoomPixels>(0, 1);
+        samus.Position += CeresElevatorArrivalDefinitions.SamusDescentStep;
         // Samus starts the descent at the room's top and moves down a pixel an update, so she reaches the landing
         // threshold from above.
         if (samus.Position.Y.Whole < CeresElevatorArrivalDefinitions.LandingThresholdY)

@@ -48,7 +48,7 @@ internal sealed class EndingCreditsRoll
     {
         // The credits' setup stops every colour effect before loading the credits' and rewards' colours.
         _stage.ResetColourEffects();
-        _artwork.LoadCreditsAndPostCreditsAssets();
+        _artwork.ShowCreditsColours();
         _artwork.PostCreditsText.Clear();
         sprites.Clear();
         _stage.Fade.Show(DisplayBrightness.Full);
@@ -77,7 +77,7 @@ internal sealed class EndingCreditsRoll
     {
         if (_stage.EndingReward == EndingReward.Armored) return;
         int step = fade.Taken;
-        FadeWaitingBackdrop(EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames - step);
+        FadeWaitingBackdrop(EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps - step);
         screen.Colours.Fade(EndingFade.SuitlessSamus, step);
         if (_stage.EndingReward == EndingReward.Helmetless)
             screen.Colours.Fade(EndingFade.SuitedSamus, step);
@@ -109,7 +109,7 @@ internal sealed class EndingCreditsRoll
         _stage.LoadColours(EndingColourLoad.RestoredShot);
         _artwork.PostCreditsText.Drop = 0;
         _artwork.PostCreditsText.ClearCopyright();
-        return WhiteWash.FullWhite(updatesPerStep: 1, firstStepUpdate: 1);
+        return WhiteWash.FullWhite(EndingCadenceDefinitions.PostCreditsFlashUpdatesPerStep, EndingCadenceDefinitions.PostCreditsFlashFirstStepUpdate);
     }
 
     /// <summary>Clears the landed Samus and installs the final logo actor.</summary>

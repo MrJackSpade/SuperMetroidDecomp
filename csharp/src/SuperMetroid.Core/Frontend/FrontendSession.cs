@@ -208,8 +208,12 @@ internal sealed class FrontendSession
     internal void RetainSpacetimeRestart(SuperMetroidSaveSlot slot) => spacetimeIntroRestartSlot = Ensure.NotNull(slot);
     /// <summary>A soft reset forgets any Spacetime Beam restart.</summary>
     internal void ForgetSpacetimeRestart() => spacetimeIntroRestartSlot = null;
-    /// <summary>The fade into Landing Site or Ceres arrival, from black on a two-frame cadence.</summary>
-    internal ScreenFade GameplayFadeIn { get; } = new(0, stepDelay: 1, firstWait: 1);
+    /// <summary>
+    /// The fade into Landing Site or Ceres arrival, from black, waiting <see cref="GameplayFadeDefinitions.FadeInWaitBeforeEachStep"/>
+    /// updates before each step.
+    /// </summary>
+    internal ScreenFade GameplayFadeIn { get; } =
+        new(0, stepDelay: GameplayFadeDefinitions.FadeInWaitBeforeEachStep, firstWait: GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
     /// <summary>Selects Ceres arrival rather than Landing Site at the fade destination.</summary>
     internal bool GameplayFadeLeadsToCeresArrival { get; private set; }
     /// <summary>Gameplay brightness retained through pause and unpause fades, from black through full.</summary>
@@ -592,7 +596,7 @@ internal sealed class FrontendSession
 
             // A Ceres elevator save starts with the Ceres elevator's arrival, as a new game does; every other station
             // loads through the room loader below.
-            if (slot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
+            if (slot.StartupRoute == SaveStartupRoute.CeresElevatorArrival)
             {
                 // The save's progress is restored before the room loads, so the room's state and its enemies see it.
                 runtime.RoomLoader.RestoreSavedPlayerState(slot);
@@ -643,14 +647,14 @@ internal sealed class FrontendSession
         return true;
     }
     /// <summary>
-    /// Enters the fade-in game state with a fully dark screen and the two-frame
-    /// brightness cadence. A fresh Ceres game must execute complete gameplay frames in
+    /// Enters the fade-in game state with a fully dark screen and the fade-in's brightness cadence
+    /// (<see cref="GameplayFadeDefinitions.FadeInWaitBeforeEachStep"/>). A fresh Ceres game must execute complete gameplay frames in
     /// this state before the Ceres elevator state owns the elevator arrival; otherwise the level-data pad
     /// is briefly visible before its concealing enemy projectile is drawn.
     /// </summary>
     internal void BeginGameplayFadeIn(GameplayFadeTarget target)
     {
-        GameplayFadeIn.Restart(0, 1);
+        GameplayFadeIn.Restart(0, GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
         GameplayFadeLeadsToCeresArrival = target == GameplayFadeTarget.CeresArrival;
         Enter(Phases.GameplayFadeIn);
     }
@@ -663,7 +667,7 @@ internal sealed class FrontendSession
     {
         Enter(Phases.MainGameplay);
         GameplayFadeLeadsToCeresArrival = false;
-        screenFade.StepEvery(1);
+        screenFade.StepEvery(GameplayFadeDefinitions.MainGameplayUpdatesPerStep);
         RecordFullBrightness();
     }
     /// <summary>

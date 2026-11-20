@@ -58,7 +58,7 @@ internal sealed class EnemyPopulationLoader
             _lifecycle.InitializePlaceFromDefinition(place, population, definition);
             if (definition.Boss is { } boss)
                 _roomStatus.Boss = boss;
-            _lifecycle.RunInitializationAi(place, surroundings);
+            _lifecycle.SetUpEnemy(place, surroundings);
 
             // Loading replaces whatever frame the initialization AI showed: an animated enemy shows the empty frame until
             // its first animation tick replaces it, and one that collides by its frames' hitboxes collides at the point

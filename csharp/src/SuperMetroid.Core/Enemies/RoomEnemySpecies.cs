@@ -154,8 +154,8 @@ internal sealed class RoomEnemySpecies
         var skulteraBehavior = new SkulteraBehavior(enemies.Terrain);
         var skreeBehavior = new SkreeBehavior(enemies.Audio, enemies.Projectiles, enemies.DeathsAndDrops);
         var shuttersBehavior = new ShuttersBehavior(enemies.Audio, enemies.Places);
-        var shitroidBehavior = new ShitroidBehavior(enemies.Room, enemies.Places, compatibility.FadeStepCount, enemies.PassEvents, enemies.Audio);
-        var deadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = enemies.Room, Terrain = enemies.Terrain, Shitroid = new ShitroidFeeding(enemies.Places), FrameContext = enemies.FrameContext, Projectiles = enemies.Projectiles, Collision = enemies.Collision, RowDust = CorpseRowDust });
+        var babyMetroidBehavior = new BabyMetroidBehavior(enemies.Room, enemies.Places, compatibility.FadeStepCount, enemies.PassEvents, enemies.Audio);
+        var deadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = enemies.Room, Terrain = enemies.Terrain, BabyMetroidFeeding = new BabyMetroidFeeding(enemies.Places), FrameContext = enemies.FrameContext, Projectiles = enemies.Projectiles, Collision = enemies.Collision, RowDust = CorpseRowDust });
         var shaktoolBehavior = new ShaktoolBehavior(enemies.Terrain, enemies.Places, enemies.Collision);
         var sbugBehavior = new SbugBehavior();
         var ripperBehavior = new RipperBehavior(enemies.Terrain);
@@ -173,8 +173,8 @@ internal sealed class RoomEnemySpecies
         var owtchBehavior = new OwtchBehavior(enemies.Room);
         var oldTourianEscapeShaftWallBehavior = new OldTourianEscapeShaftWallBehavior(enemies.Projectiles, enemies.Audio);
         var nuclearWaffleBehavior = new NuclearWaffleBehavior(enemies.Projectiles, enemies.EffectActors, enemies.Audio);
-        var norfairRioBehavior = new NorfairRioBehavior(enemies.Room, enemies.Terrain, enemies.Places, enemies.Audio);
-        var norfairLavaJumpingEnemyBehavior = new NorfairLavaJumpingEnemyBehavior(enemies.Room, enemies.Places, enemies.Audio);
+        var gerutaBehavior = new GerutaBehavior(enemies.Room, enemies.Terrain, enemies.Places, enemies.Audio);
+        var squeeptBehavior = new SqueeptBehavior(enemies.Room, enemies.Places, enemies.Audio);
         var noobTubeBehavior = new NoobTubeBehavior(enemies.Room, enemies.Projectiles);
         var ninjaSpacePirateBehavior = new NinjaSpacePirateBehavior(enemies.Room, enemies.Terrain, enemies.Projectiles, enemies.EffectActors, walkingSpacePirateBehavior);
         var multiviolaBehavior = new MultiviolaBehavior(enemies.Terrain);
@@ -183,10 +183,10 @@ internal sealed class RoomEnemySpecies
         var mochtroidBehavior = new MochtroidBehavior(enemies.Terrain, enemies.Audio, enemies.FrameContext, enemies.Collision);
         var metroidBehavior = new MetroidBehavior(enemies.Room, enemies.Terrain, enemies.Audio, enemies.EffectActors, enemies.FrameContext, enemies.DeathsAndDrops);
         var metareeBehavior = new MetareeBehavior(enemies.Projectiles, enemies.Audio);
-        var maridiaLargeSnailBehavior = new MaridiaLargeSnailBehavior(enemies.Terrain, enemies.Collision, enemies.Audio);
+        var oumBehavior = new OumBehavior(enemies.Terrain, enemies.Collision, enemies.Audio);
         var mamaTurtleBehavior = new MamaTurtleBehavior(enemies.Terrain, enemies.Earthquake, enemies.Places, enemies.Collision, enemies.Audio);
         var magdolliteBehavior = new MagdolliteBehavior(enemies.Room, enemies.Projectiles, enemies.Places, enemies.Collision, enemies.DeathsAndDrops, enemies.Audio);
-        var lowerNorfairRioBehavior = new LowerNorfairRioBehavior(enemies.Room, enemies.Terrain, enemies.Places, enemies.Audio);
+        var holtzBehavior = new HoltzBehavior(enemies.Room, enemies.Terrain, enemies.Places, enemies.Audio);
         var kzanBehavior = new KzanBehavior(enemies.Places, enemies.Audio);
         var kraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { PassEvents = enemies.PassEvents, Room = enemies.Room, Terrain = enemies.Terrain, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, EffectActors = enemies.EffectActors, Presentation = enemies.BossPresentation, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, CameraDistance = enemies.CameraDistance  });
         var kiHunterBehavior = new KiHunterBehavior(enemies.Room, enemies.Terrain, enemies.Projectiles, enemies.Audio, enemies.Places);
@@ -236,7 +236,7 @@ internal sealed class RoomEnemySpecies
         // Every species with room or frame lifecycle state, in the game's reset order.
         FrameParticipants =
         [
-            shitroidBehavior,
+            babyMetroidBehavior,
             boyonBehavior,
             mamaTurtleBehavior,
             metroidBehavior,
@@ -264,10 +264,10 @@ internal sealed class RoomEnemySpecies
             sporeSpawnBehavior,
             rinkaBehavior,
             rioBehavior,
-            norfairLavaJumpingEnemyBehavior,
-            norfairRioBehavior,
-            lowerNorfairRioBehavior,
-            maridiaLargeSnailBehavior,
+            squeeptBehavior,
+            gerutaBehavior,
+            holtzBehavior,
+            oumBehavior,
             ripperBehavior,
             dragonBehavior,
             kraidBehavior,
@@ -315,7 +315,7 @@ internal sealed class RoomEnemySpecies
             wallSpacePirateBehavior,
             ninjaSpacePirateBehavior,
         ];
-        Registry = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(() => enemies.Collision), [boyonBehavior, bullBehavior, zoaBehavior, waverBehavior, chootBehavior, atomicBehavior, skulteraBehavior, puyoBehavior, rioBehavior, fliesBehavior, sparkBehavior, sbugBehavior, multiviolaBehavior, cacatacBehavior, alcoonBehavior, boulderBehavior, nuclearWaffleBehavior, hibashiBehavior, wreckedShipGhostBehavior, kzanBehavior, ripperBehavior, mochtroidBehavior, skreeBehavior, owtchBehavior, beetomBehavior, kagoBehavior, firefleaBehavior, metareeBehavior, polypBehavior, hoppersBehavior, crawlersBehavior, platformsBehavior, yardBehavior, yappingMawBehavior, etecoonBehavior, dachoraBehavior, maridiaLargeSnailBehavior, workRobotBehavior, blueBrinstarFaceBlockBehavior, dragonBehavior, funeNamiheBehavior, powampBehavior, norfairRioBehavior, lowerNorfairRioBehavior, norfairLavaJumpingEnemyBehavior, shaktoolBehavior, metroidBehavior, walkingSpacePirateBehavior, wallSpacePirateBehavior, ninjaSpacePirateBehavior, chozoStatueBehavior, deadSidehopperBehavior, deadTorizoBehavior, deadTourianBehavior, shitroidBehavior, fakeKraidBehavior, elevatorBehavior, magdolliteBehavior, escapeAnimalsBehavior, rinkaBehavior, zebetiteBehavior, shuttersBehavior, evirBehavior, kiHunterBehavior, pipeBugsBehavior, mamaTurtleBehavior, morphBallEyeBehavior, new CeresDoorFactory(ceresDoorBehavior), steamVents, gunshipBehavior, botwoonBehavior, sporeSpawnBehavior, torizoBehavior, kraidBehavior, crocomireBehavior, draygonBehavior, phantoonBehavior, motherBrainBehavior, babyMetroidCutsceneBehavior, noobTubeBehavior,
+        Registry = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(() => enemies.Collision), [boyonBehavior, bullBehavior, zoaBehavior, waverBehavior, chootBehavior, atomicBehavior, skulteraBehavior, puyoBehavior, rioBehavior, fliesBehavior, sparkBehavior, sbugBehavior, multiviolaBehavior, cacatacBehavior, alcoonBehavior, boulderBehavior, nuclearWaffleBehavior, hibashiBehavior, wreckedShipGhostBehavior, kzanBehavior, ripperBehavior, mochtroidBehavior, skreeBehavior, owtchBehavior, beetomBehavior, kagoBehavior, firefleaBehavior, metareeBehavior, polypBehavior, hoppersBehavior, crawlersBehavior, platformsBehavior, yardBehavior, yappingMawBehavior, etecoonBehavior, dachoraBehavior, oumBehavior, workRobotBehavior, blueBrinstarFaceBlockBehavior, dragonBehavior, funeNamiheBehavior, powampBehavior, gerutaBehavior, holtzBehavior, squeeptBehavior, shaktoolBehavior, metroidBehavior, walkingSpacePirateBehavior, wallSpacePirateBehavior, ninjaSpacePirateBehavior, chozoStatueBehavior, deadSidehopperBehavior, deadTorizoBehavior, deadTourianBehavior, babyMetroidBehavior, fakeKraidBehavior, elevatorBehavior, magdolliteBehavior, escapeAnimalsBehavior, rinkaBehavior, zebetiteBehavior, shuttersBehavior, evirBehavior, kiHunterBehavior, pipeBugsBehavior, mamaTurtleBehavior, morphBallEyeBehavior, new CeresDoorFactory(ceresDoorBehavior), steamVents, gunshipBehavior, botwoonBehavior, sporeSpawnBehavior, torizoBehavior, kraidBehavior, crocomireBehavior, draygonBehavior, phantoonBehavior, motherBrainBehavior, babyMetroidCutsceneBehavior, noobTubeBehavior,
             new RidleyEntityFactory(norfairRidleyBehavior, ceresRidleyBehavior, RidleyEncounter),
             .. Present<IEnemyEntityFactory>(tourianEntranceStatueBehavior), .. Present<IEnemyEntityFactory>(elevatorDoors)],
             // What the owners the room's scenery did not let it build would have placed; the registry refuses a room that

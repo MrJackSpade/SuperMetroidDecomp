@@ -67,7 +67,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
         if (!session.DownwardsElevator.Waiting)
         {
             // An ordinary door finishes at once.
-            if (session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ElevatorFlags == ElevatorJourneyFlag.None)
+            if (session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.DoorArming == ElevatorArming.None)
                 return true;
             // The elevator locks Samus; an upward elevator then finishes at once.
             session.GameplayRuntime.Player.IntroducedSamus.Control.LockOutPlayer();
@@ -89,7 +89,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
     {
         // The update's liquid wave and statue descent advance before this step. A rising
         // liquid's rumble or ambient sound they request is queued as it runs, ahead of the cancels.
-        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
+        session.GameplayRuntime.DoorTransition.RunDoorWaitOpening(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
         // The door sets the door/enemy pause flags, then runs the source
         // enemy/draw owners while sounds are still admitted, so an enemy cue's
         // sound on this frame is queued, as it runs, before the door's cancels.

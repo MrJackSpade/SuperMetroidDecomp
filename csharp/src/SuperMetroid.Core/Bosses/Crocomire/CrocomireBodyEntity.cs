@@ -48,7 +48,7 @@ internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyPl
     public override bool TryReactToBomb(EnemyBombContext context)
     {
         if (Place.Definition.Shot is not null || !context.UsesFrameHitboxes ||
-            context.SelectedShot == EnemyReaction.NormalEnemyShot)
+            context.SelectedShot == EnemyReaction.OrdinaryShot)
             return base.TryReactToBomb(context);
         Species.Combat.ReactToCrocomireBomb(context, Encounter);
         return true;

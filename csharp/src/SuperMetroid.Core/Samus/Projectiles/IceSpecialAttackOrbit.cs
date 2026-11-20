@@ -8,5 +8,5 @@ internal sealed class IceSpecialAttackOrbit : SpecialAttackParticleBehavior
 {
     /// <inheritdoc/>
     private protected override SoundEffectId? Step(SamusShotUpdate update) =>
-        update.Shots.Combos.StepIceOrbit(update.Samus, update.Shot, update.SharedProjectiles);
+        update.Shots.Combos.StepIceOrbit(update.Samus, update.Shot, update.SamusBombs);
 }

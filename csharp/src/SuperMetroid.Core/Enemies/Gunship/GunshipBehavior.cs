@@ -131,7 +131,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             // The landed ship's engine sound starts as the ship is placed.
             ship = new GunshipState(GunshipPhase.Idle) { BaseY = place.Position.Y.Whole, EngineSoundTimer = UpdateCountdown.For(GunshipHoverSoundDefinitions.FirstDelay) };
         }
-        ship.BobTimer = UpdateCountdown.For(1);
+        ship.BobTimer = UpdateCountdown.LastingOneUpdate();
         ship.Bob = GunshipIdleBob.First;
         place.SetSpeciesState(ship);
         // Every placement, landed or descending after Ceres, starts the lights' glow among the room's colour effects. The
@@ -309,7 +309,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         RoomEnemyPlace pad = Pieces(top).EntrancePad;
         State(top).Phase = GunshipPhase.WaitForLandingEntranceToOpen;
         State(top).BaseY = top.Position.Y.Whole;
-        State(top).BobTimer = UpdateCountdown.For(1);
+        State(top).BobTimer = UpdateCountdown.LastingOneUpdate();
         State(top).Bob = GunshipIdleBob.First;
         samus.Position = samus.Position.WithWholeX(top.Position.X.Whole + GunshipMotionDefinitions.LandedSamusRightOfShip);
         samus.WritePreviousXPosition(samus.Position.X.Whole);

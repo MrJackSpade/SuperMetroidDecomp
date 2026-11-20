@@ -28,7 +28,7 @@ internal static class FileMenuSnapshotTestsVerification
         foreach (bool clear in new[] { false, true })
         {
             var menu = new FileSelectMenuState(saveRam, AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
-            void Tick(ControllerButton input = ControllerButton.None) => Check(menu.CaptureRenderSnapshot, () => menu.Step(input));
+            void Tick(ControllerButton input = ControllerButton.None) => Check(menu.ComposeScene, () => menu.Step(input));
             void Press(ControllerButton input) { Tick(); Tick(input); }
             void Until(FileSelectPhase phase)
             {
@@ -50,7 +50,7 @@ internal static class FileMenuSnapshotTestsVerification
         }
 
         var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
-        void OptionTick(ControllerButton input = 0) => Check(options.CaptureRenderSnapshot, () => options.Step(input));
+        void OptionTick(ControllerButton input = 0) => Check(options.ComposeScene, () => options.Step(input));
         void OptionPress(ControllerButton input) { OptionTick(); OptionTick(input); }
         void OptionUntil(GameOptionsPhase phase)
         {

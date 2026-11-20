@@ -10,7 +10,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <summary>
 /// The installed images a scene draws, as one texture (#1408): each sprite frame, block picture, background image and
 /// tile sheet a scene shows is copied in once, at a place it keeps while later scenes show it. Each texel holds the
-/// image's pixel and, beside it, the pixel's key word (<see cref="KeyWord"/>): for a visible pixel the place of its colour
+/// image's pixel and, beside it, the pixel's key word (<see cref="KeyWords"/>): for a visible pixel the place of its colour
 /// key among the image's (<see cref="SpriteImage.ColourKeys"/>), so a shading recolours the image as it shows it (#1512,
 /// #1633), with whether it blends where it is drawn as a sprite; for a clear pixel only that it is clear.
 /// </summary>
@@ -50,6 +50,8 @@ internal sealed class D3D11ImageAtlas : IDisposable
     private readonly List<SpriteSheetFrame> refill = [];
     /// <summary>Reused copy of one image's texels while it is copied in.</summary>
     private uint[] texels = new uint[TexelWords * 64 * 64];
+    /// <summary>The places of the keys found while one image is copied in, reused for each.</summary>
+    private readonly ColourKeyPlaces keyPlaces = new();
 
     /// <summary>Creates the empty texture.</summary>
     internal D3D11ImageAtlas(ID3D11Device device, ID3D11DeviceContext context)
@@ -160,6 +162,7 @@ internal sealed class D3D11ImageAtlas : IDisposable
         if (texels.Length < TexelWords * width * height)
             texels = new uint[TexelWords * width * height];
         ReadOnlySpan<RgbaPixel> pixels = sheet.Pixels;
+        var keyWords = new KeyWords(image, keyPlaces);
         int target = 0;
         for (int row = 0; row < height; row++)
         {
@@ -168,7 +171,7 @@ internal sealed class D3D11ImageAtlas : IDisposable
             {
                 RgbaPixel pixel = pixels[source + column];
                 texels[target] = pixel.R | (uint)pixel.G << 8 | (uint)pixel.B << 16 | (uint)pixel.A << 24;
-                texels[target + 1] = KeyWord(image, source + column);
+                texels[target + 1] = keyWords.Of(source + column);
             }
         }
         fixed (uint* source = texels)
@@ -178,32 +181,67 @@ internal sealed class D3D11ImageAtlas : IDisposable
     }
 
     /// <summary>
-    /// The word the shaders read beside sheet pixel <paramref name="pixel"/> of <paramref name="image"/> (#1633): for a clear
-    /// pixel, one whose alpha is zero, <see cref="ClearMark"/> alone, since a clear pixel is never recoloured and an opaque
-    /// layer shows its stored colour as it is; for a visible pixel, the place of its colour key among its sheet's
+    /// The words the shaders read beside the sheet pixels of one frame as it is copied in (#1633): for a clear pixel, one
+    /// whose alpha is zero, <see cref="ClearMark"/> alone, since a clear pixel is never recoloured and an opaque layer shows
+    /// its stored colour as it is; for a visible pixel, the place of its colour key among its sheet's
     /// (<see cref="SpriteImage.ColourKeys"/>) in the low sixteen bits, with <see cref="BlendsMark"/> where the frame blends or
-    /// the sheet's blend map marks the pixel.
+    /// the sheet's blend map marks the pixel. A key's place is found among the sheet's keys the first time its colour and
+    /// recolour region show, and read from <see cref="ColourKeyPlaces"/> after that: a whole turning floor holds a million
+    /// pixels.
     /// </summary>
-    /// <param name="image">The frame the pixel is copied in as part of.</param>
-    /// <param name="pixel">The pixel, counted row by row from the top of the whole sheet.</param>
-    /// <exception cref="InvalidDataException">
-    /// The sheet has more colour keys than a key word can place, or its keys do not hold a visible pixel's.
-    /// </exception>
-    internal static uint KeyWord(SpriteSheetFrame image, int pixel)
+    internal readonly ref struct KeyWords
     {
-        Ensure.NotNull(image);
-        SpriteImage sheet = image.Sheet;
-        if (sheet.Pixels[pixel].A == 0)
-            return ClearMark;
-        if (sheet.ColourKeys.Length > MostColourKeys)
-            throw new InvalidDataException(
-                $"Sheet {sheet.Name} has {sheet.ColourKeys.Length} colour keys, more than the {MostColourKeys} a key word can place.");
-        ColourKey key = sheet.KeyAt(pixel);
-        int place = sheet.PlaceOf(key)
-            ?? throw new InvalidDataException($"Sheet {sheet.Name}'s colour keys do not hold {key}, the key of its visible pixel {pixel}.");
-        ReadOnlySpan<bool> blending = sheet.Blending;
-        bool blends = image.Blends || (!blending.IsEmpty && blending[pixel]);
-        return (uint)place | (blends ? BlendsMark : 0);
+        /// <summary>The frame the pixels are copied in as part of.</summary>
+        private readonly SpriteSheetFrame image;
+        /// <summary>The frame's sheet.</summary>
+        private readonly SpriteImage sheet;
+        /// <summary>The sheet's pixels.</summary>
+        private readonly ReadOnlySpan<RgbaPixel> pixels;
+        /// <summary>The sheet's recolour regions, empty where every pixel lies in region zero.</summary>
+        private readonly ReadOnlySpan<int> regions;
+        /// <summary>The sheet's blend map, empty where its pictures blend as their frames say.</summary>
+        private readonly ReadOnlySpan<bool> blending;
+        /// <summary>The places of the keys found so far while this image is copied in.</summary>
+        private readonly ColourKeyPlaces found;
+
+        /// <summary>
+        /// Reads the key words of <paramref name="image"/>'s sheet pixels, holding the places of the keys it finds in
+        /// <paramref name="found"/>, which it empties first.
+        /// </summary>
+        internal KeyWords(SpriteSheetFrame image, ColourKeyPlaces found)
+        {
+            this.image = Ensure.NotNull(image);
+            this.found = Ensure.NotNull(found);
+            found.Clear();
+            sheet = image.Sheet;
+            pixels = sheet.Pixels;
+            regions = sheet.RecolourRegions;
+            blending = sheet.Blending;
+        }
+
+        /// <summary>The word beside sheet pixel <paramref name="pixel"/>, counted row by row from the top of the whole sheet.</summary>
+        /// <exception cref="InvalidDataException">
+        /// The sheet has more colour keys than a key word can place, or its keys do not hold a visible pixel's.
+        /// </exception>
+        internal uint Of(int pixel)
+        {
+            RgbaPixel shown = pixels[pixel];
+            if (shown.A == 0)
+                return ClearMark;
+            int region = regions.IsEmpty ? 0 : regions[pixel];
+            if (!found.TryGet(shown, region, out int place))
+            {
+                if (sheet.ColourKeys.Length > MostColourKeys)
+                    throw new InvalidDataException(
+                        $"Sheet {sheet.Name} has {sheet.ColourKeys.Length} colour keys, more than the {MostColourKeys} a key word can place.");
+                ColourKey key = sheet.KeyAt(pixel);
+                place = sheet.PlaceOf(key)
+                    ?? throw new InvalidDataException($"Sheet {sheet.Name}'s colour keys do not hold {key}, the key of its visible pixel {pixel}.");
+                found.Set(shown, region, place);
+            }
+            bool blends = image.Blends || (!blending.IsEmpty && blending[pixel]);
+            return (uint)place | (blends ? BlendsMark : 0);
+        }
     }
 
     /// <summary>

@@ -152,7 +152,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, frameCounter: 1, roomObjects: Sam
         "non-spin aerial morph retains acceleration mode");
     AssertEqual(0, fallingMorph.BombSpreadCharge.Age,
         "morph initializer clears bomb-spread timeout");
-    AssertEqual(0x003c, fallingMorph.BeamCharge.FlareCounter,
+    AssertEqual(0x003c, fallingMorph.BeamCharge.UpdatesHeld,
         "morph initializer does not clear arm-cannon charge counter");
 
     var spinMorph = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
@@ -239,7 +239,7 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     };
     SamusPoseMetadata.RefreshCollisionRadii(boostedFall);
     boostedFall.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
-    boostedFall.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(boostedFall.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
+    boostedFall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(boostedFall.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
     SamusMorphBallMovement.StepFalling(
 
         empty,
@@ -260,7 +260,7 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     };
     SamusPoseMetadata.RefreshCollisionRadii(opposedDirectionFall);
     opposedDirectionFall.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
-    opposedDirectionFall.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(opposedDirectionFall.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
+    opposedDirectionFall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(opposedDirectionFall.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
     SamusMorphBallMovement.StepFalling(
 
         empty,
@@ -280,7 +280,7 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     };
     SamusPoseMetadata.RefreshCollisionRadii(boostedSpring);
     boostedSpring.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x8000);
-    boostedSpring.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(boostedSpring.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
+    boostedSpring.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(boostedSpring.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
     SamusMorphBallMovement.StepSpringBallInAir(
 
         empty,
@@ -378,7 +378,7 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     // Put the airborne body three pixels above the floor and give it a hard downward
     // magnitude. The collision launches bounce one with the two constants at `$90:9EB5`.
     samus.Position = samus.Position.WithWhole(new(48, 55));
-    samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(3, 0), SamusVerticalDirection.Down);
+    samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0), SamusVerticalDirection.Down);
     samus.Kinematics.YAcceleration = default;
     MorphBallMovementResult hardLanding = SamusMorphBallMovement.StepFalling(
 floor, samus, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
@@ -395,13 +395,13 @@ floor, samus, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectF
     // Isolate the two later collision handlers at the exact floor boundary. State one
     // launches the smaller second rebound; state two finally installs stable ground art.
     samus.Position = samus.Position.WithWholeY(57);
-    samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Down);
+    samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Down);
     AssertTrue(!SamusPosturePoseTransitions.ApplyMorphBallLanding(samus), "first-bounce collision launches second rebound");
     AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseSpeed.RawValue, "second rebound retains horizontal momentum");
     AssertEqual(SamusBallBounceState.SecondRebound, samus.MorphBallBounceState, "second rebound state");
     AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "second rebound decrements whole constant");
 
-    samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(1), SamusVerticalDirection.Down);
+    samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(1), SamusVerticalDirection.Down);
     AssertTrue(SamusPosturePoseTransitions.ApplyMorphBallLanding(samus), "second-bounce collision grounds ball");
     AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "final ball landing clears both base-speed words");
     AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode, "final ball landing clears acceleration mode");
@@ -459,7 +459,7 @@ tunnel, SamusPoseId.UnmorphingTransitionRightPose, frameCounter: 1, roomObjects:
         SamusPoseMetadata.RefreshCollisionRadii(fallingUnmorph);
         SamusPresentation.InitializeAnimation(fallingUnmorph);
         fallingUnmorph.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x3456);
-        fallingUnmorph.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(2, 0x8000), SamusVerticalDirection.Down);
+        fallingUnmorph.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(2, 0x8000), SamusVerticalDirection.Down);
 
         AssertTrue(
             SamusPosturePoseTransitions.TryApplyUnmorphToFallingTransition(fallingUnmorph, 
@@ -546,7 +546,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // The no-Jump hard impact stores the distinctive `$0601` state. A held-Jump impact
     // instead clears that state and immediately relaunches through Make_Samus_Jump.
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(spring, SamusPoseId.SpringBallFallingRightPose);
-    spring.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(3, 0), SamusVerticalDirection.Down);
+    spring.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0), SamusVerticalDirection.Down);
     AssertTrue(!SamusPosturePoseTransitions.ApplySpringBallLanding(spring, controllerInput: 0),
         "Spring Ball hard impact rebounds");
     AssertEqual(SamusBallBounceState.SpringBallFirstRebound, spring.MorphBallBounceState, "Spring Ball first bounce state");
@@ -754,7 +754,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "bomb spread occupies all five physical bomb slots");
     AssertEqual(0x0010, spreadBombs.CooldownTimer,
         "bomb spread selects non-beam cooldown entry five");
-    AssertEqual(0, spreadSamus.BeamCharge.FlareCounter,
+    AssertEqual(0, spreadSamus.BeamCharge.UpdatesHeld,
         "bomb spread clears mirrored flare counter");
     AssertEqual(0, spreadSamus.BombSpreadCharge.Age,
         "bomb spread clears its timeout counter");
@@ -1609,7 +1609,7 @@ ceiling, straightBombJump, frameCounter: 0, RoomObjectFixtures.Unbound());
     // preserved it. Prove that its normal falling collision can enter the ordinary bounce
     // state instead of throwing solely because the art still names a grounded ball.
     straightBombJump.Position = straightBombJump.Position.WithWholeY(55);
-    straightBombJump.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(3, 0), SamusVerticalDirection.Down);
+    straightBombJump.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0), SamusVerticalDirection.Down);
     straightBombJump.Kinematics.YAcceleration = default;
     MorphBallMovementResult bombLanding = SamusMorphBallMovement.StepGrounded(
 floor, straightBombJump, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);

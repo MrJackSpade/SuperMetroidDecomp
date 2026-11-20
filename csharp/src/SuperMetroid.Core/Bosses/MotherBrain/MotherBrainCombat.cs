@@ -51,7 +51,7 @@ internal sealed class MotherBrainCombat
                     $"frame {c.Enemy.Frame}; every body rectangle's shot reaction is the dud shot.");
             }
             // The common collision prelude still owns Super-Missile quake first.
-            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
             _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
             return true;
         },
@@ -96,7 +96,7 @@ internal sealed class MotherBrainCombat
 
         // Every overlapping shot is marked as having struck before this reaction;
         // the next projectile pass consumes the marker, removing a Super Missile's pair too.
-        projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
+        projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
             projectile,
             head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
@@ -131,7 +131,7 @@ internal sealed class MotherBrainCombat
         int projectileDamage)
     {
         // The shot collision marked the projectile before running this reaction.
-        projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
+        projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
             projectile,
             head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);

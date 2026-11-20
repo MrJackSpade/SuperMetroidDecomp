@@ -201,7 +201,7 @@ internal static class SuperMetroidRuntimeAccess
                 self.BombProjectiles.Reset();
                 self.Projectiles.Reset();
                 self.Player.IntroducedSamus.HorizontalSpeed.ClearSpeedEchoes();
-                self.Player.IntroducedSamus.Shinespark.ResetProjectileEchoStorage();
+                self.Player.IntroducedSamus.Shinespark.ForgetCrashEchoes();
                 return new DebugGroundedSamusPlacement(
                     new(xPosition, restingY),
                     desiredScreenY,

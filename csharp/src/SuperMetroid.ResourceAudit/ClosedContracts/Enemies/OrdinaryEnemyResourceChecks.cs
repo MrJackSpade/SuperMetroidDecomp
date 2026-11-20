@@ -19,7 +19,7 @@ internal static class OrdinaryEnemyResourceChecks
             new OrdinaryEnemyResourceFamily("WreckedShipGhost", WreckedShipGhostVisualDefinitions.Bank, null, WreckedShipGhostVisualDefinitions.Spritemaps(), WreckedShipGhostVisualDefinitions.FrameCount),
             new OrdinaryEnemyResourceFamily("Powamp", PowampVisualDefinitions.Bank, null, [.. EnemyCompositionSchemaTooling.Family("powamp_").Select(frame => frame.Pointer)], PowampVisualDefinitions.FrameCount),
             new OrdinaryEnemyResourceFamily("Spark", SparkVisualDefinitions.Bank, null, [.. EnemyCompositionSchemaTooling.Family("spark_").Select(frame => frame.Pointer)], SparkVisualDefinitions.FrameCount),
-            new OrdinaryEnemyResourceFamily("Shitroid", ShitroidVisualDefinitions.Bank, null, ShitroidVisualDefinitions.Spritemaps(), ShitroidVisualDefinitions.FrameCount),
+            new OrdinaryEnemyResourceFamily("Shitroid", BabyMetroidSpritemapDefinitions.Bank, null, BabyMetroidSpritemapDefinitions.Spritemaps(), BabyMetroidSpritemapDefinitions.FrameCount),
         ];
         int offset = 0;
         foreach (var definition in families)

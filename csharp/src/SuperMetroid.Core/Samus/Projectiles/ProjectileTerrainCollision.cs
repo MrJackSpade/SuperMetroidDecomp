@@ -420,7 +420,7 @@ internal sealed class ProjectileTerrainCollision
     /// The horizontal velocity a shot fired straight left starts its first block scan with: the smallest leftward
     /// velocity there is, so the scan samples the left radius.
     /// </summary>
-    private static readonly SignedEightEight LeftScanVelocity = SignedEightEight.FromPixelFraction(-1, 256);
+    private static readonly SignedEightEight LeftScanVelocity = -SignedEightEight.FinestStep;
 
     /// <summary>
     /// Kills a beam as block collision does: the
@@ -457,7 +457,7 @@ internal sealed class ProjectileTerrainCollision
     /// <summary>Converts a missile impact to its family-specific explosion and requests Super Missile quake and impact audio.</summary>
     internal void KillMissile(
         SamusProjectile shot,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         // The kill step clears families beyond missiles immediately. A Super
         // Missile's supplemental probe can collide again after becoming an explosion;
@@ -489,8 +489,8 @@ internal sealed class ProjectileTerrainCollision
 
         // Only cooldowns past the cap are shortened to it. A missile's is shorter, so an ordinary
         // wall impact does not extend or replace its remaining fire delay.
-        if (sharedProjectiles.CooldownTimer > SamusProjectileCooldownDefinitions.WallImpactCooldownCap)
-            sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.WallImpactCooldownCap);
+        if (samusBombs.CooldownTimer > SamusProjectileCooldownDefinitions.WallImpactCooldownCap)
+            samusBombs.SetSharedCooldown(SamusProjectileCooldownDefinitions.WallImpactCooldownCap);
     }
     /// <summary>
     /// Scans the rows a Wave shot's leading edge spans for block reactions, one row per step from its top row; where the
@@ -527,7 +527,7 @@ internal sealed class ProjectileTerrainCollision
             if (read.StraddlesNext)
             {
                 // The straddled block is the next one in the room's reading order, on the next row past a row's end.
-                Position16<RoomBlocks> nextBlock = level.GridBlockStepped(readBlock, Offset16<RoomBlocks>.Of(1, 0)) ??
+                Position16<RoomBlocks> nextBlock = level.GridBlockStepped(readBlock, Offset16<RoomBlocks>.OneRight) ??
                     throw new NotSupportedException("A straddled Wave collision read crosses the room's grid.");
                 RoomTerrainBlock next = level.GetCollisionBlock(nextBlock).Terrain;
                 // The reaction consumes the straddled block; the behaviour and room-object setup

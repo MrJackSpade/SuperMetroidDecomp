@@ -18,7 +18,7 @@ using SuperMetroid.Core.World;
 /// <summary>Checks dead Tourian Zoomer, Ripper, and Skree variant metadata against cartridge tables and live setup.</summary>
 internal static class DeadTourianCorpseDefinitionsVerification
 {
-    /// <summary>The bank-$A9 configuration record of the initially living Shitroid victim's corpse.</summary>
+    /// <summary>The bank-$A9 configuration record of the initially living Baby Metroid victim's corpse.</summary>
     private const ushort SidehopperInitiallyAliveConfiguration = 0xdd68;
 
     /// <summary>The bank-$A9 configuration record of the already dead Tourian sidehopper's corpse.</summary>
@@ -100,7 +100,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
 
     /// <summary>
     /// Confirms the finding that lets each corpse own its rot schedule (#1472): the cartridge keeps every dead monster's
-    /// schedule in one shared heap, but the ten records of the dead monsters, which the Shitroid room holds together, place
+    /// schedule in one shared heap, but the ten records of the dead monsters, which the Baby Metroid room holds together, place
     /// their schedules in pairwise disjoint heap bytes, so no corpse's rot reaches another's.
     /// </summary>
     private static void VerifyCoexistingDeadMonsterSchedulesShareNoHeapBytes(CartridgeImportAddressSpace rom)

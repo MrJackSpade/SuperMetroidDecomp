@@ -188,7 +188,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         jump.Step();
         if (shot.ReadyForWhiteFlash)
             Show(EndingCreditsPhase.PostCreditsWhiteFlash, new EndingWhiteFlashScene(jump, CreditsRoll.BeginPostCreditsWhiteFlash()),
-                EndingPostShotDefinitions.FadeFrames);
+                EndingPostShotDefinitions.FadeSteps);
     }
 
     /// <summary>Runs one update of the white flash over the landed Samus, which hands over to the final logo as its hold ends.</summary>
@@ -456,7 +456,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         if (Stage.Fade.Brighten())
         {
             CreditsRoll.FadeWaitingBackdrop(0);
-            Enter(EndingCreditsPhase.PostCreditsShootingStars, EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames);
+            Enter(EndingCreditsPhase.PostCreditsShootingStars, EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps);
         }
         return true;
     }

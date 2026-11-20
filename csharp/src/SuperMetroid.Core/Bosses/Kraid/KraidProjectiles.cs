@@ -158,7 +158,7 @@ internal sealed class KraidProjectiles
             samus.Kinematics.ExtraDisplacement.X.WholePixels;
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(
             Math.Min(push, KraidContactDefinitions.LintPush));
-        _collision.ResolveNormalEnemyTouch(lint, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(lint, samus, pseudoScrew);
         lint.Contact = lint.Contact.With(EnemyContact.IgnoresSamus);
     }
 
@@ -227,7 +227,7 @@ internal sealed class KraidProjectiles
 
         part.AlternateSpawn = true;
         nail.Position = nail.Position.WithWhole(KraidArenaDefinitions.AlternateNailStart);
-        part.NailVelocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(1, 0));
+        part.NailVelocity = KraidNailLaunchDefinitions.Parked;
         part.Phase = KraidNailPhase.WaitForLint;
         nail.Contact = nail.Contact.With(EnemyContact.IgnoresSamus);
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
@@ -388,7 +388,7 @@ internal sealed class KraidProjectiles
     /// <summary>Runs a nail's touch: the shared contact damage, then the nail's death.</summary>
     internal void ReactToKraidNailTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context);
+        _collision.ResolveOrdinaryTouch(context);
         // A fingernail the touch left in its place dies in the explosion the health the touch left names
         // (LeftoverNumberDeathExplosion).
         if (!context.Place.IsFree)

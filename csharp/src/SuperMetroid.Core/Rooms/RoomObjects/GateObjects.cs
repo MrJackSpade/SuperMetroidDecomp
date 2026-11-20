@@ -59,7 +59,7 @@ internal sealed class GateObjects
     /// kind and behaviour change, so it keeps its picture and what it shows (#1580, #2496): the trigger's shot-block draw
     /// covers it on the object's first update.
     /// </summary>
-    internal static void SetupDownwardGateShotBlock(RoomLevelData level, RoomObjectPlace place, GateTriggerArgument placed)
+    internal static void SetupDownwardGateShotBlock(RoomLevelData level, RoomObjectPlace place, GateShotTrigger placed)
     {
         DownwardGateTrigger trigger = Ensure.NotNull(placed).Trigger;
         place.Become(new TerrainChangeObject(DownwardGateTriggerDefinitions.Triggers[trigger].Change));

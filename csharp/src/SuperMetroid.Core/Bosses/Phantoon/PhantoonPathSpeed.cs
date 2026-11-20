@@ -48,7 +48,4 @@ public readonly record struct PhantoonPathSpeed
 
     /// <summary>The same speed the other way along the path (#2569): a change that slows the speed by as much as this one raises it.</summary>
     public static PhantoonPathSpeed operator -(PhantoonPathSpeed speed) => new(-speed._places);
-
-    /// <summary>The speed lowered by <paramref name="change"/>, a fraction below none taken from the whole places.</summary>
-    public static PhantoonPathSpeed operator -(PhantoonPathSpeed speed, PhantoonPathSpeed change) => new(speed._places - change._places);
 }

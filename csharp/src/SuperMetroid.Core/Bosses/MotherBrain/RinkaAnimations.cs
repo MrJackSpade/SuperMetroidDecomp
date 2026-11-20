@@ -35,7 +35,7 @@ internal static class RinkaAnimations
             Show(EnemyFrameId.RinkaOrange, 7),
             Show(EnemyFrameId.RinkaYellow, 8),
         ],
-        [P.Special] =
+        [P.KeptRunningOffScreen] =
         [
             Cue(new(K.HideAndProcessOffScreen)),
             Show(EnemyFrameId.RinkaWhiteHot, HiddenWait),
@@ -50,7 +50,7 @@ internal static class RinkaAnimations
     internal static IReadOnlyDictionary<RinkaSegment, Animation<RinkaSegment>> StartingAt { get; } = new Dictionary<RinkaSegment, Animation<RinkaSegment>>
     {
         [P.Ordinary] = Animation<RinkaSegment>.LeadingInto([Segments.Whole(P.Ordinary)], [Segments.Whole(P.Spin)]),
-        [P.Special] = Animation<RinkaSegment>.LeadingInto([Segments.Whole(P.Special)], [Segments.Whole(P.Spin)]),
+        [P.KeptRunningOffScreen] = Animation<RinkaSegment>.LeadingInto([Segments.Whole(P.KeptRunningOffScreen)], [Segments.Whole(P.Spin)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

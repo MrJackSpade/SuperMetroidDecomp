@@ -205,11 +205,11 @@ internal sealed class CrocomireCombat
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                if (c.HitboxShot == EnemyReaction.NormalEnemyShot)
+                if (c.HitboxShot == EnemyReaction.OrdinaryShot)
                     return false;
                 if (!c.UsesFrameHitboxes)
                     throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
                 ResolveCrocomireHitboxShot(part.Encounter, c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
                 return true;
             },
@@ -223,13 +223,13 @@ internal sealed class CrocomireCombat
             throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
         if (context.HitboxTouch == EnemyReaction.Ignore)
             return; // The corpse's rectangles ignore Samus's touch.
-        if ((context.HitboxTouch != CrocomireReactions.ClawTouch && context.HitboxTouch != EnemyReaction.NormalEnemyTouch))
+        if ((context.HitboxTouch != CrocomireReactions.ClawTouch && context.HitboxTouch != EnemyReaction.OrdinaryTouch))
         {
             throw new InvalidDataException(
                 $"Crocomire has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(none)"}.");
         }
 
-        _collision.ResolveNormalEnemyTouch(context);
+        _collision.ResolveOrdinaryTouch(context);
         // A claw's touch also pushes Samus back.
         if (context.HitboxTouch == CrocomireReactions.ClawTouch)
             context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWholeX(CrocomireFightDefinitions.ClawPush);

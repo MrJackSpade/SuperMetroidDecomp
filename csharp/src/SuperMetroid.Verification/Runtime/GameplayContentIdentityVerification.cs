@@ -64,7 +64,7 @@ internal static class GameplayContentIdentityVerification
         foreach (XrayRevealVisualDefinition entry in XrayRevealFixtures.EveryDrawable(shape => XrayRevealFixtures.Corners(shape, 10, 11, 12, 13)))
         {
             XrayRevealVisualBlocks visual = entry.Visual;
-            if (!editedOperands && XrayRevealTable.Find(entry.Type, entry.Reaction) == XrayRevealShape.CopySquare &&
+            if (!editedOperands && XrayReveals.Find(entry.Type, entry.Reaction) == XrayRevealShape.CopySquare &&
                 edit?.StartsWith("xray-", StringComparison.Ordinal) == true)
             {
                 visual = XrayRevealVisualBlocks.Square(

@@ -13,7 +13,7 @@ internal static class KraidPartResourceChecks
         switch (part)
         {
             case "Foot":
-                ExtendedEnemyCompositionResourceChecks.Run("Kraid foot", [.. EnemyExtendedFrameDefinitions.Frames.Slice(EnemyExtendedFrameToolingDefinitions.PreKraidFootFrameCount..)],
+                ExtendedEnemyCompositionResourceChecks.Run("Kraid foot", [.. EnemyExtendedFrameDefinitions.FramesOf(EnemyExtendedFrameFamily.KraidFoot)],
                     EnemyExtendedFrameToolingDefinitions.PreKraidFootFrameCount);
                 break;
             case "Lint":

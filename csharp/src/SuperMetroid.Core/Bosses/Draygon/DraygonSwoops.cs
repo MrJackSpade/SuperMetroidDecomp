@@ -40,9 +40,7 @@ internal sealed class DraygonSwoops
     /// <summary>Captures Samus's height and computes the vertical waypoints for the next swoop.</summary>
     private static void BuildDraygonSwoopYPositions(DraygonEnemyState state, SamusState samus)
     {
-        // The climb ends only because its rising speed grows; every producer of the acceleration keeps it above zero.
-        if (state.SwoopAcceleration <= SignedEightEight.Zero)
-            throw new InvalidOperationException("Draygon's swoop path climbs only under a swoop acceleration above zero.");
+        // The climb ends only because its rising speed grows, under the acceleration his state keeps above zero.
         int yPosition = DraygonArenaDefinitions.SwimLineY;
         SignedEightEight speed = SignedEightEight.Zero;
         var heights = ImmutableArray.CreateBuilder<int>();

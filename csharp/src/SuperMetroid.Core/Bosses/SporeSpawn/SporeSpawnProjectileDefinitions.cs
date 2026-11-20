@@ -24,7 +24,7 @@ internal static class SporeSpawnProjectileDefinitions
     ];
 
     /// <summary>The chances the drop a shot spore leaves rolls (#2244): mostly a missile, sometimes energy, never a Super Missile or Power Bomb.</summary>
-    internal static readonly EnemyDropChances SporeDropChances = new(SmallEnergy: 10, BigEnergy: 20, Missile: 200, Nothing: 25, SuperMissile: 0, PowerBomb: 0);
+    internal static readonly EnemyDropChances SporeDropChances = new(smallEnergy: 10, bigEnergy: 20, missile: 200, nothing: 25, superMissile: 0, powerBomb: 0);
 
     /// <summary>
     /// A spore's drift path: how many pixels it moves across and down at each step, repeating after the last (#2335). It

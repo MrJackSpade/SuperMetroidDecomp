@@ -90,9 +90,17 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// <summary>
     /// The downward acceleration a swoop path is built with, in pixels per update per update (#2221). It starts at its
     /// starting value, each eye hit adds its step while the result stays below its limit, and a tail-whip hit on grabbed
-    /// Samus restores the starting value (<see cref="DraygonSwoopDefinitions"/>).
+    /// Samus restores the starting value (<see cref="DraygonSwoopDefinitions"/>). It is always above zero, which a swoop
+    /// path's climb needs to end.
     /// </summary>
-    public SignedEightEight SwoopAcceleration { get; internal set; }
+    /// <exception cref="ArgumentOutOfRangeException">The acceleration set is not above zero.</exception>
+    public SignedEightEight SwoopAcceleration
+    {
+        get;
+        internal set => field = value > SignedEightEight.Zero
+            ? value
+            : throw new ArgumentOutOfRangeException(nameof(value), value, "Draygon's swoop acceleration is above zero.");
+    } = DraygonSwoopDefinitions.InitialAcceleration;
 
     /// <summary>The Evirs the intro spawned for its dance, in the order they spawned, each with its own start delay.</summary>
     internal List<DraygonIntroDancer> IntroDancers { get; } = [];

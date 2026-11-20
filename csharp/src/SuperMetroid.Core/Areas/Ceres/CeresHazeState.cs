@@ -116,19 +116,15 @@ public sealed class CeresHazeState
         },
         [Phase.Waiting] = roomFade =>
         {
-            throw new InvalidOperationException("Waiting either returns or starts the fade-in above.");
+            // The room's fade-in starts the haze's, whose first step runs on the same update.
+            if (roomFade != RoomFade.FadingIn)
+                return;
+            _phase = Phase.FadingIn;
+            fade = UpdateCountdown.Lasting(CeresHazeDefinitions.FadeSteps);
+            StepForPhase[Phase.FadingIn](roomFade);
         },
     });
 
     /// <summary>One haze step under <paramref name="roomFade"/>.</summary>
-    private void Step(RoomFade roomFade)
-    {
-        if (_phase == Phase.Waiting)
-        {
-            if (roomFade != RoomFade.FadingIn) return;
-            _phase = Phase.FadingIn;
-            fade = UpdateCountdown.Lasting(CeresHazeDefinitions.FadeSteps);
-        }
-        StepForPhase[_phase](roomFade);
-    }
+    private void Step(RoomFade roomFade) => StepForPhase[_phase](roomFade);
 }

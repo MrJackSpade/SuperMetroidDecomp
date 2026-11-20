@@ -227,16 +227,11 @@ public sealed class AudioQueues
     /// <exception cref="InvalidOperationException"><paramref name="soundEffect"/> is the default identity, which names no sound.</exception>
     public SoundQueueAdmission QueueSound(SoundEffectId soundEffect, SoundRequestPriority priority)
     {
-        SoundQueue queue = QueueOf(soundEffect.Library);
-        SoundQueueAdmission admission = SoundQueueAdmission.For(queue.Count, priority);
-        if (!admission.Joins(new SoundSuppression(_gameplay.DoorTransitionDisablesSounds, _gameplay.AttractDemoPlaying, _gameplay.PowerBombExploding)))
-            return admission;
-
         // Every priority turns a request away once the queue holds its most (SoundQueueAdmission.MaximumOccupancy), so an
         // admitted request always finds room: the game's handling of a request arriving at a queue with no room, which
         // keeps the higher-priority of the two, is never reached.
-        queue.Add(soundEffect);
-        return admission;
+        return QueueOf(soundEffect.Library).Admit(soundEffect, priority,
+            new SoundSuppression(_gameplay.DoorTransitionDisablesSounds, _gameplay.AttractDemoPlaying, _gameplay.PowerBombExploding));
     }
 
     /// <summary>

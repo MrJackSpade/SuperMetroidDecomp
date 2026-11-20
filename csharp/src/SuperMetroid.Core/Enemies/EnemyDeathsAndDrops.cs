@@ -136,9 +136,10 @@ internal sealed class EnemyDeathsAndDrops
             explosion.StartAnimation(new EnemyDeathAndDropAnimation(this, EnemyDeathExplosions.Animation(deathAnimation)));
         }
 
-        enemy.Clear();
         if (respawns)
-            enemy.AwaitRespawn();
+            enemy.ClearAwaitingRespawn();
+        else
+            enemy.Clear();
     }
 
     /// <summary>Chooses the definition's death explosion, raising the smaller ones for Super Missile kills.</summary>
@@ -354,10 +355,8 @@ internal sealed class EnemyDeathsAndDrops
         Ensure.NotNull(samus);
         if (dropChances is not { } table)
             return EnemyPickupKind.NoDrop;
-        // Every authored table's chances sum to the whole budget, so the pooled weights and the budget left for the major
-        // drops stay within it (#1620).
-        if (table.Total > EnemyDropSelectionDefinitions.FullWeightBudget)
-            throw new InvalidDataException($"A drop table's chances sum to {table.Total}, past the {EnemyDropSelectionDefinitions.FullWeightBudget} every chance is out of.");
+        // Every authored table's chances sum to the whole budget, and no table's past it, so the pooled weights and the
+        // budget left for the major drops stay within it (#1620).
 
         int sample;
         do

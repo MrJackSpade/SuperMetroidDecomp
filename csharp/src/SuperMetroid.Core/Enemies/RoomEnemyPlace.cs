@@ -150,14 +150,13 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     }
 
     /// <summary>
-    /// Keeps the place of a respawning enemy just killed in it taken until its death explosion rebuilds it
-    /// (<see cref="AwaitsRespawn"/>). The killed enemy's population entry stays in <see cref="Spawn"/> for the rebuild.
+    /// Clears the place of a respawning enemy just killed in it (<see cref="Clear"/>) and keeps it taken until its death
+    /// explosion rebuilds it (<see cref="AwaitsRespawn"/>). The killed enemy's population entry stays in
+    /// <see cref="Spawn"/> for the rebuild.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The place still holds an enemy.</exception>
-    internal void AwaitRespawn()
+    internal void ClearAwaitingRespawn()
     {
-        if (DefinitionId != EnemyDefinitionId.None)
-            throw new InvalidOperationException($"Enemy place {Ordinal} still holds {DefinitionId}; only a killed enemy's place awaits its respawn.");
+        Clear();
         AwaitsRespawn = true;
     }
 

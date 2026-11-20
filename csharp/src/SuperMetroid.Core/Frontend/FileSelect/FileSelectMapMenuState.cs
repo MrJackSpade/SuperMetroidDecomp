@@ -89,7 +89,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         Ensure.NotNull(screenContent);
         InstalledSpriteSheets sheets = Ensure.NotNull(spriteSheets);
         areaGraphics = new FileSelectAreaMapGraphics(area, screenContent, sheets);
-        roomGraphics = new FileSelectRoomMapGraphics(system, area, screenContent, sheets);
+        roomGraphics = new FileSelectRoomMapGraphics(system, zebesArea, screenContent, sheets);
         InstalledScreenContent = screenContent;
         Scroll = CreateScrollForCurrentContent();
         marker = new FileSelectStationMarker(station, screenContent.Maps.SaveMarkers);

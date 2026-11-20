@@ -56,22 +56,26 @@ internal sealed class AttractDemoSchedule
         load = null;
     }
 
-    /// <summary>The scene the next demo plays, or null once every demonstration of the set has begun.</summary>
-    /// <exception cref="InvalidOperationException">More demonstrations began than the set holds.</exception>
-    internal AttractDemoScene? NextScene =>
-        ScenesBegun < Set.Scenes.Count ? Set.Scenes[ScenesBegun]
-        : ScenesBegun == Set.Scenes.Count ? null
-        : throw new InvalidOperationException($"{ScenesBegun} demonstrations began in {Set}, which holds {Set.Scenes.Count}.");
+    /// <summary>
+    /// The scene the next demo plays, or null once every demonstration of the set has begun: only
+    /// <see cref="BeginNext"/> counts a scene begun, and only while the set holds one more.
+    /// </summary>
+    internal AttractDemoScene? NextScene => ScenesBegun < Set.Scenes.Count ? Set.Scenes[ScenesBegun] : null;
 
-    /// <summary>Starts <paramref name="scene"/>, the next scene, with its scripted input and enemy-setup waits ahead.</summary>
-    internal void Begin(AttractDemoScene scene)
+    /// <summary>
+    /// Starts the set's next scene with its scripted input and enemy-setup waits ahead and returns it, or begins none and
+    /// returns null once every scene of the set has begun.
+    /// </summary>
+    internal AttractDemoScene? BeginNext()
     {
-        Ensure.NotNull(scene);
+        if (NextScene is not { } scene)
+            return null;
         Playback = UpdateCountdown.For(scene.Duration);
         ScenesBegun++;
         Hold = UpdateCountdown.Ended();
         Cancelled = false;
         load = UpdateCountdown.Lasting(GameLoadingDefinitions.EnemySetupWaits);
+        return scene;
     }
 
     /// <summary>Counts one enemy-setup wait; returns whether it was the last.</summary>

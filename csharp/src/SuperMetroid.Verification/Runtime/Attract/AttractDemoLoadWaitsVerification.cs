@@ -16,8 +16,7 @@ internal static class AttractDemoLoadWaitsVerification
         var schedule = new AttractDemoSchedule();
         AssertTrue(schedule.AwaitsScene, "a new schedule awaits its first scene");
         AssertThrows<InvalidOperationException>(() => schedule.CountLoadFrame(), "no wait is counted before a scene begins");
-        AttractDemoScene scene = schedule.NextScene ?? throw new InvalidOperationException("The first set has a first scene.");
-        schedule.Begin(scene);
+        _ = schedule.BeginNext() ?? throw new InvalidOperationException("The first set has a first scene.");
         AssertTrue(!schedule.AwaitsScene, "a begun scene no longer awaits its runtime");
         for (int wait = 1; wait < GameLoadingDefinitions.EnemySetupWaits; wait++)
             AssertTrue(!schedule.CountLoadFrame(), $"enemy-setup wait {wait} is not the last");
@@ -25,10 +24,10 @@ internal static class AttractDemoLoadWaitsVerification
         AssertTrue(!schedule.AwaitsScene, "a loaded scene does not await another");
         schedule.LoadNextScene();
         AssertTrue(schedule.AwaitsScene, "the next scene awaits its runtime");
-        schedule.Begin(scene);
+        _ = schedule.BeginNext();
         schedule.RequestFromTitle();
         AssertTrue(schedule.AwaitsScene, "a title request awaits a scene");
-        schedule.Begin(scene);
+        _ = schedule.BeginNext();
         schedule.Reset();
         AssertTrue(schedule.AwaitsScene, "a soft reset awaits a scene");
     }

@@ -472,7 +472,9 @@ internal static class EnemyDropsVerification
     internal static void SeedEnemyDropChancePointer(TestAddressSpace bus, ushort enemyHeader)
     {
         WriteTestWord(bus, 0xa00000 | (enemyHeader + 58), SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances);
-        NativeDropChances.Deconstruct(out int small, out int big, out int missile, out int nothing, out int super, out int powerBomb);
+        EnemyDropChances chances = NativeDropChances;
+        (int small, int big, int missile, int nothing, int super, int powerBomb) =
+            (chances.SmallEnergy, chances.BigEnergy, chances.Missile, chances.Nothing, chances.SuperMissile, chances.PowerBomb);
         bus.WriteBytes(SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.TableBank | SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances,
             [(byte)small, (byte)big, (byte)missile, (byte)nothing, (byte)super, (byte)powerBomb]);
     }

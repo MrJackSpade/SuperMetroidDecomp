@@ -39,7 +39,7 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
         for (ushort fragment = 0; fragment < 11; fragment++)
         {
             spawn();
-            EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17 - fragment);
+            EnemyProjectile projectile = enemies.Projectiles.SpawnedInPlace(17 - fragment);
             AssertEqual(RoomEnemyProjectileKind.CrocomireBridgeCrumbling, projectile.Kind,
                 $"Crocomire bridge fragment {fragment} kind");
             AssertEqual(CrocomireBridgeFragmentDefinitions.XPosition(fragment),

@@ -56,7 +56,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff;
             RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
-            EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
+            EnemyProjectile projectile = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.BombTorizoChozoOrb);
             enemies.TorizoBehavior.Attacks.InitializeTorizoRandomizedProjectile(projectile, torizo, definition);
 
             AssertEqual<TorizoProjectileSegment?>(definition.Animation, (projectile.Animation as TorizoProjectileAnimation)?.PlayingSegment,
@@ -115,7 +115,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
 
         enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo.HeldOccupant(), torizo);
 
-        EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
+        EnemyProjectile projectile = enemies.Projectiles.SpawnedInPlace(17);
         Offset16<RoomPixels> muzzle = facingRight ? TorizoProjectilePlacementDefinitions.EyeBeamMuzzle : TorizoProjectilePlacementDefinitions.EyeBeamMuzzle.MirroredX();
         AssertTrue(projectile.IsActive, $"eye beam facing right {facingRight} allocation");
         AssertEqual<TorizoProjectileSegment?>(TorizoProjectileSegment.EyeBeam, (projectile.Animation as TorizoProjectileAnimation)?.PlayingSegment,
@@ -140,7 +140,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
 
         spawn(enemies, torizo);
 
-        EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
+        EnemyProjectile projectile = enemies.Projectiles.SpawnedInPlace(17);
         AssertTrue(projectile.IsActive, $"{methodName} facing {facingRight} allocation");
         AssertEqual<TorizoProjectileSegment?>(expected.Animation, (projectile.Animation as TorizoProjectileAnimation)?.PlayingSegment,
             $"{methodName} facing {facingRight} program");

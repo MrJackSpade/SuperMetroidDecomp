@@ -386,7 +386,7 @@ internal static class EnemyDropsVerification
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled,
             "generic enemy death increments room kill counter");
 
-        EnemyProjectile explosion = fixture.System.Projectiles.ProjectileInPlace(17);
+        EnemyProjectile explosion = fixture.System.Projectiles.SpawnedInPlace(17);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "generic death allocates projectile definition F345");
         AssertEqual(EnemyPlaceFixtures.StandIn, explosion.StateOf<EnemyDeathExplosionState>().Dropper?.DefinitionId,

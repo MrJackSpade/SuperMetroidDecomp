@@ -331,8 +331,8 @@ internal static class NativeSnapshotImport
             initialObjects[index].Delete();
         }
         // Every place takes the snapshot's projectile, or, for a free one, what it holds for the room's next spawn there.
-        foreach (var projectile in runtime.Enemies.Projectiles.EveryPlace())
-            ImportNativeEnemyProjectile(runtime.Enemies, projectile, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
+        for (int place = 0; place < EnemyProjectileEngine.PlaceCount; place++)
+            ImportNativeEnemyProjectile(runtime.Enemies, place, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
         runtime.Enemies.FrameContext.SeedEnemyPassCount(W(NativeSnapshotMemory.MainEnemyRoutineCount));
@@ -527,20 +527,25 @@ internal static class NativeSnapshotImport
     /// hold; the definition-derived radii and properties must already agree with them. A free slot's place holds a gone
     /// projectile at the slot's position and velocity words, which the next spawn there starts from.
     /// </summary>
-    private static void ImportNativeEnemyProjectile(SuperMetroid.Core.World.RoomEnemySystem enemies, EnemyProjectile projectile, SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition graphicsSet, IImportCartridgeSource cartridge,
+    private static void ImportNativeEnemyProjectile(SuperMetroid.Core.World.RoomEnemySystem enemies, int place, SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition graphicsSet, IImportCartridgeSource cartridge,
         Func<int, ushort> W)
     {
-        int index = projectile.Place * 2;
+        int index = place * 2;
         ushort id = W(NativeSnapshotMemory.EnemyProjectileId + index);
+        var leftPosition = new Position16<RoomPixels>(W(NativeSnapshotMemory.EnemyProjectileX + index), W(NativeSnapshotMemory.EnemyProjectileY + index));
+        var leftVelocity = new PixelVelocity<RoomPixels>(
+            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileXVelocity + index)),
+            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileYVelocity + index)));
         if (id == 0)
         {
-            // Room loading spawns the room's projectiles afresh; a slot the snapshot holds
-            // empty (for example Mother Brain's destroyed turrets) must be empty here too.
-            projectile.Delete();
+            // Room loading spawns the room's projectiles afresh; a slot the snapshot holds empty (for example Mother
+            // Brain's destroyed turrets) holds no projectile here either, only what its last one left for the next spawn.
+            enemies.Projectiles.ImportLeftover(place, new SuperMetroid.Core.Compatibility.EnemyProjectileHandOver(leftPosition, leftVelocity));
         }
         else
         {
             RoomEnemyProjectileKind kind = EnemyProjectileNativeWords.Kinds.Decode(id, "enemy projectile definition");
+            EnemyProjectile projectile = enemies.Projectiles.Occupy(place, kind);
             VerificationAssertions.AssertTrue(NativeSlotOnlyEnemyProjectileKinds.Contains(kind),
                 $"initial native enemy projectile {projectile.Place} kind ${id:X4} has a verified slot-only import");
             // The snapshot's graphics word packs the projectile's tile base and palette row as an attribute word does: the
@@ -579,10 +584,8 @@ internal static class NativeSnapshotImport
             VerificationAssertions.AssertEqual(W(NativeSnapshotMemory.EnemyProjectileProperties + index), properties,
                 $"initial enemy projectile {projectile.Place} properties");
         }
-        projectile.Position = projectile.Position.WithWhole(new(
-            W(NativeSnapshotMemory.EnemyProjectileX + index), W(NativeSnapshotMemory.EnemyProjectileY + index)));
-        projectile.Velocity = new(
-            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileXVelocity + index)),
-            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileYVelocity + index)));
+            projectile.Position = projectile.Position.WithWhole(leftPosition);
+            projectile.Velocity = leftVelocity;
+        }
     }
 }

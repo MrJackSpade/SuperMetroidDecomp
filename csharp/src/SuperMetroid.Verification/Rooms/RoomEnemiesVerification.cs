@@ -630,7 +630,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     AssertEqual(0, ripper.Health, "Ripper Super Missile vulnerability reaches zero health");
     AssertTrue(ripper.Occupant is null,
         "Ripper generic death clears its common enemy record immediately");
-    EnemyProjectile ripperDeath = enemies.Projectiles.ProjectileInPlace(17);
+    EnemyProjectile ripperDeath = enemies.Projectiles.SpawnedInPlace(17);
     AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, ripperDeath.Kind,
         "Ripper zero health allocates the shared F345 death actor");
     AssertEqual(definitionPointer, ripperDeath.StateOf<EnemyDeathExplosionState>().Dropper?.DefinitionId,

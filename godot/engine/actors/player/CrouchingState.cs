@@ -15,7 +15,7 @@ public sealed class CrouchingState : PlayerState
         owner.AimFromInput();
         if (!owner.IsOnGround)
             return owner.TrySetForm(BodyForm.Standing) ? new FallingState() : this;
-        if (owner.CanCrawl && owner.Input.WasPressed(GameAction.Down))
+        if (owner.MayCrawl && owner.Input.WasPressed(GameAction.Down))
             return new CrawlingState();
         if (owner.Input.WasPressed(GameAction.Up) && owner.TrySetForm(BodyForm.Standing))
             return new StandingState();

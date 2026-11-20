@@ -61,6 +61,14 @@ public sealed class Options
         }
     }
 
+    /// <summary>Binds each action in <paramref name="bindings"/> that has no binding yet, as a game does for its own actions.</summary>
+    public void AddMissingBindings(IReadOnlyDictionary<string, List<string>> bindings)
+    {
+        ArgumentNullException.ThrowIfNull(bindings);
+        foreach ((string action, List<string> buttons) in bindings)
+            Bindings.TryAdd(action, buttons);
+    }
+
     /// <summary>Writes the options to <paramref name="file"/>.</summary>
     public void Save(string file)
     {

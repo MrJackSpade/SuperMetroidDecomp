@@ -23,6 +23,12 @@ public partial class GameDefinition : Resource
     [Export]
     public string[] Actions { get; set; } = [];
 
+    /// <summary>
+    /// The buttons this game's own actions are bound to until the player chooses otherwise, by the action's name and
+    /// written as <see cref="Options"/> writes bindings. None, unless the game says.
+    /// </summary>
+    public virtual Dictionary<string, List<string>> StandardBindings => [];
+
     /// <summary>The number a new session's random sequence starts from.</summary>
     [Export]
     public uint RandomSeed { get; set; } = 1;

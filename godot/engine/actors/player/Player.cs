@@ -140,6 +140,37 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export, DataValue("can_wall_jump")]
     public bool CanWallJump { get; set; }
 
+    /// <summary>The equipment that must be switched on for the player to crouch; empty when none is needed.</summary>
+    [Export, DataValue("crouch_needs")]
+    public string CrouchNeeds { get; set; } = "";
+
+    /// <summary>The equipment that must be switched on for the player to take the low form; empty when none is needed.</summary>
+    [Export, DataValue("crawl_needs")]
+    public string CrawlNeeds { get; set; } = "";
+
+    /// <summary>The equipment that must be switched on for the player to jump while in the low form; empty when none is needed.</summary>
+    [Export, DataValue("jump_while_crawling_needs")]
+    public string JumpWhileCrawlingNeeds { get; set; } = "";
+
+    /// <summary>The equipment that must be switched on for the player to jump off a wall; empty when none is needed.</summary>
+    [Export, DataValue("wall_jump_needs")]
+    public string WallJumpNeeds { get; set; } = "";
+
+    /// <summary>Whether the player may crouch now: the game allows it and the equipment it needs is switched on.</summary>
+    public bool MayCrouch => CanCrouch && HasWhatItNeeds(CrouchNeeds);
+
+    /// <summary>Whether the player may take the low form now.</summary>
+    public bool MayCrawl => CanCrawl && HasWhatItNeeds(CrawlNeeds);
+
+    /// <summary>Whether the player may jump while in the low form now.</summary>
+    public bool MayJumpWhileCrawling => CanJumpWhileCrawling && HasWhatItNeeds(JumpWhileCrawlingNeeds);
+
+    /// <summary>Whether the player may jump off a wall now.</summary>
+    public bool MayWallJump => CanWallJump && HasWhatItNeeds(WallJumpNeeds);
+
+    /// <summary>Whether the equipment a mechanic needs is switched on; a mechanic that needs none always has it.</summary>
+    private bool HasWhatItNeeds(string equipment) => equipment.Length == 0 || Inventory.IsOn(equipment);
+
     private Room? _room;
     private StateMachine<Player>? _states;
     private Collider? _body;

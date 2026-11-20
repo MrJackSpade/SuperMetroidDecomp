@@ -23,7 +23,7 @@ public sealed class CrawlingState : PlayerState
         bool grounded = owner.IsOnGround;
         if (grounded && owner.Input.WasPressed(GameAction.Up) && owner.TrySetForm(BodyForm.Crouching))
             return new CrouchingState();
-        if (grounded && owner.CanJumpWhileCrawling && owner.Input.WasPressed(GameAction.Jump))
+        if (grounded && owner.MayJumpWhileCrawling && owner.Input.WasPressed(GameAction.Jump))
             owner.Velocity = owner.Velocity.WithY(-Pixels.FromNumber(owner.CrawlJumpSpeed));
         else if (!grounded)
             owner.Fall();

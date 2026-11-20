@@ -192,6 +192,7 @@ public sealed class RoomChecks
               "knockback_across_speed": 1.5, "knockback_up_speed": 2, "knockback_updates": 12, "invincible_updates": 60,
               "turn_updates": 0, "dying_updates": 120, "climb_per_pixel": 2, "follow_ground_down": 3, "starting_energy": 99,
               "can_crouch": true, "can_crawl": false, "can_jump_while_crawling": false, "can_wall_jump": false,
+              "crouch_needs": "", "crawl_needs": "", "jump_while_crawling_needs": "", "wall_jump_needs": "",
               "ongoing_damage_cancelled_by": { "heat": ["heat suit"] } }
             """);
         world.Player.DataFile = "player.json";

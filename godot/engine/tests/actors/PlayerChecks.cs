@@ -113,6 +113,24 @@ public sealed class PlayerChecks
     }
 
     [Check]
+    public void AMechanicThatNeedsEquipmentWaitsForItToBeSwitchedOn()
+    {
+        using var world = new StandInWorld(OpenRoom).StartAt(40, 80).Setup();
+        world.Player.CanCrawl = true;
+        world.Player.CrawlNeeds = "low form";
+        world.Press(GameAction.Down);
+        world.Press(GameAction.Down);
+        Expect.True(world.Player.State is CrouchingState);
+
+        world.Player.Inventory.Grant("low form");
+        world.Press(GameAction.Down);
+        Expect.True(world.Player.State is CrawlingState);
+
+        world.Player.Inventory.Switch("low form", false);
+        Expect.False(world.Player.MayCrawl);
+    }
+
+    [Check]
     public void TheLowFormFitsUnderALowCeilingAndCannotStandUpThere()
     {
         // A passage one tile high: only the low form fits.

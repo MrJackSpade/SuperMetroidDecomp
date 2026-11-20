@@ -106,6 +106,14 @@ godot/
 - Something only one thing uses lives in that thing's folder: its states, a projectile only it fires. Something
   several things use lives in the shared folder for its type.
 - C# files are named for their one class. Scenes and resources use Godot's snake_case. Namespaces mirror folders.
+- **This game's names** (equipment, amounts, hit kinds, areas, bosses, story events, music, toggles, actions) are
+  lists of constants in `game/data/`, one class per list. Code refers to the constant; data files, scenes and saves
+  write the name itself. Every name is lower-case words joined by underscores, because a name is also a file name
+  and a key in a text file. A boss's defeat is the fact `<boss>_defeated`. The lists were written from the old
+  code's lists; the sounds are not listed yet.
+- `game/SuperMetroid.cs` is this game's `GameDefinition` class and `game/game_definition.tres` its resource, which
+  the project setting names. Samus's files are in the namespace `Game`, for the reason the player's are in
+  `Engine.Actors`.
 - The engine's stand-in content for its tests is a minimal player, a test enemy, a small hand-written room layout
   and a test `GameDefinition`.
 
@@ -342,7 +350,8 @@ select, options, game over, time up, and one per cinematic.
   `PlayingMode` hands to whatever the `GameDefinition` makes for after a death. The engine's default reloads; this
   game's is its game-over screen.
 - **Where a game plugs in** is always the `GameDefinition`: the pause mode, the mode after death, the first mode,
-  how a room is made, the folders its words, sounds and music are in, how many save slots it has.
+  how a room is made, the folders its words, sounds and music are in, how many save slots it has, its own actions
+  and the buttons they are bound to until the player chooses otherwise.
 
 **What is remembered.** A room forgets everything when it is left: enemies return, blocks regrow, barriers close.
 The only things that survive are facts in `Progress`.
@@ -527,6 +536,9 @@ in `engine/actors/player/`.
   writes: whether the player can wall jump, crouch, crawl, or jump while crawling, and each one's numbers. Crawling
   is the low form: a smaller body that fits low gaps, with its own movement on the ground and in the air, and the
   change into and out of it. A game that shows its low form as something else supplies the look, not the mechanic.
+- **A mechanic may need equipment.** Each of those mechanics has a second setting naming the equipment that must be
+  switched on for it to work, empty when it needs none. The states ask "may the player do this now", which is the
+  switch and the equipment together. A game ties an item to a mechanic by naming it there, with no code.
 
 | System | What the engine does | What the game supplies |
 | --- | --- | --- |
@@ -569,7 +581,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 | Not in control | In the gunship, collecting a suit, refilling from reserves. |
 
 - **The morph ball is the engine's crawl**, shown as a ball; the morph ball item switches it on, and spring ball
-  switches on jumping while crawling. Wall jumping and crouching are the engine's, switched on for her.
+  switches on jumping while crawling. Wall jumping and crouching are the engine's, switched on for her. Her scene
+  says so: crawling needs `morph_ball`, jumping while crawling needs `spring_ball`.
 - **Her equipment** changes what a state does; it does not add states. Space jump lets a spin jump again. The suits
   cancel sources of ongoing damage and what liquids do to movement.
 - **Her weapons:** the beam, whose switched-on properties (charge, ice, wave, spazer, plasma) combine into one

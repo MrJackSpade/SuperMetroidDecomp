@@ -18,7 +18,7 @@ public sealed class WallJumpingState : PlayerState
     /// jump was just pressed.
     /// </summary>
     internal static bool CanStart(Player owner) =>
-        owner.CanWallJump && owner.Input.WasPressed(GameAction.Jump) && !owner.IsOnGround &&
+        owner.MayWallJump && owner.Input.WasPressed(GameAction.Jump) && !owner.IsOnGround &&
         (owner.IsAgainstWall(Facing.Left) || owner.IsAgainstWall(Facing.Right));
 
     /// <inheritdoc/>

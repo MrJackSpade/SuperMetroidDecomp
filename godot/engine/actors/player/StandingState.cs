@@ -17,7 +17,7 @@ public sealed class StandingState : PlayerState
             return new FallingState();
         if (owner.Input.WasPressed(GameAction.Jump))
             return new JumpingState();
-        if (owner.CanCrouch && owner.Input.WasPressed(GameAction.Down))
+        if (owner.MayCrouch && owner.Input.WasPressed(GameAction.Down))
             return new CrouchingState();
         if (owner.Intent != 0)
         {

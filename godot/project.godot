@@ -29,7 +29,7 @@ project/assembly_name="Engine"
 
 [engine]
 
-game_definition=""
+game_definition="res://game/game_definition.tres"
 
 [physics]
 

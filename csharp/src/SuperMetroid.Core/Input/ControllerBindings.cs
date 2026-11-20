@@ -75,19 +75,21 @@ public readonly record struct ControllerBindings(
     /// </summary>
     public static bool IsAssignable(ControllerButton button) => AssignableButtons.Contains(button);
 
+    /// <summary>The button each action is bound to.</summary>
+    private static IdentityTable<ControllerAction, Func<ControllerBindings, ControllerButton>> Buttons => field ??= new(new Dictionary<ControllerAction, Func<ControllerBindings, ControllerButton>>
+    {
+        [ControllerAction.Shoot] = static bindings => bindings.Shoot,
+        [ControllerAction.Jump] = static bindings => bindings.Jump,
+        [ControllerAction.Dash] = static bindings => bindings.Dash,
+        [ControllerAction.ItemSelect] = static bindings => bindings.ItemSelect,
+        [ControllerAction.ItemCancel] = static bindings => bindings.ItemCancel,
+        [ControllerAction.AimUp] = static bindings => bindings.AimUp,
+        [ControllerAction.AimDown] = static bindings => bindings.AimDown,
+    });
+
     /// <summary>Returns the button bound to one action.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="action"/> is not a defined action.</exception>
-    public ControllerButton this[ControllerAction action] => action switch
-    {
-        ControllerAction.Shoot => Shoot,
-        ControllerAction.Jump => Jump,
-        ControllerAction.Dash => Dash,
-        ControllerAction.ItemSelect => ItemSelect,
-        ControllerAction.ItemCancel => ItemCancel,
-        ControllerAction.AimUp => AimUp,
-        ControllerAction.AimDown => AimDown,
-        _ => throw new ArgumentOutOfRangeException(nameof(action), action, "Undefined controller action."),
-    };
+    public ControllerButton this[ControllerAction action] => Buttons[action](this);
 
     /// <summary>
     /// Reproduces the options screen's permutation swap. Assigning a physical button to one
@@ -183,19 +185,21 @@ public readonly record struct ControllerBindings(
         return this;
     }
 
+    /// <summary>The bindings with each action bound to another button.</summary>
+    private static IdentityTable<ControllerAction, Func<ControllerBindings, ControllerButton, ControllerBindings>> Rebindings => field ??= new(new Dictionary<ControllerAction, Func<ControllerBindings, ControllerButton, ControllerBindings>>
+    {
+        [ControllerAction.Shoot] = static (bindings, value) => bindings with { Shoot = value },
+        [ControllerAction.Jump] = static (bindings, value) => bindings with { Jump = value },
+        [ControllerAction.Dash] = static (bindings, value) => bindings with { Dash = value },
+        [ControllerAction.ItemSelect] = static (bindings, value) => bindings with { ItemSelect = value },
+        [ControllerAction.ItemCancel] = static (bindings, value) => bindings with { ItemCancel = value },
+        [ControllerAction.AimUp] = static (bindings, value) => bindings with { AimUp = value },
+        [ControllerAction.AimDown] = static (bindings, value) => bindings with { AimDown = value },
+    });
+
     /// <summary>Replaces one action's button while retaining the other six bindings.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="action"/> is not a defined action.</exception>
-    private ControllerBindings WithAction(ControllerAction action, ControllerButton value) => action switch
-    {
-        ControllerAction.Shoot => this with { Shoot = value },
-        ControllerAction.Jump => this with { Jump = value },
-        ControllerAction.Dash => this with { Dash = value },
-        ControllerAction.ItemSelect => this with { ItemSelect = value },
-        ControllerAction.ItemCancel => this with { ItemCancel = value },
-        ControllerAction.AimUp => this with { AimUp = value },
-        ControllerAction.AimDown => this with { AimDown = value },
-        _ => throw new ArgumentOutOfRangeException(nameof(action), action, "Undefined controller action."),
-    };
+    private ControllerBindings WithAction(ControllerAction action, ControllerButton value) => Rebindings[action](this, value);
 
     /// <summary>The fixed control <paramref name="action"/> when <paramref name="button"/> is held, otherwise none.</summary>
     private static GameplayAction FixedControl(ControllerButton held, ControllerButton button, GameplayAction action) =>

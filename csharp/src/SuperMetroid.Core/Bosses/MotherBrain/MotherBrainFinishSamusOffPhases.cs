@@ -169,19 +169,21 @@ internal sealed class MotherBrainFinishSamusOffPhases
         return false;
     }
 
+    /// <summary>What each phase of her finishing Samus off does on her body's update; true when it moves to the next body phase and the game runs on into it in the same update.</summary>
+    private static IdentityTable<MotherBrainFinishOffPhase, Func<MotherBrainFinishSamusOffPhases, SamusState, RainbowBeamAttackFrame, MotherBrainRainbowBeamStepRequests, bool>> PhaseSteps => field ??= new(new Dictionary<MotherBrainFinishOffPhase, Func<MotherBrainFinishSamusOffPhases, SamusState, RainbowBeamAttackFrame, MotherBrainRainbowBeamStepRequests, bool>>
+    {
+        [MotherBrainFinishOffPhase.AttackUntilSamusIsLow] = static (phases, samus, frame, requests) => phases.AttackUntilSamusIsLow(samus, frame),
+        [MotherBrainFinishOffPhase.StandUp] = static (phases, samus, frame, requests) => phases.StandUpToFinishOff(),
+        [MotherBrainFinishOffPhase.Admire] = static (phases, samus, frame, requests) => phases.AdmireSamus(),
+        [MotherBrainFinishOffPhase.ChargeFinalBeam] = static (phases, samus, frame, requests) => phases.ChargeFinalBeam(),
+        [MotherBrainFinishOffPhase.BringInBaby] = static (phases, samus, frame, requests) => phases.BringInBaby(requests),
+        [MotherBrainFinishOffPhase.FireFinalBeam] = static (phases, samus, frame, requests) => phases.FireFinalBeam(requests),
+        [MotherBrainFinishOffPhase.FinalBeamHolding] = static (phases, samus, frame, requests) => phases.HoldFinalBeam(),
+    });
+
     /// <summary>
     /// Runs the body's current <see cref="MotherBrainFinishOffPhase"/> phase. True when it moves to the next body phase and the game runs on
     /// into it in the same update.
     /// </summary>
-    internal bool Run(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => Encounter.FinishOffPhase switch
-    {
-        MotherBrainFinishOffPhase.AttackUntilSamusIsLow => AttackUntilSamusIsLow(samus, frame),
-        MotherBrainFinishOffPhase.StandUp => StandUpToFinishOff(),
-        MotherBrainFinishOffPhase.Admire => AdmireSamus(),
-        MotherBrainFinishOffPhase.ChargeFinalBeam => ChargeFinalBeam(),
-        MotherBrainFinishOffPhase.BringInBaby => BringInBaby(requests),
-        MotherBrainFinishOffPhase.FireFinalBeam => FireFinalBeam(requests),
-        MotherBrainFinishOffPhase.FinalBeamHolding => HoldFinalBeam(),
-        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainFinishOffPhase)} {Encounter.FinishOffPhase}."),
-    };
+    internal bool Run(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => PhaseSteps[Encounter.FinishOffPhase](this, samus, frame, requests);
 }

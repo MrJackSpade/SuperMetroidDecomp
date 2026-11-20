@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Input;
 
@@ -14,24 +15,26 @@ internal static class MapScrollControls
         [MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down];
 
     /// <summary>The map scroll one accepted scroll pulse applies in <paramref name="direction"/>.</summary>
-    public static Offset16<MapPixels> StepOffset(MapScrollDirection direction) => direction switch
+    public static Offset16<MapPixels> StepOffset(MapScrollDirection direction) => Ensure.Listed(StepOffsets, direction);
+
+    /// <summary>The step each of the four directions scrolls; no direction takes no step.</summary>
+    private static FrozenDictionary<MapScrollDirection, Offset16<MapPixels>> StepOffsets { get; } = new Dictionary<MapScrollDirection, Offset16<MapPixels>>
     {
-        MapScrollDirection.Left => new(-MapScrollDefinitions.StepPixels, 0),
-        MapScrollDirection.Right => new(MapScrollDefinitions.StepPixels, 0),
-        MapScrollDirection.Up => new(0, -MapScrollDefinitions.StepPixels),
-        MapScrollDirection.Down => new(0, MapScrollDefinitions.StepPixels),
-        MapScrollDirection.None => throw new ArgumentOutOfRangeException(nameof(direction), direction, "No map scroll step is active."),
-        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "No map scroll step is active."),
-    };
+        [MapScrollDirection.Left] = new(-MapScrollDefinitions.StepPixels, 0),
+        [MapScrollDirection.Right] = new(MapScrollDefinitions.StepPixels, 0),
+        [MapScrollDirection.Up] = new(0, -MapScrollDefinitions.StepPixels),
+        [MapScrollDirection.Down] = new(0, MapScrollDefinitions.StepPixels),
+    }.ToFrozenDictionary();
 
     /// <summary>The controller direction that scrolls the map in <paramref name="direction"/>.</summary>
-    public static ControllerButton ButtonFor(MapScrollDirection direction) => direction switch
+    public static ControllerButton ButtonFor(MapScrollDirection direction) => Ensure.Listed(Buttons, direction);
+
+    /// <summary>The button each of the four directions answers to; no direction has none.</summary>
+    private static FrozenDictionary<MapScrollDirection, ControllerButton> Buttons { get; } = new Dictionary<MapScrollDirection, ControllerButton>
     {
-        MapScrollDirection.Left => ControllerButton.Left,
-        MapScrollDirection.Right => ControllerButton.Right,
-        MapScrollDirection.Up => ControllerButton.Up,
-        MapScrollDirection.Down => ControllerButton.Down,
-        MapScrollDirection.None => throw new ArgumentOutOfRangeException(nameof(direction)),
-        _ => throw new ArgumentOutOfRangeException(nameof(direction)),
-    };
+        [MapScrollDirection.Left] = ControllerButton.Left,
+        [MapScrollDirection.Right] = ControllerButton.Right,
+        [MapScrollDirection.Up] = ControllerButton.Up,
+        [MapScrollDirection.Down] = ControllerButton.Down,
+    }.ToFrozenDictionary();
 }

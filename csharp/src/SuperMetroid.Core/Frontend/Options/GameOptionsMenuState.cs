@@ -93,14 +93,16 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         LoadVisiblePage();
     }
 
-    /// <summary>The row the cursor is on: the selected row of the page the menu shows (#2206).</summary>
-    private GameOptionsRow SelectedRow => page switch
+    /// <summary>The row the cursor selects on each page.</summary>
+    private IdentityTable<GameOptionsPage, Func<GameOptionsRow>> SelectedRows => field ??= new(new Dictionary<GameOptionsPage, Func<GameOptionsRow>>
     {
-        GameOptionsPage.Primary => new GameOptionsRow.OnPrimaryPage(primaryRow),
-        GameOptionsPage.Controller => new GameOptionsRow.OnControllerPage(controllerRow),
-        GameOptionsPage.Special => new GameOptionsRow.OnSpecialPage(specialRow),
-        _ => throw new InvalidOperationException($"Unknown options page {page}."),
-    };
+        [GameOptionsPage.Primary] = () => new GameOptionsRow.OnPrimaryPage(primaryRow),
+        [GameOptionsPage.Controller] = () => new GameOptionsRow.OnControllerPage(controllerRow),
+        [GameOptionsPage.Special] = () => new GameOptionsRow.OnSpecialPage(specialRow),
+    });
+
+    /// <summary>The row the cursor is on: the selected row of the page the menu shows (#2206).</summary>
+    private GameOptionsRow SelectedRow => SelectedRows[page]();
 
     /// <summary>
     /// The selected save's startup route, loaded from the save by file select.
@@ -125,6 +127,14 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
     /// <summary>How the menu hands off to the frontend (#2562): the opening sequence or file select, kept once it reaches one.</summary>
     public GameOptionsMenuOutcome Outcome { get; private set; }
+
+    /// <summary>The phase the menu settles in once each page has dissolved in.</summary>
+    private static IdentityTable<GameOptionsPage, GameOptionsPhase> SettledPhases => field ??= new(new Dictionary<GameOptionsPage, GameOptionsPhase>
+    {
+        [GameOptionsPage.Primary] = GameOptionsPhase.Main,
+        [GameOptionsPage.Controller] = GameOptionsPhase.ControllerSettings,
+        [GameOptionsPage.Special] = GameOptionsPhase.SpecialSettings,
+    });
 
     /// <summary>Advances one options-menu update using the held controller buttons.</summary>
     public void Step(ControllerButton controllerInput)
@@ -165,13 +175,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             case GameOptionsPhase.DissolveIn:
                 if (fade.Brighten())
                 {
-                    Phase = page switch
-                    {
-                        GameOptionsPage.Primary => GameOptionsPhase.Main,
-                        GameOptionsPage.Controller => GameOptionsPhase.ControllerSettings,
-                        GameOptionsPage.Special => GameOptionsPhase.SpecialSettings,
-                        _ => throw new InvalidOperationException($"Unknown options page {page}."),
-                    };
+                    Phase = SettledPhases[page];
                 }
                 break;
 
@@ -412,6 +416,14 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         Phase = GameOptionsPhase.DissolveOut;
     }
 
+    /// <summary>The screen each page shows, in the menu's language.</summary>
+    private IdentityTable<GameOptionsPage, Func<GameOptionsScreen>> ScreensShown => field ??= new(new Dictionary<GameOptionsPage, Func<GameOptionsScreen>>
+    {
+        [GameOptionsPage.Primary] = () => GameOptionsScreen.Primary,
+        [GameOptionsPage.Controller] = () => JapaneseText ? GameOptionsScreen.ControllerJapanese : GameOptionsScreen.ControllerEnglish,
+        [GameOptionsPage.Special] = () => JapaneseText ? GameOptionsScreen.SpecialJapanese : GameOptionsScreen.SpecialEnglish,
+    });
+
     /// <summary>
     /// Selects the language-specific page and shows it with the current language highlight, controller labels and toggle
     /// choices, as the game reapplies them whenever it loads the page.
@@ -419,13 +431,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     [MemberNotNull(nameof(ShownPage))]
     private void LoadVisiblePage()
     {
-        GameOptionsScreen shown = page switch
-        {
-            GameOptionsPage.Primary => GameOptionsScreen.Primary,
-            GameOptionsPage.Controller => JapaneseText ? GameOptionsScreen.ControllerJapanese : GameOptionsScreen.ControllerEnglish,
-            GameOptionsPage.Special => JapaneseText ? GameOptionsScreen.SpecialJapanese : GameOptionsScreen.SpecialEnglish,
-            _ => throw new InvalidOperationException($"Unknown options page {page}."),
-        };
+        GameOptionsScreen shown = ScreensShown[page]();
         ShownPage = new ShownOptionsPage(shown, JapaneseText, ControllerBindings, IconCancelEnabled, MoonwalkEnabled);
     }
 

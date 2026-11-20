@@ -13,6 +13,19 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainCombat
 {
+    /// <summary>The projectile her head reacts to a shot of each family as: a missile's explosion reacts as a beam does.</summary>
+    private static IdentityTable<SamusProjectileFamily, MotherBrainProjectileType> ReactionProjectiles => field ??=
+        new(new Dictionary<SamusProjectileFamily, MotherBrainProjectileType>
+        {
+            [SamusProjectileFamily.Beam] = MotherBrainProjectileType.Beam,
+            [SamusProjectileFamily.MissileExplosion] = MotherBrainProjectileType.Beam,
+            [SamusProjectileFamily.Missile] = MotherBrainProjectileType.Missile,
+            [SamusProjectileFamily.SuperMissile] = MotherBrainProjectileType.SuperMissile,
+            [SamusProjectileFamily.PowerBomb] = MotherBrainProjectileType.PowerBomb,
+            [SamusProjectileFamily.Bomb] = MotherBrainProjectileType.Bomb,
+            [SamusProjectileFamily.BeamExplosion] = MotherBrainProjectileType.BeamExplosion,
+        });
+
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
@@ -137,16 +150,7 @@ internal sealed class MotherBrainCombat
                 !projectileType.BeamCombination.HasPlasma);
 
         // A missile's explosion reacts as a beam does.
-        MotherBrainProjectileType reactionProjectile = projectileType.Family switch
-        {
-            SamusProjectileFamily.Beam or SamusProjectileFamily.MissileExplosion => MotherBrainProjectileType.Beam,
-            SamusProjectileFamily.Missile => MotherBrainProjectileType.Missile,
-            SamusProjectileFamily.SuperMissile => MotherBrainProjectileType.SuperMissile,
-            SamusProjectileFamily.PowerBomb => MotherBrainProjectileType.PowerBomb,
-            SamusProjectileFamily.Bomb => MotherBrainProjectileType.Bomb,
-            SamusProjectileFamily.BeamExplosion => MotherBrainProjectileType.BeamExplosion,
-            _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileFamily)} {projectileType.Family}."),
-        };
+        MotherBrainProjectileType reactionProjectile = ReactionProjectiles[projectileType.Family];
         if (state.RainbowBeamSequence is { } sequence)
         {
             // The attached sequence shares the walk counter with the encounter. The recoil

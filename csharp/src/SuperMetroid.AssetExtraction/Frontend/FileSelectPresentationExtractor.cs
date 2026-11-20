@@ -247,19 +247,15 @@ public static class FileSelectPresentationExtractor
         {
             int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             address = FileSelectTilemapFormat.Bank | (SnesAddressMath.OffsetInBank(address + 2));
-            if (Enum.IsDefined((FileSelectTextControl)word))
+            // A word that is neither control is a cell.
+            switch ((FileSelectTextControl)word)
             {
-                switch ((FileSelectTextControl)word)
-                {
-                    case FileSelectTextControl.End:
-                        return new(cells.ToArray());
-                    case FileSelectTextControl.NextRow:
-                        x = 0;
-                        y++;
-                        continue;
-                    default:
-                        throw new InvalidOperationException($"Undefined {nameof(FileSelectTextControl)} {word}.");
-                }
+                case FileSelectTextControl.End:
+                    return new(cells.ToArray());
+                case FileSelectTextControl.NextRow:
+                    x = 0;
+                    y++;
+                    continue;
             }
             cells.Add(new(new(checked((short)(x++)), checked((short)y)), new SnesBgTilemapWord(checked((ushort)word))));
         }

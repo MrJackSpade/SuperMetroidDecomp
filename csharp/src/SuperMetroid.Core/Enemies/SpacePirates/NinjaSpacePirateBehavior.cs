@@ -56,12 +56,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         place.SetSpeciesState(state);
 
         NinjaSpacePirateSpawnSettings settings = place.SpawnSettings<NinjaSpacePirateSpawnSettings>();
-        bool startsAtLeft = settings.StartPost switch
-        {
-            NinjaSpacePirateStartPost.Left => true,
-            NinjaSpacePirateStartPost.Right => false,
-            _ => throw new InvalidOperationException($"Undefined {nameof(NinjaSpacePirateStartPost)} {settings.StartPost}."),
-        };
+        bool startsAtLeft = settings.StartPost == NinjaSpacePirateStartPost.Left;
         NinjaSpacePirateSegment initial = startsAtLeft
             ? NinjaSpacePirateSegment.AwaitingSamusFacingRight
             : NinjaSpacePirateSegment.AwaitingSamusFacingLeft;

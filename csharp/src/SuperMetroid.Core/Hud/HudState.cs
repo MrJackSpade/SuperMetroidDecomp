@@ -174,6 +174,14 @@ public sealed class HudState
         Minimap = minimap;
     }
 
+    /// <summary>The reserve indicator each reserve mode shows: AUTO's arrows filled or empty, a cleared place for manual, and the template's before the first reserve tank.</summary>
+    private static IdentityTable<ReserveTankMode, Func<HudSnapshot, HudReserveIndicator?>> ReserveIndicators => field ??= new(new Dictionary<ReserveTankMode, Func<HudSnapshot, HudReserveIndicator?>>
+    {
+        [ReserveTankMode.Auto] = static shown => shown.ReserveHealth != 0 ? HudReserveIndicator.Filled : HudReserveIndicator.Empty,
+        [ReserveTankMode.Manual] = static shown => HudReserveIndicator.Cleared,
+        [ReserveTankMode.None] = static shown => null,
+    });
+
     /// <summary>
     /// The HUD's images as its values select them now, in the order they are drawn (#1466, #1555): the static top row, then
     /// the template with each value's images over it. A HUD with no artwork bound shows nothing, and one not yet set up
@@ -210,13 +218,7 @@ public sealed class HudState
             images.AddRange(art.Ammo(HudAmmoCounter.PowerBombs, values.PowerBombs));
         // AUTO shows its arrows filled or empty; the pause screen's switch to manual (the only way manual is reached)
         // clears its place; before the first reserve tank the template shows.
-        HudReserveIndicator? reserve = values.ReserveMode switch
-        {
-            ReserveTankMode.Auto => values.ReserveHealth != 0 ? HudReserveIndicator.Filled : HudReserveIndicator.Empty,
-            ReserveTankMode.Manual => HudReserveIndicator.Cleared,
-            ReserveTankMode.None => null,
-            _ => throw new InvalidOperationException($"Undefined {nameof(ReserveTankMode)} {values.ReserveMode}."),
-        };
+        HudReserveIndicator? reserve = ReserveIndicators[values.ReserveMode](values);
         if (reserve is { } indicator)
             images.Add(art.AutoReserve(indicator));
         if (Minimap is { } shown)

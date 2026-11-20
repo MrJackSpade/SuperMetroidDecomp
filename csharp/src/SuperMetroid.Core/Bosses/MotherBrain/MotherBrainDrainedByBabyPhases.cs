@@ -211,20 +211,22 @@ internal sealed class MotherBrainDrainedByBabyPhases
         return false;
     }
 
+    /// <summary>What each phase of her draining does on her body's update; true when it moves to the next body phase and the game runs on into it in the same update.</summary>
+    private static IdentityTable<MotherBrainDrainedPhase, Func<MotherBrainDrainedByBabyPhases, MotherBrainRainbowBeamStepRequests, bool>> PhaseSteps => field ??= new(new Dictionary<MotherBrainDrainedPhase, Func<MotherBrainDrainedByBabyPhases, MotherBrainRainbowBeamStepRequests, bool>>
+    {
+        [MotherBrainDrainedPhase.TakenAback] = static (phases, requests) => phases.RecoilFromBaby(),
+        [MotherBrainDrainedPhase.RegainBalance] = static (phases, requests) => phases.RegainBalance(requests),
+        [MotherBrainDrainedPhase.FiringRainbowBeam] = static (phases, requests) => phases.StaggerWhileFiringBeam(requests),
+        [MotherBrainDrainedPhase.RainbowBeamRunOut] = static (phases, requests) => phases.FinishStaggering(),
+        [MotherBrainDrainedPhase.MoveToBackOfRoom] = static (phases, requests) => phases.RetreatToBackOfRoom(),
+        [MotherBrainDrainedPhase.SlumpOnceNeckIsRaised] = static (phases, requests) => phases.SlumpOnceNeckIsRaised(),
+        [MotherBrainDrainedPhase.WaitBeforeGreying] = static (phases, requests) => phases.StartGreying(),
+        [MotherBrainDrainedPhase.TransitionToGrey] = static (phases, requests) => phases.GreyOut(requests),
+    });
+
     /// <summary>
     /// Runs the body's current <see cref="MotherBrainDrainedPhase"/> phase. True when it moves to the next body phase and the game runs on
     /// into it in the same update.
     /// </summary>
-    internal bool Run(MotherBrainRainbowBeamStepRequests requests) => Encounter.DrainedPhase switch
-    {
-        MotherBrainDrainedPhase.TakenAback => RecoilFromBaby(),
-        MotherBrainDrainedPhase.RegainBalance => RegainBalance(requests),
-        MotherBrainDrainedPhase.FiringRainbowBeam => StaggerWhileFiringBeam(requests),
-        MotherBrainDrainedPhase.RainbowBeamRunOut => FinishStaggering(),
-        MotherBrainDrainedPhase.MoveToBackOfRoom => RetreatToBackOfRoom(),
-        MotherBrainDrainedPhase.SlumpOnceNeckIsRaised => SlumpOnceNeckIsRaised(),
-        MotherBrainDrainedPhase.WaitBeforeGreying => StartGreying(),
-        MotherBrainDrainedPhase.TransitionToGrey => GreyOut(requests),
-        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainDrainedPhase)} {Encounter.DrainedPhase}."),
-    };
+    internal bool Run(MotherBrainRainbowBeamStepRequests requests) => PhaseSteps[Encounter.DrainedPhase](this, requests);
 }

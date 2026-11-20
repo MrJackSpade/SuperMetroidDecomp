@@ -271,18 +271,25 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Controls whether the main page exposes Copy and Clear navigation.</summary>
     private bool HasAnySave => saveSlots.Values.Any(slot => slot is not null);
 
+    /// <summary>The border each page shows.</summary>
+    private static IdentityTable<FileSelectPage, FileSelectBorder> Borders => field ??= new(new Dictionary<FileSelectPage, FileSelectBorder>
+    {
+        [FileSelectPage.MainWithData] = FileSelectBorder.Main,
+        [FileSelectPage.MainEmpty] = FileSelectBorder.Main,
+        [FileSelectPage.CopySource] = FileSelectBorder.Copy,
+        [FileSelectPage.CopyDestination] = FileSelectBorder.Copy,
+        [FileSelectPage.CopyConfirm] = FileSelectBorder.Copy,
+        [FileSelectPage.CopyCompleted] = FileSelectBorder.Copy,
+        [FileSelectPage.ClearSelection] = FileSelectBorder.Clear,
+        [FileSelectPage.ClearConfirm] = FileSelectBorder.Clear,
+        [FileSelectPage.ClearCompleted] = FileSelectBorder.Clear,
+    });
+
     /// <summary>
     /// The border the shown page draws in: the main page's, or the Copy or Clear border of a data-management page, which the
     /// pages keep through their fades, the swap between them coming at black.
     /// </summary>
-    private FileSelectBorder ShownBorder => selectedPage switch
-    {
-        FileSelectPage.MainWithData or FileSelectPage.MainEmpty => FileSelectBorder.Main,
-        FileSelectPage.CopySource or FileSelectPage.CopyDestination or FileSelectPage.CopyConfirm or
-            FileSelectPage.CopyCompleted => FileSelectBorder.Copy,
-        FileSelectPage.ClearSelection or FileSelectPage.ClearConfirm or FileSelectPage.ClearCompleted => FileSelectBorder.Clear,
-        _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectPage)} {selectedPage}."),
-    };
+    private FileSelectBorder ShownBorder => Borders[selectedPage];
 
     /// <summary>Chooses main-page border, helmets, and missile coordinates, including fades.</summary>
     private bool IsMainPagePhase => ShownBorder == FileSelectBorder.Main;

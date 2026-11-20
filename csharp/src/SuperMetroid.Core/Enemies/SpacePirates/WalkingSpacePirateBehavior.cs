@@ -31,6 +31,21 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
+    /// <summary>The way a shot aimed each way leaves a Space Pirate that reflects it.</summary>
+    private static IdentityTable<SamusProjectileDirection, SamusProjectileDirection> Reflections => field ??= new(new Dictionary<SamusProjectileDirection, SamusProjectileDirection>
+    {
+        [SamusProjectileDirection.Left] = SamusProjectileDirection.UpRight,
+        [SamusProjectileDirection.Right] = SamusProjectileDirection.UpLeft,
+        [SamusProjectileDirection.UpFacingRight] = SamusProjectileDirection.DownFacingLeft,
+        [SamusProjectileDirection.UpRight] = SamusProjectileDirection.DownFacingLeft,
+        [SamusProjectileDirection.DownRight] = SamusProjectileDirection.DownFacingLeft,
+        [SamusProjectileDirection.DownFacingRight] = SamusProjectileDirection.DownFacingLeft,
+        [SamusProjectileDirection.DownFacingLeft] = SamusProjectileDirection.DownFacingLeft,
+        [SamusProjectileDirection.DownLeft] = SamusProjectileDirection.DownFacingLeft,
+        [SamusProjectileDirection.UpLeft] = SamusProjectileDirection.DownFacingLeft,
+        [SamusProjectileDirection.UpFacingLeft] = SamusProjectileDirection.DownFacingLeft,
+    });
+
     /// <summary>Binds the patrol collision owner and laser pool.</summary>
     internal WalkingSpacePirateBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
     {
@@ -468,16 +483,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         {
             c.Enemy.Invincibility.Restart(SpacePirateCollisionDefinitions.ReflectInvincibility);
             // A shot aimed straight left or right reflects up and away; every other aim reflects down.
-            SamusProjectileDirection reflected = c.Projectile.Direction switch
-            {
-                SamusProjectileDirection.Left => SamusProjectileDirection.UpRight,
-                SamusProjectileDirection.Right => SamusProjectileDirection.UpLeft,
-                SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight
-                    or SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft
-                    or SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft
-                    or SamusProjectileDirection.UpFacingLeft => SamusProjectileDirection.DownFacingLeft,
-                _ => throw new InvalidDataException($"Projectile aim {c.Projectile.Direction} decoded to an undefined direction."),
-            };
+            SamusProjectileDirection reflected = Reflections[c.Projectile.Direction];
             c.Projectile.Direction = reflected;
             c.Projectile.FlyOn();
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus,

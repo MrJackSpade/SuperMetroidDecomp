@@ -140,11 +140,6 @@ public sealed class FileSelectAreaMapGraphics
     }
 
     /// <summary>The plane <paramref name="glow"/> limits the background's glow to: none over the whole screen, or the foreground.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="glow"/> is undefined.</exception>
-    private static PicturedPlaneLayer? GlowsOver(AreaMapBackgroundGlow glow, PicturedPlaneLayer foreground) => glow switch
-    {
-        AreaMapBackgroundGlow.WholeScreen => null,
-        AreaMapBackgroundGlow.ForegroundOnly => foreground,
-        _ => throw new ArgumentOutOfRangeException(nameof(glow), glow, "Undefined area map glow."),
-    };
+    private static PicturedPlaneLayer? GlowsOver(AreaMapBackgroundGlow glow, PicturedPlaneLayer foreground) =>
+        glow == AreaMapBackgroundGlow.ForegroundOnly ? foreground : null;
 }

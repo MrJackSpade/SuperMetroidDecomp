@@ -17,28 +17,32 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.TimeUp;
 
+    /// <summary>How each step of the time-up advances the random generator.</summary>
+    private static IdentityTable<TimeUpStep, PhaseRandomStep> RandomSteps => field ??= new(new Dictionary<TimeUpStep, PhaseRandomStep>
+    {
+        [TimeUpStep.WhiteningOut] = PhaseRandomStep.RuntimeOwned,
+        [TimeUpStep.FadingToBlack] = PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance,
+    });
+
     /// <inheritdoc/>
     /// <remarks>
     /// The white-out runs gameplay, which advances the generator itself. The fade to black runs no gameplay; the room
     /// liquid's wave and the statues' descent still advance before the generator until it clears the room's effects.
     /// </remarks>
-    public PhaseRandomStep RandomStep => session.TimeUpStep switch
-    {
-        TimeUpStep.WhiteningOut => PhaseRandomStep.RuntimeOwned,
-        TimeUpStep.FadingToBlack => PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance,
-        _ => throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {session.TimeUpStep}."),
-    };
+    public PhaseRandomStep RandomStep => RandomSteps[session.TimeUpStep];
 
     /// <inheritdoc/>
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
-    /// <inheritdoc/>
-    public string Name => session.TimeUpStep switch
+    /// <summary>The diagnostic name of each step of the time-up.</summary>
+    private static IdentityTable<TimeUpStep, string> Names => field ??= new(new Dictionary<TimeUpStep, string>
     {
-        TimeUpStep.WhiteningOut => "Time up: white-out",
-        TimeUpStep.FadingToBlack => "Time up: fade to black",
-        _ => throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {session.TimeUpStep}."),
-    };
+        [TimeUpStep.WhiteningOut] = "Time up: white-out",
+        [TimeUpStep.FadingToBlack] = "Time up: fade to black",
+    });
+
+    /// <inheritdoc/>
+    public string Name => Names[session.TimeUpStep];
 
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;

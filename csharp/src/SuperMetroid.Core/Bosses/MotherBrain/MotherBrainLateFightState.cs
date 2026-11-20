@@ -90,20 +90,24 @@ internal sealed class MotherBrainLateFightState
             MakeBodyStandUp();
     }
 
+    /// <summary>The animation that stands the body up from each pose, or null for a pose that has none.</summary>
+    private static IdentityTable<MotherBrainBodyPose, MotherBrainBodySegment?> StandingAnimations => field ??= new(new Dictionary<MotherBrainBodyPose, MotherBrainBodySegment?>
+    {
+        [MotherBrainBodyPose.Crouched] = MotherBrainBodySegment.StandAfterCrouchFast,
+        [MotherBrainBodyPose.LeaningDown] = MotherBrainBodySegment.StandAfterLeaning,
+        [MotherBrainBodyPose.Standing] = null,
+        [MotherBrainBodyPose.Walking] = null,
+        [MotherBrainBodyPose.CrouchingTransition] = null,
+        [MotherBrainBodyPose.DeathBeam] = null,
+    });
+
     /// <summary>Starts the pose-specific standing animation and reports whether the body is already standing.</summary>
     internal bool MakeBodyStandUp()
     {
         if (Encounter.Pose == MotherBrainBodyPose.Standing)
             return true;
 
-        MotherBrainBodySegment? segment = Encounter.Pose switch
-        {
-            MotherBrainBodyPose.Crouched => MotherBrainBodySegment.StandAfterCrouchFast,
-            MotherBrainBodyPose.LeaningDown => MotherBrainBodySegment.StandAfterLeaning,
-            MotherBrainBodyPose.Standing or MotherBrainBodyPose.Walking or
-                MotherBrainBodyPose.CrouchingTransition or MotherBrainBodyPose.DeathBeam => null,
-            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainBodyPose)} {Encounter.Pose}."),
-        };
+        MotherBrainBodySegment? segment = StandingAnimations[Encounter.Pose];
         if (segment is { } standUp)
             SetBodyAnimation(standUp);
 

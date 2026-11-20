@@ -262,25 +262,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         VerticalDirection reach = place.SpawnSettings<YappingMawSpawnSettings>().Attack;
         if (reach == VerticalDirection.Up)
         {
-            state.Playback = new(YappingMawAnimations.StartingWith(state.Aim switch
-            {
-                YappingMawAim.Right => YappingMawSegment.CooldownUpRight,
-                YappingMawAim.Left => YappingMawSegment.CooldownUpLeft,
-                YappingMawAim.Up or YappingMawAim.UpRight or YappingMawAim.DownRight or YappingMawAim.Down or
-                    YappingMawAim.DownLeft or YappingMawAim.UpLeft => YappingMawSegment.CooldownUp,
-                _ => throw new InvalidOperationException($"Yapping Maw aim {state.Aim} is not an aim."),
-            }), AnimationPlace.StartOfAnimation);
+            state.Playback = new(YappingMawAnimations.StartingWith(YappingMawCooldownDefinitions.Upward[state.Aim]), AnimationPlace.StartOfAnimation);
         }
         else
         {
-            state.Playback = new(YappingMawAnimations.StartingWith(state.Aim switch
-            {
-                YappingMawAim.Right => YappingMawSegment.CooldownDownRight,
-                YappingMawAim.Left => YappingMawSegment.CooldownDownLeft,
-                YappingMawAim.Up or YappingMawAim.UpRight or YappingMawAim.DownRight or YappingMawAim.Down or
-                    YappingMawAim.DownLeft or YappingMawAim.UpLeft => YappingMawSegment.CooldownDown,
-                _ => throw new InvalidOperationException($"Yapping Maw aim {state.Aim} is not an aim."),
-            }), AnimationPlace.StartOfAnimation);
+            state.Playback = new(YappingMawAnimations.StartingWith(YappingMawCooldownDefinitions.Downward[state.Aim]), AnimationPlace.StartOfAnimation);
         }
         place.AnimationClock.Restart();
 

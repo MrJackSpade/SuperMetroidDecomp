@@ -26,10 +26,7 @@ public static class PhantoonFlameSpawns
     /// The turn a rage flame starting at <paramref name="start"/> makes each update: the rage turn clockwise, or the same
     /// turn back, a full circle less it, counterclockwise. The flame's angle grows clockwise round the body.
     /// </summary>
-    internal static TrigonometryAngle RageTurnPerUpdate(PhantoonRageFlameStart start) => start.Turn switch
-    {
-        RotationDirection.Clockwise => PhantoonFlameMotionDefinitions.RageTurnPerUpdate,
-        RotationDirection.Counterclockwise => TrigonometryAngle.Zero - PhantoonFlameMotionDefinitions.RageTurnPerUpdate,
-        _ => throw new ArgumentOutOfRangeException(nameof(start), start.Turn, $"Undefined {nameof(RotationDirection)}."),
-    };
+    internal static TrigonometryAngle RageTurnPerUpdate(PhantoonRageFlameStart start) => start.Turn == RotationDirection.Clockwise
+        ? PhantoonFlameMotionDefinitions.RageTurnPerUpdate
+        : TrigonometryAngle.Zero - PhantoonFlameMotionDefinitions.RageTurnPerUpdate;
 }

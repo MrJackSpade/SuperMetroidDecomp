@@ -37,21 +37,25 @@ internal sealed class ClipLibraryState
         Sound = sound;
         Start = now;
         Active = true;
-        HighPriority = policy.Priority switch
-        {
-            SoundEffectPriorityEffect.Low => false,
-            SoundEffectPriorityEffect.High => true,
-            SoundEffectPriorityEffect.Unchanged => HighPriority,
-            _ => throw new InvalidDataException($"Unknown priority effect {policy.Priority}."),
-        };
-        InLowHealthMode = policy.LowHealthMode switch
-        {
-            LowHealthModeEffect.Unchanged => InLowHealthMode,
-            LowHealthModeEffect.Clear => false,
-            LowHealthModeEffect.Enter => true,
-            _ => throw new InvalidDataException($"Unknown low-health mode effect {policy.LowHealthMode}."),
-        };
+        HighPriority = PrioritySetBy[policy.Priority] ?? HighPriority;
+        InLowHealthMode = LowHealthModeSetBy[policy.LowHealthMode] ?? InLowHealthMode;
     }
+
+    /// <summary>The priority each priority effect gives the library, or null for one that keeps it.</summary>
+    private static IdentityTable<SoundEffectPriorityEffect, bool?> PrioritySetBy => field ??= new(new Dictionary<SoundEffectPriorityEffect, bool?>
+    {
+        [SoundEffectPriorityEffect.Low] = false,
+        [SoundEffectPriorityEffect.High] = true,
+        [SoundEffectPriorityEffect.Unchanged] = null,
+    });
+
+    /// <summary>The low-health mode each low-health effect gives the library, or null for one that keeps it.</summary>
+    private static IdentityTable<LowHealthModeEffect, bool?> LowHealthModeSetBy => field ??= new(new Dictionary<LowHealthModeEffect, bool?>
+    {
+        [LowHealthModeEffect.Unchanged] = null,
+        [LowHealthModeEffect.Clear] = false,
+        [LowHealthModeEffect.Enter] = true,
+    });
 
     /// <summary>Ends the sound at a request check after its logical end, releasing the library and its priority.</summary>
     internal void EndIfFinished(long now)

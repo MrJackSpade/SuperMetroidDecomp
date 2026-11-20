@@ -19,42 +19,56 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Pause;
 
+    /// <summary>How each step of the pause advances the random generator.</summary>
+    private static IdentityTable<PauseStep, PhaseRandomStep> RandomSteps => field ??= new(new Dictionary<PauseStep, PhaseRandomStep>
+    {
+        [PauseStep.DarkeningGameplay] = PhaseRandomStep.RuntimeOwned,
+        [PauseStep.BrighteningGameplay] = PhaseRandomStep.RuntimeOwned,
+        [PauseStep.PreparingPauseScreen] = PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance,
+        [PauseStep.FadingIn] = PhaseRandomStep.Advance,
+        [PauseStep.Menu] = PhaseRandomStep.Advance,
+        [PauseStep.FadingOut] = PhaseRandomStep.Advance,
+        [PauseStep.RestoringGameplay] = PhaseRandomStep.Advance,
+    });
+
     /// <inheritdoc/>
     /// <remarks>
     /// The darkening and brightening run gameplay, which advances the generator itself. Preparing the pause screen still
     /// advances the liquid wave and the statues' descent before the generator, and the generator advances once before each
     /// pause-screen step.
     /// </remarks>
-    public PhaseRandomStep RandomStep => session.PauseStep switch
+    public PhaseRandomStep RandomStep => RandomSteps[session.PauseStep];
+
+    /// <summary>How each step of the pause publishes its audio.</summary>
+    private static IdentityTable<PauseStep, GamePhaseAudio> Audios => field ??= new(new Dictionary<PauseStep, GamePhaseAudio>
     {
-        PauseStep.DarkeningGameplay or PauseStep.BrighteningGameplay => PhaseRandomStep.RuntimeOwned,
-        PauseStep.PreparingPauseScreen => PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance,
-        PauseStep.FadingIn or PauseStep.Menu or PauseStep.FadingOut or PauseStep.RestoringGameplay => PhaseRandomStep.Advance,
-        _ => throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {session.PauseStep}."),
-    };
+        [PauseStep.DarkeningGameplay] = GamePhaseAudio.Ordinary,
+        [PauseStep.BrighteningGameplay] = GamePhaseAudio.Ordinary,
+        [PauseStep.PreparingPauseScreen] = GamePhaseAudio.PublishesHeldInputAfterPause,
+        [PauseStep.FadingIn] = GamePhaseAudio.PublishesHeldInputAfterPause,
+        [PauseStep.Menu] = GamePhaseAudio.PublishesHeldInputAfterPause,
+        [PauseStep.FadingOut] = GamePhaseAudio.PublishesHeldInputAfterPause,
+        [PauseStep.RestoringGameplay] = GamePhaseAudio.PublishesHeldInputAfterPause,
+    });
 
     /// <inheritdoc/>
     /// <remarks>Each step without gameplay publishes held input after it returns.</remarks>
-    public GamePhaseAudio Audio => session.PauseStep switch
+    public GamePhaseAudio Audio => Audios[session.PauseStep];
+
+    /// <summary>The diagnostic name of each step of the pause, read from the session it runs against.</summary>
+    private static IdentityTable<PauseStep, Func<FrontendSession, string>> Names => field ??= new(new Dictionary<PauseStep, Func<FrontendSession, string>>
     {
-        PauseStep.DarkeningGameplay or PauseStep.BrighteningGameplay => GamePhaseAudio.Ordinary,
-        PauseStep.PreparingPauseScreen or PauseStep.FadingIn or PauseStep.Menu or PauseStep.FadingOut or
-            PauseStep.RestoringGameplay => GamePhaseAudio.PublishesHeldInputAfterPause,
-        _ => throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {session.PauseStep}."),
-    };
+        [PauseStep.DarkeningGameplay] = static running => $"Pausing: gameplay darken ({running.PauseBrightness})",
+        [PauseStep.PreparingPauseScreen] = static running => "Pausing: load pause assets",
+        [PauseStep.FadingIn] = static running => $"Paused: fade in ({running.PauseBrightness})",
+        [PauseStep.Menu] = static running => running.ScreenAs<PauseMenuState>()?.ScreenMode == PauseScreenMode.Equipment ? "Paused: equipment" : "Paused: map",
+        [PauseStep.FadingOut] = static running => $"Unpausing: fade out ({running.PauseBrightness})",
+        [PauseStep.RestoringGameplay] = static running => "Unpausing: restore gameplay",
+        [PauseStep.BrighteningGameplay] = static running => $"Unpausing: gameplay brighten ({running.PauseBrightness})",
+    });
 
     /// <inheritdoc/>
-    public string Name => session.PauseStep switch
-    {
-        PauseStep.DarkeningGameplay => $"Pausing: gameplay darken ({session.PauseBrightness})",
-        PauseStep.PreparingPauseScreen => "Pausing: load pause assets",
-        PauseStep.FadingIn => $"Paused: fade in ({session.PauseBrightness})",
-        PauseStep.Menu => session.ScreenAs<PauseMenuState>()?.ScreenMode == PauseScreenMode.Equipment ? "Paused: equipment" : "Paused: map",
-        PauseStep.FadingOut => $"Unpausing: fade out ({session.PauseBrightness})",
-        PauseStep.RestoringGameplay => "Unpausing: restore gameplay",
-        PauseStep.BrighteningGameplay => $"Unpausing: gameplay brighten ({session.PauseBrightness})",
-        _ => throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {session.PauseStep}."),
-    };
+    public string Name => Names[session.PauseStep](session);
 
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;

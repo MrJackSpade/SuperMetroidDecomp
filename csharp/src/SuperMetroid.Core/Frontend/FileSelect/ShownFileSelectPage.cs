@@ -36,16 +36,22 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDiction
             yield return new PlacedFrame(FileSelectParts.LetterFrame(letter.Slot), presentation.DynamicAnchor(letter.Anchor));
     }
 
-    /// <summary>The slot letters the page names and where.</summary>
-    private FileSelectPromptLetter[] Letters() => Page switch
+    /// <summary>The slot letters each page's prompt shows.</summary>
+    private static IdentityTable<FileSelectPage, Func<ShownFileSelectPage, FileSelectPromptLetter[]>> LettersShown => field ??= new(new Dictionary<FileSelectPage, Func<ShownFileSelectPage, FileSelectPromptLetter[]>>
     {
-        FileSelectPage.CopyDestination => [new(FileSelectAnchor.CopyDestinationSource, OperationSource)],
-        FileSelectPage.CopyConfirm or FileSelectPage.CopyCompleted =>
-            [new(FileSelectAnchor.CopyConfirmSource, OperationSource), new(FileSelectAnchor.CopyConfirmDestination, CopyTarget)],
-        FileSelectPage.ClearConfirm or FileSelectPage.ClearCompleted => [new(FileSelectAnchor.ClearConfirmSource, OperationSource)],
-        FileSelectPage.MainWithData or FileSelectPage.MainEmpty or FileSelectPage.CopySource or FileSelectPage.ClearSelection => [],
-        _ => throw new InvalidOperationException($"Undefined file-select page {Page}."),
-    };
+        [FileSelectPage.CopyDestination] = static shown => [new(FileSelectAnchor.CopyDestinationSource, shown.OperationSource)],
+        [FileSelectPage.CopyConfirm] = static shown => [new(FileSelectAnchor.CopyConfirmSource, shown.OperationSource), new(FileSelectAnchor.CopyConfirmDestination, shown.CopyTarget)],
+        [FileSelectPage.CopyCompleted] = static shown => [new(FileSelectAnchor.CopyConfirmSource, shown.OperationSource), new(FileSelectAnchor.CopyConfirmDestination, shown.CopyTarget)],
+        [FileSelectPage.ClearConfirm] = static shown => [new(FileSelectAnchor.ClearConfirmSource, shown.OperationSource)],
+        [FileSelectPage.ClearCompleted] = static shown => [new(FileSelectAnchor.ClearConfirmSource, shown.OperationSource)],
+        [FileSelectPage.MainWithData] = static shown => [],
+        [FileSelectPage.MainEmpty] = static shown => [],
+        [FileSelectPage.CopySource] = static shown => [],
+        [FileSelectPage.ClearSelection] = static shown => [],
+    });
+
+    /// <summary>The slot letters the page names and where.</summary>
+    private FileSelectPromptLetter[] Letters() => LettersShown[Page](this);
 
     /// <summary>
     /// One slot's field at <paramref name="layout"/>'s anchors: NO DATA for an empty slot, else ENERGY, the health's last two

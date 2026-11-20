@@ -288,13 +288,15 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// follows her, so each of her body's pictures lies where its installed frame places it against her; the room's
     /// top-left corner once she is gone, where the escape warning written over the background lies.
     /// </summary>
-    private Position16<RoomPixels>? BodyPlacedAt => BodyPlacement switch
+    private Position16<RoomPixels>? BodyPlacedAt => BodyPlacements[BodyPlacement](this);
+
+    /// <summary>Where each body placement places her body's frames from.</summary>
+    private static IdentityTable<MotherBrainBodyPlacement, Func<MotherBrainEnemyState, Position16<RoomPixels>?>> BodyPlacements => field ??= new(new Dictionary<MotherBrainBodyPlacement, Func<MotherBrainEnemyState, Position16<RoomPixels>?>>
     {
-        MotherBrainBodyPlacement.FollowsBody => Body.Position.Whole,
-        MotherBrainBodyPlacement.AtRoomCorner => Position16<RoomPixels>.Zero,
-        MotherBrainBodyPlacement.Unplaced => null,
-        _ => throw new InvalidOperationException($"Undefined body placement {BodyPlacement}."),
-    };
+        [MotherBrainBodyPlacement.FollowsBody] = static brain => brain.Body.Position.Whole,
+        [MotherBrainBodyPlacement.AtRoomCorner] = static _ => Position16<RoomPixels>.Zero,
+        [MotherBrainBodyPlacement.Unplaced] = static _ => null,
+    });
 
     /// <summary>Whether her death flicker hides her body this frame, separate from the sprites' invisibility.</summary>
     public bool DeathHidesBodyLayer { get; internal set; }

@@ -102,14 +102,19 @@ internal sealed class EndingStage
     /// shows that scene's own backdrop behind every layer; a load within a scene restores some of its colours.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The load is not one the ending makes.</exception>
-    internal void LoadColours(EndingColourLoad load) => screen.Colours.Load(load, load switch
+    internal void LoadColours(EndingColourLoad load) => screen.Colours.Load(load, BackdropShownBy[load](Backdrops));
+
+    /// <summary>The backdrop each colour load shows, or null for a load within a scene, which shows none of its own.</summary>
+    private static IdentityTable<EndingColourLoad, Func<EndingBackdrops, RgbColor?>> BackdropShownBy => field ??= new(new Dictionary<EndingColourLoad, Func<EndingBackdrops, RgbColor?>>
     {
-        EndingColourLoad.Escape => Backdrops.Escape,
-        EndingColourLoad.Explosion => Backdrops.Explosion,
-        EndingColourLoad.Credits => Backdrops.Credits,
-        EndingColourLoad.PostCredits => Backdrops.PostCredits,
-        EndingColourLoad.ExplosionBackgrounds or EndingColourLoad.FinalGunship or EndingColourLoad.RestoredShot or EndingColourLoad.LogoInitial => null,
-        _ => throw new ArgumentOutOfRangeException(nameof(load), load, "Undefined ending colour load."),
+        [EndingColourLoad.Escape] = static backdrops => backdrops.Escape,
+        [EndingColourLoad.Explosion] = static backdrops => backdrops.Explosion,
+        [EndingColourLoad.Credits] = static backdrops => backdrops.Credits,
+        [EndingColourLoad.PostCredits] = static backdrops => backdrops.PostCredits,
+        [EndingColourLoad.ExplosionBackgrounds] = static _ => null,
+        [EndingColourLoad.FinalGunship] = static _ => null,
+        [EndingColourLoad.RestoredShot] = static _ => null,
+        [EndingColourLoad.LogoInitial] = static _ => null,
     });
 
 

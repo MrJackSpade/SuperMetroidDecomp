@@ -90,12 +90,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         GrowingShutterSpawnSettings settings = place.SpawnSettings<GrowingShutterSpawnSettings>();
 
         // The setup selects its first action from what it waits for; the way it grows is the shutter's own.
-        GrowingShutterAction action = settings.Wait switch
-        {
-            GrowingShutterWait.Timer => GrowingShutterAction.WaitForTimer,
-            GrowingShutterWait.SamusNear => GrowingShutterAction.WaitForProximity,
-            _ => throw new InvalidOperationException($"Growing shutter wait {settings.Wait} is not a wait."),
-        };
+        GrowingShutterAction action = settings.Wait == GrowingShutterWait.Timer
+            ? GrowingShutterAction.WaitForTimer : GrowingShutterAction.WaitForProximity;
         // Its sections' origins follow from the spawn row, each one spacing further along the growth.
         var state = new GrowingShutterEnemyState(action, place.Position.Y.Whole, settings.Growth)
         {

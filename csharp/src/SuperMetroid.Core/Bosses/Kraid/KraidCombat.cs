@@ -144,15 +144,7 @@ internal sealed class KraidCombat
                 // reads the mark, forgets it before it tests, so only the body pass's own charged hits arm his mouth's
                 // reopens (#2562).
                 // Every beam takes Kraid's charged-beam response; the other families take their own.
-                EnemyWeaponVulnerability vulnerability = type.Family switch
-                {
-                    SamusProjectileFamily.Beam => EnemyVulnerabilities.Of(body.Definition).ChargedBeam,
-                    SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile or
-                    SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb =>
-                        EnemyCollision.ReadProjectileVulnerability(body, type),
-                    SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion => EnemyWeaponVulnerability.NoDamage,
-                    _ => throw new InvalidOperationException($"Undefined SamusProjectileFamily {type.Family}."),
-                };
+                EnemyWeaponVulnerability vulnerability = MouthVulnerabilities[type.Family](body, type);
                 int damage = vulnerability.DamageFrom(shot.Damage);
                 if (damage != 0)
                 {
@@ -363,17 +355,37 @@ internal sealed class KraidCombat
     /// </summary>
     /// <exception cref="InvalidOperationException">No projectile of the shot's family and delivery damages the mouth.</exception>
     private static KraidMouthHitReach.DamagingHit DamagingMouthHit(KraidBehavior.KraidCollisionShot shot) =>
-        shot.Type.Family switch
+        DamagingMouthHits[shot.Type.Family](shot);
+
+    /// <summary>
+    /// The response of Kraid's mouth to a shot of each family: every beam takes his charged-beam response, an explosion
+    /// does no damage, and the other families take their own.
+    /// </summary>
+    private static IdentityTable<SamusProjectileFamily, Func<RoomEnemyPlace, SamusProjectileType, EnemyWeaponVulnerability>> MouthVulnerabilities => field ??=
+        new(new Dictionary<SamusProjectileFamily, Func<RoomEnemyPlace, SamusProjectileType, EnemyWeaponVulnerability>>
         {
-            SamusProjectileFamily.Beam => !shot.IsPlacedBomb && shot.Type.IsChargedBeam && shot.Type.Echo is null
+            [SamusProjectileFamily.Beam] = static (body, _) => EnemyVulnerabilities.Of(body.Definition).ChargedBeam,
+            [SamusProjectileFamily.Missile] = EnemyCollision.ReadProjectileVulnerability,
+            [SamusProjectileFamily.SuperMissile] = EnemyCollision.ReadProjectileVulnerability,
+            [SamusProjectileFamily.Bomb] = EnemyCollision.ReadProjectileVulnerability,
+            [SamusProjectileFamily.PowerBomb] = EnemyCollision.ReadProjectileVulnerability,
+            [SamusProjectileFamily.BeamExplosion] = static (_, _) => EnemyWeaponVulnerability.NoDamage,
+            [SamusProjectileFamily.MissileExplosion] = static (_, _) => EnemyWeaponVulnerability.NoDamage,
+        });
+
+    /// <summary>The kind of damaging hit a shot of each family makes on the mouth, by how it was delivered.</summary>
+    private static IdentityTable<SamusProjectileFamily, Func<KraidBehavior.KraidCollisionShot, KraidMouthHitReach.DamagingHit>> DamagingMouthHits => field ??=
+        new(new Dictionary<SamusProjectileFamily, Func<KraidBehavior.KraidCollisionShot, KraidMouthHitReach.DamagingHit>>
+        {
+            [SamusProjectileFamily.Beam] = static shot => !shot.IsPlacedBomb && shot.Type.IsChargedBeam && shot.Type.Echo is null
                 ? KraidMouthHitReach.DamagingHit.ChargedBeam : throw CannotDamageMouth(shot),
-            SamusProjectileFamily.Missile => !shot.IsPlacedBomb ? KraidMouthHitReach.DamagingHit.Missile : throw CannotDamageMouth(shot),
-            SamusProjectileFamily.SuperMissile => !shot.IsPlacedBomb ? KraidMouthHitReach.DamagingHit.SuperMissile : throw CannotDamageMouth(shot),
-            SamusProjectileFamily.Bomb => shot.IsPlacedBomb ? KraidMouthHitReach.DamagingHit.PlacedBomb : KraidMouthHitReach.DamagingHit.SpreadBomb,
-            SamusProjectileFamily.PowerBomb => shot.IsPlacedBomb ? KraidMouthHitReach.DamagingHit.PlacedPowerBomb : throw CannotDamageMouth(shot),
-            SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion => throw CannotDamageMouth(shot),
-            _ => throw new InvalidOperationException($"Undefined SamusProjectileFamily {shot.Type.Family}."),
-        };
+            [SamusProjectileFamily.Missile] = static shot => !shot.IsPlacedBomb ? KraidMouthHitReach.DamagingHit.Missile : throw CannotDamageMouth(shot),
+            [SamusProjectileFamily.SuperMissile] = static shot => !shot.IsPlacedBomb ? KraidMouthHitReach.DamagingHit.SuperMissile : throw CannotDamageMouth(shot),
+            [SamusProjectileFamily.Bomb] = static shot => shot.IsPlacedBomb ? KraidMouthHitReach.DamagingHit.PlacedBomb : KraidMouthHitReach.DamagingHit.SpreadBomb,
+            [SamusProjectileFamily.PowerBomb] = static shot => shot.IsPlacedBomb ? KraidMouthHitReach.DamagingHit.PlacedPowerBomb : throw CannotDamageMouth(shot),
+            [SamusProjectileFamily.BeamExplosion] = static shot => throw CannotDamageMouth(shot),
+            [SamusProjectileFamily.MissileExplosion] = static shot => throw CannotDamageMouth(shot),
+        });
 
     /// <summary>The failure of a projectile that cannot damage Kraid's mouth reaching the mouth's damage.</summary>
     private static InvalidOperationException CannotDamageMouth(KraidBehavior.KraidCollisionShot shot) =>

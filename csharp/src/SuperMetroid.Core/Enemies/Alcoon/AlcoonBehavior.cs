@@ -331,10 +331,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SignedSixteenSixteen displacement = state.WalkingDirection switch
         {
-            HorizontalDirection.Left => -AlcoonWalkDefinitions.StrideDistance,
-            HorizontalDirection.Right => AlcoonWalkDefinitions.StrideDistance,
             null => SignedSixteenSixteen.Zero,
-            _ => throw new InvalidOperationException($"Undefined {nameof(HorizontalDirection)} {state.WalkingDirection}."),
+            HorizontalDirection.Left => -AlcoonWalkDefinitions.StrideDistance,
+            _ => AlcoonWalkDefinitions.StrideDistance,
         };
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
         {

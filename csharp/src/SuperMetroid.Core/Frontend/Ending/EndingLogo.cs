@@ -118,12 +118,7 @@ internal sealed class EndingLogo
         {
             if (settled)
                 return;
-            int across = Direction switch
-            {
-                HorizontalDirection.Left => -speed,
-                HorizontalDirection.Right => speed,
-                _ => throw new InvalidOperationException($"Undefined {nameof(HorizontalDirection)} {Direction}."),
-            };
+            int across = Direction == HorizontalDirection.Left ? -speed : speed;
             Offset16<ScreenPixels> moved = Actor.ScreenPlace + new Offset16<ScreenPixels>(across, -across);
             Actor.ScreenPlace = moved;
             // The half lands once it reaches or passes its landing point's X in its own direction.

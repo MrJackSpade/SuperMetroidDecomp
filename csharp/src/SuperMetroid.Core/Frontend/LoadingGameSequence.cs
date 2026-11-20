@@ -19,14 +19,16 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
     /// <inheritdoc/>
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
-    /// <inheritdoc/>
-    public string Name => session.LoadingRoute switch
+    /// <summary>The diagnostic name of each load route, read from the session it runs against.</summary>
+    private static IdentityTable<GameDataLoadRoute, Func<FrontendSession, string>> Names => field ??= new(new Dictionary<GameDataLoadRoute, Func<FrontendSession, string>>
     {
-        GameDataLoadRoute.SelectedGame => session.LoadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
-        GameDataLoadRoute.SavedCheckpoint => $"Loading saved checkpoint ({session.GameLoading.Wait.UpdatesLeft} updates)",
-        GameDataLoadRoute.ZebesLanding => $"Loading Landing Site ({session.GameLoading.Wait.UpdatesLeft} updates)",
-        _ => throw new InvalidOperationException($"Undefined {nameof(GameDataLoadRoute)} {session.LoadingRoute}."),
-    };
+        [GameDataLoadRoute.SelectedGame] = static running => running.LoadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
+        [GameDataLoadRoute.SavedCheckpoint] = static running => $"Loading saved checkpoint ({running.GameLoading.Wait.UpdatesLeft} updates)",
+        [GameDataLoadRoute.ZebesLanding] = static running => $"Loading Landing Site ({running.GameLoading.Wait.UpdatesLeft} updates)",
+    });
+
+    /// <inheritdoc/>
+    public string Name => Names[session.LoadingRoute](session);
 
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => session.ResumesGameLoadingWait;

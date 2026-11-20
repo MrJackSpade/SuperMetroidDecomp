@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -28,19 +29,17 @@ internal static class EndingSpriteSheets
     /// falling Samus draws from <see cref="FallingSamusAndLogo"/> instead.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="family"/> is not an ending family.</exception>
-    internal static SpriteSheetId Of(CinematicSpriteFamily family, EndingReward reward) => family switch
+    internal static SpriteSheetId Of(CinematicSpriteFamily family, EndingReward reward) => family == CinematicSpriteFamily.EndingReward
+        ? Reward(reward)
+        : Ensure.Listed(FamilySheets, family);
+
+    /// <summary>The sheet of each ending family other than the reward's, whose sheet depends on the reward.</summary>
+    private static FrozenDictionary<CinematicSpriteFamily, SpriteSheetId> FamilySheets => field ??= new Dictionary<CinematicSpriteFamily, SpriteSheetId>
     {
-        CinematicSpriteFamily.EndingCloud => Clouds,
-        CinematicSpriteFamily.EndingExplosion or CinematicSpriteFamily.EndingCompletionText
-            or CinematicSpriteFamily.EndingAnimalEscape => Explosion,
-        CinematicSpriteFamily.EndingReward => Reward(reward),
-        CinematicSpriteFamily.EndingLogo => FallingSamusAndLogo,
-        CinematicSpriteFamily.IntroDiscoveryActor or CinematicSpriteFamily.IntroEggEffect or CinematicSpriteFamily.IntroRinka
-            or CinematicSpriteFamily.IntroScientist or CinematicSpriteFamily.IntroMotherBrain
-            or CinematicSpriteFamily.IntroMotherBrainExplosion or CinematicSpriteFamily.IntroCaret
-            or CinematicSpriteFamily.IntroNextPageArrow or CinematicSpriteFamily.CeresFlight
-            or CinematicSpriteFamily.CeresDestruction =>
-            throw new ArgumentOutOfRangeException(nameof(family), family, "Not an ending sprite family."),
-        _ => throw new ArgumentOutOfRangeException(nameof(family), family, "Undefined sprite family."),
-    };
+        [CinematicSpriteFamily.EndingCloud] = Clouds,
+        [CinematicSpriteFamily.EndingExplosion] = Explosion,
+        [CinematicSpriteFamily.EndingCompletionText] = Explosion,
+        [CinematicSpriteFamily.EndingAnimalEscape] = Explosion,
+        [CinematicSpriteFamily.EndingLogo] = FallingSamusAndLogo,
+    }.ToFrozenDictionary();
 }

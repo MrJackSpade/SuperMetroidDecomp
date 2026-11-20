@@ -15,11 +15,6 @@ internal static class FileSelectMainNavigation
         Menus.MenuRowOrder<FileSelectItem> rows = FileSelectItemRows.Main(hasAnySave);
         if (!rows.Contains(selected))
             throw new InvalidDataException($"File-select item {selected} is not currently visible.");
-        return direction switch
-        {
-            VerticalDirection.Down => rows.Below(selected, out _),
-            VerticalDirection.Up => rows.Above(selected, out _),
-            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Not a vertical direction."),
-        };
+        return direction == VerticalDirection.Down ? rows.Below(selected, out _) : rows.Above(selected, out _);
     }
 }

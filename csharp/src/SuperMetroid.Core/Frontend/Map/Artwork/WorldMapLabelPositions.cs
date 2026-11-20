@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
@@ -34,16 +35,17 @@ public sealed class WorldMapLabelPositions
     /// <remarks>The six area identities select layout roles,
     /// not numerical samples. Preserve each imported/custom point without deriving it
     /// from another area or storing a positional lookup. Only the six Zebes areas have labels.</remarks>
-    public Offset16<ScreenPixels> Get(AreaId area) => area switch
+    public Offset16<ScreenPixels> Get(AreaId area) => Ensure.Listed(Labels, area);
+
+    /// <summary>Where each of the six Zebes areas' labels lies; Ceres has none.</summary>
+    private FrozenDictionary<AreaId, Offset16<ScreenPixels>> Labels => field ??= new Dictionary<AreaId, Offset16<ScreenPixels>>
     {
-        AreaId.Crateria => crateria,
-        AreaId.Brinstar => brinstar,
-        AreaId.Norfair => norfair,
-        AreaId.WreckedShip => wreckedShip,
-        AreaId.Maridia => maridia,
-        AreaId.Tourian => tourian,
-        AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(area), area, "Ceres has no world-map label."),
-        _ => throw new ArgumentOutOfRangeException(nameof(area), area, "Undefined area."),
-    };
+        [AreaId.Crateria] = crateria,
+        [AreaId.Brinstar] = brinstar,
+        [AreaId.Norfair] = norfair,
+        [AreaId.WreckedShip] = wreckedShip,
+        [AreaId.Maridia] = maridia,
+        [AreaId.Tourian] = tourian,
+    }.ToFrozenDictionary();
 
 }

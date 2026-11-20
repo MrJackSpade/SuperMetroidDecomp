@@ -37,12 +37,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateSpawnSettings settings = place.SpawnSettings<WallSpacePirateSpawnSettings>();
         // Angles are 256ths of a turn. A slow jump turns fewer steps a frame for longer than a fast one, which ends a
         // little further round.
-        WallSpacePirateJump jump = settings.JumpSpeed switch
-        {
-            WallSpacePirateJumpSpeed.Slow => SpacePirateMotionDefinitions.SlowWallJump,
-            WallSpacePirateJumpSpeed.Fast => SpacePirateMotionDefinitions.FastWallJump,
-            _ => throw new InvalidDataException($"Undefined {nameof(WallSpacePirateJumpSpeed)} {settings.JumpSpeed}."),
-        };
+        WallSpacePirateJump jump = settings.JumpSpeed == WallSpacePirateJumpSpeed.Slow
+            ? SpacePirateMotionDefinitions.SlowWallJump : SpacePirateMotionDefinitions.FastWallJump;
         var state = new WallSpacePirateEnemyState(WallSpacePirateAction.Climbing, settings.Wall, jump);
         place.SetSpeciesState(state);
 
@@ -181,19 +177,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>The animation of <paramref name="climb"/>: the way it climbs, on the wall it clings to.</summary>
-    private static WallSpacePirateSegment ClimbAnimation(WallSpacePirateClimb climb) => climb switch
-    {
-        (HorizontalDirection.Left, WallSpacePirateClimbDirection.Down) =>
-            WallSpacePirateSegment.MovingDownLeftWall,
-        (HorizontalDirection.Left, WallSpacePirateClimbDirection.Up) =>
-            WallSpacePirateSegment.MovingUpLeftWall,
-        (HorizontalDirection.Right, WallSpacePirateClimbDirection.Down) =>
-            WallSpacePirateSegment.MovingDownRightWall,
-        (HorizontalDirection.Right, WallSpacePirateClimbDirection.Up) =>
-            WallSpacePirateSegment.MovingUpRightWall,
-        _ => throw new InvalidOperationException(
-            $"Wall Pirate climb {climb} names no wall or climb direction."),
-    };
+    private static WallSpacePirateSegment ClimbAnimation(WallSpacePirateClimb climb) => climb.Wall == HorizontalDirection.Left
+        ? (climb.Direction == WallSpacePirateClimbDirection.Down ? WallSpacePirateSegment.MovingDownLeftWall : WallSpacePirateSegment.MovingUpLeftWall)
+        : (climb.Direction == WallSpacePirateClimbDirection.Down ? WallSpacePirateSegment.MovingDownRightWall : WallSpacePirateSegment.MovingUpRightWall);
 
     /// <summary>Captures the wall-to-wall destination, arc center, and starting angle from the jump span.</summary>
     private static void PrepareWallSpacePirateJump(

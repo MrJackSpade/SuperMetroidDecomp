@@ -53,21 +53,18 @@ public sealed class KraidEnemyState
     private KraidNailState SecondNailState { get; }
 
     /// <summary>His lint <paramref name="part"/>'s own state.</summary>
-    internal KraidLintState Lint(KraidLintPart part) => part switch
+    internal KraidLintState Lint(KraidLintPart part) => LintStates[part](this);
+
+    /// <summary>Each lint part's own state.</summary>
+    private static IdentityTable<KraidLintPart, Func<KraidEnemyState, KraidLintState>> LintStates => field ??= new(new Dictionary<KraidLintPart, Func<KraidEnemyState, KraidLintState>>
     {
-        KraidLintPart.Top => TopLintState,
-        KraidLintPart.Middle => MiddleLintState,
-        KraidLintPart.Bottom => BottomLintState,
-        _ => throw new InvalidOperationException($"Undefined {nameof(KraidLintPart)} {part}."),
-    };
+        [KraidLintPart.Top] = static kraid => kraid.TopLintState,
+        [KraidLintPart.Middle] = static kraid => kraid.MiddleLintState,
+        [KraidLintPart.Bottom] = static kraid => kraid.BottomLintState,
+    });
 
     /// <summary>His fingernail <paramref name="part"/>'s own state.</summary>
-    internal KraidNailState Nail(KraidNailPart part) => part switch
-    {
-        KraidNailPart.First => FirstNailState,
-        KraidNailPart.Second => SecondNailState,
-        _ => throw new InvalidOperationException($"Undefined {nameof(KraidNailPart)} {part}."),
-    };
+    internal KraidNailState Nail(KraidNailPart part) => part == KraidNailPart.First ? FirstNailState : SecondNailState;
 
     /// <summary>His three lints' own states, top first.</summary>
     internal IEnumerable<KraidLintState> Lints => [TopLintState, MiddleLintState, BottomLintState];

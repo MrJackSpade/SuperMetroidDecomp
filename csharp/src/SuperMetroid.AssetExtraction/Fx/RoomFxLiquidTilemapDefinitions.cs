@@ -20,7 +20,7 @@ public static class RoomFxLiquidTilemapDefinitions
         ValidateType(type);
         if ((uint)index >= RoomFxLayer3TilemapFormat.CellsPerPage)
             throw new ArgumentOutOfRangeException(nameof(index));
-        int row = index / 32, column = index % 32;
+        int row = index / RoomFxLayer3TilemapFormat.WidthInTiles, column = index % RoomFxLayer3TilemapFormat.WidthInTiles;
         bool blank = type != RoomFxType.Lava && row == 0;
         int character;
         if (blank) character = 78;

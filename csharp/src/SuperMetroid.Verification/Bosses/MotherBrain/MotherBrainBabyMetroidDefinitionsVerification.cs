@@ -58,15 +58,16 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
 
         enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
 
-        RoomEnemyPlace baby = lateFight.Baby.Place ??
+        BabyMetroidCutsceneState madeBaby = lateFight.Baby ??
             throw new InvalidDataException("Mother Brain Baby allocator produced no physical slot.");
+        RoomEnemyPlace baby = madeBaby.Place;
         AssertEqual(1, baby.Ordinal, "Mother Brain Baby first free physical slot");
         AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,
             baby.HeldOccupant().DefinitionId,
             "Mother Brain Baby physical definition");
         AssertEqual(population, baby.HeldOccupant().Spawn,
             "Mother Brain Baby retained population snapshot");
-        AssertTrue(ReferenceEquals(lateFight.Baby, baby.SpeciesState<BabyMetroidCutsceneState>()),
+        AssertTrue(ReferenceEquals(madeBaby, baby.SpeciesState<BabyMetroidCutsceneState>()),
             "Mother Brain Baby's place holds the Baby its late fight made");
         AssertEqual(2, enemies.Places.EnemyCount,
             "Mother Brain Baby extended physical enemy high-water mark");

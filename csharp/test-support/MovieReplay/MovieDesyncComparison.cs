@@ -117,7 +117,7 @@ internal static class MovieDesyncComparison
                     $"pos={Native(slotBase + 2)}.{Native(slotBase + 4)}/{Native(slotBase + 6)}.{Native(slotBase + 8)}");
             }
         }
-        if (game.RuntimeForVerification?.Enemies.BossEncounters.MotherBrain?.RainbowBeamSequence?.Baby is { Place: not null } baby)
+        if (game.RuntimeForVerification?.Enemies.BossEncounters.MotherBrain?.RainbowBeamSequence?.Baby is { } baby)
         {
             // Baby Metroid cutscene actor: $0FA8+$40n function words; velocities at +2/+4.
             Console.WriteLine($"  baby port   pos={baby.Position.X.Whole:X4}.{baby.Position.X.Fraction:X4}/{baby.Position.Y.Whole:X4}.{baby.Position.Y.Fraction:X4} v={baby.Velocity.X.RawValue:X4}/{baby.Velocity.Y.RawValue:X4}");

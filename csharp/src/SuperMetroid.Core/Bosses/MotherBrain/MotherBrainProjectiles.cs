@@ -536,9 +536,9 @@ internal sealed class MotherBrainProjectiles
 
             ring.Position = ring.Position.Advance(ring.Velocity.ToDisplacement());
 
-            // The rings meet the Baby once her late fight's final beam has given it its place in the room, until it deletes
-            // itself.
-            if (state.RainbowBeamSequence is { Baby: { Place: not null, IsDeleted: false } baby })
+            // The rings meet the Baby once her late fight's final beam has made it in its place in the room, until it
+            // deletes itself.
+            if (state.RainbowBeamSequence is { Baby: { IsDeleted: false } baby })
             {
                 // The ring deletes every later ring as soon as the still-registered Baby
                 // reaches zero health, without an explosion.

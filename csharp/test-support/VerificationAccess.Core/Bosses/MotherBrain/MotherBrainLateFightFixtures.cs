@@ -23,14 +23,16 @@ internal static class MotherBrainLateFightFixtures
     }
 
     /// <summary>
-    /// Gives <paramref name="baby"/> a standalone place that holds <paramref name="leftInPlace"/> from its previous occupant,
-    /// as the final beam's spawn does, and initializes the Baby there (#2572): its position and health live in the place.
+    /// Makes <paramref name="lateFight"/>'s Baby in a standalone place that holds <paramref name="leftInPlace"/> from its
+    /// previous occupant, as the final beam's spawn does, and initializes the Baby there (#2572): its position and health
+    /// live in the place.
     /// </summary>
-    internal static RoomEnemyPlace Arrive(BabyMetroidCutsceneState baby, FixedPosition<RoomPixels> leftInPlace)
+    internal static BabyMetroidCutsceneState Arrive(MotherBrainRainbowBeamAttackSequence lateFight, FixedPosition<RoomPixels> leftInPlace)
     {
         var place = new RoomEnemyPlace(2, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = leftInPlace };
-        Ensure.NotNull(baby).Arrive(place);
-        return place;
+        BabyMetroidCutsceneState baby = Ensure.NotNull(lateFight).MakeBaby(place);
+        baby.Arrive();
+        return baby;
     }
 
     /// <summary>

@@ -271,8 +271,13 @@ internal sealed class MotherBrainHead
         switch (cue)
         {
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid }:
-                AimMotherBrainOnionRingsAt(lateFight.Encounter, lateFight.Baby.Position.Whole);
+            {
+                // Her brain plays its attack on the Baby only once the final beam's spawn has made it.
+                BabyMetroidCutsceneState baby = lateFight.Baby ??
+                    throw new InvalidOperationException("Mother Brain's brain aimed its onion rings at a Baby the final beam's spawn never made.");
+                AimMotherBrainOnionRingsAt(lateFight.Encounter, baby.Position.Whole);
                 return null;
+            }
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.CountBabyMetroidAttack }:
                 lateFight.IncrementLiveBabyMetroidAttackCounter();
                 return null;
@@ -364,8 +369,11 @@ internal sealed class MotherBrainHead
         RoomEnemyPlace head = state.Head;
         state.NeckMovementEnabled = false;
 
-        // The laser leaves her mouth, right of and below her head, travelling right. It deals Mother Brain's contact
-        // damage, her body's definition's, as her brain's and neck's touches do, at her laser's speed.
+        // The laser leaves her mouth, right of and below her head, travelling right, at her laser's speed. Her brain fires
+        // it while it is drawn, after every enemy of the room has been drawn, and the laser takes the damage of the enemy
+        // drawn last. Only her phase-two fight fires it, when her body is the one enemy the room draws: her brain is drawn
+        // apart from the room's enemies, and her Rinkas are gone. So it deals her body's definition's damage, whatever an
+        // installation gives it.
         EnemyProjectile? laser = _roomActors.SpawnPirateLaser(
             state.BodyOccupant,
             head.Position.Whole + MotherBrainFightDefinitions.BeamOffset,

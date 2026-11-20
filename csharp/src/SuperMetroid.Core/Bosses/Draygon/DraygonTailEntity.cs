@@ -11,11 +11,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonTailEntity(DraygonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : DraygonEntity(species, place, common, bossArtwork)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.Parts.InitializeDraygonTail(Place);
-
-    /// <summary>The tail's part of the encounter it joined as it set up.</summary>
-    internal override DraygonPart Part => Place.RequireSpeciesState<DraygonPart>();
+    /// <summary>The tail' part of the encounter, which it joins as it is built (#2554).</summary>
+    internal override DraygonPart Part { get; } = species.Parts.InitializeDraygonTail(place);
 
     /// <summary>Takes no action of its own; his body's fight animates the tail.</summary>
     /// <param name="frame">The enemy frame.</param>

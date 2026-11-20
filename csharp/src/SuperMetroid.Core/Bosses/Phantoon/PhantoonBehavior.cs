@@ -81,7 +81,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Sets Phantoon's body up when the room spawns it: it begins the encounter with his eye, tentacles and mouth, which
     /// his room lists right after his body (#2252), and holds its part of it.
     /// </summary>
-    internal void InitializePhantoonBody(RoomEnemyPlace body)
+    internal PhantoonPart InitializePhantoonBody(RoomEnemyPlace body)
     {
         RoomEnemyPlace[] parts = _places.ListedRunAfter(body, PhantoonPartListingDefinitions.PartsAfterBody);
         var state = new PhantoonEnemyState(body, eye: parts[0], tentacles: parts[1], mouth: parts[2]);
@@ -102,11 +102,11 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         StartPhantoonPart(state.BodyPart);
         // The body starts asking for no flame rain; no reader consumes it before a phase sets it (#1472).
         state.NextPattern = PhantoonPatternChoice.FigureEight;
-        body.SetSpeciesState(state.BodyPart);
         // The encounter starts asking to hide his body, with no casual-flame burst, which the fight only starts much later;
         // his parts set up in the same pass, before anything reads either.
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Hide;
         state.CasualFlames.NextFlame = null;
+        return state.BodyPart;
     }
 
     /// <summary>
@@ -114,35 +114,32 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the part, began (#2252).
     /// </summary>
     private PhantoonEnemyState JoiningEncounter(RoomEnemyPlace part, int placesAfterBody) =>
-        _places.ListedBefore(part, placesAfterBody).RequireSpeciesState<PhantoonPart>().Phantoon;
+        EnemyPartners.Listed<PhantoonBodyEntity>(_places.ListedBefore(part, placesAfterBody)).Part.Phantoon;
 
     /// <summary>Sets Phantoon's eye up, listed right after his body, closed; its start ends any wave.</summary>
-    internal void InitializePhantoonEye(RoomEnemyPlace eye)
+    internal PhantoonPart InitializePhantoonEye(RoomEnemyPlace eye)
     {
         PhantoonEnemyState state = JoiningEncounter(eye, PhantoonPartListingDefinitions.EyePlacesAfterBody);
         StartPhantoonPart(state.EyePart);
         state.Wave.Length = null;
-        JoinPhantoon(state.EyePart);
+        return state.EyePart;
     }
 
     /// <summary>Sets Phantoon's tentacles up, listed after his eye.</summary>
-    internal void InitializePhantoonTentacles(RoomEnemyPlace tentacles)
+    internal PhantoonPart InitializePhantoonTentacles(RoomEnemyPlace tentacles)
     {
         PhantoonEnemyState state = JoiningEncounter(tentacles, PhantoonPartListingDefinitions.TentaclesPlacesAfterBody);
         StartPhantoonPart(state.TentaclesPart);
-        JoinPhantoon(state.TentaclesPart);
+        return state.TentaclesPart;
     }
 
     /// <summary>Sets Phantoon's mouth up, listed after his tentacles.</summary>
-    internal void InitializePhantoonMouth(RoomEnemyPlace mouth)
+    internal PhantoonPart InitializePhantoonMouth(RoomEnemyPlace mouth)
     {
         PhantoonEnemyState state = JoiningEncounter(mouth, PhantoonPartListingDefinitions.MouthPlacesAfterBody);
         StartPhantoonPart(state.MouthPart);
-        JoinPhantoon(state.MouthPart);
+        return state.MouthPart;
     }
-
-    /// <summary>Ends a drawing part's setup: the part holds its part of the encounter.</summary>
-    private static void JoinPhantoon(PhantoonPart part) => part.Place.SetSpeciesState(part);
 
     /// <summary>
     /// Gives a drawing part the body's colours and runs the animation it was made playing (#2319), its first step on the

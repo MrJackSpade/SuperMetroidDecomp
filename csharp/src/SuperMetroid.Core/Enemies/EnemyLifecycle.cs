@@ -80,6 +80,10 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     void IEnemyLifecycle.SetUpSpawnedEnemy(RoomEnemyPlace place) => SetUpSpawnedEnemy(place);
 
     /// <inheritdoc/>
+    void IEnemyLifecycle.SetUpJoiningEnemy<TEncounter>(RoomEnemyPlace place, TEncounter encounter) =>
+        Ensure.NotNull(place).SetUp(new EnemySetup.Joining<TEncounter>(Ensure.NotNull(encounter)));
+
+    /// <inheritdoc/>
     RoomEnemyPlace? IEnemyLifecycle.SpawnEnemyJoining<TEncounter>(RoomEnemyPlacement population, TEncounter encounter) =>
         Spawn(population, new EnemySetup.Joining<TEncounter>(Ensure.NotNull(encounter)));
 

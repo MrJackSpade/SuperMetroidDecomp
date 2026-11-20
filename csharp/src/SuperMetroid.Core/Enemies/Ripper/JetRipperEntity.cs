@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 internal sealed class JetRipperEntity(RipperBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : RipperEntity(species, place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => RipperBehavior.InitializeJetRipper(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal override RipperEnemyState State { get; } = RipperBehavior.InitializeJetRipper(place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunJetRipperMainAi(Place, frame);

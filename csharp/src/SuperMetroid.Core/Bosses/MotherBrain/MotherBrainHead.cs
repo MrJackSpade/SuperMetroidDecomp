@@ -50,7 +50,7 @@ internal sealed class MotherBrainHead
     internal MotherBrainEnemyState InitializeMotherBrainHead(RoomEnemyPlace head)
     {
         // The head joins the encounter her body, listed right before it, began; it holds it from here (#2218).
-        MotherBrainEnemyState state = _places.ListedBefore(head, 1).RequireSpeciesState<MotherBrainEnemyState>();
+        MotherBrainEnemyState state = EnemyPartners.Listed<MotherBrainBodyEntity>(_places.ListedBefore(head, 1)).State;
 
         head.Health = MotherBrainFightDefinitions.FirstPhaseHealth;
         // The head shows her brain's hit area from its next animation update on (#2220); the visible brain runs a

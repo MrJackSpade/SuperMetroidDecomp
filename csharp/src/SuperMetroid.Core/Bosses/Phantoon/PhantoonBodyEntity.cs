@@ -15,7 +15,8 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlac
     : PhantoonEntity(species, place, common, bossArtwork), IEnemyContactHooks, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public override void Initialize() => Species.InitializePhantoonBody(Place);
+    /// <remarks>The part sets up as it is built, joining the encounter (#2554).</remarks>
+    internal override PhantoonPart Part { get; } = species.InitializePhantoonBody(place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunPhantoonBodyMainAi(Encounter, frame);

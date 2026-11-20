@@ -45,7 +45,7 @@ internal sealed class KraidParts
     /// sets up (#2420).
     /// </summary>
     /// <exception cref="InvalidOperationException">His body has not set up.</exception>
-    internal KraidEnemyState Encounter => Body.RequireSpeciesState<KraidPartState>().Kraid;
+    internal KraidEnemyState Encounter => EnemyPartners.Listed<KraidBodyEntity>(Body).Encounter;
 
     /// <summary>His arm.</summary>
     internal RoomEnemyPlace Arm => ArmReference.Place;

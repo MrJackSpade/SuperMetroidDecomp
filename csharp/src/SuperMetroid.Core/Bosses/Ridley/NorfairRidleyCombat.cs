@@ -48,15 +48,17 @@ internal sealed class NorfairRidleyCombat
     /// <summary>
     /// Sets Lower Norfair Ridley up and begins his encounter, which his body holds from then on
     /// (#2231). A defeated Ridley is deleted before any encounter, workspace or colour side effects, matching the
-    /// defeated-boss gate, and begins none; a live fight begins with Ridley below the visible arena.
+    /// defeated-boss gate, and begins none: he holds the encounter he would have begun, which nothing reads before his
+    /// deletion. A live fight begins with Ridley below the visible arena.
     /// </summary>
-    internal void InitializeNorfairRidley(RoomEnemyPlace place)
+    internal NorfairRidleyState InitializeNorfairRidley(RoomEnemyPlace place)
     {
+        var ridley = new NorfairRidleyState { MovementAnimationEnabled = true };
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
             place.Presence = place.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
-            return;
+            return ridley;
         }
         place.CollidesByFrameHitboxes = true;
 
@@ -65,14 +67,13 @@ internal sealed class NorfairRidleyCombat
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         place.Position = place.Position.WithWhole(NorfairRidleyArenaDefinitions.Spawn);
 
-        var ridley = new NorfairRidleyState { MovementAnimationEnabled = true };
-        place.SetSpeciesState(ridley);
         _ridleyEncounter.BeginLowerNorfair();
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Standing);
 
         // He arrives in his own colours, his body and tail hidden in black, and his arena hidden for its reveal.
         ridley.Colours.ShowNorfairArrival();
         _presentation.BossShadings.Show(BossShadingLayer.Ridley, ridley.Colours);
+        return ridley;
     }
 
     /// <summary>Lower Norfair Ridley's lift-off hands control to the fight: he flies into the arena.</summary>

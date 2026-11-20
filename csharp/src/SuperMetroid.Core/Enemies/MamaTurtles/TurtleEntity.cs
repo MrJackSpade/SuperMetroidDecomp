@@ -9,13 +9,10 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// <param name="place">The place the turtle occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal abstract class TurtleEntity(MamaTurtleBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The mama turtle species owner.</summary>
     protected MamaTurtleBehavior Species => species;
-
-    /// <inheritdoc/>
-    public abstract void Initialize();
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);

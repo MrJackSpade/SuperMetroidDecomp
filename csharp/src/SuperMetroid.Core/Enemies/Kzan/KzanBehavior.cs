@@ -18,7 +18,12 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         if (definition == EnemyDefinitionId.KzanTop)
             return new KzanTopEntity(this, place, common);
         if (definition == EnemyDefinitionId.KzanBottom)
-            return new KzanBottomEntity(this, place, common);
+        {
+            // The bottom follows the top listed before it as it is built (#2554).
+            var bottom = new KzanBottomEntity(this, place, common);
+            InitializeKzanBottom(place);
+            return bottom;
+        }
         throw new InvalidOperationException($"The Kzan species creates no {place.DefinitionId}.");
     }
 

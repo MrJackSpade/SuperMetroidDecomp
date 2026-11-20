@@ -17,7 +17,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroidCutscene];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BabyMetroidCutsceneEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BabyMetroidCutsceneEntity(this, place, common, setup);
 
     /// <summary>Initializes the dynamically allocated Baby through the ordinary enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;
@@ -70,8 +70,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
         _lifecycle.InitializePlaceFromDefinition(babyPlace, population, definition);
         // The Baby's place holds the Baby its late fight made from its setup (#2218, #2471).
-        babyPlace.SetSpeciesState(baby);
-        _lifecycle.SetUpSpawnedEnemy(babyPlace);
+        _lifecycle.SetUpJoiningEnemy(babyPlace, baby);
 
         // Spawning leaves the Baby undrawn after its setup while it animates.
         // Its animation is still live and shows its first visible frame on its first
@@ -83,9 +82,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Sets the Baby up and starts its first animation and fifteen nontransparent colors.</summary>
-    internal static void InitializeMotherBrainBabyMetroid(RoomEnemyPlace place)
+    internal static BabyMetroidCutsceneState InitializeMotherBrainBabyMetroid(RoomEnemyPlace place, BabyMetroidCutsceneState baby)
     {
-        BabyMetroidCutsceneState baby = place.RequireSpeciesState<BabyMetroidCutsceneState>();
+        Ensure.NotNull(baby);
         MotherBrainEnemyState state = baby.LateFight.Encounter;
         // The place keeps its previous occupant's fractions, which the Baby starts from (BabyMetroidArrivalFractions).
         baby.Arrive(place);
@@ -100,6 +99,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         // The Baby arrives in its own colours; where it is transparent the room's backdrop shows.
         ShowBabyMetroidArrival(state.Colours);
+        return baby;
     }
 
     /// <summary>Lays the Baby's start colours, which leave the transparent colour untouched.</summary>

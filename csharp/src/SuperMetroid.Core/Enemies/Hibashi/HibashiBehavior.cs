@@ -48,11 +48,11 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the collision part, which holds the one-frame hitbox animation.</summary>
-    internal static void InitializeHibashiCollisionPart(RoomEnemyPlace place) =>
-        place.SetSpeciesState(new HibashiCollisionPartState
+    internal static HibashiCollisionPartState InitializeHibashiCollisionPart(RoomEnemyPlace place) =>
+        new HibashiCollisionPartState
         {
             Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Hitbox)),
-        });
+        };
 
     /// <summary>
     /// Initializes the flame: it sets up its first wait (<see cref="HibashiDefinitions.FirstWait"/>) and the collision part

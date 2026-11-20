@@ -26,7 +26,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BabyMetroidEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BabyMetroidEntity(this, place, common, setup);
 
     /// <summary>Provides the room's enemy session, room scroll values, RNG, and installed encounter colors.</summary>
     private readonly EnemyRoomBinding _room;
@@ -58,7 +58,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Sets the Baby Metroid up when the room spawns it.</summary>
-    internal static void InitializeBabyMetroid(RoomEnemyPlace place, int cameraX)
+    internal static BabyMetroidEnemyState InitializeBabyMetroid(RoomEnemyPlace place, int cameraX)
     {
         // The Baby Metroid stops the Plasma Beam and animates.
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
@@ -78,11 +78,11 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             place.Presence = place.Presence.With(EnemyPresence.Hidden);
         }
         state.ReactsToSamus = false;
-        place.SetSpeciesState(state);
         // The entry's colours are where the room's colours fade to, and they show from the start: the Baby Metroid and
         // its victim in the entry's colours (#1512), and the drained corpses in theirs, which the corpses' own setup
         // shows.
         place.Shading = state.Shading;
+        return state;
     }
 
     /// <summary>Runs the Baby Metroid's main AI for one update.</summary>
@@ -707,10 +707,8 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         ResolveBabyMetroidShot(c.Enemy, c.Bomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots));
 
     /// <summary>Runs Baby Metroid's initialization AI.</summary>
-    internal static void SetUpBabyMetroid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
+    internal static BabyMetroidEnemyState SetUpBabyMetroid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
         InitializeBabyMetroid(place, surroundings.Camera.X);
-    }
 
     /// <summary>Runs Baby Metroid's main AI.</summary>
     internal void RunBabyMetroidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

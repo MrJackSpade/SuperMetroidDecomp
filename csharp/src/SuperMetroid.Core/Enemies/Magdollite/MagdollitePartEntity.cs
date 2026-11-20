@@ -13,9 +13,6 @@ internal abstract class MagdollitePartEntity(MagdolliteBehavior species, RoomEne
     /// <summary>The Magdollite species owner.</summary>
     private protected MagdolliteBehavior Species => species;
 
-    /// <summary>The part's state, once the part has been placed.</summary>
-    internal abstract MagdollitePartState? State { get; }
-
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);
 

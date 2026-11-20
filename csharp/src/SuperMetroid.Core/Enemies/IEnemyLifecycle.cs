@@ -19,6 +19,12 @@ internal interface IEnemyLifecycle
     void SetUpSpawnedEnemy(RoomEnemyPlace place);
 
     /// <summary>
+    /// Builds the enemy for <paramref name="place"/>, spawned on another enemy's behalf, joining <paramref name="encounter"/>,
+    /// which it holds from its setup.
+    /// </summary>
+    void SetUpJoiningEnemy<TEncounter>(RoomEnemyPlace place, TEncounter encounter) where TEncounter : class;
+
+    /// <summary>
     /// Installs <paramref name="population"/> in the first free place, giving the new occupant <paramref name="encounter"/>,
     /// the encounter it joins, as its species state before its initialization runs, so it holds the encounter from its setup
     /// (#2218); then runs its initialization AI, starts its animation when it runs one and extends the live enemy range.

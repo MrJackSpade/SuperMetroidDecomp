@@ -4,11 +4,21 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// <param name="species">The Gunship species owner.</param>
 /// <param name="place">The place the top hull occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class GunshipTopEntity(GunshipBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation
+/// <param name="setup">How the enemy comes to be set up, whose surroundings its initialization reads.</param>
+internal sealed class GunshipTopEntity(GunshipBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeGunshipTop(Place, surroundings.Samus);
+    /// <summary>The top hull as its setup builds it, as the hull is built (#2554).</summary>
+    private readonly GunshipTop _top = species.InitializeGunshipTop(place, setup.SurroundingsOf(place).Samus);
+
+    /// <summary>The state of the whole ship, which the top hull moves.</summary>
+    internal GunshipState Ship => _top.Ship;
+
+    /// <summary>The top hull's animation.</summary>
+    internal GunshipPieceState Piece => _top.Piece;
+
+    /// <summary>The ship's three pieces.</summary>
+    internal GunshipPieces Pieces => _top.Pieces;
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunGunshipMainAi(Place, frame);

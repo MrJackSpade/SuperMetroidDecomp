@@ -11,11 +11,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonEyeEntity(DraygonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : DraygonEntity(species, place, common, bossArtwork)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.Parts.InitializeDraygonEye(Place);
-
-    /// <summary>The eye's part of the encounter it joined as it set up.</summary>
-    internal override DraygonPart Part => Place.RequireSpeciesState<DraygonPart>();
+    /// <summary>The eye's part of the encounter, which it joins as it is built (#2554).</summary>
+    internal override DraygonPart Part { get; } = species.Parts.InitializeDraygonEye(place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.Parts.RunDraygonEyeMain(Encounter, Ensure.NotNull(frame).Samus);

@@ -11,11 +11,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonArmsEntity(DraygonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : DraygonEntity(species, place, common, bossArtwork)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.Parts.InitializeDraygonArms(Place);
-
-    /// <summary>The arms' part of the encounter they joined as they set up.</summary>
-    internal override DraygonPart Part => Place.RequireSpeciesState<DraygonPart>();
+    /// <summary>The arms' part of the encounter, which it joins as it is built (#2554).</summary>
+    internal override DraygonPart Part { get; } = species.Parts.InitializeDraygonArms(place);
 
     /// <summary>Takes no action of their own; his body's fight animates the arms.</summary>
     /// <param name="frame">The enemy frame.</param>

@@ -59,24 +59,19 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Initializes the dead Sidehopper.</summary>
-    internal void InitializeDeadSidehopper(RoomEnemyPlace place)
+    internal DeadSidehopperEnemyState InitializeDeadSidehopper(RoomEnemyPlace place)
     {
         DeadSidehopperLayout layout = place.SpawnSettings<DeadSidehopperSpawnSettings>().Layout;
-        switch (layout)
+        return layout switch
         {
-            case DeadSidehopperLayout.BabyMetroidVictim:
-                InitializeBabyMetroidVictimSidehopper(place);
-                break;
-            case DeadSidehopperLayout.AlreadyDead:
-                InitializeAlreadyDeadSidehopper(place);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DeadSidehopperLayout)} {layout}.");
-        }
+            DeadSidehopperLayout.BabyMetroidVictim => InitializeBabyMetroidVictimSidehopper(place),
+            DeadSidehopperLayout.AlreadyDead => InitializeAlreadyDeadSidehopper(place),
+            _ => throw new InvalidOperationException($"Undefined {nameof(DeadSidehopperLayout)} {layout}."),
+        };
     }
 
     /// <summary>Runs the Baby Metroid victim layout.</summary>
-    private void InitializeBabyMetroidVictimSidehopper(RoomEnemyPlace place)
+    private DeadSidehopperEnemyState InitializeBabyMetroidVictimSidehopper(RoomEnemyPlace place)
     {
         // The victim stops being solid to Samus and is processed off screen; the other contact and processing
         // properties the room's population gave it stay as they were, which is observable.
@@ -95,23 +90,23 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         state.DrainStage = SidehopperDrainStage.Untouched;
         place.Shading = state.Shading;
         state.Velocity = DeadSidehopperLaunchDefinitions.FirstHop;
+        return state;
     }
 
     /// <summary>Lays out a Sidehopper corpse placed already dead, drained from the start and waiting for Samus to touch it.</summary>
-    private static void InitializeAlreadyDeadSidehopper(RoomEnemyPlace place)
+    private static DeadSidehopperEnemyState InitializeAlreadyDeadSidehopper(RoomEnemyPlace place)
     {
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(place, DeadSidehopperAction.WaitForSamusCollision);
         SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperInitiallyDead);
         state.DrainStage = null;
         place.Shading = state.Shading;
+        return state;
     }
 
     /// <summary>Allocates place state with the corpse's own rot schedule, its own rows and its first action.</summary>
     private static DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(RoomEnemyPlace place, DeadSidehopperAction action)
     {
-        var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), action);
-        place.SetSpeciesState(state);
-        return state;
+        return new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), action);
     }
 
     /// <summary>Runs the dead Sidehopper's main AI.</summary>

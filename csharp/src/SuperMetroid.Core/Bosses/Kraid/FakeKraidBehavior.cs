@@ -15,7 +15,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FakeKraid];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new FakeKraidEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new FakeKraidEntity(this, place, common, setup);
 
     /// <summary>Provides the existing random number sampled for Fake Kraid's action decisions.</summary>
     private readonly EnemyRoomBinding _room;
@@ -87,10 +87,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Sets Fake Kraid up when the room spawns it.</summary>
-    internal void InitializeFakeKraid(RoomEnemyPlace place, SamusState samus)
+    internal FakeKraidEnemyState InitializeFakeKraid(RoomEnemyPlace place, SamusState samus)
     {
         var state = new FakeKraidEnemyState();
-        place.SetSpeciesState(state);
 
         // The action choice reads the already-published random number; it does not advance
         // the RNG.
@@ -110,6 +109,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(towardSamus == HorizontalDirection.Right
             ? FakeKraidSegment.StepForwardsFacingRight
             : FakeKraidSegment.StepForwardsFacingLeft), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>The side Samus stands on from Fake Kraid: right only when she stands right of him.</summary>
@@ -369,10 +369,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Fake Kraid's initialization AI.</summary>
-    internal void SetUpFakeKraid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
+    internal FakeKraidEnemyState SetUpFakeKraid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
         InitializeFakeKraid(place, surroundings.Samus);
-    }
 
     /// <summary>Runs Fake Kraid's main AI.</summary>
     internal void RunFakeKraidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

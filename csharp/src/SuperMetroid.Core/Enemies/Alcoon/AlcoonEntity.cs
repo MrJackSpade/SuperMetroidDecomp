@@ -4,11 +4,12 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// <param name="species">The Alcoon species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class AlcoonEntity(AlcoonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation
+/// <param name="setup">How the enemy comes to be set up, whose surroundings its initialization reads.</param>
+internal sealed class AlcoonEntity(AlcoonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => species.SetUpAlcoon(Place, surroundings);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal AlcoonEnemyState State { get; } = species.SetUpAlcoon(place, setup.SurroundingsOf(place));
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunAlcoonMainAi(Place, frame);

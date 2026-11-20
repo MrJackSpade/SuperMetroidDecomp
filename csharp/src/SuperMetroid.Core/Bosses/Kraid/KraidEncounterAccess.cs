@@ -61,21 +61,14 @@ internal sealed class KraidEncounterAccess
     }
 
     /// <summary>
-    /// Installs <paramref name="part"/>'s state for the part's occupant of its place; the encounter keeps it across the
-    /// part's kills and respawns.
-    /// </summary>
-    internal static void AttachKraidPart(KraidPartState part) => Ensure.NotNull(part).Place.SetSpeciesState(part);
-
-    /// <summary>
     /// The <typeparamref name="TPart"/> part another of Kraid's parts finds when it reads <paramref name="place"/>
-    /// (<see cref="RoomEnemyPlace.FoundState{T}"/>): the part every one of his parts is attached as, or null when the place
-    /// reads as holding none.
+    /// (<see cref="RoomEnemyPlace.FoundEnemy"/>): the part every one of his parts holds, or null when the place reads as
+    /// holding none.
     /// </summary>
     /// <exception cref="InvalidDataException">The place holds another kind of Kraid part.</exception>
     internal static TPart? FoundKraidPart<TPart>(RoomEnemyPlace place) where TPart : KraidPartState =>
-        Ensure.NotNull(place).FoundState<KraidPartState>() switch
+        Ensure.NotNull(place).FoundEnemy is not KraidEntity found ? null : found.PartState switch
         {
-            null => null,
             TPart part => part,
             KraidPartState other => throw new InvalidDataException(
                 $"Kraid's part at enemy {place.Ordinal} is a {other.GetType().Name}, not the {typeof(TPart).Name} its neighbour reads."),

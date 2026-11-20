@@ -10,26 +10,17 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="species">The Kraid species owner.</param>
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="reference">Kraid's reference to the part, which it joins as it initializes.</param>
-internal abstract class KraidEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyFrameHitboxes
+internal abstract class KraidEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyFrameHitboxes
 {
     /// <summary>The Kraid species owner.</summary>
     protected KraidBehavior Species => species;
 
-    /// <inheritdoc/>
-    public void Initialize()
-    {
-        reference.Join(Place);
-        SetUp();
-    }
+    /// <summary>The encounter the part is part of, which it joins as it is built (#2218, #2554).</summary>
+    internal abstract KraidEnemyState Encounter { get; }
 
-    /// <summary>Sets the part up, once it has joined Kraid.</summary>
-    protected abstract void SetUp();
-
-    /// <summary>The encounter the part is part of, which its state holds from its setup (#2218).</summary>
-    /// <exception cref="InvalidOperationException">The part has not set up as one of his parts.</exception>
-    protected KraidEnemyState Encounter => Place.RequireSpeciesState<KraidPartState>().Kraid;
+    /// <summary>The part's own state in the encounter, which his other parts find in its place.</summary>
+    internal abstract KraidPartState PartState { get; }
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);

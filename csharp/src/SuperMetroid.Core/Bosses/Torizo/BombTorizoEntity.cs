@@ -6,14 +6,12 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="species">The Torizo species owner.</param>
 /// <param name="place">The place Bomb Torizo occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class BombTorizoEntity(TorizoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : TorizoEntity(species, place, common)
+/// <param name="setup">The population load that places the Torizo.</param>
+internal sealed class BombTorizoEntity(TorizoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    : TorizoEntity(species, place, common, TorizoVariant.Bomb, setup)
 {
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunBombTorizoMainAi(Place, frame);
-
-    /// <summary>He is Crateria's Bomb Torizo.</summary>
-    protected override TorizoVariant Variant => TorizoVariant.Bomb;
 
     /// <summary>Bomb Torizo's shot reaction, which its definition leaves to it.</summary>
     public override EnemyReaction? SpeciesShot => TorizoReactions.Shot;

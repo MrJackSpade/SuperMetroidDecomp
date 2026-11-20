@@ -7,12 +7,10 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="species">The Shutters species owner.</param>
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : VerticalShutterEntity(species, place, common)
+/// <param name="pose">The pose the shutter shows from its setup: the fully grown shutter, or a Kamer's platform.</param>
+internal class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, ShutterSegment pose)
+    : VerticalShutterEntity(species, place, common, pose)
 {
-    /// <summary>A shootable shutter shows the fully grown shutter.</summary>
-    protected override ShutterSegment Pose => ShutterSegment.FullyGrown;
-
     /// <summary>The shootable shutter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.ShootableShutterShotReaction : base.ShotReaction;
 

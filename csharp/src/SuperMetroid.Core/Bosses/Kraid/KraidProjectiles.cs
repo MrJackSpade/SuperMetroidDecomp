@@ -37,21 +37,23 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Initializes one lint part.</summary>
-    internal void InitializeKraidLint(RoomEnemyPlace lint, KraidLintPart expected)
+    internal KraidEnemyState InitializeKraidLint(RoomEnemyPlace lint, KraidPartReference reference, KraidLintPart expected)
     {
+        // The part joins Kraid through his reference to it before it sets up (#2554).
+        Ensure.NotNull(reference).Join(lint);
+        KraidEnemyState state = _parts.Encounter;
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(lint);
-            return;
+            return state;
         }
         // The lint joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = _parts.Encounter;
         KraidLintState part = state.Lint(expected);
-        KraidEncounterAccess.AttachKraidPart(part);
         lint.Shading = _parts.Body.Shading;
         part.ShowPose(KraidPartSegment.LintInitial);
         part.Phase = KraidLintPhase.Inactive;
         part.LintXOffset = KraidArenaDefinitions.LintXOffsets[expected];
+        return state;
     }
 
     /// <summary>
@@ -59,12 +61,13 @@ internal sealed class KraidProjectiles
     /// dead-room branch: in a defeated Kraid's room the fingernails initialize and run,
     /// deleting themselves only once his body's health reads below one.
     /// </summary>
-    internal void InitializeKraidNail(RoomEnemyPlace nail, KraidNailPart expected)
+    internal KraidEnemyState InitializeKraidNail(RoomEnemyPlace nail, KraidPartReference reference, KraidNailPart expected)
     {
-        // The fingernail joins the encounter its body began, which it holds from here (#2218).
+        // The part joins Kraid through his reference to it before it sets up (#2554).
+        Ensure.NotNull(reference).Join(nail);
         KraidEnemyState state = _parts.Encounter;
+        // The fingernail joins the encounter its body began, which it holds from here (#2218).
         KraidNailState nailPart = state.Nail(expected);
-        KraidEncounterAccess.AttachKraidPart(nailPart);
         nail.Shading = _parts.Body.Shading;
         // A fingernail is set up at rest, so its sibling's launch reads it as stopped, as it reads a killed one.
         nailPart.NailVelocity = FixedVector<RoomPixels>.Zero;
@@ -75,6 +78,7 @@ internal sealed class KraidProjectiles
         _ = nailPart.ShowFirstPose(KraidPartSegment.NailLoop);
         nailPart.Phase = KraidNailPhase.WaitBeforeLaunch;
         nailPart.PhaseWait.LastFor(KraidArenaDefinitions.NailLaunchDelayUpdates);
+        return state;
     }
 
     /// <summary>The rocks Kraid's rise throws up and the ceiling rocks his roar shakes down (#1760): their spawners start their animations.</summary>

@@ -76,11 +76,16 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (definition == EnemyDefinitionId.ShutterGrowing)
             return new GrowingShutterEntity(this, place, common);
         if (definition == EnemyDefinitionId.ShutterShootable)
-            return new ShootableShutterEntity(this, place, common);
+            return new ShootableShutterEntity(this, place, common, ShutterSegment.FullyGrown);
         if (definition == EnemyDefinitionId.Kamer)
             return new KamerEntity(this, place, common);
         if (definition == EnemyDefinitionId.ShutterDestroyable)
-            return new DestroyableShutterEntity(this, place, common);
+        {
+            // A destroyable shutter is kept among the shutters the escape's flash shows on as it is built (#2380).
+            var shutter = new DestroyableShutterEntity(this, place, common);
+            KeepDestroyableShutter(shutter);
+            return shutter;
+        }
         throw new InvalidOperationException($"The Shutters species creates no {place.DefinitionId}.");
     }
 
@@ -391,11 +396,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // decides whether it starts moving.
         ReactVerticalShutter(context.Place, context.Camera);
     /// <summary>Initializes a vertical shutter, which shows <paramref name="pose"/>: its entity names it (#2179).</summary>
-    internal static void InitializeVerticalShutter(RoomEnemyPlace place, ShutterSegment pose)
+    internal static VerticalShutterEnemyState InitializeVerticalShutter(RoomEnemyPlace place, ShutterSegment pose)
     {
         ShutterSpawnSettings settings = place.SpawnSettings<ShutterSpawnSettings>();
         var state = new VerticalShutterEnemyState(InitialAction(settings.TriggerMode));
-        place.SetSpeciesState(state);
 
         state.ReactionDirection = settings.PrimaryDirection;
         state.ActionTimer = WrappingCountdown.Start(settings.WaitTime);
@@ -414,6 +418,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The shutter's new clock shows no new frame until its animation's first step shows one.
         place.CollidesByFrameHitboxes = false;
         StartVerticalShutterAnimation(place, state, pose);
+        return state;
     }
 
     /// <summary>Runs the vertical shutter's main AI.</summary>

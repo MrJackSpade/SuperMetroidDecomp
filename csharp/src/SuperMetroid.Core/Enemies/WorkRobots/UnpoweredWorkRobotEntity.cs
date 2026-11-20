@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 internal sealed class UnpoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : WorkRobotEntity(species, place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.InitializeUnpoweredWorkRobot(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal UnpoweredWorkRobotEnemyState State { get; } = species.InitializeUnpoweredWorkRobot(place);
 
     /// <summary>Takes no action of its own.</summary>
     /// <param name="frame">The enemy frame.</param>

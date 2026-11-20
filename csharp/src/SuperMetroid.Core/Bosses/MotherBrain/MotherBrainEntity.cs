@@ -11,21 +11,17 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal abstract class MotherBrainEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <summary>The MotherBrain species owner.</summary>
     protected MotherBrainBehavior Species => species;
 
-    /// <inheritdoc/>
-    public abstract void Initialize();
-
     /// <summary>The encounter the part is part of, which it holds from its setup (#2218).</summary>
-    /// <exception cref="InvalidOperationException">The part has not set up.</exception>
-    protected MotherBrainEnemyState Encounter => Place.RequireSpeciesState<MotherBrainEnemyState>();
+    internal abstract MotherBrainEnemyState Encounter { get; }
 
     /// <summary>The encounter <paramref name="part"/> is part of, which the part holds (#2218).</summary>
-    /// <param name="part">A place holding one of Mother Brain's parts, set up.</param>
-    /// <exception cref="InvalidOperationException">The place holds no part of Mother Brain's that has set up.</exception>
+    /// <param name="part">A place holding one of Mother Brain's parts.</param>
+    /// <exception cref="InvalidOperationException">The place holds no part of Mother Brain's.</exception>
     internal static MotherBrainEnemyState EncounterOf(RoomEnemyPlace part) =>
         Ensure.NotNull(part).Entity is MotherBrainEntity entity
             ? entity.Encounter

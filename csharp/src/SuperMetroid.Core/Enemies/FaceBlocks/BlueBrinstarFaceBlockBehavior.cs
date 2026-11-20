@@ -22,7 +22,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FaceBlock];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BlueBrinstarFaceBlockEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BlueBrinstarFaceBlockEntity(this, place, common, setup);
 
     /// <summary>The face blocks the room has set up, in the order they were placed; all show the room-wide glow (#2283).</summary>
     private readonly List<RoomEnemyPlace> _blocks = [];
@@ -50,10 +50,9 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     private PictureShading Glow => PictureShading.Shaded(FaceBlockShades.Glow(_glow.Showing));
 
     /// <summary>Initializes the Blue Brinstar face block.</summary>
-    internal void InitializeBlueBrinstarFaceBlock(RoomEnemyPlace place, SamusState samus)
+    internal BlueBrinstarFaceBlockEnemyState InitializeBlueBrinstarFaceBlock(RoomEnemyPlace place, SamusState samus)
     {
         var state = new BlueBrinstarFaceBlockEnemyState();
-        place.SetSpeciesState(state);
         _blocks.Add(place);
 
         // The neutral animation shows the neutral picture and holds it. Every directional animation shows the same
@@ -66,6 +65,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (HasCollectedMorphBall(samus))
             StartGlow(place);
         RestartGlowStep();
+        return state;
     }
 
     /// <summary>Runs the Blue Brinstar face block's main AI.</summary>
@@ -150,10 +150,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Runs the blue Brinstar face block's initialization AI.</summary>
-    internal void SetUpBlueBrinstarFaceBlock(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
+    internal BlueBrinstarFaceBlockEnemyState SetUpBlueBrinstarFaceBlock(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
         InitializeBlueBrinstarFaceBlock(place, surroundings.Samus);
-    }
 
     /// <summary>Runs the blue Brinstar face block's main AI.</summary>
     internal void RunBlueBrinstarFaceBlockMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

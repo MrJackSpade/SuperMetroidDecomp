@@ -18,10 +18,7 @@ internal sealed class CeresRidleyEntity(CeresRidleyBehavior ceres, ICeresEscapeS
     : RidleyEntity(ceres.Body, place, common), IEnemyShotAdmission
 {
     /// <summary>The Ceres encounter his body holds from its initialization.</summary>
-    internal override CeresRidleyState Encounter => Place.RequireSpeciesState<CeresRidleyState>();
-
-    /// <inheritdoc/>
-    public override void Initialize() => ceres.Flight.InitializeCeresRidley(Place);
+    internal override CeresRidleyState Encounter { get; } = ceres.Flight.InitializeCeresRidley(place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) =>

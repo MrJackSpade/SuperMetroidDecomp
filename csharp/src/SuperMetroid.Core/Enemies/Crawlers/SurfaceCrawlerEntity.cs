@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal sealed class SurfaceCrawlerEntity(CrawlersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, CrawlerAnimationFamily family)
     : CrawlerEntity(place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => CrawlersBehavior.InitializeCrawler(Place, family);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal override CrawlerEnemyState State { get; } = CrawlersBehavior.InitializeCrawler(place, family);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => species.RunCrawlerMainAi(Place, frame);

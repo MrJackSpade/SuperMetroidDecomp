@@ -56,12 +56,13 @@ internal sealed class KraidRise
     private readonly KraidBodyLayer _bodyLayer;
 
     /// <summary>Creates his body's encounter state and restores the defeated room when the area-boss flag is set.</summary>
-    internal void InitializeKraidBody(RoomEnemyPlace body)
+    internal KraidEnemyState InitializeKraidBody(RoomEnemyPlace body)
     {
+        // The body joins Kraid through his reference to it before it sets up (#2554).
+        _parts.BodyReference.Join(body);
         // The body begins the encounter each of his parts joins as it sets up (#2218): a body that sets up again begins a
         // new one.
         var state = new KraidEnemyState(_parts);
-        KraidEncounterAccess.AttachKraidPart(state.BodyState);
         // The room shows the body layer he draws himself, of this encounter, his backdrop's colours and his own (#2194).
         _bodyLayer.Show(state);
         _presentation.AttachBossBody(_bodyLayer);
@@ -80,7 +81,7 @@ internal sealed class KraidRise
             // The body owns the sinking: a defeated room's body starts at hiding his body and the death's wait
             // before the fade-in. Kraid's other seven parts take their own dead setup and remain deleted.
             state.BodyState.DeathPhase = KraidDeathPhase.HideBody;
-            return;
+            return state;
         }
 
         // Kraid's fight tracks the camera like a boss.
@@ -102,6 +103,7 @@ internal sealed class KraidRise
         state.Colours.ShowBandEyes(_head.BandEyes(KraidHead.InitialBand(body, state)));
         // The setup gives the room its rise shake; the rise runs it on later, with whatever shake the room has by then.
         _earthquake.ChangeShake(KraidRiseDefinitions.RiseShake);
+        return state;
     }
 
     /// <summary>Switches the arena scrolls between the small and grown boss layouts.</summary>

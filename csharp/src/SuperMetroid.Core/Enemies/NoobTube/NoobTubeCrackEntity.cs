@@ -11,10 +11,6 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 /// <param name="place">The place the crack occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class NoobTubeCrackEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization
+    : CommonParticipationEnemyEntity(place, common)
 {
-    /// <summary>Places the crack, which keeps no state of its own.</summary>
-    public void Initialize()
-    {
-    }
 }

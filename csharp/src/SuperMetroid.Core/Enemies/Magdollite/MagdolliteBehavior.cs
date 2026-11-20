@@ -480,7 +480,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         foreach (RoomEnemyPlace part in _partners.Placed)
         {
             // A place whose part has left it, and any enemy that took the place since, shows no glow.
-            if (part.Entity is MagdollitePartEntity { State: not null })
+            if (part.Entity is MagdollitePartEntity)
                 part.Shading = glow;
         }
         foreach (EnemyProjectile lava in _projectiles.EnemyProjectiles)

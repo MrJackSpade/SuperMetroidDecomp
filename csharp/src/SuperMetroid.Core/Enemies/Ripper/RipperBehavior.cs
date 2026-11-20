@@ -36,7 +36,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the grapple Ripper.</summary>
-    internal static void InitializeGrappleRipper(RoomEnemyPlace place)
+    internal static RipperEnemyState InitializeGrappleRipper(RoomEnemyPlace place)
     {
         var state = CreateRipperState(place);
 
@@ -45,6 +45,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         SetRipperAnimation(
             place,
             state.Heading == HorizontalDirection.Left ? RipperSegment.GrappleRipperMovingLeft : RipperSegment.GrappleRipperMovingRight);
+        return state;
     }
 
     /// <summary>Runs the grapple Ripper's main AI.</summary>
@@ -77,13 +78,14 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the jet Ripper.</summary>
-    internal static void InitializeJetRipper(RoomEnemyPlace place)
+    internal static RipperEnemyState InitializeJetRipper(RoomEnemyPlace place)
     {
         RipperEnemyState state = CreateRipperState(place);
 
         // The jet Ripper shows the grapple Ripper's animations, facing the way it flies (#1842).
         state.Heading = place.SpawnSettings<RipperSpawnSettings>().Direction;
         SetRipperAnimation(place, state.Heading == HorizontalDirection.Right ? RipperSegment.GrappleRipperMovingRight : RipperSegment.GrappleRipperMovingLeft);
+        return state;
     }
 
     /// <summary>Runs the jet Ripper's main AI.</summary>
@@ -97,7 +99,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Ripper.</summary>
-    internal static void InitializeRipper(RoomEnemyPlace place)
+    internal static RipperEnemyState InitializeRipper(RoomEnemyPlace place)
     {
         // The spawn's direction chooses the positive speed and the right-facing animation, or the negative speed and the
         // left-facing animation. Unlike a reversal, initialization keeps the population's frame timer.
@@ -108,6 +110,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // It flies its spawn speed toward its heading.
         state.Heading = heading;
+        return state;
     }
 
     /// <summary>Runs the Ripper's main AI.</summary>
@@ -148,12 +151,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             : EnemyFrameId.RipperFrozenFacingRight;
     }
 
-    /// <summary>Starts a Ripper-family enemy's state on its place.</summary>
+    /// <summary>Starts a Ripper-family enemy's state.</summary>
     private static RipperEnemyState CreateRipperState(RoomEnemyPlace place)
     {
-        var state = new RipperEnemyState();
-        place.SetSpeciesState(state);
-        return state;
+        return new RipperEnemyState();
     }
 
     /// <summary>

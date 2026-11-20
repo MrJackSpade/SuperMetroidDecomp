@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="place">The place the Kamer occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class KamerEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : ShootableShutterEntity(species, place, common)
+    : ShootableShutterEntity(species, place, common, ShutterSegment.KamerPlatform)
 {
-    /// <summary>The Kamer shows its platform.</summary>
-    protected override ShutterSegment Pose => ShutterSegment.KamerPlatform;
 }

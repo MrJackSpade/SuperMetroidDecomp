@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal abstract class CrocomireEntity(CrocomireBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <summary>The Crocomire species owner.</summary>
     protected CrocomireBehavior Species => species;
@@ -21,9 +21,6 @@ internal abstract class CrocomireEntity(CrocomireBehavior species, RoomEnemyPlac
 
     /// <summary>The shot reaction that routes the part's hitboxes' reactions to its encounter.</summary>
     private EnemyShotReaction OwnShotReaction => field ??= Species.Combat.CrocomireShotReactionOf(this);
-
-    /// <inheritdoc/>
-    public abstract void Initialize();
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);

@@ -7,9 +7,6 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal sealed class MagdolliteBodyEntity(MagdolliteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : MagdollitePartEntity(species, place, common)
 {
-    /// <inheritdoc/>
-    internal override MagdollitePartState? State => Place.SpeciesState<MagdolliteBodyState>();
-
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal MagdolliteBodyState State { get; } = species.InitializeMagdolliteBody(place);
 

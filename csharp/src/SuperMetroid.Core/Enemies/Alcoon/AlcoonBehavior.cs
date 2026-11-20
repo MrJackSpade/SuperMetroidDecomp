@@ -14,7 +14,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Alcoon];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new AlcoonEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new AlcoonEntity(this, place, common, setup);
 
     /// <summary>Provides RNG for the randomized post-volley walk count.</summary>
     private readonly EnemyRoomBinding _room;
@@ -66,10 +66,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int AlcoonJumpSimulationLimit = 4096;
 
     /// <summary>Initializes the Alcoon, including its floor search.</summary>
-    private void InitializeAlcoon(RoomEnemyPlace place, RoomLevelData level)
+    private AlcoonEnemyState InitializeAlcoon(RoomEnemyPlace place, RoomLevelData level)
     {
         var state = new AlcoonEnemyState(AlcoonAction.WaitingForSamus);
-        place.SetSpeciesState(state);
 
         state.WalkCyclesBeforeVolley = UpdateCountdown.Ended();
         state.SpawnPosition = place.Position.Whole;
@@ -100,6 +99,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.LandingY = place.Position.Y.Whole;
         place.Position = place.Position.WithWholeY(state.SpawnPosition.Y);
+        return state;
     }
 
     /// <summary>Runs Alcoon for one update through all seven of its actions.</summary>
@@ -366,10 +366,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyAlcoonFireball(context.Projectile, context.Level));
 
     /// <summary>Runs Alcoon's initialization AI.</summary>
-    internal void SetUpAlcoon(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
+    internal AlcoonEnemyState SetUpAlcoon(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
         InitializeAlcoon(place, surroundings.Level);
-    }
 
     /// <summary>Runs Alcoon's main AI.</summary>
     internal void RunAlcoonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

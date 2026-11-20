@@ -16,7 +16,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Elevator];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new ElevatorEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new ElevatorEntity(this, place, common, setup);
 
     /// <summary>The loaded room's bindings, whose game-state services set up Samus's elevator pose when the elevator departs.</summary>
     private readonly EnemyRoomBinding _room;
@@ -109,10 +109,9 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Initializes the Elevator.</summary>
-    internal void InitializeElevator(RoomEnemyPlace place, SamusState samus)
+    internal ElevatorEnemyState InitializeElevator(RoomEnemyPlace place, SamusState samus)
     {
         var state = new ElevatorEnemyState();
-        place.SetSpeciesState(state);
 
         place.Frame = EnemyFrameId.Empty;
         state.Playback = EnemyAnimationPlayback.Start(place, ElevatorAnimations.StartingWith(ElevatorSegment.Idle));
@@ -124,12 +123,13 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         {
             DoorArming = ElevatorArming.None;
             ElevatorStatus = ElevatorActorStatus.Inactive;
-            return;
+            return state;
         }
 
         place.Position = place.Position.WithWholeY(place.SpawnSettings<ElevatorSpawnSettings>().ArrivalY);
         PinSamusToElevator(place, samus);
         _arrivedOn = place;
+        return state;
     }
 
     /// <summary>Runs the elevator's main behaviour and its four phases.</summary>
@@ -271,10 +271,8 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             static (_, cue) => throw new InvalidOperationException($"A cue-free Elevator animation raised {cue}."));
 
     /// <summary>Runs Elevator's initialization AI.</summary>
-    internal void SetUpElevator(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
+    internal ElevatorEnemyState SetUpElevator(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
         InitializeElevator(place, surroundings.Samus);
-    }
 
     /// <summary>Runs Elevator's main AI.</summary>
     internal void RunElevatorMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

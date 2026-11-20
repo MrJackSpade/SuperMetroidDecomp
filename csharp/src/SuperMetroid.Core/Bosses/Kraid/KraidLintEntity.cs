@@ -9,10 +9,13 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="reference">Kraid's reference to the lint, which it joins as it initializes.</param>
 /// <param name="lint">Which of his lints it is, which sets where it buds.</param>
 internal sealed class KraidLintEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference, KraidLintPart lint)
-    : KraidEntity(species, place, common, reference), IEnemyTypedAnimation
+    : KraidEntity(species, place, common), IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    protected override void SetUp() => Species.Projectiles.InitializeKraidLint(Place, lint);
+    internal override KraidEnemyState Encounter { get; } = species.Projectiles.InitializeKraidLint(place, reference, lint);
+
+    /// <inheritdoc/>
+    internal override KraidPartState PartState => Encounter.Lint(lint);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.Projectiles.RunKraidLintMain(Place, Encounter.Lint(lint), frame.Samus, frame.PseudoScrew);

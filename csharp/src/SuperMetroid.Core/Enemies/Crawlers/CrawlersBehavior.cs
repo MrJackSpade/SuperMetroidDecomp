@@ -74,7 +74,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Initializes a crawler of any species through the shared setup. Each species differs only by the family whose
     /// animations it shows on each surface and switches between at corners.
     /// </summary>
-    internal static void InitializeCrawler(RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
+    internal static CrawlerEnemyState InitializeCrawler(RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
     {
         // The population entry names the starting surface. The Viola's setup alone takes its block side
         // instead, and a Viola's entry names no surface.
@@ -103,7 +103,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             SurfaceFamily = animationFamily,
             Surface = orientation,
         };
-        Bind(place, state);
 
         state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
             animationFamily, orientation)), AnimationPlace.StartOfAnimation);
@@ -111,6 +110,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.StepOnNextUpdate();
 
         state.Velocity = ResetCrawlerVelocities(blockSide, crawlSpeed, state.Velocity);
+        return state;
     }
 
     /// <summary>Shared crawler velocity reset, also called by Yard after landing.</summary>
@@ -138,7 +138,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
 
     /// <summary>Runs the separate orange-Zoomer setup.</summary>
-    internal static void InitializeOrangeZoomer(RoomEnemyPlace place)
+    internal static CrawlerEnemyState InitializeOrangeZoomer(RoomEnemyPlace place)
     {
         CrawlerSpawnSettings settings = place.SpawnSettings<CrawlerSpawnSettings>();
         SignedEightEight crawlSpeed = settings.CrawlSpeed ??
@@ -150,12 +150,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             SurfaceFamily = CrawlerAnimationFamily.Shared,
             Surface = orientation,
         };
-        Bind(place, state);
         state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
             CrawlerAnimationFamily.Shared, orientation)), AnimationPlace.StartOfAnimation);
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.StepOnNextUpdate();
         state.Velocity = SignedForBlockSide(settings.BlockSide, new PixelVelocity<RoomPixels>(crawlSpeed, crawlSpeed));
+        return state;
     }
 
     /// <summary>
@@ -460,10 +460,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         return velocity.X.ToSixteenSixteenDelta();
     }
-
-    /// <summary>Gives the occupant's entity its freshly initialized state.</summary>
-    private static void Bind(RoomEnemyPlace place, CrawlerEnemyState state) =>
-        place.SetSpeciesState(state);
 
     /// <summary>The velocity's step with a whole-pixel probe margin added in the direction it moves.</summary>
     internal static SignedSixteenSixteen WithProbeMargin(SignedEightEight velocity, int wholePixels)

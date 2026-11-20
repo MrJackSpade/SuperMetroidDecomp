@@ -26,7 +26,7 @@ internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRi
         if (definition == EnemyDefinitionId.RidleyCeres)
             return new CeresRidleyEntity(ceres, escape, place, common);
         if (definition == EnemyDefinitionId.RidleyBreakupPiece)
-            return new RidleyBreakupPieceEntity(norfair, place, common);
+            return new RidleyBreakupPieceEntity(norfair, place, common, setup);
         throw new InvalidOperationException($"The Ridley factory creates no {place.DefinitionId}.");
     }
 }

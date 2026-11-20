@@ -15,7 +15,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Beetom];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BeetomEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BeetomEntity(this, place, common, setup);
 
     /// <summary>Supplies the shared RNG seed and generation used by Beetom action choice.</summary>
     private readonly EnemyRoomBinding _room;
@@ -61,10 +61,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Initializes the Beetom.</summary>
-    internal void InitializeBeetom(RoomEnemyPlace place, SamusState samus, GameplayAction controllerInput)
+    internal BeetomEnemyState InitializeBeetom(RoomEnemyPlace place, SamusState samus, GameplayAction controllerInput)
     {
         BeetomEnemyState state = _inheritance.Inherit(place.Ordinal, static previous => new BeetomEnemyState(previous, BeetomAction.DecideAction));
-        place.SetSpeciesState(state);
 
         state.ActionTimer = UpdateCountdown.Ended();
         state.AttachedToSamus = false;
@@ -81,6 +80,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Position.X.Whole < place.Position.X.Whole
                 ? BeetomSegment.CrawlingLeft
                 : BeetomSegment.CrawlingRight);
+        return state;
     }
 
     /// <summary>Runs a Beetom for one update through all of its actions.</summary>
@@ -478,10 +478,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Beetom's initialization AI.</summary>
-    internal void SetUpBeetom(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
+    internal BeetomEnemyState SetUpBeetom(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
         InitializeBeetom(place, surroundings.Samus, surroundings.ControllerInput);
-    }
 
     /// <summary>Runs Beetom's main AI.</summary>
     internal void RunBeetomMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

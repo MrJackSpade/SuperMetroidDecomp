@@ -15,10 +15,7 @@ internal sealed class NorfairRidleyEntity(NorfairRidleyBehavior norfair, RoomEne
     : RidleyEntity(norfair.Body, place, common)
 {
     /// <summary>The Lower Norfair encounter his body holds from its initialization.</summary>
-    internal override NorfairRidleyState Encounter => Place.RequireSpeciesState<NorfairRidleyState>();
-
-    /// <inheritdoc/>
-    public override void Initialize() => norfair.Combat.InitializeNorfairRidley(Place);
+    internal override NorfairRidleyState Encounter { get; } = norfair.Combat.InitializeNorfairRidley(place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => norfair.RunRidleyMainAi(Place, Encounter, frame);

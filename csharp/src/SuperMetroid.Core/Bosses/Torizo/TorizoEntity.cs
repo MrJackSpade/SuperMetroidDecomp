@@ -11,8 +11,10 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="species">The Torizo species owner.</param>
 /// <param name="place">The place the Torizo occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction, ILitTorizo
+/// <param name="variant">Which Torizo this is.</param>
+/// <param name="setup">The population load that places the Torizo, whose surroundings its setup reads.</param>
+internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, TorizoVariant variant, EnemySetup setup)
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction, ILitTorizo
 {
     /// <summary>The Torizo species owner.</summary>
     protected TorizoBehavior Species => species;
@@ -20,11 +22,11 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyPlace plac
     /// <summary>Whether this Torizo has no health left: its belly's glow ends on the first update it sees so (#1700).</summary>
     public bool IsDefeated => Place.Health == 0;
 
-    /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => Species.Movement.InitializeTorizo(Place, Variant, surroundings.Samus, surroundings.ControllerInput);
+    /// <summary>The Torizo's state, which his setup builds as he is built (#2554).</summary>
+    internal TorizoEnemyState State { get; } = species.Movement.InitializeTorizo(place, variant, setup.SurroundingsOf(place).Samus, setup.SurroundingsOf(place).ControllerInput);
 
     /// <summary>Which Torizo this is, Crateria's Bomb Torizo or Norfair's Golden Torizo, whose values his fight reads (#2301, #2410).</summary>
-    protected abstract TorizoVariant Variant { get; }
+    protected TorizoVariant Variant => variant;
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);

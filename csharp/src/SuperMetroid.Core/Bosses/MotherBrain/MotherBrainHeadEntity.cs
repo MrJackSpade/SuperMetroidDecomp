@@ -14,6 +14,9 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal MotherBrainEnemyState State { get; } = species.Head.InitializeMotherBrainHead(place);
 
+    /// <inheritdoc/>
+    internal override MotherBrainEnemyState Encounter => State;
+
     /// <summary>The head's hitbox: her brain's rectangle, which it owns (#2220).</summary>
     public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
         MotherBrainCombat.FindMotherBrainHeadHitboxReaction(Place, probe, out reaction);

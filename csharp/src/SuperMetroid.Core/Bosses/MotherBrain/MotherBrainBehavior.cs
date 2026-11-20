@@ -28,7 +28,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         if (definition == EnemyDefinitionId.MotherBrainHead)
             return new MotherBrainHeadEntity(this, place, common);
         if (definition == EnemyDefinitionId.MotherBrainTubes)
-            return new MotherBrainTubesEntity(this, place, common);
+            return new MotherBrainTubesEntity(this, place, common, setup);
         throw new InvalidOperationException($"The Mother Brain species creates no {place.DefinitionId}.");
     }
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>

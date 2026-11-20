@@ -8,14 +8,12 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="species">The Shutters species owner.</param>
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="pose">The pose the shutter shows from its setup.</param>
+internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, ShutterSegment pose)
     : ShuttersEntity(species, place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => ShuttersBehavior.InitializeVerticalShutter(Place, Pose);
-
-    /// <summary>The pose the shutter shows from its setup.</summary>
-    protected abstract ShutterSegment Pose { get; }
+    /// <summary>The shutter's state, which its setup builds as it is built (#2554).</summary>
+    internal VerticalShutterEnemyState State { get; } = ShuttersBehavior.InitializeVerticalShutter(place, pose);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunVerticalShutterMainAi(Place, frame);

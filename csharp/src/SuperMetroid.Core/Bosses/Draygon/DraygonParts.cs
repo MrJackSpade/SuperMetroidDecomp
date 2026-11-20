@@ -83,22 +83,29 @@ internal sealed class DraygonParts
     /// </summary>
     private DraygonPart JoiningPart(RoomEnemyPlace place, int placesAfterBody, Func<DraygonEnemyState, DraygonPart> part)
     {
-        DraygonPart joined = part(_places.ListedBefore(place, placesAfterBody).RequireSpeciesState<DraygonEnemyState>());
-        place.SetSpeciesState(joined);
+        DraygonPart joined = part(EnemyPartners.Listed<DraygonBodyEntity>(_places.ListedBefore(place, placesAfterBody)).State);
         place.AnimationClock.StepOnNextUpdate();
         return joined;
     }
 
     /// <summary>Sets Draygon's eye up, listed right after his body, inert until the body publishes facing AI.</summary>
-    internal void InitializeDraygonEye(RoomEnemyPlace eye) => JoiningPart(eye, DraygonPartListingDefinitions.EyePlacesAfterBody, draygon => draygon.EyePart);
+    internal DraygonPart InitializeDraygonEye(RoomEnemyPlace eye) => JoiningPart(eye, DraygonPartListingDefinitions.EyePlacesAfterBody, draygon => draygon.EyePart);
 
     /// <summary>Sets Draygon's tail up, listed after his eye, starting with its fake whip.</summary>
-    internal void InitializeDraygonTail(RoomEnemyPlace tail) =>
-        tail.Shading = JoiningPart(tail, DraygonPartListingDefinitions.TailPlacesAfterBody, draygon => draygon.TailPart).Draygon.Colours.Sprites;
+    internal DraygonPart InitializeDraygonTail(RoomEnemyPlace tail)
+    {
+        DraygonPart joined = JoiningPart(tail, DraygonPartListingDefinitions.TailPlacesAfterBody, draygon => draygon.TailPart);
+        tail.Shading = joined.Draygon.Colours.Sprites;
+        return joined;
+    }
 
     /// <summary>Sets Draygon's arms up, listed after his tail, in their idle loop.</summary>
-    internal void InitializeDraygonArms(RoomEnemyPlace arms) =>
-        arms.Shading = JoiningPart(arms, DraygonPartListingDefinitions.ArmsPlacesAfterBody, draygon => draygon.ArmsPart).Draygon.Colours.Sprites;
+    internal DraygonPart InitializeDraygonArms(RoomEnemyPlace arms)
+    {
+        DraygonPart joined = JoiningPart(arms, DraygonPartListingDefinitions.ArmsPlacesAfterBody, draygon => draygon.ArmsPart);
+        arms.Shading = joined.Draygon.Colours.Sprites;
+        return joined;
+    }
 
     /// <summary>Sets <paramref name="eye"/> tracking Samus facing <paramref name="facing"/> (#2165).</summary>
     private static void Track(DraygonEyeState eye, HorizontalDirection facing)

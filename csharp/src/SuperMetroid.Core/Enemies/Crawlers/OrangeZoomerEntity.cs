@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal sealed class OrangeZoomerEntity(CrawlersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CrawlerEntity(place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => CrawlersBehavior.InitializeOrangeZoomer(Place);
+    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
+    internal override CrawlerEnemyState State { get; } = CrawlersBehavior.InitializeOrangeZoomer(place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => species.RunOrangeZoomerMainAi(Place, frame);

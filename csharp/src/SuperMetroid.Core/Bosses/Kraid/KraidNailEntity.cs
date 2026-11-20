@@ -12,10 +12,13 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="reference">Kraid's reference to the fingernail, which it joins as it initializes.</param>
 /// <param name="nail">Which of his fingernails it is, whose state it holds from its setup (#2298).</param>
 internal sealed class KraidNailEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference, KraidNailPart nail)
-    : KraidEntity(species, place, common, reference), IEnemyTypedAnimation
+    : KraidEntity(species, place, common), IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    protected override void SetUp() => Species.Projectiles.InitializeKraidNail(Place, nail);
+    internal override KraidEnemyState Encounter { get; } = species.Projectiles.InitializeKraidNail(place, reference, nail);
+
+    /// <inheritdoc/>
+    internal override KraidPartState PartState => Encounter.Nail(nail);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.Projectiles.RunKraidNailMain(Place, Encounter.Nail(nail), frame.Level);

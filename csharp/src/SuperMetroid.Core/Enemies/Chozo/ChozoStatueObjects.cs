@@ -86,14 +86,14 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     public bool TrySpawnChozoStatueObject(RoomLevelData level, RoomObjectSpawnRequest<ChozoStatueRoomObject> request)
     {
         Ensure.NotNull(level);
-        RoomObjectBehaviour roomObject = request.RoomObject.Create(this);
-        Position16<RoomBlocks> block = level.GridBlock(request.Block);
+        var spawn = new ChozoStatueObjectSpawn(this, level, level.GridBlock(request.Block));
+        RoomObjectBehaviour roomObject = request.RoomObject.Create(spawn);
         if (_places.Spawn() is not { } place)
             return false;
 
-        place.Block = block;
+        place.Block = spawn.Block;
         place.Become(roomObject);
-        request.RoomObject.SetUp(this, level, block);
+        request.RoomObject.SetUp(spawn);
         return true;
     }
 

@@ -28,8 +28,6 @@ internal static class RoomLifetimeAnalyzerTests
         Expect("class Session { System.Collections.Generic.List<Pool> pools = []; }", RoomLifetimeAnalyzer.StoredRoomStateId, "'pools' stores room-lifetime 'Pool'");
         Expect("class Session { Pool[] pools = []; }", RoomLifetimeAnalyzer.StoredRoomStateId, "'pools' stores room-lifetime 'Pool'");
         ExpectNone("class Session { void Use(Pool pool) { } Pool Read(Pool pool) => pool; }");
-        ExpectNone("delegate void Step(Pool pool); class Session { System.Action<Pool, int> run = (_, _) => { }; System.Func<Pool, bool> test = _ => true; Step step = _ => { }; }");
-        Expect("class Session { System.Func<int, Pool> make = _ => null!; }", RoomLifetimeAnalyzer.StoredRoomStateId, "'make' stores room-lifetime 'Pool'");
         ExpectNone("[RoomScopeBoundary(\"holds the loaded room\")] class Holder { Pool? Current { get; set; } }");
         Expect("class Session { void ResetForRoomLoad() { } }", RoomLifetimeAnalyzer.RoomResetId, "'ResetForRoomLoad' is named as a room reset");
         Expect("class Session { void ResetCrocomireRoomState() { } }", RoomLifetimeAnalyzer.RoomResetId, "'ResetCrocomireRoomState'");

@@ -16,87 +16,87 @@ public sealed class CeresRidleyPhase
     /// <summary>The phase's name, for diagnostics.</summary>
     private readonly string _name;
 
-    /// <summary>Runs the phase for one update of his encounter.</summary>
-    private readonly Action<CeresRidleyBehavior, RoomEnemyPlace, CeresRidleyState, SamusState> _run;
+    /// <summary>Runs the phase for one update of his encounter, on the turn's behaviour, body, encounter and Samus.</summary>
+    private readonly Action<CeresRidleyPhaseTurn> _run;
 
     /// <summary>A phase named <paramref name="name"/> that runs <paramref name="run"/>.</summary>
     /// <param name="name">The phase's name, for diagnostics.</param>
     /// <param name="run">Runs the phase for one update of his encounter.</param>
-    private CeresRidleyPhase(string name, Action<CeresRidleyBehavior, RoomEnemyPlace, CeresRidleyState, SamusState> run)
+    private CeresRidleyPhase(string name, Action<CeresRidleyPhaseTurn> run)
     {
         _name = name;
         _run = run;
     }
 
     /// <summary>Accelerates the body upward during liftoff.</summary>
-    public static CeresRidleyPhase LiftoffAccelerating { get; } = new(nameof(LiftoffAccelerating), (_, place, state, _) => RunLiftoffAccelerating(place, state));
+    public static CeresRidleyPhase LiftoffAccelerating { get; } = new(nameof(LiftoffAccelerating), turn => RunLiftoffAccelerating(turn.Place, turn.State));
 
     /// <summary>Decelerates liftoff into the hovering phase.</summary>
-    public static CeresRidleyPhase LiftoffDecelerating { get; } = new(nameof(LiftoffDecelerating), (_, place, state, _) => CeresRidleyFlight.TickCeresRidleyLiftoffDecelerating(place, state));
+    public static CeresRidleyPhase LiftoffDecelerating { get; } = new(nameof(LiftoffDecelerating), turn => CeresRidleyFlight.TickCeresRidleyLiftoffDecelerating(turn.Place, turn.State));
 
     /// <summary>Runs hovering and chooses its next scripted attack.</summary>
-    public static CeresRidleyPhase Hovering { get; } = new(nameof(Hovering), (ridley, place, state, samus) => ridley.Flight.TickCeresRidleyHover(place, state, samus));
+    public static CeresRidleyPhase Hovering { get; } = new(nameof(Hovering), turn => turn.Ridley.Flight.TickCeresRidleyHover(turn.Place, turn.State, turn.Samus));
 
     /// <summary>Moves the body to its fireball firing position.</summary>
-    public static CeresRidleyPhase FireballMoveToPosition { get; } = new(nameof(FireballMoveToPosition), (ridley, place, state, _) => ridley.Flight.TickCeresRidleyFireballMove(place, state));
+    public static CeresRidleyPhase FireballMoveToPosition { get; } = new(nameof(FireballMoveToPosition), turn => turn.Ridley.Flight.TickCeresRidleyFireballMove(turn.Place, turn.State));
 
     /// <summary>Maintains the fireball attack before returning to hover.</summary>
-    public static CeresRidleyPhase FireballShooting { get; } = new(nameof(FireballShooting), (ridley, place, state, _) => ridley.Flight.TickCeresRidleyFireballShooting(place, state));
+    public static CeresRidleyPhase FireballShooting { get; } = new(nameof(FireballShooting), turn => turn.Ridley.Flight.TickCeresRidleyFireballShooting(turn.Place, turn.State));
 
     /// <summary>Initializes the lunge movement and phase timer.</summary>
-    public static CeresRidleyPhase LungeSetup { get; } = new(nameof(LungeSetup), (_, place, state, samus) => RunLungeSetup(place, state, samus));
+    public static CeresRidleyPhase LungeSetup { get; } = new(nameof(LungeSetup), turn => RunLungeSetup(turn.Place, turn.State, turn.Samus));
 
     /// <summary>Advances the lunge until recovery.</summary>
-    public static CeresRidleyPhase LungeMain { get; } = new(nameof(LungeMain), (_, place, state, samus) => CeresRidleyFlight.TickCeresRidleyLunge(place, state, samus));
+    public static CeresRidleyPhase LungeMain { get; } = new(nameof(LungeMain), turn => CeresRidleyFlight.TickCeresRidleyLunge(turn.Place, turn.State, turn.Samus));
 
     /// <summary>Initializes the downward-aiming swoop.</summary>
-    public static CeresRidleyPhase SwoopSetup { get; } = new(nameof(SwoopSetup), (_, place, state, _) => RunSwoopSetup(place, state));
+    public static CeresRidleyPhase SwoopSetup { get; } = new(nameof(SwoopSetup), turn => RunSwoopSetup(turn.Place, turn.State));
 
     /// <summary>Steers Ridley to the swoop start position.</summary>
-    public static CeresRidleyPhase SwoopMoveToPosition { get; } = new(nameof(SwoopMoveToPosition), (_, place, state, _) => CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(place, state));
+    public static CeresRidleyPhase SwoopMoveToPosition { get; } = new(nameof(SwoopMoveToPosition), turn => CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(turn.Place, turn.State));
 
     /// <summary>Descends through the downward-aiming portion of the swoop.</summary>
-    public static CeresRidleyPhase SwoopDescendingAimingDown { get; } = new(nameof(SwoopDescendingAimingDown), (_, _, state, _) => RunSwoopDescendingAimingDown(state));
+    public static CeresRidleyPhase SwoopDescendingAimingDown { get; } = new(nameof(SwoopDescendingAimingDown), turn => RunSwoopDescendingAimingDown(turn.State));
 
     /// <summary>Turns the descending swoop toward a leftward aim.</summary>
-    public static CeresRidleyPhase SwoopDescendingAimingLeft { get; } = new(nameof(SwoopDescendingAimingLeft), (_, _, state, _) => RunSwoopDescendingAimingLeft(state));
+    public static CeresRidleyPhase SwoopDescendingAimingLeft { get; } = new(nameof(SwoopDescendingAimingLeft), turn => RunSwoopDescendingAimingLeft(turn.State));
 
     /// <summary>Starts the upward-aiming ascent of the swoop.</summary>
-    public static CeresRidleyPhase SwoopAscendingAimingUp { get; } = new(nameof(SwoopAscendingAimingUp), (_, _, state, _) => RunSwoopAscendingAimingUp(state));
+    public static CeresRidleyPhase SwoopAscendingAimingUp { get; } = new(nameof(SwoopAscendingAimingUp), turn => RunSwoopAscendingAimingUp(turn.State));
 
     /// <summary>Continues the faster upward-aiming swoop ascent.</summary>
-    public static CeresRidleyPhase SwoopAscendingAimingUpFaster { get; } = new(nameof(SwoopAscendingAimingUpFaster), (_, _, state, _) => RunSwoopAscendingAimingUpFaster(state));
+    public static CeresRidleyPhase SwoopAscendingAimingUpFaster { get; } = new(nameof(SwoopAscendingAimingUpFaster), turn => RunSwoopAscendingAimingUpFaster(turn.State));
 
     /// <summary>Steers Ridley to the start of his fake retreat after his hundredth hit.</summary>
-    public static CeresRidleyPhase FakeRetreatMoveToPosition { get; } = new(nameof(FakeRetreatMoveToPosition), (_, place, state, _) => CeresRidleyFlight.TickCeresRidleyFakeRetreatMoveToPosition(place, state));
+    public static CeresRidleyPhase FakeRetreatMoveToPosition { get; } = new(nameof(FakeRetreatMoveToPosition), turn => CeresRidleyFlight.TickCeresRidleyFakeRetreatMoveToPosition(turn.Place, turn.State));
 
     /// <summary>Raises Ridley until he lets the Baby fall.</summary>
-    public static CeresRidleyPhase FakeRetreatRising { get; } = new(nameof(FakeRetreatRising), (_, place, state, _) => CeresRidleyFlight.TickCeresRidleyFakeRetreatRising(place, state));
+    public static CeresRidleyPhase FakeRetreatRising { get; } = new(nameof(FakeRetreatRising), turn => CeresRidleyFlight.TickCeresRidleyFakeRetreatRising(turn.Place, turn.State));
 
     /// <summary>Starts the Baby's fall and waits before the retrieval animation.</summary>
-    public static CeresRidleyPhase WaitBeforeRetrievingBaby { get; } = new(nameof(WaitBeforeRetrievingBaby), (_, place, state, _) => RunWaitBeforeRetrievingBaby(place, state));
+    public static CeresRidleyPhase WaitBeforeRetrievingBaby { get; } = new(nameof(WaitBeforeRetrievingBaby), turn => RunWaitBeforeRetrievingBaby(turn.Place, turn.State));
 
     /// <summary>Steers Ridley's hand toward the falling Baby and reacquires it.</summary>
-    public static CeresRidleyPhase RetrieveBaby { get; } = new(nameof(RetrieveBaby), (_, place, state, _) => CeresRidleyFlight.TickCeresRidleyRetrieveBaby(place, state));
+    public static CeresRidleyPhase RetrieveBaby { get; } = new(nameof(RetrieveBaby), turn => CeresRidleyFlight.TickCeresRidleyRetrieveBaby(turn.Place, turn.State));
 
     /// <summary>Raises Ridley beyond the room for the real getaway.</summary>
-    public static CeresRidleyPhase RealRetreatRising { get; } = new(nameof(RealRetreatRising), (ridley, place, state, _) => ridley.Flight.TickCeresRidleyRetreat(place, state));
+    public static CeresRidleyPhase RealRetreatRising { get; } = new(nameof(RealRetreatRising), turn => turn.Ridley.Flight.TickCeresRidleyRetreat(turn.Place, turn.State));
 
     /// <summary>Prepares retreat colours and walls while waiting to publish the getaway.</summary>
-    public static CeresRidleyPhase RetreatDelay { get; } = new(nameof(RetreatDelay), (ridley, _, state, _) => ridley.Flight.TickCeresRidleyRetreatDelay(state));
+    public static CeresRidleyPhase RetreatDelay { get; } = new(nameof(RetreatDelay), turn => turn.Ridley.Flight.TickCeresRidleyRetreatDelay(turn.State));
 
     /// <summary>Hides Ridley and begins the station's escape with his turning-floor getaway.</summary>
-    public static CeresRidleyPhase PublishEscapeHandoff { get; } = new(nameof(PublishEscapeHandoff), (ridley, place, state, _) => RunPublishEscapeHandoff(ridley, place, state));
+    public static CeresRidleyPhase PublishEscapeHandoff { get; } = new(nameof(PublishEscapeHandoff), turn => RunPublishEscapeHandoff(turn.Ridley, turn.Place, turn.State));
 
     /// <summary>
     /// He has got away (#2228): the station's escape owns the room, and his AI runs the escape's step in his place in the
     /// update (nothing during the getaway, then the self-destruct warning and its alarm).
     /// </summary>
-    public static CeresRidleyPhase Escaped { get; } = new(nameof(Escaped), (ridley, place, _, _) =>
+    public static CeresRidleyPhase Escaped { get; } = new(nameof(Escaped), turn =>
     {
         // The escape runs its own step here, in his place in the update: nothing while the room main flies the
         // getaway, then the self-destruct warning and its alarm.
-        ridley.Escape.RunRidleysStep(place.FrameCounter);
+        turn.Ridley.Escape.RunRidleysStep(turn.Place.FrameCounter);
     });
 
     /// <summary>
@@ -110,7 +110,7 @@ public sealed class CeresRidleyPhase
     /// <param name="state">His encounter.</param>
     /// <param name="samus">Samus, whom his attacks aim at.</param>
     internal void Run(CeresRidleyBehavior ridley, RoomEnemyPlace place, CeresRidleyState state, SamusState samus) =>
-        _run(ridley, place, state, samus);
+        _run(new(ridley, place, state, samus));
 
     /// <summary>Names the phase.</summary>
     public override string ToString() => _name;

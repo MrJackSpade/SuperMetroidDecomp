@@ -45,7 +45,7 @@ internal sealed class KraidBackground
     /// </summary>
     /// <returns>Whether the fade completed on this update.</returns>
     internal bool AdvanceKraidRoomBackgroundFade(
-        KraidBackdropFade fade)
+        KraidBackdropSettledColours fade)
     {
         KraidBackdropColours backdrop = _access.Backdrop;
         if (_presentation.FadeStepCount.Step <= KraidBackgroundDefinitions.BackdropFadeLastStep)

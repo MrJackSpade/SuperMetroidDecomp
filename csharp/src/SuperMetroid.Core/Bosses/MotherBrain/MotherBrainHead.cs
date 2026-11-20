@@ -249,9 +249,12 @@ internal sealed class MotherBrainHead
     /// </summary>
     private MotherBrainBrainPicture? PlayMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)
     {
-        EnemyFrameId? shown = state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, cue => (state.RainbowBeamSequence is { } lateFight
-                ? ApplyLateFightHeadCue(lateFight, samus, cue)
-                : ApplyMotherBrainHeadCue(state, samus, cue)) is { } segment
+        EnemyFrameId? shown = state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, cue => (state.RainbowBeamSequence switch
+                {
+                    { Baby: BabyMetroidArrival.Arrived arrived } lateFight => ApplyBabyAttackHeadCue(lateFight, arrived.Baby, samus, cue),
+                    { } lateFight => ApplyLateFightHeadCue(lateFight, samus, cue),
+                    null => ApplyMotherBrainHeadCue(state, samus, cue),
+                }) is { } segment
             ? new AnimationContinuation<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOfAnimation)
             : null);
         return shown is { } frame ? new MotherBrainBrainPicture(frame, state.BrainShake.Step()) : null;
@@ -263,20 +266,28 @@ internal sealed class MotherBrainHead
     private readonly record struct MotherBrainBrainPicture(EnemyFrameId Frame, bool Shook);
 
     /// <summary>
-    /// Carries out one event of a brain animation in her late fight: the cues of her attacks on the Baby act on
-    /// <paramref name="lateFight"/>, and every other cue as before it began.
+    /// Carries out one event of a brain animation in her late fight once the Baby has arrived: her attacks on the Baby aim
+    /// at <paramref name="baby"/>, and every other cue acts as in her late fight before it arrived.
+    /// </summary>
+    /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>
+    private MotherBrainHeadSegment? ApplyBabyAttackHeadCue(MotherBrainRainbowBeamAttackSequence lateFight, BabyMetroidCutsceneState baby,
+        SamusState samus, MotherBrainHeadCue cue)
+    {
+        if (cue is not MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid })
+            return ApplyLateFightHeadCue(lateFight, samus, cue);
+        AimMotherBrainOnionRingsAt(lateFight.Encounter, baby.Position.Whole);
+        return null;
+    }
+
+    /// <summary>
+    /// Carries out one event of a brain animation in her late fight: the cues that count and cry her attacks on the Baby act
+    /// on <paramref name="lateFight"/>, and every other cue as before it began.
     /// </summary>
     /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>
     private MotherBrainHeadSegment? ApplyLateFightHeadCue(MotherBrainRainbowBeamAttackSequence lateFight, SamusState samus, MotherBrainHeadCue cue)
     {
         switch (cue)
         {
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid }:
-                // Her brain's attacks on the Baby run only once it has arrived and latched on; an awaited Baby is nowhere
-                // to aim at, and the rings keep their aim.
-                if (lateFight.Baby is BabyMetroidArrival.Arrived { Baby: var aimedAt })
-                    AimMotherBrainOnionRingsAt(lateFight.Encounter, aimedAt.Position.Whole);
-                return null;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.CountBabyMetroidAttack }:
                 lateFight.IncrementLiveBabyMetroidAttackCounter();
                 return null;
@@ -335,9 +346,12 @@ internal sealed class MotherBrainHead
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnLaser }:
                 SpawnMotherBrainMouthLaser(state);
                 return null;
-            // Only the animations of her attacks on the Baby, which her late fight starts, raise their cues
-            // (ApplyLateFightHeadCue).
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid or MotherBrainHeadCueKind.CountBabyMetroidAttack or
+            // Only the animation of her attacks on the Baby, which her late fight starts once the Baby has arrived, aims at
+            // it (ApplyBabyAttackHeadCue).
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid }:
+                throw new InvalidOperationException($"Mother Brain's brain raised {cue}, a cue of her attacks on the Baby, before it arrived.");
+            // Only the animations of her late fight, which it starts, raise its cues (ApplyLateFightHeadCue).
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.CountBabyMetroidAttack or
                 MotherBrainHeadCueKind.ResetBabyMetroidAttacks or MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
                 throw new InvalidOperationException($"Mother Brain's brain raised {cue}, a cue of her late fight, before it began.");
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.PrepareRainbowBeamCharge }:

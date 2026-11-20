@@ -63,8 +63,11 @@ public sealed class AudioQueues
         Reset();
     }
 
-    /// <summary>The music data set most recently loaded by a dispatched request, or null while only the shared sounds are loaded.</summary>
-    public MusicDataSet? DataSet { get; private set; }
+    /// <summary>
+    /// The music data set the songs are asked of: the one most recently loaded by a dispatched request, and from power-on
+    /// until the first set loads <see cref="AudioQueueDefinitions.PowerOnDataSet"/>.
+    /// </summary>
+    public MusicDataSet DataSet { get; private set; } = AudioQueueDefinitions.PowerOnDataSet;
 
     /// <summary>The track most recently played, or null after a stop or a data set change.</summary>
     public MusicTrack? PlayingTrack { get; private set; }
@@ -90,13 +93,13 @@ public sealed class AudioQueues
             queue.Clear();
         SoundHandshakes.Reset();
         _soundDowntime.End();
-        DataSet = null;
+        DataSet = AudioQueueDefinitions.PowerOnDataSet;
         PlayingTrack = null;
         _pendingPowerOnRequests.Clear();
 
         // Starting the game installs the shared sounds, then stops the music and withdraws the enemy
         // sound library's request before the first ordinary update.
-        _pendingPowerOnRequests.Add(new AudioRequest.ChangeMusicDataSet(null));
+        _pendingPowerOnRequests.Add(new AudioRequest.InstallSharedSounds());
         _pendingPowerOnRequests.Add(new AudioRequest.StopMusic());
         _pendingPowerOnRequests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Enemies));
     }
@@ -157,8 +160,7 @@ public sealed class AudioQueues
     /// Schedules the request that carries out a room's track choice after <paramref name="delay"/>: its song, or a stop
     /// for a silenced or inherited track (a saved game schedules the room's choice directly, and an inherited track stops
     /// the music there). An area theme is the theme of the data set loaded when the request plays: the set the last data
-    /// set change waiting on the queue loads, or the loaded set when none waits. While only the shared sounds are loaded
-    /// and no change waits there is no area theme, so the choice schedules nothing.
+    /// set change waiting on the queue loads, or the loaded set when none waits.
     /// </summary>
     /// <param name="track">The room's track choice.</param>
     /// <param name="delay">How long the request waits on the queue, at least the shortest delay.</param>
@@ -171,8 +173,7 @@ public sealed class AudioQueues
                 ScheduleMusic(MusicRequest.SelectTrack(play.Track), delay);
                 break;
             case RoomMusicTrack.PlayAreaTheme:
-                if (DataSetLoadedAfterQueue() is MusicDataSet loaded)
-                    ScheduleMusic(MusicRequest.SelectTrack(AreaThemeDefinitions.Themes[loaded]), delay);
+                ScheduleMusic(MusicRequest.SelectTrack(AreaThemeDefinitions.Themes[DataSetLoadedAfterQueue()]), delay);
                 break;
             case RoomMusicTrack.Inherit or RoomMusicTrack.Silence:
                 ScheduleMusic(MusicRequest.Stop, delay);
@@ -184,11 +185,11 @@ public sealed class AudioQueues
 
     /// <summary>
     /// The data set loaded once every request waiting on the music queue has played: the set the last waiting change loads,
-    /// or the loaded set when no change waits; null while only the shared sounds are loaded and no change waits.
+    /// or the loaded set when no change waits.
     /// </summary>
-    private MusicDataSet? DataSetLoadedAfterQueue()
+    private MusicDataSet DataSetLoadedAfterQueue()
     {
-        MusicDataSet? loaded = DataSet;
+        MusicDataSet loaded = DataSet;
         foreach (QueuedMusic queued in Music)
         {
             if (queued.Request is MusicRequest.ChangeDataSet change)
@@ -221,8 +222,7 @@ public sealed class AudioQueues
         RoomMusicTrack.Inherit => false,
         RoomMusicTrack.Silence => true,
         RoomMusicTrack.Play play => dataSetDiffers || play.Track != PlayingTrack,
-        // With no data set loaded no area theme plays, so the choice is queued.
-        RoomMusicTrack.PlayAreaTheme => dataSetDiffers || DataSet is not MusicDataSet loaded || AreaThemeDefinitions.Themes[loaded] != PlayingTrack,
+        RoomMusicTrack.PlayAreaTheme => dataSetDiffers || AreaThemeDefinitions.Themes[DataSet] != PlayingTrack,
         _ => throw new InvalidDataException($"Unknown room music track {track}."),
     };
 

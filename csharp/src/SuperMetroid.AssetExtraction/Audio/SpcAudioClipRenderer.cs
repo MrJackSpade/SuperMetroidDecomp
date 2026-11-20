@@ -49,7 +49,9 @@ internal sealed class SpcAudioClipRenderer
     /// only the shared sounds for the resident driver's upload.
     /// </summary>
     internal void LoadBank(AudioBank bank) =>
-        pending.Add(new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Get(bank).DataSet));
+        pending.Add(AudioAssetCatalogDefinitions.Get(bank).DataSet is MusicDataSet set
+            ? new AudioRequest.ChangeMusicDataSet(set)
+            : new AudioRequest.InstallSharedSounds());
 
     /// <summary>Queues playing track <paramref name="track"/> of the loaded data set for the next frame.</summary>
     internal void PlayTrack(MusicTrack track) => pending.Add(new AudioRequest.PlayMusicTrack(track));

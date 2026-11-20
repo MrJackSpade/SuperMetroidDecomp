@@ -59,6 +59,11 @@ public sealed class ManagedSpcAudioBackend
                     LoadBank(AudioAssetCatalogDefinitions.BankOf(change.DataSet));
                     loadedDataSet = change.DataSet;
                     break;
+                case AudioEvent.InstallSharedSounds:
+                    RequireBeforeTicks(ticks, audioEvent);
+                    LoadBank(AudioAssetCatalogDefinitions.BankOf(null));
+                    loadedDataSet = null;
+                    break;
                 case AudioEvent.SelectMusicTrack selection:
                     RequireBeforeTicks(ticks, audioEvent);
                     Player.WriteMusicPort(checked((byte)(selection.Track is MusicTrack track ? MusicTrackNumbers.Number(loadedDataSet, track) : 0)));

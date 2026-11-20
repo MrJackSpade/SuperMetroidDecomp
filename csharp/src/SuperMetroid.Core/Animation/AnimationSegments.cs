@@ -98,6 +98,20 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
         return beats[opening.Segment][opening.FirstBeat] is AnimationBeat<TFrame, TEvent>.Frame or AnimationBeat<TFrame, TEvent>.HeldFrame;
     }
 
+    /// <summary>The first frame one play of <paramref name="animation"/> shows from its start, after any events it opens with.</summary>
+    /// <exception cref="InvalidDataException">The animation shows no frame in its play.</exception>
+    internal TFrame FirstFrameShown(Animation<TSegment> animation)
+    {
+        foreach (AnimationBeat<TFrame, TEvent> beat in PlayedBeats(animation))
+        {
+            if (beat is AnimationBeat<TFrame, TEvent>.Frame frame)
+                return frame.Shown;
+            if (beat is AnimationBeat<TFrame, TEvent>.HeldFrame held)
+                return held.Shown;
+        }
+        throw new InvalidDataException($"Animation {animation} shows no frame in its play.");
+    }
+
     /// <summary>Every frame a segment shows, each once: a set, since no order of the segments is stated (#2567).</summary>
     internal IReadOnlySet<TFrame> Frames =>
         beats.Values.SelectMany(segment => segment).Select(beat => beat.ShownFrame).OfType<TFrame>().ToHashSet();

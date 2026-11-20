@@ -23,8 +23,14 @@ internal abstract record AudioRequest
     /// Switches the clips the music and sounds play from to <paramref name="DataSet"/>'s. The switch stops the music and
     /// drops every sound request not yet accepted (<see cref="SoundAcceptanceClock{TLibrary, TSound}.PauseForMusicLoad"/>).
     /// </summary>
-    /// <param name="DataSet">The music data set switched to, or null for only the shared sounds, as at power-on.</param>
-    internal sealed record ChangeMusicDataSet(MusicDataSet? DataSet) : AudioRequest;
+    /// <param name="DataSet">The music data set switched to.</param>
+    internal sealed record ChangeMusicDataSet(MusicDataSet DataSet) : AudioRequest;
+
+    /// <summary>
+    /// Installs only the shared sounds, as at power-on: the music stops and the waiting song change is dropped. The songs
+    /// asked for next are of the set loaded next.
+    /// </summary>
+    internal sealed record InstallSharedSounds : AudioRequest;
 
     /// <summary>Asks <paramref name="Sound"/>'s library to play it; the library keeps the request until it is changed.</summary>
     /// <param name="Sound">The sound requested.</param>

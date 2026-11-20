@@ -68,6 +68,11 @@ public sealed class ClipAudioBackend
                     RequireBeforeSteps(stepped, audioEvent);
                     SwitchClipSet(change.DataSet, frameStart);
                     break;
+                case AudioEvent.InstallSharedSounds:
+                    RequireBeforeSteps(stepped, audioEvent);
+                    ReleaseMusic(frameStart);
+                    State.StopMusic();
+                    break;
                 case AudioEvent.SelectMusicTrack selection:
                     RequireBeforeSteps(stepped, audioEvent);
                     State.SongChange.Hold(new SongChange(selection.Track));
@@ -97,7 +102,7 @@ public sealed class ClipAudioBackend
     }
 
     /// <summary>A clip-set switch stops the song and drops the waiting song change; the sounds play on.</summary>
-    private void SwitchClipSet(MusicDataSet? clipSet, long now)
+    private void SwitchClipSet(MusicDataSet clipSet, long now)
     {
         ReleaseMusic(now);
         State.SwitchClipSet(clipSet);
@@ -138,14 +143,12 @@ public sealed class ClipAudioBackend
         if (State.Song is MusicClipEntry playing)
             State.Beat.Hold(BeatLengthAt(playing, now - State.SongStart));
         ReleaseMusic(now);
-        // A stop plays no song, and neither does a song asked of the shared sounds alone: the clip library holds every song
-        // in a data set's clip set, and the shared sounds are none.
-        if (change.Track is not MusicTrack track || State.ClipSet is not MusicDataSet clipSet)
+        if (change.Track is not MusicTrack track)
         {
             State.StopSong();
             return;
         }
-        State.PlaySong(catalog.GetMusic(clipSet, track), now);
+        State.PlaySong(catalog.GetMusic(State.ClipSet, track), now);
     }
 
     /// <summary>Applies a sound start at its request check: the library's policy decides acceptance; an accepted sound replaces the library's sound.</summary>

@@ -28,7 +28,7 @@ public sealed class InstalledSamusDeathPalettes
     private readonly ushort[] explosionPaletteIndices;
 
     /// <summary>Keeps copies of the complete installed death artwork; no caller arrays are retained or modified.</summary>
-    /// <param name="suited">Each suit family's death-flash steps of RGB5 words, in pointer-table order; <see cref="SuitCount"/>, <see cref="ExplosionShadeCount"/> and <see cref="ColorCount"/> give the dimensions.</param>
+    /// <param name="suited">Each suit family's death-flash steps of RGB5 words, in pointer-table order; <see cref="SuitCount"/>, <see cref="SamusShadeDefinitions.Death.ExplosionShadeCount"/> and <see cref="ColorCount"/> give the dimensions.</param>
     /// <param name="suitless">The suitless death-flash steps of RGB5 words in pointer-table order, separate from suited artwork.</param>
     /// <param name="whiteout">The whiteout's RGB5 shades corresponding to ShadesOfWhite, indexed by whiteout counter rather than explosion frame.</param>
     /// <param name="explosionPaletteIndices">One death-flash step selector per explosion record, corresponding to the odd bytes; animation durations are not part of this input.</param>
@@ -57,7 +57,7 @@ public sealed class InstalledSamusDeathPalettes
 
     /// <summary>Returns one installed suited death colour.</summary>
     /// <param name="suit">Family index 0=Power, 1=Varia, 2=Gravity; not the byte offsets 0, 2, and 4.</param>
-    /// <param name="palette">Death-flash step, below <see cref="ExplosionShadeCount"/>: base, flash, the whitening steps, then the final foreground step.</param>
+    /// <param name="palette">Death-flash step, below <see cref="SamusShadeDefinitions.Death.ExplosionShadeCount"/>: base, flash, the whitening steps, then the final foreground step.</param>
     /// <param name="color">Ink index 0..15, copied by the consumer to colours 192..207; index-zero pixels remain transparent.</param>
     /// <returns>The installed colour; no palette is written.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Any index is outside its documented range.</exception>

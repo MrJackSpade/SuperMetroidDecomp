@@ -11,16 +11,21 @@ internal static class KraidColoursPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Bosses.Kraid.KraidColours self)
     {
-        /// <summary>The private property <c>Shown</c>, reached by name.</summary>
+        /// <summary>The parts' shade his shown body keeps, through the private property <c>Shown</c>.</summary>
         internal global::SuperMetroid.Core.Assets.PictureShade? Shown
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidColours, global::SuperMetroid.Core.Assets.PictureShade?>(self, "Shown");
+            get
+            {
+                object shown = PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidColours, object>(self, "Shown");
+                return (global::SuperMetroid.Core.Assets.PictureShade?)(shown.GetType().GetProperty("PartsShade")
+                    ?? throw new InvalidOperationException("Kraid's shown body keeps no parts' shade.")).GetValue(shown);
+            }
         }
 
-        /// <summary>The private property <c>ShowsDeathArm</c>, reached by name.</summary>
+        /// <summary>Whether his body shows his death colours: the private property <c>Shown</c>'s death case.</summary>
         internal bool ShowsDeathArm
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidColours, bool>(self, "ShowsDeathArm");
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidColours, object>(self, "Shown").GetType().Name == "DeathColours";
         }
     }
 

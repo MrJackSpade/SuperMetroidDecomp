@@ -1,5 +1,8 @@
+using Engine.Actors;
+using Engine.Content;
 using Engine.Input;
 using Engine.Shared;
+using Engine.World;
 using Godot;
 
 namespace Engine.Core;
@@ -13,20 +16,46 @@ public sealed class GameSession
     /// <summary>The node the mode in control is shown under.</summary>
     private readonly Node _host;
 
-    /// <summary>Starts a session of <paramref name="definition"/>'s game, showing its modes under <paramref name="host"/>.</summary>
-    public GameSession(GameDefinition definition, Node host)
+    /// <summary>The player, once one has been asked for.</summary>
+    private Player? _player;
+
+    /// <summary>
+    /// Starts a session of <paramref name="definition"/>'s game, showing its modes under <paramref name="host"/> and
+    /// loading its assets through <paramref name="content"/>.
+    /// </summary>
+    public GameSession(GameDefinition definition, Node host, ContentLibrary content)
     {
         ArgumentNullException.ThrowIfNull(definition);
         ArgumentNullException.ThrowIfNull(host);
+        ArgumentNullException.ThrowIfNull(content);
         _host = host;
         Definition = definition;
+        Content = content;
         Random = new GameRandom(definition.CreateRandomSequence());
+        Camera = new Camera(
+            ProjectSettings.GetSetting("display/window/size/viewport_width").AsInt32(),
+            ProjectSettings.GetSetting("display/window/size/viewport_height").AsInt32());
         Mode = definition.CreateFirstMode();
         Show(Mode);
     }
 
     /// <summary>The game being played.</summary>
     public GameDefinition Definition { get; }
+
+    /// <summary>Where the game's assets are loaded from.</summary>
+    public ContentLibrary Content { get; }
+
+    /// <summary>The view onto the room being played.</summary>
+    public Camera Camera { get; }
+
+    /// <summary>What gameplay has asked to hear.</summary>
+    public SoundRequests Sounds { get; } = new();
+
+    /// <summary>The player. One lasts the whole session, going from room to room.</summary>
+    public Player Player => _player ??= Definition.CreatePlayer();
+
+    /// <summary>The node modes and rooms are shown under.</summary>
+    public Node Host => _host;
 
     /// <summary>The count of updates played.</summary>
     public GameClock Clock { get; } = new();
@@ -58,6 +87,7 @@ public sealed class GameSession
             Show(next);
         }
 
+        Sounds.Step();
         Clock.Advance();
     }
 

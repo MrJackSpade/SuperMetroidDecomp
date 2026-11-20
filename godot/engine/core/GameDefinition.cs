@@ -1,4 +1,6 @@
+using Engine.Actors;
 using Engine.Shared;
+using Engine.World;
 using Godot;
 
 namespace Engine.Core;
@@ -33,6 +35,39 @@ public partial class GameDefinition : Resource
         Node root = scene.Instantiate();
         return root as GameMode
             ?? throw new InvalidOperationException($"The first mode's scene root is a {root.GetType().Name}, not a GameMode.");
+    }
+
+    /// <summary>The scene of the player. Its root is a <see cref="Player"/>.</summary>
+    [Export]
+    public PackedScene? PlayerScene { get; set; }
+
+    /// <summary>The scene of the room a new game starts in. Its root is a <see cref="Room"/>.</summary>
+    [Export(PropertyHint.File, "*.tscn")]
+    public string FirstRoom { get; set; } = "";
+
+    /// <summary>The name of the entry point in that room where the player starts.</summary>
+    [Export]
+    public string FirstEntryPoint { get; set; } = "";
+
+    /// <summary>Makes the session's player.</summary>
+    /// <exception cref="InvalidOperationException">No player scene is set, or its root is not a player.</exception>
+    public virtual Player CreatePlayer()
+    {
+        PackedScene scene = PlayerScene ?? throw new InvalidOperationException("The game definition names no player scene.");
+        Node root = scene.Instantiate();
+        return root as Player
+            ?? throw new InvalidOperationException($"The player scene's root is a {root.GetType().Name}, not a Player.");
+    }
+
+    /// <summary>Makes the room at <paramref name="scenePath"/>.</summary>
+    /// <exception cref="InvalidOperationException">The scene does not exist, or its root is not a room.</exception>
+    public virtual Room CreateRoom(string scenePath)
+    {
+        PackedScene scene = ResourceLoader.Load<PackedScene>(scenePath)
+            ?? throw new InvalidOperationException($"There is no room scene at \"{scenePath}\".");
+        Node root = scene.Instantiate();
+        return root as Room
+            ?? throw new InvalidOperationException($"The scene \"{scenePath}\" has a {root.GetType().Name} at its root, not a Room.");
     }
 
     /// <summary>

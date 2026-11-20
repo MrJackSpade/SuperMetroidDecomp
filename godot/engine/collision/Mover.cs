@@ -55,6 +55,16 @@ public sealed class Mover
             break;
         }
 
+        if (blocked is null && step > 0 && !distance.IsZero)
+        {
+            // A move that ends part of the way into a pixel must not carry that part into a wall: against something it
+            // cannot climb, it stops flush.
+            PixelRect here = body.RoomRect;
+            Obstacle obstacle = FindObstacle(here.MovedBy(1, 0), owner, options);
+            if (obstacle.Found && ClimbFor(here, here.MovedBy(1, 0), 1, owner, options, obstacle) == 0)
+                blocked = new MoveResult(Pixels.FromWhole(owner.Position.X.Whole) - start, true, obstacle.Solid is null, obstacle.Solid);
+        }
+
         if (blocked is null)
             owner.Position = owner.Position with { X = target };
         else
@@ -82,6 +92,17 @@ public sealed class Mover
             }
 
             owner.Position = owner.Position with { Y = Pixels.FromWhole(owner.Position.Y.Whole + step) };
+        }
+
+        if (step > 0 && !distance.IsZero)
+        {
+            // A fall that ends part of the way into a pixel must not carry that part into the floor: it lands flush.
+            Obstacle below = FindObstacle(body.RoomRect.MovedBy(0, 1), owner, options);
+            if (below.Found)
+            {
+                owner.Position = owner.Position with { Y = Pixels.FromWhole(owner.Position.Y.Whole) };
+                return new MoveResult(owner.Position.Y - start, true, below.Solid is null, below.Solid);
+            }
         }
 
         owner.Position = owner.Position with { Y = target };

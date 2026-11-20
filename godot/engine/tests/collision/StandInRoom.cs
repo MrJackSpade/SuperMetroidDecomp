@@ -22,9 +22,20 @@ public sealed class StandInRoom : IDisposable
     /// <summary>A room whose terrain is the given rows of letters.</summary>
     public StandInRoom(params string[] rows)
     {
+        WriteAssets(_assets, rows);
+        Terrain = new Terrain { LayoutFile = "room.json" };
+        Terrain.Load(_assets.Library);
+        _nodes.Add(Terrain);
+        World = new CollisionWorld(Terrain);
+        Mover = new Mover(World);
+    }
+
+    /// <summary>Writes the stand-in room's layout, as "room.json", and its block types into <paramref name="assets"/>.</summary>
+    public static void WriteAssets(TempAssets assets, string[] rows)
+    {
         string risingRight = string.Join(", ", Enumerable.Range(1, 16));
         string fallingRight = string.Join(", ", Enumerable.Range(1, 16).Reverse());
-        _assets
+        assets
             .With("blocks/shot.json", """{ "solid": true, "broken_by": ["shot"] }""")
             .With("blocks/crumble.json", """{ "solid": true, "breaks_when_stood_on": true, "stood_on_updates": 2 }""")
             .With("blocks/hidden.json", """{ "solid": true, "broken_by": ["shot"], "hidden_until": ["bomb"] }""")
@@ -46,11 +57,6 @@ public sealed class StandInRoom : IDisposable
                   "patches": { "top left opened": { "column": 0, "row": 0, "rows": ["."] } }
                 }
                 """);
-        Terrain = new Terrain { LayoutFile = "room.json" };
-        Terrain.Load(_assets.Library);
-        _nodes.Add(Terrain);
-        World = new CollisionWorld(Terrain);
-        Mover = new Mover(World);
     }
 
     /// <summary>The room's terrain.</summary>

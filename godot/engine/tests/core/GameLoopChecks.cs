@@ -11,7 +11,7 @@ public sealed class GameLoopChecks
     public void EachStepRunsTheModeOnceAndMovesTheClockOn()
     {
         var loop = new GameLoop();
-        loop.Start(new StandInDefinition { UpdatesBeforeHandOver = 0 }, new ScriptedInputSource());
+        loop.StartStandIn(new StandInDefinition { UpdatesBeforeHandOver = 0 }, new ScriptedInputSource());
         var mode = (StandInMode)loop.Session.Mode;
 
         loop.Step();
@@ -29,7 +29,7 @@ public sealed class GameLoopChecks
     public void AModeHandsOverToTheModeItNames()
     {
         var loop = new GameLoop();
-        loop.Start(new StandInDefinition { UpdatesBeforeHandOver = 2 }, new ScriptedInputSource());
+        loop.StartStandIn(new StandInDefinition { UpdatesBeforeHandOver = 2 }, new ScriptedInputSource());
         GameMode first = loop.Session.Mode;
 
         loop.Step();
@@ -52,7 +52,7 @@ public sealed class GameLoopChecks
     public void TheModeSeesTheUpdatesInput()
     {
         var loop = new GameLoop();
-        loop.Start(
+        loop.StartStandIn(
             new StandInDefinition { UpdatesBeforeHandOver = 0 },
             new ScriptedInputSource([GameAction.Jump], [GameAction.Jump], [], [GameAction.Jump]));
         var mode = (StandInMode)loop.Session.Mode;
@@ -69,8 +69,8 @@ public sealed class GameLoopChecks
     {
         var first = new GameLoop();
         var second = new GameLoop();
-        first.Start(new StandInDefinition { RandomSeed = 7 }, new ScriptedInputSource());
-        second.Start(new StandInDefinition { RandomSeed = 7 }, new ScriptedInputSource());
+        first.StartStandIn(new StandInDefinition { RandomSeed = 7 }, new ScriptedInputSource());
+        second.StartStandIn(new StandInDefinition { RandomSeed = 7 }, new ScriptedInputSource());
 
         first.Session.Progress.Record("example fact");
         Expect.True(first.Session.Progress.Has("example fact"));

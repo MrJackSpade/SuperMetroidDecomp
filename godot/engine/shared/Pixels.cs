@@ -67,6 +67,26 @@ public readonly struct Pixels : IEquatable<Pixels>, IComparable<Pixels>
     /// <summary>This distance with its fraction replaced and its whole pixels kept.</summary>
     public Pixels WithFraction(int fraction) => FromParts(Whole, fraction);
 
+    /// <summary>
+    /// This distance taken <paramref name="times"/> over <paramref name="over"/>: half of it is 1 over 2. The result is
+    /// cut off toward no distance at the smallest part of a pixel.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="over"/> is not positive, or <paramref name="times"/> is negative.</exception>
+    public Pixels Share(int times, int over)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(times);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(over);
+        return new(checked(_fractions * times) / over);
+    }
+
+    /// <summary>This distance moved toward <paramref name="target"/> by at most <paramref name="step"/>, never past it.</summary>
+    public Pixels Toward(Pixels target, Pixels step)
+    {
+        if (this < target)
+            return this + step > target ? target : this + step;
+        return this - step < target ? target : this - step;
+    }
+
     /// <summary>The size of this distance, without its direction.</summary>
     public Pixels Abs() => new(Math.Abs(_fractions));
 

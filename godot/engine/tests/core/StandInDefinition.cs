@@ -10,4 +10,7 @@ public partial class StandInDefinition : GameDefinition
 
     /// <inheritdoc/>
     public override GameMode CreateFirstMode() => new StandInMode { Name = "First", UpdatesBeforeHandOver = UpdatesBeforeHandOver };
+
+    /// <inheritdoc/>
+    public override Engine.Actors.Player CreatePlayer() => new() { Name = "Player" };
 }

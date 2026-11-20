@@ -1,3 +1,4 @@
+using Engine.Content;
 using Engine.Input;
 using Godot;
 
@@ -20,13 +21,16 @@ public partial class GameLoop : Node
     /// <summary>Makes each update's input, once started.</summary>
     private InputSampler? _input;
 
-    /// <summary>Starts a session of <paramref name="definition"/>'s game, taking its input from <paramref name="source"/>.</summary>
-    public void Start(GameDefinition definition, IInputSource source)
+    /// <summary>
+    /// Starts a session of <paramref name="definition"/>'s game, taking its input from <paramref name="source"/> and
+    /// its assets from <paramref name="content"/>.
+    /// </summary>
+    public void Start(GameDefinition definition, IInputSource source, ContentLibrary content)
     {
         if (_session is not null)
             throw new InvalidOperationException("The game loop has already been started.");
         _input = new InputSampler(source);
-        _session = new GameSession(definition, this);
+        _session = new GameSession(definition, this, content);
     }
 
     /// <summary>The running game.</summary>
@@ -59,7 +63,7 @@ public partial class GameLoop : Node
             var devices = new DeviceInputSource();
             AddChild(devices);
             devices.Watch(GameAction.Standard.Concat(definition.Actions.Select(name => new GameAction(name))));
-            Start(definition, devices);
+            Start(definition, devices, ContentLibrary.ForProject());
         }
         catch (Exception exception)
         {

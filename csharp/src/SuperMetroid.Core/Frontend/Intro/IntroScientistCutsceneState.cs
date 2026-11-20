@@ -93,7 +93,7 @@ internal sealed class IntroScientistCutsceneState
         switch (cue)
         {
             case IntroLaboratoryCue.StartNextPage:
-                // The Baby's tenth pulse ends by selecting the next page.
+                // The Baby's last pulse ends by selecting the next page.
                 NextPageRequested = true;
                 return;
             default:

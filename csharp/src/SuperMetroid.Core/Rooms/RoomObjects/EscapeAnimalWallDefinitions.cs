@@ -20,7 +20,7 @@ public static class EscapeAnimalWallDefinitions
     /// <summary>The collision type the setup gives the wall's origin block, keeping its artwork.</summary>
     public const RoomCollisionType OriginCollisionType = RoomCollisionType.ShootableBlock;
 
-    /// <summary>The collision type of the two blocks below the origin, which extend it.</summary>
+    /// <summary>The collision type of the blocks below the origin, which extend it.</summary>
     public const RoomCollisionType ExtensionCollisionType = RoomCollisionType.VerticalExtension;
 
     /// <summary>The extension blocks' behaviour: a displacement of one block up, onto the block above.</summary>

@@ -6,7 +6,7 @@ internal enum EyeDoorPartPhase
     /// <summary>Just placed: on its next update the part takes its first look at its door, and leaves if it was opened for good.</summary>
     Placed,
 
-    /// <summary>Standing still, looking for Samus every eight updates.</summary>
+    /// <summary>Standing still, looking for Samus each time its still image ends.</summary>
     Still,
 
     /// <summary>Pulsing while Samus stays near.</summary>

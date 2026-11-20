@@ -23,7 +23,7 @@ public readonly record struct RoomFxOverlayRenderSnapshot(
     public RoomEffectBlend Blend => Look.Blend;
 
     /// <summary>
-    /// The phase of the lava or acid heat haze over the background, circular over its sixteen samples. Zero is the phase
+    /// The phase of the lava or acid heat haze over the background, circular over its samples. Zero is the phase
     /// the haze shows first after it starts; each later phase steps the samples backward one place.
     /// </summary>
     public int LavaAcidBackgroundWavePhase { get; init; }

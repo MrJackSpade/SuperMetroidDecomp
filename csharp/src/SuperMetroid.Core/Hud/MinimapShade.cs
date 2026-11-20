@@ -9,6 +9,6 @@ public enum MinimapShade
     /// <summary>Explored by Samus.</summary>
     Explored,
 
-    /// <summary>The cell Samus is in, on the half of each sixteen-frame cycle the marker shows.</summary>
+    /// <summary>The cell Samus is in, on the half of each blink cycle the marker shows.</summary>
     SamusLocation,
 }

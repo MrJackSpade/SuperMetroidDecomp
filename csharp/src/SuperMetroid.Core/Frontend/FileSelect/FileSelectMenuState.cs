@@ -137,7 +137,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.InitializeMain:
-                // The fades step every second update from here; the display then waits out one update.
+                // The fades step at the menu's fade pace from here; the display then waits out one update.
                 screenFade.StepEvery(FileSelectLayout.FadeUpdatesPerStep);
                 Phase = FileSelectPhase.InitializeMainAfterFrameWait;
                 break;

@@ -15,9 +15,9 @@ internal static class EndingPostShotDefinitions
     public const int OffsetX = -4;
     /// <summary>The post-shot background vertical offset.</summary>
     public const int OffsetY = -8;
-    /// <summary>The reward turning floor's starting zoom: nine floor pixels per screen pixel.</summary>
+    /// <summary>The reward turning floor's starting zoom.</summary>
     public static FloorZoom InitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(9);
-    /// <summary>The zoom narrows by a quarter floor pixel per screen pixel each update.</summary>
+    /// <summary>How far the zoom narrows each update.</summary>
     public static FloorZoomStep ZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 4);
     /// <summary>The zoom the completed rotation stops at.</summary>
     public static FloorZoom MinimumZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(3, 32);

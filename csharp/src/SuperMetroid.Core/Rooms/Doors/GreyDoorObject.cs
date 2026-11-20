@@ -119,7 +119,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
                 Look(place, context);
                 return;
             case GreyDoorPhase.HeldOpen:
-                // Bomb Torizo's door stays open, two updates at a time, until Samus has Bombs.
+                // Bomb Torizo's door stays open, its held-open segment over and over, until Samus has Bombs.
                 if (!context.Frame.CollectedItems.HasAny(SamusEquipmentFlags.Bombs))
                 {
                     Play(GreyDoorDefinitions.BombTorizoHeldOpen, place, context);

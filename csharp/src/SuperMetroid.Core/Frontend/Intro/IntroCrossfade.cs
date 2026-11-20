@@ -59,8 +59,8 @@ public sealed class IntroCrossfade
     }
 
     /// <summary>
-    /// Runs the crossfade for one update (#1980): it takes a step on every fourth update counted down to its last, so its
-    /// thirty-two steps end on that last update, and reports what it did.
+    /// Runs the crossfade for one update (#1980): it takes a step on the last update of each run of its step's updates,
+    /// so its steps end on its last update, and reports what it did.
     /// </summary>
     /// <exception cref="InvalidOperationException">No crossfade has started, or the crossfade has already ended.</exception>
     internal IntroCrossfadeTick Advance()

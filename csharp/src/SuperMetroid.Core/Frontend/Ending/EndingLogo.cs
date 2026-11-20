@@ -6,7 +6,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The ending's assembling logo, followed by sixteen colour loads: its two S halves move into place while its two
+/// The ending's assembling logo, followed by its colour loads (<see cref="EndingLogoDefinitions.CrossfadeSteps"/>): its two S halves move into place while its two
 /// circles draw in (#1979).
 /// </summary>
 internal sealed class EndingLogo

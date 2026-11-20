@@ -7,19 +7,19 @@ namespace SuperMetroid.Core.Frontend;
 internal static class GameLoadingDefinitions
 {
     /// <summary>
-    /// Starting gameplay lets the music queue settle three times, twenty updates each.
+    /// The updates starting gameplay lets the music queue settle, over its several settles.
     /// </summary>
     public const int MusicQueueWaits = 3 * 20;
 
     /// <summary>
-    /// Updates a load spends setting up the room's enemies before gameplay starts (enemy setup plus one update's wait
-    /// while its counter runs from six to zero), used by every load except the Zebes landing, and by every title
+    /// Updates a load spends setting up the room's enemies before gameplay starts (enemy setup plus its wait), used by
+    /// every load except the Zebes landing, and by every title
     /// demonstration before its playback starts. The updates themselves are kept because how long loading takes decides
     /// which update gameplay resumes on; the enemies' pictures need no time to appear.
     /// </summary>
     public const int EnemySetupWaits = 7;
 
-    /// <summary>Updates the Zebes landing spends setting up enemies: its counter runs from fifteen to zero.</summary>
+    /// <summary>Updates the Zebes landing spends setting up enemies, longer than every other load's.</summary>
     public const int ZebesLandingEnemySetupWaits = 16;
 
     /// <summary>Total waiting updates following an ordinary or Ceres load.</summary>

@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroRinkaAnimations
 {
     /// <summary>
-    /// A Rinka's animation: its three pictures for ten updates each, then it starts moving and loops its second, first,
-    /// second and third pictures for ten updates each.
+    /// A Rinka's animation: its pictures in turn, then it starts moving and loops its second, first, second and third
+    /// pictures.
     /// </summary>
     internal static CinematicAnimations<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaCue> Rinka { get; } = new(
         new Dictionary<IntroRinkaAnimation, AnimationBeat<CinematicSpritePose, IntroRinkaCue>[]>

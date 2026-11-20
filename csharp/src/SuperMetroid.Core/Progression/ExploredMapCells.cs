@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// One area map's explored cells (#1777): each map tile of the 64-by-32 area map, explored or not. A cell outside the
+/// One area map's explored cells (#1777): each map tile of the area map (<see cref="AreaMapSize"/>), explored or not. A cell outside the
 /// area map is rejected rather than reaching a neighbouring cell.
 /// </summary>
 public sealed class ExploredMapCells
@@ -42,5 +42,5 @@ public sealed class ExploredMapCells
     /// <summary>Rejects a cell outside the area map.</summary>
     private static Position16<MapTiles> Require(Position16<MapTiles> cell) => AreaMapSize.Extent.Contains(cell)
         ? cell
-        : throw new ArgumentOutOfRangeException(nameof(cell), cell, "The cell lies outside the 64-by-32 area map.");
+        : throw new ArgumentOutOfRangeException(nameof(cell), cell, "The cell lies outside the area map.");
 }

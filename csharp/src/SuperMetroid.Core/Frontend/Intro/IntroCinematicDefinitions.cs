@@ -34,16 +34,16 @@ public static class IntroCinematicDefinitions
         public const MusicTrack PeaceLineSong = MusicTrack.GalaxyAtPeace;
         /// <summary>The song the illustrated pages play once the introduction's music set has loaded.</summary>
         public const MusicTrack IntroductionSong = MusicTrack.Introduction;
-        /// <summary>How long the second line's and the pages' songs wait on the music queue: fourteen passes.</summary>
+        /// <summary>How long the second line's and the pages' songs wait on the music queue, in passes.</summary>
         public static MusicQueueDelay SceneTrackDelay { get; } = new(14);
     }
 
     /// <summary>Screen-fade cadences of the opening's scene changes.</summary>
     public static class Fade
     {
-        /// <summary>Updates each step of the narration's fades takes: one brightness level every two updates.</summary>
+        /// <summary>Updates each brightness step of the narration's fades takes.</summary>
         public const int NarrationUpdatesPerStep = 2;
-        /// <summary>Updates each step of the final fade takes: one brightness level every second update.</summary>
+        /// <summary>Updates each brightness step of the final fade takes.</summary>
         public const int FinishUpdatesPerStep = 2;
     }
 

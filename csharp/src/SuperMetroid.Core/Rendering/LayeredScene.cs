@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// A frame's scene: what it paints with, and its layers drawn from back to front over the 256-by-224 screen (#1514).
+/// A frame's scene: what it paints with, and its layers drawn from back to front over the screen (#1514).
 /// Each layer is named for what it shows (a plane of pictures, the HUD, a layer of sprites, a glow, a tint, an inset
 /// scene); what a layer shows, and so which of the screen's pictures and sprites lie in front of which, is the producer's
 /// decision, made by the order of its layers. The frame's brightness applies last.

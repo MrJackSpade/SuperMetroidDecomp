@@ -50,7 +50,7 @@ public sealed class HudState
     /// <summary>Suppresses minimap updates once a boss has set up its fight.</summary>
     private bool MinimapDisabled { get; set; }
 
-    /// <summary>Hides the minimap's fifteen cells and disables updates.</summary>
+    /// <summary>Hides the minimap's cells and disables updates.</summary>
     internal void DisableMinimapForBoss()
     {
         MinimapDisabled = true;
@@ -114,7 +114,7 @@ public sealed class HudState
     }
 
     /// <summary>
-    /// Updates the visible 5x3 minimap for a supplied room/map position: explores the cell Samus is in (and the corner
+    /// Updates the visible minimap for a supplied room/map position: explores the cell Samus is in (and the corner
     /// above a sloped hallway) and reads the cells around it, including the blinking center cell.
     /// </summary>
     public void UpdateMinimap(SharedGameState system, MinimapFrame frame)
@@ -133,7 +133,7 @@ public sealed class HudState
         if (MinimapDisabled || !frame.RoomSize.Contains(frame.Samus.ToRoomBlock()))
             return;
 
-        // One area-map cell shows one 256x256 room screen: Samus's cell is the room's cell moved by the screen she is in.
+        // One area-map cell shows one room screen: Samus's cell is the room's cell moved by the screen she is in.
         // A room running past the map's right edge wraps to its left edge (AreaMapSize.WrapColumn).
         int centerX = AreaMapSize.WrapColumn(frame.RoomMap.X + RoomGridConversions.PixelToScreen(frame.Samus.X));
         int centerY = frame.RoomMap.Y + RoomGridConversions.PixelToScreen(frame.Samus.Y);
@@ -165,7 +165,7 @@ public sealed class HudState
             return new MinimapMapCell(frame.PresentationMap.Cell(cell), explored ? MinimapShade.Explored : MinimapShade.Unexplored);
         });
 
-        // Every eight frames the minimap turns the center cell to the Samus-location
+        // At its blink cadence the minimap turns the center cell to the Samus-location
         // shade. The other half-cycle leaves its explored shade intact, producing the
         // familiar blinking Samus location without a separate sprite. The center is always
         // the explored cell Samus stands in, so it is always a revealed map cell.

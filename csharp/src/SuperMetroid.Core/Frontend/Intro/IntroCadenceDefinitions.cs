@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroCadenceDefinitions
 {
     /// <summary>
-    /// The counts of updates danced on which the discovered baby Metroid cries: every 64th, so it cries at 64 and at
-    /// 128, when its dance ends.
+    /// The counts of updates danced on which the discovered baby Metroid cries: each period's first place, the last as its
+    /// crying dance ends.
     /// </summary>
     internal static readonly UpdateCadence BabyCriesEverySixtyFourthDanceUpdate = new(64, 0);
 

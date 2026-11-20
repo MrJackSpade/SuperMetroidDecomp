@@ -11,7 +11,7 @@ public static class TitleSequenceDefinitions
     /// <summary>The console lights title setup and the skip path start.</summary>
     public static class ConsoleColourEffects
     {
-        /// <summary>The Baby Metroid tube's slow ten-update light.</summary>
+        /// <summary>The Baby Metroid tube's slow light.</summary>
         public const ColourEffectId SlowLights = ColourEffectId.TitleScreenBabyMetroidTubeLight;
 
         /// <summary>The flickering displays' alternating colours.</summary>
@@ -57,16 +57,16 @@ public static class TitleSequenceDefinitions
     /// <summary>The floor scenes' starting transforms, motion and completion thresholds.</summary>
     public static class Scenes
     {
-        /// <summary>The lower pan: zoom 72/256 at background offset (315, 225).</summary>
+        /// <summary>The lower pan, zoomed in on the lower part of the background.</summary>
         public static readonly TitleFloorSceneDefinition LowerPan =
             new(TitleSequencePhase.LowerPan, FloorZoom.FromFloorPixelsPerScreenPixel(9, 32), new(315, 225));
-        /// <summary>The upper pan: zoom 96/256 at background offset (44, -155).</summary>
+        /// <summary>The upper pan, over the upper part of the background.</summary>
         public static readonly TitleFloorSceneDefinition UpperPan =
             new(TitleSequencePhase.UpperPan, FloorZoom.FromFloorPixelsPerScreenPixel(3, 8), new(44, -155));
-        /// <summary>The downward pan: zoom 96/256 at background offset (-177, -160).</summary>
+        /// <summary>The downward pan, down across the background.</summary>
         public static readonly TitleFloorSceneDefinition DownwardPan =
             new(TitleSequencePhase.DownwardPan, FloorZoom.FromFloorPixelsPerScreenPixel(3, 8), new(-177, -160));
-        /// <summary>The final zoom: zoom 67/256 with no background offset.</summary>
+        /// <summary>The final zoom, with no background offset.</summary>
         public static readonly TitleFloorSceneDefinition FinalZoom =
             new(TitleSequencePhase.FinalZoom, FloorZoom.FromFloorPixelsPerScreenPixel(67, 256), new(0, 0));
         /// <summary>The pan speed, 1.5 pixels per update; the lower and upper pans go left, the downward pan down.</summary>

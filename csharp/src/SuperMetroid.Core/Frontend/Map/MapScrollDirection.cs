@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// <summary>The direction a map scroll step moves the viewport, or none.</summary>
 public enum MapScrollDirection
 {
-    /// <summary>No eight-tick scroll step is active.</summary>
+    /// <summary>No scroll step is active.</summary>
     None,
     /// <summary>Scroll the map viewport toward smaller horizontal offsets.</summary>
     Left,

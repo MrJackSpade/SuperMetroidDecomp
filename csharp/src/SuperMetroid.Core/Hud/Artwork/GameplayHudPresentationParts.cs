@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Hud.Artwork;
 /// </summary>
 internal sealed record GameplayHudPresentationParts
 {
-    /// <summary>The screen pixel each of the fourteen energy tanks' upper-left corner shows at.</summary>
+    /// <summary>The screen pixel each energy tank's upper-left corner shows at (<see cref="GameplayHudDefinitions.EnergyTankCount"/>).</summary>
     public required ImmutableArray<Position16<ScreenPixels>> EnergyTankCorners { get; init; }
 
     /// <summary>The screen pixel the energy count's first digit's upper-left corner shows at.</summary>

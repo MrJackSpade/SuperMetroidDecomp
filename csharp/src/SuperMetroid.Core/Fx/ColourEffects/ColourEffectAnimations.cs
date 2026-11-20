@@ -529,8 +529,8 @@ internal static class ColourEffectAnimations
     });
 
     /// <summary>
-    /// A suit's loading: its opening flicker played thirty-six times, its second and third three times each, its last twice,
-    /// then its loaded look once. Each suit plays it in its own frames.
+    /// A suit's loading: its opening flicker played many times over, its second and third a few times each, its last
+    /// fewer still, then its loaded look once. Each suit plays it in its own frames.
     /// </summary>
     private static readonly Animation<ColourEffectSegment> SuitLoading = new(
         [
@@ -629,7 +629,7 @@ internal static class ColourEffectAnimations
         [A.GravitySuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance, HeatPulseLoop),
     }.ToFrozenDictionary();
 
-    /// <summary>Each suit's heat pulse, whose sixteen frames are the heat phases' looks in that suit.</summary>
+    /// <summary>Each suit's heat pulse, whose frames are the heat phases' looks in that suit.</summary>
     internal static FrozenDictionary<ColourEffectHeatSuit, ColourEffectId> HeatPulses { get; } =
         new Dictionary<ColourEffectHeatSuit, ColourEffectId>
     {

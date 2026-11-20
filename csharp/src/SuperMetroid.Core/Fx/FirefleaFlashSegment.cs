@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Fx;
 internal enum FirefleaFlashSegment
 {
     /// <summary>
-    /// The flash brightening over six looks from its darkest to its brightest and dimming over the next six, each shown for
-    /// six updates.
+    /// The flash brightening through its looks from its darkest to its brightest and dimming back down, each shown for
+    /// the same updates.
     /// </summary>
     Flashing,
 }

@@ -68,7 +68,7 @@ public sealed class RoomBackgroundImage
     /// <summary>The image's width and height.</summary>
     public Extent16<ImagePixels> Size { get; }
 
-    /// <summary>The image's 16x16 cells, row by row across the picture.</summary>
+    /// <summary>The image's block-sized cells, row by row across the picture.</summary>
     public int CellCount { get; }
 
     /// <summary>The cells whose pictures change with the room's appearance inputs; every other cell always shows the image.</summary>

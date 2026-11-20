@@ -13,7 +13,7 @@ internal static class MapScrollControls
     public static ImmutableArray<MapScrollDirection> Directions { get; } =
         [MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down];
 
-    /// <summary>The eight-pixel map scroll applied by one accepted scroll pulse in <paramref name="direction"/>.</summary>
+    /// <summary>The map scroll one accepted scroll pulse applies in <paramref name="direction"/>.</summary>
     public static Offset16<MapPixels> StepOffset(MapScrollDirection direction) => direction switch
     {
         MapScrollDirection.Left => new(-MapScrollDefinitions.StepPixels, 0),

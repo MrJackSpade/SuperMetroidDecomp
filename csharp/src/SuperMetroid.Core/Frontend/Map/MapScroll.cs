@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>
 /// The area map's scroll on a map screen (#1975): where the screen frames the map when it opens, which arrows may scroll
-/// it, and the eight-update step a held arrow runs. File select's room map and the pause screen's map page run this one
+/// it, and the step a held arrow runs (<see cref="MapScrollDefinitions.StepTicks"/>). File select's room map and the pause screen's map page run this one
 /// framing; how their screens differ is data (<see cref="MapFraming"/>).
 /// </summary>
 /// <remarks>
 /// The scroll is the screen's top-left corner as a signed offset from the map's corner, which the screen subtracts from
 /// what it draws: negative where the screen lies left of or above the map. The limits, the edges and the scroll stay
-/// within a few hundred pixels of the 512-by-256 map (the framing starts there and a step is taken only while an arrow
+/// within a few hundred pixels of the area map (the framing starts there and a step is taken only while an arrow
 /// allows it), so the offset never wraps and the arrows' tests compare plain differences.
 /// </remarks>
 public sealed class MapScroll
@@ -38,7 +38,7 @@ public sealed class MapScroll
     /// <summary>The screen's top-left corner as an offset from the map's corner, negative left of or above it.</summary>
     public Offset16<MapPixels> Scroll { get; private set; }
 
-    /// <summary>The direction of the accepted eight-update scroll step, or <see cref="MapScrollDirection.None"/>.</summary>
+    /// <summary>The direction of the accepted scroll step, or <see cref="MapScrollDirection.None"/>.</summary>
     private MapScrollDirection Direction { get; set; }
 
     /// <summary>
@@ -86,8 +86,8 @@ public sealed class MapScroll
 
     /// <summary>
     /// Runs one update of held arrows: with no step under way the first held direction that may scroll, in
-    /// <see cref="MapScrollControls.Directions"/> order, starts one. A step moves the map on its fourth update and finishes
-    /// on its eighth even when its button has been released. Returns true on the update a step finishes, when the scroll
+    /// <see cref="MapScrollControls.Directions"/> order, starts one. A step moves the map on its pulse update
+    /// (<see cref="MapScrollDefinitions.PulseTick"/>) and finishes on its last even when its button has been released. Returns true on the update a step finishes, when the scroll
     /// sound plays.
     /// </summary>
     /// <param name="heldInput">The controller buttons held.</param>

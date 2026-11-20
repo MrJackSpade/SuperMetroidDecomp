@@ -48,7 +48,7 @@ internal sealed class DoorOpeningScrollState
 
     /// <summary>
     /// Builds the setup position and the scroll's trajectory from a door and its destination camera and background
-    /// positions; the background's endpoint is reached through directional four-pixel steps.
+    /// positions; the background's endpoint is reached through directional steps (<see cref="DoorOpeningScrollDefinitions.LayerStepPixels"/>).
     /// </summary>
     public static DoorOpeningScrollState Create(
         DoorDefinition door,

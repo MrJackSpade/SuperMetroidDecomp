@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Hud;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The box pauses gameplay, opens a window around Y=124, holds the message for a fixed interval, waits for input, and
+/// The box pauses gameplay, opens a window around its centre line, holds the message for a fixed interval, waits for input, and
 /// closes the same window before gameplay resumes. What it shows is a <see cref="ShownMessage"/>: the message, the
 /// button its panel names and the highlighted save choice, whose installed image the backend draws.
 /// </para>
@@ -64,7 +64,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
 
     /// <summary>
     /// Half-height of the row window visible in the most recently completed frame.
-    /// The radius grows and shrinks by exactly two pixels per update.
+    /// The radius grows and shrinks by exactly its radius step each update.
     /// </summary>
     private int RadiusPixels { get; set; }
 

@@ -9,7 +9,7 @@ public static class ColourEffectHeatData
     public static readonly EnergyAmount DamagePerUpdate = EnergyAmount.FromEnergyFraction(1, 4);
 
     /// <summary>
-    /// Energy must be greater than 70 before the heat condition queues another environmental
+    /// Energy must be greater than this before the heat condition queues another environmental
     /// damage sound; this prevents the sound from obscuring low-health warnings.
     /// </summary>
     public const int DamageSoundEnergyThreshold = 70;

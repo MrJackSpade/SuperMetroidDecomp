@@ -212,8 +212,8 @@ internal sealed class FrontendSession
     /// </summary>
     internal ScreenFade GameplayFadeIn { get; } =
         new(DisplayBrightness.Black, stepDelay: GameplayFadeDefinitions.FadeInWaitBeforeEachStep, firstWait: GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
-    /// <summary>Selects Ceres arrival rather than Landing Site at the fade destination.</summary>
-    internal bool GameplayFadeLeadsToCeresArrival { get; private set; }
+    /// <summary>Where the running gameplay fade-in leads: ordinary gameplay, or the Ceres arrival (#2560).</summary>
+    internal GameplayFadeTarget GameplayFadeTarget { get; private set; }
     /// <summary>Gameplay brightness retained through pause and unpause fades, from black through full.</summary>
     internal DisplayBrightness PauseBrightness => screenFade.Level;
     /// <summary>Steps the shared screen fade one frame toward lit, without publishing it; returns whether it is fully lit.</summary>
@@ -653,7 +653,7 @@ internal sealed class FrontendSession
     internal void BeginGameplayFadeIn(GameplayFadeTarget target)
     {
         GameplayFadeIn.Restart(DisplayBrightness.Black, GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
-        GameplayFadeLeadsToCeresArrival = target == GameplayFadeTarget.CeresArrival;
+        GameplayFadeTarget = target;
         Enter(Phases.GameplayFadeIn);
     }
     /// <summary>
@@ -664,7 +664,7 @@ internal sealed class FrontendSession
     internal void FinishGameplayFadeIn()
     {
         Enter(Phases.MainGameplay);
-        GameplayFadeLeadsToCeresArrival = false;
+        GameplayFadeTarget = GameplayFadeTarget.Gameplay;
         screenFade.StepEvery(GameplayFadeDefinitions.MainGameplayUpdatesPerStep);
         RecordFullBrightness();
     }

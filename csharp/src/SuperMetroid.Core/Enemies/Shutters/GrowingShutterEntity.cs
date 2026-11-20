@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// The growing shutter (#2146): it grows and shrinks by its own AI and animation, and takes the destroyable shutter's shot
-/// reaction where its definition leaves shots to it.
+/// The growing shutter (#2146): it grows and shrinks by its own AI and animation. Its definition names the ordinary shot and
+/// no touch or Power Bomb reaction, so it takes the shared reactions and has none of its own (#2554).
 /// </summary>
 /// <param name="species">The Shutters species owner.</param>
 /// <param name="place">The place the shutter occupies.</param>
@@ -19,6 +19,4 @@ internal sealed class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyPl
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Place, State, context);
 
-    /// <summary>The destroyable shutter's shot reaction where the definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? ShuttersBehavior.GrowingShutterShotReaction : base.ShotReaction;
 }

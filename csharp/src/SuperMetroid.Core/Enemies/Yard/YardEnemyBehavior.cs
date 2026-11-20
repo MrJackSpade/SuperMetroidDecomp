@@ -607,7 +607,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Kicks a struck Yard's shell into the air, or lets a bomb's or a power bomb's vulnerability damage run.</summary>
-    internal EnemyShotReaction YardShotReaction => field ??= new()
+    /// <param name="state">The Yard's state, whose shell the shot kicks.</param>
+    internal EnemyShotReaction YardShotReactionOf(YardEnemyState state) => new()
     {
         AdmitsBombFamilies = true,
         // A bomb or a power bomb deals the Yard its vulnerability damage; every other shot that strikes it only kicks
@@ -616,14 +617,16 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
                 return false;
-            ResolveYardBeamLaunch(c.Enemy, EnemyPartners.Listed<YardEntity>(c.Enemy).State, c.Samus);
+            ResolveYardBeamLaunch(c.Enemy, state, c.Samus);
             return true;
         },
     };
 
     /// <summary>Runs Yard's touch reaction, including its facing-dependent shell response.</summary>
-    internal void ReactToYardTouch(EnemyTouchContext context) =>
-        ResolveYardTouch(context.Place, EnemyPartners.Listed<YardEntity>(context.Place).State, context.Samus, context.PseudoScrew, context.ControllerInput);
+    /// <param name="context">The touch.</param>
+    /// <param name="state">The enemy's own state, which the touch acts on.</param>
+    internal void ReactToYardTouch(EnemyTouchContext context, YardEnemyState state) =>
+        ResolveYardTouch(context.Place, state, context.Samus, context.PseudoScrew, context.ControllerInput);
 
     /// <summary>The enemy-library sound queued by a Yard shell kick, launch or wall bounce.</summary>
     private static readonly SoundEffectId YardBounceSound =

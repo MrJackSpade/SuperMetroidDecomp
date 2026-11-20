@@ -16,6 +16,9 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace pl
     /// <summary>The body's own shot reaction, built over its state (#2554).</summary>
     private EnemyShotReaction OwnShotReaction => field ??= species.PowampBodyShotReactionOf(State);
 
+    /// <summary>The body's own Power Bomb reaction, built over its state (#2554).</summary>
+    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= species.PowampBodyPowerBombReactionOf(State);
+
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal PowampBodyState State { get; } = species.InitializePowampBody(place);
 
@@ -47,7 +50,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace pl
         context.SelectedShot is null ? OwnPowampBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The body's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.PowampBodyPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? OwnPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The Powamp's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

@@ -11,6 +11,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : MotherBrainEntity(species, place, common), IEnemyPrivateShotReaction
 {
+    /// <summary>Her head's own shot reaction, built over the encounter (#2554).</summary>
+    private EnemyShotReaction OwnShotReaction => field ??= Species.Combat.HeadShotReactionOf(Encounter);
+
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal MotherBrainEnemyState State { get; } = species.Head.InitializeMotherBrainHead(place);
 
@@ -47,7 +50,7 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     }
 
     /// <summary>The head's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.Combat.HeadShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>Runs the head's own reaction to a bomb that selects its shot reaction, before the ignoring check.</summary>
     /// <param name="context">The bomb contact.</param>
@@ -55,7 +58,7 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     {
         if (context.SelectedShot != MotherBrainReactions.HeadShot)
             return base.TryReactToBomb(context);
-        Species.Combat.ReactToMotherBrainHeadBomb(context);
+        Species.Combat.ReactToMotherBrainHeadBomb(context, Encounter);
         return true;
     }
 

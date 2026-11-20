@@ -7,6 +7,12 @@ namespace SuperMetroid.Core.Enemies.Kago;
 internal sealed class KagoEntity(KagoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
+    private EnemyBombReaction OwnKagoBombReaction => field ??= species.KagoBombReactionOf(State);
+
+    /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnKagoShotReaction => field ??= species.KagoShotReactionOf(State);
+
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal KagoEnemyState State { get; } = KagoBehavior.InitializeKago(place);
 
@@ -20,12 +26,12 @@ internal sealed class KagoEntity(KagoBehavior species, RoomEnemyPlace place, Ene
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KagoBehavior.AdvanceKagoTypedAnimation(Place, State, context);
 
     /// <summary>The Kago's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.KagoShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnKagoShotReaction : base.ShotReaction;
 
     /// <summary>The Kago's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? species.KagoBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot is null ? OwnKagoBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Kago's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

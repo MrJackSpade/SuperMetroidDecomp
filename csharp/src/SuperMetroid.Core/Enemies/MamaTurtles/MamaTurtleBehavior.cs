@@ -789,10 +789,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Routes Mama contact to shell and fall handling.</summary>
-    internal void ReactToMamaTurtleTouch(EnemyTouchContext context) =>
-        ResolveMamaTurtleTouch(context.Place, EnemyPartners.Listed<MamaTurtleEntity>(context.Place).State, context.Samus, context.PseudoScrew);
+    /// <param name="context">The touch.</param>
+    /// <param name="state">The enemy's own state, which the touch acts on.</param>
+    internal void ReactToMamaTurtleTouch(EnemyTouchContext context, MamaTurtleEnemyState state) =>
+        ResolveMamaTurtleTouch(context.Place, state, context.Samus, context.PseudoScrew);
 
     /// <summary>Routes baby contact to separation and wake behavior.</summary>
-    internal void ReactToBabyTurtleTouch(EnemyTouchContext context) =>
-        ResolveBabyTurtleTouch(context.Place, EnemyPartners.Listed<BabyTurtleEntity>(context.Place).State, context.Samus, context.Level);
+    /// <param name="context">The touch.</param>
+    /// <param name="state">The enemy's own state, which the touch acts on.</param>
+    internal void ReactToBabyTurtleTouch(EnemyTouchContext context, BabyTurtleEnemyState state) =>
+        ResolveBabyTurtleTouch(context.Place, state, context.Samus, context.Level);
 }

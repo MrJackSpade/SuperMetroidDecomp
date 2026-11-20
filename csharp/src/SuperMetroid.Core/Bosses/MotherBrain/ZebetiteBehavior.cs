@@ -17,7 +17,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zebetite];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new ZebetiteEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new ZebetiteEntity(this, place, common, setup);
 
     /// <summary>Initializes newly spawned Zebetite places through the common enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;
@@ -73,9 +73,13 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         : PictureShading.Standard;
 
     /// <summary>Sets a Zebetite up when the room spawns it.</summary>
-    internal ZebetiteEnemyState InitializeZebetite(RoomEnemyPlace place)
+    /// <param name="place">The half's place.</param>
+    /// <param name="setup">How the half is set up: a linked half joins its primary, whom it holds as its linked half.</param>
+    internal ZebetiteEnemyState InitializeZebetite(RoomEnemyPlace place, EnemySetup setup)
     {
         var state = new ZebetiteEnemyState(place.Spawn.Population);
+        if (state.Half == ZebetiteHalf.Linked)
+            state.LinkedHalf = setup.EncounterOf<ZebetitePrimary>(place).Place;
 
         // A Zebetite animates and is solid to Samus.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
@@ -129,11 +133,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.Form == ZebetiteBarrierForm.SplitPair)
         {
-            if (SpawnZebetite(ZebetiteHalf.Linked) is { } secondary)
-            {
-                EnemyPartners.Listed<ZebetiteEntity>(secondary).State.LinkedHalf = place;
+            // The linked half joins this primary as it is spawned, holding it as its linked half from its setup.
+            if (SpawnZebetite(ZebetiteHalf.Linked, spawned => _lifecycle.SetUpJoiningEnemy(spawned, new ZebetitePrimary(place))) is { } secondary)
                 state.LinkedHalf = secondary;
-            }
         }
 
         state.Action = ZebetiteAction.WaitForDoorTransition;
@@ -176,7 +178,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.ZebetiteProgress.ZebetitesDestroyed = nextGeneration;
         FinishZebetiteDeath(place);
         if (nextGeneration < PersistentProgress.ZebetiteCount)
-            _ = SpawnZebetite(ZebetiteHalf.Primary);
+            _ = SpawnZebetite(ZebetiteHalf.Primary, _lifecycle.SetUpSpawnedEnemy);
     }
 
     /// <summary>
@@ -220,7 +222,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Finds a free place in the room's enemies and initializes a primary or linked half from its population entry; a full
     /// pool spawns no half.
     /// </summary>
-    internal RoomEnemyPlace? SpawnZebetite(ZebetiteHalf half)
+    /// <param name="half">Which half spawns.</param>
+    /// <param name="setUp">Sets the spawned half up: a primary on its own, a linked half joining its primary.</param>
+    internal RoomEnemyPlace? SpawnZebetite(ZebetiteHalf half, Action<RoomEnemyPlace> setUp)
     {
         // The spawn takes the first free place. In particular, a primary's death vacates
         // its place before spawning the next generation; surviving linked halves keep
@@ -232,7 +236,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
         _lifecycle.InitializePlaceFromDefinition(spawned, population, definition);
-        _lifecycle.SetUpSpawnedEnemy(spawned);
+        setUp(spawned);
         _places.CoverSpawn(spawned);
         return spawned;
     }

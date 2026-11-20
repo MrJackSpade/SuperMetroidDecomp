@@ -11,8 +11,11 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 internal class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, ShutterSegment pose)
     : VerticalShutterEntity(species, place, common, pose)
 {
+    /// <summary>The shootable shutter's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnShotReaction => field ??= species.ShootableShutterShotReactionOf(State);
+
     /// <summary>The shootable shutter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.ShootableShutterShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>
     /// Runs the shootable shutter's own reaction to a bomb that selects its own shot reaction, before the ignoring check.
@@ -22,7 +25,7 @@ internal class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyPlace p
     {
         if (context.SelectedShot is not null)
             return base.TryReactToBomb(context);
-        Species.ReactToShootableShutterBomb(context);
+        Species.ReactToShootableShutterBomb(context, State);
         return true;
     }
 }

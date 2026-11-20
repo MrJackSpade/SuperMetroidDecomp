@@ -63,7 +63,7 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyPlace plac
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            Species.Combat.ReactToTorizoTouch(context);
+            Species.Combat.ReactToTorizoTouch(context, State);
         else
             base.ReactToTouch(context);
     }

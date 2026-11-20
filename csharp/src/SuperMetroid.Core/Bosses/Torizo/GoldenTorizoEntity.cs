@@ -24,12 +24,12 @@ internal sealed class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyPlace 
     }
 
     /// <inheritdoc/>
-    protected override EnemyShotReaction OwnShotReaction => Species.Combat.GoldenTorizoShotReaction;
+    protected override EnemyShotReaction OwnShotReaction => field ??= TorizoCombat.GoldenTorizoShotReactionOf(State);
 
     /// <inheritdoc/>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        Species.Combat.ReactToGoldenTorizoBomb(context);
+        Species.Combat.ReactToGoldenTorizoBomb(context, State);
         return true;
     }
 

@@ -10,6 +10,12 @@ namespace SuperMetroid.Core.Enemies.Bull;
 internal sealed class BullEntity(BullBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
+    private EnemyBombReaction OwnBullBombReaction => field ??= BullBehavior.BullBombReactionOf(State);
+
+    /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnBullShotReaction => field ??= BullBehavior.BullShotReactionOf(State);
+
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal BullEnemyState State { get; } = species.InitializeBull(place);
 
@@ -21,12 +27,12 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemyPlace place, Ene
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place, State, context);
 
     /// <summary>The Bull's own recoil reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.ShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnBullShotReaction : base.ShotReaction;
 
     /// <summary>The Bull's own bomb recoil around common bomb damage, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? species.BombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot is null ? OwnBullBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Bull's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

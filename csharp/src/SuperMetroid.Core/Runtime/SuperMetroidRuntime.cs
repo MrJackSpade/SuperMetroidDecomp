@@ -672,7 +672,7 @@ internal sealed class SuperMetroidRuntime
         // inside the ship, so the owners between the enemy phase and here have nothing to
         // act on; the box therefore opens at this shared suspension seam, and the
         // remainder resumes after the YES/NO/completion chain returns.
-        if (enemyPass is { } pass && pass.Reports(GunshipFrameEvent.SavePromptRequested))
+        if (enemyPass?.All<GunshipSavePromptRequested>().SingleOrDefault() is { } request)
         {
             if (MessageBox.IsActive)
             {
@@ -680,7 +680,7 @@ internal sealed class SuperMetroidRuntime
                     "A room object's message box and the gunship save prompt opened in one gameplay frame.");
             }
             MessageBox.Begin(GameplayMessageId.GunshipSaveConfirmation, PlayerButtons.Current, Options.ControllerBindings);
-            MessageBoxes.Await(new MessageBoxOutcome.GunshipSaveAnswer());
+            MessageBoxes.Await(new MessageBoxOutcome.GunshipSaveAnswer(request.Prompt));
         }
     }
 

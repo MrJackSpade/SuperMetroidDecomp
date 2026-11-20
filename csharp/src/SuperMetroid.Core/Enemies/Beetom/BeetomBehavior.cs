@@ -505,6 +505,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Attaches Beetom to Samus on its selected custom contact reaction.</summary>
-    internal void ReactToBeetomTouch(EnemyTouchContext context) =>
-        ResolveBeetomTouch(context.Place, EnemyPartners.Listed<BeetomEntity>(context.Place).State, context.Samus, context.PseudoScrew);
+    /// <param name="context">The touch.</param>
+    /// <param name="state">The enemy's own state, which the touch acts on.</param>
+    internal void ReactToBeetomTouch(EnemyTouchContext context, BeetomEnemyState state) =>
+        ResolveBeetomTouch(context.Place, state, context.Samus, context.PseudoScrew);
 }

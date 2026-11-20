@@ -305,10 +305,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Lets bombs trigger shootable vertical shutters without damaging them.</summary>
-    internal void ReactToShootableShutterBomb(EnemyBombContext c) =>
+    /// <param name="c">The bomb contact.</param>
+    /// <param name="state">The shutter's state.</param>
+    internal void ReactToShootableShutterBomb(EnemyBombContext c, VerticalShutterEnemyState state) =>
         // A bomb deals the shutter no damage: its collision already marked, it starts the shutter moving as a beam, a
         // missile, Samus's touch or a power bomb does.
-        ReactVerticalShutter(c.Enemy, c.Camera);
+        ReactVerticalShutter(c.Enemy, state, c.Camera);
 
     /// <summary>
     /// Runs common bomb damage before reacting a destroyable vertical shutter, as its shot reaction, which a bomb runs,
@@ -365,20 +367,22 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Uses movement reactions instead of common power-bomb damage for shutter families.</summary>
-    internal EnemyPowerBombReaction VerticalShutterPowerBombReaction => field ??= new()
+    /// <param name="state">The shutter's state, which the reaction acts on.</param>
+    internal EnemyPowerBombReaction VerticalShutterPowerBombReactionOf(VerticalShutterEnemyState state) => new()
     {
-        ReplacesCommon = c => ReactVerticalShutter(c.Enemy, c.Camera),
+        ReplacesCommon = c => ReactVerticalShutter(c.Enemy, state, c.Camera),
     };
 
     /// <summary>Marks a shootable vertical shutter's projectile collision before activating it.</summary>
-    internal EnemyShotReaction ShootableShutterShotReaction => field ??= new()
+    /// <param name="state">The shutter's state, which the reaction acts on.</param>
+    internal EnemyShotReaction ShootableShutterShotReactionOf(VerticalShutterEnemyState state) => new()
     {
         // A shot deals the shutter no damage and starts it moving; the shot's collision is still marked, a Super
         // Missile's quake included.
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-            ReactVerticalShutter(c.Enemy, c.Camera);
+            ReactVerticalShutter(c.Enemy, state, c.Camera);
             return true;
         },
     };
@@ -393,20 +397,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ReactVerticalShutter(c.Enemy, state, c.Camera),
     };
 
-    /// <summary>
-    /// The growing shutter's shot reaction, which its definition leaves to it: the destroyable shutter's common shot damage,
-    /// whose reaction after the damage needs a vertical shutter's state, which a growing shutter does not have.
-    /// </summary>
-    internal static EnemyShotReaction GrowingShutterShotReaction { get; } = new()
-    {
-        AfterCommon = c => throw new InvalidOperationException($"Enemy place {c.Enemy.Ordinal} has no {nameof(VerticalShutterEnemyState)} for its occupant."),
-    };
-
     /// <summary>Uses Samus contact to react vertical shutters.</summary>
-    internal void ReactToVerticalShutterTouch(EnemyTouchContext context) =>
+    /// <param name="context">The touch.</param>
+    /// <param name="state">The shutter's state.</param>
+    internal void ReactToVerticalShutterTouch(EnemyTouchContext context, VerticalShutterEnemyState state) =>
         // Samus's touch deals no contact damage: touching the shutter is itself the trigger, and the shutter's trigger mode
         // decides whether it starts moving.
-        ReactVerticalShutter(context.Place, context.Camera);
+        ReactVerticalShutter(context.Place, state, context.Camera);
     /// <summary>Initializes a vertical shutter, which shows <paramref name="pose"/>: its entity names it (#2179).</summary>
     internal static VerticalShutterEnemyState InitializeVerticalShutter(RoomEnemyPlace place, ShutterSegment pose)
     {
@@ -494,7 +491,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Action is not (VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown) &&
             SamusContactsIdleShutter(place, samus))
         {
-            ReactVerticalShutter(place, camera);
+            ReactVerticalShutter(place, state, camera);
         }
     }
 
@@ -607,15 +604,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             : end == VerticalDirection.Up ? VerticalShutterAction.MovingDown : VerticalShutterAction.MovingUp;
         QueueShutterActivationSoundIfOnScreen(place, camera);
     }
-
-    /// <summary>
-    /// Decides whether a reaction may start the shutter. Timer, proximity and immediate shutters merely make the acknowledgement sound;
-    /// a one-shot reaction reacts once, while a repeatable reaction may be reactivated after every stop.
-    /// </summary>
-    private void ReactVerticalShutter(
-        RoomEnemyPlace place,
-        Position16<RoomPixels> camera) =>
-        ReactVerticalShutter(place, EnemyPartners.Listed<VerticalShutterEntity>(place).State, camera);
 
     /// <summary>
     /// Decides whether a reaction may start the shutter in <paramref name="place"/>, whose state is

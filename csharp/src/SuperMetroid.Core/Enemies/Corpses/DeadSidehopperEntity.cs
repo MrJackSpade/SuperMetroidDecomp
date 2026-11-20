@@ -9,6 +9,9 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
         IShowsCorpseRotRows
 {
     /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
+    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= species.DeadSidehopperPowerBombReactionOf(State);
+
+    /// <summary>The corpse's own shot reaction, built over its state (#2554).</summary>
     private EnemyShotReaction OwnDeadSidehopperShotReaction => field ??= DeadSidehopperBehavior.DeadSidehopperShotReactionOf(State);
 
     /// <inheritdoc/>
@@ -31,7 +34,7 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToDeadSidehopperTouch(context);
+            species.ReactToDeadSidehopperTouch(context, State);
         else
             base.ReactToTouch(context);
     }
@@ -50,7 +53,7 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     }
 
     /// <summary>The dead Sidehopper's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.DeadSidehopperPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? OwnPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The dead Sidehopper's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

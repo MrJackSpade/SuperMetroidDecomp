@@ -520,9 +520,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The elevator journey the runtime reads and resets.</summary>
     internal IElevatorJourney Elevator => ElevatorBehavior;
 
-    /// <summary>The gunship's save prompt and health check.</summary>
-    internal IGunshipSession Gunship => field ??= new GunshipSession(GunshipBehavior);
-
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
     internal ICeresEncounter Ceres => field ??= new CeresEncounter(RidleyEncounter, CeresRidleyBehavior, CeresEscape, CeresDoorBehavior);
 

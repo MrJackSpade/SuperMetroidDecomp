@@ -14,6 +14,9 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : PhantoonEntity(species, place, common, bossArtwork), IEnemyContactHooks, IEnemyPrivateShotReaction
 {
+    /// <summary>His body's own bomb reaction, built over the encounter (#2554).</summary>
+    private EnemyBombReaction OwnBombReaction => field ??= Species.Combat.PhantoonBombReactionOf(Encounter);
+
     /// <inheritdoc/>
     /// <remarks>The part sets up as it is built, joining the encounter (#2554).</remarks>
     internal override PhantoonPart Part { get; } = species.InitializePhantoonBody(place);
@@ -68,7 +71,7 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlac
     /// <summary>The body's own stages around common bomb damage, for a bomb that selects its shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == PhantoonReactions.Shot ? Species.Combat.PhantoonBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == PhantoonReactions.Shot ? OwnBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The body's shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>

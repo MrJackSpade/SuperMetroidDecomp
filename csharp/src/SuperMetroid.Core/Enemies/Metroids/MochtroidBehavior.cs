@@ -203,8 +203,10 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the attachment and drain reaction for Samus overlap.</summary>
-    internal void ReactToMochtroidTouch(EnemyTouchContext context) =>
-        ResolveMochtroidTouch(context.Place, EnemyPartners.Listed<MochtroidEntity>(context.Place).State, context.Samus, context.PseudoScrew);
+    /// <param name="context">The touch.</param>
+    /// <param name="state">The enemy's own state, which the touch acts on.</param>
+    internal void ReactToMochtroidTouch(EnemyTouchContext context, MochtroidEnemyState state) =>
+        ResolveMochtroidTouch(context.Place, state, context.Samus, context.PseudoScrew);
 
     /// <summary>The Mochtroid's own shot reaction, which runs the common shot damage with no stage of its own.</summary>
     internal static EnemyShotReaction MochtroidShotReaction { get; } = new();

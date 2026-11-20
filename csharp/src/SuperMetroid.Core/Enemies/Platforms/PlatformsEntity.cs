@@ -7,6 +7,12 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
+    private EnemyBombReaction OwnTripperBombReaction => field ??= PlatformsBehavior.TripperBombReactionOf(State);
+
+    /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnTripperShotReaction => field ??= PlatformsBehavior.TripperShotReactionOf(State);
+
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal PlatformEnemyState State { get; } = PlatformsBehavior.InitializePlatform(place);
 
@@ -17,12 +23,12 @@ internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemyPlace 
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PlatformsBehavior.AdvancePlatformsTypedAnimation(Place, State, context);
 
     /// <summary>The Tripper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? PlatformsBehavior.TripperShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnTripperShotReaction : base.ShotReaction;
 
     /// <summary>The Tripper's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? PlatformsBehavior.TripperBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot is null ? OwnTripperBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Tripper's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

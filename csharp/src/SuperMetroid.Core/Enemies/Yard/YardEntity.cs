@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Enemies.Yard;
 internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
+    private EnemyShotReaction OwnYardShotReaction => field ??= species.YardShotReactionOf(State);
+
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal YardEnemyState State { get; } = YardEnemyBehavior.InitializeYard(place);
 
@@ -24,13 +27,13 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyPlace place
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToYardTouch(context);
+            species.ReactToYardTouch(context, State);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Yard's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.YardShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnYardShotReaction : base.ShotReaction;
 
     /// <summary>The Yard's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

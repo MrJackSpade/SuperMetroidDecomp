@@ -36,7 +36,8 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>The bomb hit response for vulnerable Phantoon phases.</summary>
-    internal EnemyBombReaction PhantoonBombReaction => field ??= new()
+    /// <param name="state">The encounter, which the reaction acts on.</param>
+    internal EnemyBombReaction PhantoonBombReactionOf(PhantoonEnemyState state) => new()
     {
         // Phantoon's death is his own staged sequence, never the common one.
         RunsGenericDeath = false,
@@ -47,7 +48,7 @@ internal sealed class PhantoonCombat
         AfterCommon = c =>
         {
             int appliedDamage = c.HealthBefore - c.Enemy.Health;
-            ResolvePhantoonShotReaction(c.Enemy, PhantoonEntity.EncounterOf(c.Enemy), c.Bomb.Type, appliedDamage);
+            ResolvePhantoonShotReaction(c.Enemy, state, c.Bomb.Type, appliedDamage);
         },
     };
 

@@ -63,7 +63,7 @@ internal sealed class CrocomireFight
     internal CrocomireEnemyState InitializeCrocomire(RoomEnemyPlace place)
     {
         _roomStatus.Boss = AreaBoss.Crocomire;
-        var state = new CrocomireEnemyState(place);
+        var state = new CrocomireEnemyState(place, _places.ListedAfter(place, 1));
         // The room's shaking main and his melt's display read him from the room from here (#2194); his parts each hold
         // the encounter from their own setup.
         _encounters.Attach(state);
@@ -100,20 +100,24 @@ internal sealed class CrocomireFight
         return state;
     }
 
-    /// <summary>Sets Crocomire's tongue up when the room spawns it.</summary>
+    /// <summary>Whether Crocomire is already defeated, so his room's tongue is deleted before any setup.</summary>
+    internal bool TongueIsDeletedAtOnce => _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss);
+
+    /// <summary>Deletes a defeated room's tongue as it is placed, before any setup, as the cartridge does (#2400, #2554).</summary>
+    /// <param name="place">The tongue's place.</param>
+    internal static void DeleteDefeatedTongue(RoomEnemyPlace place)
+    {
+        place.Processing = place.Processing.Without(EnemyProcessing.Animates);
+        place.Presence = place.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
+    }
+
+    /// <summary>Sets a living room's Crocomire tongue up when the room spawns it.</summary>
     internal CrocomireTongueState InitializeCrocomireTongue(RoomEnemyPlace place)
     {
-        // The room lists the tongue right after its body, which has set the encounter up; the tongue joins it in a
-        // defeated room too, where it is deleted at once (#2400).
+        // The room lists the tongue right after its body, which has set the encounter up and holds the tongue's values.
         CrocomireEnemyState state = EnemyPartners.Listed<CrocomireBodyEntity>(_places.ListedBefore(place, 1)).State;
-        state.JoinTongue(place);
-        var tongueState = new CrocomireTongueState(state) { BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset };
-        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
-        {
-            place.Processing = place.Processing.Without(EnemyProcessing.Animates);
-            place.Presence = place.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
-            return tongueState;
-        }
+        CrocomireTongueState tongueState = state.TongueState;
+        tongueState.BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset;
 
         CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Fight);
         place.CollidesByFrameHitboxes = true;

@@ -26,24 +26,28 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Routes body bomb hits through Draygon's special shot reaction.</summary>
-    internal EnemyBombReaction DraygonBombReaction => field ??= new()
+    /// <param name="state">The encounter, which the reaction acts on.</param>
+    internal EnemyBombReaction DraygonBombReactionOf(DraygonEnemyState state) => new()
     {
         RunsGenericDeath = false,
         // Draygon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        BeforeCommon = c => AdvanceDraygonShotAcceleration(DraygonEntity.EncounterOf(c.Enemy)),
-        AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
+        BeforeCommon = c => AdvanceDraygonShotAcceleration(state),
+        AfterCommon = c => ResolveDraygonReaction(c.Enemy, state, c.Samus),
     };
 
     /// <summary>Routes power-bomb damage for Draygon's body through its encounter reaction.</summary>
-    internal EnemyPowerBombReaction DraygonPowerBombReaction => field ??= new()
+    /// <param name="state">The encounter, which the reaction acts on.</param>
+    internal EnemyPowerBombReaction DraygonPowerBombReactionOf(DraygonEnemyState state) => new()
     {
         ExemptFromGenericDeath = true,
-        AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
+        AfterCommon = c => ResolveDraygonReaction(c.Enemy, state, c.Samus),
     };
 
     /// <summary>Runs the body's contact against Samus.</summary>
-    internal void ReactToDraygonTouch(EnemyTouchContext context)
+    /// <param name="context">The touch.</param>
+    /// <param name="state">The encounter.</param>
+    internal void ReactToDraygonTouch(EnemyTouchContext context, DraygonEnemyState state)
     {
         if (!context.UsesFrameHitboxes)
             throw new InvalidDataException("Draygon requires his authored extended touch hitboxes.");
@@ -55,7 +59,7 @@ internal sealed class DraygonCombat
                 $"Draygon has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
         _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
-        ResolveDraygonReaction(context.Place, context.Samus);
+        ResolveDraygonReaction(context.Place, state, context.Samus);
     }
 
     /// <summary>
@@ -84,7 +88,7 @@ internal sealed class DraygonCombat
         body.Health = body.Health <= DraygonArenaDefinitions.GrappleShockDamage
             ? 0
             : body.Health - DraygonArenaDefinitions.GrappleShockDamage;
-        ResolveDraygonReaction(body, samus);
+        ResolveDraygonReaction(body, state, samus);
     }
 
     /// <summary>
@@ -99,9 +103,8 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Runs the common post-touch/shot/power-bomb reaction.</summary>
-    internal void ResolveDraygonReaction(RoomEnemyPlace body, SamusState samus)
+    internal void ResolveDraygonReaction(RoomEnemyPlace body, DraygonEnemyState state, SamusState samus)
     {
-        DraygonEnemyState state = DraygonEntity.EncounterOf(body);
         if (body.Health != 0)
         {
             UpdateDraygonHealthBand(state);
@@ -153,7 +156,8 @@ internal sealed class DraygonCombat
     internal void CreateBombDudShot(EnemyBombContext context) => _projectiles.CreateBombDudShot(context.Bomb);
 
     /// <summary>Draygon's shot response, including acceleration and special death exemption.</summary>
-    internal EnemyShotReaction DraygonShotReaction => field ??= new()
+    /// <param name="state">The encounter, which the reaction acts on.</param>
+    internal EnemyShotReaction DraygonShotReactionOf(DraygonEnemyState state) => new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
@@ -174,11 +178,11 @@ internal sealed class DraygonCombat
             }
             return false;
         },
-        AfterImpact = c => AdvanceDraygonShotAcceleration(DraygonEntity.EncounterOf(c.Enemy)),
+        AfterImpact = c => AdvanceDraygonShotAcceleration(state),
         ExemptFromGenericDeath = true,
         // Draygon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
+        AfterCommon = c => ResolveDraygonReaction(c.Enemy, state, c.Samus),
     };
 
     /// <summary>

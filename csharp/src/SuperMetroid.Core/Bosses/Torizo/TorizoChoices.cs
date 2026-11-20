@@ -52,7 +52,7 @@ internal sealed class TorizoChoices
             SamusPoseId.MorphBallMovingLeftPose or SamusPoseId.SpringBallGroundRightPose or
             SamusPoseId.SpringBallGroundLeftPose or SamusPoseId.SpringBallMovingRightPose or
             SamusPoseId.SpringBallMovingLeftPose;
-        if (TorizoFacing.FacesSamus(torizo, samus) ||
+        if (TorizoFacing.FacesSamus(torizo, state, samus) ||
             distance < TorizoDecisionDefinitions.MorphedBehindNearest || distance >= TorizoDecisionDefinitions.MorphedBehindFarthest || !isGroundedBall)
         {
             return null;
@@ -71,7 +71,7 @@ internal sealed class TorizoChoices
         TorizoAnimation target)
     {
         int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
-        if (!TorizoFacing.FacesSamus(torizo, samus) ||
+        if (!TorizoFacing.FacesSamus(torizo, state, samus) ||
             distance < TorizoDecisionDefinitions.MediumRangeNearest || distance >= TorizoDecisionDefinitions.MediumRangeFarthest ||
             !TorizoRandomDefinitions.MediumRangeAttack.IsTakenBy(_room.Random.Generate()))
         {
@@ -91,7 +91,7 @@ internal sealed class TorizoChoices
         TorizoAnimation target)
     {
         int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
-        if (distance < TorizoDecisionDefinitions.ForwardLeapDistance || !TorizoFacing.FacesSamus(torizo, samus))
+        if (distance < TorizoDecisionDefinitions.ForwardLeapDistance || !TorizoFacing.FacesSamus(torizo, state, samus))
             return null;
         if (state.SamusSpaceJumpFrames <= TorizoDecisionDefinitions.SpaceJumpLeapFrames &&
             (!controllerInput.HasAny(GameplayActions.HorizontalDirections) ||
@@ -114,7 +114,7 @@ internal sealed class TorizoChoices
     {
         int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
         if (state.DecisionCounter < TorizoDecisionDefinitions.RepeatedJumpSteps &&
-            (distance >= TorizoDecisionDefinitions.CloseInFrontDistance || !TorizoFacing.FacesSamus(torizo, samus)))
+            (distance >= TorizoDecisionDefinitions.CloseInFrontDistance || !TorizoFacing.FacesSamus(torizo, state, samus)))
         {
             return null;
         }
@@ -141,11 +141,11 @@ internal sealed class TorizoChoices
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
             state.TurnTowardSamus = null;
-            return TorizoAnimations.ContinueWith(walker.TurnAbout(torizo));
+            return TorizoAnimations.ContinueWith(walker.TurnAbout(state));
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
-        if (FacesAwayFromSamus(torizo, samus))
+        if (FacesAwayFromSamus(torizo, state, samus))
             state.TurnTowardSamus ??= BossCountdown.Lasting(walker.TurnDelay);
         return null;
     }
@@ -183,7 +183,7 @@ internal sealed class TorizoChoices
     {
         if (Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole) >= TorizoDecisionDefinitions.CloseBehindDistance)
             return null;
-        if (FacesAwayFromSamus(torizo, samus))
+        if (FacesAwayFromSamus(torizo, state, samus))
             return null;
         state.InterruptedWalk = continuation;
         return TorizoAnimations.ContinueWith(target);
@@ -197,7 +197,7 @@ internal sealed class TorizoChoices
         TorizoAnimation target)
     {
         if (Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole) >= TorizoDecisionDefinitions.CloseInFrontDistance ||
-            !TorizoFacing.FacesSamus(torizo, samus))
+            !TorizoFacing.FacesSamus(torizo, state, samus))
         {
             return null;
         }
@@ -214,6 +214,7 @@ internal sealed class TorizoChoices
     /// </summary>
     private static bool FacesAwayFromSamus(
         RoomEnemyPlace torizo,
+        TorizoEnemyState state,
         SamusState samus) =>
-        TorizoFacing.FacesRight(torizo) == samus.Position.X.Whole < torizo.Position.X.Whole;
+        TorizoFacing.FacesRight(state) == samus.Position.X.Whole < torizo.Position.X.Whole;
 }

@@ -45,7 +45,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of Fake Kraid's animations. The action choice continues at the step or spit animation it
     /// selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemyPlace place, FakeKraidCue cue, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera)
+    private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemyPlace place, FakeKraidEnemyState state, FakeKraidCue cue, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera)
     {
         switch (cue)
         {
@@ -53,24 +53,24 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 SpawnFakeKraidSpitPair(place, spit.Direction);
                 return null;
             case FakeKraidCue.Signal signal:
-                return ApplyFakeKraidSignal(place, signal.Kind, samus, level, camera);
+                return ApplyFakeKraidSignal(place, state, signal.Kind, samus, level, camera);
             default:
                 throw new InvalidOperationException($"Fake Kraid's animations have no {cue} cue.");
         }
     }
 
     /// <summary>Carries out one signalling cue: the action choice continues at the step or spit animation it selects.</summary>
-    private FakeKraidSegment? ApplyFakeKraidSignal(RoomEnemyPlace place, FakeKraidCueKind kind, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera)
+    private FakeKraidSegment? ApplyFakeKraidSignal(RoomEnemyPlace place, FakeKraidEnemyState state, FakeKraidCueKind kind, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera)
     {
         switch (kind)
         {
             case FakeKraidCueKind.Move:
                 // Walk cue: advance one four-pixel step unless its random reversal
                 // clock expires, then turn to face Samus.
-                ProcessFakeKraidWalkAnimation(place, EnemyPartners.Listed<FakeKraidEntity>(place).State, samus, level);
+                ProcessFakeKraidWalkAnimation(place, state, samus, level);
                 return null;
             case FakeKraidCueKind.ChooseAction:
-                return SelectFakeKraidAction(EnemyPartners.Listed<FakeKraidEntity>(place).State);
+                return SelectFakeKraidAction(state);
             case FakeKraidCueKind.PlayCrySound:
                 // The spit step queues its sound only while Fake Kraid is in the view, its edges included.
                 if (EnemyView.Contains(place.Position.Whole, camera))
@@ -385,7 +385,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AdvanceFakeKraidTypedAnimation(RoomEnemyPlace place, FakeKraidEnemyState fakeKraidEnemyState, EnemyAnimationCueContext context) =>
         EnemyAnimationPlayback.Advance(place, fakeKraidEnemyState, FakeKraidAnimations.Segments,
             static (FakeKraidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (_, cue) => ApplyFakeKraidCue(place, cue, context.Samus, context.Level, context.Camera) is { } action
+            (state, cue) => ApplyFakeKraidCue(place, state, cue, context.Samus, context.Level, context.Camera) is { } action
                 ? new AnimationContinuation<FakeKraidSegment>(FakeKraidAnimations.StartingWith(action), AnimationPlace.StartOfAnimation)
                 : null);
 

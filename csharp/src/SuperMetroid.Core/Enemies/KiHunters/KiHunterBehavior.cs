@@ -76,7 +76,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case KiHunterCueKind.ReturnToFlying:
                 // The cue returns the body's flying animation while separately restarting the attached wings.
-                return ReturnKiHunterToSteadyAnimation(place);
+                return ReturnKiHunterToSteadyAnimation(place, state);
             case KiHunterCueKind.StartHop:
                 StartKiHunterGroundJumpFromCue(state);
                 return null;
@@ -544,10 +544,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveKiHunterShotAfterCommon(RoomEnemyPlace body, KiHunterBodyState bodyState)
     {
         RoomEnemyPlace wings = GetKiHunterWings(body);
-        bool wingsInPlace = WingsInPlace(wings) is not null;
+        KiHunterWingState? wingsInPlace = WingsInPlace(wings);
         if (body.Health == 0)
         {
-            if (!wingsInPlace)
+            if (wingsInPlace is null)
                 return;
             // Killing the body removes its wings outright: they stop updating and keep none of their placement's properties.
             wings.Contact = EnemyContact.None;
@@ -560,11 +560,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (bodyState.Flies)
             {
-                // A body that still flies still has its wings in place.
-                KiHunterWingState wingState = EnemyPartners.Listed<KiHunterWingsEntity>(wings).State;
+                // A body that still flies still has its wings in place, and loses them now.
                 bodyState.Action = KiHunterAction.FallingAfterWingLoss;
                 bodyState.VerticalVelocity = KiHunterMotionDefinitions.WinglessFallStartVelocity;
-                if (wingState.Action != KiHunterWingAction.Detached)
+                if (wingsInPlace is { Action: not KiHunterWingAction.Detached } wingState)
                     DetachKiHunterWings(wings, wingState);
             }
             return;
@@ -640,9 +639,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         angle + RotationAngle.QuarterTurn >= RotationAngle.HalfTurn;
 
     /// <summary>Animation cue: return to steady art and sync attached wings.</summary>
-    private KiHunterSegment ReturnKiHunterToSteadyAnimation(RoomEnemyPlace body)
+    private KiHunterSegment ReturnKiHunterToSteadyAnimation(RoomEnemyPlace body, KiHunterBodyState state)
     {
-        KiHunterBodyState state = EnemyPartners.Listed<KiHunterBodyEntity>(body).State;
         bool movingRight = state.Heading == HorizontalDirection.Right;
         KiHunterSegment wingSegment = movingRight
             ? KiHunterSegment.WingsRight

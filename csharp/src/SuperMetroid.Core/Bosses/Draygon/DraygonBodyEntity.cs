@@ -14,6 +14,15 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : DraygonEntity(species, place, common, bossArtwork), IEnemyPrivateShotReaction
 {
+    /// <summary>His body's own shot reaction, built over the encounter (#2554).</summary>
+    private EnemyShotReaction OwnShotReaction => field ??= Species.Combat.DraygonShotReactionOf(Encounter);
+
+    /// <summary>His body's own bomb reaction, built over the encounter (#2554).</summary>
+    private EnemyBombReaction OwnBombReaction => field ??= Species.Combat.DraygonBombReactionOf(Encounter);
+
+    /// <summary>His body's own Power Bomb reaction, built over the encounter (#2554).</summary>
+    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= Species.Combat.DraygonPowerBombReactionOf(Encounter);
+
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal DraygonEnemyState State { get; } = species.Parts.InitializeDraygonBody(place);
 
@@ -48,13 +57,13 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyPlace 
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            Species.Combat.ReactToDraygonTouch(context);
+            Species.Combat.ReactToDraygonTouch(context, Encounter);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.Combat.DraygonShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>
     /// The body's dud shot for a bomb whose hitbox selects it, in place of common bomb damage once the ignoring check has
@@ -72,11 +81,11 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyPlace 
     /// <summary>The body's own stages around common bomb damage, for a bomb that selects its shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == DraygonReactions.Shot ? Species.Combat.DraygonBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == DraygonReactions.Shot ? OwnBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The body's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction? PowerBombReaction =>
-        LeavesPowerBombToSpecies ? Species.Combat.DraygonPowerBombReaction : base.PowerBombReaction;
+        LeavesPowerBombToSpecies ? OwnPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The body's contact and shots meet its own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities => EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;

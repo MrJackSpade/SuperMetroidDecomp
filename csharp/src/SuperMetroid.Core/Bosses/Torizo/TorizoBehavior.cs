@@ -330,7 +330,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return TorizoAnimations.ContinueWith(walkOn.Walking);
 
             case TorizoCue.Turn turn:
-                return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(torizo) ? turn.WhenFacingRight : turn.WhenFacingLeft);
+                return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(state) ? turn.WhenFacingRight : turn.WhenFacingLeft);
 
             case TorizoCue.Signal { Kind: TorizoCueKind.ResumeWalk }:
                 return TorizoAnimations.ContinueAt(state.InterruptedWalk);
@@ -409,15 +409,15 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnBombTorizoSonicBoom }:
-                Attacks.SpawnBombTorizoSonicBoom(torizo);
+                Attacks.SpawnBombTorizoSonicBoom(torizo, state);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnGoldenTorizoSonicBoom }:
-                Attacks.SpawnGoldenTorizoSonicBoom(torizo);
+                Attacks.SpawnGoldenTorizoSonicBoom(torizo, state);
                 return null;
 
             case TorizoCue.Swipe swipe:
-                Attacks.SpawnBombTorizoExplosiveSwipe(torizo, swipe.Hand);
+                Attacks.SpawnBombTorizoExplosiveSwipe(torizo, state, swipe.Hand);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.PlayShotSound }:
@@ -479,7 +479,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnSuperMissile }:
-                Attacks.SpawnGoldenTorizoSuperMissile(torizo);
+                Attacks.SpawnGoldenTorizoSuperMissile(torizo, state);
                 return null;
 
             case TorizoCue.Branch { Kind: TorizoBranchKind.GoldenSitOnSamusMorphedBehind } branch:

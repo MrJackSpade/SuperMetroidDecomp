@@ -86,9 +86,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a bomb's common damage on Kago before its quake, its hit count and its bug spawn.</summary>
-    internal EnemyBombReaction KagoBombReaction => field ??= new()
+    /// <param name="state">The Kago's state, which the reaction acts on.</param>
+    internal EnemyBombReaction KagoBombReactionOf(KagoEnemyState state) => new()
     {
-        AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, EnemyPartners.Listed<KagoEntity>(c.Enemy).State),
+        AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, state),
     };
 
     /// <summary>A Kago bug (#1760).</summary>
@@ -280,9 +281,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies Kago's shell response after the common projectile-shot reaction has resolved damage.</summary>
-    internal EnemyShotReaction KagoShotReaction => field ??= new()
+    /// <param name="state">The Kago's state, which the reaction acts on.</param>
+    internal EnemyShotReaction KagoShotReactionOf(KagoEnemyState state) => new()
     {
-        AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, EnemyPartners.Listed<KagoEntity>(c.Enemy).State),
+        AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, state),
     };
 
     /// <summary>Spawns and initializes a Kago bug; with no projectile place free, none spawns.</summary>

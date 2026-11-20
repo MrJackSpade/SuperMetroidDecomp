@@ -14,7 +14,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue];
 
-    /// <summary>Crocomire's body, or his tongue (#2146).</summary>
+    /// <summary>Crocomire's body, or his tongue (#2146): a defeated room's tongue is deleted before any setup (#2554).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Crocomire definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
@@ -22,7 +22,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         if (definition == EnemyDefinitionId.Crocomire)
             return new CrocomireBodyEntity(this, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.CrocomireTongue)
-            return new CrocomireTongueEntity(this, place, common);
+        {
+            if (!Fight.TongueIsDeletedAtOnce)
+                return new CrocomireTongueEntity(this, place, common);
+            CrocomireFight.DeleteDefeatedTongue(place);
+            return new DefeatedCrocomireTongueEntity(place, common);
+        }
         throw new InvalidOperationException($"The Crocomire species creates no {place.DefinitionId}.");
     }
 

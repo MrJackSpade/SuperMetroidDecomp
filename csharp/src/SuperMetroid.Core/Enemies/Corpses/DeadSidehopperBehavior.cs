@@ -330,10 +330,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Resolves a power bomb reaching the dead Sidehopper.</summary>
-    private void ResolveDeadSidehopperPowerBomb(EnemyPowerBombContext context)
+    private void ResolveDeadSidehopperPowerBomb(EnemyPowerBombContext context, DeadSidehopperEnemyState state)
     {
         RoomEnemyPlace place = context.Enemy;
-        DeadSidehopperEnemyState state = EnemyPartners.Listed<DeadSidehopperEntity>(place).State;
         if (state.IsDrained)
         {
             ResolveDeadSidehopperShot(place, state);
@@ -411,9 +410,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Uses the private power-bomb reaction in place of common enemy damage handling.</summary>
-    internal EnemyPowerBombReaction DeadSidehopperPowerBombReaction => field ??= new()
+    /// <param name="state">The corpse's state, which the reaction acts on.</param>
+    internal EnemyPowerBombReaction DeadSidehopperPowerBombReactionOf(DeadSidehopperEnemyState state) => new()
     {
-        ReplacesCommon = ResolveDeadSidehopperPowerBomb,
+        ReplacesCommon = c => ResolveDeadSidehopperPowerBomb(c, state),
     };
 
     /// <summary>Marks projectile collision while withholding damage until the transformed corpse can decay.</summary>
@@ -431,8 +431,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     };
 
     /// <summary>Uses ordinary touch damage during transformation and starts decomposition afterward.</summary>
-    internal void ReactToDeadSidehopperTouch(EnemyTouchContext context) =>
+    /// <param name="context">The touch.</param>
+    /// <param name="state">The enemy's own state, which the touch acts on.</param>
+    internal void ReactToDeadSidehopperTouch(EnemyTouchContext context, DeadSidehopperEnemyState state) =>
         // Before Baby Metroid finishes feeding, the touch reaction uses normal contact damage without a death animation. At
         // the end of the drain it instead starts the corpse decomposition and never enters common touch damage.
-        ResolveDeadSidehopperTouch(context.Place, EnemyPartners.Listed<DeadSidehopperEntity>(context.Place).State, context.Samus, context.PseudoScrew);
+        ResolveDeadSidehopperTouch(context.Place, state, context.Samus, context.PseudoScrew);
 }

@@ -33,6 +33,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyPlaces _places;
     /// <summary>The partners each Magdollite part found when it was placed.</summary>
     private readonly EnemyPartLinks<MagdollitePartners> _partners = new();
+
+    /// <summary>The parts' states each head made as it was placed, which its body and overlay take as each is placed (#2554).</summary>
+    private readonly EnemyPartLinks<MagdolliteStates> _states = new();
     /// <summary>Runs common contact damage before the species reaction.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Creates the item drop when a thrown lava projectile is destroyed.</summary>
@@ -71,11 +74,28 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// reaches. The overlay, placed last, completes the composite, which is checked once then.
     /// </summary>
     /// <exception cref="InvalidDataException">The overlay does not follow a head and a body.</exception>
-    private void PlaceMagdollitePart(RoomEnemyPlace place, int placesAfterHead)
+    /// <returns>The states of the part's Magdollite, which its head made as it was placed.</returns>
+    private MagdolliteStates PlaceMagdollitePart(RoomEnemyPlace place, int placesAfterHead)
     {
         RoomEnemyPlace head = placesAfterHead == 0 ? place : _places.ListedBefore(place, placesAfterHead);
-        var composite = new MagdolliteComposite(head, _places.ListedAfter(head, MagdollitePartListingDefinitions.BodyPlacesAfterHead),
-            _places.ListedAfter(head, MagdollitePartListingDefinitions.OverlayPlacesAfterHead));
+        RoomEnemyPlace body = _places.ListedAfter(head, MagdollitePartListingDefinitions.BodyPlacesAfterHead);
+        RoomEnemyPlace overlay = _places.ListedAfter(head, MagdollitePartListingDefinitions.OverlayPlacesAfterHead);
+        MagdolliteStates states;
+        if (placesAfterHead == 0)
+        {
+            // The head, placed first, makes all three parts' states; its body and overlay take theirs as each is placed.
+            states = new MagdolliteStates(
+                new MagdolliteHeadState(MagdolliteHeadAction.Waiting),
+                new MagdolliteBodyState(MagdolliteBodyAction.Dormant),
+                new MagdolliteOverlayState(MagdolliteOverlayAction.WaitingForAttack));
+            _states.Place(body, states);
+            _states.Place(overlay, states);
+        }
+        else
+        {
+            states = _states.Of(place);
+        }
+        var composite = new MagdolliteComposite(head, body, overlay, states);
         _partners.Place(place, new MagdollitePartners(
             Composite: composite,
             FollowUpRecipients: FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfterOrNone(place, distance), MagdollitePartListingDefinitions.FollowUpReach)));
@@ -85,6 +105,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Magdollite overlay in place {place.Ordinal} does not follow a head and a body listed in that order.");
         }
+        return states;
     }
 
     /// <summary>
@@ -112,8 +133,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         SamusState samus)
     {
-        PlaceMagdollitePart(place, placesAfterHead: 0);
-        var state = new MagdolliteHeadState(MagdolliteHeadAction.Waiting);
+        MagdolliteHeadState state = PlaceMagdollitePart(place, placesAfterHead: 0).Head;
         state.OriginY = place.Position.Y.Whole;
 
         HorizontalDirection samusSide = (samus.Position.Whole - place.Position.Whole).X < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
@@ -125,8 +145,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Places the rising body, hidden 32 pixels below its origin until the head triggers an attack.</summary>
     internal MagdolliteBodyState InitializeMagdolliteBody(RoomEnemyPlace place)
     {
-        PlaceMagdollitePart(place, MagdollitePartListingDefinitions.BodyPlacesAfterHead);
-        var state = new MagdolliteBodyState(MagdolliteBodyAction.Dormant);
+        MagdolliteBodyState state = PlaceMagdollitePart(place, MagdollitePartListingDefinitions.BodyPlacesAfterHead).Body;
         state.OriginY = place.Position.Y.Whole;
         StartMagdolliteAnimation(place, state, MagdolliteRiseStage.Setup.Phase.BodyAnimation);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + MagdolliteMotionDefinitions.HiddenDepth);
@@ -138,8 +157,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Places the projectile-throwing overlay, hidden below its origin, and starts its pillar-cap animation.</summary>
     internal MagdolliteOverlayState InitializeMagdolliteOverlay(RoomEnemyPlace place)
     {
-        PlaceMagdollitePart(place, MagdollitePartListingDefinitions.OverlayPlacesAfterHead);
-        var state = new MagdolliteOverlayState(MagdolliteOverlayAction.WaitingForAttack);
+        MagdolliteOverlayState state = PlaceMagdollitePart(place, MagdollitePartListingDefinitions.OverlayPlacesAfterHead).Overlay;
         state.OriginY = place.Position.Y.Whole;
         state.AttackCooldown = UpdateCountdown.For(MagdolliteMotionDefinitions.AttackPollWait);
         StartMagdolliteAnimation(place, state, MagdolliteSegment.PillarCap);
@@ -236,8 +254,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection samusSide = SamusSide(samus, head);
         StartMagdolliteAnimation(head, state, samusSide == HorizontalDirection.Right ? MagdolliteSegment.RightIdle : MagdolliteSegment.LeftIdle);
 
-        (_, _, RoomEnemyPlace overlay) = RequireMagdolliteComposite(head);
-        MagdolliteOverlayState overlayState = EnemyPartners.Listed<MagdolliteOverlayEntity>(overlay).State;
+        (_, _, RoomEnemyPlace overlay, MagdolliteStates parts) = RequireMagdolliteComposite(head);
+        MagdolliteOverlayState overlayState = parts.Overlay;
         if (overlayState.AttackCooldown.IsRunning)
             return;
 
@@ -255,8 +273,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace head,
         MagdolliteHeadState state)
     {
-        (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(head);
-        EnemyPartners.Listed<MagdolliteBodyEntity>(body).State.Release();
+        (_, RoomEnemyPlace body, _, MagdolliteStates parts) = RequireMagdolliteComposite(head);
+        parts.Body.Release();
         state.Action = MagdolliteHeadAction.WaitingForBodyLanding;
     }
 
@@ -298,7 +316,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         // The arm rises at the speed its head's spawn settings name (#2474).
-        (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(body);
+        (RoomEnemyPlace head, _, _, _) = RequireMagdolliteComposite(body);
         state.RiseDisplacementY += AddMagdolliteY(body, -HeadRise(head).Speed);
 
         int upwardDistance = -state.RiseDisplacementY;
@@ -332,8 +350,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace body,
         MagdolliteBodyState state)
     {
-        (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(body);
-        MagdolliteHeadState headState = EnemyPartners.Listed<MagdolliteHeadEntity>(head).State;
+        (RoomEnemyPlace head, _, _, MagdolliteStates parts) = RequireMagdolliteComposite(body);
+        MagdolliteHeadState headState = parts.Head;
         state.RiseDisplacementY += AddMagdolliteY(body, HeadRise(head).Speed);
 
         if (state.RiseDisplacementY >= 0)
@@ -358,8 +376,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace overlay,
         MagdolliteOverlayState state)
     {
-        (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(overlay);
-        if (EnemyPartners.Listed<MagdolliteHeadEntity>(head).State.IsSubmerging)
+        (RoomEnemyPlace head, _, _, MagdolliteStates parts) = RequireMagdolliteComposite(overlay);
+        if (parts.Head.IsSubmerging)
             state.Action = MagdolliteOverlayAction.TrackingRisingBody;
     }
 
@@ -368,8 +386,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace overlay,
         MagdolliteOverlayState state)
     {
-        (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(overlay);
-        MagdolliteBodyState bodyState = EnemyPartners.Listed<MagdolliteBodyEntity>(body).State;
+        (_, RoomEnemyPlace body, _, MagdolliteStates parts) = RequireMagdolliteComposite(overlay);
+        MagdolliteBodyState bodyState = parts.Body;
         StartMagdolliteAnimation(overlay, state, MagdolliteSegment.PillarCap);
         bodyState.Action = MagdolliteBodyAction.Falling;
         state.Action = MagdolliteOverlayAction.TrackingFallingBody;
@@ -383,8 +401,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteOverlayState state,
         SamusState samus)
     {
-        (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(overlay);
-        MagdolliteBodyState bodyState = EnemyPartners.Listed<MagdolliteBodyEntity>(body).State;
+        (_, RoomEnemyPlace body, _, MagdolliteStates parts) = RequireMagdolliteComposite(overlay);
+        MagdolliteBodyState bodyState = parts.Body;
         if (bodyState.Action == MagdolliteBodyAction.HoldingAtApex)
         {
             state.ThrowDirection = SamusSide(samus, overlay);
@@ -406,9 +424,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace overlay,
         MagdolliteOverlayState state)
     {
-        (RoomEnemyPlace head, RoomEnemyPlace body, _) = RequireMagdolliteComposite(overlay);
-        MagdolliteHeadState headState = EnemyPartners.Listed<MagdolliteHeadEntity>(head).State;
-        MagdolliteBodyState bodyState = EnemyPartners.Listed<MagdolliteBodyEntity>(body).State;
+        (RoomEnemyPlace head, RoomEnemyPlace body, _, MagdolliteStates parts) = RequireMagdolliteComposite(overlay);
+        MagdolliteHeadState headState = parts.Head;
+        MagdolliteBodyState bodyState = parts.Body;
         if (headState.Action == MagdolliteHeadAction.Waiting)
         {
             state.Action = MagdolliteOverlayAction.WaitingForAttack;
@@ -430,7 +448,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void UpdateMagdolliteHeadRadius(RoomEnemyPlace overlay)
     {
-        (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(overlay);
+        (RoomEnemyPlace head, _, _, _) = RequireMagdolliteComposite(overlay);
         int radius = head.Position.Y.Whole - overlay.Position.Y.Whole + MagdolliteMotionDefinitions.HeadReachPastOverlay;
         head.Radius = head.Radius.WithY(Math.Max(radius, MagdolliteMotionDefinitions.SmallestHeadRadius));
     }
@@ -524,14 +542,14 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             case MagdolliteCue.MoveWithPillar moveWithPillar:
             {
                 // Only the head's submerge and emerge raise it, moving the head with the body's pillar.
-                (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(place);
+                (_, RoomEnemyPlace body, _, _) = RequireMagdolliteComposite(place);
                 place.Position += moveWithPillar.Offset;
                 body.Position += moveWithPillar.Offset;
                 break;
             }
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SinkAndShowParts }:
             {
-                (_, RoomEnemyPlace body, RoomEnemyPlace overlay) = RequireMagdolliteComposite(place);
+                (_, RoomEnemyPlace body, RoomEnemyPlace overlay, _) = RequireMagdolliteComposite(place);
                 int sunkY = state.OriginY + MagdolliteMotionDefinitions.SunkDepth;
                 place.Position = place.Position.WithWholeY(sunkY);
                 body.Position = body.Position.WithWholeY(sunkY);
@@ -541,14 +559,14 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.RestoreOrigins }:
             {
-                (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(place);
+                (_, RoomEnemyPlace body, _, _) = RequireMagdolliteComposite(place);
                 place.Position = place.Position.WithWholeY(state.OriginY);
                 body.Position = body.Position.WithWholeY(state.OriginY);
                 break;
             }
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SurfaceAndHideParts }:
             {
-                (_, RoomEnemyPlace body, RoomEnemyPlace overlay) = RequireMagdolliteComposite(place);
+                (_, RoomEnemyPlace body, RoomEnemyPlace overlay, _) = RequireMagdolliteComposite(place);
                 int surfacedY = state.OriginY + MagdolliteMotionDefinitions.SurfacedDepth;
                 place.Position = place.Position.WithWholeY(surfacedY);
                 body.Position = body.Position.WithWholeY(surfacedY);

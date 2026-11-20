@@ -26,6 +26,9 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// it was placed: a body's own wing, or the enemy listed after a wing.
     /// </summary>
     private readonly EnemyPartLinks<RoomEnemyPlace> _followUpRecipients = new();
+
+    /// <summary>The state each Dragon body made, as it was placed, for the wing its room lists right after it (#2554).</summary>
+    private readonly EnemyPartLinks<DragonWingState> _wingStates = new();
     /// <summary>Performs common Samus touch resolution before Dragon's body and wing synchronization.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Receives each fireball's sound in the order the game queues them.</summary>
@@ -65,11 +68,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Every part finds the enemy its follow-up to a hit reaches.
         PlaceFollowUpRecipient(place);
-        // The cosmetic wing ignores Samus, so it is never touched or shot.
-        var state = new DragonWingState
-        {
-            Playback = new(DragonAnimations.StartingWith(DragonSegment.WingsFacingLeft), AnimationPlace.StartOfAnimation),
-        };
+        // The wing takes the state its body, listed before it, made for it; the cosmetic wing ignores Samus, so it is never
+        // touched or shot.
+        DragonWingState state = _wingStates.Of(place);
+        state.Playback = new(DragonAnimations.StartingWith(DragonSegment.WingsFacingLeft), AnimationPlace.StartOfAnimation);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         return state;
     }
@@ -79,7 +81,9 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PlaceFollowUpRecipient(place);
         // A body finds its wing, which its room lists right after it.
-        var state = new DragonEnemyState(DragonAction.WaitToRise, wing: _places.ListedAfter(place, DragonPartListingDefinitions.WingPlacesAfterBody))
+        var wing = new DragonWing(_places.ListedAfter(place, DragonPartListingDefinitions.WingPlacesAfterBody), new DragonWingState());
+        _wingStates.Place(wing.Place, wing.State);
+        var state = new DragonEnemyState(DragonAction.WaitToRise, wing)
         {
             Playback = new(DragonAnimations.StartingWith(DragonSegment.IdleFacingLeft), AnimationPlace.StartOfAnimation),
         };
@@ -130,8 +134,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!bodyState.ActionTimer.Step())
             return;
 
-        RoomEnemyPlace wing = bodyState.Wing;
-        DragonWingState wingState = EnemyPartners.Listed<DragonWingEntity>(wing).State;
+        RoomEnemyPlace wing = bodyState.Wing.Place;
+        DragonWingState wingState = bodyState.Wing.State;
         bodyState.ActionTimer = UpdateCountdown.For(DragonTimingDefinitions.RiseOrSinkDuration);
         bodyState.Action = DragonAction.Rising;
 
@@ -153,7 +157,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Body and wing rise exactly one whole pixel, so both fractions stay untouched.
-        RoomEnemyPlace wing = bodyState.Wing;
+        RoomEnemyPlace wing = bodyState.Wing.Place;
         body.Position = body.Position.WithWholeY(body.Position.Y.Whole - 1);
         wing.Position = wing.Position.WithWholeY(wing.Position.Y.Whole - 1);
     }
@@ -223,7 +227,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // As with rising, the sink moves exactly one whole pixel each update.
-        RoomEnemyPlace wing = bodyState.Wing;
+        RoomEnemyPlace wing = bodyState.Wing.Place;
         body.Position = body.Position.WithWholeY(body.Position.Y.Whole + 1);
         wing.Position = wing.Position.WithWholeY(wing.Position.Y.Whole + 1);
     }

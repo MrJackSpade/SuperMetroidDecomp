@@ -24,12 +24,12 @@ internal sealed class BombTorizoEntity(TorizoBehavior species, RoomEnemyPlace pl
     }
 
     /// <inheritdoc/>
-    protected override EnemyShotReaction OwnShotReaction => Species.Combat.BombTorizoShotReaction;
+    protected override EnemyShotReaction OwnShotReaction => field ??= TorizoCombat.BombTorizoShotReactionOf(State);
 
     /// <inheritdoc/>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        Species.Combat.ReactToBombTorizoBomb(context);
+        Species.Combat.ReactToBombTorizoBomb(context, State);
         return true;
     }
 }

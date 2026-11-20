@@ -24,7 +24,7 @@ internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemyPlace 
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToMochtroidTouch(context);
+            species.ReactToMochtroidTouch(context, State);
         else
             base.ReactToTouch(context);
     }

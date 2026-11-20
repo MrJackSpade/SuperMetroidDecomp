@@ -117,7 +117,7 @@ public sealed class BabyMetroidCutsceneState
         throw new InvalidOperationException("The cutscene Baby Metroid has no place in the room yet: the final beam has not spawned it.");
 
     /// <summary>
-    /// The Baby's shake when Mother Brain's onion ring strikes it (#2469): a hit starts it for sixteen updates; while it
+    /// The Baby's shake when Mother Brain's onion ring strikes it (#2469): a hit starts it for its length; while it
     /// shakes the Baby, held on Samus, shows its offset doubled, and each update after the Baby moves counts it down. The
     /// hit's flash plays on its own (<see cref="HurtFlash"/>).
     /// </summary>
@@ -127,8 +127,8 @@ public sealed class BabyMetroidCutsceneState
     public Position16<RoomPixels> FatalBlowOrigin { get; private set; }
 
     /// <summary>
-    /// The Baby's fade to black (#2270, #2404): from the update its centre reaches the fade's line, an image every nine
-    /// updates.
+    /// The Baby's fade to black (#2270, #2404): from the update its centre reaches the fade's line, an image each fade step
+    /// (<see cref="MotherBrainFadeDefinitions.BabyFade"/>).
     /// </summary>
     public MotherBrainFadeProgress FadeToBlack { get; } = new(MotherBrainFadeDefinitions.BabyFade);
 
@@ -399,7 +399,7 @@ public sealed class BabyMetroidCutsceneState
                     leg.Entry.WrongWayOffScreenXSpeed,
                     cameraPosition);
 
-                // The route's 4x4 rectangle target is tested before the Baby moves.
+                // The route's target rectangle is tested before the Baby moves.
                 // Reaching a leg's target moves on to the next leg; reaching the
                 // last leg's target starts the latch-onto-Samus phase instead.
                 if (CollidesWithRectangle(target, BabyMetroidCutsceneFlightDefinitions.TargetReach))
@@ -413,7 +413,7 @@ public sealed class BabyMetroidCutsceneState
             }
 
             case BabyMetroidCutscenePhase.LatchOntoSamus:
-                // The latch approach itself only steers toward Samus's centre minus twenty pixels; the touch at the
+                // The latch approach itself only steers toward Samus's centre less its latch offset; the touch at the
                 // next update's start begins the healing.
                 GraduallyAccelerateTowardsPoint(
                     samus.Position.Whole + BabyMetroidCutsceneFlightDefinitions.SamusLatchOffset,
@@ -472,7 +472,7 @@ public sealed class BabyMetroidCutsceneState
                 goto case BabyMetroidCutscenePhase.StareDownMotherBrain;
 
             case BabyMetroidCutscenePhase.StareDownMotherBrain:
-                // The target is four pixels left of Samus, at a fixed height. This leg and the next two
+                // The target is just left of Samus, at a fixed height. This leg and the next two
                 // reverse off screen with the staging wrong-way speed, not the approaches' one.
             {
                 var target = new Position16<RoomPixels>(samus.Position.X.Whole + BabyMetroidCutsceneFlightDefinitions.StareDownOffsetX, BabyMetroidCutsceneFlightDefinitions.StareDownY);
@@ -516,7 +516,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.InitiateFinalCharge:
-                // The charge's start divides the distance by six, a much firmer pull than the staging legs' sixteen,
+                // The charge's start divides the distance by its own divisor, a much firmer pull than the staging legs',
                 // and reverses off screen with the approaches' wrong-way speed.
                 GraduallyAccelerateTowardsPoint(
                     BabyMetroidCutsceneFlightDefinitions.FinalChargeAim,
@@ -528,8 +528,8 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.FinalCharge:
-                // The final target follows Mother Brain's brain, 32 pixels above its
-                // centre. Its divisor of four accelerates much more aggressively than the staging leg.
+                // The final target follows Mother Brain's brain, above its centre. Its
+                // divisor accelerates much more aggressively than the staging leg's.
                 GraduallyAccelerateTowardsPoint(
                     head + BabyMetroidCutsceneFlightDefinitions.FinalChargeOffset,
                     accelerationDivisor: BabyMetroidCutsceneFlightDefinitions.FinalChargeDivisor,
@@ -657,8 +657,8 @@ public sealed class BabyMetroidCutsceneState
         // zeroes both velocities, so the Baby stays exactly on its target.
         MoveAccordingToVelocity();
 
-        // After the Baby moves, its hit shake counts down and its hit flash plays on: a hit starts the shake with sixteen
-        // updates left, so the next update shakes the Baby at sixteen and shows the flash's first hurt colours.
+        // After the Baby moves, its hit shake counts down and its hit flash plays on: a hit starts the shake with its whole
+        // length left, so the next update shakes the Baby at its full length and shows the flash's first hurt colours.
         _ = OnionRingHitShake.Step();
         HurtFlash?.Step();
 
@@ -728,7 +728,7 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>
-    /// Plays the Baby's fade to black once its center reaches Y=128, an image every nine updates; true on the update the fade
+    /// Plays the Baby's fade to black once its center reaches the fade's line, an image each fade step; true on the update the fade
     /// is over, after its last image's hold.
     /// </summary>
     private bool StepFadeToBlack(ref MotherBrainFadeImage? fadeImage)
@@ -742,7 +742,7 @@ public sealed class BabyMetroidCutsceneState
         return FadeToBlack.IsOver;
     }
 
-    /// <summary>Emits a dust explosion every five updates using the shared Ridley scatter pattern.</summary>
+    /// <summary>Emits a dust explosion at the death's explosion interval using the shared Ridley scatter pattern.</summary>
     private DustExplosionRequest? StepDeathExplosion()
     {
         if (DeathExplosionTimer.StepKeepsRunning())
@@ -821,7 +821,7 @@ public sealed class BabyMetroidCutsceneState
         }
     }
 
-    /// <summary>Uses the Baby's 36-pixel radii and inclusive rectangle overlap for route targets.</summary>
+    /// <summary>Uses the Baby's hitbox radii and inclusive rectangle overlap for route targets.</summary>
     private bool CollidesWithRectangle(
         Position16<RoomPixels> center,
         Extent16<RoomPixels> rectangleRadius)
@@ -851,8 +851,8 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Checks the generous signed camera rectangle used by the Baby's wrong-way movement recovery.</summary>
     private bool IsVaguelyOffScreen(Position16<RoomPixels> cameraPosition)
     {
-        // The Baby is off screen only outside a generous rectangle: 16 pixels past the view's sides and 96 above and
-        // below it.
+        // The Baby is off screen only outside a generous rectangle past the view's sides, above and below it
+        // (BabyMetroidFlightWindowDefinitions).
         if (SignedPlace.Y < 0)
             return true;
         int relativeY = SignedPlace.Y + BabyMetroidFlightWindowDefinitions.VerticalMargin - cameraPosition.Y;
@@ -874,7 +874,7 @@ public sealed class BabyMetroidCutsceneState
         return reachedX && reachedY;
     }
 
-    /// <summary>Accelerates Y toward its target at at most five pixels per frame and zeroes velocity on crossing.</summary>
+    /// <summary>Accelerates Y toward its target at no more than the approach's fastest speed and zeroes velocity on crossing.</summary>
     private bool AccelerateTowardsYPosition(int targetY, SignedEightEight acceleration)
     {
         int difference = SignedPlace.Y - targetY;

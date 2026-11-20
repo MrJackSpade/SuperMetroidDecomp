@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 internal static class ChozoCarryPoseDefinitions
 {
     /// <summary>
-    /// Each carry pose's speed and hold, for a statue facing right. The four poses that take and hold Samus stand still,
-    /// lifting her from 32 pixels up and 28 out as the hand opens to 23 up and 32 out once it grips. The stride walks 2,
-    /// 3, 14 and 8 pixels an update through its four steps while Samus bobs one pixel up, two up, and back.
+    /// Each carry pose's speed and hold, for a statue facing right. The poses that take and hold Samus stand still,
+    /// moving her from where the open hand holds her to where its grip does. The stride walks through its steps at their
+    /// own speeds while Samus bobs up and back.
     /// </summary>
     internal static IReadOnlyDictionary<ChozoCarryPose, ChozoCarryPoseDefinition> Poses { get; } =
         new Dictionary<ChozoCarryPose, ChozoCarryPoseDefinition>

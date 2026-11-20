@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// </summary>
 public enum BeetomAction
 {
-    /// <summary>Decides between lunging at Samus and its own idling, crawling or hopping by whether she is horizontally closer than 96 pixels.</summary>
+    /// <summary>Decides between lunging at Samus and its own idling, crawling or hopping by whether she is horizontally closer than <see cref="BeetomMotionDefinitions.ProximityDistance"/>.</summary>
     DecideAction,
     /// <summary>Takes a random number that chooses idling, crawling or hopping and the way it faces (<see cref="BeetomDecisions.FacesRight"/>).</summary>
     ChooseIdleCrawlOrHop,
@@ -30,42 +30,42 @@ public enum BeetomAction
     StartBeingFlung,
     /// <summary>Waits out the idle (<see cref="BeetomMotionDefinitions.IdleDuration"/>), then requests a new action.</summary>
     Idling,
-    /// <summary>Moves one quarter pixel per frame toward its heading, reversing at a wall or failed eight-pixel-ahead ledge probe.</summary>
+    /// <summary>Moves at its crawl speed toward its heading, reversing at a wall or a failed ledge probe ahead of it.</summary>
     Crawling,
     /// <summary>
-    /// The short hop's rise (#2531): moves one quarter pixel per frame toward its heading while the vertical speed-curve
-    /// place decreases by four, and falls once it passes the apex.
+    /// The short hop's rise (#2531): moves at its hop speed toward its heading while the vertical speed-curve place falls
+    /// by the short hop's marks, and falls once it passes the apex.
     /// </summary>
     ShortHopRising,
     /// <summary>
-    /// The short hop's fall: moves one quarter pixel per frame toward its heading while the vertical speed-curve place
-    /// increases by four.
+    /// The short hop's fall: moves at its hop speed toward its heading while the vertical speed-curve place rises by the
+    /// short hop's marks.
     /// </summary>
     ShortHopFalling,
     /// <summary>
-    /// The long hop's rise (#2531): moves one quarter pixel per frame toward its heading while the vertical speed-curve
-    /// place decreases by five, and falls once it passes the apex.
+    /// The long hop's rise (#2531): moves at its hop speed toward its heading while the vertical speed-curve place falls
+    /// by the long hop's marks, and falls once it passes the apex.
     /// </summary>
     LongHopRising,
     /// <summary>
-    /// The long hop's fall: moves one quarter pixel per frame toward its heading while the vertical speed-curve place
-    /// increases by five.
+    /// The long hop's fall: moves at its hop speed toward its heading while the vertical speed-curve place rises by the
+    /// long hop's marks.
     /// </summary>
     LongHopFalling,
     /// <summary>
-    /// The lunge's rise (#2531): lunges three pixels per frame toward its heading while the vertical speed-curve place
-    /// decreases by five, and falls once it passes the apex.
+    /// The lunge's rise (#2531): lunges at its lunge speed toward its heading while the vertical speed-curve place falls
+    /// by the lunge's rising marks, and falls once it passes the apex.
     /// </summary>
     LungeRising,
     /// <summary>
-    /// The lunge's fall: lunges three pixels per frame toward its heading while the vertical speed-curve place increases
-    /// by three.
+    /// The lunge's fall: lunges at its lunge speed toward its heading while the vertical speed-curve place rises by the
+    /// lunge's falling marks.
     /// </summary>
     LungeFalling,
     /// <summary>Follows Samus on its heading's side until the input-change counter reaches zero, then throws the Beetom the other way unless blocked.</summary>
     Draining,
-    /// <summary>Falls straight down three pixels per frame until collision selects crawling in the stored direction.</summary>
+    /// <summary>Falls straight down at <see cref="BeetomMotionDefinitions.DropSpeed"/> until collision selects crawling in the stored direction.</summary>
     Dropping,
-    /// <summary>Falls with an increasing speed-curve place while moving two pixels per frame opposite its pre-escape facing.</summary>
+    /// <summary>Falls with an increasing speed-curve place while moving at <see cref="BeetomMotionDefinitions.FlungSpeed"/> opposite its pre-escape facing.</summary>
     BeingFlung,
 }

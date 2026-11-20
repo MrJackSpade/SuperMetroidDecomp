@@ -9,6 +9,6 @@ internal enum TourianStatueDescentPhase
     /// <summary>The ground shakes while the statues hold raised for the authored pre-descent hold; its end raises the descent dust.</summary>
     Holding,
 
-    /// <summary>The ground shakes while the statues lower a quarter pixel per frame toward the authored distance.</summary>
+    /// <summary>The ground shakes while the statues lower by <see cref="Areas.Tourian.TourianStatueSequenceDefinitions.DescentStep"/> each frame toward the authored distance.</summary>
     Lowering,
 }

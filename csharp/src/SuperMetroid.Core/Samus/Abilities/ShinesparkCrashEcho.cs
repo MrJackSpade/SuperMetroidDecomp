@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
 /// One of the two echoes a shinespark crash releases as it finishes: a shot that flies out from Samus along its
-/// departure angle, eight pixels further each update, and leaves once it is off the screen. The crash shows the echo
+/// departure angle, further each update by <see cref="ShinesparkDefinitions.EchoRadiusStep"/>, and leaves once it is off the screen. The crash shows the echo
 /// where its shot last placed it for as long as the shot carries it, and on Samus on the update it departs, before its
 /// shot first moves.
 /// </summary>

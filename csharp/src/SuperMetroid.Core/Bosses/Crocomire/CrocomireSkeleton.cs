@@ -193,7 +193,7 @@ internal sealed class CrocomireSkeleton
         state.AdvanceDeathStage();
     }
 
-    /// <summary>Finishes the skeleton collapse and scatters sixteen independently chosen enemy drops.</summary>
+    /// <summary>Finishes the skeleton collapse and scatters its independently chosen enemy drops (<see cref="CrocomireSkeletonDefinitions.DropCount"/>).</summary>
     internal void RunCrocomireSkeletonCollapse(CrocomireEnemyState state, SamusState samus)
     {
         if (!state.SkeletonHasCollapsed)
@@ -207,7 +207,7 @@ internal sealed class CrocomireSkeleton
         state.Body.Radius = CrocomireArenaDefinitions.CorpseRadius;
         _access.PublishCrocomireObject(CrocomireArenaDefinitions.SkeletonWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
 
-        // The death drops emit sixteen independent pickup projectiles across Crocomire's
+        // The death drops emit independent pickup projectiles across Crocomire's
         // authored arena rectangle. These are not a single pickup at the corpse position:
         // each actor advances RNG again while selecting its own drop from Crocomire's species definition.
         _deathsAndDrops.SpawnEnemyDropScatter(

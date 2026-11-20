@@ -139,7 +139,7 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
 
     /// <summary>
     /// While the body sinks or rises: the vertical speed per frame, down while sinking and up while rising. The sink clamps
-    /// its whole part at three pixels and the rise stops it at zero, so it stays below four pixels per frame.
+    /// its whole part at <see cref="CrocomireBridgeCollapseDefinitions.MaximumSinkSpeed"/> and the rise stops it at zero.
     /// </summary>
     public SignedEightEight VerticalSpeed { get; internal set; }
 

@@ -3,13 +3,13 @@
 /// <summary>The twenty-one permanent items, each shown as a plain item, a Chozo orb or a shot-revealed item. Its values are arbitrary.</summary>
 public enum InWorldCollectibleKind
 {
-    /// <summary>An Energy Tank: adds 100 maximum health and refills health to the new maximum.</summary>
+    /// <summary>An Energy Tank: adds a tank's maximum health (<see cref="Progression.SamusEnergyDefinitions.EnergyPerTank"/>) and refills health to the new maximum.</summary>
     EnergyTank,
-    /// <summary>A Missile tank: adds five missiles to both capacity and current ammunition.</summary>
+    /// <summary>A Missile tank: adds its missiles to both capacity and current ammunition.</summary>
     MissileTank,
-    /// <summary>A Super Missile tank: adds five Super Missiles to both capacity and current ammunition.</summary>
+    /// <summary>A Super Missile tank: adds its Super Missiles to both capacity and current ammunition.</summary>
     SuperMissileTank,
-    /// <summary>A Power Bomb tank: adds five Power Bombs to both capacity and current ammunition.</summary>
+    /// <summary>A Power Bomb tank: adds its Power Bombs to both capacity and current ammunition.</summary>
     PowerBombTank,
     /// <summary>The Bombs: collected and equipped.</summary>
     Bombs,
@@ -43,6 +43,6 @@ public enum InWorldCollectibleKind
     ScrewAttack,
     /// <summary>The Morph Ball: collected and equipped.</summary>
     MorphBall,
-    /// <summary>A Reserve Tank: adds 100 reserve-energy capacity and selects automatic reserve mode if no mode was set.</summary>
+    /// <summary>A Reserve Tank: adds a tank's reserve-energy capacity and selects automatic reserve mode if no mode was set.</summary>
     ReserveTank,
 }

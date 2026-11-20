@@ -127,6 +127,15 @@ internal sealed class ClosedPresentationAudit
                 valid = false;
                 staleReason = "the provider is constructed outside its reviewed loader, in " + constructor;
             }
+            // The room's read of its room-object pictures composes every family's and the setup blocks' (#2571), so a
+            // construction of any of their providers outside its loader revokes the composed read as well as that provider.
+            if (valid && contract.Type == RoomObjectFrameClosedContractDefinitions.Composed.Type &&
+                RoomObjectFrameClosedContractDefinitions.Families.Append(RoomObjectFrameClosedContractDefinitions.SetupBlocks)
+                    .Select(composed => ConstructedOutsideSources(compilation, composed)).FirstOrDefault(found => found is not null) is { } composedConstructor)
+            {
+                valid = false;
+                staleReason = "a provider it composes is constructed outside its reviewed loader, in " + composedConstructor;
+            }
             foreach (string method in contract.Methods)
                 contracts.Add(new PresentationMethod(contract.Type, method), new ContractValidity(contract, valid, valid ? null : staleReason ?? "a reviewed escape condition no longer holds"));
             if (!valid)
@@ -139,13 +148,14 @@ internal sealed class ClosedPresentationAudit
 
     /// <summary>
     /// The providers whose complete key domain only their reviewed loader's checks establish: the room artwork and a
-    /// spawned-object sheet (#1536), and every room object's frame pictures (#1732).
+    /// spawned-object sheet (#1536), every room object's frame pictures (#1732) and the room-object setup blocks.
     /// </summary>
     private static readonly HashSet<string> LoaderBuiltProviders =
     [
         ContractTypeNames.MetadataName(typeof(SuperMetroid.Core.Rooms.Artwork.InstalledRoomArtwork)),
         ContractTypeNames.MetadataName(typeof(SpawnedObjectSheet)),
-        .. RoomObjectFrameClosedContractDefinitions.All.Select(contract => contract.Type),
+        .. RoomObjectFrameClosedContractDefinitions.Families.Select(contract => contract.Type),
+        RoomObjectFrameClosedContractDefinitions.SetupBlocks.Type,
     ];
 
     /// <summary>

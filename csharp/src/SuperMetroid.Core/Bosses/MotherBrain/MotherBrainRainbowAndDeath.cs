@@ -74,7 +74,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.Starts(MotherBrainStepEffect.BodyFlickers))
         {
             // Her death flickers the body and the background together on every update, not just on colour steps.
-            state.DeathHidesBodyLayer = MotherBrainCadenceDefinitions.DeathFadeHidesBodyEverySecondUpdate.IsDue(state.Body.FrameCounter);
+            state.DeathHidesBodyLayer = MotherBrainCadenceDefinitions.DeathFadeHidesBody.IsDue(state.Body.FrameCounter);
             state.Body.Presence = state.DeathHidesBodyLayer
                 ? state.Body.Presence.With(EnemyPresence.Hidden)
                 : state.Body.Presence.Without(EnemyPresence.Hidden);

@@ -10,15 +10,14 @@ internal static class BoulderMotionDefinitions
     /// </summary>
     internal static readonly QuadraticSpeedCurvePlace LargestBounceSpeed = QuadraticSpeedCurvePlace.PastLastMark;
 
-    /// <summary>The bounce clock's place the first rebound starts from: mark 32 of the curve.</summary>
+    /// <summary>The bounce clock's place the first rebound starts from.</summary>
     internal static readonly QuadraticSpeedCurvePlace FirstReboundBounceSpeed = QuadraticSpeedCurvePlace.FromMarks(32);
 
     /// <summary>The change in the bounce clock per falling or rebounding update: one curve mark.</summary>
     internal static readonly QuadraticSpeedCurvePlace BounceSpeedStep = QuadraticSpeedCurvePlace.OneMark;
 
     /// <summary>
-    /// The largest clock the initial fall, and the travel clock while bouncing, reach: mark 80 of the curve, the travel
-    /// clock's larger cap.
+    /// The largest clock the initial fall, and the travel clock while bouncing, reach: the travel clock's larger cap.
     /// </summary>
     internal static readonly QuadraticSpeedCurvePlace MaximumBouncingSpeed = QuadraticSpeedCurvePlace.FromMarks(80);
 
@@ -28,7 +27,7 @@ internal static class BoulderMotionDefinitions
     /// <summary>The change in the travel clock per rolling update, a quarter of a mark.</summary>
     internal static readonly QuadraticSpeedCurvePlace RollingTravelSpeedStep = QuadraticSpeedCurvePlace.FromMarkFraction(1, 4);
 
-    /// <summary>The largest travel clock while rolling: mark 64 of the curve.</summary>
+    /// <summary>The largest travel clock while rolling.</summary>
     internal static readonly QuadraticSpeedCurvePlace MaximumRollingTravelSpeed = QuadraticSpeedCurvePlace.FromMarks(64);
 
     /// <summary>

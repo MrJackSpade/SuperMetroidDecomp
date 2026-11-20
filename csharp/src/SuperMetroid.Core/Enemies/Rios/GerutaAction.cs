@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// </summary>
 public enum GerutaAction
 {
-    /// <summary>Attacks when Samus is strictly within 192 horizontal room pixels and the update's random number does not hold it back, the same number choosing its launch velocity.</summary>
+    /// <summary>Attacks when Samus is strictly within its trigger distance across (<see cref="RioLaunchDefinitions.NorfairTriggerDistance"/>) and the update's random number does not hold it back, the same number choosing its launch velocity.</summary>
     WaitForAttackOpportunity,
     /// <summary>Waits for its swoop's start to finish, then plays its descent, enters the dive, and plays the dive sound.</summary>
     WaitForTakeoffAnimation,

@@ -15,7 +15,7 @@ internal static class KraidMouthReopenCountVerification
     {
         for (int pending = 0; pending <= 3; pending++)
         {
-            var armed = global::SuperMetroid.Core.PrivateState.With<KraidEnemyState>(new KraidEnemyState(new KraidParts()), "PendingMouthReopens", (int)(pending));
+            var armed = global::SuperMetroid.Core.PrivateState.With<KraidEnemyState>(new KraidEnemyState(new KraidParts()), "PendingMouthReopens", pending);
             armed.ArmMouthReopens();
             AssertEqual(3, armed.PendingMouthReopens, $"arming from {pending} pending reopens leaves three");
         }

@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Enemies.MorphBallEye;
-using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Gameplay;
 

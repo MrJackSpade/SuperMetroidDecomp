@@ -27,8 +27,8 @@ internal static class TourianAccessObjectDefinitions
     ];
 
     /// <summary>
-    /// Each floor state's change, which its room object makes: the crumble walks down six rows, crumbling each through
-    /// four images; the clear erases the access at once.
+    /// Each floor state's change, which its room object makes: the crumble walks down the access's rows
+    /// (<see cref="CrumbleRows"/>), crumbling each through its images (<see cref="CrumbleRow"/>); the clear erases the access at once.
     /// </summary>
     internal static readonly IReadOnlyDictionary<TourianAccessFloor, TerrainChange> Floors =
         new Dictionary<TourianAccessFloor, TerrainChange>

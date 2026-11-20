@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>
 /// An eye door's eye (#1554). On its first update
 /// the eye looks at its door: one opened for good moves up a block and turns into its closed blue cap
-/// (<see cref="BlueDoorCapObject"/>). Otherwise it stays closed, looking for Samus every four updates; once she is near
+/// (<see cref="BlueDoorCapObject"/>). Otherwise it stays closed, looking for Samus each time its closed image ends; once she is near
 /// (<see cref="EyeDoorSequenceDefinitions.WakeReach"/>) it opens, takes missiles from then on, and watches her, firing its
 /// shots, blinking while she stands right in front of it and closing again once she has left. A pending shot is
 /// consumed before the eye's images count down: a missile counts a hit (a Super Missile reaches the threshold at once),
 /// and any other shot makes the dud sound. A hit short of the threshold sounds, smokes and makes the eye flinch; the hit
 /// that reaches it records the door opened for good, stops the shots, smokes, moves the eye up a block onto its blue cap,
-/// flashes it ten times and turns it into the cap.
+/// flashes it (<see cref="EyeDoorSequenceDefinitions.OpeningFlashes"/>) and turns it into the cap.
 /// </summary>
 /// <param name="orientation">The eye door's facing.</param>
 /// <param name="door">The door the eye's placement named, which its attacks keep to burst once it opens.</param>

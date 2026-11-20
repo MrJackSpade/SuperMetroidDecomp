@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
 /// The authored pictures and timing of Draygon's wall cannons, by facing (#1554, #2401): a whole cannon shows its shield
-/// and rests on it; a hit that does not destroy it flashes the shield white three times; a destroyed cannon sparks for
+/// and rests on it; a hit that does not destroy it flashes the shield white (<see cref="Flashes"/>); a destroyed cannon sparks for
 /// good.
 /// </summary>
 internal static class DraygonCannonAnimationDefinitions

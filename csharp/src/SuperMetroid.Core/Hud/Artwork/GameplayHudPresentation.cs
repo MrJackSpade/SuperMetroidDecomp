@@ -46,7 +46,7 @@ public sealed class GameplayHudPresentation
     }
 
     /// <summary>One energy tank full or empty.</summary>
-    /// <param name="tank">The tank, 0 through 13.</param>
+    /// <param name="tank">The tank, below <see cref="GameplayHudDefinitions.EnergyTankCount"/>.</param>
     /// <param name="shown">Whether the tank is full or empty.</param>
     public PlacedHudImage EnergyTank(int tank, HudEnergyTank shown) =>
         new(new HudEnergyTankImage(shown), parts.EnergyTankCorners[Ensure.BetweenInclusive(0, GameplayHudDefinitions.EnergyTankCount - 1, tank)]);

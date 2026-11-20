@@ -14,7 +14,7 @@ public static class IntroNarrationExtractor
     /// <summary>Decodes all six English opening narration pages from checked bank-$8C character scripts into editable text lines.</summary>
     /// <param name="bus">Cartridge source for the page instruction streams and their single-tile glyph payloads.</param>
     /// <returns>A new UTF-8 JSON buffer with page-name-keyed line arrays, native tile-row positions, and decoded text in row order.</returns>
-    /// <remarks>Verifies begin/end/delete commands, marker records, five-update character delays, contiguous columns, and the final-page caret/hold sequence. Those script mechanics remain compiled rather than becoming editable JSON fields.</remarks>
+    /// <remarks>Verifies begin/end/delete commands, marker records, character delays of <see cref="IntroNarrationDefinitions.CharacterDelayFrames"/>, contiguous columns, and the final-page caret/hold sequence. Those script mechanics remain compiled rather than becoming editable JSON fields.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="InvalidDataException">A script opcode, marker, timing, glyph payload, coordinate sequence, or bounded termination differs from the supported format.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)

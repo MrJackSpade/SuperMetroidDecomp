@@ -113,15 +113,16 @@ internal static class MotherBrainRandomDefinitions
         new(64, MotherBrainSecondPhaseAttack.Bomb));
 
     /// <summary>
-    /// Her second phase's next move at 4500 health or more: one in sixteen tries an attack; the rest walk.
+    /// Her second phase's next move at full strength (<see cref="MotherBrainFightDefinitions.FullStrengthHealth"/> or more):
+    /// one in sixteen tries an attack; the rest walk.
     /// </summary>
     internal static readonly RandomChance AttacksAtFullStrength = RandomChance.Lowest(4096, RandomSampleField.Whole);
 
-    /// <summary>Her second phase's next move below 4500 health: one in eight walks.</summary>
+    /// <summary>Her second phase's next move below full strength: one in eight walks.</summary>
     internal static readonly RandomChance WalksWhenWounded = RandomChance.Lowest(8192, RandomSampleField.Whole);
 
     /// <summary>
-    /// Her second phase's next move below 4500 health: three in eight try an attack; the rest that do not walk fire the
+    /// Her second phase's next move below full strength: three in eight try an attack; the rest that do not walk fire the
     /// hand beam.
     /// </summary>
     internal static readonly RandomChance AttacksWhenWounded = RandomChance.Highest(24576, RandomSampleField.Whole);
@@ -130,7 +131,8 @@ internal static class MotherBrainRandomDefinitions
     internal static readonly RandomChance BombWalkStaysPut = RandomChance.Highest(128, RandomSampleField.Whole);
 
     /// <summary>
-    /// Her bomb walk's target: three in eight walk her back only to X 96; the rest that walk take her back to X 64.
+    /// Her bomb walk's target: three in eight walk her back only to her short retreat; the rest that walk take her back
+    /// to her long retreat.
     /// </summary>
     internal static readonly RandomChance BombWalkShortRetreat = RandomChance.Lowest(24576, RandomSampleField.Whole);
 

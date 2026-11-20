@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// cadence countdown restarts at zero, the value read past the authored restart values. Later frames take the full
 /// stage's own cadence. The delays read past the authored cadences are what the getaway's wing animation leaves behind
 /// when it redraws the floor: before any getaway they are all zero, and each wing frame the getaway draws replaces them
-/// with that frame's ten delays for the rest of the session. The capsule's frames leave them as they were.
+/// with that frame's delays, one per running frame, for the rest of the session. The capsule's frames leave them as they were.
 /// </summary>
 /// <remarks>
 /// Owned by the session (<c>FrontendSession</c>), which outlives every gameplay runtime as the game's memory does, and
@@ -40,15 +40,15 @@ public sealed class UnauthoredBoostCadence
     /// </summary>
     public const int LongestDelay = WrappingCountdown.LongestStart;
 
-    /// <summary>The ten delays, by running frame: all zero until the getaway first draws its wings.</summary>
+    /// <summary>The delays, by running frame (<see cref="FrameCount"/>): all zero until the getaway first draws its wings.</summary>
     private int[] delays = new int[FrameCount];
 
     /// <summary>
     /// Takes the delays a wing frame of the getaway leaves behind as it redraws the floor; they time the cadence until
     /// the next wing frame.
     /// </summary>
-    /// <param name="wingDelays">The wing frame's ten delays, by running frame, each 0 through <see cref="LongestDelay"/> ticks.</param>
-    /// <exception cref="InvalidDataException">The delays are not ten, or one lies outside a running frame's range.</exception>
+    /// <param name="wingDelays">The wing frame's delays, by running frame, each 0 through <see cref="LongestDelay"/> ticks.</param>
+    /// <exception cref="InvalidDataException">The delays are not one per running frame, or one lies outside a running frame's range.</exception>
     public void TakeDelaysLeftByWings(IReadOnlyList<int> wingDelays)
     {
         Ensure.NotNull(wingDelays);
@@ -64,6 +64,6 @@ public sealed class UnauthoredBoostCadence
 
     /// <summary>The delay, 0 through <see cref="LongestDelay"/> ticks, of running frame <paramref name="frame"/>.</summary>
     /// <param name="frame">The running frame, zero through <see cref="FrameCount"/> less one.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not one of the ten running frames.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not one of the running frames.</exception>
     public int Delay(int frame) => delays[Ensure.BetweenInclusive(0, FrameCount - 1, frame)];
 }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// </summary>
 public enum HoltzAction
 {
-    /// <summary>Attacks when Samus is strictly within 112 horizontal room pixels and the update's random number does not hold it back.</summary>
+    /// <summary>Attacks when Samus is strictly within its trigger distance across (<see cref="RioLaunchDefinitions.LowerNorfairTriggerDistance"/>) and the update's random number does not hold it back.</summary>
     WaitForAttackOpportunity,
     /// <summary>Waits for the animation cue's completion signal before clearing it and starting downward motion.</summary>
     WaitForTakeoffAnimation,

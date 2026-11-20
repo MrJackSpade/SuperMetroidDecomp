@@ -54,7 +54,7 @@ internal sealed class RoomObjectPopulationLoader
 
             RoomObjectPlace? place = AllocateRoomPopulationPlace(block);
             if (place is null)
-                continue; // No room object spawns while all forty places are held.
+                continue; // No room object spawns while every place is held.
 
             if (placement.Site == RoomObjectSite.OffTheRoom)
             {

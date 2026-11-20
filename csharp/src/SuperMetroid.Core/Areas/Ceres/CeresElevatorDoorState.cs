@@ -7,7 +7,7 @@ internal sealed class CeresElevatorDoorState
     public CeresElevatorDoorPhase Phase { get; internal set; }
 
     /// <summary>
-    /// The door's destruction rumble (#2281): 49 updates when it starts, and the update that ends it ends the destruction,
+    /// The door's destruction rumble (#2281): <see cref="CeresElevatorDoorEntity.RumbleDuration"/> when it starts, and the update that ends it ends the destruction,
     /// which never counts it again.
     /// </summary>
     public UpdateCountdown Rumble { get; internal set; } = UpdateCountdown.Ended();

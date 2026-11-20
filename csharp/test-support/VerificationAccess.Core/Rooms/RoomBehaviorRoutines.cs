@@ -29,7 +29,7 @@ internal static class RoomBehaviorRoutines
         [0xe525] = RoomMainBehavior.SpawnCeresPreElevatorHallFallingDebris,
         [0xe571] = RoomMainBehavior.CeresRidleyGetaway,
         [0xe57c] = RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal,
-        [0xe5a0] = RoomMainBehavior.RandomExplosionEveryFourthUpdate,
+        [0xe5a0] = RoomMainBehavior.RandomEscapeExplosions,
         [0xe5a4] = RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal,
         [0xe8cd] = RoomMainBehavior.CrocomireRoomShaking,
         [0xe950] = RoomMainBehavior.None,

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;

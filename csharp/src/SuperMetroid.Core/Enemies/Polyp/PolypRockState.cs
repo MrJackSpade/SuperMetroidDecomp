@@ -13,8 +13,8 @@ internal sealed class PolypRockState(QuadraticSpeedCurvePlace speedCurvePlace) :
     internal PolypRockMovement Phase { get; set; } = PolypRockMovement.Rising;
 
     /// <summary>
-    /// The rock's vertical speed as a whole-mark place on the quadratic speed curve: it moves back two marks each update
-    /// while the rock rises and on two marks, up to a cap, while it falls.
+    /// The rock's vertical speed as a whole-mark place on the quadratic speed curve: it moves back by its step each update
+    /// while the rock rises and on by <see cref="PolypLaunchDefinitions.RockFallStep"/>, up to a cap, while it falls.
     /// </summary>
     internal QuadraticSpeedCurvePlace SpeedCurvePlace { get; set; } = speedCurvePlace;
 }

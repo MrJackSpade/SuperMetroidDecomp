@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
-/// The state of the Nuclear Waffle, with its projectile and effect-actor links. The seven articulated body links
+/// The state of the Nuclear Waffle, with its projectile and effect-actor links. The articulated body links
 /// alternate between enemy projectiles and effect actors; the waffle spawns them all at its room load and keeps them.
 /// </summary>
 public sealed class NuclearWaffleEnemyState
@@ -44,11 +44,11 @@ public sealed class NuclearWaffleEnemyState
     /// <summary>The owning enemy's artwork and colours, captured at room load for the persistent body links and transient joint-turn effect actors.</summary>
     public SpriteGraphics Graphics { get; internal set; }
 
-    /// <summary>The four persistent, damaging links, each an enemy projectile, in the order the sweep walks them.</summary>
+    /// <summary>The persistent, damaging links, each an enemy projectile, in the order the sweep walks them.</summary>
     public required IReadOnlyList<NuclearWaffleLink<EnemyProjectile>> ProjectileLinks { get; init; }
 
     /// <summary>
-    /// The three persistent, cosmetic links interleaved with the projectile links, each an effect actor; their turns are
+    /// The persistent, cosmetic links interleaved with the projectile links, each an effect actor; their turns are
     /// tracked apart from the projectile links'.
     /// </summary>
     public required IReadOnlyList<NuclearWaffleLink<RoomEffectActor>> SpriteLinks { get; init; }

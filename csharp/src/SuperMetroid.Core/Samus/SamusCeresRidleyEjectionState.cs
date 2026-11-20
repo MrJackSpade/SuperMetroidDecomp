@@ -123,7 +123,7 @@ public sealed class SamusCeresRidleyEjectionState
             return;
         }
 
-        // Her fall speeds up only while its whole pixels are below five, and she falls by that speed alone, whichever way
+        // Her fall speeds up only while its whole pixels are below the shove's falling speed, and she falls by that speed alone, whichever way
         // her velocity heads and without the extra pixel an ordinary fall adds.
         UnsignedSixteenSixteen fallSpeed = samus.Kinematics.VerticalVelocity.Speed;
         if (fallSpeed.IsSlowerThan(SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed))

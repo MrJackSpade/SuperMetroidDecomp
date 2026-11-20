@@ -25,7 +25,7 @@ public sealed class GerutaEnemyState
     public RioAnimationFinish Finish { get; } = new();
 
     /// <summary>
-    /// The flame follower's vertical placement relative to its parent, -16 through 12 pixels, negative above it. Private
+    /// The flame follower's vertical placement relative to its parent, as its cues publish it, negative above it. Private
     /// animation cues publish it with <see cref="Flames"/>.
     /// </summary>
     public int FollowerYOffset { get; internal set; }

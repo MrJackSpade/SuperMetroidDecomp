@@ -11,13 +11,13 @@ internal static class MaridiaElevatubeDefinitions
     /// <summary>The room X, in whole pixels, the tube holds Samus at on every update.</summary>
     internal const int SamusCenterX = 128;
 
-    /// <summary>A ride entered from Oasis to the south: from room Y 2496, one pixel per update upward, gaining an eighth of a pixel per update upward each update.</summary>
+    /// <summary>A ride entered from Oasis to the south: from the tube's bottom, moving upward and gaining speed upward each update.</summary>
     private static readonly MaridiaElevatubeRideStart FromSouth = new(
         StartingY: 2496,
         StartingVelocity: SignedEightEight.FromPixels(-1),
         Acceleration: SignedEightEight.FromPixelFraction(-1, 8));
 
-    /// <summary>A ride entered from Plasma Spark to the north: from room Y 64, one pixel per update downward, gaining an eighth of a pixel per update downward each update.</summary>
+    /// <summary>A ride entered from Plasma Spark to the north: from the tube's top, moving downward and gaining speed downward each update.</summary>
     private static readonly MaridiaElevatubeRideStart FromNorth = new(
         StartingY: 64,
         StartingVelocity: SignedEightEight.FromPixels(1),
@@ -32,7 +32,7 @@ internal static class MaridiaElevatubeDefinitions
         };
 
     /// <summary>
-    /// The fastest the tube carries Samus either way, fourteen and an eighth pixels per update: an acceleration that
+    /// The fastest the tube carries Samus either way: an acceleration that
     /// would take her past it is not applied, and her speed stays as it was.
     /// </summary>
     internal static readonly SignedEightEight MaximumSpeed = SignedEightEight.FromPixelFraction(113, 8);

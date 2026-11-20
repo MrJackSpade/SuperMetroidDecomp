@@ -8,13 +8,13 @@ internal static class EndingShootingStarDefinitions
 {
     /// <summary>The colouring every star draws in.</summary>
     internal const EndingSpriteColouring Colouring = EndingSpriteColouring.ShootingStars;
-    /// <summary>The shooting-star setup creates forty stars.</summary>
+    /// <summary>The stars the shooting-star setup creates.</summary>
     internal const int Count = 40;
     /// <summary>Initialization and reset put both coordinates at the screen center.</summary>
     internal const int Origin = 128;
     /// <summary>The updates of the hidden lead-in each flight starts with, at the origin.</summary>
     internal const int LeadInDuration = 32;
-    /// <summary>Each small sprite is centered four pixels before its position.</summary>
+    /// <summary>How far before its position each small sprite is centered.</summary>
     internal const int SpriteOffset = 4;
     /// <summary>
     /// The last pixel of the square field the stars fly in, on both axes: the screen's width, so a star leaving through
@@ -67,7 +67,7 @@ internal static class EndingShootingStarDefinitions
         Still(new PixelVelocity<ScreenPixels>(SignedEightEight.FromPixelFraction(-1, 32), SignedEightEight.FromPixelFraction(-1, 128)), 0),
         Still(new PixelVelocity<ScreenPixels>(SignedEightEight.FromPixelFraction(-1, 32), SignedEightEight.FromPixelFraction(-1, 64)), 0)
     ];
-    /// <summary>The forty stars in order, for their setup and their flights.</summary>
+    /// <summary>The stars in order, for their setup and their flights.</summary>
     internal static ReadOnlySpan<EndingShootingStarDefinition> Stars => stars;
 
     /// <summary>

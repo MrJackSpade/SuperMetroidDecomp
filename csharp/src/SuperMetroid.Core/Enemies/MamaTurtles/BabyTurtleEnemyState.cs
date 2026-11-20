@@ -15,7 +15,7 @@ public sealed class BabyTurtleEnemyState
     public BabyTurtleAction Action { get; internal set; }
 
     /// <summary>
-    /// The child's spawn point: its spawn X, which the crawl turns around 48 pixels from, and the top of its spawn
+    /// The child's spawn point: its spawn X, which the crawl turns around its travel distance from, and the top of its spawn
     /// hitbox, which the crawl holds it to.
     /// </summary>
     public Position16<RoomPixels> SpawnTopCenter { get; internal set; }
@@ -27,7 +27,7 @@ public sealed class BabyTurtleEnemyState
     public HorizontalDirection Heading { get; internal set; }
 
     /// <summary>
-    /// How fast the baby moves along <see cref="Heading"/>, in whole pixels an update (#2338): a pixel as it crawls, and
+    /// How fast the baby moves along <see cref="Heading"/>, in whole pixels an update (#2338): its crawl speed as it crawls, and
     /// a spin's speed from a spin until its crawl next turns it.
     /// </summary>
     public int HorizontalSpeed { get; internal set; }

@@ -37,8 +37,8 @@ internal static class SamusComboMechanics
     /// zero in every quadrant (<see cref="UnitComponent.ReachOf"/>).
     /// </summary>
     /// <remarks>
-    /// The Ice, Plasma and Spazer attacks give the angles; Y turns back a quarter turn. The amplitude is 0
-    /// through 255.</remarks>
+    /// The Ice, Plasma and Spazer attacks give the angles; Y turns back a quarter turn. The amplitude is at most
+    /// <see cref="Compatibility.ComboRingCollapse.LargestRadius"/>.</remarks>
     internal static Offset16<RoomPixels> GetSineOffset(TrigonometryAngle angle, int amplitude)
     {
         Ensure.BetweenInclusive(0, ComboRingCollapse.LargestRadius, amplitude);

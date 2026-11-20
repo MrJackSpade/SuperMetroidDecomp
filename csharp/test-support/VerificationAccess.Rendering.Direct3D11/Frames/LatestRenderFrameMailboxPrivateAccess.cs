@@ -19,11 +19,6 @@ internal static class LatestRenderFrameMailboxPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Rendering.Direct3D11.Frames.LatestRenderFrameMailbox, long>(self, "Generation");
         }
 
-        /// <summary>The private property <c>Invalidated</c>, reached by name.</summary>
-        internal long Invalidated
-        {
-            get => PrivateState.Get<global::SuperMetroid.Rendering.Direct3D11.Frames.LatestRenderFrameMailbox, long>(self, "Invalidated");
-        }
 
         /// <summary>The private property <c>Pending</c>, reached by name.</summary>
         internal global::SuperMetroid.Rendering.Direct3D11.Frames.RenderFrame? Pending
@@ -31,11 +26,6 @@ internal static class LatestRenderFrameMailboxPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Rendering.Direct3D11.Frames.LatestRenderFrameMailbox, global::SuperMetroid.Rendering.Direct3D11.Frames.RenderFrame?>(self, "Pending");
         }
 
-        /// <summary>The private property <c>Published</c>, reached by name.</summary>
-        internal long Published
-        {
-            get => PrivateState.Get<global::SuperMetroid.Rendering.Direct3D11.Frames.LatestRenderFrameMailbox, long>(self, "Published");
-        }
 
         /// <summary>The private property <c>Replaced</c>, reached by name.</summary>
         internal long Replaced
@@ -43,11 +33,6 @@ internal static class LatestRenderFrameMailboxPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Rendering.Direct3D11.Frames.LatestRenderFrameMailbox, long>(self, "Replaced");
         }
 
-        /// <summary>The private property <c>Taken</c>, reached by name.</summary>
-        internal long Taken
-        {
-            get => PrivateState.Get<global::SuperMetroid.Rendering.Direct3D11.Frames.LatestRenderFrameMailbox, long>(self, "Taken");
-        }
     }
 
     /// <summary>The private instance members checks read or call.</summary>

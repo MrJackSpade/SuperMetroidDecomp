@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 public enum DeadSidehopperAction
 {
-    /// <summary>Activates the living victim when the camera's X is left of room pixel 513, moving it in the same update.</summary>
+    /// <summary>Activates the living victim when the camera's X is left of <see cref="DeadSidehopperVictimDefinitions.ActivationCameraX"/>, moving it in the same update.</summary>
     AliveWaitForCamera,
     /// <summary>Applies the hop velocity and gravity; landing advances the four-phase launch sequence and starts the hopping animation.</summary>
     ActivatedMovement,
@@ -16,11 +16,11 @@ public enum DeadSidehopperAction
     BeginPostLandingDelay,
     /// <summary>Waits out the pause, then resumes hopping or begins the drain.</summary>
     PostLandingDelay,
-    /// <summary>Steps Baby Metroid's drain every eight AI updates; once the victim is fully drained, shows the solid corpse with a 12-pixel Y radius.</summary>
+    /// <summary>Steps Baby Metroid's drain each drain stage (<see cref="DeadSidehopperVictimDefinitions.DrainUpdatesPerStage"/>); once the victim is fully drained, shows the solid corpse at its drained height.</summary>
     Draining,
     /// <summary>Waits for Samus's solid-enemy collision to select the pre-rot delay; also the return state after rotting completes.</summary>
     WaitForSamusCollision,
-    /// <summary>Counts sixteen updates from Samus's first touch (<see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/>), then starts rotting, Samus passing through the corpse from then on.</summary>
+    /// <summary>Counts the pre-rot delay from Samus's first touch (<see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/>), then starts rotting, Samus passing through the corpse from then on.</summary>
     PreRotDelay,
     /// <summary>Rots the corpse row by row by its <see cref="CorpseRotSchedule"/> and shows the rotted rows, including on the update the rot ends.</summary>
     Rotting,

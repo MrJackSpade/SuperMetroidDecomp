@@ -15,7 +15,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new NuclearWaffleEntity(this, place, common));
 
-    /// <summary>Allocates the four collidable links in the articulated body.</summary>
+    /// <summary>Allocates the collidable links in the articulated body.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Allocates visual body links and turn overlays.</summary>
     private readonly RoomEffectActors _effectActors;
@@ -121,13 +121,13 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Processing = place.Processing.Without(EnemyProcessing.OffScreen);
     }
 
-    /// <summary>Allocates the four damaging projectile links in association order, each at the head's starting point.</summary>
+    /// <summary>Allocates the damaging projectile links in association order, each at the head's starting point.</summary>
     private NuclearWaffleLink<EnemyProjectile>[] SpawnNuclearWaffleProjectileLinks(
         RoomEnemyPlace owner,
         Position16<RoomPixels> initialHead,
         SpriteGraphics graphics)
     {
-        // Each of the four links is spawned for its own place along the waffle's arm, in the order the update later
+        // Each link is spawned for its own place along the waffle's arm, in the order the update later
         // walks them from the last.
         var links = new NuclearWaffleLink<EnemyProjectile>[NuclearWaffleDefinitions.ProjectileLinks];
         for (int segmentIndex = 0; segmentIndex < links.Length; segmentIndex++)
@@ -136,8 +136,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             if (segment is null)
                 throw new InvalidOperationException("Nuclear Waffle exhausted the enemy-projectile pool during room load.");
 
-            // The link starts as its definition has it: its twelve-frame animation, an 8 by 8 pixel size and 64
-            // damage. It then starts at the head as one link of the body, which shots cannot destroy.
+            // The link starts as its definition has it: its animation, size and damage. It then starts at the head
+            // as one link of the body, which shots cannot destroy.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 segment,
                 RoomEnemyProjectileKind.NuclearWaffleBody,
@@ -145,7 +145,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
                 graphics);
             segment.StartAnimation(new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Churning));
             segment.Position = owner.Position.WithWhole(initialHead);
-            // The four links stop shots without being destroyed: a beam that strikes one is a dud, and the link
+            // The links stop shots without being destroyed: a beam that strikes one is a dud, and the link
             // stays rather than playing its definition's destruction.
             segment.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
             links[segmentIndex] = new NuclearWaffleLink<EnemyProjectile>(segment);

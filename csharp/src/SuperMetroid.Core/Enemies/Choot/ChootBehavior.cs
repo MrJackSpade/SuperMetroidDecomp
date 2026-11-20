@@ -129,8 +129,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Calculates the Choot's initial jump speed, integrating every second quadratic step until
-    /// they cover the requested height. The curve ends at its last mark, 94, so the result is an even mark from 2 through 94.
+    /// Calculates the Choot's initial jump speed, integrating the quadratic steps the ascent takes
+    /// (<see cref="ChootMotionDefinitions.AscentStep"/>) until they cover the requested height, at most the curve's last mark.
     /// </summary>
     private static QuadraticSpeedCurvePlace CalculateInitialChootYSpeedCurvePlace(int jumpHeight)
     {

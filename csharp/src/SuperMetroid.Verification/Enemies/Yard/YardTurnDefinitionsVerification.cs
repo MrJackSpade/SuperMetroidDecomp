@@ -106,7 +106,7 @@ internal static class YardTurnDefinitionsVerification
                 Movement = YardMovement.Crawling,
                 Crawl = movement,
                 CrawlingVelocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256)),
-            }, "TurnSuppressionPassesLeft", (global::SuperMetroid.Core.UpdateCountdown)(UpdateCountdown.For(suppressed ? YardMotionDefinitions.TurnSuppressionPasses : 0)));
+            }, "TurnSuppressionPassesLeft", UpdateCountdown.For(suppressed ? YardMotionDefinitions.TurnSuppressionPasses : 0));
 
             run(place, state, level);
 

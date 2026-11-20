@@ -72,7 +72,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
                 place,
                 horizontalDisplacement))
         {
-            // A wall turns Waver around, reversing its speed exactly, fraction included (±1.5 pixels a frame), and ends any spin.
+            // A wall turns Waver around, reversing its speed exactly, fraction included, and ends any spin.
             state.Facing = state.Facing == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;
             SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));
         }
@@ -98,7 +98,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             SetWaverAnimation(place, state, WaverAnimationChoices.Spinning(state.Facing));
         }
 
-        // The spin animation finishes after 32 animation frames. Main AI owns
+        // The spin animation finishes after its own frames. Main AI owns
         // the return to steady art, matching the cue/AI seam rather than timing it here.
         if (spinFinished)
             SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));

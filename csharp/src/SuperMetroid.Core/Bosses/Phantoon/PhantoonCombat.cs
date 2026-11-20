@@ -100,7 +100,7 @@ internal sealed class PhantoonCombat
             context => RunPhantoonStartingFlameWaiting(context.Projectile));
 
         /// <summary>An intro flame orbiting Phantoon's body as its orbit closes.</summary>
-        internal EnemyProjectileOwnedMotion IntroOrbiting => field ??= new(nameof(IntroOrbiting),
+        private EnemyProjectileOwnedMotion IntroOrbiting => field ??= new(nameof(IntroOrbiting),
             context => RunPhantoonStartingFlameOrbit(context.Projectile, context.FrameCounter));
 
         /// <summary>A casual flame falling to the floor.</summary>
@@ -160,9 +160,9 @@ internal sealed class PhantoonCombat
         {
             PhantoonOrbitingFlameState orbit = Orbits.Of(flame);
             PhantoonEnemyState state = orbit.Phantoon;
-            // Once its hold at its full radius has run out, the orbit closes on every second update of the game's frame
+            // Once its hold at its full radius has run out, the orbit closes at its cadence's place in the game's frame
             // counter.
-            if (orbit.FullRadiusHold.StepRunsOut() && PhantoonCadenceDefinitions.OrbitClosesEverySecondUpdate.IsDue(frameCounter))
+            if (orbit.FullRadiusHold.StepRunsOut() && PhantoonCadenceDefinitions.OrbitCloses.IsDue(frameCounter))
             {
                 orbit.Radius--;
                 if (orbit.Radius == 0)
@@ -361,8 +361,8 @@ internal sealed class PhantoonCombat
 
         if (vulnerableWindow || swooping)
         {
-            // A single Super Missile (600 damage) skips ordinary round accumulation
-            // and enters the eight-wave rage sequence immediately.
+            // A single Super Missile skips ordinary round accumulation
+            // and enters the rage sequence immediately.
             if (damage >= PhantoonPatternDefinitions.RoundDamageThreshold &&
                 family == SamusProjectileFamily.SuperMissile)
             {

@@ -18,14 +18,14 @@ internal static class EscapeCounterPhasesVerification
         for (int input = 0; input <= ushort.MaxValue; input++)
         {
             AssertSameAt(input & 127, EscapeTimerCadenceDefinitions.PeriodPlace.Of(input), "escape timer period place", input);
-            AssertSameAt(input % 2 == 0, EscapeTypewriterDefinitions.ClickEverySecondGlyph.IsDue(input), "typewriter click", input);
+            AssertSameAt(input % 2 == 0, EscapeTypewriterDefinitions.GlyphClick.IsDue(input), "typewriter click", input);
             AssertSameAt((input & 15) < 8,
                 ZebesEscapeExplosionDefinitions.Draw.Choose(input) is ZebesEscapeExplosionDraw.Named,
                 "explosion choice names an explosion", input);
             AssertSameAt(input < 512, ZebesEscapeDefinitions.LightShakeTurnsDiagonal.IsTakenBy(input), "light shake turns diagonal", input);
             AssertSameAt(input < 384, ZebesEscapeDefinitions.MediumShakeTurnsDiagonal.IsTakenBy(input), "medium shake turns diagonal", input);
-            AssertSameAt((input & 1) == 0, ZebesEscapeDefinitions.OutdoorExplosionEverySecondUpdate.IsDue(input), "outdoor explosion", input);
-            AssertSameAt((input & 3) == 0, ZebesEscapeDefinitions.IndoorExplosionEveryFourthUpdate.IsDue(input), "indoor explosion", input);
+            AssertSameAt((input & 1) == 0, ZebesEscapeDefinitions.OutdoorExplosion.IsDue(input), "outdoor explosion", input);
+            AssertSameAt((input & 3) == 0, ZebesEscapeDefinitions.IndoorExplosion.IsDue(input), "indoor explosion", input);
         }
 
         AssertEqual(EscapeTimerCadenceDefinitions.CentisecondsRemoved.Length, EscapeTimerCadenceDefinitions.PeriodPlace.Outcomes,

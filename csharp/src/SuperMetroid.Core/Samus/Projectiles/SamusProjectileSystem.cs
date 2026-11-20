@@ -127,9 +127,6 @@ public sealed class SamusProjectileSystem
     /// <summary>Each shot place's projectile, in place order: the live one, or the last one that ended there.</summary>
     public IReadOnlyList<SamusProjectile> Shots => Pool.Shots;
 
-    /// <summary>The last input-phase result, whose queued sounds the frontend routes after the frame.</summary>
-    private SamusProjectileFrameResult LastFrameResult { get; set; }
-
     /// <summary>
     /// Shows the equipped beams' colours: the beams show the shade of the combination they select (#1512). No pictures
     /// change: each projectile shows the sheet of the beams it is pictured with (#1586), and the installed sheets are
@@ -192,8 +189,8 @@ public sealed class SamusProjectileSystem
         if (Charge.ChargedShotGlow is not { } glow)
         {
             // The charge glow admits the continuously cycling charge glow only while
-            // grapple is inactive and the charge, a count that never passes its 120-update clamp or the Hyper Beam's
-            // flare, has reached 60.
+            // grapple is inactive and the charge, a count that never passes its clamp or the Hyper Beam's
+            // flare, has reached a full charge (BeamChargeDefinitions.FullyChargedCounter).
             bool chargeGlowActive =
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
                 Charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
@@ -218,7 +215,7 @@ public sealed class SamusProjectileSystem
         }
 
         // A charged shot's glow plays its sequence, painting each shade as it shows it: an ordinary shot's flash paints the
-        // yellow glow on each of its three updates; the Hyper Beam shot's glow shows each frame for two updates.
+        // yellow glow on each of its updates; the Hyper Beam shot's glow shows each frame for its hold.
         // On the update after its last shade the glow ends and the suit's own shade returns.
         PictureShade? shown = glow.PlayUpdate();
         if (glow.HasEnded)
@@ -255,7 +252,7 @@ public sealed class SamusProjectileSystem
     /// <summary>
     /// Runs the power-beam HUD producer, the beam and missile share of Samus's HUD item step, which the game runs before it
     /// handles any projectile: the producer fires and queues its firing sound as it fires (#1620), so the sound is tested
-    /// against the power bomb as it stood before the update's bombs ran. The pass's result reports the firing sound.
+    /// against the power bomb as it stood before the update's bombs ran.
     /// </summary>
     /// <param name="terrain">The room terrain the shots collide with and react to.</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
@@ -330,8 +327,6 @@ public sealed class SamusProjectileSystem
             AudioRequests.QueueSound(firingSound,
                 queuedSoundPriority ?? throw new InvalidDataException("A projectile sound was queued without its priority."));
         }
-
-        LastFrameResult = new SamusProjectileFrameResult(queuedSound, queuedSoundPriority);
     }
 
     /// <summary>
@@ -518,7 +513,6 @@ public sealed class SamusProjectileSystem
         Trails.Clear();
         Pool.ShotCount.Clear();
         Firing.InteractionImmunity = UpdateCountdown.Ended();
-        LastFrameResult = default;
     }
 
 }

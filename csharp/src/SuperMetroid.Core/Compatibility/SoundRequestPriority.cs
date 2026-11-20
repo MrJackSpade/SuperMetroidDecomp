@@ -38,8 +38,7 @@ public readonly record struct SoundRequestPriority
 
     /// <summary>
     /// The waiting requests at which the queue turns a new request away, 1 through
-    /// <see cref="SoundQueueAdmission.MaximumOccupancy"/>: a queue holds at most fifteen, so fifteen admits a request into
-    /// any queue that is not full.
+    /// <see cref="SoundQueueAdmission.MaximumOccupancy"/>: the largest admits a request into any queue that is not full.
     /// </summary>
     public int Requests { get; }
 

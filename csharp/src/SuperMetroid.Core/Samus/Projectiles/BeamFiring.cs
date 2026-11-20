@@ -16,7 +16,7 @@ internal sealed class BeamFiring
     private readonly BeamChargeState _charge;
     /// <summary>Handles the special beam attack after the charge counter reaches <see cref="BeamChargeDefinitions.SpecialAttackCounter"/>.</summary>
     private readonly BeamCombos _combos;
-    /// <summary>Owns the five shot places, which a fired projectile takes, and the shot count.</summary>
+    /// <summary>Owns the shot places (<see cref="SamusProjectileSystem.PlaceCount"/>), which a fired projectile takes, and the shot count.</summary>
     private readonly SamusShotPool _pool;
     /// <summary>Runs initial muzzle collision against room terrain and room objects.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
@@ -311,7 +311,7 @@ internal sealed class BeamFiring
         SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
     {
-        // Admission is shared with normal beams: five counted shots and a running cooldown reject firing before any
+        // Admission is shared with normal beams: a full shot count and a running cooldown reject firing before any
         // projectile is created.
         if (_pool.ShotCount.Count >= SamusProjectileSystem.PlaceCount ||
             samusBombs.CooldownTimer != 0)

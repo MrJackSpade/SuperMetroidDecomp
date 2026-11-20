@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public enum MotherBrainHandBeamPhase
 {
-    /// <summary>Requests the slow backward gait toward X 40, then sets the charging neck targets. A new attack starts here.</summary>
+    /// <summary>Requests the slow backward gait toward the back of the room (<see cref="MotherBrainFightDefinitions.BackOfRoomX"/>), then sets the charging neck targets. A new attack starts here.</summary>
     BackUp,
     /// <summary>Waits for every active Mother Brain bomb to leave the shared projectile pool before starting the hand-beam body animation.</summary>
     WaitForBombs,

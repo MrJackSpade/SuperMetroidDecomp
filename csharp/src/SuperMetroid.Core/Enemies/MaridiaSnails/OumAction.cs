@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// </remarks>
 public enum OumAction
 {
-    /// <summary>Completes settling bounces, then selects an idle facing and enters rolling when Samus is strictly within 24 horizontal pixels.</summary>
+    /// <summary>Completes settling bounces, then selects an idle facing and enters rolling when Samus is strictly within its pushing reach across (<see cref="OumMotionDefinitions.PushingReachX"/>).</summary>
     Idle,
     /// <summary>Bounces, rolls and meets walls; a stop the previous update asked for also holds the attack cooldown, which lasts its whole duration and then stays run out until Oum attacks.</summary>
     Rolling,

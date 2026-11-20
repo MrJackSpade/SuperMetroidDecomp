@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireBridgeFragmentDefinitions
 {
     /// <summary>
-    /// Where each bridge fragment of Crocomire's fall starts, in the order the bridge crumbles (#2303): the bridge's eleven
-    /// sixteen-pixel columns from X 1808 to 1968, visited in an authored order no random number chooses. The collapse
-    /// launches one fragment an update in this order; each starts at Y 187 with no horizontal speed and its own picture,
-    /// and falls at a random speed per update from a quarter of a pixel up to, but not including, half a pixel.
+    /// Where each bridge fragment of Crocomire's fall starts, in the order the bridge crumbles (#2303): the bridge's
+    /// block-wide columns, visited in an authored order no random number chooses. The collapse launches one fragment an
+    /// update in this order; each starts at <see cref="Y"/> with no horizontal speed and its own picture, and falls at a
+    /// random speed per update from <see cref="SlowestFall"/> up to, but not including, the fastest its random range gives.
     /// </summary>
     private static readonly ImmutableArray<int> CrumbleXPositions = [1920, 1840, 1936, 1856, 1968, 1888, 1952, 1904, 1808, 1872, 1824];
 

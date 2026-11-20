@@ -40,7 +40,7 @@ internal sealed class DraygonTurrets
         SamusState samus,
         int frameCounter)
     {
-        if (!DraygonCadenceDefinitions.TurretTurnEverySixtyFourthUpdate.IsDue(frameCounter))
+        if (!DraygonCadenceDefinitions.TurretTurn.IsDue(frameCounter))
             return;
 
         // The turret cadence tests the frame counter, then advances the room RNG even when the

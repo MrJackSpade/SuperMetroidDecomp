@@ -3,7 +3,7 @@
 /// <summary>The phases of Mother Brain's third-phase fight (#2208), from her recovery to her attacks against the Hyper Beam. Its values are arbitrary.</summary>
 public enum MotherBrainPhase3FightPhase
 {
-    /// <summary>Changes her form to <see cref="MotherBrainForm.ThirdPhase"/>, requests a fourteen-pixel backward target, and starts the combat-setup wait.</summary>
+    /// <summary>Changes her form to <see cref="MotherBrainForm.ThirdPhase"/>, requests a backward target (<see cref="MotherBrainLateFightDefinitions.Phase3RetreatPixels"/>), and starts the combat-setup wait.</summary>
     RecoverMakeSomeDistance,
 
     /// <summary>When the wait runs out, starts her neck's and her walking's ordinary steps, and the fight's first update runs at once.</summary>

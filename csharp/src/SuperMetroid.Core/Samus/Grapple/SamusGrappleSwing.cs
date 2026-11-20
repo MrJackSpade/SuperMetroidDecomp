@@ -19,7 +19,7 @@ public static class SamusGrappleSwing
         // A fast swing makes the camera scroll slowly.
         grapple.FollowSwing(grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed);
         // The swing places the rope by the same collision point the terrain probes use. Besides scaling the
-        // angle's signed sine and cosine, it applies the block-side 7/8 endpoint bias documented in
+        // angle's signed sine and cosine, it applies the block-side endpoint bias documented in
         // CalculateCollisionPoint; using one point prevents visible art from disagreeing
         // with the collision body by one pixel.
         GrappleCollisionPoint ropeStart = CalculateCollisionPoint(
@@ -53,8 +53,8 @@ public static class SamusGrappleSwing
 
         // Samus leaves at twice the swing's speed, each step of turn a pixel, along each axis's share of the rope's
         // direction: downward where the swing's turn and the side of its anchor's level she hangs on point the same way.
-        // The swing speed is at most four and a half steps and the component at most one, so each speed stays below 256
-        // pixels and never wraps. A release with no vertical speed still heads the way the two point: down unless exactly
+        // The swing speed and the component are both small, so each speed stays a few pixels an update. A release with no
+        // vertical speed still heads the way the two point: down unless exactly
         // one of them points back.
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FromDisplacement(cosine.VelocityOf(releaseTurn),
             atRest: grapple.AngularVelocity.IsNegative == cosine.IsNegative ? VerticalDirection.Down : VerticalDirection.Up);
@@ -136,7 +136,7 @@ public static class SamusGrappleSwing
         if (grapple.RopeLengthDelta == 0)
             return;
 
-        // The rope-length adjustment does not jump directly by two pixels. It walks each intermediate length
+        // The rope-length adjustment does not jump directly by its step. It walks each intermediate length
         // and collision-tests Samus's leading edge, which prevents a fast rope adjustment
         // from tunnelling through a one-pixel boundary. Shortening probes her hand end; growing
         // probes her feet end, the two ends of the body line the swing sweeps.
@@ -449,11 +449,11 @@ public static class SamusGrappleSwing
 
             case RoomCollisionType.SpikeAir:
                 // Spike air is harmless to the swing except damaging spike air, which queues
-                // 16 damage. It never collides, but it still starts the common
+                // its light damage. It never collides, but it still starts the common
                 // spike invulnerability and knockback (SpikeHazardDefinitions.InvincibilityFrames,
                 // SpikeHazardDefinitions.KnockbackFrames). The timer
                 // check must precede the behaviour lookup so a second radial probe in this
-                // same six-point sweep cannot queue damage again.
+                // same sweep cannot queue damage again.
                 ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Plain);
                 return false;
 
@@ -469,7 +469,7 @@ public static class SamusGrappleSwing
 
             case RoomCollisionType.SpikeBlock:
                 // The solid spike reaction always reports collision. Before reporting it, it applies
-                // 60 damage for the heavy spike or 16 for the light spike; every other spike deals
+                // the heavy spike's damage or the light spike's; every other spike deals
                 // none.
                 ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Solid);
                 return true;
@@ -508,7 +508,7 @@ public static class SamusGrappleSwing
         SwingSpikeBlock block)
     {
         // Both steps return immediately while the invincibility timer is nonzero. This shared guard is observable
-        // because one sweep can sample the same damaging block up to six times, yet only its first sample may publish
+        // because one sweep can sample the same damaging block once for each of its points, yet only its first sample may publish
         // damage. Every reaction other than the damaging ones, and a spike with no reaction, deals none.
         if (!samus.InvincibilityTimer.IsZero)
             return;

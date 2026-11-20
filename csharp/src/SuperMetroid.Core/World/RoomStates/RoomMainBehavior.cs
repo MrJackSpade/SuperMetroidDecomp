@@ -65,9 +65,9 @@ public abstract class RoomMainBehavior
         new EscapeRoomMain(nameof(ShakeScreenLightHorizontalAndMediumDiagonal), EscapeExplosionSite.Indoors,
             ZebesEscapeDefinitions.LightShakingTurnsMediumDiagonal);
 
-    /// <summary>Sets off a random explosion every fourth gameplay update.</summary>
-    public static RoomMainBehavior RandomExplosionEveryFourthUpdate { get; } =
-        new EscapeRoomMain(nameof(RandomExplosionEveryFourthUpdate), EscapeExplosionSite.Indoors, null);
+    /// <summary>Sets off the escape's random indoor explosions at their cadence.</summary>
+    public static RoomMainBehavior RandomEscapeExplosions { get; } =
+        new EscapeRoomMain(nameof(RandomEscapeExplosions), EscapeExplosionSite.Indoors, null);
 
     /// <summary>Alternates medium horizontal and strong diagonal shaking.</summary>
     public static RoomMainBehavior ShakeScreenMediumHorizontalAndStrongDiagonal { get; } =

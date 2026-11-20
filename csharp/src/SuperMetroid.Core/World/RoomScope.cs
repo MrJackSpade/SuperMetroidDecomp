@@ -9,7 +9,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Samus.Movement;

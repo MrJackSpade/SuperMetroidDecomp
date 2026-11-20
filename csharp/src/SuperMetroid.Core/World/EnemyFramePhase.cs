@@ -5,8 +5,6 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Ridley;
 
 namespace SuperMetroid.Core.World;

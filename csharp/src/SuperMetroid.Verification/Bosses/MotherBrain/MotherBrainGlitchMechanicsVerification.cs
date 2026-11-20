@@ -52,8 +52,8 @@ internal static class MotherBrainGlitchMechanicsVerification
             var motherBrain = MotherBrainLateFightFixtures.NewSequence();
             var baby = motherBrain.Baby;
             MotherBrainLateFightFixtures.Arrive(baby, FixedPosition<RoomPixels>.Zero);
-            global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", (global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutscenePhase)(BabyMetroidCutscenePhase.LatchOntoSamus));
-            global::SuperMetroid.Core.PrivateState.Set(baby, "Position", (global::SuperMetroid.Core.Spatial.FixedPosition<global::SuperMetroid.Core.Spatial.RoomPixels>)(FixedPosition<RoomPixels>.FromWhole(new((ushort)(0x0080 + startDx), 0x008c)).WithFractionsOf(baby.Position)));
+            global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.LatchOntoSamus);
+            global::SuperMetroid.Core.PrivateState.Set(baby, "Position", FixedPosition<RoomPixels>.FromWhole(new((ushort)(0x0080 + startDx), 0x008c)).WithFractionsOf(baby.Position));
             // Moving left a whole pixel per frame: after this frame's mover the gap shrinks by one.
             baby.Velocity = new PixelVelocity<RoomPixels>(new SignedEightEight(0xff00), new SignedEightEight(0));
             baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);

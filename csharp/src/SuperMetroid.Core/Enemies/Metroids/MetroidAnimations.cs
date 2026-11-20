@@ -45,7 +45,7 @@ internal static class MetroidAnimations
 
     /// <summary>
     /// The animation that starts at each segment an owner can start or restart at (#2337): a chasing Metroid's nuclei
-    /// pulse four times before each cry, and a draining one's pulse once before each draining sound.
+    /// pulse over before each cry (<see cref="PulsesBetweenCries"/>), and a draining one's pulse once before each draining sound.
     /// </summary>
     private static Dictionary<MetroidSegment, Animation<MetroidSegment>> StartingAt { get; } = new Dictionary<MetroidSegment, Animation<MetroidSegment>>
     {

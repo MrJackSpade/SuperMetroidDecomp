@@ -1,5 +1,3 @@
-using SuperMetroid.Core;
-
 namespace SuperMetroid.Core.World;
 
 /// <summary>
@@ -23,5 +21,16 @@ internal static class ActiveRoomStatePrivateAccess
         internal T? View<T>(global::System.Func<global::SuperMetroid.Core.World.RoomScopeConstruction, T?> building, global::System.Func<global::SuperMetroid.Core.World.RoomScope, T?> loaded)
             where T : class =>
             PrivateState.InvokeGeneric<global::SuperMetroid.Core.World.ActiveRoomState, T?>(self, "View", [typeof(T)], new object?[] { building, loaded });
+    }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.World.ActiveRoomState self)
+    {
+        /// <summary>The private field <c>_construction</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.World.RoomScopeConstruction? _construction
+        {
+            get => PrivateState.Field<global::SuperMetroid.Core.World.ActiveRoomState, global::SuperMetroid.Core.World.RoomScopeConstruction?>(self, "_construction");
+            set => PrivateState.SetField(self, "_construction", value);
+        }
     }
 }

@@ -51,7 +51,7 @@ public sealed class EnemySession
     public CeresEscapeStatus CeresStatus { get; set; }
 
     /// <summary>
-    /// Biases drops in the 30..49 energy grace band; room transitions
+    /// Biases drops in the low-energy grace band (<see cref="EnemyDropSelectionDefinitions.CriticalEnergy"/> up to <see cref="EnemyDropSelectionDefinitions.RecoveredEnergy"/>); room transitions
     /// retain it, and false is the game's cleared initial value.
     /// </summary>
     internal bool CriticalEnergyDropBias { get; set; }

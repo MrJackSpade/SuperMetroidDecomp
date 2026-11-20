@@ -29,7 +29,7 @@ internal static class LookupQuakeSoundSuppressionVerification
                 RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room),
                 "Quake suppression complete room domain");
 
-        var state = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.RoomFxOverlayState>([typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+        var state = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.RoomFxOverlayState>([typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
         foreach (RoomDefinition? room in nativeRooms.Select(pointer => RoomDefinitions.Get(pointer)).Append(null))

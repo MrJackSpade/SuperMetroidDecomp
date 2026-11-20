@@ -73,12 +73,12 @@ internal static class NativeSnapshotImport
         ScrollBoundaryCamera camera = runtime.Room.LoadedCamera;
         // The room load wrote only the integer layer-one words; import the native fractions,
         // ideal position and speed words as whole camera values.
-        global::SuperMetroid.Core.PrivateState.Set(camera, "Position", (global::SuperMetroid.Core.Spatial.FixedPosition<global::SuperMetroid.Core.Spatial.RoomPixels>)(camera.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(
-                0, W(NativeSnapshotMemory.CameraXFraction), 0, W(NativeSnapshotMemory.CameraYFraction)))));
+        global::SuperMetroid.Core.PrivateState.Set(camera, "Position", camera.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(
+                0, W(NativeSnapshotMemory.CameraXFraction), 0, W(NativeSnapshotMemory.CameraYFraction))));
         PrivateState.Set(camera, "IdealPosition", new Position16<RoomPixels>(W(NativeSnapshotMemory.IdealCameraX), W(NativeSnapshotMemory.IdealCameraY)));
-        global::SuperMetroid.Core.PrivateState.Set(camera, "Speed", (global::SuperMetroid.Core.Spatial.FixedVector<global::SuperMetroid.Core.Spatial.RoomPixels>)(FixedVector<RoomPixels>.FromStoredParts(
+        global::SuperMetroid.Core.PrivateState.Set(camera, "Speed", FixedVector<RoomPixels>.FromStoredParts(
                 W(NativeSnapshotMemory.CameraSpeedX), W(NativeSnapshotMemory.CameraSpeedXFraction),
-                W(NativeSnapshotMemory.CameraSpeedY), W(NativeSnapshotMemory.CameraSpeedYFraction))));
+                W(NativeSnapshotMemory.CameraSpeedY), W(NativeSnapshotMemory.CameraSpeedYFraction)));
         runtime.Room.LoadedCamera.FinishSamusScrolling(FixedPosition<RoomPixels>.FromStoredParts(
             W(NativeSnapshotMemory.PreviousSamusX), W(NativeSnapshotMemory.PreviousSamusXFraction),
             W(NativeSnapshotMemory.PreviousSamusY), W(NativeSnapshotMemory.PreviousSamusYFraction)));
@@ -207,7 +207,7 @@ internal static class NativeSnapshotImport
         PrivateState.Set(samus.ArmCannon, "IsTransitioning", memory[NativeSnapshotMemory.CannonFlags + 1] != 0);
         new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,
             NativeSnapshotMemory.SamusSlopeAdjusted - NativeSnapshotMemory.ProjectileInheritancePrefix));
-        global::SuperMetroid.Core.PrivateState.Set(samus.Kinematics, "PositionAdjustedBySlope", (bool)(W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0));
+        global::SuperMetroid.Core.PrivateState.Set(samus.Kinematics, "PositionAdjustedBySlope", W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0);
         // Each direction's recorded word names the enemy in that place of the loaded room, or none (#1702).
         for (int direction = 0; direction < 4; direction++)
             samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirectionNativeWords.Directions.Decode(direction, "solid-enemy collision direction"),

@@ -65,12 +65,12 @@ internal static class SamusPosturePoseTransitions
 
     /// <summary>
     /// Applies the crouch's neutral jump transition in this order:
-    /// enlarge radius 16 -> 19 with the larger-radius check, initialise normal-jumping movement, run the
+    /// enlarge the crouching radius to the jump's with the larger-radius check, initialise normal-jumping movement, run the
     /// crouch-only Y adjustment, then start the jump.
     /// </summary>
     /// <remarks>
     /// Tests the literal previous pose, not merely the crouching movement type. Therefore
-    /// only ordinary crouching subtracts ten extra pixels; aimed crouches still
+    /// only ordinary crouching subtracts its jump lift (<see cref="SamusPoseCollisionDefinitions.CrouchJumpLift"/>); aimed crouches still
     /// jump, but retain only the collision resolver's bottom-alignment adjustment.
     /// </remarks>
     public static void ApplyCrouchJumpTransition(
@@ -184,7 +184,7 @@ internal static class SamusPosturePoseTransitions
             samus.Pose = targetPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-            // The posture change installs the target's radius 16, then probes the crouch's downward entry
+            // The posture change installs the target's crouching radius, then probes the crouch's downward entry
             // distance down through the downward block collision. On level
             // ground the bottom boundary is unchanged; descending a slope, the probe meets
             // the surface first and the shorter clipped distance is what moves center Y.
@@ -192,7 +192,7 @@ internal static class SamusPosturePoseTransitions
                 level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryDownwardPixels),
                 SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose, roomObjects);
             // The crouching body lies inside the standing one, which was clear, so the probe moves her down by at most
-            // five pixels, clear of the terrain that bounds the room: she stays in it.
+            // its downward entry distance, clear of the terrain that bounds the room: she stays in it.
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(
                 samus.Kinematics.Position.Y.Whole + alignment.AcceptedDisplacement.WholePixels);
             // The posture change publishes the aligned whole Y before scrolling; the
@@ -202,9 +202,9 @@ internal static class SamusPosturePoseTransitions
             return;
         }
 
-        // Expanding from crouch radius 16 to standing-transition radius 21 invokes the
+        // Expanding from the crouch radius to the standing-transition radius invokes the
         // common pose-change collision check before initialization. The check reads the target radius from the pose
-        // definition rather than assuming the ordinary value 21.
+        // definition rather than assuming the ordinary standing radius.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
                 level,
@@ -235,11 +235,11 @@ internal static class SamusPosturePoseTransitions
     /// and the block-only expansion collision used when unmorphing.
     /// </summary>
     /// <remarks>
-    /// The morphing transitions shrink the current humanoid radius to seven and the posture change moves center
+    /// The morphing transitions shrink the current humanoid radius to the ball's and the posture change moves center
     /// Y down by the morph's downward entry distance (<see cref="SamusPostureDefinitions.MorphEntryDownwardPixels"/>), clipped against room blocks using the
-    /// new radius. This is not the source/target radius difference. The unmorphing transitions expand 7 to 16 through
-    /// the larger-radius check; floor collision normally moves center up nine. If both sides constrain a
-    /// radius-seven body, the crouch selector rejects the target and keeps Samus morphed.
+    /// new radius. This is not the source/target radius difference. The unmorphing transitions expand the ball's radius
+    /// to the crouching one through the larger-radius check; floor collision normally moves center up by the difference.
+    /// If both sides constrain a ball-sized body, the crouch selector rejects the target and keeps Samus morphed.
     /// </remarks>
     public static void ApplyMorphTransition(
         SamusState samus,
@@ -296,8 +296,8 @@ internal static class SamusPosturePoseTransitions
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
                 level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDownwardPixels),
                 SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose, roomObjects);
-            // The ball lies inside the body it shrank from, which was clear, so the probe moves her down by at most nine
-            // pixels, clear of the terrain that bounds the room: she stays in it.
+            // The ball lies inside the body it shrank from, which was clear, so the probe moves her down by at most its
+            // downward entry distance, clear of the terrain that bounds the room: she stays in it.
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(
                 samus.Kinematics.Position.Y.Whole + alignment.AcceptedDisplacement.WholePixels);
             // The posture change replaces the previous whole-Y checkpoint
@@ -449,7 +449,7 @@ internal static class SamusPosturePoseTransitions
             out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
-            // Radius sixteen is already non-ball geometry. If both sides constrain an
+            // The crouching radius is already non-ball geometry. If both sides constrain an
             // attempted full-height falling body, the crouch selector selects stable crouch just as
             // it does for aimed crouch and compact-aerial expansion. A failed compensating
             // probe instead retains the visible unmorph frame and all of Samus's live speeds.
@@ -469,7 +469,7 @@ internal static class SamusPosturePoseTransitions
     }
 
     /// <summary>
-    /// Installs a stable ordinary Morph-Ball pose while preserving the shared eight-frame
+    /// Installs a stable ordinary Morph-Ball pose while preserving the shared
     /// rolling animation exactly as the morph-ball pose setup requests.
     /// </summary>
     public static void ApplyMorphBallPoseChange(SamusState samus, SamusPoseId targetPose)

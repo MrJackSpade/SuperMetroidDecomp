@@ -17,7 +17,7 @@ public sealed class WorkRobotEnemyState
     /// The wait before the robot's next laser (#2380): its steps and laser tries count it down, stopping at zero, and a try
     /// at zero fires and starts a new wait. A turn at a wall or ledge and each shot or bomb that makes the robot recoil
     /// lengthen it, and a lengthening carried past 65535 wraps to a short wait, as the game's did. That wrap is reachable in
-    /// play, so the wait stays a wrapping countdown: every recoiling hit adds 64, and nothing bounds the hits a powered robot
+    /// play, so the wait stays a wrapping countdown: every recoiling hit adds <see cref="WorkRobotLaserDefinitions.RecoilDelay"/>, and nothing bounds the hits a powered robot
     /// takes (a beam without plasma leaves it no invincibility between hits), so a thousand or so shots landing faster than its
     /// steps count them off carry it over the top and the robot fires sooner.
     /// </summary>

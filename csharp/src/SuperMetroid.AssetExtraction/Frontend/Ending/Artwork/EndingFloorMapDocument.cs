@@ -7,9 +7,9 @@ public sealed record EndingFloorMapDocument
 {
     /// <summary>Schema revision, currently 1 for both ending backdrop and reward-icon maps.</summary>
     public required int Version { get; init; }
-    /// <summary>Number of tile indices per map row; both supported map forms require 128.</summary>
+    /// <summary>Number of tile indices per map row; both supported map forms require <see cref="EndingFloorArtworkFormat.MapWidth"/>, which <see cref="EndingRewardIconArtworkFormat.MapWidth"/> matches.</summary>
     public required int Width { get; init; }
-    /// <summary>Number of map rows: 64 for a repeated ending backdrop half-map, or 128 for the reward-icon map.</summary>
+    /// <summary>Number of map rows: <see cref="EndingFloorArtworkFormat.MapHeight"/> for a repeated ending backdrop half-map, or <see cref="EndingRewardIconArtworkFormat.MapHeight"/> for the reward-icon map.</summary>
     public required int Height { get; init; }
     /// <summary>Exactly Width times Height row-ordered tile indices in the range 0..255, selecting tiles from the separate 256-tile character atlas.</summary>
     public required int[] Tiles { get; init; }

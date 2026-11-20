@@ -21,7 +21,7 @@ public enum MotherBrainRevivalPhase
     /// <summary>Waits out the short stretch, starts the phase-three stretching head animation, and starts the wait before walking.</summary>
     WakeUpStretch,
 
-    /// <summary>After the wait repeatedly requests forward walking until X passes 80, then enables health-based colours and prepares the neck.</summary>
+    /// <summary>After the wait repeatedly requests forward walking until she passes <see cref="MotherBrainLateFightDefinitions.BabyWalkUpX"/>, then enables health-based colours and prepares the neck.</summary>
     WalkUpToBaby,
 
     /// <summary>Clears the baby attack counter and configures both neck targets before she stands up.</summary>
@@ -36,7 +36,7 @@ public enum MotherBrainRevivalPhase
     /// <summary>Waits out the attack's cooldown before returning to baby-attack selection.</summary>
     MurderBabyAttackCooldown,
 
-    /// <summary>Repeatedly requests standing and backward walking to X 64; the baby owns replacement of this body phase.</summary>
+    /// <summary>Repeatedly requests standing and backward walking to her final retreat; the baby owns replacement of this body phase.</summary>
     PrepareForFinalBabyAttack,
 
     /// <summary>Her head fires its last volley at the Baby, and her body then holds.</summary>

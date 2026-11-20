@@ -131,7 +131,8 @@ internal sealed class SamusPresentation
 
     /// <summary>
     /// Shows the grapple art the swing's angle selects, as the grapple swing does before her animation runs; her
-    /// animation counts it down later in the same update.
+    /// animation counts its hold (<see cref="SamusAnimationDelayDefinitions.GrappleSwingPictureHold"/>) down later in the
+    /// same update.
     /// </summary>
     public static void ShowGrappleSwingPicture(SamusState samus, GrappleSwingPicture picture)
     {
@@ -164,7 +165,7 @@ internal sealed class SamusPresentation
             step.FrameCounter,
             step.BossPresent);
 
-        // The animation keeps the neutral jump's second frame alive in four-tick chunks while Samus is
+        // The animation keeps the neutral jump's second frame alive in chunks of its rise extension while Samus is
         // still rising. This is intentionally tested before the decrement and applies only when the
         // timer's last update remains; release or the apex turns her downward and lets it expire.
         if (samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
@@ -492,7 +493,7 @@ internal sealed class SamusPresentation
         int frameCounter)
     {
         Ensure.NotNull(sprites);
-        if (!SamusCadenceDefinitions.CrashEchoesDrawnEverySecondUpdate.IsDue(frameCounter) ||
+        if (!SamusCadenceDefinitions.CrashEchoesDrawn.IsDue(frameCounter) ||
             samus.Shinespark.Phase is not (ShinesparkPhase.Crash or ShinesparkPhase.CrashHold))
         {
             return;
@@ -518,7 +519,7 @@ internal sealed class SamusPresentation
         int frameCounter)
     {
         Ensure.NotNull(sprites);
-        if (!SamusCadenceDefinitions.CrashEchoesDrawnEverySecondUpdate.IsDue(frameCounter))
+        if (!SamusCadenceDefinitions.CrashEchoesDrawn.IsDue(frameCounter))
             return;
 
         DrawActiveSpeedBoosterEcho(samus,

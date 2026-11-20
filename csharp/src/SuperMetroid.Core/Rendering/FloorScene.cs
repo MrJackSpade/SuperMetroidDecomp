@@ -19,10 +19,10 @@ public sealed class FloorScene : DisplayScene
     /// </summary>
     public ScreenGradientLayer? Gradient { get; }
 
-    /// <summary>Captures a 256-by-224 frame of floor and backdrop with the sprites in front and an optional gradient over them.</summary>
+    /// <summary>Captures a screen-sized frame of floor and backdrop with the sprites in front and an optional gradient over them.</summary>
     /// <param name="paint">The frame's backdrop, shading and sprite draws; retained rather than recaptured.</param>
     /// <param name="floor">The floor and how it appears on the screen, or null to show the backdrop behind the sprites.</param>
-    /// <param name="brightness">The frame's brightness, 0 (black) through 15, applied after the floor, the sprites and the gradient.</param>
+    /// <param name="brightness">The frame's brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>, applied after the floor, the sprites and the gradient.</param>
     /// <param name="gradient">The gradient drawn over the floor, the backdrop and the sprites, or null for none.</param>
     /// <exception cref="ArgumentNullException"><paramref name="paint"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>

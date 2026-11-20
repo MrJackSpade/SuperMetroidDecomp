@@ -380,7 +380,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
         SamusState samus = frame.Samus;
         SamusProjectileSystem samusProjectiles = frame.SamusProjectiles;
         SamusBombProjectileSystem samusBombs = frame.SamusBombs;
-        if (RidleyCadenceDefinitions.NorfairRidleyActsEverySecondUpdate.IsDue(body.FrameCounter))
+        if (RidleyCadenceDefinitions.NorfairRidleyActs.IsDue(body.FrameCounter))
         {
             RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, frame.Camera);
             NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame(state, samusBombs);

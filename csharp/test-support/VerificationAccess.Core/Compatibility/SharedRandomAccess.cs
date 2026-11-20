@@ -8,6 +8,6 @@ internal static class SharedRandomAccess
     {
         /// <summary>Overwrites the state with <paramref name="value"/>, as a state import does.</summary>
         /// <param name="value">The new state, 0 through 65535.</param>
-        public void Seed(int value) => global::SuperMetroid.Core.PrivateState.Set(self, "State", (global::SuperMetroid.Core.Compatibility.SharedRandomState)(new SharedRandomState(value)));
+        public void Seed(int value) => global::SuperMetroid.Core.PrivateState.Set(self, "State", new SharedRandomState(value));
     }
 }

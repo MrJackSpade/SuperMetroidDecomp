@@ -262,9 +262,9 @@ internal static class NativeSnapshotMotherBrainImport
         MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
         // The cartridge keeps the brain's fall speed in the body's phase timer.
         sequence.State.BrainFallSpeed = new SignedEightEight(W(MotherBrainMemory.BodyFunctionTimer));
-        global::SuperMetroid.Core.PrivateState.Set(sequence.RainbowAttack, "AngularWidth", (global::SuperMetroid.Core.Spatial.RotationAngle)(RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth))));
+        global::SuperMetroid.Core.PrivateState.Set(sequence.RainbowAttack, "AngularWidth", RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth)));
         // The cartridge counts the attempts left less one, by sign: six at the start, minus one once they are spent.
-        global::SuperMetroid.Core.PrivateState.Set(sequence.RainbowAttack, "SoundAttempts", (global::SuperMetroid.Core.UpdateCountdown)(UpdateCountdown.For(CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount)) + 1)));
+        global::SuperMetroid.Core.PrivateState.Set(sequence.RainbowAttack, "SoundAttempts", UpdateCountdown.For(CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount)) + 1));
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
         sequence.State.HealthColoursEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));

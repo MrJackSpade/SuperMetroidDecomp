@@ -33,8 +33,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     public UpdateCountdown PreFlashingTimer { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
-    /// The flash's shades (#2387): after three updates it shows her second death shade for one update and her first for
-    /// three, over and over, until the suit explodes. The death pose starts it again.
+    /// The flash's shades (#2387): after an opening wait it shows her second death shade and then her first, each for its
+    /// own hold, over and over, until the suit explodes. The death pose starts it again.
     /// </summary>
     private AnimationPlayer<SamusDeathFlashSegment, SamusDeathShade, NoAnimationCue> Flash { get; set; } =
         SamusDeathAnimations.FlashStarting();
@@ -43,7 +43,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     private UpdateCountdown Flashing { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
-    /// The suit's explosion (#2388), its nine pictures played once for their dwell times, or null before the suit explodes;
+    /// The suit's explosion (#2388), its pictures played once for their dwell times, or null before the suit explodes;
     /// the sequence completes once its last picture has shown.
     /// </summary>
     private AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue>? Explosion { get; set; }

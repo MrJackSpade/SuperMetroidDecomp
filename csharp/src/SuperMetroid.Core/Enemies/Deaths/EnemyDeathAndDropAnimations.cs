@@ -145,7 +145,7 @@ internal static class EnemyDeathAndDropAnimations
     internal static Animation<EnemyDeathAndDropSegment> StartingWith(EnemyDeathAndDropSegment segment) => StartingAt[segment];
 
     /// <summary>
-    /// The animation each death explosion starts (#2061): the big explosion's five bursts and Fake Kraid's sixteen, each
+    /// The animation each death explosion starts (#2061): the big explosion's bursts and Fake Kraid's (<see cref="BigExplosionBursts"/>, <see cref="FakeKraidExplosionBursts"/>), each
     /// scattering its sprites, before it becomes the drop; the other explosions' animations start at their segments.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyDeathExplosion, Animation<EnemyDeathAndDropSegment>> Explosions { get; } =

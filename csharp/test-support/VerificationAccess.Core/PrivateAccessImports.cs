@@ -293,6 +293,7 @@ global using static SuperMetroid.Core.Bosses.Draygon.DraygonSwoopsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Draygon.DraygonTurretsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Kraid.FakeKraidAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Kraid.FakeKraidBehaviorPrivateAccess;
+global using static SuperMetroid.Core.Bosses.Kraid.FakeKraidBehaviorSpitAndSpikeBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Kraid.KraidAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Kraid.KraidArmCollisionPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Kraid.KraidBackdropColoursPrivateAccess;
@@ -349,6 +350,7 @@ global using static SuperMetroid.Core.Bosses.Phantoon.PhantoonAnimationsPrivateA
 global using static SuperMetroid.Core.Bosses.Phantoon.PhantoonBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Phantoon.PhantoonBodyVisibilityEffectPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Phantoon.PhantoonBodyWaveEffectPrivateAccess;
+global using static SuperMetroid.Core.Bosses.Phantoon.PhantoonCombatPhantoonFlameBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Phantoon.PhantoonCombatPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Phantoon.PhantoonDeathExplosionsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Phantoon.PhantoonDeathPrivateAccess;
@@ -681,6 +683,7 @@ global using static SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefin
 global using static SuperMetroid.Core.Rooms.RoomObjects.BlockReactionObjectPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.CollectibleObjectPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObjectPrivateAccess;
+global using static SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectEyeDoorVisualsPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.NoobTubeDebrisDefinitionsPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.NoobTubeObjectPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectSoundQueuePrivateAccess;

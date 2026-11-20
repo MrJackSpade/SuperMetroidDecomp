@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Projectiles;
+﻿namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>A pre-instruction routine that stands for <see cref="Motion"/> of the family motion behaviour bound to the projectile.</summary>
 /// <typeparam name="TMotion">The family's motions.</typeparam>

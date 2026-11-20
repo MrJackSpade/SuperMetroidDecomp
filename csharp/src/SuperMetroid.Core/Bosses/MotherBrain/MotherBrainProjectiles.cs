@@ -698,7 +698,7 @@ internal sealed class MotherBrainProjectiles
         EnemyProjectile bomb,
         SignedEightEight acceleration)
     {
-        // Every floor bounce restarts the fall at two pixels an update upward, and between bounces the bomb falls back no
+        // Every floor bounce restarts the fall at the bounce's upward speed, and between bounces the bomb falls back no
         // further than from the height its launch reaches to its floor, so the speed stays within a few pixels an update.
         bomb.Velocity = bomb.Velocity.WithY(bomb.Velocity.Y + acceleration);
         bomb.Position = bomb.Position.Advance(bomb.Velocity.ToDisplacement());
@@ -796,7 +796,7 @@ internal sealed class MotherBrainProjectiles
         beam.Position.X.Whole >= MotherBrainHandBeamDefinitions.ArenaBottomRight.X;
 
     /// <summary>
-    /// Moves the falling drool: it falls at its velocity, gains its gravity each update, and switches to its four-frame
+    /// Moves the falling drool: it falls at its velocity, gains its gravity each update, and switches to its
     /// splash at the floor.
     /// </summary>
     /// <param name="owner">The drool's behaviour, which carries out its splash's events.</param>

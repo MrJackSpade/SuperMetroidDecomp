@@ -143,7 +143,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         AlignPowampBalloonY(body, balloon);
     }
 
-    /// <summary>Finishes inflation and seeds the half-pixel upward body velocity.</summary>
+    /// <summary>Finishes inflation and seeds the upward body velocity (<see cref="PowampMotionDefinitions.RiseVelocity"/>).</summary>
     private static void RunPowampInflating(
         RoomEnemyPlace body,
         PowampBodyState state,
@@ -394,7 +394,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         balloon.Place.AiStates = body.AiStates;
     }
 
-    /// <summary>Advances both halves to the same authored X offset every five frames.</summary>
+    /// <summary>Advances both halves to the same authored X offset each wiggle step (<see cref="PowampMotionDefinitions.WiggleStepDuration"/>).</summary>
     private static bool AdvancePowampWiggle(
         RoomEnemyPlace body,
         PowampBodyState state,
@@ -540,7 +540,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The Powamp's shot reaction for a half that refuses shots while <paramref name="refusesContact"/> says so.</summary>
     private EnemyShotReaction ShotReactionSkipping(Func<RoomEnemyPlace, bool> refusesContact) => new()
     {
-        // A lethal shot starts the Powamp's 32-update death, during which later shots pass through it, neither spent
+        // A lethal shot starts the Powamp's death delay, during which later shots pass through it, neither spent
         // nor exploding, while the body visibly deflates; it dies in its own way, not in the usual burst.
         SkipsEnemy = refusesContact,
         ExemptFromGenericDeath = true,

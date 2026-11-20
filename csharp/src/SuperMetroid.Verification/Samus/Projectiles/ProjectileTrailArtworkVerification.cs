@@ -34,7 +34,9 @@ internal static class ProjectileTrailArtworkVerification
                 else { cursor += 2; }
             }
             var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            // The native interpreter's own trail, run beside the port's, and the cartridge's retained tile words it keeps.
+            // The native interpreter's own trail, run beside the port's for the same two sparkles, and the cartridge's
+            // retained tile words it keeps. Native keeps each picture's corner, the port the sparkle with its picture drawn
+            // centred on it (#2573), so equal OAM is the port's pictures landing where native draws them.
             var nativeTrail = new NativeTrail(NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)), NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)));
             SamusProjectileTrail authoredTrail = authoredSystem.AddTrail(Position16<RoomPixels>.Of(100, 100));
             var nativeWords = new Dictionary<NativeTrailSide, ushort>();
@@ -59,7 +61,7 @@ internal static class ProjectileTrailArtworkVerification
                     if (sides.First.FrameHold != 0)
                         AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
                     AssertEqual(sides.First.FrameHold, sides.Second.FrameHold, "Trail artwork cannot change live timing");
-                    AssertEqual(sides.First.Position.Y, authoredTrail.Origin.Y + sides.Second.Offset.Y, "Trail artwork cannot change sibling-targeted movement");
+                    AssertEqual(sides.First.Sparkle.Y, authoredTrail.Origin.Y + sides.Second.Offset.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
         }
@@ -84,10 +86,13 @@ internal static class ProjectileTrailArtworkVerification
         foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })
         {
+            // The coordinate is where native keeps and draws the picture's corner; the port's sparkle stands half the
+            // picture down and right of it, its picture drawn centred on it (#2573).
+            ushort sparkle = unchecked((ushort)(coordinate + NativeTrailSide.PictureHalf));
             ushort frame = ProjectileTrailNative.Address(pose);
             ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.MovementBank.Value | (frame + 2));
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            var side = system.AddTrail(Position16<RoomPixels>.Of(coordinate, coordinate)).Left;
+            var side = system.AddTrail(Position16<RoomPixels>.Of(sparkle, sparkle)).Left;
             side.RestoreNative((ushort)(frame + 4), 3, pose);
             // The OAM capacity stop is a dropped presentation quirk (#1308), and so is the off-screen cull (#1541):
             // a trail on the screen draws its native sprite, and one off it is published where it lies for the
@@ -98,8 +103,8 @@ internal static class ProjectileTrailArtworkVerification
             system.DrawTrails(sprites, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
             OamBuffer authored = sprites.FinalizeAsOam();
             AssertEqual(1, sprites.Draws.Length, $"Trail pose {pose} at {coordinate} is published once");
-            AssertEqual(Position16<ScreenPixels>.Of(coordinate, coordinate) - Position16<ScreenPixels>.Zero, sprites.Draws[0].Origin,
-                $"Trail pose {pose} at {coordinate} is published where it lies");
+            AssertEqual(Position16<ScreenPixels>.Of(sparkle, sparkle) - Position16<ScreenPixels>.Zero, sprites.Draws[0].Origin,
+                $"Trail pose {pose} at {coordinate} is published where its sparkle lies");
             if (coordinate < 256)
             {
                 var native = new OamBuffer();

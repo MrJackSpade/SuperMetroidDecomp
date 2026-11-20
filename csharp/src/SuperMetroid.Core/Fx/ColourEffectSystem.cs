@@ -333,8 +333,8 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// The heat shimmer's condition. The shimmer owns both its look and the heat's damage: an unprotected Samus takes a
-    /// quarter unit of fractional damage per update, and the shimmer restarts on the heat phase the Norfair glow
+    /// The heat shimmer's condition. The shimmer owns both its look and the heat's damage: an unprotected Samus takes the
+    /// heat's fractional damage each update, and the shimmer restarts on the heat phase the Norfair glow
     /// published, which that glow, taking its turn after the shimmer, publishes for the following update.
     /// </summary>
     private void BurnSamusInHeat(
@@ -349,7 +349,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         {
             IRoomSamus burned = samus.Current;
             burned.TakePeriodicDamage(ColourEffectHeatData.DamagePerUpdate);
-            if (ColourEffectHeatData.DamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
+            if (ColourEffectHeatData.HeatDamageSound.IsDue(frameCounter) &&
                 burned.Health > ColourEffectHeatData.DamageSoundEnergyThreshold)
             {
                 sounds.QueueSound(RoomSound.IncrementalEnergy, ColourEffectHeatData.DamageSoundPriority);

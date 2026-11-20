@@ -1,5 +1,3 @@
-using SuperMetroid.Core;
-
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>

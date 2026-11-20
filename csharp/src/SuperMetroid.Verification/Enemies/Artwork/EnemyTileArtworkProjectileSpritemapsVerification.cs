@@ -593,7 +593,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawSpawnerFrame(RoomEnemySystem enemies, EnemyProjectileFrameId frame, SpriteGraphics graphics)
         {
             EnemyProjectile slot = enemies.Projectiles.ProjectileInPlace(0);
-            global::SuperMetroid.Core.PrivateState.Set(slot, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.DustOrExplosion));
+            global::SuperMetroid.Core.PrivateState.Set(slot, "Kind", RoomEnemyProjectileKind.DustOrExplosion);
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.Graphics = graphics;
             slot.Frame = frame;
@@ -632,7 +632,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             EnemyProjectile slot = enemies.Projectiles.ProjectileInPlace(0);
-            global::SuperMetroid.Core.PrivateState.Set(slot, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(kind));
+            global::SuperMetroid.Core.PrivateState.Set(slot, "Kind", kind);
             slot.Position = slot.Position.WithWhole(new(128, 96));
             // As the typed runner does when it shows the program frame.
             slot.Frame = frame;

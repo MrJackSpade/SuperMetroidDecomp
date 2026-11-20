@@ -9,22 +9,22 @@ namespace SuperMetroid.Core.Samus.Colours;
 
 /// <summary>
 /// Samus's named shade sequences (#2351, #2387), each a run of the shades it shows with the updates each shows for, played
-/// as an animation: the charge pulse shows its six shades one update each and starts again; a charged shot's flash paints
-/// the yellow glow on each of three updates; a Hyper Beam shot's glow shows the Hyper Beam's full-body glow from its last frame to
-/// its first, two updates each; the Hyper Beam's colour cycle shows its ten beam colourings two updates each and starts
-/// again. The Crystal Flash pulses its body through ten shades ten updates each and turns its bubble through six five
-/// updates each. The drained Samus's rainbow walks the Hyper Beam's full-body glow, each shade held as long as the Baby's
-/// hold says. The visor widens with the scope's beam, three shades five updates each, and rests on the widest, and the
-/// steady visor cycle shows its three five updates each. The stored shine and the Screw Attack rise through four shades
-/// and fall back through two, one update each; the shinespark climbs four; the Speed Booster rises through four, four
-/// updates each, and rests on its brightest. A shot's glow restores the suit's own shade on the update after its last.
+/// as an animation: the charge pulse shows its shades one update each and starts again; a charged shot's flash paints
+/// the yellow glow on each of its updates; a Hyper Beam shot's glow shows the Hyper Beam's full-body glow from its last
+/// frame to its first; the Hyper Beam's colour cycle shows its beam colourings and starts again. The Crystal Flash
+/// pulses its body slowly through its shades and turns its bubble more quickly through its own. The drained Samus's
+/// rainbow walks the Hyper Beam's full-body glow, each shade held as long as the Baby's hold says. The visor widens
+/// with the scope's beam through its shades and rests on the widest, and the steady visor cycle shows its own. The
+/// stored shine and the Screw Attack rise through their shades and fall partway back, one update each; the shinespark
+/// climbs its own; the Speed Booster rises through its shades and rests on its brightest. A shot's glow restores the
+/// suit's own shade on the update after its last.
 /// </summary>
 internal static class SamusGlowAnimationDefinitions
 {
     /// <summary>
     /// Every sequence's shades, each with the updates it shows for. A charged shot's flash paints its yellow anew on each
-    /// of its three updates, over any colouring laid on the suit after it on the update before, so it is three beats of one
-    /// update rather than one beat of three.
+    /// of its updates, over any colouring laid on the suit after it on the update before, so it is a beat of one update for
+    /// each rather than one beat for them all.
     /// </summary>
     internal static AnimationSegments<G, PictureShade, NoAnimationCue> Segments { get; } = new(
         new Dictionary<G, AnimationBeat<PictureShade, NoAnimationCue>[]>

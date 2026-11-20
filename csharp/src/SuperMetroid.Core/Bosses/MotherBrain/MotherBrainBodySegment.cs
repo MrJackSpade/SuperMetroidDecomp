@@ -23,7 +23,7 @@ public enum MotherBrainBodySegment
     WalkBackwardMedium,
     /// <summary>Mother Brain body animation: walking backwards, really slow.</summary>
     WalkBackwardReallySlow,
-    /// <summary>Her body lowering into a crouch and rising straight back to standing, eight updates a picture.</summary>
+    /// <summary>Her body lowering into a crouch and rising straight back to standing, slowly.</summary>
     CrouchAndThenStandUp,
     /// <summary>Mother Brain body animation: standing up after crouching, slow.</summary>
     StandAfterCrouchSlow,
@@ -35,15 +35,15 @@ public enum MotherBrainBodySegment
     LeanDown,
     /// <summary>Her body holding its crouch.</summary>
     Crouched,
-    /// <summary>Her body lowering from standing into a crouch, eight updates a picture.</summary>
+    /// <summary>Her body lowering from standing into a crouch, slowly.</summary>
     CrouchSlow,
-    /// <summary>Her body dropping from standing into a crouch, leaning and uncrouching for two updates each.</summary>
+    /// <summary>Her body dropping quickly from standing into a crouch, leaning and uncrouching.</summary>
     CrouchFast,
     /// <summary>The red hand beam's start: she takes the beam's pose and draws her arm back, which starts the hand-beam animation.</summary>
     HandBeam,
     /// <summary>
     /// One charge of the hand beam at her elbow, with her arm drawn back: the charge particle and the energy spark, each
-    /// shown with the arm. The hand beam charges four times.
+    /// shown with the arm. The hand beam charges <see cref="MotherBrainAnimations.HandBeamCharges"/> times over.
     /// </summary>
     HandBeamCharge,
     /// <summary>The hand beam's firing: her arm flings out as the beam fires and returns, and she stands before the next phase.</summary>

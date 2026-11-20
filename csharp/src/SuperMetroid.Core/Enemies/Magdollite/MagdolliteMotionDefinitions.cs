@@ -25,14 +25,14 @@ internal static class MagdolliteMotionDefinitions
     internal const int LavaDrop = 2;
 
     /// <summary>
-    /// How long the head waits after a throw before it may attack again, in overlay updates: 257, the head polling after
+    /// How long the head waits after a throw before it may attack again, in overlay updates, the head polling after
     /// the last of them.
     /// </summary>
     internal const int AttackCooldown = 257;
 
     /// <summary>
     /// The overlay updates a placed head, or one that has just polled an expired cooldown, waits before its next poll may
-    /// attack: one.
+    /// attack.
     /// </summary>
     internal const int AttackPollWait = 1;
 

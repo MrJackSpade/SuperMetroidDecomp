@@ -2,7 +2,7 @@
 
 /// <summary>
 /// The scrolling-speed cap for enemies that place Samus (Draygon and Yapping Maw): it rewrites her
-/// previous position so the camera follows at most thirteen pixels a frame.
+/// previous position so the camera follows at most one pixel past <see cref="SamusCameraDefinitions.PreviousPositionCap"/> a frame.
 /// </summary>
 internal sealed class SamusScrollCap
 {
@@ -19,18 +19,17 @@ internal sealed class SamusScrollCap
 
     /// <summary>
     /// The scrolling-speed cap, called by Draygon and Yapping Maw after they place
-    /// Samus. An axis that moved twelve or more pixels from its previous whole position gets a
-    /// previous position twelve pixels away, so the camera follows at most thirteen a frame.
+    /// Samus. An axis that moved at least <see cref="SamusCameraDefinitions.PreviousPositionCap"/> from its previous whole position gets a
+    /// previous position that far away, so the camera follows at most a pixel more a frame.
     /// </summary>
     /// <remarks>
     /// The offset takes the movement's sign: a downward or rightward move puts the previous
     /// position beyond Samus, not behind her. Only the distance reaches the camera, whose
-    /// direction comes from separate values. Twelve pixels past Samus still lies in the room. Draygon moves her twelve
-    /// pixels or more in an update only downward, as it grabs her, and around its spiral, which keeps her at least 88
-    /// pixels from the room's left edge and 64 below its top. A Yapping Maw's mouth reaches no further than where she
-    /// stood and holds her at most 16 pixels beyond it, and every Maw stands far enough inside its room: the one nearest
-    /// a room's edge, in Bug Sand Hole, stands 77 pixels from the left edge, and the wall there keeps her at least 37
-    /// from it.
+    /// direction comes from separate values. The cap's distance past Samus still lies in the room. Draygon moves her that
+    /// far or more in an update only downward, as it grabs her, and around its spiral, which keeps her well inside the
+    /// room's left edge and below its top. A Yapping Maw's mouth reaches no further than where she stood and holds her
+    /// only a little beyond it, and every Maw stands far enough inside its room: the one nearest a room's edge, in Bug
+    /// Sand Hole, stands well inside the left edge, and the wall there keeps her further still from it.
     /// </remarks>
     internal void CapSamusScrollingSpeed(SamusState samus)
     {

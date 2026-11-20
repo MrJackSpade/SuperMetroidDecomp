@@ -1066,9 +1066,9 @@ internal static class LookupStream3Verification
             // stagger's front, and the backward ones stand at the room's left.
             sequence.Encounter.Body.Position = sequence.Encounter.Body.Position.WithWholeX(
                 stage % 2 == 0 ? MotherBrainFightDefinitions.StaggerFrontX + 1 : 0);
-            global::SuperMetroid.Core.PrivateState.Set(sequence.DrainedByBaby, "PainfulWalkingStage", (global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainStaggerStage>)(SuperMetroid.Core.Bosses.ListStep<MotherBrainStaggerStage>.At(stages, stage)));
+            global::SuperMetroid.Core.PrivateState.Set(sequence.DrainedByBaby, "PainfulWalkingStage", SuperMetroid.Core.Bosses.ListStep<MotherBrainStaggerStage>.At(stages, stage));
             // As the stagger's setup does before each walk: the stage selects its speed.
-            global::SuperMetroid.Core.PrivateState.Set(sequence.DrainedByBaby, "PainfulWalkingSpeed", (global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainWalkSpeed)(stages[stage].Speed));
+            global::SuperMetroid.Core.PrivateState.Set(sequence.DrainedByBaby, "PainfulWalkingSpeed", stages[stage].Speed);
             sequence.DrainedByBaby.StepPainfulWalking();
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * stage) - 1, sequence.DrainedByBaby.PainfulWalkingPause?.CartridgeCount,
                 "stream 3 real stagger pause after each stage's walk");
@@ -2024,7 +2024,7 @@ internal static class LookupStream3Verification
             IntroCinematicSourceDefinitions.FirstNarrationTilemap, maximumOutputBytes: 2048);
         var installation = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation;
         ImportIntroCinematicArtwork stock = SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
-        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapAtlas>([typeof(global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[])], new object?[] { (global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[])(BackgroundTileWordBytes.Tiles(bytes)) });
+        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapAtlas>([typeof(global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[])], new object?[] { BackgroundTileWordBytes.Tiles(bytes) });
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
         ImportIntroCinematicArtwork Copy(byte[] narration) => new(new IntroCinematicSceneParts { Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction }, stock.Sprites, new IntroCinematicLayouts(pages, Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), Page(narration), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap, stock.CeresDestructionMaps), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
@@ -2134,7 +2134,7 @@ internal static class LookupStream3Verification
             IntroCinematicSourceDefinitions.BackgroundPageTilemaps, maximumOutputBytes: 8192);
         var installation = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation;
         ImportIntroCinematicArtwork stock = SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
-        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapAtlas>([typeof(global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[])], new object?[] { (global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[])(BackgroundTileWordBytes.Tiles(bytes)) });
+        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapAtlas>([typeof(global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[])], new object?[] { BackgroundTileWordBytes.Tiles(bytes) });
         ImportIntroCinematicArtwork Copy(byte[] background)
         {
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(background.AsSpan(index * 2048, 2048).ToArray())).ToArray();
@@ -2257,7 +2257,7 @@ BranchesToSharedBody:true),
             IntroCinematicSourceDefinitions.SamusHeadTilemap, maximumOutputBytes: 2048);
         var installation = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation;
         ImportIntroCinematicArtwork stock = SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
-        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapAtlas>([typeof(global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[])], new object?[] { (global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[])(BackgroundTileWordBytes.Tiles(bytes)) });
+        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapAtlas>([typeof(global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[])], new object?[] { BackgroundTileWordBytes.Tiles(bytes) });
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
         ImportIntroCinematicArtwork Copy(byte[] portrait) => new(new IntroCinematicSceneParts { Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction }, stock.Sprites, new IntroCinematicLayouts(pages, Page(portrait), Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap, stock.CeresDestructionMaps), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 installed portrait words match native");

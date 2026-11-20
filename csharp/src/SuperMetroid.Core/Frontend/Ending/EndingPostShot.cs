@@ -47,14 +47,14 @@ internal sealed class EndingPostShot
     }
 
     /// <summary>
-    /// Shows <paramref name="group"/> at the step <paramref name="fade"/> has reached, in 32 steps from the colours it showed
+    /// Shows <paramref name="group"/> at the step <paramref name="fade"/> has reached, over the fade's steps from the colours it showed
     /// when the shot began (#1512): those are the post-credits colours, which nothing recolours between their restoration
     /// and the shot, so the import pre-colours each level from them.
     /// </summary>
     private static void ApplyFade(EndingColours colours, EndingFade group, PacedFadeSteps fade)
     {
-        // Each step dims every colour by a 32nd of its full brightness: the level left is its brightness times the steps
-        // remaining over 32, rounded down.
+        // Each step dims every colour by an equal share of its full brightness: the level left is its brightness times the
+        // share of steps remaining, rounded down.
         colours.Fade(group, fade.Left);
     }
 

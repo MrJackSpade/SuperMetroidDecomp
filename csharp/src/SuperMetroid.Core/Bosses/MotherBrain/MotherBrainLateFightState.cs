@@ -37,7 +37,7 @@ internal sealed class MotherBrainLateFightState
 
     /// <summary>
     /// Whether Mother Brain's whole body shows her health band's colours. Revival enables it only after
-    /// the walk to X 80 has really completed, and disabling her brain's effects as she dies ends it.
+    /// the walk up to the Baby (<see cref="MotherBrainLateFightDefinitions.BabyWalkUpX"/>) has really completed, and disabling her brain's effects as she dies ends it.
     /// </summary>
     public bool HealthColoursEnabled { get; internal set; }
 

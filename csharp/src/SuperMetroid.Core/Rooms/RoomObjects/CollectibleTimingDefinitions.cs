@@ -15,7 +15,7 @@ internal static class CollectibleTimingDefinitions
     /// <summary>How many pairs of visible images a revealed item shows before its shot block conceals it again.</summary>
     internal const int RevealedImagePairs = 22;
 
-    /// <summary>The updates a collected item's shot block stays empty before it respawns: twenty-two eight-update intervals.</summary>
+    /// <summary>The updates a collected item's shot block stays empty before it respawns, a whole number of intervals.</summary>
     internal const int CollectedShotBlockEmptyUpdates = 8 * 22;
 
     /// <summary>The updates a collected shot block's three respawn images each show.</summary>

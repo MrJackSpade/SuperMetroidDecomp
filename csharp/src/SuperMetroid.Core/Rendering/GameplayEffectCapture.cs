@@ -28,7 +28,7 @@ public static class GameplayEffectCapture
     /// <summary>
     /// Describes water's optional background wave (#1468): below the surface, background's horizontal scroll follows
     /// the background waveform one sample a line, counted from the line below the surface and advanced by the wave's phase
-    /// and the background's vertical scroll within its 16-pixel block; the lines above keep background's own scroll. Null
+    /// and the background's vertical scroll within its block; the lines above keep background's own scroll. Null
     /// without the wave, or while the frame places no water surface.
     /// </summary>
     public static SampledScrollWave? BuildWaterBackgroundHorizontalScrolls(
@@ -79,8 +79,8 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>
-    /// The sixteen-sample heat haze over every gameplay line (#1468, #2367). The haze repeats its sixteen samples, one a
-    /// line, down the frame: it starts at the background's vertical scroll within its 16-pixel block, drawn back by the
+    /// The heat haze over every gameplay line (#1468, #2367). The haze repeats its samples, one a
+    /// line, down the frame: it starts at the background's vertical scroll within its block, drawn back by the
     /// wave's phase, so each later phase draws the waveform one line further down.
     /// </summary>
     private static SampledScrollWave HeatHaze(int baseScroll, int backgroundVerticalScroll, int wavePhase, ImmutableArray<int> waveform) =>
@@ -89,8 +89,8 @@ public static class GameplayEffectCapture
             HudHeight, Height);
 
     /// <summary>
-    /// Where the background's vertical scroll lies within the background's 16-pixel block: the row of its block the
-    /// camera's top row is on, zero through fifteen, counted downward for a scroll above the room's top as well.
+    /// Where the background's vertical scroll lies within the background's block: the row of its block the camera's top
+    /// row is on, counted downward for a scroll above the room's top as well.
     /// </summary>
     private static int PhaseInBackgroundBlock(int backgroundVerticalScroll) =>
         ((backgroundVerticalScroll % RoomLevelPlane.BlockPixels) + RoomLevelPlane.BlockPixels) % RoomLevelPlane.BlockPixels;

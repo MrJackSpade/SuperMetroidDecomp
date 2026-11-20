@@ -105,8 +105,8 @@ internal static class PauseMenuFixtureVerification
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
         return InstalledFixtures.Record(new ImportAreaMapPresentation(new InstalledScreenContent(parts),
             new ImportPresentationCharacters(new MapCharacterArtwork(
-                global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Frontend.Map.MapTileCharacters>([typeof(byte[])], new object?[] { (byte[])(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)) }), new HudTileAtlas(hud),
-                global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Frontend.Map.MapTileCharacters>([typeof(byte[])], new object?[] { (byte[])(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount)) })),
+                global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Frontend.Map.MapTileCharacters>([typeof(byte[])], new object?[] { Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount) }), new HudTileAtlas(hud),
+                global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Frontend.Map.MapTileCharacters>([typeof(byte[])], new object?[] { Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount) })),
                 MapSpriteArtwork.Read(spriteJson, spritePng), stock.EscapeTimerTiles, stock.BlockAnimationAtlas, stock.WorldCharacters,
                 stock.IntroFont, stock.EndingFont, stock.TitleGraphics),
             new ImportPresentationColours(stock.SamusColours, stock.TitlePalette,

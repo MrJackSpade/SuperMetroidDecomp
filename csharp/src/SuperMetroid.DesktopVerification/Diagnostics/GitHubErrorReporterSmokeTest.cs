@@ -33,7 +33,7 @@ public static class GitHubErrorReporterSmokeTest
 
         string repeatedFingerprint;
         string duplicateFingerprint;
-        using (var reporter = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Desktop.Diagnostics.GitHubErrorReporter>([typeof(string), typeof(global::SuperMetroid.Desktop.Diagnostics.IGitHubIssueClient)], new object?[] { (string)("owner/private-repository"), (global::SuperMetroid.Desktop.Diagnostics.IGitHubIssueClient)(client) }))
+        using (var reporter = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Desktop.Diagnostics.GitHubErrorReporter>([typeof(string), typeof(global::SuperMetroid.Desktop.Diagnostics.IGitHubIssueClient)], new object?[] { "owner/private-repository", client }))
         {
             var context = new GitHubErrorContext(
                 "smoke-test frame boundary",
@@ -107,7 +107,7 @@ public static class GitHubErrorReporterSmokeTest
                 Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray()))));
         var random = new SharedRandom();
-        var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { (global::SuperMetroid.Core.Saves.SaveSlotStore)(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps)), (global::SuperMetroid.Core.Gameplay.GameplayAssists?)(null), (global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices)(SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default), (global::SuperMetroid.Core.Compatibility.SharedRandom)(random) });
+        var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroidGameHostServices.Default, random });
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay, random: random, audio: game.AudioForVerification);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
         runtime.Player.Samus = samus;
@@ -140,7 +140,7 @@ public static class GitHubErrorReporterSmokeTest
     {
         var recovery = new AudioFrameRecovery();
         var client = new RecordingIssueClient();
-        using var reporter = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Desktop.Diagnostics.GitHubErrorReporter>([typeof(string), typeof(global::SuperMetroid.Desktop.Diagnostics.IGitHubIssueClient)], new object?[] { (string)("owner/private-repository"), (global::SuperMetroid.Desktop.Diagnostics.IGitHubIssueClient)(client) });
+        using var reporter = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Desktop.Diagnostics.GitHubErrorReporter>([typeof(string), typeof(global::SuperMetroid.Desktop.Diagnostics.IGitHubIssueClient)], new object?[] { "owner/private-repository", client });
         var context = new GitHubErrorContext("audio rendering/submission after completed gameplay frame");
         int completedFrames = 0;
         for (int frame = 0; frame < 3; frame++)

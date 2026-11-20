@@ -100,8 +100,8 @@ public sealed class TorizoEnemyState
     /// <summary>
     /// Consecutive frames Samus has space-jumped, 0 through 65535 (<see cref="WrappingCounter"/>). Past
     /// <see cref="TorizoDecisionDefinitions.SpaceJumpLeapFrames"/> it lets Golden Torizo's forward leap fire without its
-    /// input and random gates. The wrap is gameplay (#1945): after 65536 consecutive space-jumping frames the count starts
-    /// again from zero, and the leap waits for its gates again for the next 361 frames.
+    /// input and random gates. The wrap is gameplay (#1945): once the count passes its largest it starts again from zero,
+    /// and the leap waits for its gates again until the count passes the leap's frames once more.
     /// </summary>
     public int SamusSpaceJumpFrames { get; internal set; }
 
@@ -124,7 +124,7 @@ public sealed class TorizoEnemyState
     /// <summary>
     /// Whether the Torizo falls at <see cref="TorizoMotionDefinitions.RestingFallSpeed"/>, as its setup, a landing and a
     /// walk off a ledge leave it, its vertical speed unchanged since (#1945): a Torizo that meets the ground falling so
-    /// lands without a quake. Only that fall moves at that speed exactly: gravity and the leaps add five thirty-seconds of a pixel an update
+    /// lands without a quake. Only that fall moves at that speed exactly: gravity and the leaps add their gravity each update
     /// to a rest or to a leap's rise, neither of which comes back to it.
     /// </summary>
     internal bool FallsAtRestingSpeed { get; private set; }

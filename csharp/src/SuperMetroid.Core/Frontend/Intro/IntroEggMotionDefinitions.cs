@@ -81,8 +81,8 @@ internal static class IntroEggMotionDefinitions
     private static IntroEggFallCurve ShallowSlimeFall { get; } = new(TwoSpellRise, Updates: 62);
 
     /// <summary>
-    /// The four slime drops the hatched Baby sheds, in the order it sheds them: a steep drop a pixel an update to the left,
-    /// a shallow one half a pixel to the left, a steep one a pixel to the right and a shallow one half a pixel to the right.
+    /// The slime drops the hatched Baby sheds, in the order it sheds them: a steep drop and a shallow one to the left, then
+    /// a steep one and a shallow one to the right.
     /// </summary>
     internal static IReadOnlyList<IntroEggSlimeLaunch> SlimeLaunches { get; } =
     [

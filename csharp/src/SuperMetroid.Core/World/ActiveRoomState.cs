@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -74,10 +73,6 @@ internal sealed class ActiveRoomState
 
     /// <summary>The load-station door whose setup established the current room.</summary>
     public DoorDefinition? ActiveDoor => View(c => c.Door, s => s.Door);
-
-
-    /// <summary>The loaded room's Ceres elevator arrival; null while a load builds the next room's scope.</summary>
-    public CeresElevatorArrivalState? CeresElevatorArrival => _construction is null ? Scope?.CeresElevatorArrival : null;
 
     /// <summary>What one room's main hands the next, which room loading never clears.</summary>
     public RoomMainHandOvers RoomMainHandOvers { get; } = new();

@@ -3,12 +3,12 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
 /// <summary>
-/// The title's editable gradients, one for each of the sixteen zoom ranges, each described by its stops (#1468).
+/// The title's editable gradients, one for each zoom range (<see cref="TitleGradientFormat.VariantCount"/>), each described by its stops (#1468).
 /// The gradients contain no game-data locations, animation scripts, or gameplay state.
 /// </summary>
 public sealed class TitleGradientPresentation
 {
-    /// <summary>Sixteen independently authored gradients in order of their zoom ranges, from no zoom up.</summary>
+    /// <summary>The independently authored gradients in order of their zoom ranges, from no zoom up.</summary>
     private readonly ScreenGradient[] variants;
 
     /// <summary>Retains the gradients the import validated.</summary>

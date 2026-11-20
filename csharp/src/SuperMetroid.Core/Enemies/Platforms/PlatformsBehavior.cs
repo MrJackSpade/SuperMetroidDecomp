@@ -130,14 +130,14 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Returns a depressed platform toward its spawn height with the one-pixel stop offset.</summary>
+    /// <summary>Returns a depressed platform toward its spawn height, stopping at its resting depth.</summary>
     private void RaisePlatform(
         RoomEnemyPlace place,
         PlatformEnemyState state,
         RoomLevelData level)
     {
-        // Normal platforms stop once they have risen from their depressed position past their resting height, one
-        // pixel below their original spawn center.
+        // Normal platforms stop once they have risen from their depressed position past their resting height, just
+        // below their original spawn center.
         if (place.Position.Y.Whole < state.RestingY)
         {
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;

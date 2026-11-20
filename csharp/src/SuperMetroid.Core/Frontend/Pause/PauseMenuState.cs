@@ -80,8 +80,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Current map/equipment fade or load phase.</summary>
     private PauseMenuTransition Transition { get; set; }
     /// <summary>
-    /// The page transition's fade: one level darker every update on the way out, and one level brighter every second
-    /// update on the way in after the load.
+    /// The page transition's fade: one level darker every update on the way out, and one level brighter on alternate
+    /// updates on the way in after the load.
     /// </summary>
     private readonly ScreenFade transitionFade = new(DisplayBrightness.Full);
     /// <summary>Current page-transition brightness, from black to full intensity.</summary>
@@ -211,7 +211,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
     /// <summary>
     /// The pause screen's Start-button handling, run last on both stable
-    /// pages. It reads the delayed-held buttons: a fresh press is excluded for three frames by
+    /// pages. It reads the delayed-held buttons: a fresh press is excluded for <see cref="PauseCadenceDefinitions.HeldInputRepeatDelay"/> by
     /// the controller's delayed-held filter before becoming menu input. True requests the unpause state.
     /// </summary>
     private bool HandleStartButton(ControllerButton delayedPressed)

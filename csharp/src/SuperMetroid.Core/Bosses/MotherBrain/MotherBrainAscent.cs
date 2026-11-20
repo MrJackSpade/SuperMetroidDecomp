@@ -143,7 +143,7 @@ internal sealed class MotherBrainAscent
     {
         // The rise follows the game's update count, not the enemies' update count; the two advance together from
         // different starts, so their places in the cadence differ.
-        if (!MotherBrainCadenceDefinitions.AscentStepEveryFourthUpdate.IsDue(_frameContext.FrameCounter))
+        if (!MotherBrainCadenceDefinitions.AscentStep.IsDue(_frameContext.FrameCounter))
             return;
 
         SpawnMotherBrainAscentDust(state);

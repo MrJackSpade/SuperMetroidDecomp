@@ -7,7 +7,7 @@ public enum KraidNailPhase
     WaitBeforeLaunch,
     /// <summary>Selects the fingernail's starting side, animation, and firing transition.</summary>
     Initialize,
-    /// <summary>Waits until the top lint's X position reaches at least 256, then fires (<see cref="Fire"/>).</summary>
+    /// <summary>Waits until the top lint's X position reaches the second screen (<see cref="KraidArenaDefinitions.SecondScreenX"/>), then fires (<see cref="Fire"/>).</summary>
     WaitForLint,
     /// <summary>Advances the fingernail's independent firing animation.</summary>
     Fire,

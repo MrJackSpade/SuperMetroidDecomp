@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.EffectActors;

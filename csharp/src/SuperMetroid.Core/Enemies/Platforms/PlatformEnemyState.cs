@@ -12,7 +12,7 @@ public sealed class PlatformEnemyState
     internal AnimationPlayback<PlatformSegment> Playback { get; set; }
 
     /// <summary>
-    /// The room Y a depressed platform rises back to, one pixel below its population position. Rising stops once the
+    /// The room Y a depressed platform rises back to, <see cref="PlatformMotionDefinitions.RestingDepthBelowPlacement"/> below its population position. Rising stops once the
     /// platform's whole Y lies above it.
     /// </summary>
     public int RestingY { get; internal set; }

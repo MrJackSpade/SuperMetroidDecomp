@@ -280,7 +280,7 @@ internal sealed class MotherBrainHead
                 lateFight.ResetLiveBabyMetroidAttackCounter();
                 return null;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
-                // The attack cry step skips the attack cry once the attack counter reaches eleven.
+                // The attack cry step skips the attack cry once the attack counter reaches the silent attack.
                 if (lateFight.Revival.BabyMetroidAttackCounter != MotherBrainFightDefinitions.SilentBabyAttackCount)
                     _audio.QueueEnemySound(MotherBrainSoundDefinitions.AttackCry, priority: SoundRequestPriority.Normal);
                 return null;
@@ -343,7 +343,7 @@ internal sealed class MotherBrainHead
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle }:
                 SpawnMotherBrainRainbowChargingProjectile(state);
                 return null;
-            // The neutral hold holds the phase-two neutral pose again on fifteen samples in sixteen.
+            // The neutral hold holds the phase-two neutral pose again on most samples.
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
                 return MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase2Hold : null;
             // The hold's chance alone decides whether the phase-three pose holds again.
@@ -420,7 +420,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Runs the head's onion-ring step and the ring's setup. The ring takes its enemy-projectile place after the twelve
+    /// Runs the head's onion-ring step and the ring's setup. The ring takes its enemy-projectile place after the
     /// room turrets and all lingering drool have theirs, so no ring appears when every place is held.
     /// </summary>
     private void SpawnMotherBrainOnionRing(
@@ -443,8 +443,8 @@ internal sealed class MotherBrainHead
             MotherBrainOnionRingDefinitions.Speed,
             angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
-        // The ring's setup pins it to the mouth in the same update, before the first of its eight delayed attachment
-        // frames.
+        // The ring's setup pins it to the mouth in the same update, before the first of its delayed attachment
+        // frames (MotherBrainOnionRingDefinitions.MouthWaitUpdates).
         MotherBrainProjectiles.PinMotherBrainOnionRingToMouth(ring, state);
     }
 

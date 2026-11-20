@@ -8,7 +8,7 @@ public sealed class FileSelectMapEntry
 {
     /// <summary>The entry's black hold, counted once each update; the reveal starts on its last.</summary>
     private readonly UpdateCountdown blackHold = UpdateCountdown.Lasting(FileSelectMapDefinitions.EntryBlackHoldUpdates);
-    /// <summary>Number of eight-pixel expansion updates applied to the centered reveal.</summary>
+    /// <summary>Number of expansion updates applied to the centered reveal, each edge moving at <see cref="FileSelectMapDefinitions.EntryWindowSpeed"/>.</summary>
     private int revealSteps;
 
     /// <summary>Gets the current entry stage.</summary>

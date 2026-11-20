@@ -62,7 +62,7 @@ internal static class GunshipDustDefinitionsVerification
         }
         foreach (var occupied in enemies.Projectiles.EveryPlace())
         {
-            global::SuperMetroid.Core.PrivateState.Set(occupied, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.PhantoonStartingFlame));
+            global::SuperMetroid.Core.PrivateState.Set(occupied, "Kind", RoomEnemyProjectileKind.PhantoonStartingFlame);
             occupied.Position = occupied.Position.WithWholeX(0x1234);
             occupied.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         }

@@ -11,7 +11,7 @@ public enum BoulderAction
     InitialFall,
     /// <summary>Decelerates the upward motion along the quadratic speed curve while accelerating horizontally, then enters the falling half of the bounce.</summary>
     Rebound,
-    /// <summary>Falls with terrain collision, selects progressively smaller rebounds, and enters rolling at its third impact (<see cref="BoulderBounces.ImpactCount"/>); a Boulder that breaks on impact breaks into dust at its first landing instead.</summary>
+    /// <summary>Falls with terrain collision, selects progressively smaller rebounds, and enters rolling at its last impact (<see cref="BoulderBounces.ImpactCount"/>); a Boulder that breaks on impact breaks into dust at its first landing instead.</summary>
     Falling,
     /// <summary>Follows terrain with vertical compensation and accelerates horizontally until wall collision hides and deletes the actor with a dust effect.</summary>
     Rolling,

@@ -8,7 +8,7 @@ public enum ShinesparkPhase
     Inactive,
     /// <summary>Stored shine admitted by crouching at full boost, its colouring lasting <see cref="ShinesparkDefinitions.StoredShineFrames"/> updates; it does not move Samus.</summary>
     Stored,
-    /// <summary>The windup; waits up to 30 movement updates for a direction, defaulting to a vertical launch on countdown expiry.</summary>
+    /// <summary>The windup; waits up to <see cref="ShinesparkDefinitions.WindupFrames"/> for a direction, defaulting to a vertical launch on countdown expiry.</summary>
     Windup,
     /// <summary>The horizontal spark; moves along the facing direction until collision or the sustaining-energy check starts the crash sequence.</summary>
     Horizontal,

@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class SaveStationAnimationDefinitions
 {
     /// <summary>
-    /// The number of alternating electricity loops the save animation plays: 21
-    /// loops before displaying the saved-game message.
+    /// The number of alternating electricity loops the save animation plays before displaying the saved-game
+    /// message.
     /// </summary>
     public const int SaveAnimationLoops = 21;
 }

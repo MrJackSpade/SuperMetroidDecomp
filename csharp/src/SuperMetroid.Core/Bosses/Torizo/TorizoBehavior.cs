@@ -163,7 +163,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RunTorizoMain(torizo, state, samus, level);
     }
 
-    /// <summary>Records the area boss's defeat, scatters sixteen drops in the variant's arena, and requests post-fight music.</summary>
+    /// <summary>Records the area boss's defeat, scatters its death drops (<see cref="TorizoDeathDefinitions.DeathDrops"/>) in the variant's arena, and requests post-fight music.</summary>
     private void FinishTorizoDeath(TorizoEnemyState state, SamusState samus)
     {
         _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaTorizo);

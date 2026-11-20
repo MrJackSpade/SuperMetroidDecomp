@@ -15,7 +15,7 @@ public sealed class HopperEnemyState
     /// <summary>
     /// The whole-mark place along the quadratic speed curve of the current vertical step. It moves back by
     /// <see cref="YSpeedCurvePlaceStep"/> while moving away from the surface, where a place before the curve's start
-    /// is stored as the curve's start at the apex, and on by them up to mark 64 while returning, so it stays within the
+    /// is stored as the curve's start at the apex, and on by them up to its return cap while returning, so it stays within the
     /// curve's marks; a place outside them is rejected.
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlace
@@ -42,7 +42,7 @@ public sealed class HopperEnemyState
     public int XVelocity => HopperHopDefinitions.HorizontalSpeed.Toward(Heading);
 
     /// <summary>
-    /// The step along the speed curve, three marks for small hops or four for big hops, taken back while moving away from
+    /// The step along the speed curve, larger for big hops than small ones, taken back while moving away from
     /// the attachment surface and on while returning.
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlaceStep { get; internal set; }

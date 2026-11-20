@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleyCadenceDefinitions
 {
     /// <summary>
-    /// The updates on which Norfair Ridley runs his fight: every second update of his body's own update count, on its
-    /// even place. His intangibility, combat preparation and current phase all wait out the odd updates.
+    /// The updates on which Norfair Ridley runs his fight, counted on his body's own update count at the period's even
+    /// place. His intangibility, combat preparation and current phase all wait out the odd updates.
     /// </summary>
-    internal static readonly UpdateCadence NorfairRidleyActsEverySecondUpdate = new(2, 0);
+    internal static readonly UpdateCadence NorfairRidleyActs = new(2, 0);
 
     /// <summary>
     /// The phase of a Norfair Ridley breakup fragment's own update count on which it is hidden: set on odd updates, so it
@@ -25,20 +25,20 @@ internal static class RidleyCadenceDefinitions
     internal static readonly UpdateCounterField CeresHurtFlashOddCount = new(0, 1);
 
     /// <summary>
-    /// The updates on which the Baby's capsule in Ceres Ridley's getaway takes its next picture: every fourth update of
-    /// the frame counter, on its first place.
+    /// The updates on which the Baby's capsule in Ceres Ridley's getaway takes its next picture, counted on the frame
+    /// counter at the period's first place.
     /// </summary>
-    internal static readonly UpdateCadence GetawayCapsuleStepEveryFourthUpdate = new(4, 0);
+    internal static readonly UpdateCadence GetawayCapsuleStep = new(4, 0);
 
     /// <summary>
-    /// The updates on which Ceres Ridley's wings in the getaway take their next picture: every eighth update of the frame
-    /// counter, on its first place. Each wing picture's floor update leaves the delays Samus's Speed Booster runs on.
+    /// The updates on which Ceres Ridley's wings in the getaway take their next picture, counted on the frame counter at
+    /// the period's first place. Each wing picture's floor update leaves the delays Samus's Speed Booster runs on.
     /// </summary>
-    internal static readonly UpdateCadence GetawayWingStepEveryEighthUpdate = new(8, 0);
+    internal static readonly UpdateCadence GetawayWingStep = new(8, 0);
 
     /// <summary>
-    /// The updates on which the self-destruct warning's EMERGENCY title takes its next alarm colour: every fourth update
-    /// of the frame counter, on its first place.
+    /// The updates on which the self-destruct warning's EMERGENCY title takes its next alarm colour, counted on the frame
+    /// counter at the period's first place.
     /// </summary>
-    internal static readonly UpdateCadence SelfDestructAlarmStepEveryFourthUpdate = new(4, 0);
+    internal static readonly UpdateCadence SelfDestructAlarmStep = new(4, 0);
 }

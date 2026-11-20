@@ -12,6 +12,6 @@ public enum EscapeEtecoonAction
     /// <summary>Thanks Samus; its animation moves it.</summary>
     ExpressingGratitude,
 
-    /// <summary>Runs off to the right at three and a half pixels an update, through walls.</summary>
+    /// <summary>Runs off to the right at <see cref="EscapeAnimalMotionDefinitions.EtecoonExitSpeed"/>, through walls.</summary>
     Escaping,
 }

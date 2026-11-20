@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.EnsureVerification.PaletteFx;
 

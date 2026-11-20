@@ -48,7 +48,7 @@ internal sealed class IntroEggSlimeDrop
             if (sprite.ScreenPlace.Y >= IntroEggEffectDefinitions.SlimeDropLandingY)
             {
                 // Landing changes the animation and stops the drop, freezing the impact point
-                // while the puddle animation plays four ten-frame frames and deletes the actor.
+                // while the puddle animation plays and deletes the actor.
                 sprite.Start(IntroEggEffectAnimation.SlimeImpact);
                 phase = IntroEggSlimeDropPhase.Splashing;
             }

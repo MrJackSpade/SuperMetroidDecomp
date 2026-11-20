@@ -104,7 +104,7 @@ public abstract class DoorRoomEvent
     {
         /// <inheritdoc/>
         /// <remarks>
-        /// The setup ignores whether the tube's room object found a free place: with all forty held, Samus is still placed
+        /// The setup ignores whether the tube's room object found a free place: with every place held, Samus is still placed
         /// for the ride and the elevatube does not appear.
         /// </remarks>
         internal override void Run(IDoorEventRoom room)

@@ -17,12 +17,4 @@ internal static class DeadTourianCorpsesPrivateAccess
         internal static global::SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseDefinition[] Variants(global::SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseSpecies species) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseDefinition[]>(typeof(global::SuperMetroid.AssetExtraction.Enemies.Corpses.DeadTourianCorpses), "Variants", [typeof(global::SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseSpecies)], new object?[] { species });
     }
-
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.AssetExtraction.Enemies.Corpses.DeadTourianCorpses)
-    {
-        /// <summary>The private method <c>For</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseDefinition For(global::SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseSpecies species, int variantIndex) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseDefinition>(typeof(global::SuperMetroid.AssetExtraction.Enemies.Corpses.DeadTourianCorpses), "For", [typeof(global::SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseSpecies), typeof(int)], new object?[] { species, variantIndex });
-    }
 }

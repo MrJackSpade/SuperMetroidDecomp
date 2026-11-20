@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 [RoomLifetime]
 public sealed class CeresFallingDebrisRoomMainState
 {
-    /// <summary>The updates from one falling tile to the next once the first has fallen: a tile falls on every ninth update.</summary>
+    /// <summary>The updates from one falling tile to the next once the first has fallen.</summary>
     private const int FallInterval = 9;
 
     /// <summary>The hand-over the hall reads its first wait from and leaves its countdown in for the following room's main.</summary>

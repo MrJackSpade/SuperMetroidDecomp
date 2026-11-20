@@ -2,10 +2,9 @@ namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Running cadence and boost-stage timing: gameplay rules, not editable art.</summary>
 /// <remarks>
-/// Each cadence times the ten running
-/// frames; the running pose's own animation closes the loop after the tenth. Ordinary frames take two ticks, and the
-/// boost stages take three; two and three alternating; two; one and two alternating; and one. A stage advance restarts
-/// the boost's countdown at one for stages zero through three and at two for stage four. Which cadence the boost
+/// Each cadence times the running frames; the running pose's own animation closes the loop after the last. Ordinary
+/// frames take the same ticks each, and the boost stages quicken from slower than ordinary running to quicker. A stage
+/// advance restarts the boost's countdown at its stage's restart value. Which cadence the boost
 /// restarts on after its echo is <see cref="SuperMetroid.Core.Compatibility.BoostRestartAfterEcho"/>'s; the cadence a
 /// full sound queue selects is not authored, and <see cref="SuperMetroid.Core.Compatibility.UnauthoredBoostCadence"/>
 /// reproduces it (#1473).

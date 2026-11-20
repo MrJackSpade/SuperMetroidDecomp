@@ -1,5 +1,3 @@
-using SuperMetroid.Core;
-
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
@@ -22,5 +20,21 @@ internal static class DraygonShotsDraygonShotBehaviorPrivateAccess
         /// <summary>The private method <c>RunAttachedDraygonGoop</c>, invoked by name.</summary>
         internal void RunAttachedDraygonGoop(global::SuperMetroid.Core.Enemies.EnemyProjectile goop, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Samus.Projectiles.SamusPowerBombExplosionState powerBomb) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Draygon.DraygonShots.DraygonShotBehavior>(self, "RunAttachedDraygonGoop", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusPowerBombExplosionState)], new object?[] { goop, samus, powerBomb });
+    }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Draygon.DraygonShots.DraygonShotBehavior self)
+    {
+        /// <summary>The private property <c>GoopStuckToSamus</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileOwnedMotion GoopStuckToSamus
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Draygon.DraygonShots.DraygonShotBehavior, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileOwnedMotion>(self, "GoopStuckToSamus");
+        }
+
+        /// <summary>The private property <c>TurretShotFlying</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileOwnedMotion TurretShotFlying
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Draygon.DraygonShots.DraygonShotBehavior, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileOwnedMotion>(self, "TurretShotFlying");
+        }
     }
 }

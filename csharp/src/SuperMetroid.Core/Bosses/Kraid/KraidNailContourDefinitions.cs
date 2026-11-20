@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidNailContourDefinitions
 {
     /// <summary>
-    /// The ledges, from his feet up (#2400). Their left offsets advance 24 pixels from -64 to 8; the first three ledges'
-    /// bounds are 56 pixels apart, starting at 16, and the last, his head's, is -128.
+    /// The ledges, from his feet up (#2400). Their left offsets advance evenly outward; the lower ledges' bounds are
+    /// evenly apart, and the last, his head's, lies above them all.
     /// </summary>
     internal static IReadOnlyList<KraidNailLedge> Ledges { get; } =
     [

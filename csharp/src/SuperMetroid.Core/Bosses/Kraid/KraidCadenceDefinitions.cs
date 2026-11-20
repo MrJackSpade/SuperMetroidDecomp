@@ -17,13 +17,13 @@ internal static class KraidCadenceDefinitions
     /// The heights at which Kraid, grown and breaking the ceiling's platforms, drops the next ceiling rock (#1619): every
     /// fourth pixel of the height he rises to, one a pixel an update, on the period's first place.
     /// </summary>
-    internal static readonly UpdateCadence CeilingRockEveryFourthRow = new(4, 0);
+    internal static readonly UpdateCadence CeilingRockRow = new(4, 0);
 
     /// <summary>
-    /// The updates on which Kraid's fully open mouth spits a rock: every sixteenth of the updates left of his head's hold
-    /// on the open mouth, on the period's first place, including the update the open mouth shows and starts it.
+    /// The updates on which Kraid's fully open mouth spits a rock, counted on the updates left of his head's hold on the
+    /// open mouth at the period's first place, including the update the open mouth shows and starts it.
     /// </summary>
-    internal static readonly UpdateCadence SpitRockEverySixteenthMouthUpdate = new(16, 0);
+    internal static readonly UpdateCadence MouthSpitRock = new(16, 0);
 
     /// <summary>
     /// The phase of a charging lint's updates left on which it shows Kraid's colours: set on its odd updates left, so it
@@ -32,22 +32,22 @@ internal static class KraidCadenceDefinitions
     internal static readonly UpdateCounterField LintChargeShowsOwnColours = new(0, 1);
 
     /// <summary>
-    /// The updates on which Kraid, grown and breaking the ceiling's platforms, throws up a rising rock: every eighth
-    /// update of his body's own update count, on the period's first place.
+    /// The updates on which Kraid, grown and breaking the ceiling's platforms, throws up a rising rock, counted on his
+    /// body's own update count at the period's first place.
     /// </summary>
-    internal static readonly UpdateCadence CeilingBreakRockEveryEighthUpdate = new(8, 0);
+    internal static readonly UpdateCadence CeilingBreakRock = new(8, 0);
 
     /// <summary>
-    /// The updates on which Kraid's first rise through the floor throws up a rising rock: every sixteenth of the updates
-    /// left of the rise's slow rocks, on the period's first place.
+    /// The updates on which Kraid's first rise through the floor throws up a rising rock, counted on the updates left of
+    /// the rise's slow rocks at the period's first place.
     /// </summary>
-    internal static readonly UpdateCadence FirstRiseRockEverySixteenthUpdate = new(16, 0);
+    internal static readonly UpdateCadence FirstRiseRock = new(16, 0);
 
     /// <summary>
-    /// The updates on which Kraid's faster rise throws up a rising rock: every eighth of the updates left of the rise's
-    /// fast rocks, on the period's first place.
+    /// The updates on which Kraid's faster rise throws up a rising rock, counted on the updates left of the rise's fast
+    /// rocks at the period's first place.
     /// </summary>
-    internal static readonly UpdateCadence FasterRiseRockEveryEighthUpdate = new(8, 0);
+    internal static readonly UpdateCadence FasterRiseRock = new(8, 0);
 
     /// <summary>
     /// The first of the two updates in every eight of the room's earthquake on which Kraid's raised body throws up a

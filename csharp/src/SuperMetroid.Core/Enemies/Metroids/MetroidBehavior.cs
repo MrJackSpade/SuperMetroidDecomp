@@ -21,7 +21,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MetroidEntity(this, place, common));
 
-    /// <summary>Supplies room RNG for the five scattered death drops and idle cries.</summary>
+    /// <summary>Supplies room RNG for the scattered death drops and idle cries.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Probes terrain while the Metroid seeks or recoils.</summary>
     private readonly EnemyTerrain _terrain;
@@ -237,7 +237,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (state.Movement != MetroidMovement.AttachedToSamus)
             {
-                // The body attack throws the Metroid away from Samus at a quarter of their distance an update.
+                // The body attack throws the Metroid away from Samus at a share of their distance an update.
                 StoreMetroidXVelocity(
                     state,
                     MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * (place.Position.X.Whole - samus.Position.X.Whole));
@@ -252,7 +252,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.Movement != MetroidMovement.PowerBombEscape)
         {
-            if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.EnemyPassCount) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
+            if (MetroidCadenceDefinitions.DrainSound.IsDue(_frameContext.EnemyPassCount) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
                 _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
             DrainSamusWithMetroid(state, samus);
         }
@@ -308,8 +308,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The Metroid's shot reaction recoils from the first projectile (MetroidRecoilOrigin), not the shot that
-        // hit it now. It recoils away from that origin at an eighth of its distance from it an update. That
-        // projectile need not lie in the room: a shot lives on up to 64 pixels past the view's left and top edges, and
+        // hit it now. It recoils away from that origin at a share of its distance from it an update. That
+        // projectile need not lie in the room: a shot lives on a little past the view's left and top edges, and
         // a Wave shot passes through the room's walls, so one beyond the room's left or top edge, with the view at
         // that edge, still pushes the Metroid away from it the short way, as DistanceAcrossRoomEdge.Apart gives it.
         StoreMetroidXVelocity(
@@ -337,7 +337,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.MetroidRecoilSoundEffect, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Releases an attached Metroid into its four-frame escape and ends the shade its attachment gives Samus (<see cref="SamusMetroidAttachmentShade.Inactive"/>).</summary>
+    /// <summary>Releases an attached Metroid into its escape (<see cref="MetroidBehaviorDefinitions.EscapeDuration"/>) and ends the shade its attachment gives Samus (<see cref="SamusMetroidAttachmentShade.Inactive"/>).</summary>
     private static void DetachMetroidWithPowerBomb(
         RoomEnemyPlace place,
         MetroidEnemyState state,
@@ -367,7 +367,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int dropIndex = 0; dropIndex < MetroidBehaviorDefinitions.FrozenDeathDropCount; dropIndex++)
         {
             int random = _room.Random.Generate();
-            // Each drop lands up to sixteen pixels before and fifteen after the origin on each axis.
+            // Each drop lands within its scatter around the origin on each axis.
             var scatter = new Offset16<RoomPixels>(
                 EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - EnemyDropScatterDefinitions.ScatterCentring,
                 EnemyDropScatterDefinitions.VerticalScatter.Of(random) - EnemyDropScatterDefinitions.ScatterCentring);
@@ -375,7 +375,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Clamps the signed whole pixels of homing speed to three while retaining in-range fractions.</summary>
+    /// <summary>Clamps the signed whole pixels of homing speed to <see cref="MetroidBehaviorDefinitions.FastestChase"/> while retaining in-range fractions.</summary>
     private static SignedSixteenSixteen ClampMetroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.LimitedEitherWay(velocity, MetroidBehaviorDefinitions.FastestHoming);
 
     /// <summary>Stores the recoil or homing X speed.</summary>
@@ -486,7 +486,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             if (enemy.Health == 0)
             {
                 // The death records the drop origin, the enemy's death spawns the explosion, and only then
-                // the five drops spawn.
+                // the drops spawn.
                 Position16<RoomPixels> dropOrigin = enemy.Position.Whole;
                 FinishMetroidDeath(enemy, c.Samus);
                 _deathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.Big, c.Samus);

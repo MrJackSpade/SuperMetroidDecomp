@@ -19,7 +19,7 @@ internal enum EndingSceneAnimation
     /// <summary>A cloud passing on the left of the escaping gunship.</summary>
     LeftSideCloud,
     /// <summary>
-    /// The exploding planet: its rumble, played five times, then its breaking apart; as a segment, the breaking apart, which
+    /// The exploding planet: its rumble, played over, then its breaking apart; as a segment, the breaking apart, which
     /// fades the explosion's colours in, cracks the planet open and spawns its silhouette.
     /// </summary>
     ExplodingPlanet,

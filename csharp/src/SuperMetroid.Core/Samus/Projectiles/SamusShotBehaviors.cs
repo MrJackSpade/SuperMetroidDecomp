@@ -6,11 +6,11 @@ internal static class SamusShotBehaviors
     /// <summary>A beam without the Wave Beam: it stops at the first block it meets.</summary>
     internal static SamusShotBehavior Beam { get; } = new BeamFlight();
 
-    /// <summary>An uncharged Wave or Ice and Wave shot: the Wave Beam's flight, a trail every three updates after its first.</summary>
-    internal static WaveBeamFlight WaveBeamThreeUpdateTrail { get; } = new(ProjectileTimingDefinitions.UnchargedWaveTrailInterval);
+    /// <summary>An uncharged Wave or Ice and Wave shot: the Wave Beam's flight, a trail every <see cref="ProjectileTimingDefinitions.UnchargedWaveTrailInterval"/> after its first.</summary>
+    internal static WaveBeamFlight UnchargedWaveBeamTrail { get; } = new(ProjectileTimingDefinitions.UnchargedWaveTrailInterval);
 
-    /// <summary>Every other Wave shot: the Wave Beam's flight, a trail every four updates.</summary>
-    internal static WaveBeamFlight WaveBeamFourUpdateTrail { get; } = new(ProjectileTimingDefinitions.TrailInterval);
+    /// <summary>Every other Wave shot: the Wave Beam's flight, a trail every <see cref="ProjectileTimingDefinitions.TrailInterval"/>.</summary>
+    internal static WaveBeamFlight WaveBeamTrail { get; } = new(ProjectileTimingDefinitions.TrailInterval);
 
     /// <summary>The Hyper Beam shot.</summary>
     internal static SamusShotBehavior HyperBeam { get; } = new HyperBeamFlight();

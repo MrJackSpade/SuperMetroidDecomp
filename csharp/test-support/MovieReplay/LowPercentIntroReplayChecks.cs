@@ -28,7 +28,7 @@ internal sealed class LowPercentIntroReplayChecks : IConvertedMovieChecks
         [262] = new LowPercentIntroReplayPhase("LastMetroidIsInCaptivity", "$A5F8"),
         [322] = new LowPercentIntroReplayPhase("GalaxyIsAtPeace", "$A613"),
         [522] = new LowPercentIntroReplayPhase("WaitForSecondMusicQueue", "$A639"),
-        [554] = new LowPercentIntroReplayPhase("FourSecondHold", "$A64C"),
+        [554] = new LowPercentIntroReplayPhase("HoldFirstNarration", "$A64C"),
         [794] = new LowPercentIntroReplayPhase("FadeOutFirstNarration", "$A663"),
         [824] = new LowPercentIntroReplayPhase("SetupFirstPage", "$A66F"),
         [825] = new LowPercentIntroReplayPhase("WaitForFirstPageMusicQueue", "$A82B"),

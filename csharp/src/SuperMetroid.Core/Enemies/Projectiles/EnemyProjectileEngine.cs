@@ -13,7 +13,7 @@ using SuperMetroid.Core.Enemies.Deaths;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The enemy-projectile engine: the room's eighteen enemy-projectile places, spawning a fresh projectile into a free
+/// The enemy-projectile engine: the room's enemy-projectile places (<see cref="PlaceCount"/>), spawning a fresh projectile into a free
 /// place and its definition setup, the per-frame pass (motions, then each animation), the animation runner,
 /// both draw-priority passes and the Samus collision passes. Each projectile runs through the behaviour its spawner bound
 /// to it (<see cref="EnemyProjectileBehavior"/>, #1760); the engine names no species.
@@ -231,7 +231,7 @@ internal sealed class EnemyProjectileEngine
             }
         }
 
-        // The contact only publishes the five-frame request and overwrites its horizontal
+        // The contact only publishes the knockback request and overwrites its horizontal
         // direction for every hit. Samus's update has already run this frame: do not initialize
         // a hurt pose or move Samus here. The next frame consumes the final request.
         if (finalKnockbackXDirection.HasValue)
@@ -559,7 +559,7 @@ internal sealed class EnemyProjectileEngine
     /// Runs the death actor's explosion-sprite cue: it spawns the effect actor of <paramref name="kind"/> the cue names and
     /// draws one random sample; <paramref name="spread"/>'s scatter fields read that sample's fields that offset X and Y
     /// around the death actor, before both are centred back by its radius. Effect actors are separate from enemy
-    /// projectiles, so these decorations never consume one of the eighteen enemy-projectile places.
+    /// projectiles, so these decorations never consume one of the enemy-projectile places.
     /// </summary>
     internal void SpawnRandomEnemyDeathSprite(EnemyProjectile projectile, RoomEffectActorKind kind, EnemyDeathSpriteSpread spread)
     {

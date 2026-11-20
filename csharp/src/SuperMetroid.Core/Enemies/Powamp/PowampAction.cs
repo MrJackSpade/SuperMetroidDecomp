@@ -8,9 +8,9 @@ public enum PowampAction
 {
     /// <summary>Holds the body at its resting height until its rest (<see cref="PowampMotionDefinitions.RestDuration"/>) runs out and starts balloon inflation.</summary>
     DeflatedResting,
-    /// <summary>Waits ten AI updates, then selects fast body animation and upward velocity of half a pixel per update.</summary>
+    /// <summary>Waits out its inflation (<see cref="PowampMotionDefinitions.InflationDuration"/>), then selects fast body animation and its upward velocity (<see cref="PowampMotionDefinitions.RiseVelocity"/>).</summary>
     Inflating,
-    /// <summary>Rises with horizontal wiggle toward 64 pixels above the balloon's spawn Y, switching immediately to grappled rise once the grapple beam holds it.</summary>
+    /// <summary>Rises with horizontal wiggle toward its height above the balloon's spawn Y (<see cref="PowampMotionDefinitions.UngrappledRise"/>), switching immediately to grappled rise once the grapple beam holds it.</summary>
     InflatedRiseToTargetHeight,
     /// <summary>Completes the wiggle to a centered phase before deflating, continuing terrain-clipped upward movement while off center.</summary>
     InflatedFinishWiggle,
@@ -20,7 +20,7 @@ public enum PowampAction
     GrappledFinishWiggle,
     /// <summary>Holds the raised body while the grapple beam holds it and starts deflation on release.</summary>
     GrappledResting,
-    /// <summary>Waits ten AI updates for balloon deflation, then selects downward velocity of one pixel per update.</summary>
+    /// <summary>Waits out the balloon's deflation (<see cref="PowampMotionDefinitions.InflationDuration"/>), then selects its downward velocity (<see cref="PowampMotionDefinitions.SinkVelocity"/>).</summary>
     Deflating,
     /// <summary>Sinks with terrain collision handling until the body reaches the balloon's spawn Y, then restores slow animation and the rest countdown.</summary>
     DeflatedSinking,

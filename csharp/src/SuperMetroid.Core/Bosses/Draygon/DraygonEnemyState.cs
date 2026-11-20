@@ -82,17 +82,15 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     public Position16<RoomPixels> LeftSideReset { get; internal set; }
 
     /// <summary>
-    /// The X of the off-screen place at the right (#2221), 672 pixels right of <see cref="LeftSideReset"/>, wrapping: a
+    /// The X of the off-screen place at the right (#2221), <see cref="DraygonArenaDefinitions.RightSideResetDistance"/> right of <see cref="LeftSideReset"/>, wrapping: a
     /// leftward swoop aims from it and a leftward goop pass starts there.
     /// </summary>
     public int RightSideResetX { get; internal set; }
 
     /// <summary>
-    /// The downward acceleration a swoop path is built with, in pixels per update per update (#2221). It starts at
-    /// <see cref="DraygonSwoopDefinitions.InitialAcceleration"/>, each eye hit adds
-    /// <see cref="DraygonSwoopDefinitions.ShotAccelerationStep"/> while the result stays below
-    /// <see cref="DraygonSwoopDefinitions.AccelerationLimit"/>, and a tail-whip hit on grabbed Samus restores the
-    /// initial acceleration.
+    /// The downward acceleration a swoop path is built with, in pixels per update per update (#2221). It starts at its
+    /// starting value, each eye hit adds its step while the result stays below its limit, and a tail-whip hit on grabbed
+    /// Samus restores the starting value (<see cref="DraygonSwoopDefinitions"/>).
     /// </summary>
     public SignedEightEight SwoopAcceleration { get; internal set; }
 
@@ -127,27 +125,27 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// </summary>
     public RotationAngle GoopYOscillationAngle { get; internal set; }
 
-    /// <summary>The goop shots left in a firing pass, sixteen when the pass begins; the pass ends on the last of them.</summary>
+    /// <summary>The goop shots left in a firing pass, <see cref="DraygonArenaDefinitions.GoopsPerPass"/> when the pass begins; the pass ends on the last of them.</summary>
     public BossCountdown GoopShotsLeft { get; } = new();
 
 
     /// <summary>
     /// Horizontal radius of the carry spiral; the vertical radius is a quarter of its whole pixels. A grab clears it and
-    /// each spiral frame grows it by one eighth of a pixel, so its whole pixels grow every eighth frame; the spiral ends
-    /// when they reach 160.
+    /// each spiral frame grows it by <see cref="DraygonGrabDefinitions.SpiralRadiusGrowth"/>; the spiral ends when its whole
+    /// pixels reach <see cref="DraygonGrabDefinitions.MaximumSpiralRadius"/>.
     /// </summary>
     public SignedSixteenSixteen SpiralXRadius { get; internal set; }
 
     /// <summary>
-    /// Center point of the carry spiral, initialized to (256, 384).
-    /// The Y axis carries its fractional part: each spiral frame lifts it a quarter pixel, the center rising one pixel
-    /// every four. X has no fractional part and
+    /// Center point of the carry spiral, initialized to <see cref="DraygonGrabDefinitions.SpiralTarget"/>.
+    /// The Y axis carries its fractional part: each spiral frame lifts it by <see cref="DraygonGrabDefinitions.SpiralCenterLift"/>.
+    /// X has no fractional part and
     /// stays whole. A grab keeps the part of a pixel the last spiral left (<see cref="DraygonRegrabSpiralLift"/>).
     /// </summary>
     public DraygonRegrabSpiralLift SpiralCenter { get; internal set; }
 
     /// <summary>
-    /// Draygon's position around the carry spiral: three quarters of a turn when a grab starts, advanced by
+    /// Draygon's position around the carry spiral: <see cref="DraygonGrabDefinitions.InitialSpiralAngle"/> when a grab starts, advanced by
     /// the whole steps of <see cref="SpiralAngleDelta"/> each spiral frame and wrapping around the turn.
     /// </summary>
     public RotationAngle SpiralAngle { get; internal set; }

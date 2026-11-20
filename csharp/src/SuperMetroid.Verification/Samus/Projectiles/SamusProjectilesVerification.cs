@@ -162,13 +162,12 @@ internal static void VerifySamusPowerBeamProjectiles()
         var projectiles = CreateSyntheticProjectiles();
         bombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
         SamusProjectileSlotObservation beforeShot = projectiles.ObserveSlots();
-        projectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
-        SamusProjectileFrameResult result = projectiles.LastFrameResult;
+        SoundRequest? result = projectiles.StepFrameFiringSound(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
 
         AssertEqual(0, beforeShot.FiredSlot(projectiles), $"power beam direction {direction} allocates slot zero");
         AssertEqual(
             (SoundEffectId?)SamusSound.UnchargedPowerBeam,
-            result.QueuedSoundEffect,
+            result?.SoundEffect,
             $"power beam direction {direction} queues ROM sound");
         AssertEqual(1, projectiles.Pool.ShotCount.Count,
             $"power beam direction {direction} increments counter");
@@ -211,8 +210,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         var combinedProjectiles = CreateSyntheticProjectiles();
         combinedBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, combinedSamus, 0, 0);
         SamusProjectileSlotObservation beforeCombined = combinedProjectiles.ObserveSlots();
-        combinedProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, combinedSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedBombs, new SharedGameState(new SharedRandom()));
-        SamusProjectileFrameResult combinedResult = combinedProjectiles.LastFrameResult;
+        SoundRequest? combinedResult = combinedProjectiles.StepFrameFiringSound(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, combinedSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedBombs, new SharedGameState(new SharedRandom()));
 
         SamusProjectile combinedSlot = combinedProjectiles.Shots[0];
         AssertEqual(0, beforeCombined.FiredSlot(combinedProjectiles),
@@ -225,7 +223,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             (SoundEffectId?)SoundEffectCommands.Decode(
                 SoundEffectLibrary.Samus,
                 nativeUnchargedSounds[beamType]),
-            combinedResult.QueuedSoundEffect,
+            combinedResult?.SoundEffect,
             $"beam combination {beamType} indexes uncharged sound");
         AssertEqual(10, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.BeamFiring, global::SuperMetroid.Core.UpdateCountdown>(combinedProjectiles.Firing, "InteractionImmunity").UpdatesLeft,
             $"beam combination {beamType} publishes native invincibility timer");
@@ -233,8 +231,8 @@ internal static void VerifySamusPowerBeamProjectiles()
         SamusShotBehavior expectedFrameBehavior = (beamType & 1) == 0
             ? SamusShotBehaviors.Beam
             : beamType < 4
-                ? SamusShotBehaviors.WaveBeamThreeUpdateTrail
-                : SamusShotBehaviors.WaveBeamFourUpdateTrail;
+                ? SamusShotBehaviors.UnchargedWaveBeamTrail
+                : SamusShotBehaviors.WaveBeamTrail;
         AssertEqual(expectedFrameBehavior, combinedSlot.Behavior,
             $"beam combination {beamType} selects native pre-instruction family");
     }
@@ -306,22 +304,21 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         chargeBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargeSamus, 0, 0);
         SamusProjectileSlotObservation beforeChargeFrame = chargeProjectiles.ObserveSlots();
-        chargeProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
-        SamusProjectileFrameResult chargeFrame = chargeProjectiles.LastFrameResult;
+        SoundRequest? chargeFrame = chargeProjectiles.StepFrameFiringSound(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
         if (frame == 0)
             AssertEqual(0, beforeChargeFrame.FiredSlot(chargeProjectiles), "charge press fires initial ordinary shot");
         else if (frame == 15)
         {
             AssertEqual(
                 (SoundEffectId?)SamusSound.ChargingBeam,
-                chargeFrame.QueuedSoundEffect,
+                chargeFrame?.SoundEffect,
                 "charge counter sixteen queues the cartridge startup sound");
-            AssertEqual<SoundRequestPriority?>(SoundRequestPriority.High, chargeFrame.QueuedSoundPriority,
+            AssertEqual<SoundRequestPriority?>(SoundRequestPriority.High, chargeFrame?.Priority,
                 "charge startup is requested at high priority");
         }
         else
         {
-            AssertEqual(null, chargeFrame.QueuedSoundEffect,
+            AssertEqual(null, chargeFrame?.SoundEffect,
                 $"charge held frame {frame + 1} does not restart its sustained sound");
         }
 
@@ -362,14 +359,13 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     rejectedReleaseBombs.SetSharedCooldown(1);
     SamusProjectileSlotObservation beforeRejectedRelease = rejectedReleaseProjectiles.ObserveSlots();
-    rejectedReleaseProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), rejectedReleaseBombs, new SharedGameState(new SharedRandom()));
-    SamusProjectileFrameResult rejectedRelease = rejectedReleaseProjectiles.LastFrameResult;
+    SoundRequest? rejectedRelease = rejectedReleaseProjectiles.StepFrameFiringSound(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), rejectedReleaseBombs, new SharedGameState(new SharedRandom()));
     AssertEqual(null, beforeRejectedRelease.FiredSlot(rejectedReleaseProjectiles),
         "cooldown gate rejects charged-audio release fixture");
     AssertEqual((SoundEffectId?)SamusSound.Silence,
-        rejectedRelease.QueuedSoundEffect,
+        rejectedRelease?.SoundEffect,
         "rejected post-sound charge release queues cartridge cancellation");
-    AssertEqual<SoundRequestPriority?>(SoundRequestPriority.Essential, rejectedRelease.QueuedSoundPriority,
+    AssertEqual<SoundRequestPriority?>(SoundRequestPriority.Essential, rejectedRelease?.Priority,
         "rejected charge release requests its cancellation at essential priority");
 
     // Build two identical fifteen-call charge states so their central flare frame and
@@ -479,8 +475,7 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     chargeBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargeSamus, 0, 0);
     SamusProjectileSlotObservation beforeChargedRelease = chargeProjectiles.ObserveSlots();
-    chargeProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
-    SamusProjectileFrameResult chargedRelease = chargeProjectiles.LastFrameResult;
+    SoundRequest? chargedRelease = chargeProjectiles.StepFrameFiringSound(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
     int? chargedReleaseSlot = beforeChargedRelease.FiredSlot(chargeProjectiles);
     AssertTrue(chargedReleaseSlot is not null, "charged release allocates projectile");
     SamusProjectile chargedSlot = chargeProjectiles.Shots[(chargedReleaseSlot ?? throw new InvalidOperationException("Verification requires chargedReleaseSlot."))];
@@ -489,7 +484,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "charged release fires a charged beam");
     AssertEqual(
         (SoundEffectId?)SamusSound.ChargedPowerBeam,
-        chargedRelease.QueuedSoundEffect,
+        chargedRelease?.SoundEffect,
         "charged power beam queues ROM sound");
     AssertEqual(0x001e, chargeBombs.CooldownTimer,
         "charged power beam installs charged cooldown");
@@ -561,7 +556,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(bridgeSamus, 
         SamusPoseId.NeutralJumpTransitionRightPose,
         controllerNewInput: GameplayAction.Shoot);
-    AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { (global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)(SamusProjectileDirection.Right) }), bridgeSamus.TransitionShot.Handed,
+    AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { SamusProjectileDirection.Right }), bridgeSamus.TransitionShot.Handed,
         "normal-jump initializer hands over the new pose's shot direction");
     bridgeBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, bridgeSamus, 0, 0);
     SamusProjectileSlotObservation beforeBridgeRelease = bridgeProjectiles.ObserveSlots();
@@ -600,8 +595,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         combinedChargeBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, combinedChargeSamus, 0, 0);
         SamusProjectileSlotObservation beforeCombinedChargedRelease =
             combinedChargeProjectiles.ObserveSlots();
-        combinedChargeProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, combinedChargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedChargeBombs, new SharedGameState(new SharedRandom()));
-        SamusProjectileFrameResult combinedChargedRelease = combinedChargeProjectiles.LastFrameResult;
+        SoundRequest? combinedChargedRelease = combinedChargeProjectiles.StepFrameFiringSound(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, combinedChargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedChargeBombs, new SharedGameState(new SharedRandom()));
         int? combinedChargedReleaseSlot =
             beforeCombinedChargedRelease.FiredSlot(combinedChargeProjectiles);
         AssertTrue(combinedChargedReleaseSlot is not null,
@@ -616,12 +610,12 @@ internal static void VerifySamusPowerBeamProjectiles()
             (SoundEffectId?)SoundEffectCommands.Decode(
                 SoundEffectLibrary.Samus,
                 nativeChargedSounds[beamType]),
-            combinedChargedRelease.QueuedSoundEffect,
+            combinedChargedRelease?.SoundEffect,
             $"charged beam combination {beamType} indexes charged sound");
         AssertEqual(
             (beamType & 1) == 0
                 ? SamusShotBehaviors.Beam
-                : SamusShotBehaviors.WaveBeamFourUpdateTrail,
+                : SamusShotBehaviors.WaveBeamTrail,
             combinedChargedSlot.Behavior,
             $"charged beam combination {beamType} selects native wave dispatch");
     }
@@ -641,8 +635,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var hyperProjectiles = CreateSyntheticProjectiles();
     hyperBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, hyperSamus, 0, 0);
     SamusProjectileSlotObservation beforeHyper = hyperProjectiles.ObserveSlots();
-    hyperProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, hyperSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), hyperBombs, new SharedGameState(new SharedRandom()));
-    SamusProjectileFrameResult hyperResult = hyperProjectiles.LastFrameResult;
+    SoundRequest? hyperResult = hyperProjectiles.StepFrameFiringSound(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, hyperSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), hyperBombs, new SharedGameState(new SharedRandom()));
     SamusProjectile hyperSlot = hyperProjectiles.Shots[0];
     AssertEqual(0, beforeHyper.FiredSlot(hyperProjectiles), "Hyper Beam allocates ordinary slot zero");
     AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true), hyperSlot.Type, "Hyper Beam is a charged Plasma beam");
@@ -654,7 +647,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(
         (SoundEffectId?)SoundEffectCommands.Decode(
             SoundEffectLibrary.Samus, nativeChargedSounds[8]),
-        hyperResult.QueuedSoundEffect,
+        hyperResult?.SoundEffect,
         "Hyper Beam indexes charged sound entry eight");
     AssertEqual(ChargedShotGlowKind.HyperBeamGlow, hyperProjectiles.Charge.ChargedShotGlow?.Kind,
         "Hyper Beam starts its own glow");
@@ -868,7 +861,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(!waveReportedExplosion, "wave beam never converts on a type-eight wall");
     AssertTrue(waveWallProjectiles.Shots[0].Position.X.Whole > 112,
         "wave beam advances completely through the solid column");
-    AssertEqual(SamusShotBehaviors.WaveBeamThreeUpdateTrail,
+    AssertEqual(SamusShotBehaviors.UnchargedWaveBeamTrail,
         waveWallProjectiles.Shots[0].Behavior,
         "power+wave remains in its native pass-through pre-instruction");
 
@@ -1013,13 +1006,12 @@ internal static void VerifySamusPowerBeamProjectiles()
     var missileProjectiles = CreateSyntheticProjectiles();
     missileBombs.StepFrame(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, missileSamus, 0, 0);
     SamusProjectileSlotObservation beforeMissile = missileProjectiles.ObserveSlots();
-    missileProjectiles.StepFrame(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, missileSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
-    SamusProjectileFrameResult missileFired = missileProjectiles.LastFrameResult;
+    SoundRequest? missileFired = missileProjectiles.StepFrameFiringSound(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, missileSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
     SamusProjectile missile = missileProjectiles.Shots[0];
     AssertEqual(0, beforeMissile.FiredSlot(missileProjectiles), "missile fresh press allocates slot zero");
     AssertEqual(
         (SoundEffectId?)SamusSound.Missile,
-        missileFired.QueuedSoundEffect,
+        missileFired?.SoundEffect,
         "missile producer queues library-one effect three");
     AssertEqual(2, missileSamus.Missiles, "missile producer consumes exactly one ammo");
     AssertEqual(HudItem.Missile, missileSamus.SelectedHudItem,
@@ -1500,14 +1492,13 @@ internal static void VerifySamusPowerBeamProjectiles()
     var superProjectiles = CreateSyntheticProjectilesShaking(superEarthquake);
     superBombs.StepFrame(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, superSamus, 0, 0);
     SamusProjectileSlotObservation beforeSuper = superProjectiles.ObserveSlots();
-    superProjectiles.StepFrame(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, superSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), superBombs, new SharedGameState(new SharedRandom()));
-    SamusProjectileFrameResult superFired = superProjectiles.LastFrameResult;
+    SoundRequest? superFired = superProjectiles.StepFrameFiringSound(new SamusTerrain { Level = wall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, superSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), superBombs, new SharedGameState(new SharedRandom()));
     SamusProjectile super = superProjectiles.Shots[0];
     SamusProjectile superLink = superProjectiles.Shots[1];
     AssertEqual(0, beforeSuper.FiredSlot(superProjectiles), "super fresh press allocates owner slot zero");
     AssertEqual(
         (SoundEffectId?)SamusSound.SuperMissile,
-        superFired.QueuedSoundEffect,
+        superFired?.SoundEffect,
         "super producer queues library-one effect four");
     AssertEqual(2, superSamus.SuperMissiles,
         "super producer consumes exactly one ammo");

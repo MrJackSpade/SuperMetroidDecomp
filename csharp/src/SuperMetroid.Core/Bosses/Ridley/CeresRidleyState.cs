@@ -32,7 +32,7 @@ public sealed class CeresRidleyState : RidleyEncounterState
     } = CeresRidleyPhase.LiftoffAccelerating;
 
     /// <summary>
-    /// Gets the number of shots Ridley has taken, used for health-colour progression and the hundred-hit fake-retreat
+    /// Gets the number of shots Ridley has taken, used for health-colour progression and the fake-retreat
     /// trigger. It only counts up, one per accepted shot, and shots stop landing once the retreat publishes the escape
     /// handoff.
     /// </summary>

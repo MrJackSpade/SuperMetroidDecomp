@@ -127,7 +127,7 @@ internal static class ColorWindowSmokeTests
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
-                    global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rendering.MessageBoxLayer>([typeof(global::SuperMetroid.Core.Assets.SpriteSheetFrame), typeof(int)], new object?[] { (global::SuperMetroid.Core.Assets.SpriteSheetFrame)(SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(random, palette, rows)), (int)(radius) }) }, 13));
+                    global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rendering.MessageBoxLayer>([typeof(global::SuperMetroid.Core.Assets.SpriteSheetFrame), typeof(int)], new object?[] { SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(random, palette, rows), radius }) }, 13));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: message {count}, rows {rows}, radius {radius}");
         }

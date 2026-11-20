@@ -161,12 +161,12 @@ internal static class RoomPaletteFxDefinitionsVerification
             {
                 // An effect whose colours its own owner shows (Samus's Hyper Beam) has no target a start could hand it.
                 AssertThrows<InvalidOperationException>(
-                    () => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(new ColourEffectSessionState()), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) }).Start(pointer, equippedItems: 0),
+                    () => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() }).Start(pointer, equippedItems: 0),
                     $"${pointer:X4}, which no gameplay picture shows, does not start in gameplay");
                 continue;
             }
             ColourEffectSystem system = screenOnly ? ColourEffectSystem.ForScreen()
-                : global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(new ColourEffectSessionState()), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+                : global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             if (screenOnly)
                 system.StartScreen(PaletteFxObjectAccess.FromNative(pointer));
             else
@@ -196,7 +196,7 @@ internal static class RoomPaletteFxDefinitionsVerification
     /// </summary>
     internal static void VerifyColourEffectConditionWatchedAfterFirstFrame()
     {
-        var system = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(new ColourEffectSessionState()), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+        var system = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         system.Start(ColourEffectId.SporeSpawnBlueBackgroundSpores, 0, areaMiniBossDefeated: false);
         RoomColourEffect spores = system.RunningEffects.Single();
         AssertEqual(ColourEffectColours.BrinstarBlueSpores, spores.Colours, "the spores' colours are their definition's from the start");
@@ -224,7 +224,7 @@ internal static class RoomPaletteFxDefinitionsVerification
     /// </summary>
     internal static void VerifyColourEffectTurnOrder()
     {
-        var system = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(new ColourEffectSessionState()), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+        var system = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         system.StartScreen(ColourEffectId.TitleScreenFlickeringDisplays);
         system.StartScreen(ColourEffectId.FadeInSuperMetroidTitleLogo);
         system.StartScreen(ColourEffectId.TitleScreenBabyMetroidTubeLight);
@@ -257,7 +257,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             system.FrameOf(ColourEffectColours.NintendoCopyright), "the copyright shows its first frame on its first turn");
 
         // No cap holds the effects back (#1598): a ninth effect starts like the first.
-        var many = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(new ColourEffectSessionState()), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+        var many = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         for (int started = 0; started < 9; started++)
             many.StartScreen(ColourEffectId.TitleScreenFlickeringDisplays);
         AssertEqual(9, many.RunningEffects.Count, "any number of effects run at once");
@@ -291,7 +291,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             screen.StartScreen(effect);
             screenEffects++;
             // A gameplay start shows an effect on a gameplay picture (#2544): one only a screen shows is refused there.
-            var gameplay = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(new ColourEffectSessionState()), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+            var gameplay = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             AssertThrows<InvalidOperationException>(() => gameplay.Start(effect, SamusEquipmentFlags.None),
                 $"{effect}, which only a screen shows, does not start in gameplay");
             // The screen plays the effect's own animation from its start, in its own frames, until the animation ends.

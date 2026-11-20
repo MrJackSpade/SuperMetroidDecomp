@@ -24,7 +24,7 @@ public sealed class YellowPipeBugState
 
     /// <summary>
     /// The whole-mark place along the speed curve the bug's arc reads (#2473), from the curve's start through the curve's
-    /// last mark. The dip moves it back from mark 40 and ends when it would pass the curve's start; the climb back moves
+    /// last mark. The dip moves it back from <see cref="PipeBugDefinitions.YellowArcStart"/> and ends when it would pass the curve's start; the climb back moves
     /// it on.
     /// </summary>
     public QuadraticSpeedCurvePlace ArcCurvePlace { get; internal set; }

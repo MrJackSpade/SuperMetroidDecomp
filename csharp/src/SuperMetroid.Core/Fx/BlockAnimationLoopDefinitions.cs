@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Fx;
 /// </remarks>
 public static class BlockAnimationLoopDefinitions
 {
-    /// <summary>The nine idle loops, by animation, each the one segment its animation loops through (<see cref="BlockAnimationLoops"/>).</summary>
+    /// <summary>The idle loops, by animation, each the one segment its animation loops through (<see cref="BlockAnimationLoops"/>).</summary>
     internal static readonly FrozenDictionary<BlockAnimation, AnimationBeat<ArtworkFrame, NoAnimationCue>[]> IdleLoops =
         new Dictionary<BlockAnimation, AnimationBeat<ArtworkFrame, NoAnimationCue>[]>
     {

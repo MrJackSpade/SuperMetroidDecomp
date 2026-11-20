@@ -48,7 +48,7 @@ internal static class CeresBabyAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<P> StartingWith(P segment) => StartingAt[segment];
 
-    /// <summary>The ten-update horizontal, round, vertical, round squish.</summary>
+    /// <summary>The horizontal, round, vertical, round squish, each pose held for its beat's duration.</summary>
     private static AnimationBeat<F, CeresBabyCue>[] SquishCycle =>
         [Show(F.Horizontal, 10), Show(F.Round, 10), Show(F.Vertical, 10), Show(F.Round, 10)];
 

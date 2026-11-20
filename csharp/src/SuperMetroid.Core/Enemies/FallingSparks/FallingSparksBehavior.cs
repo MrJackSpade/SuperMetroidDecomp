@@ -74,12 +74,12 @@ internal sealed class FallingSparksBehavior
                 return;
             }
 
-            // Gravity adds a quarter pixel to the speed's fraction; a fraction that passes a whole pixel raises the
+            // Gravity adds to the speed's fraction; a fraction that passes a whole pixel raises the
             // whole speed by one.
             SignedSixteenSixteen accelerated = spark.VerticalSpeed + FallingSparkMotionDefinitions.Gravity;
 
-            // The whole speed stops rising once it would reach four. The fraction still keeps its quarter-pixel
-            // increment, giving the slightly asymmetric cap.
+            // The whole speed stops rising once it would reach its terminal speed. The fraction still keeps its
+            // gravity's increment, giving the slightly asymmetric cap.
             spark.VerticalSpeed = accelerated.WholePixels < FallingSparkMotionDefinitions.TerminalWholeSpeed
                 ? accelerated
                 : accelerated.WithWholePixels(spark.VerticalSpeed.WholePixels);
@@ -88,7 +88,7 @@ internal sealed class FallingSparksBehavior
         AddFallingSparkVerticalVelocity(projectile);
         AddFallingSparkHorizontalVelocity(projectile);
 
-        if (FallingSparkCadenceDefinitions.TrailEveryFourthUpdate.IsDue(frameCycle))
+        if (FallingSparkCadenceDefinitions.SparkTrail.IsDue(frameCycle))
             SpawnFallingSparkTrail(projectile);
     }
 
@@ -112,8 +112,8 @@ internal sealed class FallingSparksBehavior
     {
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.HitFloor));
 
-        // The impact quadruples the sideways drift, wrapping round past the largest drift: the unauthored launch the last
-        // random selection reads can be any drift, so its quadruple can pass the largest the drift holds.
+        // The impact scales up the sideways drift, wrapping round past the largest drift: the unauthored launch the last
+        // random selection reads can be any drift, so its scaled drift can pass the largest the drift holds.
         FallingSparkState spark = Spark.States.Of(projectile);
         spark.HorizontalStep *= FallingSparkMotionDefinitions.ImpactDriftScale;
 

@@ -46,7 +46,7 @@ public sealed class RidleyFlightState
     /// <summary>Gets the swoop's heading, which sets the swoop's direction.</summary>
     public RotationAngle SwoopHeading { get; internal set; }
     /// <summary>
-    /// Gets the swoop's speed along its heading, at most five pixels an update, moved an eighth of a pixel each update
+    /// Gets the swoop's speed along its heading, held to his fastest, moved by <see cref="RidleyFlightDefinitions.SwoopSpeedStep"/> each update
     /// toward each phase's target speed before it resolves into axis velocities.
     /// </summary>
     public SignedEightEight SwoopSpeed { get; internal set; }

@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
 /// An angle along a Nuclear Waffle's sweep (#2042): steps of the turn with a fraction of a step, counted on
-/// past a full turn rather than wrapping. A sweep runs over the top of the orbit from just short of a full turn (240
-/// steps) into the next turn (400 steps), and its links trail the head by up to 84 steps, so the angles a sweep compares
+/// past a full turn rather than wrapping. A sweep runs over the top of the orbit from just short of a full turn into
+/// the next turn, and its links trail the head, so the angles a sweep compares
 /// span more than one turn: an angle and the same direction a turn later stand at different places along the sweep and
 /// clamp differently, which a <see cref="RotationAngle"/> that wraps at a full turn cannot tell apart. Only the orbit
 /// reads the direction within the turn (<see cref="ToRotationAngle"/>).

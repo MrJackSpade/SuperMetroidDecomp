@@ -98,7 +98,7 @@ public sealed class SamusXrayState
     /// </summary>
     private RotationAngle AngularHalfWidth { get; set; }
 
-    /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, none through ten, which aim clamps and the cone read.</summary>
+    /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, up to <see cref="XrayScopeDefinitions.Cone.WidestHalfWidth"/>, which aim clamps and the cone read.</summary>
     public TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
 
     /// <summary>
@@ -114,9 +114,9 @@ public sealed class SamusXrayState
     private XrayVisorShadeMode VisorShadeMode { get; set; }
 
     /// <summary>
-    /// The visor's shade sequence for <see cref="VisorShadeMode"/> (#2285, #2387), each shade shown for five colouring
-    /// updates: widening shows the widening glow's three and rests on its widest, showing it again each time it runs out;
-    /// the full beam cycles the steady visor cycle's three. Its first shade shows on the colouring update after it starts.
+    /// The visor's shade sequence for <see cref="VisorShadeMode"/> (#2285, #2387), each shade shown for the same colouring
+    /// updates: widening shows the widening glow's shades and rests on its widest, showing it again each time it runs out;
+    /// the full beam cycles the steady visor cycle's. Its first shade shows on the colouring update after it starts.
     /// </summary>
     private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Visor { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.XrayVisorWidening);
@@ -509,7 +509,7 @@ public sealed class SamusXrayState
     /// which the later edge may not cross.
     /// </summary>
     /// <param name="center">The beam's centre.</param>
-    /// <param name="halfWidth">The whole steps from the centre to each edge, none through ten.</param>
+    /// <param name="halfWidth">The whole steps from the centre to each edge.</param>
     private static RotationAngle AimedUp(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
         ? TurnedBackToEarlierEdgeLimit(center, halfWidth, RotationAngle.Zero)
         : TurnedOnToLaterEdgeLimit(center, halfWidth, RotationAngle.Zero);
@@ -520,7 +520,7 @@ public sealed class SamusXrayState
     /// later edge may not cross; facing left, down turns back toward straight down, which the earlier edge may not cross.
     /// </summary>
     /// <param name="center">The beam's centre.</param>
-    /// <param name="halfWidth">The whole steps from the centre to each edge, none through ten.</param>
+    /// <param name="halfWidth">The whole steps from the centre to each edge.</param>
     private static RotationAngle AimedDown(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
         ? TurnedOnToLaterEdgeLimit(center, halfWidth, RotationAngle.HalfTurn)
         : TurnedBackToEarlierEdgeLimit(center, halfWidth, RotationAngle.HalfTurn);
@@ -560,7 +560,7 @@ public sealed class SamusXrayState
     /// <summary>
     /// How far the edge <paramref name="halfWidth"/> steps earlier in the turn than <paramref name="center"/> lies on
     /// from <paramref name="limit"/>, the shorter way round: negative once it has crossed back over the limit. The centre
-    /// stays on the limit's side of the turn and the half-width is at most ten steps, so the edge never lies further than
+    /// stays on the limit's side of the turn and the half-width is at most the cone's widest, so the edge never lies further than
     /// that behind the limit.
     /// </summary>
     private static int EarlierEdgeStepsFrom(RotationAngle center, TrigonometryAngle halfWidth, RotationAngle limit) =>
@@ -569,7 +569,7 @@ public sealed class SamusXrayState
     /// <summary>
     /// How far the edge <paramref name="halfWidth"/> steps later in the turn than <paramref name="center"/> lies on from
     /// <paramref name="limit"/>, the shorter way round: positive once it has crossed over the limit, which it never lies
-    /// further than ten steps beyond.
+    /// further than the cone's widest half-width beyond.
     /// </summary>
     private static int LaterEdgeStepsFrom(RotationAngle center, TrigonometryAngle halfWidth, RotationAngle limit) =>
         (center.ToTrigonometryAngle() + halfWidth).StepsFrom(limit.ToTrigonometryAngle());

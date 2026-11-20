@@ -75,7 +75,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Starts preparation within 72 horizontal pixels and takes the dive's speed from Samus's height (<see cref="MetareeDiveSpeed"/>).</summary>
+    /// <summary>Starts preparation within its activation distance across and takes the dive's speed from Samus's height (<see cref="MetareeDiveSpeed"/>).</summary>
     private static void RunMetareeIdle(
         RoomEnemyPlace place,
         MetareeEnemyState state,
@@ -130,7 +130,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             MetareeMotionDefinitions.DiveSteer.Toward(metareeIsLeftOfSamus ? HorizontalDirection.Right : HorizontalDirection.Left));
     }
 
-    /// <summary>Moves down one pixel per burrow frame, emits debris at timer eight, then deletes the actor.</summary>
+    /// <summary>Moves down by <see cref="MetareeMotionDefinitions.BurrowSpeed"/> each burrow frame, emits debris at <see cref="MetareeMotionDefinitions.BurstCountdown"/>, then deletes the actor.</summary>
     private void RunMetareeBurrow(RoomEnemyPlace place, MetareeEnemyState state)
     {
         if (state.BurrowTimer.StepEnds())

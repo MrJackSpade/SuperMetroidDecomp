@@ -309,7 +309,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Gives the projectile the selected pickup's identity, 400-frame life and collision reaction, keeping
+    /// Gives the projectile the selected pickup's identity, life (<see cref="EnemyPickupDefinitions.Lifetime"/>) and collision reaction, keeping
     /// <paramref name="killedEnemy"/>, the enemy its explosion came from, and returns its animation.
     /// </summary>
     private EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind, KilledEnemy killedEnemy)
@@ -467,7 +467,7 @@ internal sealed class EnemyDeathsAndDrops
         // The grapple's endpoint and Samus reach such a pickup from the room's top row or left column the short way, as
         // DistanceAcrossRoomEdge.Between gives it.
         // The grapple query reports any grapple phase but inactive. A pickup is immune to its
-        // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
+        // endpoint for its grapple delay's decrements, then uses strict axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&
             pickup.Lifetime.UpdatesLeft < EnemyPickupDefinitions.Lifetime - EnemyPickupDefinitions.GrappleDelay &&
             DistanceAcrossRoomEdge.Between(projectile.Position.X.Whole, samus.Grapple.Anchor.X) < EnemyPickupDefinitions.GrappleReach &&

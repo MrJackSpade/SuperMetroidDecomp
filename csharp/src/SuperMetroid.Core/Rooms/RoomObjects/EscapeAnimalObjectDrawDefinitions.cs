@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class EscapeAnimalObjectDrawDefinitions
 {
-    /// <summary>A solid wall three blocks tall down from its top block.</summary>
+    /// <summary>A solid wall the wall's height (<see cref="EscapeAnimalWallDefinitions.HeightInBlocks"/>) down from its top block.</summary>
     private static readonly RoomBlockShape SolidWall = new(
     [
         new(new(0, 0), RoomCollisionType.SolidBlock), new(new(0, 1), RoomCollisionType.SolidBlock), new(new(0, 2), RoomCollisionType.SolidBlock),

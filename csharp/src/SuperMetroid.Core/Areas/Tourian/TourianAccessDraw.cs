@@ -8,6 +8,6 @@ internal enum TourianAccessDraw
 {
     /// <summary>Clear one row after its crumble frames.</summary>
     EmptyRow,
-    /// <summary>Clear all six rows at once.</summary>
+    /// <summary>Clear all the access's rows at once.</summary>
     Clear,
 }

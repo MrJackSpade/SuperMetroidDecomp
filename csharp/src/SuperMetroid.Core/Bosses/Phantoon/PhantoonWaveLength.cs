@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>How many screen lines one whole cycle of Phantoon's wave spans.</summary>
 public enum PhantoonWaveLength
 {
-    /// <summary>The 64-line wave the introduction ripples with.</summary>
+    /// <summary>The short wave the introduction ripples with (<see cref="PhantoonWaveDefinitions.ShortPeriod"/>).</summary>
     Short,
-    /// <summary>The 128-line wave the final death ripples with.</summary>
+    /// <summary>The long wave the final death ripples with (<see cref="PhantoonWaveDefinitions.LongPeriod"/>).</summary>
     Long,
 }

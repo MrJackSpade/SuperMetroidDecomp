@@ -58,8 +58,8 @@ internal static class SamusGroundedPoseTransitions
     /// real gun-extended running horizontal-fire poses.
     /// </summary>
     /// <remarks>
-    /// All admitted poses have radius 21. If both endpoints are running, the transition keeps the running animation's
-    /// current frame and timer; this matters when firing midway through the ten-frame run cycle. A transition between
+    /// All admitted poses have the standing radius. If both endpoints are running, the transition keeps the running animation's
+    /// current frame and timer; this matters when firing midway through the run cycle. A transition between
     /// movement types initializes frame zero normally. Movement type changes take effect on
     /// the following frame because pose transitions occur after movement.
     /// </remarks>

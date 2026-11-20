@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 public static class PhantoonDeathExplosionDefinitions
 {
-    /// <summary>How many times the repeated explosions burst: once after the opening explosions, then twice more.</summary>
+    /// <summary>How many times the repeated explosions burst after the opening explosions.</summary>
     public const int PassCount = 3;
 
     /// <summary>The explosions that open his death, burst once: offsets from his body, dust animation and delay until the next.</summary>

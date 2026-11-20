@@ -162,7 +162,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles.SpawnDustOrExplosion(
             new(CorpseDustDefinitions.TorizoSpread.Of(random) + DeadTorizoCorpseDefinitions.DustOrigin.X, DeadTorizoCorpseDefinitions.DustOrigin.Y),
             DustExplosionAnimation.CorpseDustCloud);
-        if (CorpseCadenceDefinitions.DustSoundEveryEighthEnemyPass.IsDue(_frameContext.EnemyPassCount))
+        if (CorpseCadenceDefinitions.DustSound.IsDue(_frameContext.EnemyPassCount))
             _audio.QueueEnemySound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }
 
@@ -171,8 +171,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The sand rows <paramref name="state"/>'s sand heap shows (#1539): only the rows its heap has formed into, as the corpse's
-    /// own rot forms it. Every fifteenth rot update one more line of sand falls, from the heap's last row up, until
-    /// fifteen have fallen; the intact corpse has none.
+    /// own rot forms it. Each run of rot updates one more line of sand falls, from the heap's last row up, until all the
+    /// heap's lines have fallen; the intact corpse has none.
     /// </summary>
     private static CorpseRotRows ShownSand(DeadTorizoEnemyState state)
     {

@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainGlassAnimations
 {
     /// <summary>
-    /// Every glass segment: a shard spins through its eight frames with the symmetric 4, 3, 2, 3 cadence twice; the
-    /// sparkle alternates six and eight updates over four frames, then deletes itself.
+    /// Every glass segment: a shard spins through its frames with a symmetric cadence, twice; the sparkle alternates
+    /// its two holds over its frames, then deletes itself.
     /// </summary>
     internal static AnimationSegments<MotherBrainGlassSegment, EnemyProjectileFrameId, MotherBrainGlassCue> Segments { get; } = new(
         new Dictionary<MotherBrainGlassSegment, Beat[]>

@@ -93,7 +93,7 @@ public static class SamusGrappleBeamDrawing
         if (DrawingFor(grapple.Phase) != SamusGrappleDrawing.Beam)
             return;
 
-        // Each six-draw interval moves the endpoint on to the next of its four pictures.
+        // Each of its beats moves the endpoint on to the next of its pictures.
         grapple.Endpoint.Step();
         SpriteSheet installed = Ensure.NotNull(sheet);
         GrappleRopeOrientation orientation =
@@ -101,7 +101,7 @@ public static class SamusGrappleBeamDrawing
 
         // The beam's draw moves the flare on a stage before it draws any rope. It happens even
         // at zero rope length; only the rope below is conditional. This is why a newly fired
-        // beam can animate its muzzle flare before its first eight-pixel body segment exists.
+        // beam can animate its muzzle flare before its first body segment exists.
         grapple.FlareStage = grapple.FlareStage switch
         {
             GrappleFlareStage.None => GrappleFlareStage.JustFired,

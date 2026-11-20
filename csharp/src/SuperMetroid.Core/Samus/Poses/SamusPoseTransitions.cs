@@ -161,8 +161,8 @@ internal static class SamusPoseTransitions
     }
 
     /// <summary>
-    /// Keeps the gun raised on frame one when both standing poses aim straight up;
-    /// other standing transitions begin at frame zero.
+    /// Keeps the gun raised on the frame after the start when both standing poses aim straight up;
+    /// other standing transitions begin at the start.
     /// </summary>
     internal static SamusAnimationFrame StandingPoseInitialFrame(SamusPoseId sourcePose, SamusPoseId targetPose)
     {
@@ -198,7 +198,7 @@ internal static class SamusPoseTransitions
         if (aim.DisablesShooting)
             return facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose;
         bool shotHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
-        // The straight-down aims are consumed by ApplyCompactAerialLanding, because the 10 -> 21 expansion needs room
+        // The straight-down aims are consumed by ApplyCompactAerialLanding, because the compact-to-standing expansion needs room
         // collision data.
         SamusLandingChoice landing = aim is SamusPoseAim.Aiming { Direction: var direction } &&
             SamusAimedPoseChoiceDefinitions.Landings.TryGetValue(direction, out SamusLandingChoice? choice)
@@ -229,8 +229,8 @@ internal static class SamusPoseTransitions
     }
 
     /// <summary>
-    /// Applies the landing for her two straight-down aims when radius-ten straight-down Samus lands.
-    /// Both select the ordinary normal landing; the expansion from radius ten to 21 still runs the full
+    /// Applies the landing for her two straight-down aims when compact straight-down Samus lands.
+    /// Both select the ordinary normal landing; the expansion from the compact radius to the standing one still runs the full
     /// block pose-change collision resolver; settling the landing clears motion only if accepted.
     /// </summary>
     public static void ApplyCompactAerialLanding(

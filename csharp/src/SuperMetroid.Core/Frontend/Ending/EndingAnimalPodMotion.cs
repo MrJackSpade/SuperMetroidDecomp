@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The rescued animals' escape pod's motion (#2489): a pixel to the right and 1/512 of a pixel down each update, until it
+/// The rescued animals' escape pod's motion (#2489): to the right and very slowly down each update, until it
 /// leaves at the right of the screen.
 /// </summary>
 internal sealed class EndingAnimalPodMotion : EndingActorMotion

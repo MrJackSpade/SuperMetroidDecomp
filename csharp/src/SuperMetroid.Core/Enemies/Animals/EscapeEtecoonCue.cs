@@ -9,7 +9,7 @@ internal abstract record EscapeEtecoonCue
     }
 
     /// <summary>
-    /// A low-tide run starts (#2167): once the rising acid is above Y 206 the owner starts the high-tide run the same way
+    /// A low-tide run starts (#2167): once the rising acid is above its low surface (<see cref="EscapeAnimalMotionDefinitions.LowAcidSurfaceY"/>) the owner starts the high-tide run the same way
     /// instead.
     /// </summary>
     /// <param name="Running">The way the Etecoon runs.</param>

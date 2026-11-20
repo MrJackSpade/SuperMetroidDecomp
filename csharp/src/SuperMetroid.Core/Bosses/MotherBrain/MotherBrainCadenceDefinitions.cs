@@ -25,25 +25,25 @@ internal static class MotherBrainCadenceDefinitions
     internal static readonly UpdateCounterField BabyDeathFlickerShown = new(0, 1);
 
     /// <summary>
-    /// The enemy passes on which the Baby Metroid healing Samus queues the energy sound: every eighth pass of the
-    /// enemy-pass counter, on its first place, while Samus has <see cref="MotherBrainHealthSounds.MinimumEnergy"/> or more.
+    /// The enemy passes on which the Baby Metroid healing Samus queues the energy sound, counted on the enemy-pass counter
+    /// at the period's first place, while Samus has <see cref="MotherBrainHealthSounds.MinimumEnergy"/> or more.
     /// </summary>
-    internal static readonly UpdateCadence BabyHealSoundEveryEighthEnemyPass = new(8, 0);
+    internal static readonly UpdateCadence BabyHealSound = new(8, 0);
 
-    /// <summary>The updates on which Mother Brain rises from her tank: every fourth update of the frame counter, on its first place.</summary>
-    internal static readonly UpdateCadence AscentStepEveryFourthUpdate = new(4, 0);
-
-    /// <summary>
-    /// The enemy passes on which Mother Brain's rotting corpse queues its dust's liquid-damage sound with the dust: every
-    /// eighth pass of the enemy-pass counter, on its first place.
-    /// </summary>
-    internal static readonly UpdateCadence CorpseDustSoundEveryEighthEnemyPass = new(8, 0);
+    /// <summary>The updates on which Mother Brain rises from her tank, counted on the frame counter at the period's first place.</summary>
+    internal static readonly UpdateCadence AscentStep = new(4, 0);
 
     /// <summary>
-    /// The updates on which Mother Brain finishing Samus off may stand up or lean down: every 32nd update of her body's
-    /// own update count, on its first place, when her attack roll does not attack.
+    /// The enemy passes on which Mother Brain's rotting corpse queues its dust's liquid-damage sound with the dust,
+    /// counted on the enemy-pass counter at the period's first place.
     /// </summary>
-    internal static readonly UpdateCadence FinishOffPostureEveryThirtySecondUpdate = new(32, 0);
+    internal static readonly UpdateCadence CorpseDustSound = new(8, 0);
+
+    /// <summary>
+    /// The updates on which Mother Brain finishing Samus off may stand up or lean down, counted on her body's own update
+    /// count at the period's first place, when her attack roll does not attack.
+    /// </summary>
+    internal static readonly UpdateCadence FinishOffPosture = new(32, 0);
 
     /// <summary>
     /// The phase of Mother Brain's hurt flash timer on which her brain shows the white hurt colours: set on its odd
@@ -53,9 +53,9 @@ internal static class MotherBrainCadenceDefinitions
 
     /// <summary>
     /// The updates on which Mother Brain's body and the background behind it are hidden while her body fades out in
-    /// death: every second update of her body's own update count, on its even place, so they flicker.
+    /// death, counted on her body's own update count at the period's even place, so they flicker.
     /// </summary>
-    internal static readonly UpdateCadence DeathFadeHidesBodyEverySecondUpdate = new(2, 0);
+    internal static readonly UpdateCadence DeathFadeHidesBody = new(2, 0);
 
     /// <summary>
     /// The phase of Mother Brain's hurt flash timer that steps her neck's shake: four steps, each held in turn,
@@ -77,10 +77,10 @@ internal static class MotherBrainCadenceDefinitions
     internal static readonly UpdateCounterField RainbowColoursStep = new(1, 1);
 
     /// <summary>
-    /// The enemy passes on which the rainbow beam drains Samus's missiles and super missiles: every fourth pass of the
-    /// enemy-pass counter, on its first place. Her power bombs drain on every pass.
+    /// The enemy passes on which the rainbow beam drains Samus's missiles and super missiles, counted on the enemy-pass
+    /// counter at the period's first place. Her power bombs drain on every pass.
     /// </summary>
-    internal static readonly UpdateCadence RainbowMissileDrainEveryFourthEnemyPass = new(4, 0);
+    internal static readonly UpdateCadence RainbowMissileDrain = new(4, 0);
 
     /// <summary>
     /// The phase of the Baby Metroid's own update count that steps its shake above the victim it drains or over Samus: four

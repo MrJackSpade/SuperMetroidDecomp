@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Enemies.Puyo;
 
-/// <summary>Seven immutable Puyo hop definitions, independent of animation artwork.</summary>
+/// <summary>The immutable Puyo hop definitions, independent of animation artwork.</summary>
 internal static class PuyoHopDefinitions
 {
     /// <summary>
     /// Each hop's height, whole pixels moved across each update, launch search step, speed-curve step, airborne behaviour and the speed its drop falls at when a
-    /// wall or ceiling cuts it short (#1820): two pixels each update after a small, big or giant hop, three after the long
-    /// hop and a pixel and three quarters after a dropped bounce.
+    /// wall or ceiling cuts it short (#1820): one speed after a small, big or giant hop, faster after the long hop and
+    /// slower after a dropped bounce.
     /// </summary>
     internal static readonly Dictionary<PuyoHopType, PuyoHopDefinition> Hops = new()
     {
@@ -51,6 +51,6 @@ internal static class PuyoHopDefinitions
     /// </summary>
     internal static readonly RandomChance BigDroppedBounce = RandomChance.Highest(1, HopRollParity);
 
-    /// <summary>The farthest place along the quadratic speed curve, mark 64, an airborne Puyo's speed is read from.</summary>
+    /// <summary>The farthest place along the quadratic speed curve an airborne Puyo's speed is read from.</summary>
     internal static QuadraticSpeedCurvePlace FastestSpeedPlace { get; } = QuadraticSpeedCurvePlace.FromMarks(64);
 }

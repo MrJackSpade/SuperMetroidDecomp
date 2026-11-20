@@ -23,7 +23,7 @@ internal static class FileSelectEnergyTankLayoutVerification
         for (int tanks = 0; tanks <= MostTanks; tanks++)
         {
             int maxHealth = tanks * 100 + 99;
-            var save = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.FileSelect.ShownFileSelectSave>([typeof(int), typeof(int), typeof(int), typeof(int)], new object?[] { (int)(maxHealth), (int)(maxHealth), (int)(1), (int)(2) });
+            var save = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.FileSelect.ShownFileSelectSave>([typeof(int), typeof(int), typeof(int), typeof(int)], new object?[] { maxHealth, maxHealth, 1, 2 });
             var page = new ShownFileSelectPage(FileSelectPage.MainWithData,
                 SaveSlots.All.ToImmutableDictionary(slot => slot, slot => slot == SaveSlot.A ? save : null), SaveSlot.A, SaveSlot.A);
             Position16<PlanePixels>[] shown = [.. page.Pictures(presentation)

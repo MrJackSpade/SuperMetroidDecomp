@@ -109,9 +109,6 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     internal bool IsWaitingOutDisplayFrame =>
         Phase == EndingCreditsPhase.SetupEscapeFromZebes && PhaseHold.Age > 0;
 
-    /// <summary>Enters <paramref name="phase"/>, which shows the scene already showing.</summary>
-    private void Enter(EndingCreditsPhase phase) => Phase = phase;
-
     /// <summary>Enters the cast's <paramref name="phase"/>, which shows the cast in that phase.</summary>
     private void Enter(EndingCastPhase phase) => Show(phase, new EndingCastScene(phase));
 
@@ -470,7 +467,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         if (faded)
         {
             // The colour fade finishes, then the waiting phase holds the
-            // backdrop for three seconds before displaying the producer panel.
+            // backdrop for its wait before displaying the producer panel.
             Enter(EndingCreditsPhase.PostCreditsWaitingBackdrop, EndingSequenceDefinitions.Timing.WaitingBackdropFrames);
         }
         return true;
@@ -585,7 +582,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
             return;
         }
         RequirePhase(EndingCreditsPhase.PostCreditsReward);
-        // Both 64-update halves advance their shared colour fade on their fourth update and every fourth update after.
+        // Both halves advance their shared colour fade on the last update of each of its steps.
         CreditsRoll.StepRewardFade(reveal.Fade);
         StepActors();
         if (!PhaseHold.Count())
@@ -612,7 +609,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     {
         if (Phase == EndingCreditsPhase.ItemPercentageScrollDown)
         {
-            // The item-percentage scroll moves the shown text down two pixels an update, eighty in all, before the final
+            // The item-percentage scroll moves the shown text down by its drop each update before the final
             // message starts above it.
             InstalledArtwork.PostCreditsText.Drop += EndingSequenceDefinitions.Timing.TextDropPixelsPerUpdate;
             if (PhaseHold.Count())
@@ -652,7 +649,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     private void StepAtmosphericTransform(FloorZoomStep zoomStep)
     {
         // The floor turns during both fades as well as the fully visible interval.
-        if (EndingCadenceDefinitions.AtmosphereFloorTurnEverySecondUpdate.IsDue(cinematicFrame))
+        if (EndingCadenceDefinitions.AtmosphereFloorTurn.IsDue(cinematicFrame))
             Stage.Floor.Turn(EndingMotionDefinitions.AtmosphereTurnSteps);
         Stage.Floor.Widen(zoomStep);
     }

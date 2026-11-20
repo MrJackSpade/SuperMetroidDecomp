@@ -339,8 +339,8 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Positions the head quickly for the laser. Both neck joints initially turn by two angle units
-    /// per frame toward one of two authored target angles chosen from the head/Samus Y
+    /// Positions the head quickly for the laser. Both neck joints initially turn at the quick neck turn
+    /// (<see cref="MotherBrainNeckTurnDefinitions.Quick"/>) toward one of two authored target angles chosen from the head/Samus Y
     /// ordering; the head animation itself is deliberately left untouched here.
     /// </summary>
     internal static void PositionMotherBrainHeadQuicklyForLaser(

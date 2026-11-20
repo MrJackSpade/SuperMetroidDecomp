@@ -26,7 +26,7 @@ public sealed class GameOptionsPresentation
         CursorFrameDuration = placements.CursorFrameDuration;
     }
 
-    /// <summary>Menu updates per frame of the four-frame looping missile cursor, at least one.</summary>
+    /// <summary>Menu updates per frame of the looping missile cursor, at least one.</summary>
     public int CursorFrameDuration { get; }
 
     /// <summary>The cursor origin on <paramref name="row"/>: the row's installed anchor (#2206, #2415).</summary>

@@ -42,21 +42,30 @@ internal static class ColoredDoorDefinitions
     /// <summary>The yellow left cap opening, after which it leaves the room.</summary>
     private static readonly Animation<DoorCapSegment> YellowLeftOpening = DoorCapSequenceDefinitions.Once(S.YellowLeftOpening);
 
-    /// <summary>Each colour and facing's animations.</summary>
-    internal static IReadOnlyDictionary<ColoredDoorVariant, ColoredDoorSequences> Sequences { get; } =
-        new Dictionary<ColoredDoorVariant, ColoredDoorSequences>
+    /// <summary>The flash each colour's cap plays when a hit falls short of opening it.</summary>
+    private static readonly Dictionary<ColoredDoorColor, Animation<DoorCapSegment>> Flashes = new()
+    {
+        [ColoredDoorColor.Yellow] = DoorCapSequenceDefinitions.Flash,
+        [ColoredDoorColor.Green] = DoorCapSequenceDefinitions.Flash,
+        [ColoredDoorColor.Red] = RedFlash,
+    };
+
+    /// <summary>
+    /// The caps whose animations differ from their colour's shared ones: the yellow left cap opens its own way and the
+    /// yellow downward cap waits before it closes.
+    /// </summary>
+    private static readonly Dictionary<ColoredDoorVariant, ColoredDoorSequences> Exceptions = new()
     {
         [new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Left)] = new(DoorCapSequenceDefinitions.Closed, DoorCapSequenceDefinitions.Flash, YellowLeftOpening),
-        [new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Right)] = new(DoorCapSequenceDefinitions.Closed, DoorCapSequenceDefinitions.Flash, Opening),
-        [new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Up)] = new(DoorCapSequenceDefinitions.Closed, DoorCapSequenceDefinitions.Flash, Opening),
         [new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Down)] = new(YellowDownWaiting, DoorCapSequenceDefinitions.Flash, Opening),
-        [new(ColoredDoorColor.Green, ColoredDoorOrientation.Left)] = new(DoorCapSequenceDefinitions.Closed, DoorCapSequenceDefinitions.Flash, Opening),
-        [new(ColoredDoorColor.Green, ColoredDoorOrientation.Right)] = new(DoorCapSequenceDefinitions.Closed, DoorCapSequenceDefinitions.Flash, Opening),
-        [new(ColoredDoorColor.Green, ColoredDoorOrientation.Up)] = new(DoorCapSequenceDefinitions.Closed, DoorCapSequenceDefinitions.Flash, Opening),
-        [new(ColoredDoorColor.Green, ColoredDoorOrientation.Down)] = new(DoorCapSequenceDefinitions.Closed, DoorCapSequenceDefinitions.Flash, Opening),
-        [new(ColoredDoorColor.Red, ColoredDoorOrientation.Left)] = new(DoorCapSequenceDefinitions.Closed, RedFlash, Opening),
-        [new(ColoredDoorColor.Red, ColoredDoorOrientation.Right)] = new(DoorCapSequenceDefinitions.Closed, RedFlash, Opening),
-        [new(ColoredDoorColor.Red, ColoredDoorOrientation.Up)] = new(DoorCapSequenceDefinitions.Closed, RedFlash, Opening),
-        [new(ColoredDoorColor.Red, ColoredDoorOrientation.Down)] = new(DoorCapSequenceDefinitions.Closed, RedFlash, Opening),
     };
+
+    /// <summary>
+    /// Each colour and facing's animations: its colour's closed image, flash and opening, but where <see cref="Exceptions"/>
+    /// says otherwise.
+    /// </summary>
+    internal static IReadOnlyDictionary<ColoredDoorVariant, ColoredDoorSequences> Sequences { get; } = Flashes
+        .SelectMany(flash => Enum.GetValues<ColoredDoorOrientation>().Select(orientation => new ColoredDoorVariant(flash.Key, orientation)))
+        .ToDictionary(variant => variant, variant => Exceptions.GetValueOrDefault(variant,
+            new(DoorCapSequenceDefinitions.Closed, Flashes[variant.Color], Opening)));
 }

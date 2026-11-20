@@ -307,9 +307,14 @@ internal sealed class RoomEnemySpecies
             wallSpacePirateBehavior,
             ninjaSpacePirateBehavior,
         ];
-        Registry = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(() => enemies.Collision), [boyonBehavior, bullBehavior, zoaBehavior, waverBehavior, chootBehavior, atomicBehavior, skulteraBehavior, puyoBehavior, rioBehavior, fliesBehavior, sparkBehavior, sbugBehavior, multiviolaBehavior, cacatacBehavior, alcoonBehavior, boulderBehavior, nuclearWaffleBehavior, hibashiBehavior, wreckedShipGhostBehavior, kzanBehavior, ripperBehavior, mochtroidBehavior, skreeBehavior, owtchBehavior, beetomBehavior, kagoBehavior, firefleaBehavior, metareeBehavior, polypBehavior, hoppersBehavior, crawlersBehavior, platformsBehavior, yardBehavior, yappingMawBehavior, etecoonBehavior, dachoraBehavior, oumBehavior, workRobotBehavior, blueBrinstarFaceBlockBehavior, dragonBehavior, funeNamiheBehavior, powampBehavior, gerutaBehavior, holtzBehavior, squeeptBehavior, shaktoolBehavior, metroidBehavior, walkingSpacePirateBehavior, wallSpacePirateBehavior, ninjaSpacePirateBehavior, chozoStatueBehavior, deadSidehopperBehavior, deadTorizoBehavior, deadTourianBehavior, babyMetroidBehavior, fakeKraidBehavior, elevatorBehavior, magdolliteBehavior, escapeAnimalsBehavior, rinkaBehavior, zebetiteBehavior, shuttersBehavior, evirBehavior, kiHunterBehavior, pipeBugsBehavior, mamaTurtleBehavior, morphBallEyeBehavior, new CeresDoorFactory(ceresDoorBehavior), steamVents, gunshipBehavior, botwoonBehavior, sporeSpawnBehavior, torizoBehavior, kraidBehavior, crocomireBehavior, draygonBehavior, phantoonBehavior, motherBrainBehavior, babyMetroidCutsceneBehavior, noobTubeBehavior,
+        // The registry is the species above that create their own entities, with the owners that create entities but keep no
+        // room or frame state (#2557): the Ceres doors' and the Ridleys' factories, the steam vents, the gunship, the Baby's
+        // cutscene, the n00b tube and the turning floor's elevator door.
+        Registry = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(() => enemies.Collision), [
+            .. FrameParticipants.OfType<IEnemyEntityFactory>(),
+            new CeresDoorFactory(ceresDoorBehavior), steamVents, gunshipBehavior, babyMetroidCutsceneBehavior, noobTubeBehavior,
             new RidleyEntityFactory(norfairRidleyBehavior, ceresRidleyBehavior, RidleyEncounter),
-            .. Present<IEnemyEntityFactory>(tourianEntranceStatueBehavior), .. Present<IEnemyEntityFactory>(elevatorDoors)],
+            .. Present<IEnemyEntityFactory>(elevatorDoors)],
             // What the owners the room's scenery did not let it build would have placed; the registry refuses a room that
             // builds an owner of one, or lacks an owner of any other.
             [

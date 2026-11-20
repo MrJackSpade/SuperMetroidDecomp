@@ -7,14 +7,11 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// </summary>
 internal interface IBossBodyDisplay
 {
-    /// <summary>The body's layer as the room shows it now, or null while it shows none.</summary>
-    BossBodyLayer? Layer { get; }
-
-    /// <summary>Where the boss places its body, or null while it places none.</summary>
-    Position16<RoomPixels>? Placement { get; }
-
-    /// <summary>Whether the body shows nothing this frame.</summary>
-    bool Hidden { get; }
+    /// <summary>
+    /// The body as the room shows it now (#2560), its layer, placement and whether this frame hides it, or null while the
+    /// room shows none of it.
+    /// </summary>
+    BossBodyShowing? Showing { get; }
 
     /// <summary>Whether the boss hides the room's background layer this frame (#2571).</summary>
     bool HidesBackgroundLayer { get; }

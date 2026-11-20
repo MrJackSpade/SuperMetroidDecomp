@@ -124,7 +124,7 @@ internal static class EndingShootingStarsTests
         var logo = new EndingLogo(scene.Stage, () => { });
         PrivateState.Set(scene, nameof(EndingCreditsState.Scene), new EndingLogoScene(logo));
         PrivateState.Set(scene, nameof(EndingCreditsState.Phase), EndingCreditsPhase.PostCreditsLogo);
-        // The logo runs its own program to its handoff, as the ending steps it (#2560), well within its 187 updates.
+        // The logo runs its own program to its handoff, as the ending steps it (#2560); it hands off after 187 updates, well inside this bound.
         const int LogoHandoffUpdates = 300;
         for (int update = 0; update < LogoHandoffUpdates && !logo.Completed; update++)
             logo.Step(scene.Stage.Colours);

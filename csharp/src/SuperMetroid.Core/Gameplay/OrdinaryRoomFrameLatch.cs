@@ -42,7 +42,7 @@ public sealed record OrdinaryRoomFrameLatch(
     ScreenLayers ShownLayers,
     RoomBackgrounds Rooms,
     GameplayLatchedScene Scene,
-    GameplayLatchedBossBody Bosses,
+    GameplayLatchedBossBody? Bosses,
     PhantoonDisplaySnapshot? Phantoon,
     LatchedFirefleaDarkness? Fireflea,
     int? TourianStatueVerticalOffset,

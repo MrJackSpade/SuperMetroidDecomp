@@ -36,7 +36,7 @@ internal static class MotherBrainBodyPublicationVerification
 
         // Phase one: the body is only staged; the room's pipe background shows.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertTrue(runtime.Display.LatchedOrdinaryRoom.Bosses is { Body: null, Placement: null, Hidden: false },
+        AssertTrue(runtime.Display.LatchedOrdinaryRoom.Bosses is null,
             "phase one publishes no body over the pipe background");
 
         // Phase two: the transition reveals her body as it stands (#1515); her posture scroll places it.
@@ -49,7 +49,7 @@ internal static class MotherBrainBodyPublicationVerification
         var bodyPlacement = new Position16<RoomPixels>(65, 280);
         AssertEqual<Position16<RoomPixels>?>(bodyPlacement, state.BodyPlacedAt, "her body is placed at her");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        BossBodyLayer image = runtime.Display.LatchedOrdinaryRoom.Bosses.Body
+        BossBodyLayer image = runtime.Display.LatchedOrdinaryRoom.Bosses?.Body
             ?? throw new InvalidOperationException("The phase-two transition publishes her body image.");
         AssertTrue(Words(image).SequenceEqual(staged), "phase two publishes her body as it stood");
         // Her posture places her body in the room, and the frame publishes it there (#1617, #1802).

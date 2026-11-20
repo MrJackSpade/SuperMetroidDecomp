@@ -149,7 +149,6 @@ public static class GameplayDisplayCapture
         Ensure.NotNull(latched);
         Ensure.NotNull(live);
         GameplayRenderSnapshot scrolls = latched.Scrolls;
-        GameplayLatchedBossBody bosses = latched.Bosses;
         RoomShakeFrameResult shake = scrolls.RoomShake;
         // The foreground's scroll is signed (#2384): the room's shake, like the Crocomire rumble, adds a plain offset, and a
         // scroll above or left of the room's origin needs no wrap.
@@ -170,7 +169,7 @@ public static class GameplayDisplayCapture
         BackgroundLineScrolls backgroundLines = LiquidLineScrolls(latched.RoomFxOverlay, backgroundScroll, skyX);
         // A boss's body shows whole where it lies (#1873); while it is hidden, once Draygon is deleted or while Mother Brain's
         // death flicker hides hers, it shows nothing.
-        ScreenLayers displayedLayers = bosses.Hidden
+        ScreenLayers displayedLayers = latched.Bosses is { Hidden: true }
             ? latched.ShownLayers & ~ScreenLayers.BossBody
             : latched.ShownLayers;
         // The cameras become the pixels the layers show at the screen's top-left corner (#1514), where the room is shown
@@ -200,9 +199,9 @@ public static class GameplayDisplayCapture
     private static BossBodyView? BossBodyOf(OrdinaryRoomFrameLatch latched, GameplayFrameEndDisplayInputs live,
         RoomShakeFrameResult shake, ScrollBands? skyX)
     {
-        GameplayLatchedBossBody bosses = latched.Bosses;
-        if (bosses.Shown is not { } body)
+        if (latched.Bosses is not { } bosses)
             return null;
+        ShownBossBody body = bosses.Shown;
         Position16<RoomPixels> camera = latched.Scrolls.ForegroundPosition;
         // The body shows from its placement against the camera; a body no boss places shows where the room's background
         // scroll puts it.

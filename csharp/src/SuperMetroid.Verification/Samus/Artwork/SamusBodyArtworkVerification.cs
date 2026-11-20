@@ -55,6 +55,10 @@ internal static class SamusBodyArtworkVerification
         SamusSpritemapSources sprites = stock.Spritemaps;
         SamusShownFrames shownFrames = InstalledFixtures.SamusShownFrameAnalysis.Installed();
         int decodedFrames = 0, drawnHalves = 0;
+        // Each half picture and composition is compared with the cartridge once, at the first frame that shows it; every
+        // later frame showing it must select the same definition record or spritemap.
+        var pictureRecords = new Dictionary<SamusBodyPicture, int>();
+        var compositionPointers = new Dictionary<ushort, SamusSpritemapDefinition?>();
         for (int pose = 0; pose < SamusBodyTableDecoding.PoseCount; pose++)
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
@@ -69,13 +73,21 @@ internal static class SamusBodyArtworkVerification
             foreach ((int frame, SamusBodyDecodedFrame decoded) in stock.Frames[named])
             {
                 int selector = SamusSourceDefinitions.BodyFrames.Value + (frameList + frame) * 4;
-                AssertTransfer(bus, SamusSourceDefinitions.TopDefinitionListPointers.Value, bus.ReadCartridgeByte(selector),
-                    bus.ReadCartridgeByte(selector + 1), stockCharacters.Transfer(decoded.Pictures.Top), $"Samus pose {pose:X2} frame {frame} top picture");
+                void Picture(int groups, int set, int position, SamusBodyPicture picture, string what)
+                {
+                    int record = cartridge.ReadCartridgeWord(groups + set * 2) + position * SamusSourceDefinitions.BodyDefinitionBytes;
+                    if (pictureRecords.TryAdd(picture, record))
+                        AssertTransfer(bus, record, stockCharacters.Transfer(picture), what);
+                    else
+                        AssertEqual(pictureRecords[picture], record, $"{what} is the definition its picture names");
+                }
+                Picture(SamusSourceDefinitions.TopDefinitionListPointers.Value, bus.ReadCartridgeByte(selector), bus.ReadCartridgeByte(selector + 1),
+                    decoded.Pictures.Top, $"Samus pose {pose:X2} frame {frame} top picture");
                 int bottomSet = bus.ReadCartridgeByte(selector + 2);
                 AssertEqual(bottomSet != byte.MaxValue, decoded.Pictures.Bottom is not null, $"Samus pose {pose:X2} frame {frame} names a bottom picture as its selector does");
                 if (decoded.Pictures.Bottom is { } bottomPicture)
-                    AssertTransfer(bus, SamusSourceDefinitions.BottomDefinitionListPointers.Value, bottomSet, bus.ReadCartridgeByte(selector + 3),
-                        stockCharacters.Transfer(bottomPicture), $"Samus pose {pose:X2} frame {frame} bottom picture");
+                    Picture(SamusSourceDefinitions.BottomDefinitionListPointers.Value, bottomSet, bus.ReadCartridgeByte(selector + 3),
+                        bottomPicture, $"Samus pose {pose:X2} frame {frame} bottom picture");
                 AssertTrue(expectedPlacements[named].TryFrameRise(frame, out int rise) && rise == decoded.OriginRise,
                     $"Samus pose {pose:X2} frame {frame} carries its native placement");
                 foreach (SamusBodyHalf half in new[] { SamusBodyHalf.Top, SamusBodyHalf.Bottom })
@@ -85,7 +97,13 @@ internal static class SamusBodyArtworkVerification
                     var halfFrame = new SamusBodyHalfFrame(named, half, frame);
                     int index = SamusSpritemapNative.Index(halfFrame);
                     ushort pointer = cartridge.ReadCartridgeWord(SamusSourceDefinitions.SpritemapPointers.Value + index * 2);
-                    AssertComposition(bus, pointer, sprites.Definition(halfFrame), $"Samus {halfFrame}");
+                    SamusSpritemapDefinition? definition = sprites.Definition(halfFrame);
+                    if (!compositionPointers.TryAdd(pointer, definition))
+                    {
+                        AssertTrue(ReferenceEquals(compositionPointers[pointer], definition), $"Samus {halfFrame} shows the composition its spritemap names");
+                        continue;
+                    }
+                    AssertComposition(bus, pointer, definition, $"Samus {halfFrame}");
                     var nativeOam = new OamBuffer();
                     nativeOam.BeginFrame();
                     if (pointer != 0)
@@ -302,17 +320,17 @@ internal static class SamusBodyArtworkVerification
             }
             AssertTrue(pairFrames > 0, $"death suit {suit} shows the cartridge's death palette pairs");
         }
-        Console.WriteLine($"Samus body art: {decodedFrames} decoded pose frames and {drawnHalves} halves, the explosion and atmosphere compositions and special draw offsets match retail.");
+        Console.WriteLine($"Samus body art: {decodedFrames} decoded pose frames and {drawnHalves} distinct compositions, the explosion and atmosphere compositions and special draw offsets match retail.");
     }
 
     /// <summary>
-    /// Requires <paramref name="transfer"/> to be the body definition the cartridge's group <paramref name="set"/> of the
-    /// pointer table at <paramref name="groups"/> and <paramref name="position"/> select: its two transfer sizes and characters.
+    /// Requires <paramref name="transfer"/> to be the body definition at bank-$92 <paramref name="record"/>: its two transfer
+    /// sizes and characters.
     /// </summary>
-    private static void AssertTransfer(ISnesAddressSpace bus, int groups, int set, int position, SamusBodyTileTransfer transfer, string what)
+    private static void AssertTransfer(ISnesAddressSpace bus, int record, SamusBodyTileTransfer transfer, string what)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        int definitionAddress = 0x920000 | (cartridge.ReadCartridgeWord(groups + set * 2) + position * SamusSourceDefinitions.BodyDefinitionBytes);
+        int definitionAddress = 0x920000 | record;
         int source = cartridge.ReadCartridgeLong(definitionAddress);
         AssertEqual(cartridge.ReadCartridgeWord(definitionAddress + 3), (ushort)transfer.FirstSize, $"{what} first size");
         AssertEqual(cartridge.ReadCartridgeWord(definitionAddress + 5), (ushort)transfer.SecondSize, $"{what} second size");

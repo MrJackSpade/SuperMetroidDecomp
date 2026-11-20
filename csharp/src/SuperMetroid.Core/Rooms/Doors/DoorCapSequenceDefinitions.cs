@@ -34,13 +34,13 @@ internal static class DoorCapSequenceDefinitions
             [S.YellowDownClosed] = [Show(F.Closed, 3)],
             [S.Flash] = [Show(F.BlueFlash, 3), Show(F.Closed, 4)],
             [S.RedHitSounding] = [Sound(RedHitSound)],
-            [S.Opening] = [Sound(OpenSound), Show(F.Ajar, 6), Show(F.HalfOpen, 6), Show(F.NearlyOpen, 6), Show(F.Clear, 1)],
-            [S.YellowLeftOpening] = [Sound(OpenSound), Show(F.Ajar, 4), Show(F.HalfOpen, 4), Show(F.NearlyOpen, 4), Show(F.Clear, 92)],
-            [S.GreyOpening] = [Sound(OpenSound), Show(F.Ajar, 4), Show(F.HalfOpen, 4), Show(F.NearlyOpen, 4), Show(F.Clear, 1)],
-            [S.BlueOpening] = [Sound(OpenSound), Show(F.Ajar, 6), Show(F.HalfOpen, 6), Show(F.NearlyOpen, 6), Show(F.Clear, 94)],
-            [S.Closing] = [Show(F.Clear, 2), Show(F.NearlyOpen, 2), Sound(CloseSound), Show(F.HalfOpen, 2), Show(F.Ajar, 2)],
+            [S.Opening] = Opening(imageUpdates: 6, clearedUpdates: 1),
+            [S.YellowLeftOpening] = Opening(imageUpdates: 4, clearedUpdates: 92),
+            [S.GreyOpening] = Opening(imageUpdates: 4, clearedUpdates: 1),
+            [S.BlueOpening] = Opening(imageUpdates: 6, clearedUpdates: 94),
+            [S.Closing] = Closing(clearedUpdates: 2, imagesBeforeSound: 2),
             [S.BombTorizoHeldOpen] = [Show(F.Clear, 2)],
-            [S.BombTorizoClosing] = [Show(F.Clear, 40), Sound(CloseSound), Show(F.NearlyOpen, 2), Show(F.HalfOpen, 2), Show(F.Ajar, 2)],
+            [S.BombTorizoClosing] = Closing(clearedUpdates: 40, imagesBeforeSound: 1),
         });
 
     /// <summary>A cap's closed image, for one update: a coloured cap waiting, a grey cap locked or a blue cap closed again.</summary>
@@ -66,6 +66,23 @@ internal static class DoorCapSequenceDefinitions
 
     /// <summary>The whole of <paramref name="segment"/>, once.</summary>
     internal static Animation<DoorCapSegment> Once(DoorCapSegment segment) => new([Segments.Whole(segment)], AnimationEnd.Stops);
+
+    /// <summary>
+    /// A cap opening: its sound, then its ajar, half-open and nearly open images for <paramref name="imageUpdates"/> each and
+    /// its cleared image for <paramref name="clearedUpdates"/>.
+    /// </summary>
+    private static AnimationBeat<DoorCapFrame, SoundEffectId>[] Opening(int imageUpdates, int clearedUpdates) =>
+        [Sound(OpenSound), Show(F.Ajar, imageUpdates), Show(F.HalfOpen, imageUpdates), Show(F.NearlyOpen, imageUpdates), Show(F.Clear, clearedUpdates)];
+
+    /// <summary>
+    /// A cap closing: its cleared image for <paramref name="clearedUpdates"/>, then its nearly open, half-open and ajar images
+    /// for two updates each, its sound after the first <paramref name="imagesBeforeSound"/> of them.
+    /// </summary>
+    private static AnimationBeat<DoorCapFrame, SoundEffectId>[] Closing(int clearedUpdates, int imagesBeforeSound)
+    {
+        AnimationBeat<DoorCapFrame, SoundEffectId>[] images = [Show(F.Clear, clearedUpdates), Show(F.NearlyOpen, 2), Show(F.HalfOpen, 2), Show(F.Ajar, 2)];
+        return [.. images[..imagesBeforeSound], Sound(CloseSound), .. images[imagesBeforeSound..]];
+    }
 
     /// <summary>Draws <paramref name="frame"/> for <paramref name="updates"/> updates.</summary>
     private static AnimationBeat<DoorCapFrame, SoundEffectId> Show(DoorCapFrame frame, int updates) =>

@@ -10,39 +10,34 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class EyeDoorObjectDrawDefinitions
 {
     /// <summary>
+    /// How each look's blocks collide, whichever way the door faces: the facing mirrors only the artwork, so each look's
+    /// collisions are written once.
+    /// </summary>
+    private static readonly Dictionary<EyeDoorLook, IReadOnlyList<RoomCollisionType>> CollisionsByLook = new()
+    {
+        [EyeDoorLook.Clear] = DoorCapCollisionDefinitions.SolidCap,
+        [EyeDoorLook.EyeClosed] = DoorCapCollisionDefinitions.SolidEye,
+        [EyeDoorLook.EyeHalfOpen] = DoorCapCollisionDefinitions.SolidEye,
+        [EyeDoorLook.EyeOpen] = DoorCapCollisionDefinitions.ShootableEye,
+        [EyeDoorLook.EyeFlinching] = DoorCapCollisionDefinitions.SolidEye,
+        [EyeDoorLook.EyeOpenSolid] = DoorCapCollisionDefinitions.SolidEye,
+        [EyeDoorLook.MiddleResting] = DoorCapCollisionDefinitions.SpikedPart,
+        [EyeDoorLook.MiddleSwelling] = DoorCapCollisionDefinitions.SpikedPart,
+        [EyeDoorLook.MiddleSwollen] = DoorCapCollisionDefinitions.SpikedPart,
+        [EyeDoorLook.BottomResting] = DoorCapCollisionDefinitions.SpikedPart,
+        [EyeDoorLook.BottomSwelling] = DoorCapCollisionDefinitions.SpikedPart,
+        [EyeDoorLook.BottomSwollen] = DoorCapCollisionDefinitions.SpikedPart,
+    };
+
+    /// <summary>
     /// How the blocks of each eye-door draw collide, from its first block down its column or along its row: the four-block clear, the two-block eye and the
     /// one-block middle and bottom. Of the eye's closed, half-open, open, flinching and open-but-solid looks, only
     /// the open eye is shootable.
     /// </summary>
     internal static IReadOnlyDictionary<EyeDoorDraws.Draw, IReadOnlyList<RoomCollisionType>> Collisions { get; } =
-
-        new Dictionary<EyeDoorDraws.Draw, IReadOnlyList<RoomCollisionType>>
-        {
-            [new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Left)] = DoorCapCollisionDefinitions.SolidCap,
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeClosed, EyeDoorOrientation.Left)] = DoorCapCollisionDefinitions.SolidEye,
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeHalfOpen, EyeDoorOrientation.Left)] = DoorCapCollisionDefinitions.SolidEye,
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeOpen, EyeDoorOrientation.Left)] = DoorCapCollisionDefinitions.ShootableEye,
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeFlinching, EyeDoorOrientation.Left)] = DoorCapCollisionDefinitions.SolidEye,
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeOpenSolid, EyeDoorOrientation.Left)] = DoorCapCollisionDefinitions.SolidEye,
-            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleResting, EyeDoorOrientation.Left)] = DoorCapCollisionDefinitions.SpikedPart,
-            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleSwelling, EyeDoorOrientation.Left)] = DoorCapCollisionDefinitions.SpikedPart,
-            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleSwollen, EyeDoorOrientation.Left)] = DoorCapCollisionDefinitions.SpikedPart,
-            [new EyeDoorDraws.Draw(EyeDoorLook.BottomResting, EyeDoorOrientation.Left)] = DoorCapCollisionDefinitions.SpikedPart,
-            [new EyeDoorDraws.Draw(EyeDoorLook.BottomSwelling, EyeDoorOrientation.Left)] = DoorCapCollisionDefinitions.SpikedPart,
-            [new EyeDoorDraws.Draw(EyeDoorLook.BottomSwollen, EyeDoorOrientation.Left)] = DoorCapCollisionDefinitions.SpikedPart,
-            [new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Right)] = DoorCapCollisionDefinitions.SolidCap,
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeClosed, EyeDoorOrientation.Right)] = DoorCapCollisionDefinitions.SolidEye,
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeHalfOpen, EyeDoorOrientation.Right)] = DoorCapCollisionDefinitions.SolidEye,
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeOpen, EyeDoorOrientation.Right)] = DoorCapCollisionDefinitions.ShootableEye,
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeFlinching, EyeDoorOrientation.Right)] = DoorCapCollisionDefinitions.SolidEye,
-            [new EyeDoorDraws.Draw(EyeDoorLook.EyeOpenSolid, EyeDoorOrientation.Right)] = DoorCapCollisionDefinitions.SolidEye,
-            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleResting, EyeDoorOrientation.Right)] = DoorCapCollisionDefinitions.SpikedPart,
-            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleSwelling, EyeDoorOrientation.Right)] = DoorCapCollisionDefinitions.SpikedPart,
-            [new EyeDoorDraws.Draw(EyeDoorLook.MiddleSwollen, EyeDoorOrientation.Right)] = DoorCapCollisionDefinitions.SpikedPart,
-            [new EyeDoorDraws.Draw(EyeDoorLook.BottomResting, EyeDoorOrientation.Right)] = DoorCapCollisionDefinitions.SpikedPart,
-            [new EyeDoorDraws.Draw(EyeDoorLook.BottomSwelling, EyeDoorOrientation.Right)] = DoorCapCollisionDefinitions.SpikedPart,
-            [new EyeDoorDraws.Draw(EyeDoorLook.BottomSwollen, EyeDoorOrientation.Right)] = DoorCapCollisionDefinitions.SpikedPart,
-        };
+        ((EyeDoorOrientation[])[EyeDoorOrientation.Left, EyeDoorOrientation.Right])
+            .SelectMany(orientation => CollisionsByLook.Select(look => KeyValuePair.Create(new EyeDoorDraws.Draw(look.Key, orientation), look.Value)))
+            .ToDictionary();
 
     /// <summary>The left side's opening clear, which shares the right side's clearing artwork.</summary>
     internal static RoomObjectFrameDraw<EyeDoorDraws.Draw> MirroredOpeningClear { get; } =

@@ -22,6 +22,9 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </remarks>
 public sealed class FileSelectMenuState : IMenuFrontendScreen
 {
+    /// <summary>The buttons that confirm a choice throughout the menu: Start or A.</summary>
+    private const ControllerButton ConfirmButtons = ControllerButton.Start | ControllerButton.A;
+
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
     public void BindSpriteSheets(InstalledSpriteSheets sheets)
@@ -175,7 +178,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             case FileSelectPhase.TurnSelectedHelmet:
                 selectedHelmet.Step();
                 // Start/A ends the turn early; otherwise it ends once its last picture has shown for its whole hold.
-                if ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None || selectedHelmet.HasFinished)
+                if ((pressed & ConfirmButtons) != ControllerButton.None || selectedHelmet.HasFinished)
                     Phase = FileSelectPhase.FadeOutToOptions;
                 break;
 
@@ -319,7 +322,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = FileSelectPhase.FadeOutToTitle;
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
+        if ((pressed & ConfirmButtons) == ControllerButton.None)
             return;
 
         if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out _))
@@ -450,13 +453,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             submenuSelection, SaveSlots.All.Where(slot => saveSlots[slot] is not null).ToHashSet(), pressed));
 
         if ((pressed & ControllerButton.B) != ControllerButton.None ||
-            ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None && submenuSelection == FileSelectItem.Exit))
+            ((pressed & ConfirmButtons) != ControllerButton.None && submenuSelection == FileSelectItem.Exit))
         {
             QueueCursorSound();
             Phase = FileSelectPhase.FadeOutToMain;
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
+        if ((pressed & ConfirmButtons) == ControllerButton.None)
             return;
 
         QueueCursorSound();
@@ -488,7 +491,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = FileSelectPhase.CopySelectSource;
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
+        if ((pressed & ConfirmButtons) == ControllerButton.None)
             return;
         QueueCursorSound();
         if (submenuSelection == FileSelectItem.Exit)
@@ -528,7 +531,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             ReturnFromConfirmation(mode);
             return FileSelectSaveChange.None;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
+        if ((pressed & ConfirmButtons) == ControllerButton.None)
             return FileSelectSaveChange.None;
 
         audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);

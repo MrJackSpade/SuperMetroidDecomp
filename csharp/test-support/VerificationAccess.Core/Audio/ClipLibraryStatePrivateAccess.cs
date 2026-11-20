@@ -11,12 +11,6 @@ internal static class ClipLibraryStatePrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Audio.ClipLibraryState self)
     {
-        /// <summary>The private property <c>Active</c>, reached by name.</summary>
-        internal bool Active
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Audio.ClipLibraryState, bool>(self, "Active");
-        }
-
         /// <summary>The private property <c>HighPriority</c>, reached by name.</summary>
         internal bool HighPriority
         {

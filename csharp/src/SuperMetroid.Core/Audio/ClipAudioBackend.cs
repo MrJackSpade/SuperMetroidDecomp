@@ -177,13 +177,23 @@ public sealed class ClipAudioBackend
     /// <summary>Fades each audible layer of a library's sound out.</summary>
     private void ReleaseSound(ClipLibraryState library, long now)
     {
-        if (library.Sound is not SoundEffectClipEntry sound)
+        if (library.Playback is not { } playback)
             return;
-        for (int layer = 0; layer < sound.Layers.Count; layer++)
+        switch (playback.Sound.Shape)
         {
-            SoundEffectClipLayer clip = sound.Layers[layer];
-            if (Position(clip.Clip.Frames, clip.LoopStart, now - library.Start) is not null)
-                State.Releasing.Add(new ReleasingClip(clip.Clip, clip.LoopStart, library.Start, ReleaseFrames));
+            case OneShotSoundEffectClip { Clip: { } clip }:
+                Release(clip, null);
+                break;
+            case LoopingSoundEffectClip looping:
+                foreach (LoopingSoundEffectLayer layer in looping.Layers)
+                    Release(layer.Clip, layer.LoopStart);
+                break;
+        }
+
+        void Release(AudioClipFile clip, long? loopStart)
+        {
+            if (Position(clip.Frames, loopStart, now - playback.Start) is not null)
+                State.Releasing.Add(new ReleasingClip(clip, loopStart, playback.Start, ReleaseFrames));
         }
     }
 
@@ -199,11 +209,16 @@ public sealed class ClipAudioBackend
                 Add(song.Clip, song.LoopStart, now - State.SongStart, 1, 1, ref left, ref right);
             foreach (ClipLibraryState library in State.Libraries.Values)
             {
-                if (library.Sound is not SoundEffectClipEntry sound)
+                if (library.Playback is not { } playback)
                     continue;
-                long position = now - library.Start;
-                foreach (SoundEffectClipLayer layer in sound.Layers)
-                    Add(layer.Clip, layer.LoopStart, position, 1, 1, ref left, ref right);
+                long position = now - playback.Start;
+                if (playback.Sound.Shape is OneShotSoundEffectClip { Clip: { } clip })
+                    Add(clip, null, position, 1, 1, ref left, ref right);
+                else if (playback.Sound.Shape is LoopingSoundEffectClip looping)
+                {
+                    foreach (LoopingSoundEffectLayer layer in looping.Layers)
+                        Add(layer.Clip, layer.LoopStart, position, 1, 1, ref left, ref right);
+                }
             }
             for (int release = State.Releasing.Count - 1; release >= 0; release--)
             {

@@ -53,7 +53,9 @@ internal static class SpcSoundPoliciesVerification
             AssertEqual(originalPolicy, NativeNumber(actualPolicy), "original command policy identity");
             foreach (byte prior in new byte[] { 0, 0xa5 })
             {
-                byte expectedVoices = 0, expectedPriority = prior, expectedMode = prior;
+                SoundLibraryMode priorMode = prior == 0 ? SoundLibraryMode.Normal : SoundLibraryMode.LowHealth;
+                byte expectedVoices = 0, expectedPriority = prior;
+                SoundLibraryMode expectedMode = priorMode;
                 int pc = handler;
                 for (int write = 0; write < 3 && Read(pc) != 0x6f; write++, pc += 5)
                 {
@@ -63,11 +65,17 @@ internal static class SpcSoundPoliciesVerification
                     int destination = Word(pc + 3);
                     if (destination == voicesAddress) expectedVoices = value;
                     else if (destination == priorityAddress) expectedPriority = value;
-                    else if (library == 2 && destination == 0x04ba) expectedMode = value;
+                    else if (library == 2 && destination == 0x04ba)
+                        expectedMode = value switch
+                        {
+                            0 => SoundLibraryMode.Normal,
+                            SpcDriverDefinitions.SoundEffects.LowHealthMode => SoundLibraryMode.LowHealth,
+                            _ => throw new InvalidOperationException($"Unexpected native library-three mode {value:X2}."),
+                        };
                     else throw new InvalidOperationException($"Unexpected native policy write {destination:X4}.");
                 }
                 AssertEqual((byte)0x6f, Read(pc), "native policy ends after bounded writes");
-                var state = new ManagedSpcSoundLibrary { Priority = prior, Mode = prior };
+                var state = new ManagedSpcSoundLibrary { Priority = prior, Mode = priorMode };
                 applyPolicy(soundLibrary, state, actualPolicy);
                 AssertEqual(expectedVoices, state.VoicesToSetup, "production policy voices");
                 AssertEqual(expectedPriority, state.Priority, "production policy priority and preservation");
@@ -82,11 +90,11 @@ internal static class SpcSoundPoliciesVerification
         foreach (string invalid in new[] { "", "NoSuchPolicy" })
         {
             AssertThrows<InvalidDataException>(() => SpcSoundEffectTables.VoiceCount(soundLibrary, invalid), "unknown manifest policy key");
-            var untouched = new ManagedSpcSoundLibrary { VoicesToSetup = 0xa5, Priority = 0x5a, Mode = 0x3c };
+            var untouched = new ManagedSpcSoundLibrary { VoicesToSetup = 0xa5, Priority = 0x5a, Mode = SoundLibraryMode.LowHealth };
             AssertThrows<InvalidDataException>(() => applyPolicy(soundLibrary, untouched, invalid), "unknown runtime policy key");
             AssertEqual(0xa5, untouched.VoicesToSetup, "rejected policy preserves voices");
             AssertEqual(0x5a, untouched.Priority, "rejected policy preserves priority");
-            AssertEqual(0x3c, untouched.Mode, "rejected policy preserves mode");
+            AssertEqual(SoundLibraryMode.LowHealth, untouched.Mode, "rejected policy preserves mode");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, count + 1, 256, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.PolicyKey(soundLibrary, invalid), "unsupported sound command");

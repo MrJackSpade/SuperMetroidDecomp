@@ -19,6 +19,39 @@ internal static class SpcDriverSnapshot
             state.Add(checked((byte)value));
     }
 
+    /// <summary>The driver's byte for an on/off mark (#2560): the active byte when set, zero when clear.</summary>
+    public static int Mark(bool set) => set ? SpcDriverDefinitions.SoundEffects.Active : 0;
+
+    /// <summary>The driver's byte for the music's publication dirty marker (#2560): its high bit when set.</summary>
+    public static int DirtyByte(bool dirty) => dirty ? SpcDriverDefinitions.Music.DirtyMarker : 0;
+
+    /// <summary>The driver's byte for a voice's cut-key effect (#2560): nonzero while the cut holds.</summary>
+    public static int CutKeyByte(bool cut) => cut ? SpcDriverDefinitions.Music.CutKeyHeld : 0;
+
+    /// <summary>The driver's byte for the form of a channel's last slide instruction: the legato opcode, or zero (#2560).</summary>
+    public static int Byte(SoundEffectSlideForm form) => form switch
+    {
+        SoundEffectSlideForm.Plain => 0,
+        SoundEffectSlideForm.Legato => SpcDriverDefinitions.SoundEffects.LegatoSlideOpcode,
+        _ => throw new ArgumentOutOfRangeException(nameof(form), form, "Undefined slide form."),
+    };
+
+    /// <summary>The driver's byte for library three's request mode (#2560).</summary>
+    public static int Byte(SoundLibraryMode mode) => mode switch
+    {
+        SoundLibraryMode.Normal => 0,
+        SoundLibraryMode.LowHealth => SpcDriverDefinitions.SoundEffects.LowHealthMode,
+        _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, "Undefined library mode."),
+    };
+
+    /// <summary>The driver's byte for a pitch envelope's direction (#2560).</summary>
+    public static int Byte(PitchEnvelopeDirection direction) => direction switch
+    {
+        PitchEnvelopeDirection.From => 0,
+        PitchEnvelopeDirection.To => SpcDriverDefinitions.Music.PitchEnvelopeToward,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined envelope direction."),
+    };
+
     /// <summary>Appends each driver word in <paramref name="words"/>, in order, low byte first.</summary>
     public static void AddWords(List<byte> state, ReadOnlySpan<int> words)
     {

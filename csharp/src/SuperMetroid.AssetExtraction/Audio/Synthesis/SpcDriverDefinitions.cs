@@ -82,6 +82,12 @@ internal static class SpcDriverDefinitions
         internal const byte NoteNumberMask = 0x7f;
         /// <summary>Driver tempo word initialized before a track's own tempo effect runs.</summary>
         internal const byte InitialTempo = 0x10;
+        /// <summary>The publication dirty marker's set value: the byte's high bit.</summary>
+        internal const byte DirtyMarker = 0x80;
+        /// <summary>A cut-key byte while the cut holds; the driver keeps the effect's argument plus one, any nonzero value.</summary>
+        internal const byte CutKeyHeld = 1;
+        /// <summary>The pitch-envelope direction byte of the envelope that departs from the note's pitch.</summary>
+        internal const byte PitchEnvelopeToward = 1;
         /// <summary>Per-track tempo value when a new track has no explicit override yet.</summary>
         internal const byte DefaultTrackTempo = 0x20;
         /// <summary>Initial master volume before track effects change it.</summary>
@@ -146,5 +152,7 @@ internal static class SpcDriverDefinitions
         internal const byte RetainedNote = 0xf6;
         /// <summary>Library 3's low-health mode value, in which it rejects every request except the clearing one.</summary>
         internal const byte LowHealthMode = 2;
+        /// <summary>The legato pitch-slide opcode, which the driver keeps as the channel's slide-form byte.</summary>
+        internal const byte LegatoSlideOpcode = 0xf5;
     }
 }

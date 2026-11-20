@@ -47,10 +47,6 @@ internal static class CeresDoorAnimations
     /// <param name="facing">The way the door faces, choosing an ordinary door's pictures.</param>
     internal static AnimationSegments<CeresDoorSegment, EnemyFrameId, CeresDoorCue> Segments(HorizontalDirection facing) => SegmentsBySide[facing];
 
-    /// <summary>The animation that starts at each segment a door or wall facing <paramref name="facing"/> starts.</summary>
-    /// <param name="facing">The way the door faces.</param>
-    internal static IReadOnlyDictionary<CeresDoorSegment, Animation<CeresDoorSegment>> StartingAt(HorizontalDirection facing) => StartingAtBySide[facing];
-
     /// <summary>The animation that starts at <paramref name="segment"/> for a door facing <paramref name="facing"/>.</summary>
     internal static Animation<CeresDoorSegment> StartingWith(HorizontalDirection facing, CeresDoorSegment segment) => StartingAtBySide[facing][segment];
 

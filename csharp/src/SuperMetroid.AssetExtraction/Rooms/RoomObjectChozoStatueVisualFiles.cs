@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Rooms.RoomObjects;

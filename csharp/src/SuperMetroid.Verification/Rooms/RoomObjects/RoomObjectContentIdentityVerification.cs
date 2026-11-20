@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -6,13 +5,11 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 
 /// <summary>Checks room-actor artwork identity across all PLM domains.</summary>

@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;

@@ -192,7 +192,7 @@ public static class SamusKnockbackMovement
             samus.KnockbackXDirection == KnockbackHorizontalDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed);
         // Knockback moves Samus as her ordinary sideways movement does: hitting a wall ends her horizontal momentum
         // before the vertical pass, so the next frame does not carry her on from the wall.
-        BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, requestedX);
+        _ = SamusTerrainMoves.MoveStoppingAtWalls(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, requestedX);
 
         BlockMoveResult vertical = samus.KnockbackDirection is SamusKnockbackDirection.UpLeft or SamusKnockbackDirection.UpRight
             ? MoveWithSharedVerticalSpeedCalculation(level, samus, frameCounter, roomObjects)

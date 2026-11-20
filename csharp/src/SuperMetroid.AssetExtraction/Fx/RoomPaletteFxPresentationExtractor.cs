@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.Scrolling;
-
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The placements of a scroll trigger and the extensions that give it its reach (#2557).</summary>

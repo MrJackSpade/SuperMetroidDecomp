@@ -96,12 +96,6 @@ public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSp
     /// <summary>Orders places by how far along the curve they lie.</summary>
     public int CompareTo(QuadraticSpeedCurvePlace other) => InTwoHundredFiftySixthsOfMark.CompareTo(other.InTwoHundredFiftySixthsOfMark);
 
-    /// <summary>Whether <paramref name="left"/> lies earlier along the curve.</summary>
-    public static bool operator <(QuadraticSpeedCurvePlace left, QuadraticSpeedCurvePlace right) => left.CompareTo(right) < 0;
-
-    /// <summary>Whether <paramref name="left"/> lies further along the curve.</summary>
-    public static bool operator >(QuadraticSpeedCurvePlace left, QuadraticSpeedCurvePlace right) => left.CompareTo(right) > 0;
-
     /// <summary>Whether <paramref name="left"/> lies no further along the curve.</summary>
     public static bool operator <=(QuadraticSpeedCurvePlace left, QuadraticSpeedCurvePlace right) => left.CompareTo(right) <= 0;
 

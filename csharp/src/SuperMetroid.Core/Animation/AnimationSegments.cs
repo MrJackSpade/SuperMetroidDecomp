@@ -109,9 +109,6 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     internal Dictionary<TSegment, Animation<TSegment>> EachEnding(AnimationEnd end, params ReadOnlySpan<TSegment> segments) =>
         StartsEnding(new Dictionary<TSegment, Animation<TSegment>>(), end, segments);
 
-    /// <summary>Every segment's identity, in no stated order (#2557).</summary>
-    internal IEnumerable<TSegment> SegmentIdentities => beats.Keys;
-
     /// <summary>
     /// The beats one play of <paramref name="animation"/> passes from its start to the end of its last phase, each phase's
     /// run laid out as many times as it plays (#2458); a loop back is not followed.

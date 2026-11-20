@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 

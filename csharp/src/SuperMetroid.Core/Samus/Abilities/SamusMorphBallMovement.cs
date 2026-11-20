@@ -285,7 +285,7 @@ public static class SamusMorphBallMovement
                 $"Morph transition movement requires a morphing or unmorphing transition pose, not {samus.Pose}.");
         }
 
-        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
+        _ = samus.HorizontalSpeed;
 
         // The transition movement deliberately supplies zero base speed but still uses pose direction,
         // collision, and the total speed already worked out this update.

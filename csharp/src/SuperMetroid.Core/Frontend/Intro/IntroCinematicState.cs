@@ -155,22 +155,13 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// into the fight until page two's crossfade recolours the room.
     /// </summary>
     internal ColourEffectSystem ColourEffects { get; private set; } = ColourEffectSystem.ForScreen();
-    /// <summary>Samus gameplay state shared by the Mother Brain and SR388 flashbacks.</summary>
-    internal SamusState? CurrentFlashbackSamus { get; private set; }
-    /// <summary>Samus in the Mother Brain flashback, which exists while the flashback runs.</summary>
-    internal SamusState FlashbackSamus => CurrentFlashbackSamus ??
-        throw new InvalidOperationException("The Mother Brain flashback has not introduced Samus.");
+    /// <summary>
+    /// The Mother Brain flashback while it runs, from its setup until the discovery's setup carries its Samus on and
+    /// releases it; none outside it.
+    /// </summary>
+    internal IntroMotherBrainFlashback? MotherBrainFlashback { get; private set; }
     /// <summary>How the Mother Brain flashback shows Samus: the flashback shows her, and deleting Mother Brain hides her.</summary>
     private IntroSamusDisplay flashbackSamusDisplay;
-    /// <summary>Mother Brain animation state active only in the first gameplay flashback.</summary>
-    internal IntroMotherBrainSpriteState? CurrentFlashbackMotherBrain { get; private set; }
-    /// <summary>Mother Brain's sprite in the flashback, which exists while the flashback runs.</summary>
-    internal IntroMotherBrainSpriteState FlashbackMotherBrain => CurrentFlashbackMotherBrain ??
-        throw new InvalidOperationException("The Mother Brain flashback is not running.");
-    /// <summary>Explosion actors shown after the Mother Brain demo input ends.</summary>
-    internal IntroMotherBrainExplosionSystem? FlashbackMotherBrainExplosions { get; private set; }
-    /// <summary>Rinka actors and collision for the Mother Brain scene.</summary>
-    internal IntroRinkaSystem? FlashbackRinkas { get; private set; }
     /// <summary>Egg and baby actors in the SR388 discovery flashback.</summary>
     internal IntroBabyDiscoveryState? CurrentBabyDiscovery { get; private set; }
     /// <summary>The Baby Metroid discovery scene, which exists while that scene runs.</summary>
@@ -186,21 +177,6 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The flight to Ceres, which exists while that scene runs.</summary>
     internal IntroCeresFlightState CeresFlight => CurrentCeresFlight ??
         throw new InvalidOperationException("The Ceres flight is not running.");
-    /// <summary>Scripted controller input for the Mother Brain gameplay demonstration.</summary>
-    internal DemoInputState? CurrentFlashbackDemoInput { get; private set; }
-    /// <summary>The flashback's scripted controller input, which exists while the flashback runs.</summary>
-    internal DemoInputState FlashbackDemoInput => CurrentFlashbackDemoInput ??
-        throw new InvalidOperationException("The Mother Brain flashback is not running.");
-    /// <summary>Collision data for the gameplay-style flashback room.</summary>
-    internal RoomLevelData? CurrentFlashbackLevel { get; private set; }
-    /// <summary>The flashback room's collision, which exists while the flashback runs.</summary>
-    internal RoomLevelData FlashbackLevel => CurrentFlashbackLevel ??
-        throw new InvalidOperationException("The Mother Brain flashback room is not loaded.");
-    /// <summary>The Mother Brain flashback's own progression, which its shots act on; the demo's shots never change it.</summary>
-    private SharedGameState? CurrentFlashbackProgression { get; set; }
-    /// <summary>The flashback's progression, which exists while the flashback runs.</summary>
-    private SharedGameState FlashbackProgression => CurrentFlashbackProgression ??
-        throw new InvalidOperationException("The Mother Brain flashback is not running.");
     /// <summary>
     /// What the running crossfade did on this update (#1980), or null on an update no crossfade runs: the actors the
     /// crossfade's finish ends react to it after the cinematic phase has advanced it.
@@ -289,7 +265,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // this state boundary preserves a one-frame edge and prevents a held A/Start from
         // skipping both the options menu and the first narration page.
         controller.Latch(controllerInput);
-        bool explosionsExistedBeforeThisFrame = FlashbackMotherBrainExplosions is not null;
+        bool explosionsExistedBeforeThisFrame = MotherBrainFlashback?.Explosions is not null;
         frameCounter++;
         crossfadeTick = null;
         switch (Phase)
@@ -398,7 +374,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.MotherBrainFlashback:
-                if (CurrentFlashbackMotherBrain?.NextPageRequested == true)
+                if (MotherBrainFlashback?.MotherBrain.NextPageRequested == true)
                 {
                     // The crossfade recolours every colour from the opening's own, so the fight lights' last record no
                     // longer shows.
@@ -483,58 +459,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         }
 
         // The cinematic step runs Samus's input and movement phases, ahead of the sprite pass, only while the intro shows her.
-        if (CurrentFlashbackSamus is not null && flashbackSamusDisplay != IntroSamusDisplay.Hidden)
-        {
-            // The intro demo's input phase refreshes the live radius before projectiles and movement.
-            // Pose commits at the end of the previous frame deliberately leave it unchanged.
-            SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
-
-            // Samus's update for her current state runs the demo input,
-            // after the cinematic phase, so a demo loaded by the scene setup plays its first
-            // entry in the same update, ahead of the Samus pose input that consumes it.
-            if (CurrentFlashbackDemoInput is not null)
-                StepMotherBrainDemo();
-
-            StepMotherBrainFlashbackSamus();
-        }
-
-        // The cinematic game state handles cinematic sprites after the active cinematic phase and
-        // after Samus/projectiles. Mother Brain can therefore consume a missile at its new
-        // position during this same frame, exactly as the game does.
-        if (CurrentFlashbackMotherBrain is not null)
-        {
-            CurrentFlashbackMotherBrain.RunBehavior(
-                frameCounter,
-                CrossfadeFinishing);
-            // Deleting Mother Brain after the page-two crossfade hides Samus from
-            // the next update on.
-            if (!CurrentFlashbackMotherBrain.IsVisible)
-                flashbackSamusDisplay = IntroSamusDisplay.Hidden;
-            if (CurrentFlashbackMotherBrain.TakeMissileHit(flashbackProjectiles.EnemyImpacts, flashbackBombProjectiles))
-            {
-                FlashbackMotherBrainExplosions = new IntroMotherBrainExplosionSystem();
-                FlashbackMotherBrainExplosions.SpawnFourthHitExplosions();
-            }
-        }
-
-        if (FlashbackRinkas is not null && CurrentFlashbackSamus is not null)
-        {
-            FlashbackRinkas.Step(
-                CurrentFlashbackSamus,
-                motherBrainExploding: CurrentFlashbackMotherBrain?.ExplosionStarted == true,
-                explosionsAllocated: FlashbackMotherBrainExplosions is not null);
-        }
-
-        // Mother Brain's sprite steps last, so one spawned on this update shows its first frame on the
-        // same update as the first page's input transition.
-        CurrentFlashbackMotherBrain?.Step();
-        if (explosionsExistedBeforeThisFrame)
-        {
-            // The eight explosions spawn after this update has passed their places in the list,
-            // so they first animate on the next update; the fourth hit comes on the update
-            // they spawn.
-            FlashbackMotherBrainExplosions?.Step(CrossfadeFinishing);
-        }
+        if (MotherBrainFlashback is { } flashback)
+            StepMotherBrainFlashbackActors(flashback, explosionsExistedBeforeThisFrame);
 
         // The cinematic sprites update after the cinematic phase, so the
         // actors a scene setup spawns take their first step in that same update.
@@ -544,8 +470,67 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The cinematic's game state runs the colour effects after its actors. The fight lights' own check ends
         // them on the update Mother Brain starts page two, before their countdown runs: the record they showed stays on the
         // room's colours until page two's crossfade recolours the room on the next update (#1733).
-        if (Phase != IntroCinematicPhase.MotherBrainFlashback || CurrentFlashbackMotherBrain?.NextPageRequested != true)
+        if (Phase != IntroCinematicPhase.MotherBrainFlashback || MotherBrainFlashback?.MotherBrain.NextPageRequested != true)
             ColourEffects.StepScreen();
+    }
+
+    /// <summary>
+    /// Runs the flashback's Samus, then its cinematic actors, in the cinematic's order: Samus's input and movement phases
+    /// while the intro shows her, Mother Brain's behaviour and the Rinkas, then Mother Brain's sprite and the explosions
+    /// her fourth hit spawned on an earlier update.
+    /// </summary>
+    /// <param name="flashback">The running flashback.</param>
+    /// <param name="explosionsExistedBeforeThisFrame">Whether her fourth hit spawned the explosions before this update.</param>
+    private void StepMotherBrainFlashbackActors(IntroMotherBrainFlashback flashback, bool explosionsExistedBeforeThisFrame)
+    {
+        // The cinematic step runs Samus's input and movement phases, ahead of the sprite pass, only while the intro shows her.
+        if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
+        {
+            // The intro demo's input phase refreshes the live radius before projectiles and movement.
+            // Pose commits at the end of the previous frame deliberately leave it unchanged.
+            SamusPoseMetadata.RefreshCollisionRadii(flashback.Samus);
+
+            // Samus's update for her current state runs the demo input,
+            // after the cinematic phase, so a demo loaded by the scene setup plays its first
+            // entry in the same update, ahead of the Samus pose input that consumes it.
+            StepMotherBrainDemo(flashback);
+
+            StepMotherBrainFlashbackSamus(flashback);
+        }
+
+        // The cinematic game state handles cinematic sprites after the active cinematic phase and
+        // after Samus/projectiles. Mother Brain can therefore consume a missile at its new
+        // position during this same frame, exactly as the game does.
+        IntroMotherBrainSpriteState motherBrain = flashback.MotherBrain;
+        motherBrain.RunBehavior(
+            frameCounter,
+            CrossfadeFinishing);
+        // Deleting Mother Brain after the page-two crossfade hides Samus from
+        // the next update on.
+        if (!motherBrain.IsVisible)
+            flashbackSamusDisplay = IntroSamusDisplay.Hidden;
+        if (motherBrain.TakeMissileHit(flashbackProjectiles.EnemyImpacts, flashbackBombProjectiles))
+        {
+            var explosions = new IntroMotherBrainExplosionSystem();
+            flashback.Explosions = explosions;
+            explosions.SpawnFourthHitExplosions();
+        }
+
+        flashback.Rinkas.Step(
+            flashback.Samus,
+            motherBrainExploding: motherBrain.ExplosionStarted,
+            explosionsAllocated: flashback.Explosions is not null);
+
+        // Mother Brain's sprite steps last, so one spawned on this update shows its first frame on the
+        // same update as the first page's input transition.
+        motherBrain.Step();
+        if (explosionsExistedBeforeThisFrame)
+        {
+            // The eight explosions spawn after this update has passed their places in the list,
+            // so they first animate on the next update; the fourth hit comes on the update
+            // they spawn.
+            flashback.Explosions?.Step(CrossfadeFinishing);
+        }
     }
 
     /// <summary>Installs Mother Brain room collision, actors, Samus demo state, and the incoming gameplay colours.</summary>
@@ -559,7 +544,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // The discovery shows the Mother Brain room's installed page picture; the room's blocks below are its terrain,
         // which Samus collides with, not what the room shows.
-        CurrentFlashbackSamus = new SamusState(flashbackAudioRequests, samusOverreads.FramesBeyondAnimation, UnauthoredBoostCadence,
+        var samus = new SamusState(flashbackAudioRequests, samusOverreads.FramesBeyondAnimation, UnauthoredBoostCadence,
             SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge, flashbackSamusArtwork)
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
@@ -572,23 +557,23 @@ public sealed class IntroCinematicState : IFrontendScreen
         };
         // Samus's shared frame phases read the active cinematic phase to select
         // intro colour restoration and suppress gameplay-only sounds.
-        CurrentFlashbackSamus.Presentation.PresentInCinematic();
-        SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
-        SamusPresentation.InitializeAnimation(CurrentFlashbackSamus);
-        CurrentFlashbackSamus.CommitPoseHistory();
-        CurrentFlashbackMotherBrain = new IntroMotherBrainSpriteState();
-        FlashbackMotherBrainExplosions = null;
-        FlashbackRinkas = new IntroRinkaSystem();
+        samus.Presentation.PresentInCinematic();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
+        samus.CommitPoseHistory();
+        var motherBrain = new IntroMotherBrainSpriteState();
+        var rinkas = new IntroRinkaSystem();
 
         // The flashback's collision room is built from its own terrain blocks, so the
         // visual room page never stands in for the collision contract.
-        CurrentFlashbackLevel = CreateMotherBrainLevel();
-        CurrentFlashbackProgression = new SharedGameState(Random);
+        RoomLevelData level = CreateMotherBrainLevel();
+        var progression = new SharedGameState(Random);
         flashbackProjectiles.Reset();
-        CurrentFlashbackDemoInput = new DemoInputState();
-        CurrentFlashbackDemoInput.Clear();
-        CurrentFlashbackDemoInput.Enable();
-        CurrentFlashbackDemoInput.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
+        var demoInput = new DemoInputState();
+        demoInput.Clear();
+        demoInput.Enable();
+        demoInput.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
+        MotherBrainFlashback = new IntroMotherBrainFlashback(samus, motherBrain, rinkas, level, progression, demoInput);
         // Samus is processed, and drawn ahead of the cinematic actors.
         flashbackSamusDisplay = IntroSamusDisplay.InFrontOfActors;
 
@@ -635,9 +620,11 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroIllustration.MotherBrainFlashback:
                 SetupMotherBrainFlashback();
                 return;
-            case IntroIllustration.BabyDiscovery:
-                SetupBabyDiscoveryCrossfade();
+            case IntroIllustration.BabyDiscovery when MotherBrainFlashback is { } flashback:
+                SetupBabyDiscoveryCrossfade(flashback);
                 return;
+            case IntroIllustration.BabyDiscovery:
+                throw new InvalidOperationException("The discovery follows the Mother Brain flashback, whose Samus it carries on.");
             case IntroIllustration.BabyDelivery:
                 SetupBabyMetroidDelivery();
                 return;
@@ -667,27 +654,22 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>Replaces Mother Brain actors with SR388 egg and baby owners and selects the second gameplay room page.</summary>
-    internal void SetupBabyDiscoveryCrossfade()
+    /// <param name="flashback">The Mother Brain flashback the discovery replaces, whose Samus it carries on.</param>
+    internal void SetupBabyDiscoveryCrossfade(IntroMotherBrainFlashback flashback)
     {
+        Ensure.NotNull(flashback);
         Narration.HideCaret();
         Narration.AcceptPageTurn();
 
         // The discovery setup shows the second authored room page, declares a
         // 32x16 collision room, carries Samus into new egg/baby/demo owners, and reuses the same
         // text-to-gameplay colour crossfade as the Mother Brain scene.
-        CurrentBabyDiscovery = new IntroBabyDiscoveryState(Random, CurrentFlashbackSamus
-            ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."), shellFallPastCurve, audio);
+        CurrentBabyDiscovery = new IntroBabyDiscoveryState(Random, flashback.Samus, shellFallPastCurve, audio);
 
         // The old gameplay actors have reached their delete animations. Releasing the scoped
         // references prevents their projectile and collision steps from running behind the
         // new scene while preserving the shared artwork and colours they intentionally reuse.
-        CurrentFlashbackSamus = null;
-        CurrentFlashbackMotherBrain = null;
-        FlashbackMotherBrainExplosions = null;
-        FlashbackRinkas = null;
-        CurrentFlashbackDemoInput = null;
-        CurrentFlashbackLevel = null;
-        CurrentFlashbackProgression = null;
+        MotherBrainFlashback = null;
         flashbackProjectiles.Reset();
 
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
@@ -792,33 +774,37 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>Runs the scripted Samus gameplay, projectiles, collisions, and colour updates for the Mother Brain flashback.</summary>
-    internal void StepMotherBrainDemo()
+    /// <param name="flashback">The running flashback.</param>
+    internal void StepMotherBrainDemo(IntroMotherBrainFlashback flashback)
     {
-        FlashbackDemoInput.Step(HandleMotherBrainDemoCue);
+        DemoInputState demoInput = flashback.DemoInput;
+        SamusState samus = flashback.Samus;
+        demoInput.Step(cue => HandleMotherBrainDemoCue(flashback, cue));
 
         // The HUD and projectile step counts down the shared firing cooldown before
         // Samus's shots update. Standing facing left she cannot place bombs, but the cooldown
         // still decides when a missile may fire.
-        flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
+        flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = flashback.Level, RoomObjects = IntroCollisionRoomObjects.Instance }, samus, demoInput.Held, demoInput.NewlyPressed);
         // A missile's firing sound joins the frontend's queues as the shot fires.
-        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, samusBombs: flashbackBombProjectiles, progression: FlashbackProgression);
+        flashbackProjectiles.StepFrame(new SamusTerrain { Level = flashback.Level, RoomObjects = IntroCollisionRoomObjects.Instance }, samus, new ProjectileButtonInput { ControllerInput = demoInput.Held, ControllerNewInput = demoInput.NewlyPressed, ControllerPreviousNewInput = demoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, samusBombs: flashbackBombProjectiles, progression: flashback.Progression);
 
         // Both the demo and locked movement modes end by resetting the
         // movement and pose-change state, so a later missile inherits only the
         // movement recorded in its own update.
-        SamusAerialPoseTransitions.DropTransitionShot(FlashbackSamus);
-        FlashbackSamus.ProjectileInheritance.ClearMovement();
+        SamusAerialPoseTransitions.DropTransitionShot(samus);
+        samus.ProjectileInheritance.ClearMovement();
     }
 
     /// <summary>
     /// Runs the movement/animation/interruption/colour slice of the intro demo's
     /// movement phase, followed by the timer owner.
     /// </summary>
-    private void StepMotherBrainFlashbackSamus()
+    private void StepMotherBrainFlashbackSamus(IntroMotherBrainFlashback flashback)
     {
-        SamusState samus = FlashbackSamus;
-        RoomLevelData level = FlashbackLevel;
-        GameplayAction demoInput = CurrentFlashbackDemoInput?.Held ?? GameplayAction.None;
+        SamusState samus = flashback.Samus;
+        RoomLevelData level = flashback.Level;
+        DemoInputState flashbackInput = flashback.DemoInput;
+        GameplayAction demoInput = flashbackInput.Held;
 
         // Each frame shows the definitions selected by the previous Samus draw. This
         // is what makes pose/frame changes use their corresponding artwork rather than
@@ -839,19 +825,19 @@ public sealed class IntroCinematicState : IFrontendScreen
             hurtEndingProbe = SamusGroundedMovement.StepKnockbackEnding(
                 level, samus, frameCounter, IntroCollisionRoomObjects.Instance);
         }
-        else if (CurrentFlashbackDemoInput?.Enabled == true &&
+        else if (flashbackInput.Enabled &&
             (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose)))
         {
             // The demo's later run/jump records use the same input/movement order as the
             // discovery scene. This coordinator already animates and commits its pose.
             IntroSamusDemoMovement.StepGroundedLeft(level, samus, demoInput,
-                CurrentFlashbackDemoInput.NewlyPressed, frameCounter, Random);
+                flashbackInput.NewlyPressed, frameCounter, Random);
             groundedDemoStepped = true;
         }
         else if (samus.Pose == SamusPoseId.SpinJumpLeftPose)
         {
             fallingMovement = SamusAerialMovement.StepSpinJump(level, samus,
-                demoInput, frameCounter, CurrentFlashbackDemoInput?.NewlyPressed ?? GameplayAction.None, IntroCollisionRoomObjects.Instance);
+                demoInput, frameCounter, flashbackInput.NewlyPressed, IntroCollisionRoomObjects.Instance);
         }
         else if (SamusPoseMetadata.IsLeftFacingNormalJumpPose(samus.Pose))
         {
@@ -928,7 +914,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>Runs the Mother Brain demo's end step, freezing input after its prescribed Samus pose change.</summary>
-    private void HandleMotherBrainDemoCue(DemoInputCue cue)
+    private static void HandleMotherBrainDemoCue(IntroMotherBrainFlashback flashback, DemoInputCue cue)
     {
         if (cue != DemoInputCue.EndIntroMotherBrainFlashback)
             throw new InvalidOperationException($"The Mother Brain flashback demo handles no {cue} cue.");
@@ -938,12 +924,13 @@ public sealed class IntroCinematicState : IFrontendScreen
         // step is the shared delete, so the actor is removed on the same
         // update. Freezing input after the exact pose change gives the remaining Mother Brain explosion
         // frames the standing Samus the game shows in them once her demo stops driving her.
-        FlashbackSamus.Pose = SamusPoseId.FacingLeftNormalPose;
-        SamusPoseMetadata.RefreshCollisionRadii(FlashbackSamus);
+        SamusState samus = flashback.Samus;
+        samus.Pose = SamusPoseId.FacingLeftNormalPose;
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         // A Samus already standing facing left keeps her running animation.
-        SamusPresentation.SetAnimationFrameIfPoseChanged(FlashbackSamus);
-        FlashbackSamus.CommitPoseHistory();
-        FlashbackDemoInput.Disable();
+        SamusPresentation.SetAnimationFrameIfPoseChanged(samus);
+        samus.CommitPoseHistory();
+        flashback.DemoInput.Disable();
     }
 
     /// <summary>Builds the flashback's room: collision only, which the flashback's own pictures show.</summary>
@@ -963,7 +950,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>
     /// Prepares Mother Brain's sprites once per display; trail drawing advances state, so a captured frame cannot be redrawn through this path.
     /// </summary>
-    internal SpriteFrameBuffer PrepareMotherBrainSprites()
+    /// <param name="flashback">The running flashback.</param>
+    internal SpriteFrameBuffer PrepareMotherBrainSprites(IntroMotherBrainFlashback flashback)
     {
         // Both direct rendering and detached capture enter here once per display.
         var sprites = new SpriteFrameBuffer();
@@ -973,7 +961,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // cinematic actors; once deleting Mother Brain clears it, only the actors remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            FlashbackSamus.Presentation.Draw(FlashbackSamus, sprites, cameraPosition: Position16<RoomPixels>.Zero, frameCounter);
+            flashback.Samus.Presentation.Draw(flashback.Samus, sprites, cameraPosition: Position16<RoomPixels>.Zero, frameCounter);
             // The flashback's artwork holds the power beam's pictures whatever beam its Samus fires.
             var projectileArtwork = new ProjectileDrawArtwork(projectileSheets);
             flashbackProjectiles.DrawLiveProjectiles(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
@@ -981,10 +969,11 @@ public sealed class IntroCinematicState : IFrontendScreen
             flashbackProjectiles.DrawTrails(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
             flashbackProjectiles.DrawExplosions(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
         }
-        FlashbackRinkas?.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroRinka));
-        FlashbackMotherBrainExplosions?.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroMotherBrainExplosion));
+        flashback.Rinkas.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroRinka));
+        flashback.Explosions?.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroMotherBrainExplosion));
         // The blank pose draws nothing.
-        if (FlashbackMotherBrain.IsVisible && FlashbackMotherBrain.Pose is { } motherBrainPose &&
+        IntroMotherBrainSpriteState motherBrain = flashback.MotherBrain;
+        if (motherBrain.IsVisible && motherBrain.Pose is { } motherBrainPose &&
             motherBrainPose != CinematicSpritePose.Blank)
         {
             // Samus shown over the cinematic actors makes the intro's sprite draw put Samus first and cinematic
@@ -992,7 +981,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             IntroSprites(CinematicSpriteFamily.IntroMotherBrain).Draw(
                 motherBrainPose, screenSprites,
                 IntroMotherBrainSpriteState.Position,
-                FlashbackMotherBrain.Shading(crossfade.ActorShading(IntroMotherBrainSpriteState.Colouring)));
+                motherBrain.Shading(crossfade.ActorShading(IntroMotherBrainSpriteState.Colouring)));
         }
         screenSprites.FinishFrame();
         foreach (SpriteDraw draw in screenSprites.Draws)
@@ -1116,12 +1105,11 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         SpriteFrameBuffer sprites;
         PicturedPlaneLayer room;
-        if (illustration == IntroIllustration.MotherBrainFlashback)
+        if (illustration == IntroIllustration.MotherBrainFlashback && MotherBrainFlashback is { } flashback)
         {
-            sprites = PrepareMotherBrainSprites();
+            sprites = PrepareMotherBrainSprites(flashback);
             room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.MotherBrainRoom, FightRoomShading),
-                (CurrentFlashbackMotherBrain?.Background ??
-                    new Position16<RoomPixels>(0, GameplayFlashbackVerticalScroll)).AsPlaneOffset());
+                flashback.MotherBrain.Background.AsPlaneOffset());
         }
         else if (illustration == IntroIllustration.BabyDiscovery)
         {

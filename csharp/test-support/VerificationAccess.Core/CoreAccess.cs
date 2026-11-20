@@ -90,6 +90,23 @@ internal static class CoreAccess
         /// <summary>Native projectile counter for the intro flashback's private shot system.</summary>
         internal int ActiveFlashbackProjectileCount =>
             intro.flashbackProjectiles.Pool.ShotCount.Count;
+        /// <summary>The Mother Brain flashback's Samus while the flashback runs.</summary>
+        internal SamusState? CurrentFlashbackSamus => intro.MotherBrainFlashback?.Samus;
+        /// <summary>The Mother Brain flashback's scripted input while the flashback runs.</summary>
+        internal DemoInputState? CurrentFlashbackDemoInput => intro.MotherBrainFlashback?.DemoInput;
+        /// <summary>The Mother Brain flashback's Mother Brain sprite while the flashback runs.</summary>
+        internal IntroMotherBrainSpriteState? CurrentFlashbackMotherBrain => intro.MotherBrainFlashback?.MotherBrain;
+        /// <summary>The Mother Brain flashback's collision room while the flashback runs.</summary>
+        internal RoomLevelData? CurrentFlashbackLevel => intro.MotherBrainFlashback?.Level;
+        /// <summary>The running Mother Brain flashback, which the fixture set up.</summary>
+        private IntroMotherBrainFlashback RunningFlashback => intro.MotherBrainFlashback
+            ?? throw new InvalidOperationException("The fixture runs the Mother Brain flashback after setting it up.");
+        /// <summary>Runs the running flashback's demo step.</summary>
+        internal void StepMotherBrainDemo() => intro.StepMotherBrainDemo(intro.RunningFlashback);
+        /// <summary>Prepares the running flashback's sprites.</summary>
+        internal SpriteFrameBuffer PrepareMotherBrainSprites() => intro.PrepareMotherBrainSprites(intro.RunningFlashback);
+        /// <summary>Sets up the discovery after the running flashback.</summary>
+        internal void SetupBabyDiscoveryCrossfade() => intro.SetupBabyDiscoveryCrossfade(intro.RunningFlashback);
         /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>
         internal ushort FlashbackSamusX => intro.CurrentFlashbackSamus?.Position.X.Whole ?? 0;
         /// <summary>Flashback Samus's whole-pixel Y coordinate when that actor exists.</summary>

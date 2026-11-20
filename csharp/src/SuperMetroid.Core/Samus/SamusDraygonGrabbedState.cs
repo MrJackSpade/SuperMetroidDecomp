@@ -83,8 +83,8 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>
     /// Places Samus where Draygon carries her, after enemy AI has updated the
     /// boss body. Facing left places Samus eight pixels left; facing right places her eight
-    /// pixels right; both place her 40 pixels below the body center. Draygon also places a
-    /// Samus who has just escaped: the carry that places her reports her escape, which he sees once.
+    /// pixels right; both place her 40 pixels below the body center. Draygon keeps placing her until he sees her
+    /// release (<see cref="SamusDraygonHoldPhase.ReleasedUnseen"/>).
     /// </summary>
     /// <returns>Whether she had broken free since his last carry, which this carry has him see.</returns>
     public bool CarryTo(
@@ -126,8 +126,8 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Runs the escape check after Samus's movement: counts a newly pressed pattern of directions only when it is nonzero
-    /// and different from the last counted pattern, and releases her once the count reaches its target.
+    /// Runs the escape check after Samus's movement: a press counts when at least one direction is newly pressed and it
+    /// differs from the last counted press, and Samus is released once the count reaches its target.
     /// </summary>
     /// <returns>Whether the check released her.</returns>
     public bool CheckDraygonEscape(

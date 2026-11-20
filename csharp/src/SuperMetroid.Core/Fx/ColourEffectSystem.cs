@@ -382,14 +382,14 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// The frames Samus's suit groups showed during the last update, in order (#1512): she lays the shade of each over
-    /// her suit, as each frame overwrote her suit's colours then.
+    /// The frames Samus's suit groups showed during the last update, in order (#1512): she shows each frame's shade
+    /// over her suit in turn.
     /// </summary>
     internal IReadOnlyList<ShownColourEffectFrame> SuitShown => shownOnOwners.Suit;
 
     /// <summary>
-    /// The frames the escape's shutter flash showed during the last update, in order (#1512, #2288): the room's destroyable
-    /// shutters lay the shade of each over their draws, as each frame overwrote their colours then.
+    /// The frames the escape's shutter flash showed during the last update, in order (#1512, #2288): the room's
+    /// destroyable shutters show each frame's shade over their draws in turn.
     /// </summary>
     internal IReadOnlyList<ColourEffectFrame> ShutterFlashShown => shownOnOwners.ShutterFlash;
 
@@ -416,7 +416,8 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
 
     /// <summary>
     /// The looks the colour groups show now, in the order they are laid (#1597, #1598): the settled effects' final frames,
-    /// then the running effects' frames in turn order. A look laid later lies over an earlier one on the colours it writes.
+    /// then the running effects' frames in turn order. A look laid later lies over an earlier one on the colours it
+    /// shows.
     /// </summary>
     internal IReadOnlyList<ShownColourEffectFrame> Shown => ShownFrames();
 

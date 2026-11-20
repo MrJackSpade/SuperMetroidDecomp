@@ -41,8 +41,8 @@ public sealed class GrowingShutterEnemyState
     public GrowingShutterAction Action { get; internal set; }
 
     /// <summary>
-    /// The timer-mode activation updates left, the one it grows on included: the placement's wait and the call it runs out on
-    /// (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>), so a wait of N grows on call N + 1 (#2281).
+    /// The timer-mode wait before the shutter grows: it grows on the update after its placement's wait
+    /// (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>) (#2281).
     /// </summary>
     public UpdateCountdown ActivationTimer { get; internal set; } = UpdateCountdown.Ended();
 

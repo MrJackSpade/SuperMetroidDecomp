@@ -82,8 +82,8 @@ internal static class ProjectileTrailPlacementDefinitions
 
     /// <summary>
     /// Where each list starts a trail for each frame a shot that selects it can show: the two sparkles' offsets (#1926,
-    /// #2124). A frame a list holds no placement for leaves no trail (<see cref="ProjectileTrailPlacements.Start"/>): what
-    /// lies past a list's placements is not part of the game's design (#1625).
+    /// #2124). A frame a list holds no placement for leaves no trail (<see cref="ProjectileTrailPlacements.Start"/>)
+    /// (#1625).
     /// </summary>
     internal static readonly FrozenDictionary<ProjectileTrailPlacementList, FrozenDictionary<SamusProjectileFrameId, ProjectileTrailPlacement>> PlacementsByList =
         new Dictionary<ProjectileTrailPlacementList, FrozenDictionary<SamusProjectileFrameId, ProjectileTrailPlacement>>

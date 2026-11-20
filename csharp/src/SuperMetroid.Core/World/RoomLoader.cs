@@ -154,8 +154,7 @@ internal sealed class RoomLoader
     private DoorOpeningSourceView? _sourceViewForDoorOpening;
 
     /// <summary>
-    /// Executes the data-loading portion of a new game's setup: Ceres, its elevator
-    /// checkpoint, the checkpoint-selected room, and its fresh-save state-selection branch.
+    /// Loads a new game: Ceres's starting room, at its elevator, in the state a fresh save chooses.
     /// </summary>
     public void InitializeStartingCeresRoom()
     {
@@ -197,10 +196,8 @@ internal sealed class RoomLoader
         AreaId requestedArea = station.Area;
         DoorDefinition door = station.Placement.Door;
 
-        // Apply progression before room construction. Enemy and room-object initialization query
-        // boss/event/item flags synchronously, while room-state selection and beam graphics
-        // depend on those same flags. In particular, loading a post-Morph-Ball save must not
-        // accidentally construct the untouched new-game version of Blue Brinstar.
+        // The save's progress applies before the room is built: the enemies' and room objects' setups, the room's state
+        // and the beam's pictures all read it, so a save past the Morph Ball loads Blue Brinstar as it now is.
         RestoreSavedPlayerState(slot);
         _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeX(station.Placement.SamusPosition.X);
         _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeY(station.Placement.SamusPosition.Y);

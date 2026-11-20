@@ -48,7 +48,7 @@ internal static class SamusShotBehaviors
     /// <summary>The Chainsaw shot, an uncharged Spazer, Plasma and Wave beam.</summary>
     internal static SamusShotBehavior ChainsawPowerBomb { get; } = new ChainsawPowerBombShot();
 
-    /// <summary>The uncharged Spazer and Plasma shot, which runs whatever an unconnected region holds.</summary>
+    /// <summary>The uncharged Spazer and Plasma shot, whose behaviour lies outside the emulation scope limit.</summary>
     internal static SamusShotBehavior UnchargedSpazerPlasma { get; } =
         new ShotRefusedWhenFired("whatever an unconnected region holds");
 

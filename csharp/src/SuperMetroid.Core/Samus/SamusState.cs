@@ -188,9 +188,8 @@ public sealed class SamusState
     internal GameplaySoundRequests AudioRequests { get; }
 
     /// <summary>
-    /// Crystal Flash initiation, ammo cadence, energy restoration, and its hold on her
-    /// movement. It is deliberately separate from <see cref="Shinespark"/> even though the
-    /// game shares a few values between the mutually exclusive effects.
+    /// Crystal Flash initiation, ammo cadence, energy restoration, and its hold on her movement, apart from
+    /// <see cref="Shinespark"/>, which never runs with it.
     /// </summary>
     public SamusCrystalFlashState CrystalFlash { get; }
 
@@ -235,9 +234,9 @@ public sealed class SamusState
 
     /// <summary>
     /// How slowed Samus is (#2286), 0 through <see cref="SamusHorizontalSpeedState.LargestSlowdownLevel"/>, as her own view
-    /// of <see cref="SamusHorizontalSpeedState.SlowdownLevel"/>. The game keeps one level for two effects: her speed is
-    /// halved once per level, and on dry ground each level adds an update to every frame of her animation
-    /// (<see cref="ExtraAnimationDelay"/>). The setter rejects values outside that range.
+    /// of <see cref="SamusHorizontalSpeedState.SlowdownLevel"/>: each level halves her speed once and, on dry ground,
+    /// adds an update to every frame of her animation (<see cref="ExtraAnimationDelay"/>). The setter rejects values
+    /// outside that range.
     /// </summary>
     [IntegerQuantity("halvings of Samus's horizontal speed, zero when she is not slowed")]
     public int SlowdownLevel

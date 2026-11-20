@@ -65,9 +65,8 @@ public enum SamusPoseId
     MoonwalkAimDownRightPose,
 
     /// <summary>
-    /// Right-facing moonwalk art turning/jumping toward the left. Despite its traditional
-    /// name, this is still grounded turning movement until its input transitions or its
-    /// animation's final step installs the actual spin jump.
+    /// Right-facing moonwalk art turning toward the left: a grounded turn that ends in a spin jump when its input
+    /// transitions or its animation's last step start the jump.
     /// </summary>
     MoonwalkTurnJumpLeftPose,
 

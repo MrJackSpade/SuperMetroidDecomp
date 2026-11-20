@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <param name="Level">The room's blocks, which a moving projectile collides with.</param>
 /// <param name="Samus">Samus, for behaviours that act on her.</param>
 /// <param name="Camera">The camera of the pass, for behaviours that test the screen.</param>
-/// <param name="ShortCounter">The game's short frame counter for the pass, 0 through 255, which cadences sample.</param>
-/// <param name="FrameCounter">The game's long frame counter for the pass, 0 through 65535, which cadences sample.</param>
+/// <param name="ShortCounter">The enemies' short update count for the pass, which cadences sample.</param>
+/// <param name="FrameCounter">The game's update count for the pass, which cadences sample.</param>
 /// <param name="SamusBombs">Samus's bombs, for behaviours that react to them.</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct EnemyProjectileMotionContext(

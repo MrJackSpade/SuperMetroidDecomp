@@ -31,7 +31,8 @@ internal sealed class GameplayActorDrawing
     private readonly GameplayDisplayState _display;
     /// <summary>Determines whether time-dependent enemy projectile drawing is suspended.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Provides frame-counter cadence for blinking and drawing branches.</summary>
+    /// <summary>The update count that paces Samus's blinking and the alternate-update drawing of the elevator and the
+    /// crash's echoes.</summary>
     private readonly FrameClock _clock;
 
     /// <summary>Receives Samus's whole-frame draws in the same order as the sprites around them.</summary>
@@ -198,12 +199,10 @@ internal sealed class GameplayActorDrawing
             else if (samus.Shinespark.Phase is
                      ShinesparkPhase.Crash or ShinesparkPhase.CrashHold)
             {
-                // The shinespark crash's drawing takes over at the instant an active
-                // shinespark crashes. Unlike the default drawing, it intentionally
-                // omits charging flare/audio, atmosphere, both arm-cannon priority
-                // paths, ordinary departing speed echoes, and grapple graphics. It
-                // draws the live body first, then the crash's second echo before its
-                // first on odd frames. The projectiles and trails below are still drawn after it.
+                // The shinespark crash's drawing takes over the instant an active shinespark crashes: it shows no
+                // charging flare or sound, atmosphere, arm cannon, departing speed echoes or grapple. It draws the body
+                // first, then the crash's second echo before its first on odd updates. The projectiles and trails below
+                // are still drawn after it.
                 samus.Presentation.Draw(samus, 
                     _sprites,
                     room.Camera.PixelPosition,
@@ -335,9 +334,8 @@ internal sealed class GameplayActorDrawing
             // The demo's input is never replaced with auto-jump.
             if (_attractSession.IsAttractDemo) samus.InputSnapshot.AutoJump.Reinstate();
 
-            // The charge-sound latch follows the drawing of Samus and her projectiles. A hurt flash's sound-recovery update
-            // may have armed this latch above; consuming it here preserves both the
-            // same-frame charging sound and ordering after projectile drawing.
+            // The charging sound starts after Samus and her shots are drawn, on the update the hurt flash's recovery
+            // allows it.
             SamusPostDrawAudio.Step(
                 samus,
                 _player.PreviousMovementTypeForXray,

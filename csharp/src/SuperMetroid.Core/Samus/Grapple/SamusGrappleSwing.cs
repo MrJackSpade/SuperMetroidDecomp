@@ -261,9 +261,7 @@ public static class SamusGrappleSwing
         // The swing only admits this extra angular impulse while its terrain bounce lasts
         // (GrappleBeamDefinitions.Physics.CollisionBounceFrames). It is separate from ordinary Samus jump velocity and decays
         // inside the angular movement only after a successful angular movement pass.
-        // The kick reads Jump, not Dash. That test must agree with the release-window
-        // check, or tight anchors become inescapable using Jump even though the
-        // unrelated Dash accidentally supplies the kick.
+        // A fresh Jump during the bounce gives the kick, as it opens the release window.
         if (grapple.CollisionBounceTimer.IsRunning &&
             (newlyPressedInput & GameplayAction.Jump) != GameplayAction.None)
         {
@@ -282,8 +280,7 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // The angular movement first converts angular velocity into an angle delta, then walks from the
-        // current whole angle step to the target one step at a time. Fractional-only motion
-        // within the same step has no sweep, exactly as the target-step equality branch.
+        // current whole angle step to the target one step at a time; motion within one angle step sweeps nothing.
         // A submerged swing turns through only a share of its speed, rounded toward no turning.
         AngularSpeed combined = grapple.AngularVelocity + grapple.JumpImpulse;
         AngularSpeed turn = grapple.Submerged

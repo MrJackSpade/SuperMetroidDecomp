@@ -724,7 +724,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Starts a baby turtle animation with its frame timer set to one.</summary>
+    /// <summary>Starts a baby turtle animation, which shows its first frame on the next update.</summary>
     private static void StartTurtleAnimation(RoomEnemyPlace place, BabyTurtleEnemyState state, BabyTurtleSegment segment)
     {
         state.Playback = new(BabyTurtleAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);

@@ -154,8 +154,8 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Holds each shade of the rainbow one update longer, as the Baby slows it each time its 768ths of a step add up to a
-    /// whole one; the hold stops at <paramref name="longestHold"/>.
+    /// Holds each shade of the rainbow one update longer, each time the Baby's slowing of it completes a step
+    /// (RainbowFramePart); the hold stops at <paramref name="longestHold"/>.
     /// </summary>
     /// <param name="longestHold">The longest hold the glow may reach; the Baby passes ten.</param>
     public void HoldRainbowGlowLonger(int longestHold) => RainbowGlowHold = RainbowGlowHold.Lengthened(longestHold);

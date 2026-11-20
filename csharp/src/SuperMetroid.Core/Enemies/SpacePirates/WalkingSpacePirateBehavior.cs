@@ -464,8 +464,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
         {
-            // The Ninja body reaction deliberately returns for a just-fired Super Missile that has no link yet.
-            // The frame-hitbox collision walk nevertheless exits after running that reaction.
+            // The ninja's body ignores a just-fired Super Missile that has no link yet; the ignored shot is consumed
+            // and touches no further hitbox.
             return true;
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Reflect)

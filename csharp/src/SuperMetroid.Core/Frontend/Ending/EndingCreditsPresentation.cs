@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 internal static class EndingCreditsPresentation
 {
-    /// <summary>Resolves the ending display at its existing draw boundary, without rasterization.</summary>
+    /// <summary>The ending's ordered layers for the frame.</summary>
     /// <exception cref="InvalidOperationException">The ending shows a scene the presentation does not draw.</exception>
     public static LayeredScene ComposeScene(EndingCreditsState ending)
     {

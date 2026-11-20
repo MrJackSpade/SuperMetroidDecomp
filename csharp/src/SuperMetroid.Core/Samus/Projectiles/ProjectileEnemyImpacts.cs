@@ -11,7 +11,7 @@ internal sealed class ProjectileEnemyImpacts
     private readonly ProjectileAnimation _animation;
     /// <summary>Receives the Super Missile enemy-hit quake request.</summary>
     private readonly ProjectileEarthquakes _earthquakes;
-    /// <summary>Projectile records whose direction, damage, and animation change on enemy contact.</summary>
+    /// <summary>The shots in the pool, whose direction, damage, and animation change on enemy contact.</summary>
     private readonly SamusShotPool _pool;
     /// <summary>Converts missile hits to the same impact state as terrain collision.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;

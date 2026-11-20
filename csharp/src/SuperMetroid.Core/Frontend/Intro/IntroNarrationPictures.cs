@@ -34,16 +34,15 @@ public static class IntroNarrationPictures
     internal static string Letter(char letter) => $"letter-{letter}";
 
     /// <summary>
-    /// The plane showing the first card in <paramref name="shading"/> (#1512): the scene's group shades, as the card's colours
-    /// lie in several groups and in colours no group moves.
+    /// The plane showing the first card in <paramref name="shading"/>, the scene's crossfade shading (#1512).
     /// </summary>
     internal static PicturedPlane FirstCardPlane(InstalledSpriteSheets sheets, PictureShading shading) =>
         Plane([new PlacedPlanePicture(Sheet(sheets).Frame(FirstCard), default, Ensure.NotNull(shading))]);
 
     /// <summary>
-    /// The screen of the narration pages (#1512, #1555): the final line in <paramref name="finalLine"/>, as its colours lie
-    /// in several groups and in colours no group moves, and each letter <paramref name="text"/> holds at its screen pixel in
-    /// the shade of its colour variant, as <paramref name="shown"/> shows its own colours.
+    /// The screen of the narration pages (#1512, #1555): the final line in <paramref name="finalLine"/>, the scene's
+    /// crossfade shading, and each letter <paramref name="text"/> holds at its screen pixel in its glow's shade, as
+    /// <paramref name="shown"/> shows it.
     /// </summary>
     internal static PicturedPlane PagesPlane(InstalledSpriteSheets sheets, IntroNarrationText text, PictureShading finalLine,
         Func<PictureShading, PictureShading> shown)

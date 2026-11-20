@@ -50,12 +50,8 @@ public static class SamusSuitDamage
     /// damage passes unchanged.
     /// </summary>
     /// <remarks>
-    /// The game divides only the whole damage's remainder below 256, but no periodic damage reaches 256 whole points in one
-    /// update, so the whole damage is divided as it is (#1795). The most an update's producers accumulate is a heavy
-    /// spike's 60 or the swinging grapple's spike damage, never both, since each starts the invincibility the other waits
-    /// out, with lava's half or acid's one and a half, heat's quarter, a chewing plant's two and the Draygon turret
-    /// spike's one, all far below 256. The suit pickup, which holds the damage over its updates, equips its suit before it
-    /// starts, which stops heat, and its rooms hold no other producer.
+    /// A dividing suit divides the whole damage of an update, its fraction included (#1795); the suit pickup equips its
+    /// suit before it starts, which stops heat, and its rooms hold no other source of periodic damage.
     /// </remarks>
     public static EnergyAmount ReducePeriodic(EnergyAmount damage, SamusEquipmentFlags equippedItems)
     {

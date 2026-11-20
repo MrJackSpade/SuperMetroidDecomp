@@ -263,11 +263,11 @@ internal sealed class IntroCeresFlightState
         return shading;
     }
 
-    /// <summary>Whether the scene shows its rear view: once the rear-view map has been queued.</summary>
+    /// <summary>Whether the scene shows its rear view: once the camera has switched to it.</summary>
     private bool ShowsRearView => Phase is not (IntroCeresFlightPhase.Initial or IntroCeresFlightPhase.WaitForMusicQueue or
         IntroCeresFlightPhase.FlyingIntoCamera);
 
-    /// <summary>Loads the rear map, places five actors, and starts the white flash.</summary>
+    /// <summary>Switches the floor to the rear view, places five actors, and starts the white flash.</summary>
     private void SetupRearView()
     {
         // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
@@ -326,10 +326,9 @@ internal sealed class IntroCeresFlightState
     /// <summary>Switches to the caption page and starts typing the caption, its first glyph shown at once.</summary>
     private void SetupSpaceColonyTitle()
     {
-        // The title replaces the turning image with the caption page
-        // and starts the caption's background text object. The rear-view cinematic actors are not
-        // deleted, so Ceres and both asteroid layers remain behind the title text.
-        // English text shows no katakana caption; Japanese text shows it for one frame before the hold.
+        // The title shows the caption over the scene and starts typing it; the rear view's actors stay, so Ceres and
+        // both asteroid layers remain behind the title text. English text shows no katakana caption; Japanese text
+        // shows it for one frame before the hold.
         caption = AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>.StartShowing(
             SpaceColonyCaptionAnimations.Segments,
             SpaceColonyCaptionAnimations.Typing(japaneseText ? SpaceColonyCaptionText.WithKatakana : SpaceColonyCaptionText.English));

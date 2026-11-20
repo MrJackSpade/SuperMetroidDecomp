@@ -27,7 +27,8 @@ internal static class SpacePirateMotionDefinitions
     /// <summary>How close horizontally Samus comes, in pixels, for an idle ninja to activate.</summary>
     internal const int NinjaActivationDistance = 128;
 
-    /// <summary>How close on both axes, in pixels and exclusive, the highest occupied projectile comes before a ninja reacts.</summary>
+    /// <summary>How close on both axes, in pixels and exclusive, the shot the flinch tests
+    /// (<see cref="PirateFlinchFromHighestShot"/>) comes before a ninja reacts.</summary>
     internal const int NinjaFlinchDistance = 32;
 
     /// <summary>How close to the posts' midpoint, in pixels and exclusive, Samus comes before a ninja may spin jump or divekick.</summary>

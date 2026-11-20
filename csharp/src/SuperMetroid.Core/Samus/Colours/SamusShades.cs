@@ -85,10 +85,10 @@ public static class SamusShades
             [SamusBeamCombination.SpazerPlasmaIceWave] = "BeamSpazerPlasmaIceWave",
         }.ToFrozenDictionary();
 
-    /// <summary>The suit's colours as gameplay starts, before any suit is loaded.</summary>
+    /// <summary>The suit's colours as gameplay starts.</summary>
     public static PictureShade StartingSuit { get; } = new("SuitStarting", 0);
 
-    /// <summary>The beams' colours as gameplay starts, before any beam is loaded.</summary>
+    /// <summary>The beams' colours as gameplay starts.</summary>
     public static PictureShade StartingBeams { get; } = new("BeamsStarting", 0);
 
     /// <summary>The suit's colours in the opening's gameplay flashbacks, as the opening's own colours hold them.</summary>
@@ -160,7 +160,7 @@ public static class SamusShades
     /// <summary>The visor's green as a door transition finishes loading the next room.</summary>
     public static PictureShade DoorCompletionVisor { get; } = new("VisorDoorCompletion", 0);
 
-    /// <summary>The grapple flare's colour once the grapple's firing colours are loaded.</summary>
+    /// <summary>The grapple flare's colour once the grapple has fired.</summary>
     public static PictureShade GrappleFiringFlare { get; } = new("GrappleFlare", 0);
 
     /// <summary>

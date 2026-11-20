@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// Full control-flow result from the input-transition lookup, including its otherwise invisible
-/// branch into pose-definition fallback.
+/// What the input-transition lookup decides: a new pose, the pose's no-input fallback, or keeping the pose.
 /// </summary>
 public readonly record struct SamusPoseTransitionLookup(
     SamusPoseTransition? Transition,

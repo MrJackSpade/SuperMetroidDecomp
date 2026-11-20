@@ -530,8 +530,7 @@ internal static class SamusPosturePoseTransitions
         if (!SamusPoseMetadata.IsAirborneMorphBallPose(samus.Pose) && !SamusPoseMetadata.IsGroundedMorphBallPose(samus.Pose))
             throw new InvalidOperationException($"Morph-Ball landing requires an airborne morph-ball pose, not {samus.Pose}.");
 
-        // The speed is compared by whether its difference from the minimum is negative, so
-        // Moonfall's negative velocity lands without a rebound.
+        // A rising ball, as in Moonfall, lands without a rebound.
         if (samus.MorphBallBounceState == SamusBallBounceState.None &&
             SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.VerticalVelocity.Speed.Whole, SamusMovementDefinitions.FirstBallBounceMinimumSpeed))
         {

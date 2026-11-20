@@ -643,14 +643,15 @@ public static class SamusGrappleMovement
             OwnsMovement: false);
     }
 
-    /// <summary>Publishes rope, physical endpoint, and flare origins with the fraction's overflow from the firing offset.</summary>
+    /// <summary>Publishes the rope, the endpoint, which carries its fraction of a pixel, and the flare's
+    /// origins.</summary>
     private static void PublishFiringGeometry(SamusState samus, SamusGrappleState grapple)
     {
         // The rope start and the flare sit at whole-pixel offsets from Samus's whole position. The endpoint offsets are
         // displacements either way, so a left or upward beam keeps its direction as its fraction accumulates.
         grapple.RopeStart = samus.Position.Whole + grapple.OriginOffset;
-        // The endpoint adds the offset to Samus's position, its fraction of a pixel included, so the
-        // fraction's overflow reaches the endpoint before the whole origin offset is added.
+        // The endpoint adds the offset to Samus's position, its fraction of a pixel included, so the fraction is
+        // carried before the hand's offset is added.
         grapple.Anchor = samus.Position.Advance(grapple.EndpointOffset).Whole + grapple.OriginOffset;
         grapple.FlareOrigin = samus.Position.Whole + grapple.FlareOffset;
     }
@@ -876,10 +877,8 @@ public static class SamusGrappleMovement
         grapple.WallJumpTimer = UpdateCountdown.Ended();
         grapple.CancelFromConnectedPose = false;
 
-        // Connecting clears the delta while choosing the new pose, but the firing
-        // immediately starts automatic retraction. Omitting that retraction leaves Samus
-        // dangling unless the player explicitly supplies a fresh Up edge. Apply it for
-        // both block and enemy connections, never for an arbitrary restored swing state.
+        // Connecting clears the rope's change while choosing the new pose, and the rope then starts retracting, for
+        // block and enemy connections alike.
         grapple.RopeLengthDelta = GrappleBeamDefinitions.Physics.InitialConnectionRetraction;
 
         // A swinging or locked connection publishes the pending connection pose. It does not
@@ -1022,10 +1021,9 @@ public static class SamusGrappleMovement
     private const int EighthTurnSteps = RotationAngle.StepsPerTurn / 8;
 
     /// <summary>
-    /// The angle steps, 0 through 32, that an offset of <paramref name="minor"/> across and <paramref name="major"/> along
-    /// its octant's axis turns from that axis: the tangent, the minor part over the major, read linearly across the
-    /// eighth of a turn and truncated. Truncating the tangent to 256ths before scaling it to the eighth of a turn's 32
-    /// steps truncates the same as this one division.
+    /// The angle steps, up to an eighth of a turn, that an offset of <paramref name="minor"/> across and
+    /// <paramref name="major"/> along its octant's axis turns from that axis: the tangent, the minor part over the
+    /// major, read linearly across the eighth of a turn and rounded down.
     /// </summary>
     /// <param name="minor">The offset across the axis, 0 through <paramref name="major"/>.</param>
     /// <param name="major">The offset along the axis, at least one.</param>
@@ -1177,9 +1175,9 @@ public static class SamusGrappleMovement
     /// <summary>Resets grapple-owned movement and rendering state so a later shot cannot inherit connection state.</summary>
     private static void ClearConnectedGrapple(SamusGrappleState grapple)
     {
-        // The drop and wall-jump teardowns end with the same long cleanup. Every owned movement/rendering value is
-        // reset here so a later firing edge cannot inherit wall-grace or collision state; both teardowns end an
-        // auto-cancelled selection, and the frame's grapple phase shows the equipped beams' colours again.
+        // The drop and the wall jump clear the whole grapple: its movement, its drawing, its wall grace and its
+        // collision, so a later firing starts afresh; both end an automatically cancelled selection, and the update's
+        // grapple phase shows the equipped beams' colours again.
         grapple.Phase = GrapplePhase.Inactive;
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;

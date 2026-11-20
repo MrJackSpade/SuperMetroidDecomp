@@ -513,9 +513,8 @@ internal sealed class BeamFiring
     }
 
     /// <summary>
-    /// The launch velocity of a shot fired in <paramref name="direction"/> at <paramref name="baseSpeed"/>, in signed 1/256
-    /// pixels per update: the base speed along the direction plus the motion it inherits from Samus. Each axis wraps as
-    /// a velocity does, so an unauthored speed that passes the end of the range continues from the other end.
+    /// The launch velocity of a shot fired in <paramref name="direction"/> at <paramref name="baseSpeed"/>, in pixels
+    /// per update: the base speed along the direction plus the motion it inherits from Samus.
     /// </summary>
     private static PixelVelocity<RoomPixels> LaunchVelocity(
         ProjectileLaunchInheritance inheritance,

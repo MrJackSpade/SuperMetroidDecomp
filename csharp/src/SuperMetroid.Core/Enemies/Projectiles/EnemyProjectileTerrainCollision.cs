@@ -32,9 +32,8 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
         if (!level.Size.Contains(block))
             return true;
 
-        // Resolve horizontal- and vertical-extension links before reacting to the final block kind, just as
-        // the projectile collision loop does. Air is open, while a door
-        // remains a wall to an enemy projectile.
+        // A projectile meets the block an extension link leads to. Air is open, while a door remains a wall to an enemy
+        // projectile.
         if (EnemyTerrain.ResolveEnemyCollisionBlock(level, block) is not { } collisionBlock)
             return true;
 
@@ -75,9 +74,7 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
 
         if (type == RoomCollisionType.Slope && collisionBlock.Behavior.Slope.IsNonSquare)
         {
-            // Horizontal motion ignores non-square slopes; the following
-            // vertical pass owns their height profile. Treating one as a full wall can
-            // consume every Kago falling frame before Y collision is ever attempted.
+            // A horizontal move passes a non-square slope; the vertical move meets its height profile.
             if (axis == Axis.Horizontal)
                 return false;
 

@@ -96,9 +96,8 @@ internal sealed class ProjectileMotion
             return;
         }
 
-        // Hyper's update falls directly into the shared Wave movement. Hyper deliberately has
-        // no projectile-trail timer or trail spawn; its long beam picture
-        // and the separately counting muzzle flare provide the complete presentation.
+        // The Hyper Beam moves as the Wave Beam does, without trails: its long beam picture and its own muzzle flare
+        // show it.
         RunWaveBeamShared(level, shot, cameraPosition, roomObjects);
     }
 

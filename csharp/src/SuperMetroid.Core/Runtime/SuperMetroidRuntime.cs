@@ -29,7 +29,7 @@ using SuperMetroid.Core.Saves;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
-/// Incremental, frame-steppable C# runtime shell for the Super Metroid systems.
+/// The owner that advances the game one gameplay update at a time.
 /// </summary>
 /// <remarks>
 /// Each update begins at the frame boundary, which shows the previous update's frame, latches
@@ -595,10 +595,10 @@ internal sealed class SuperMetroidRuntime
         {
             room.ColourEffects.Step(new ColourEffectInputs { SamusY = samus.Position.Y.Whole, EquippedItems = samus.EquippedItems, AreaMiniBossDefeated =
                     System.HasDefeatedAnyOf(room.Room.Area, DefeatedBosses.AreaMiniBoss), Samus = Player, FrameCounter = Clock.Counter });
-            // Her heat glow and her suit's loading show over her suit as the frames that wrote it (#1512).
+            // Her heat glow and her suit's loading show over her suit while the room's colour effects run (#1512).
             foreach ((ColourEffectColours colours, ColourEffectFrame frame) in room.ColourEffects.SuitShown)
                 Player.Colours.LayOverSuit(ColourEffectShades.Of(colours, frame));
-            // The escape's shutter flash shows on the room's destroyable shutters as the frames that wrote it (#1512).
+            // The escape's shutter flash shows on the room's destroyable shutters (#1512).
             foreach (ColourEffectFrame frame in room.ColourEffects.ShutterFlashShown)
                 room.Enemies.ShowEscapeShutterFlash(frame);
             // An effect an enemy shows shows on the enemy its start handed it, for as long as the room's colour effects run
@@ -1017,9 +1017,9 @@ internal sealed class SuperMetroidRuntime
         // Only Samus's normal movement mode runs the escape timer (#2504). Every other mode, held for the reserve refill,
         // the death, the Ceres elevator, an elevator ride, a station, the rainbow beam, a suit pickup or the gunship,
         // neither counts it down nor shows it, so a countdown cannot run out while she is held. The escape stays timed,
-        // and the update that restores her control counts on. The enemy phase can install the gunship's movement mode on
-        // this frame, which boarding hides the timer with; the mode is decided after the actor transition, before liftoff
-        // can repurpose the timer's sprite pictures as dust.
+        // and the update that restores her control counts on. The enemy phase can start the gunship's boarding this
+        // update, which hides the timer as Samus boards; the boarding is decided after the actor transition, before
+        // liftoff.
         bool escapeTimerRuns = tail.Mode.Movement == SamusMovementMode.Normal;
         bool startsTimeUp = false;
         if (escapeTimerRuns && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))

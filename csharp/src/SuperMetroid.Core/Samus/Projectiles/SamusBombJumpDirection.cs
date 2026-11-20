@@ -1,7 +1,9 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Which way a bomb's timer-eight overlap launches Samus, chosen from Samus's horizontal position against the bomb's.
+/// Which way a bomb launches Samus as its explosion reaches her
+/// (<see cref="MorphBallBombDefinitions.BombJumpExplosionCount"/>), chosen from Samus's horizontal position against the
+/// bomb's.
 /// </summary>
 public enum SamusBombJumpDirection
 {

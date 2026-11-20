@@ -109,7 +109,8 @@ internal sealed class EndingFlyaway
         ShipShake = ShipShake.Advanced();
     }
 
-    /// <summary>Accumulates split planet velocity and turns toward the final gunship text at the exit scale.</summary>
+    /// <summary>Speeds the planet up and moves it by its velocity, turning it toward the final gunship text at the exit
+    /// scale.</summary>
     /// <param name="cinematicFrame">The ending's updates so far, whose quarter phase paces the planet's turn.</param>
     /// <returns>Whether the planet has reached its exit scale, where the completion text shows.</returns>
     internal bool StepPlanetEscapeAccelerating(int cinematicFrame)

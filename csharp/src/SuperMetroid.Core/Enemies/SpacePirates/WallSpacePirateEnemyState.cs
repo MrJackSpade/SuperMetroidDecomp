@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The state of a wall Pirate; the jump its placement chose is the Pirate's own, which nothing else reads.
+/// The state of a wall Pirate: the jump its placement chose.
 /// </summary>
 public sealed class WallSpacePirateEnemyState
 {

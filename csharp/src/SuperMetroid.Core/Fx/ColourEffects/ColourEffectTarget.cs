@@ -86,8 +86,8 @@ internal abstract record ColourEffectTarget
     }
 
     /// <summary>
-    /// An owner that lays the shade of each frame the effect shows over its own draws, as each frame overwrote its colours:
-    /// Samus's suit, the escape's shutters, or an enemy.
+    /// An owner that shows the shade of each frame the effect shows over its own draws: Samus's suit, the escape's
+    /// shutters, or an enemy.
     /// </summary>
     internal abstract record OnOwner : ColourEffectTarget
     {

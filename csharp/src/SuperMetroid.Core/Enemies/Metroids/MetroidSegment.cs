@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The Metroid's chasing and draining pulse loops (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Metroid's chasing and draining pulse loops (#641).
 /// Their steps are <see cref="MetroidAnimations"/>.
 /// </summary>
 internal enum MetroidSegment

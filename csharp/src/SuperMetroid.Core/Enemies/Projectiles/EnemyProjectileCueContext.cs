@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <param name="Projectile">The projectile whose animation published the cue.</param>
 /// <param name="Samus">Samus, for cues that act on her and for the drops a cue spawns (#2159).</param>
 /// <param name="Camera">The camera of the projectile pass, for cues that test the screen.</param>
-/// <param name="ShortCounter">The game's short frame counter for the pass, 0 through 255, which cue cadences sample.</param>
+/// <param name="ShortCounter">The enemies' short update count for the pass, which cue cadences sample.</param>
 /// <param name="SamusBombs">Samus's bombs, whose power bomb explosion a cue may test (#2159).</param>
 /// <param name="Projectiles">The projectile engine running the pass, which carries out the shared cues.</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]

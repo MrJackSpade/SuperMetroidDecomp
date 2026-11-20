@@ -165,8 +165,8 @@ public static class SamusGrappleBeamDrawing
 /// <summary>Clears the flare's stage and its animation, for grapple cancellation and connection cleanup alike.</summary>
     internal static void ClearFlareAnimation(SamusGrappleState grapple)
     {
-        // Every grapple teardown clears these same shared charge/grapple
-        // values before restoring Samus's ordinary drawing and projectile shade.
+        // Every grapple teardown clears the grapple's flare before restoring Samus's ordinary drawing and projectile
+        // shade.
         grapple.FlareStage = GrappleFlareStage.None;
         grapple.Flare.Clear();
     }

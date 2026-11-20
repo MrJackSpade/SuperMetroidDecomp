@@ -58,7 +58,7 @@ public sealed class FileSelectMapAnimations
     }
 
     /// <summary>Appends the shown arrows' pictures to the sprite list in the map highlight shade, without changing which show.</summary>
-    /// <param name="entries">Destination sprite buffer owned by the menu frame being composed.</param>
+    /// <param name="entries">The screen's sprites, among which the arrows are drawn.</param>
     /// <param name="highlight">The shading of the highlight cycle's current frame on the screen that draws the arrows (#1512).</param>
     /// <param name="sheet">The installed map sprite sheet.</param>
     /// <param name="verticalOffset">Screen-pixel Y translation added to each bound arrow anchor; pause-map rendering supplies its banner offset here.</param>

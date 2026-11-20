@@ -48,8 +48,7 @@ internal sealed class EndingLogo
     public void Step(EndingColours colours)
     {
         if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
-        // The cinematic phase runs before sprite cues, so the first colour pair is copied on the update after the
-        // request, not on the update that requests it.
+        // The crossfade's first step shows on the update after the grey-out cue, not on the update that requests it.
         if (CrossfadeStarted)
         {
             EndingLogoCrossfadeStep step = ShownCrossfade is { } shown

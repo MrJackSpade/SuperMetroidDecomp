@@ -224,8 +224,7 @@ internal static class SamusAerialPoseTransitions
         samus.Pose = SelectEquippedSpinPose(samus, genericTarget, start: SpinPoseStart.SkipFirstFrame);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-        // The spin jump's initialization writes frame one, skipping the static first spin frame. This
-        // is easy to miss because an ordinary ground jump initializes the pose elsewhere.
+        // The reversed spin starts on its second frame.
         SamusPresentation.InitializeAnimation(samus, SamusAnimationDelays.AnimationForPose(samus.Pose).AfterStart);
     }
 

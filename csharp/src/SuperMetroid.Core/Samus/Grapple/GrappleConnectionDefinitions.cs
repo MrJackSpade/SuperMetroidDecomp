@@ -11,12 +11,11 @@ namespace SuperMetroid.Core.Samus.Grapple;
 internal static class GrappleConnectionDefinitions
 {
     /// <summary>
-    /// The connection each policy installs for each of the ten firing directions, and the pose it puts Samus in (#2286).
-    /// Every direction has its own row in every policy: firing admits only these ten directions, so no connection reads
-    /// another policy's rows. Moving vertically always swings, in the right-swinging pose for the five directions from up
-    /// (facing right) to down (facing right) and the left-swinging pose for the other five. Standing and crouching swing
-    /// from the upward diagonals and verticals and lock Samus in place otherwise; crouching locks in its own crouching
-    /// poses except when aiming straight down, where both policies use the standing down-left pose.
+    /// The connection each policy makes for each of the ten firing directions, and the pose it puts Samus in (#2286).
+    /// Moving vertically always swings, in the right-swinging pose for the five directions from up (facing right) to
+    /// down (facing right) and the left-swinging pose for the other five. Standing and crouching swing from the upward
+    /// diagonals and verticals and lock Samus in place otherwise; crouching locks in its own crouching poses except
+    /// when aiming straight down, where both policies use the standing down-left pose.
     /// </summary>
     internal static readonly FrozenDictionary<GrappleConnectionPolicy, FrozenDictionary<SamusProjectileDirection, GrappleConnection>> Directional =
         new Dictionary<GrappleConnectionPolicy, FrozenDictionary<SamusProjectileDirection, GrappleConnection>>

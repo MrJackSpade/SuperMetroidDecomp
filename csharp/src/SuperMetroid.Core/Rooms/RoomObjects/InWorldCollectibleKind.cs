@@ -11,37 +11,37 @@ public enum InWorldCollectibleKind
     SuperMissileTank,
     /// <summary>A Power Bomb tank: adds five Power Bombs to both capacity and current ammunition.</summary>
     PowerBombTank,
-    /// <summary>The Bombs: collects and equips the Bombs equipment flag.</summary>
+    /// <summary>The Bombs: collected and equipped.</summary>
     Bombs,
-    /// <summary>The Charge Beam: collects and equips the Charge beam flag.</summary>
+    /// <summary>The Charge Beam: collected and equipped.</summary>
     ChargeBeam,
-    /// <summary>The Ice Beam: collects and equips the Ice beam flag.</summary>
+    /// <summary>The Ice Beam: collected and equipped.</summary>
     IceBeam,
-    /// <summary>The Hi-Jump Boots: collects and equips the Hi-Jump Boots equipment flag.</summary>
+    /// <summary>The Hi-Jump Boots: collected and equipped.</summary>
     HiJumpBoots,
     /// <summary>The Speed Booster: collects and equips Speed Booster; its Chozo presentation also resumes lava motion after the pickup message.</summary>
     SpeedBooster,
-    /// <summary>The Wave Beam: collects and equips the Wave beam flag.</summary>
+    /// <summary>The Wave Beam: collected and equipped.</summary>
     WaveBeam,
     /// <summary>The Spazer: collects and equips Spazer while unequipping Plasma.</summary>
     SpazerBeam,
-    /// <summary>The Spring Ball: collects and equips the Spring Ball equipment flag.</summary>
+    /// <summary>The Spring Ball: collected and equipped.</summary>
     SpringBall,
     /// <summary>The Varia Suit: collects and equips Varia Suit and clears the beam's charge before its message.</summary>
     VariaSuit,
     /// <summary>The Gravity Suit: collects and equips Gravity Suit and clears the beam's charge before its message.</summary>
     GravitySuit,
-    /// <summary>The X-Ray Scope: collects and equips the X-Ray Scope equipment flag.</summary>
+    /// <summary>The X-Ray Scope: collected and equipped.</summary>
     XrayScope,
     /// <summary>The Plasma Beam: collects and equips Plasma while unequipping Spazer.</summary>
     PlasmaBeam,
-    /// <summary>The Grapple Beam: collects and equips the Grapple Beam equipment flag.</summary>
+    /// <summary>The Grapple Beam: collected and equipped.</summary>
     GrappleBeam,
-    /// <summary>The Space Jump: collects and equips the Space Jump equipment flag.</summary>
+    /// <summary>The Space Jump: collected and equipped.</summary>
     SpaceJump,
-    /// <summary>The Screw Attack: collects and equips the Screw Attack equipment flag.</summary>
+    /// <summary>The Screw Attack: collected and equipped.</summary>
     ScrewAttack,
-    /// <summary>The Morph Ball: collects and equips the Morph Ball equipment flag.</summary>
+    /// <summary>The Morph Ball: collected and equipped.</summary>
     MorphBall,
     /// <summary>A Reserve Tank: adds 100 reserve-energy capacity and selects automatic reserve mode if no mode was set.</summary>
     ReserveTank,

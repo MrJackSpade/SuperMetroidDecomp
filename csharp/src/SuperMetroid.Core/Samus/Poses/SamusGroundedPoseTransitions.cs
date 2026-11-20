@@ -243,13 +243,10 @@ internal static class SamusGroundedPoseTransitions
 
         if (entering && !moonwalkEnabled)
         {
-            // Normal landing points at the same grounded input transitions as
-            // ordinary standing. Consequently a backward direction can nominate the
-            // corresponding Moonwalk pose before the option gate runs. The setup
-            // does not special-case the old landing movement type: with Moonwalk off it
-            // substitutes the same ordinary standing turn used from normal standing.
-            // Tests the way the candidate pose faces: the right-facing moonwalk poses travel left and become the
-            // right-to-left turn; the left-facing ones travel right and become left-to-right.
+            // A landing takes the standing pose's input transitions, so a backward direction can choose the Moonwalk
+            // pose before the option is tested; with Moonwalk off, the landing turns as standing does. The way the
+            // candidate pose faces decides: the right-facing moonwalk poses travel left and become the right-to-left
+            // turn; the left-facing ones travel right and become left-to-right.
             ApplyGroundedTurn(samus,
                 targetVisualRight ? SamusPoseId.TurningRightToLeftPose : SamusPoseId.TurningLeftToRightPose);
             return;
@@ -427,9 +424,7 @@ internal static class SamusGroundedPoseTransitions
         SamusPoseId selectedTurnPose;
         if (wasForwardFacing)
         {
-            // This is the literal early branch: keep the input-transition
-            // result. Reading the shot direction of a forward-facing pose here would manufacture an aim/facing
-            // direction that the game explicitly declines to inspect.
+            // A forward-facing Samus keeps the generic turn the input transitions chose.
             selectedTurnPose = targetPose;
         }
         else

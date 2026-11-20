@@ -48,7 +48,7 @@ public sealed class InstalledRoomLevel
     /// <summary>What each background block shows, row by row.</summary>
     public ImmutableArray<RoomBlockAppearance> Background { get; }
 
-    /// <summary>The level data that followed the grid, read as terrain blocks.</summary>
+    /// <summary>The terrain a probe past the room's grid finds.</summary>
     public ImmutableArray<RoomTerrainBlock> Following { get; }
 
     /// <summary>How many blocks the room's level space holds past its grid.</summary>

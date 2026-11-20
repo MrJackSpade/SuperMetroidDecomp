@@ -25,15 +25,15 @@ internal static class CeresDestructionSceneDefinitions
     internal const ColourEffectId ZebesTextFadeOut = ColourEffectId.FadeOutPlanetZebesText;
 
     /// <summary>
-    /// The colour groups the turning floor shows the records of (#1733): the station's navigation lights over Ceres, and the
-    /// gunship engine's flicker on the approach to Zebes.
+    /// The colour effects whose current frame the turning floor shows (#1733): the station's navigation lights over
+    /// Ceres, and the gunship engine's flicker on the approach to Zebes.
     /// </summary>
     internal static IReadOnlyList<ColourEffectColours> FloorColours { get; } =
         [ColourEffectColours.CeresNavigationLightsBackground, ColourEffectColours.CutsceneGunshipEngine];
 
     /// <summary>
-    /// The colour group of each actor colouring a colour effect animates (#1733): an actor drawn in the colouring shows the
-    /// record the effect last showed over its drawn colours.
+    /// The colour effect each actor colouring animates (#1733): an actor drawn in the colouring shows the frame the
+    /// effect last showed over its drawn colours.
     /// </summary>
     internal static IReadOnlyDictionary<CeresSpriteColouring, ColourEffectColours> FadedColours { get; } =
         new Dictionary<CeresSpriteColouring, ColourEffectColours>

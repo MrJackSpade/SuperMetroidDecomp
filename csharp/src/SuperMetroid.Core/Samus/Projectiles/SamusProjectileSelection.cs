@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectileSelection
 {
     /// <summary>
-    /// The kind a shot of <paramref name="beams"/> is, charged when <paramref name="charged"/>. A Spazer and
-    /// Plasma combination fires what the game selects past the beam selectors (<see cref="UnauthoredBeamShots{TBeams, TProjectile}"/>).
+    /// The kind a shot of <paramref name="beams"/> is, charged when <paramref name="charged"/>. Each Spazer and Plasma
+    /// combination fires the kind <see cref="UnauthoredBeamShots{TBeams, TProjectile}"/> gives it.
     /// </summary>
     internal static SamusProjectileKind BeamShot(SamusBeamCombination beams, bool charged) => beams.CanBeEquipped
         ? Lookup(charged ? ChargedBeamShots : UnchargedBeamShots, beams)
@@ -16,8 +16,8 @@ internal static class SamusProjectileSelection
 
     /// <summary>
     /// The animation a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, runs fired in
-    /// <paramref name="direction"/>, or null for none: its kind's animation for the direction, except the Murder Beam's,
-    /// which reads past the Power Bomb kind it takes its damage from (<see cref="MurderBeamDirectionAnimations{TDirection, TAnimation}"/>).
+    /// <paramref name="direction"/>, or null for none: its kind's animation for the direction, except the Murder Beam's
+    /// own per-direction animations (<see cref="MurderBeamDirectionAnimations{TDirection, TAnimation}"/>).
     /// </summary>
     internal static SamusProjectileSegment? BeamShotAnimation(SamusBeamCombination beams, bool charged, SamusProjectileDirection direction) =>
         IsMurderBeam(beams, charged)

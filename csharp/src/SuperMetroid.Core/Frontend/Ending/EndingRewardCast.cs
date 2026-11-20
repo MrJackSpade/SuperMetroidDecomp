@@ -17,7 +17,8 @@ internal static class EndingRewardCast
         _ => throw new InvalidOperationException($"Undefined ending reward {reward}."),
     };
 
-    /// <summary>The gesture actors <paramref name="reward"/> spawns, in allocation order: the suited head first, then body and arm.</summary>
+    /// <summary>The gesture actors <paramref name="reward"/> spawns, in the order they spawn, step and draw: the suited
+    /// head first, then body and arm.</summary>
     /// <exception cref="InvalidOperationException">The reward is undefined.</exception>
     internal static IReadOnlyList<EndingRewardActor> Gesture(EndingReward reward) => reward switch
     {

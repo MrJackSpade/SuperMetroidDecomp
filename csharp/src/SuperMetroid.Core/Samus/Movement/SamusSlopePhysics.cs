@@ -26,13 +26,11 @@ public static class SamusSlopePhysics
         SignedSixteenSixteen displacement,
         UnsignedSixteenSixteen verticalSpeed)
     {
-        // Ceiling slopes and airborne Samus leave the incoming amount untouched. This is
-        // the game's complete early-return condition, not an invented policy choice.
+        // Ceiling slopes and an airborne Samus keep their horizontal displacement unscaled.
         if (behavior.Slope.FlipsVertically || !verticalSpeed.IsZero)
             return displacement;
 
-        // The displacement is counted in whole 256ths of a pixel before scaling, rounding toward negative infinity, so a
-        // leftward displacement scales by the same rule as a rightward one.
+        // A slope scales leftward and rightward movement by the same rule (SignedSixteenSixteen.ScaledBy).
         return displacement.ScaledBy(behavior.Slope.Shape.GroundedSpeedShare);
     }
 

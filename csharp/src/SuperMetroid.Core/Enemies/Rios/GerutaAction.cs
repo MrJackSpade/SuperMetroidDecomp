@@ -12,7 +12,7 @@ public enum GerutaAction
     WaitForTakeoffAnimation,
     /// <summary>Moves down and horizontally with wall reversal, transitioning to return on vertical collision or when vertical velocity becomes negative.</summary>
     Dive,
-    /// <summary>Accelerates upward while moving horizontally and responding to animation signals, ending on vertical collision rather than a saved perch coordinate.</summary>
+    /// <summary>Climbs, moving sideways and following its animation's cues, until it meets the ceiling.</summary>
     ReturnToPerch,
     /// <summary>One-update state that restores only the idle behaviour, leaving the existing looping animation and follower visibility intact.</summary>
     FinishLanding,

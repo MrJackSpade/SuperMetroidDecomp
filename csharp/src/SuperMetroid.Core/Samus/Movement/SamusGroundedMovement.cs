@@ -222,11 +222,8 @@ public static class SamusGroundedMovement
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectSpeedsFor(liquidMedium);
 
-        // The turn runs the complete X movement before
-        // cancelling boost. Because this movement type is not running, the Dash acceleration cannot
-        // add speed; it either clears an unowned pair or preserves an already established
-        // momentum pair for this final movement frame. The unconditional cancellation and
-        // zero writes below then retire it in the game's original order.
+        // The turn runs the complete X movement before ending her boost: the turn gains no Dash speed, and her extra
+        // speed and momentum last only through this update's movement before they are cleared.
         speed.HandleExtraRunSpeed(
             movementType,
             controllerInput: GameplayAction.None,
@@ -283,10 +280,8 @@ public static class SamusGroundedMovement
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectSpeedsFor(liquidMedium);
 
-        // Moonwalking's horizontal movement starts with the Dash acceleration.
-        // Moonwalking never gains Dash speed there, but an
-        // existing momentum flag deliberately carries the extra pair through moonwalking;
-        // without the flag the pair is cleared before displacement is calculated.
+        // The extra run speed survives moonwalking while she has running momentum and is cleared otherwise; moonwalking
+        // never gains Dash speed.
         speed.HandleExtraRunSpeed(
             movementType: SamusMovementType.Moonwalking,
             controllerInput: GameplayAction.None,
@@ -400,11 +395,9 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Executes the knockback movement type's ordinary movement after a
-    /// special owner (normal damage knockback or Ceres Ridley's ejection) has restored the
-    /// normal step while leaving a knockback pose current. The game clears the
-    /// vertical-collision result and performs only the shared no-speed Y probe; it does not
-    /// invent another knockback arc or silently reinterpret the hurt body as standing.
+    /// Moves Samus at the end of a knockback, after its owner (damage or Ceres Ridley's ejection) has restored her
+    /// normal step while a knockback pose still shows: her vertical collision result is cleared and she probes for
+    /// ground, without moving.
     /// </summary>
     internal static BlockMoveResult StepKnockbackEnding(
         RoomLevelData level,

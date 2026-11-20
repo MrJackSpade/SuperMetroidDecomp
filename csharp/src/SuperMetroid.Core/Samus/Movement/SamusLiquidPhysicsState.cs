@@ -234,15 +234,11 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// Reproduces the liquid-flag update, which runs after the
-    /// current grapple phase and therefore affects the following grapple frame.
+    /// Whether the grapple treats Samus as submerged, which the following grapple update reads: without the Gravity
+    /// Suit, in a room with a liquid effect, while the water's surface lies above her bottom.
     /// </summary>
-    /// <remarks>
-    /// This test is intentionally not the ordinary movement-medium selector. The game's grapple
-    /// checks whether Samus wears the Gravity Suit, requires the room to have an effect at all, and compares only the
-    /// water surface against Samus's bottom. It does not consult whether Samus ignores the
-    /// water's surface and never falls back to the lava/acid surface. Those quirks are retained rather than
-    /// replacing the game's single flag with a friendlier general notion of “submerged.”
+    /// <remarks> The grapple compares only the water's surface, even where she ignores it, and never the lava's or
+    /// acid's.
     /// </remarks>
     public bool DetermineGrappleSubmersion(SamusState samus)
     {
@@ -327,10 +323,8 @@ public sealed class SamusLiquidPhysicsState
         {
             if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter != default)
             {
-                // Lava alone cancels the speed boost before the Gravity-Suit branch.
-                // Cancelling the speed boost owns the momentum/counter/shade/echo transition;
-                // the two extra-run speeds are then cleared explicitly by the liquid step.
-                // Acid deliberately skips all three writes.
+                // Lava cancels the speed boost and Samus's extra run speed, before the Gravity Suit is considered; acid
+                // cancels neither.
                 samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
                 samus.HorizontalSpeed.ExtraRunSpeed = default;
             }

@@ -325,7 +325,7 @@ public sealed class SamusLiquidPhysicsState
         if (fxKind is RoomFxType.Lava or RoomFxType.Acid &&
             IsBelowSurface(LavaAcidSurfaceY, bottom))
         {
-            if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter != default)
+            if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter.IsBuilding)
             {
                 // Lava alone cancels the speed boost before the Gravity-Suit branch.
                 // Cancelling the speed boost owns the momentum/counter/shade/echo transition;

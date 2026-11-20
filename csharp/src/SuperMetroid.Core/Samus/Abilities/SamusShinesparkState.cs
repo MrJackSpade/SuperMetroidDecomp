@@ -425,7 +425,7 @@ public sealed class SamusShinesparkState
         // The crash entry kills translational velocity before the crash starts.
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
-        samus.HorizontalSpeed.SpeedBoostCounter = default;
+        samus.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.NotBuilding;
         // Ending the shinespark keeps this frame's contact damage. The start of the next
         // update clears it before the crash's first frame runs.
         samus.HurtFlash.Clear();

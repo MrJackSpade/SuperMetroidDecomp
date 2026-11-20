@@ -671,6 +671,7 @@ internal sealed class EnemyCollision
         Position16<RoomPixels> camera,
         SamusState samus)
     {
+        // The radius is a real size: one that has not grown from zero reaches nothing, as the game's zero test skips it.
         if (explosionRadius == 0)
             return 0;
 

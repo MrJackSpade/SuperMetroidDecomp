@@ -65,7 +65,7 @@ public static class SamusInsideBlockReactions
                     // but keeps the base speed's fraction of a pixel rather than stopping it.
                     var speed = samus.HorizontalSpeed;
                     speed.HasRunningMomentum = false;
-                    speed.SpeedBoostCounter = default;
+                    speed.SpeedBoostCounter = SamusSpeedBoostCounter.NotBuilding;
                     speed.EchoSoundPlaying = false;
                     speed.ExtraRunSpeed = default;
                     speed.BaseSpeed = QuicksandSurfaceSpeedLeftover.Leftover(speed.BaseSpeed);

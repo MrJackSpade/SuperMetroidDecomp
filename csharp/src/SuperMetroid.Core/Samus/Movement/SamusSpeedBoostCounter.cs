@@ -26,6 +26,12 @@ public readonly record struct SamusSpeedBoostCounter
     /// <summary>The full boost stage with no cadence left, as a shinespark windup publishes it.</summary>
     public static SamusSpeedBoostCounter AtFullStage => new(FullStage, 0);
 
+    /// <summary>No boost building: the counter a run starts from, and the one every boost cancellation leaves.</summary>
+    public static SamusSpeedBoostCounter NotBuilding => default;
+
+    /// <summary>Whether a boost is building: the counter stands anywhere but <see cref="NotBuilding"/>.</summary>
+    public bool IsBuilding => this != NotBuilding;
+
     /// <summary>The boost stage, zero through <see cref="FullStage"/>.</summary>
     [IntegerQuantity("how many stages the boost has reached: it rises by one, drops by one and is compared with its range, not one of a set of categories")]
     public int Stage { get; }

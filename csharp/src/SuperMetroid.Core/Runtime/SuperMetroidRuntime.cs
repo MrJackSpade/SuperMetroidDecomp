@@ -895,8 +895,8 @@ internal sealed class SuperMetroidRuntime
             room.Enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
                 room.Projectiles, room.BombProjectiles);
             // Every gameplay update resolves the power bomb's hits after the enemy-
-            // projectile passes. It reads the explosion's whole-pixel radius; a zero
-            // radius is its own inactive/pre-explosion guard.
+            // projectile passes. It reads the explosion's whole-pixel radius, a real size: an explosion whose radius has not
+            // grown from zero, before the blast or between blasts, reaches nothing, as the game's zero test skips it.
             // Invincibility timers inside the enemy pass prevent the persistent
             // expansion/afterglow radius from damaging one actor every frame.
             SamusPowerBombExplosionState powerBomb =

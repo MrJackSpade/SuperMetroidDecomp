@@ -360,7 +360,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 [KraidShades.BackdropBlack] = new PictureRecolouring([]),
             }.ToImmutableDictionary(),
         };
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], colours)).Of(GameplayPictures.Room);
+        return frame.BuildOverFixture(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], colours)).Of(GameplayPictures.Room);
     }
 
     /// <summary>The backdrop settled on <paramref name="colours"/>.</summary>

@@ -26,7 +26,7 @@ internal static class GameplayShadingProbe
             Shades = roomShades.Distinct().ToImmutableDictionary(shade => shade, _ => new PictureRecolouring([])),
         };
         // The one pixel is clear and keeps black, the backdrop's colour, which no shade recolours.
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], colours))
+        return frame.BuildOverFixture(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], colours))
             .Of(pictures);
     }
 }

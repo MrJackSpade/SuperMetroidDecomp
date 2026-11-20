@@ -161,7 +161,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         var frame = new GameplayShadingBuilder();
         state.Colours.ShadeGameplay(frame);
         // The room picture whose backdrop the build reads is pre-coloured in the powered shade the power coming on names.
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)],
+        return frame.BuildOverFixture(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)],
             new PictureColours
             {
                 Backdrop = ColourKeyConstants.Of(RgbColor.Black),

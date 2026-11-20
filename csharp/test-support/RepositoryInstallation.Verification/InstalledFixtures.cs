@@ -211,7 +211,7 @@ internal static class InstalledFixtures
     private static readonly Lazy<EnemyTileArtworkParts> enemyArtworkParts = Shared<EnemyTileArtworkParts>("enemy artwork parts", () =>
     {
         string importData = CartridgeImportContent.ImportData(GameInstallationLayout.EnemyTileDirectoryName);
-        return EnemyTileArtworkReader.Open(importData).EnemyParts(importData);
+        return EnemyTileArtworkReader.Open(importData).EnemySheets(importData);
     });
 
     /// <summary>The installation's stock room catalogs, the cartridge reference extracted from the ROM.</summary>

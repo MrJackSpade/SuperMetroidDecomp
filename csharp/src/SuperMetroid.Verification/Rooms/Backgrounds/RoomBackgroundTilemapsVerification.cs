@@ -49,7 +49,7 @@ internal static class RoomBackgroundTilemapsVerification
         var nativeVram = new SnesVram();
         var selectedVram = new SnesVram();
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeVram, ceresList, activeDoorPointer: 0);
-        LibraryBackgroundReplay.Execute(selectedVram, LibraryBackgroundProgramDefinitions.Get(ceresList), picture: LibraryBackgroundPicture.Ordinary, artwork: new LibraryBackgroundArtwork { TilemapArt = catalog });
+        LibraryBackgroundReplay.Execute(selectedVram, LibraryBackgroundProgramDefinitions.Get(ceresList), picture: LibraryBackgroundPicture.Ordinary, artwork: SuperMetroid.TestSupport.RepositoryInstallation.Verification.BossBodySheetFixtures.LibraryArtwork with { TilemapArt = catalog });
         AssertTrue(nativeVram.ImageEquals(selectedVram),
             "Ceres library BG executes installed tilemap with exact VRAM parity and no source reread");
 

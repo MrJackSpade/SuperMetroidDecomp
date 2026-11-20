@@ -105,7 +105,7 @@ static void VerifyKraidLibraryHudArtwork(
     SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, stockVram,
         transfer.ListPointer, activeDoorPointer: 0);
     SnesVram installedVram = Replay(LibraryBackgroundProgramDefinitions.Get(transfer.ListPointer),
-        new LibraryBackgroundArtwork { TilemapArt = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BackgroundTilemaps, HudArt = Compile(pixels) });
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.BossBodySheetFixtures.LibraryArtwork with { TilemapArt = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BackgroundTilemaps, HudArt = Compile(pixels) });
     int destinationByte = (transfer.VramDestination ?? throw new InvalidOperationException("Verification requires transfer.VramDestination.")) * 2;
     for (int index = 0; index < planar.Length; index++)
         AssertEqual(stockVram.ReadByte(destinationByte + index),

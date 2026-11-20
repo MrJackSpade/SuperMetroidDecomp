@@ -101,15 +101,17 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         EnemyFrameName firstIdentity = DraygonBg2FrameDefinitions.Frames[0];
         EnemyBg2WriteDocument first = document.Frames[firstIdentity.Name][0];
-        AssertTrue(DrawDraygonBg2(stock, firstIdentity.Pointer, false).All(value => value == 0),
-            "Draygon BG2 drawing keeps the native new-frame producer gate");
+        // His body shows his current frame on every update it is drawn (#2573), also one whose cue selected no new frame.
+        AssertTrue(ShowsWrittenWords(ReadReferenceExtendedBg2Vram(rom, DraygonBg2FrameToolingDefinitions.Bank, firstIdentity.Pointer, true),
+                DrawDraygonBg2(stock, firstIdentity.Pointer, false)),
+            "Draygon's body shows his current frame on an update that selects no new frame");
         document.Frames[firstIdentity.Name][0] = first with { X = 32 };
         using var invalid = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             CamelCaseJson));
         AssertThrows<InvalidDataException>(
             () => DraygonBg2FrameCatalog.Load(invalid),
             "Draygon BG2 write outside its tilemap fails loudly");
-        Console.WriteLine("  Draygon BG2 frames: 34 selected frames and 102 native writes match installed VRAM; producer gate, ROM guard and strict validation pass.");
+        Console.WriteLine("  Draygon BG2 frames: 34 selected frames and 102 native writes match installed VRAM; the body's current frame on every update, ROM guard and strict validation pass.");
     }
 
     /// <summary>Compares native frame roots and hitbox lists, then runs the production overlap walker with cartridge reads denied.</summary>

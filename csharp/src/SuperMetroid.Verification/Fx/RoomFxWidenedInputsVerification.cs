@@ -19,10 +19,11 @@ internal static class RoomFxWidenedInputsVerification
         AssertEqual(ushort.MaxValue, Conditions(ushort.MaxValue).SamusY, "palette-FX Samus Y keeps the room's lowest line");
         AssertEqual(0, Conditions(0).SamusY, "palette-FX Samus Y keeps the room's top line");
 
-        AssertEqual(6, Frame(6).FirefleaDarkness.FirefleasKilled, "Fireflea darkness keeps its last step");
+        // The darkness's last step is the fifth death's (#2573).
+        AssertEqual(5, Frame(5).FirefleaDarkness.FirefleasKilled, "Fireflea darkness keeps its last step");
         AssertEqual(0, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false }.FirefleaDarkness.FirefleasKilled,
             "Fireflea darkness defaults to none");
-        AssertThrows<ArgumentOutOfRangeException>(() => Frame(7), "Fireflea darkness past its last step");
+        AssertThrows<ArgumentOutOfRangeException>(() => Frame(6), "Fireflea darkness past its last step");
         AssertThrows<ArgumentOutOfRangeException>(() => Frame(-1), "negative Fireflea darkness");
 
         const int largestRandom = SuperMetroid.Core.Compatibility.SharedRandomState.LargestValue;

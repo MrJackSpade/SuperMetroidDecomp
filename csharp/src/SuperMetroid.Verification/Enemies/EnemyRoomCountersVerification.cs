@@ -17,9 +17,10 @@ internal static class EnemyRoomCountersVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
 
         AssertEqual(0, enemies.RoomStatus.FirefleaDarkness.FirefleasKilled, "a room loads with no Fireflea darkness");
-        for (int death = 1; death <= 7; death++)
+        for (int death = 1; death <= 6; death++)
             enemies.RoomStatus.RecordFirefleaDeath();
-        AssertEqual(6, enemies.RoomStatus.FirefleaDarkness.FirefleasKilled, "darkness reaches its last step, which a seventh death leaves");
+        // The darkness's last step is the fifth death's, which every later death keeps (#2573).
+        AssertEqual(5, enemies.RoomStatus.FirefleaDarkness.FirefleasKilled, "darkness reaches its last step, which a sixth death leaves");
 
         enemies.Places.EnemyCount = EnemyPlaceOrder.Capacity;
         AssertEqual(32, enemies.Places.EnemyCount, "a full population fills every slot");

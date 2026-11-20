@@ -56,12 +56,19 @@ internal static class RoomBlockReadingGenerator
         AppendTable(text, "Slope", "slope shape and mirroring", "SlopeGeometry", precedence, static readings => readings.Slope, Slope);
         AppendTable(text, "Extension", "extension offset", "int", [.. precedence.OrderBy(static readings => readings.ExtensionOffset)],
             static readings => readings.ExtensionOffset, static offset => offset.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        text.Append("    /// <summary>Each behaviour whose meaning to special blocks and special air the room's area gives, as each group of areas resolves it.</summary>\n");
+        text.Append("    /// <summary>\n");
+        text.Append("    /// Each behaviour whose meaning to special blocks and special air the room's area gives, as each group of areas resolves\n");
+        text.Append("    /// it: the behaviour, named by the extension write that keeps it, and the two meanings those areas give it.\n");
+        text.Append("    /// </summary>\n");
         text.Append("    internal static readonly IReadOnlyList<AreaBlockReadings> InAreas =\n    [\n");
         foreach (AreaResolutionGroup resolution in inAreas)
         {
             text.Append("        new([").Append(string.Join(", ", resolution.Areas.Select(area => $"AreaId.{area}"))).Append("], ")
-                .Append(Readings(resolution.Readings)).Append("),\n");
+                .Append("Extension[").Append(resolution.Readings.ExtensionOffset.ToString(System.Globalization.CultureInfo.InvariantCulture)).Append("], ")
+                .Append(Named(resolution.Readings.Special ?? throw new InvalidOperationException($"An area leaves byte {resolution.Value}'s special-block meaning out.")))
+                .Append(", ")
+                .Append(Named(resolution.Readings.SpecialAir ?? throw new InvalidOperationException($"An area leaves byte {resolution.Value}'s special-air meaning out.")))
+                .Append("),\n");
         }
         text.Append("    ];\n}\n");
         return text.ToString();

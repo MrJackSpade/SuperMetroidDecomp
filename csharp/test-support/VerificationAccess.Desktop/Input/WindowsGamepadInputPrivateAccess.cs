@@ -27,4 +27,12 @@ internal static class WindowsGamepadInputPrivateAccess
         internal static global::SuperMetroid.Desktop.Input.GenericGamepadSnapshot CreateSnapshot(global::SuperMetroid.Desktop.Input.WindowsGamepadInput.JoystickPosition position, global::SuperMetroid.Desktop.Input.WindowsGamepadInput.JoystickCapabilities capabilities) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Desktop.Input.GenericGamepadSnapshot>(typeof(global::SuperMetroid.Desktop.Input.WindowsGamepadInput), "CreateSnapshot", [typeof(global::SuperMetroid.Desktop.Input.WindowsGamepadInput.JoystickPosition), typeof(global::SuperMetroid.Desktop.Input.WindowsGamepadInput.JoystickCapabilities)], new object?[] { position, capabilities });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Desktop.Input.WindowsGamepadInput)
+    {
+        /// <summary>The private method <c>CanProduceInput</c>, invoked by name.</summary>
+        internal static bool CanProduceInput(global::SuperMetroid.Desktop.Input.WindowsGamepadInput.JoystickCapabilities capabilities) =>
+            PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Desktop.Input.WindowsGamepadInput), "CanProduceInput", [typeof(global::SuperMetroid.Desktop.Input.WindowsGamepadInput.JoystickCapabilities)], new object?[] { capabilities });
+    }
 }

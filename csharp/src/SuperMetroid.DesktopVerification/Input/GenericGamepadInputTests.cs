@@ -6,6 +6,9 @@ namespace SuperMetroid.DesktopVerification.Input;
 /// <summary>Checks WinMM gamepad axes, POV priority, and both generic face-button layouts.</summary>
 internal static class GenericGamepadInputTests
 {
+/// <summary>XInput's documented <c>XINPUT_GAMEPAD_TRIGGER_THRESHOLD</c>: the trigger travel at which a trigger still counts as released.</summary>
+private const int XInputTriggerThreshold = 30;
+
 /// <summary>Checks the SNES USB adapter by printed button label and other pads by physical position.</summary>
 internal static void Verify()
 {
@@ -127,7 +130,7 @@ private static void VerifyXInputGamepad()
     AssertEqual(
         ControllerButton.None,
         GenericGamepadInput.Map(new XInputGamepadState(
-            XInputButtons.None, XInputGamepadState.TriggerThreshold, XInputGamepadState.TriggerThreshold, new(0, 0)).ToSnapshot()),
+            XInputButtons.None, XInputTriggerThreshold, XInputTriggerThreshold, new(0, 0)).ToSnapshot()),
         "XInput triggers resting at the threshold stay released");
 
     // XInput's stick Y points up; the SNES word must still read up as Up.

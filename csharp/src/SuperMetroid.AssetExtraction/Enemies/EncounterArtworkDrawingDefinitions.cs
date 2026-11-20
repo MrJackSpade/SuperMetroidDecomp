@@ -111,7 +111,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing CeresDoors =
         new(ComposedEncounter.CeresElevatorDoor, [ComposedLook.Loaded(ComposedEncounter.CeresElevatorDoor), ComposedLook.Of(ComposedEncounter.CeresElevatorDoor, CeresElevatorDoorLookDefinitions.OverlayLook)])
         {
-            Frames = [.. CeresDoorAnimations.Frames.Except([EnemyFrameId.CeresElevatorDoorBlocked])],
+            Frames = [.. CeresDoorAnimations.Segments.Frames.Except([EnemyFrameId.CeresElevatorDoorBlocked])],
         };
 
     /// <summary>

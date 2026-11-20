@@ -94,14 +94,13 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     /// Starts <paramref name="place"/>'s door or wall in <paramref name="animation"/>, in the colours of the escape's stage:
     /// the animation's first step, on the next update, shows its own first picture (#2424).
     /// </summary>
-    internal void Start(RoomEnemyPlace place, HorizontalDirection facing, CeresDoorSegment animation)
+    internal void Start(RoomEnemyPlace place, CeresDoorSegment animation)
     {
         Ensure.NotNull(place);
         place.AnimationClock.Restart();
         place.SetSpeciesState(new CeresDoorAnimationState
         {
-            Facing = facing,
-            Playback = new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(facing, animation), AnimationPlace.StartOfAnimation),
+            Playback = new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(animation), AnimationPlace.StartOfAnimation),
         });
 
         // A door shows the escaping colours once Ridley has escaped, otherwise the normal ones, each as its fade ends
@@ -119,27 +118,36 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
             return;
         CeresDoorAnimationState state = place.RequireSpeciesState<CeresDoorAnimationState>();
         AnimationPlayback<CeresDoorSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, CeresDoorAnimations.Segments(state.Facing), ref playback,
+        EnemyAnimationPlayback.Play(place, CeresDoorAnimations.Segments, ref playback,
             cue => ApplyCue(place, samus, cue) is { } started
-                ? new AnimationContinuation<CeresDoorSegment>(CeresDoorAnimations.StartingWith(state.Facing, started), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<CeresDoorSegment>(CeresDoorAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }
 
-    /// <summary>The animation a door starts, standing closed, when it appears with Samus away (#2189), facing as it does.</summary>
-    private const CeresDoorSegment DoorClosedAnimation = CeresDoorSegment.Closed;
+    /// <summary>The animation a right-facing door starts, standing closed, when it appears with Samus away (#2189).</summary>
+    private const CeresDoorSegment RightDoorClosedAnimation = CeresDoorSegment.ClosedFacingRight;
 
-    /// <summary>The animation an open door starts, closing, once Samus is away (#2189), facing as it does.</summary>
-    private const CeresDoorSegment DoorClosingAnimation = CeresDoorSegment.Close;
+    /// <summary>The animation a left-facing door starts, standing closed, when it appears with Samus away (#2189).</summary>
+    private const CeresDoorSegment LeftDoorClosedAnimation = CeresDoorSegment.ClosedFacingLeft;
 
-    /// <summary>The animation a closed door starts again, waiting closed, while Samus is away (#2189), facing as it does.</summary>
-    private const CeresDoorSegment DoorWaitingAnimation = CeresDoorSegment.ClosedWait;
+    /// <summary>The animation an open right-facing door starts, closing, once Samus is away (#2189).</summary>
+    private const CeresDoorSegment RightDoorClosingAnimation = CeresDoorSegment.CloseFacingRight;
+
+    /// <summary>The animation an open left-facing door starts, closing, once Samus is away (#2189).</summary>
+    private const CeresDoorSegment LeftDoorClosingAnimation = CeresDoorSegment.CloseFacingLeft;
+
+    /// <summary>The animation a closed right-facing door starts again, waiting closed, while Samus is away (#2189).</summary>
+    private const CeresDoorSegment RightDoorWaitingAnimation = CeresDoorSegment.ClosedFacingRightWait;
+
+    /// <summary>The animation a closed left-facing door starts again, waiting closed, while Samus is away (#2189).</summary>
+    private const CeresDoorSegment LeftDoorWaitingAnimation = CeresDoorSegment.ClosedFacingLeftWait;
 
     /// <summary>The animation the door of Ridley's room starts again while the area boss is alive (#2189).</summary>
     private const CeresDoorSegment RidleyRoomDoorWaitingAnimation = CeresDoorSegment.RidleyRoomDoorWait;
 
-    /// <summary>The animation the elevator room's wall starts, as the left-facing door it stands as, until Ceres Ridley has escaped (#2189).</summary>
-    private const CeresDoorSegment ElevatorRoomWallDoorAnimation = CeresDoorSegment.Door;
+    /// <summary>The animation the elevator room's wall starts, as a left-facing door, until Ceres Ridley has escaped (#2189).</summary>
+    private const CeresDoorSegment ElevatorRoomWallDoorAnimation = CeresDoorSegment.DoorFacingLeft;
 
     /// <summary>
     /// Carries out one cue of a door's or wall's animation, returning the segment whose animation the owner starts on a waiting
@@ -149,12 +157,18 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     {
         switch (cue.Kind)
         {
-            case CeresDoorCueKind.DoorAppears:
-                return IsSamusAway(place, samus) ? DoorClosedAnimation : null;
-            case CeresDoorCueKind.DoorStandsOpen:
-                return IsSamusAway(place, samus) ? DoorClosingAnimation : null;
-            case CeresDoorCueKind.DoorStandsClosed:
-                return IsSamusAway(place, samus) ? DoorWaitingAnimation : null;
+            case CeresDoorCueKind.RightDoorAppears:
+                return IsSamusAway(place, samus) ? RightDoorClosedAnimation : null;
+            case CeresDoorCueKind.LeftDoorAppears:
+                return IsSamusAway(place, samus) ? LeftDoorClosedAnimation : null;
+            case CeresDoorCueKind.RightDoorStandsOpen:
+                return IsSamusAway(place, samus) ? RightDoorClosingAnimation : null;
+            case CeresDoorCueKind.LeftDoorStandsOpen:
+                return IsSamusAway(place, samus) ? LeftDoorClosingAnimation : null;
+            case CeresDoorCueKind.RightDoorStandsClosed:
+                return IsSamusAway(place, samus) ? RightDoorWaitingAnimation : null;
+            case CeresDoorCueKind.LeftDoorStandsClosed:
+                return IsSamusAway(place, samus) ? LeftDoorWaitingAnimation : null;
             case CeresDoorCueKind.RidleyRoomDoorWaits:
                 // The door of Ridley's room waits while the area's boss is undefeated, as he is when Ceres begins, so it
                 // loops as a tangible actor during Ridley's fight. Ridley's escape records the boss's defeat together with

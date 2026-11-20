@@ -41,12 +41,11 @@ internal static class CeresDoorInitializationDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((functionTable + selector * 2)),
                 CeresNativeWords.MainBehaviourWord(place),
                 $"production Ceres {actor} {settings} main behaviour, function selector {selector}");
-            CeresDoorAnimationState door = place.RequireSpeciesState<CeresDoorAnimationState>();
-            AnimationPlayback<CeresDoorSegment> playback = door.Playback;
-            CeresDoorSegment started = CeresDoorAnimations.StartingAt(door.Facing).Keys.Single(segment =>
-                new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(door.Facing, segment), AnimationPlace.StartOfAnimation).Equals(playback));
+            AnimationPlayback<CeresDoorSegment> playback = place.RequireSpeciesState<CeresDoorAnimationState>().Playback;
+            CeresDoorSegment started = CeresDoorAnimations.StartingAt.Keys.Single(segment =>
+                new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation).Equals(playback));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + selector * 2)),
-                NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.EntriesBySide[door.Facing], started),
+                NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, started),
                 $"production Ceres {actor} {settings} animation, instruction selector {selector}");
             AssertEqual(1, place.AnimationClock.Hold,
                 $"production Ceres {actor} {settings} instruction timer");

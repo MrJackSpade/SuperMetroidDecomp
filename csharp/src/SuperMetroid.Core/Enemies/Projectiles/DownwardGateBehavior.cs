@@ -38,12 +38,10 @@ internal sealed class DownwardGateBehavior
     private void SpawnDownwardGateProjectile(
         DownwardGateProjectileSpawn request)
     {
-        RoomEnemyProjectileKind kind = request.Kind switch
-        {
-            DownwardGateProjectileKind.Closed => RoomEnemyProjectileKind.DownwardGateClosed,
-            DownwardGateProjectileKind.Moving => RoomEnemyProjectileKind.DownwardGateMoving,
-            _ => throw new InvalidDataException($"Downward gate requested undefined projectile {request.Kind}."),
-        };
+        RoomEnemyProjectileKind kind = request.Kind == DownwardGateProjectileKind.Closed
+            ? RoomEnemyProjectileKind.DownwardGateClosed
+            // The remaining member, DownwardGateProjectileKind.Moving.
+            : RoomEnemyProjectileKind.DownwardGateMoving;
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

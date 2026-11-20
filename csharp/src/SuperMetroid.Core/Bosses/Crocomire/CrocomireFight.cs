@@ -361,9 +361,8 @@ internal sealed class CrocomireFight
                 state.Phase = CrocomirePhase.SteppingBack;
                 return CrocomireBodyAnimation.StepBack;
             }
-            if (state.ShotsSpat < CrocomireProjectileDefinitions.VolleyShotCount)
+            if (CrocomireVolley.TryNextGradient(state.ShotsSpat, _access.LastShotGradient, out int gradient))
             {
-                int gradient = CrocomireVolley.GradientOf(state.ShotsSpat, _access.LastShotGradient);
                 state.ShotsSpat++;
                 SpawnCrocomireProjectile(state.Body, gradient);
                 _access.RequestCrocomireSound(CrocomireSoundDefinitions.ProjectileSpit);

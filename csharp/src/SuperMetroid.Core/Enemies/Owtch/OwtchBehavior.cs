@@ -109,14 +109,17 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// burial, and no room places one rising.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="initial"/> is the turn at the left bound or the rise, which no placement starts in.</exception>
-    private static OwtchSegment InitialAnimation(OwtchBehaviorState initial) => initial switch
+    private static OwtchSegment InitialAnimation(OwtchBehaviorState initial)
     {
-        OwtchBehaviorState.MovingLeft or OwtchBehaviorState.Underground => OwtchSegment.MovingLeft,
-        OwtchBehaviorState.MovingRight or OwtchBehaviorState.Sinking => OwtchSegment.MovingRight,
-        OwtchBehaviorState.TurningAtLeftBound => throw new InvalidDataException("No Owtch placement starts turning at its left bound."),
-        OwtchBehaviorState.Rising => throw new InvalidDataException("No Owtch placement starts rising: an Owtch rises only out of a burial."),
-        _ => throw new ArgumentOutOfRangeException(nameof(initial), initial, "Undefined Owtch behaviour."),
-    };
+        if (initial is OwtchBehaviorState.MovingLeft or OwtchBehaviorState.Underground)
+            return OwtchSegment.MovingLeft;
+        if (initial is OwtchBehaviorState.MovingRight or OwtchBehaviorState.Sinking)
+            return OwtchSegment.MovingRight;
+        if (initial == OwtchBehaviorState.TurningAtLeftBound)
+            throw new InvalidDataException("No Owtch placement starts turning at its left bound.");
+        // The remaining member, OwtchBehaviorState.Rising.
+        throw new InvalidDataException("No Owtch placement starts rising: an Owtch rises only out of a burial.");
+    }
 
     /// <summary>
     /// Moves the Owtch along its patrol by its spawn settings' speed toward <paramref name="direction"/>; reaching an end of

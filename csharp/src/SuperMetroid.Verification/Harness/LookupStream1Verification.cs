@@ -821,11 +821,8 @@ internal static class LookupStream1Verification
             // the cartridge's flags and the code stored around them for every pose.
             if (pose < 0xDB)
                 AssertEqual(LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35) == 0,
-                    SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
+                    SamusHudInput.PostureTransitionAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), grappleActive: false, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
                     $"HUD exact bounded posture admission {pose:X2}");
-            else
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
-                    "HUD rejects prefiltered posture observation");
             foreach (bool grapple in new[] { false, true })
             {
                 bool expected = pose >= 0xF1 || (pose < 0xDB && (LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35) == 0 || grapple));

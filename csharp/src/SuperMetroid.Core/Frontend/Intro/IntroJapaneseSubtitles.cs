@@ -93,19 +93,15 @@ internal sealed class IntroJapaneseSubtitles
             page = null;
             startInputWait(waitingPage);
         },
-        [SubtitleStage.None] = startInputWait =>
-        {
-            throw new InvalidOperationException("The intro advanced a subtitle that is not showing.");
-        },
+        [SubtitleStage.None] = startInputWait => { },
     });
 
     /// <summary>Takes the showing subtitle's step for this update.</summary>
     /// <param name="newlyPressed">This frame's newly pressed buttons, which show a waiting page's second subtitle.</param>
     /// <param name="startInputWait">Receives the page whose second subtitle has started its input wait.</param>
+    /// <remarks>With no subtitle showing, the step does nothing.</remarks>
     public void Step(ControllerButton newlyPressed, Action<IntroNarrationPageId> startInputWait)
     {
-        if (stage == SubtitleStage.None)
-            return;
         if (stage == SubtitleStage.AwaitSecondSubtitleInput && newlyPressed != ControllerButton.None)
         {
             // The press shows the second subtitle, holds the input wait it will start, and moves to starting that

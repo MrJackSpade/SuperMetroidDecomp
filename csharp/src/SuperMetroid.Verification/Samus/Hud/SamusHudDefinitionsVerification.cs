@@ -48,7 +48,7 @@ internal static class SamusHudDefinitionsVerification
             if (pose < NonFiringTransitionNumber)
                 AssertEqual(rom.ReadCartridgeByte(SamusCartridgeTablesConstants.HudTransitionFlags + pose -
                         FirstTransitionNumber) == 0,
-                    SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
+                    SamusHudInput.PostureTransitionAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), grappleActive: false, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
                     "Complete bounded posture-index admission: the byte read is zero");
             AssertEqual(Transition(SamusPoseNumbering.FromNumber(pose), active),
                 SamusHudInput.PostureTransitionAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), active, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),

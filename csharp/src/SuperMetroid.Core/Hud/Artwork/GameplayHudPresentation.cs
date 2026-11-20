@@ -11,13 +11,18 @@ public sealed class GameplayHudPresentation
     /// <summary>The decoded layout.</summary>
     private readonly GameplayHudPresentationParts parts;
 
+    /// <summary>Where each item icon is placed, the layout's placement of every icon.</summary>
+    private readonly IdentityTable<HudIcon, HudIconPlacement> icons;
+
     /// <summary>Takes the import's decoded, validated HUD layout.</summary>
+    /// <exception cref="ArgumentException">The layout does not place each of the HUD's elements.</exception>
     internal GameplayHudPresentation(GameplayHudPresentationParts parts)
     {
         this.parts = Ensure.NotNull(parts);
         if (parts.EnergyTankCorners.Length != GameplayHudDefinitions.EnergyTankCount ||
-            parts.Icons.Count != Enum.GetValues<HudIcon>().Length || !Enum.GetValues<HudIcon>().All(parts.Icons.ContainsKey))
+            parts.Icons.Count != Enum.GetValues<HudIcon>().Length)
             throw new ArgumentException("The gameplay HUD's layout does not place each of its elements.", nameof(parts));
+        icons = new(parts.Icons);
     }
 
 
@@ -37,9 +42,7 @@ public sealed class GameplayHudPresentation
     /// <param name="shade">The shade the current selection gives the icon's place, or null.</param>
     public PlacedHudImage? Icon(HudIcon icon, bool added, HudIconShade? shade)
     {
-        HudIconPlacement placement = parts.Icons.TryGetValue(icon, out HudIconPlacement placed)
-            ? placed
-            : throw new ArgumentOutOfRangeException(nameof(icon), icon, "Undefined item icon.");
+        HudIconPlacement placement = icons[icon];
         HudIconCover cover = added && placement.ShowsOverTemplate ? HudIconCover.Icon : HudIconCover.Template;
         return cover == HudIconCover.Template && shade is null ? null
             : new PlacedHudImage(new HudIconImage(icon, cover, shade), placement.Anchor);

@@ -1,8 +1,8 @@
 ﻿namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The shared Pirate/Mother Brain laser and Ninja Pirate claw lists' entries; <see cref="SpacePirateProjectileAnimation"/>
-/// plays them typed.
+/// The shared Pirate/Mother Brain laser and Ninja Pirate claw lists' entries; <see cref="SpacePirateLaserAnimation"/> and
+/// <see cref="SpacePirateClawAnimation"/> play them typed.
 /// </summary>
 internal abstract class SpacePirateProjectileInstructionProgramDefinitions
 {

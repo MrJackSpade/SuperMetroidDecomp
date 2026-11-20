@@ -9,7 +9,7 @@ internal static class SpacePirateProjectileAnimationsVerification
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifySpacePirateProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        int steps = Family.CompareAll(rom);
-        Console.WriteLine($"  Pirate laser and claw programs: {Entries.Length} programs ({steps} steps) match bank $86.");
+        int steps = LaserFamily.CompareAll(rom) + ClawFamily.CompareAll(rom);
+        Console.WriteLine($"  Pirate laser and claw programs: {LaserEntries.Length + ClawEntries.Length} programs ({steps} steps) match bank $86.");
     }
 }

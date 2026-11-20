@@ -20,7 +20,7 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
     public static int PresentationWordCount => PresentationOperands.Length;
 
     /// <summary>The frames the lasers and claws show, in the order their animations first show them.</summary>
-    private static readonly EnemyProjectileFrameId[] Frames = [.. SpacePirateProjectileAnimations.Segments.Frames];
+    private static readonly EnemyProjectileFrameId[] Frames = [.. SpacePirateLaserAnimations.Segments.Frames.Union(SpacePirateClawAnimations.Segments.Frames)];
     /// <summary>
     /// The bank-$86 operands the lasers and claws draw from: each shown frame's own, in that order, then the operands that
     /// store one of those frames' pictures again (#2273).

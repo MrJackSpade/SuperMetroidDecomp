@@ -44,7 +44,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         var executedOperands = new HashSet<ushort>();
         var guard = NewSpacePirateProjectileInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
-            SpacePirateProjectileNativeListAddresses.Family.NativePointers(rom);
+            SpacePirateProjectileNativeListAddresses.NativePointers(rom);
 
         foreach ((bool movingRight, ushort program, ushort loop,
                   Enum movement, ushort expectedX) in new[]

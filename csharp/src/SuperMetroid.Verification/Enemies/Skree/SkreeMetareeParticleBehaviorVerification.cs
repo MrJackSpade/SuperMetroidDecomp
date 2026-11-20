@@ -31,8 +31,8 @@ internal static class SkreeMetareeParticleBehaviorVerification
         };
         foreach ((Action<RoomEnemyPlace> spawn, SkreeMetareeParticleSegment program) in new VerifySkreeMetareeParticleBehaviorCase[]
                  {
-                     new VerifySkreeMetareeParticleBehaviorCase(place => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place, SkreeMetareeParticleSegment.Skree), SkreeMetareeParticleSegment.Skree),
-                     new VerifySkreeMetareeParticleBehaviorCase(place => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place, SkreeMetareeParticleSegment.Metaree), SkreeMetareeParticleSegment.Metaree),
+                     new VerifySkreeMetareeParticleBehaviorCase(place => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place.BoundFor(EnemyDefinitionId.Skree), place, SkreeMetareeParticleSegment.Skree), SkreeMetareeParticleSegment.Skree),
+                     new VerifySkreeMetareeParticleBehaviorCase(place => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place.HeldOccupant(), place, SkreeMetareeParticleSegment.Metaree), SkreeMetareeParticleSegment.Metaree),
                  })
         {
             foreach (EnemyProjectile stale in enemies.Projectiles.EnemyProjectiles)
@@ -51,7 +51,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
                 ushort? heldOperand = null;
                 for (int update = 0; update < 40; update++)
                 {
-                    enemies.Projectiles.AdvanceEnemyProjectileAnimations(particle, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: 0);
+                    enemies.Projectiles.AdvanceEnemyProjectileAnimations(particle, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
                     native.Step(cartridge);
                     string at = $"{particle.Kind} update {update}";
                     AssertTrue(!native.Deleted && particle.IsActive, $"{at}: the particle lives");

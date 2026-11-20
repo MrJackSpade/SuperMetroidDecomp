@@ -17,20 +17,17 @@
 /// replays' input-consumption traces establish those stalled frames, and the Ridley full-movie check reads the short
 /// counter on every update of a door transition.
 /// </remarks>
-[CompatibilityService("the two frame counters, which return to zero after 255 and 65535, count the frames a door's music load takes and are restarted by a door's scroll")]
+[CompatibilityService("the two frame counters, which return to zero at the ends of their periods, count the frames a door's music load takes and are restarted by a door's scroll")]
 internal sealed class FrameClock
 {
-    /// <summary>How many frames <see cref="ShortCounter"/> counts before it returns to zero.</summary>
-    internal const int ShortCounterPeriod = 256;
-
     /// <summary>How many frames <see cref="Counter"/> counts before it returns to zero.</summary>
     internal const int CounterPeriod = 65536;
 
     /// <summary>
-    /// The short frame counter, 0 through 255. It returns to zero after 255, and gameplay that samples its low bits sees
-    /// that wrap.
+    /// Where the short frame count stands; it returns to zero at the end of its period, and gameplay that samples it sees
+    /// that return.
     /// </summary>
-    public int ShortCounter { get; private set; }
+    public ShortFrameCount ShortCounter { get; private set; }
 
     /// <summary>
     /// The long frame counter, 0 through 65535. It returns to zero after 65535, and gameplay that samples its low bits
@@ -53,7 +50,7 @@ internal sealed class FrameClock
     private void Advance(int frames)
     {
         Ensure.AtLeastZero(frames);
-        ShortCounter = (ShortCounter + frames % ShortCounterPeriod) % ShortCounterPeriod;
+        ShortCounter = ShortCounter.After(frames);
         Counter = (Counter + frames % CounterPeriod) % CounterPeriod;
     }
 
@@ -61,7 +58,7 @@ internal sealed class FrameClock
     /// Restarts the short counter while the long counter keeps running, as a door's scroll does on each of its updates
     /// (<see cref="DoorTransitionFrameCounting"/>): the next frame observes zero there.
     /// </summary>
-    internal void RestartShortCounter() => ShortCounter = 0;
+    internal void RestartShortCounter() => ShortCounter = ShortFrameCount.Zero;
 
     /// <summary>Clears both counters, as power-on and a soft reset do.</summary>
     internal void Reset() => Import(0, 0);
@@ -70,9 +67,9 @@ internal sealed class FrameClock
     /// Takes over the counters another owner kept, such as the frontend that counted before this runtime existed or an
     /// imported snapshot. The game has one pair of counters; creating a runtime never resets them.
     /// </summary>
-    internal void Import(int shortCounter, int counter)
+    private void Import(int shortCounter, int counter)
     {
-        ShortCounter = Ensure.BetweenInclusive(0, ShortCounterPeriod - 1, shortCounter);
+        ShortCounter = new ShortFrameCount(shortCounter);
         Counter = Ensure.BetweenInclusive(0, CounterPeriod - 1, counter);
     }
 }

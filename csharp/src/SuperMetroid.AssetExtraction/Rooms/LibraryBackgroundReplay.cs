@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Hud;
-using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -16,7 +16,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class LibraryBackgroundReplay
 {
     /// <summary>
-    /// Replays <paramref name="program"/> as a room entered through <paramref name="activeDoor"/> runs it, into
+    /// Replays <paramref name="program"/> as a room entered through <paramref name="activeDoor"/> (null for a door the program
+    /// names no transfer for) runs it, into
     /// <paramref name="vram"/>. The tilemap staging starts empty and the enemy BG2 staging holds
     /// <paramref name="enemyBg2Staging"/> (empty for none, as a room load leaves it).
     /// </summary>
@@ -25,21 +26,22 @@ internal static class LibraryBackgroundReplay
     /// installed artwork owns.
     /// </exception>
     internal static void Execute(SnesVram vram, LibraryBackgroundProgram program,
-        DoorDefinition activeDoor, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default) =>
-        Execute(vram, Ensure.NotNull(program).Name, program.Instructions, activeDoor, artwork, enemyBg2Staging);
+        LibraryBackgroundPicture picture, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default) =>
+        Execute(vram, Ensure.NotNull(program).Name, program.Instructions, picture, artwork, enemyBg2Staging);
 
     /// <summary>
     /// Replays the command list <paramref name="instructions"/>, named <paramref name="list"/> in diagnostics, as
-    /// <see cref="Execute(SnesVram, LibraryBackgroundProgram, DoorDefinition, LibraryBackgroundArtwork, ReadOnlyMemory{byte})"/>
+    /// <see cref="Execute(SnesVram, LibraryBackgroundProgram, LibraryBackgroundPicture, LibraryBackgroundArtwork, ReadOnlyMemory{byte})"/>
     /// replays a background's program: a list decoded for comparison builds no background of its own.
     /// </summary>
     /// <exception cref="InvalidDataException">
     /// The list holds a command the interpreter does not accept, a zero-length transfer, or a transfer from ROM that no
     /// installed artwork owns.
     /// </exception>
-    internal static void Execute(SnesVram vram, string list, IReadOnlyList<LibraryBackgroundInstruction> instructions,
-        DoorDefinition activeDoor, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default)
+    private static void Execute(SnesVram vram, string list, IReadOnlyList<LibraryBackgroundInstruction> instructions,
+        LibraryBackgroundPicture picture, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default)
     {
+        Ensure.NotNull(picture);
         Ensure.NotNull(vram);
         ArgumentException.ThrowIfNullOrEmpty(list);
         Ensure.NotNull(instructions);
@@ -49,38 +51,36 @@ internal static class LibraryBackgroundReplay
         var staging = new Staging(enemyBg2Staging);
         foreach (LibraryBackgroundInstruction instruction in instructions)
         {
-            switch (instruction.Command)
+            switch (instruction)
             {
-                case LibraryBackgroundCommand.Transfer:
-                case LibraryBackgroundCommand.TransferForKraid:
-                    Transfer(staging, vram, instruction, artwork);
+                case LibraryBackgroundInstruction.Transfer or LibraryBackgroundInstruction.TransferForKraid:
+                    Transfer(staging, vram, (LibraryBackgroundInstruction.Copy)instruction, artwork);
                     break;
-                case LibraryBackgroundCommand.Decompress:
-                    if (instruction.Destination != LibraryBackgroundDestination.TilemapStaging || instruction.Source is not LibraryBackgroundSource.CompressedTilemap compressed)
-                        throw new InvalidDataException($"A decompression in list {list} stages {instruction.Source} at {instruction.Destination}.");
-                    staging.WriteDecompressed(LibraryBackgroundStagingDefinitions.TilemapStagingBankOffset, BackgroundTileWords.ToBytes(artwork.TilemapArt.Get(compressed.Tilemap).Tiles.Span),
-                        instruction.Source);
+                case LibraryBackgroundInstruction.Decompress decompress:
+                    staging.WriteDecompressed(LibraryBackgroundStagingDefinitions.TilemapStagingBankOffset, BackgroundTileWords.ToBytes(artwork.TilemapArt.Get(decompress.Source.Tilemap).Tiles.Span),
+                        decompress.Source);
                     break;
-                case LibraryBackgroundCommand.ClearFxTilemap:
+                case LibraryBackgroundInstruction.ClearFxTilemap:
                     FillAndTransfer(staging, vram, LibraryBackgroundStagingDefinitions.ClearFx);
                     break;
-                case LibraryBackgroundCommand.ClearBg2:
+                case LibraryBackgroundInstruction.ClearBg2:
                     FillAndTransfer(staging, vram, LibraryBackgroundStagingDefinitions.ClearBg2);
                     break;
-                case LibraryBackgroundCommand.ClearBg2ForKraid:
+                case LibraryBackgroundInstruction.ClearBg2ForKraid:
                     // Kraid's list repeats the filled staging at his own page before BG2's.
                     LibraryBackgroundClear clear = LibraryBackgroundStagingDefinitions.ClearBg2;
                     staging.FillWords(clear.WorkRamDestination, clear.ByteCount, clear.FillValue.Raw);
                     vram.ExecuteQueuedAssetWrite(staging.Read(clear.WorkRamSourceAddress, clear.ByteCount), LibraryBackgroundStagingDefinitions.KraidBg2VramDestinationWord);
                     vram.ExecuteQueuedAssetWrite(staging.Read(clear.WorkRamSourceAddress, clear.ByteCount), clear.VramDestination);
                     break;
-                case LibraryBackgroundCommand.TransferForDoor:
-                    if (instruction.Door == activeDoor)
-                        Transfer(staging, vram, instruction, artwork);
+                case LibraryBackgroundInstruction.TransferForDoor forDoor:
+                    // Only a room entered through the copy's own door shows its picture.
+                    if (picture is LibraryBackgroundPicture.DoorPicture { Door: var entry } && entry == forDoor.Door)
+                        Transfer(staging, vram, forDoor, artwork);
                     break;
                 default:
                     throw new InvalidDataException(
-                        $"Unknown compiled library-background command {instruction.Command} in list {list}.");
+                        $"Unknown compiled library-background instruction {instruction} in list {list}.");
             }
         }
     }
@@ -95,7 +95,7 @@ internal static class LibraryBackgroundReplay
     /// or moves the HUD's characters from a list other than Kraid's.
     /// </exception>
     /// <exception cref="InvalidOperationException">The transfer brings characters whose installed artwork is not supplied.</exception>
-    private static void Transfer(Staging staging, SnesVram vram, LibraryBackgroundInstruction transfer, LibraryBackgroundArtwork artwork)
+    private static void Transfer(Staging staging, SnesVram vram, LibraryBackgroundInstruction.Copy transfer, LibraryBackgroundArtwork artwork)
     {
         if (transfer.ByteCount == 0)
             throw new InvalidDataException($"Library-background transfer from {transfer.Source} uses unsupported DMA size zero.");
@@ -118,7 +118,7 @@ internal static class LibraryBackgroundReplay
     /// <summary>Checks the statue ghost's transfer brings all of its installed characters.</summary>
     /// <exception cref="InvalidOperationException">No room characters are installed.</exception>
     /// <exception cref="InvalidDataException">The transfer brings only some of them.</exception>
-    private static void RequireWholeStatueGhost(LibraryBackgroundInstruction transfer, LibraryBackgroundArtwork artwork)
+    private static void RequireWholeStatueGhost(LibraryBackgroundInstruction.Copy transfer, LibraryBackgroundArtwork artwork)
     {
         RoomCharacterAtlases characters = artwork.CharacterArt;
         ReadOnlyMemory<byte> ghost = characters.Get(RoomCharacterSet.TourianStatueGhost).Characters;
@@ -129,10 +129,10 @@ internal static class LibraryBackgroundReplay
     /// <summary>The installed HUD characters Kraid's list copies.</summary>
     /// <exception cref="InvalidDataException">A list other than Kraid's copies them.</exception>
     /// <exception cref="InvalidOperationException">No HUD characters are installed.</exception>
-    private static ReadOnlyMemory<byte> KraidHudCharacters(LibraryBackgroundInstruction transfer, LibraryBackgroundArtwork artwork)
+    private static ReadOnlyMemory<byte> KraidHudCharacters(LibraryBackgroundInstruction.Copy transfer, LibraryBackgroundArtwork artwork)
     {
-        if (transfer.Command != LibraryBackgroundCommand.TransferForKraid)
-            throw new InvalidDataException($"A library background's {transfer.Command} moves the HUD's characters, which only Kraid's list copies.");
+        if (transfer is not LibraryBackgroundInstruction.TransferForKraid)
+            throw new InvalidDataException($"A library background's {transfer} moves the HUD's characters, which only Kraid's list copies.");
         HudTileAtlas hud = artwork.HudArt;
         return hud.Bytes[..transfer.ByteCount];
     }
@@ -164,19 +164,18 @@ internal static class LibraryBackgroundReplay
         /// <exception cref="InvalidDataException">The range leaves the staging.</exception>
         public bool TryRead(LibraryBackgroundSource source, int byteCount, out ReadOnlySpan<byte> bytes)
         {
-            int address = source switch
+            switch (source)
             {
-                LibraryBackgroundSource.StagedTilemap => (int)LibraryBackgroundStagingDefinitions.TilemapStagingAddress,
-                LibraryBackgroundSource.StagedEnemyTilemap => (int)LibraryBackgroundStagingDefinitions.EnemyBg2StagingAddress,
-                _ => -1,
-            };
-            if (address < 0)
-            {
-                bytes = default;
-                return false;
+                case LibraryBackgroundSource.StagedTilemap:
+                    bytes = Read((int)LibraryBackgroundStagingDefinitions.TilemapStagingAddress, byteCount);
+                    return true;
+                case LibraryBackgroundSource.StagedEnemyTilemap:
+                    bytes = Read((int)LibraryBackgroundStagingDefinitions.EnemyBg2StagingAddress, byteCount);
+                    return true;
+                default:
+                    bytes = default;
+                    return false;
             }
-            bytes = Read(address, byteCount);
-            return true;
         }
 
         /// <summary>Whether <paramref name="address"/> and its <paramref name="byteCount"/> bytes lie in one staging, and those bytes.</summary>

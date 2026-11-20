@@ -63,8 +63,8 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
         enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
-        enemies.CrocomireBehavior.Fight.InitializeCrocomire(body);
+        body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
+        enemies.CrocomireBehavior.Fight.InitializeCrocomire(body.HeldOccupant(), body);
         CrocomireEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<CrocomireBodyEntity>(body).State;
         AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.Fighting>(), state.DeathStage,
             "installed Crocomire colors leave living fight phase unchanged");

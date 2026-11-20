@@ -32,9 +32,9 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Renders the six-area selection view during entry and area navigation.</summary>
     private readonly FileSelectAreaMapGraphics areaGraphics;
     /// <summary>Renders the selected area's room map, including exploration and markers.</summary>
-    internal readonly FileSelectRoomMapGraphics roomGraphics;
+    private readonly FileSelectRoomMapGraphics roomGraphics;
     /// <summary>Owns room-map scroll position anchored to the selected save station.</summary>
-    internal MapScroll Scroll { get; private set; }
+    private MapScroll Scroll { get; set; }
     /// <summary>Save-station marker positioned from the installed presentation catalog.</summary>
     private FileSelectStationMarker marker;
     /// <summary>The saved station, which restores the marker and scroll anchor.</summary>
@@ -97,8 +97,11 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
 
     /// <summary>Current public navigation phase, reporting EnteringArea until the separately owned initial reveal/fade completes, then exposing the navigation owner's phase.</summary>
     public FileSelectMapNavigationPhase Phase => entry.IsComplete ? navigation.Phase : FileSelectMapNavigationPhase.EnteringArea;
-    /// <summary>How the map hands off to its host (#2562): its load or its options, kept once it reaches one.</summary>
-    public FileSelectMapOutcome Outcome { get; private set; }
+    /// <summary>
+    /// How the map hands off to its host (#2562): its load or its options, kept once it reaches one; absent while the map
+    /// runs, before it has reached either (#2587).
+    /// </summary>
+    public FileSelectMapOutcome? Outcome { get; private set; }
 
     /// <summary>Binds the installed map artwork when the game is bound to its installed content, without restarting navigation.</summary>
     public void BindScreenContent(InstalledScreenContent catalog)
@@ -192,7 +195,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 if (requestWait.Age <= FileSelectMapDefinitions.LoadPreludeFrames) break;
                 if (!fade.IsBlack)
                 {
-                    _ = fade.Darken();
+                    fade.StepDarker();
                     break;
                 }
                 if (requestWait.IsOver)
@@ -214,7 +217,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Requests a menu sound at normal priority.</summary>
     private void Queue(SoundEffectId sound) => audio.QueueSound(sound, priority: SoundRequestPriority.Normal);
 
-    /// <summary>Captures both map-memory owners and resolved window edges at the display boundary.</summary>
+    /// <summary>Builds the area or room map scene the phase shows.</summary>
     public LayeredScene ComposeScene()
     {
         LayeredScene Area(AreaMapBackgroundGlow glow = AreaMapBackgroundGlow.WholeScreen) => areaGraphics.ComposeScene(savedProgress, glow);

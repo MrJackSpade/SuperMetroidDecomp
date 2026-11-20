@@ -36,7 +36,7 @@ internal static class ColourEffectAnimations
 
     /// <summary>
     /// The runs of frames the effects play; each suit's heat pulse plays its own (#2054), and Samus in heat, which plays her
-    /// suit's pulse (<see cref="ColourEffectHeatAnimations.Shimmer"/>), shows none of its own.
+    /// suit's pulse (<c>Shimmer</c>), shows none of its own.
     /// </summary>
     internal static AnimationSegments<ColourEffectSegment, int, ColourEffectCue> Segments { get; } = new(
         new Dictionary<ColourEffectSegment, AnimationBeat<int, ColourEffectCue>[]>
@@ -529,8 +529,8 @@ internal static class ColourEffectAnimations
     });
 
     /// <summary>
-    /// A suit's loading: its opening flicker played thirty-six times, its second and third three times each, its last twice,
-    /// then its loaded look once. Each suit plays it in its own frames.
+    /// A suit's loading: its opening flicker played many times over, its second and third a few times each, its last
+    /// fewer still, then its loaded look once. Each suit plays it in its own frames.
     /// </summary>
     private static readonly Animation<ColourEffectSegment> SuitLoading = new(
         [
@@ -551,7 +551,7 @@ internal static class ColourEffectAnimations
     /// <summary>
     /// How each effect starts, the colours its frames show in, the condition it watches from the update after its first
     /// frame, and how it plays its runs: its phases, then whether it stops or loops. Samus in heat plays none of her own: her
-    /// start chooses her suit's pulse (<see cref="ColourEffectHeatAnimations.Shimmer"/>), which plays as her shimmer does, in
+    /// start chooses her suit's pulse (<c>Shimmer</c>), which plays as her shimmer does, in
     /// the same colours and watching the same heat.
     /// </summary>
     private static readonly FrozenDictionary<ColourEffectId, ColourEffectDefinition> Definitions =
@@ -622,14 +622,14 @@ internal static class ColourEffectAnimations
         [A.CrateriaEscapeYellowLightning] = new(ColourEffectStart.Plain, ColourEffectColours.CrateriaEscapeLightning, ColourEffectCondition.WatchesNothing.Instance, Looping(S.EscapeLightning)),
         [A.ParlorEscapeSkyFlicker] = new(ColourEffectStart.Plain, ColourEffectColours.ParlorEscapeSky, ColourEffectCondition.WatchesNothing.Instance, Looping(S.EscapeLightning)),
         [A.SamusInHeat] = new(ColourEffectStart.ChoosesHeatAnimationForSuit, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance,
-            new([], AnimationEnd.Stops)),
+            ColourEffectFrames.SuitHeatPulse),
         [A.PowerSuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance,
             Looping(S.PowerSuitHeatPulse)),
         [A.VariaSuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance, HeatPulseLoop),
         [A.GravitySuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance, HeatPulseLoop),
     }.ToFrozenDictionary();
 
-    /// <summary>Each suit's heat pulse, whose sixteen frames are the heat phases' looks in that suit.</summary>
+    /// <summary>Each suit's heat pulse, whose frames are the heat phases' looks in that suit.</summary>
     internal static FrozenDictionary<ColourEffectHeatSuit, ColourEffectId> HeatPulses { get; } =
         new Dictionary<ColourEffectHeatSuit, ColourEffectId>
     {

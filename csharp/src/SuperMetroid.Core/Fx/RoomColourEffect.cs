@@ -29,11 +29,11 @@ internal sealed class RoomColourEffect
         Target = target;
         FramesOf = framesOf;
         play = AnimationPlayer<ColourEffectSegment, int, ColourEffectCue>.Starting(
-            ColourEffectAnimations.Segments, ColourEffectAnimations.Definition(framesOf).Animation);
+            ColourEffectAnimations.Segments, ColourEffectAnimations.Definition(framesOf).Frames.Played);
     }
 
     /// <summary>The effect's animation as it plays: due on its first turn, and on each turn its shown frame's updates run out.</summary>
-    internal readonly AnimationPlayer<ColourEffectSegment, int, ColourEffectCue> play;
+    private readonly AnimationPlayer<ColourEffectSegment, int, ColourEffectCue> play;
 
     /// <summary>What the effect shows.</summary>
     internal ColourEffectId Effect { get; }
@@ -42,7 +42,7 @@ internal sealed class RoomColourEffect
     /// The effect whose frames the effect shows (#2366): its own, or, for Samus's heat shimmer, the pulse of the suit she
     /// wears, which it plays.
     /// </summary>
-    internal ColourEffectId FramesOf { get; private set; }
+    private ColourEffectId FramesOf { get; set; }
 
     /// <summary>
     /// What the effect shows its frames on (#2544): the room's pictures, Samus's suit, the escape's shutters, the enemy whose
@@ -68,7 +68,7 @@ internal sealed class RoomColourEffect
     internal bool AnimatesColours => !Ended && Frame is not null;
 
     /// <summary>The animation the effect plays: that of the effect whose frames it shows.</summary>
-    internal Animation<ColourEffectSegment> Animation => play.Playback.Animation;
+    private Animation<ColourEffectSegment> Animation => play.Playback.Animation;
 
     /// <summary>
     /// The frame the effect shows now (#1597, #1598): the last its animation reached, held for that frame's duration and
@@ -95,7 +95,7 @@ internal sealed class RoomColourEffect
     internal void Restart(ColourEffectId framesOf, AnimationPlace place)
     {
         FramesOf = framesOf;
-        play.StartAt(ColourEffectAnimations.Definition(framesOf).Animation, place);
+        play.StartAt(ColourEffectAnimations.Definition(framesOf).Frames.Played, place);
     }
 
     /// <summary>Restarts the effect at the start of its cycle, the phase its animation loops from, due on this turn.</summary>

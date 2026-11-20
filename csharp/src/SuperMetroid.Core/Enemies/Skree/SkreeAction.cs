@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// </summary>
 public enum SkreeAction
 {
-    /// <summary>Waits until Samus is within 48 horizontal pixels.</summary>
+    /// <summary>Waits until Samus is within its wind-up distance across (<see cref="SkreeMotionDefinitions.WindUpDistance"/>).</summary>
     Idling,
 
     /// <summary>Winds up to dive while its preparation animation plays.</summary>
@@ -18,7 +18,7 @@ public enum SkreeAction
     /// </summary>
     AttackReady,
 
-    /// <summary>Descends six pixels and steers one pixel toward Samus until floor collision.</summary>
+    /// <summary>Descends by <see cref="SkreeMotionDefinitions.DiveStep"/> and steers toward Samus by <see cref="SkreeMotionDefinitions.DiveDrift"/> until floor collision.</summary>
     Diving,
 
     /// <summary>Sinks for its burrow (<see cref="SkreeMotionDefinitions.BurrowDuration"/>), emits debris, then deletes the enemy.</summary>

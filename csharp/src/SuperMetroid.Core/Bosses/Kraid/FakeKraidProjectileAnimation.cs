@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>A Fake Kraid spit or spike's typed animation: it shows its pose and holds it for good.</summary>
 /// <param name="pose">The pose to show.</param>
 internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
-    : EnemyProjectileTypedAnimation<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue>(PoseAnimations[pose],
+    : EnemyProjectileSilentAnimation<FakeKraidProjectilePose, FakeKraidProjectilePose>(PoseAnimations[pose],
         static (_, _, cue, _) => EnemyProjectileCuelessAnimations.Undefined<FakeKraidProjectilePose>(cue))
 {
 
@@ -21,9 +21,8 @@ internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
         ShownProjectileFrames[frame];
 
     /// <summary>
-    /// Each pose's segment: the spit and the left and right spikes each hold their pose for good (#1627). The game's
-    /// animations show it for the longest frame an animation gives and then rest on it; nothing reads the projectile's frame timer,
-    /// so the pose simply stays until a shot deletes it.
+    /// Each pose's segment: the spit and the left and right spikes each hold their pose for good (#1627), until a shot
+    /// deletes the projectile.
     /// </summary>
     private static AnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> PoseSegments { get; } = new(
         Enum.GetValues<FakeKraidProjectilePose>().ToDictionary(pose => pose, pose => new AnimationBeat<FakeKraidProjectilePose, NoAnimationCue>[]

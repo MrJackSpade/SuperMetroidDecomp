@@ -35,7 +35,7 @@ internal static class RidleyShotHealthStageVerification
         SamusState samus = runtime.Player.Samus;
         samus.Control.LockOutPlayer();
         RoomEnemyPlace ridley = runtime.Enemies.Places.InUpdateOrder[0];
-        AssertEqual(EnemyDefinitionId.Ridley, ridley.DefinitionId, "slot zero is Norfair Ridley");
+        AssertEqual(EnemyDefinitionId.Ridley, ridley.Occupant?.DefinitionId, "slot zero is Norfair Ridley");
         var state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<NorfairRidleyEntity>(ridley).Encounter;
 
         // Native update 56046: Ridley on frame $E983, both Super Missile slots on his body.
@@ -49,17 +49,17 @@ internal static class RidleyShotHealthStageVerification
         ridley.Health = 9340;
         state.FightMode = RidleyFightMode.PowerBombDodge;
         state.HealthBand = NorfairRidleyHealthBandDefinitions.Unhurt;
-        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(ridley.Position.Whole);
+        runtime.Enemies.PrepareEnemyProcessingList(ridley.Position.Whole);
         foreach (int index in new[] { 0, 1 })
         {
             SamusProjectile shot = runtime.Projectiles.Shots[index];
-            shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;
+            shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300); shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(0x00c5, 0x0164));
             shot.Radius = new(8, 8);
             shot.Animation = ProjectileFixturePlaybacks.Active();
         }
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
-            ridley, Position16<RoomPixels>.Zero);
+            ridley.HeldOccupant(), Position16<RoomPixels>.Zero);
 
         AssertTrue(ridley.Health < 9000, "the hits cross 9000");
         AssertTrue(ReferenceEquals(NorfairRidleyHealthBandDefinitions.Unhurt, state.HealthBand), "the shot leaves the health band for his AI to update");

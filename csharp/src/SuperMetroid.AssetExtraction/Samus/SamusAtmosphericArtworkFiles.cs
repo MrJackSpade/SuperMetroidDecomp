@@ -15,9 +15,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public static class SamusAtmosphericArtworkFiles
 {
     /// <summary>Import-data JSON filename for the four-frame footstep list and shared four-frame lava/dust direct-OBJ list.</summary>
-    public const string ArtworkFileName = "samus-atmosphere.json";
+    private const string ArtworkFileName = "samus-atmosphere.json";
     /// <summary>Import-data manifest filename recording the format and cartridge provenance of the atmospheric JSON.</summary>
-    public const string ManifestFileName = "samus-atmosphere-manifest.json";
+    private const string ManifestFileName = "samus-atmosphere-manifest.json";
     /// <summary>
     /// Schema revision shared by the extracted artwork and its provenance manifest; version 2 stores sprite parts, and
     /// version 3 is import data the installation never holds (#1638).

@@ -15,13 +15,13 @@ internal sealed class SamusPresentation
     /// The whole body picture the body last drew, which the speed-booster echoes repeat; none before the body is drawn.
     /// While invincibility flicker hides the body the echoes keep repeating the picture last drawn (#1392).
     /// </summary>
-    public SamusBodyFrame? DrawnFrame { get; private set; }
+    private SamusBodyFrame? DrawnFrame { get; set; }
 
     /// <summary>
     /// The signed screen place Samus's body picture was last drawn at, from her world position and the foreground scroll:
     /// left of or above the screen is negative.
     /// </summary>
-    public Offset16<ScreenPixels> DrawOrigin { get; private set; }
+    private Offset16<ScreenPixels> DrawOrigin { get; set; }
 
     /// <summary>The installed artwork she draws from, bound by whoever built her; never part of save state.</summary>
     private readonly SamusArtworkBinding _artwork;
@@ -89,9 +89,8 @@ internal sealed class SamusPresentation
     /// differs from PreviousPose, and otherwise keeps its frame and timer running.
     /// </summary>
     /// <remarks>
-    /// The behaviour also returns early while the animation-frame delay adjustment is negative. This model owns it as
-    /// <see cref="SamusState.ExtraAnimationDelay"/>, so it runs only where that is
-    /// nonnegative, as it is at the intro's discovery setup and its demo's end.
+    /// The animation does not restart while <see cref="SamusState.ExtraAnimationDelay"/> is negative; it is nonnegative
+    /// at the intro's discovery setup and its demo's end, the only places this runs.
     /// </remarks>
     internal static void SetAnimationFrameIfPoseChanged(SamusState samus)
     {
@@ -101,15 +100,11 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Restarts the pose's animation after a scripted sequence writes Pose and
-    /// literal animation values without calling ordinary pose initialization.
+    /// Restarts the pose's animation after a scripted sequence sets Samus's pose and animation directly.
     /// </summary>
     /// <remarks>
-    /// Standing drained Samus up and putting her back into the drained crouch do exactly that.
-    /// The game's animation pass resolves the animation from Pose every update, whereas
-    /// this model caches it as a consistency check. This narrow method updates only that
-    /// cache plus the controller's explicit writes; it intentionally does not recompute the
-    /// liquid's extra animation delay or silently refresh collision radius.
+    /// Standing drained Samus up and putting her back into the drained crouch do exactly that; her liquid's
+    /// extra animation delay and her collision radius stay as they were.
     /// </remarks>
     internal static void SetPoseAndAnimationForScriptedSequence(SamusState samus,
         SamusPoseId pose,
@@ -135,10 +130,9 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Publishes the angle-selected grapple art exactly as the grapple swing does before the normal
-    /// animation pass. The latter will decrement this fifteen to fourteen later in
-    /// the same gameplay frame; this one narrow operation keeps grapple code from
-    /// acquiring a general-purpose escape hatch around animation invariants.
+    /// Shows the grapple art the swing's angle selects, as the grapple swing does before her animation runs; her
+    /// animation counts its hold (<see cref="SamusAnimationDelayDefinitions.GrappleSwingPictureHold"/>) down later in the
+    /// same update.
     /// </summary>
     public static void ShowGrappleSwingPicture(SamusState samus, GrappleSwingPicture picture)
     {
@@ -172,7 +166,7 @@ internal sealed class SamusPresentation
             step.FrameCounter,
             step.BossPresent);
 
-        // The animation keeps the neutral jump's second frame alive in four-tick chunks while Samus is
+        // The animation keeps the neutral jump's second frame alive in chunks of its rise extension while Samus is
         // still rising. This is intentionally tested before the decrement and applies only when the
         // timer's last update remains; release or the apex turns her downward and lets it expire.
         if (samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
@@ -194,8 +188,8 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Advances the animation-only core of the death animation's start. Unlike ordinary gameplay animation, this update deliberately skips the liquid's
-    /// extra animation delay, the neutral jump's held rise, and controller-dependent Dash interception.
+    /// Advances the animation-only core of the death animation's start: unlike ordinary gameplay animation, it skips
+    /// the liquid's extra animation delay, the neutral jump's held rise, and controller-dependent Dash interception.
     /// </summary>
     internal static void AnimateDeathFrame(SamusState samus)
     {
@@ -340,7 +334,8 @@ internal sealed class SamusPresentation
                 break;
 
             case SamusAnimationVerticalSpeedTransition verticalSpeed:
-                // Read only on a cue value's place (#1535): the pose depends on whether Samus has any vertical speed alone.
+                // Read only when the cue's place is reached (#1535): the pose it names depends only on whether Samus has
+                // any vertical speed.
                 samus.CuePose.Name(samus.Kinematics.VerticalVelocity.IsMoving
                     ? verticalSpeed.Airborne
                     : verticalSpeed.Grounded);
@@ -394,13 +389,12 @@ internal sealed class SamusPresentation
     /// <param name="cameraPosition">The camera the body is placed against.</param>
     /// <param name="frameCounter">The update counter invincibility's flicker reads.</param>
     /// <param name="turningFloor">The turning floor that rotates her drawn point, or null on a still floor.</param>
-    /// <returns>Whether the body was drawn.</returns>
     /// <remarks>
     /// The body is one whole picture (#1513, #1585): her pose at the picture frame the installed <see cref="SamusShownFrames"/> give the
     /// animation frame, placed at the origin the import baked into that installed frame (#1517). The body is always a whole
     /// Samus of her pose, while her animation frame and carried movement stay as gameplay left them.
     /// </remarks>
-    public bool Draw(SamusState samus,
+    public void Draw(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition,
         int frameCounter,
@@ -421,10 +415,9 @@ internal sealed class SamusPresentation
             !SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter);
         // A hidden body keeps the picture and origin it last drew, which the echoes repeat.
         if (!bodyVisible)
-            return false;
+            return;
 
         DrawBody(samus, sprites, cameraPosition, pictureFrame, turningFloor);
-        return true;
     }
 
     /// <summary>
@@ -502,7 +495,7 @@ internal sealed class SamusPresentation
         int frameCounter)
     {
         Ensure.NotNull(sprites);
-        if (!SamusCadenceDefinitions.CrashEchoesDrawnEverySecondUpdate.IsDue(frameCounter) ||
+        if (!SamusCadenceDefinitions.CrashEchoesDrawn.IsDue(frameCounter) ||
             samus.Shinespark.Phase is not (ShinesparkPhase.Crash or ShinesparkPhase.CrashHold))
         {
             return;
@@ -528,7 +521,7 @@ internal sealed class SamusPresentation
         int frameCounter)
     {
         Ensure.NotNull(sprites);
-        if (!SamusCadenceDefinitions.CrashEchoesDrawnEverySecondUpdate.IsDue(frameCounter))
+        if (!SamusCadenceDefinitions.CrashEchoesDrawn.IsDue(frameCounter))
             return;
 
         DrawActiveSpeedBoosterEcho(samus,

@@ -31,7 +31,7 @@ internal static class IntroCinematicSpriteFrameExtractor
                 TileColumn = attributes.TileNumber % IntroCinematicSpriteCompiler.TileColumns,
                 TileRow = attributes.TileNumber / IntroCinematicSpriteCompiler.TileColumns,
                 Size = x.IsLarge ? 16 : 8,
-                Priority = attributes.Priority,
+                Depth = attributes.Depth,
                 // The native generic loader replaces source palette bits with its
                 // owning actor's current palette. Null retains that inheritance.
                 Palette = null,

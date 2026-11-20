@@ -41,7 +41,7 @@ internal static class TextAndMapPresentationContractChecks
                     escape.Get(EscapeTypewriterMessageId.Zebes);
                     escape.Get((EscapeTypewriterMessageId)(-1));
                     escape.Get((EscapeTypewriterMessageId)99);
-                    intro.GetLines(IntroNarrationPageId.ZebesBattle);
+                    intro.Compile(IntroNarrationPageId.ZebesBattle);
                     intro.Compile(IntroNarrationPageId.CeresUnderAttack);
                     intro.Compile((IntroNarrationPageId)(-1));
                     ending.BuildResultPanel();
@@ -53,7 +53,7 @@ internal static class TextAndMapPresentationContractChecks
                     MapSpriteSheet.Draw(mapSheet, (MapSpriteId)(-1), objects, default, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteScreen.FileSelect, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteColouring.Labels);
                     arrows.Get(MapScrollDirection.Left);
                     arrows.Get(MapScrollDirection.Down);
-                    arrows.Get(MapScrollDirection.None);
+                    arrows.Get(MapScrollDirection.Up);
                     arrows.Get((MapScrollDirection)99);
                 }
             }
@@ -78,8 +78,8 @@ internal static class TextAndMapPresentationContractChecks
         FixtureConsumerBinding.Require(compilation, calls, "TextAndMapPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 18, "all eighteen calls must first reproduce absent provider adapters" + " (" + before.Describe() + ")");
-        // Ten calls name a member of their provider's domain: two escape messages, a narration page's lines and its
-        // compiled page, the ending's two panels, the last credits row, the world title and two scroll directions. The eight
+        // Ten calls name a member of their provider's domain: two escape messages, two compiled narration pages (the
+        // page's lines are the presentation's own, #2570), the ending's two panels, the last credits row, the world title and two scroll directions. The eight
         // others name no member: -1 and 99 for the escape messages, None and 99 for the arrows, a value no narration page holds, credits rows past
         // either end and map sprite zero. The map screens' three LoadTo calls, all classified, left the fixture with their
         // contract, and the ending's sequence compile (one classified, one unresolved) left production for verification

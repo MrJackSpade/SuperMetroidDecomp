@@ -33,7 +33,7 @@ internal static class OumBounceVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Oum, place.Definition);
+            place.Bind(EnemyDefinitionId.Oum, place.KeptDefinition);
             OumBehavior.InitializeOum();
             OumEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<OumEntity>(place).State;
             place.Radius = new(16, 16);
@@ -45,7 +45,7 @@ internal static class OumBounceVerification
             samus.Position = samus.Position.WithWhole(new(1000, 1000));
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
-                new FrameCounters(0));
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 
             enemies.OumBehavior.RunOumMainAi(place, place.RequireSpeciesState<OumEnemyState>(), frame);
 

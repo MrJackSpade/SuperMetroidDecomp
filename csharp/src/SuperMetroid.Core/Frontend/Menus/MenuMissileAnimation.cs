@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 internal sealed class MenuMissileAnimation
 {
     /// <summary>The roll as it plays.</summary>
-    internal readonly ShowingAnimationPlayer<MenuMissileSegment, MenuMissileFrame, NoAnimationCue> player;
+    private readonly ShowingAnimationPlayer<MenuMissileSegment, MenuMissileFrame, NoAnimationCue> player;
 
     /// <summary>Starts the roll on its first picture, each later picture held for <paramref name="frameDuration"/> updates.</summary>
     internal MenuMissileAnimation(int frameDuration)

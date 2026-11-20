@@ -12,5 +12,5 @@ internal sealed class SpazerSpecialAttackFlight(SpazerParticleState state) : Spe
 
     /// <inheritdoc/>
     private protected override SoundEffectId? Step(SamusShotUpdate update) =>
-        update.Shots.Combos.StepSpazerCombo(update.Samus, update.Shot, state, update.SamusBombs, update.Camera.Y);
+        update.Shots.Combos.StepSpazerCombo(update.Samus, update.Held, state, update.SamusBombs, update.Camera.Y);
 }

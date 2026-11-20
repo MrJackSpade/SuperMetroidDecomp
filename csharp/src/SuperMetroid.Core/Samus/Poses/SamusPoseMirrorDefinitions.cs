@@ -4,8 +4,9 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseMirrorDefinitions
 {
     /// <summary>
-    /// Each facing pose and its mirror, right-facing (or right-to-left) first. A pose absent from this list has no facing,
-    /// as the front-view poses, and is its own mirror.
+    /// Each facing pose and its mirror, right-facing (or right-to-left) first. A pose absent from this list is its own
+    /// mirror: the front-view poses, which face no way, and Draygon's left-only hold poses, which have no right-facing
+    /// counterpart.
     /// </summary>
     internal static readonly SamusPoseMirrorPair[] Pairs =
     [
@@ -15,9 +16,9 @@ internal static class SamusPoseMirrorDefinitions
         new SamusPoseMirrorPair(SamusPoseId.MoonwalkFacingRightPose, SamusPoseId.MoonwalkFacingLeftPose),
         new SamusPoseMirrorPair(SamusPoseId.MoonwalkAimUpRightPose, SamusPoseId.MoonwalkAimUpLeftPose),
         new SamusPoseMirrorPair(SamusPoseId.MoonwalkAimDownRightPose, SamusPoseId.MoonwalkAimDownLeftPose),
-        new SamusPoseMirrorPair(SamusPoseId.MoonwalkTurnJumpRightPose, SamusPoseId.MoonwalkTurnJumpLeftPose),
-        new SamusPoseMirrorPair(SamusPoseId.MoonwalkTurnJumpAimUpRightPose, SamusPoseId.MoonwalkTurnJumpAimUpLeftPose),
-        new SamusPoseMirrorPair(SamusPoseId.MoonwalkTurnJumpAimDownRightPose, SamusPoseId.MoonwalkTurnJumpAimDownLeftPose),
+        new SamusPoseMirrorPair(SamusPoseId.MoonwalkTurnToSpinJumpRightPose, SamusPoseId.MoonwalkTurnToSpinJumpLeftPose),
+        new SamusPoseMirrorPair(SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose, SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose),
+        new SamusPoseMirrorPair(SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose, SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose),
         new SamusPoseMirrorPair(SamusPoseId.ShinesparkWindupRightPose, SamusPoseId.ShinesparkWindupLeftPose),
         new SamusPoseMirrorPair(SamusPoseId.ShinesparkHorizontalRightPose, SamusPoseId.ShinesparkHorizontalLeftPose),
         new SamusPoseMirrorPair(SamusPoseId.ShinesparkVerticalRightPose, SamusPoseId.ShinesparkVerticalLeftPose),

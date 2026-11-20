@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Samus's grounded movement types from her ordinary movement step.
 /// </summary>
 /// <remarks>
-/// This is deliberately not a generic platformer controller. The movements below
-/// correspond only to the standing, running, turning-on-ground, moonwalking and ran-into-wall movement types, with
-/// their speeds in air, water and lava (<see cref="SamusHorizontalSpeedDefinitions"/>), submerged Dash gating, and ordinary Dash and equipped-Speed-Booster accumulation and
+/// The movements below are the standing, running, turning-on-ground, moonwalking and ran-into-wall movement types, with
+/// their speeds in air, water and lava (<see cref="SamusHorizontalSpeedDefinitions"/>), submerged Dash gating, and
+/// ordinary Dash and equipped-Speed-Booster accumulation and
 /// staging. Solid enemies stop Samus through the shared block collision, conveyors carry her as inside-block reactions,
 /// knockback is <see cref="SamusKnockbackMovement"/>'s, and the boost's colours and echoes are drawn outside movement.
 /// </remarks>
@@ -23,11 +23,11 @@ public static class SamusGroundedMovement
     /// one-pixel downward block scan.
     /// </summary>
     /// <remarks>
-    /// <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/> and <see cref="SamusPoseId.ForwardFacingSuitedPose"/> share <see cref="SamusMovementType.Standing"/> movement with ordinary standing, but the game
-    /// returns before horizontal movement, speed cleanup, and the one-pixel grounding probe.
-    /// It clears <see cref="SamusState.SolidVerticalCollisionResult"/> every update; while an elevator moves, it first
-    /// moves her one pixel down through the downward block collision. The elevator actor remains a separate producer of the status,
-    /// and of the platform art; this method holds the complete Samus-side consumer.
+    /// <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/> and <see cref="SamusPoseId.ForwardFacingSuitedPose"/> share
+    /// <see cref="SamusMovementType.Standing"/> movement with ordinary standing, but move neither horizontally nor by
+    /// the one-pixel grounding probe, and keep their speeds. Her solid vertical collision result
+    /// (<see cref="SamusState"/>) is cleared every update; while an elevator moves, she first moves one pixel down
+    /// through the downward block collision. The elevator itself says whether it moves and draws the platform.
     /// </remarks>
     /// <param name="level">The room's level the elevator carries her through.</param>
     /// <param name="samus">Samus, in a front-facing pose.</param>
@@ -35,7 +35,7 @@ public static class SamusGroundedMovement
     /// <param name="elevatorIsMoving">Whether an elevator carries her this update.</param>
     /// <param name="roomObjects">The room's room objects and door contacts her scan reaches.</param>
     /// <param name="doorBlocks">What the door blocks the elevator carries her through do to her (#2545).</param>
-    internal static BlockMoveResult? StepFacingForward(
+    internal static void StepFacingForward(
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -51,21 +51,17 @@ public static class SamusGroundedMovement
                 $"Forward-facing movement requires a forward-facing pose, not {samus.Pose}.");
         }
 
-        BlockMoveResult? vertical = null;
         if (elevatorIsMoving)
         {
-            // A moving elevator carries Samus down one whole pixel through the downward mover; the collision direction
-            // the game sets first is read by nothing before the next move sets its own. That move deliberately skips
-            // solid-enemy collision but retains ordinary room-block and behaviour scanning and the
-            // alternating left/right order selected from the frame counter's parity.
-            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusMovementDefinitions.ElevatorCarry, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, DoorBlocks = doorBlocks });
+            // A moving elevator carries Samus down one whole pixel; that move meets no solid enemy but does meet the
+            // room's blocks and their behaviours, in the left or right order the update's parity picks.
+            _ = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusMovementDefinitions.ElevatorCarry, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, DoorBlocks = doorBlocks });
         }
 
         // Clearing the vertical collision result is all front-view movement does without a moving elevator. In
         // particular, stale base/extra X speed is retained; facing forward clears those speeds at
         // setup time, not every frame in this movement step.
         samus.ForgetVerticalCollisionResult();
-        return vertical;
     }
 
     /// <summary>
@@ -150,7 +146,7 @@ public static class SamusGroundedMovement
         speed.SelectSpeedsFor(liquidMedium);
 
         // Running handles Dash before calculating base speed. With no Speed Booster equipped, Dash establishes momentum, adds
-        // exactly a sixteenth of a pixel per frame, and caps the extra component at two pixels. The flag retains that
+        // its acceleration each frame, and caps the extra component at its unboosted cap. The flag retains that
         // component after Dash is released.
         speed.HandleExtraRunSpeed(
             movementType: SamusMovementType.Running,
@@ -199,9 +195,9 @@ public static class SamusGroundedMovement
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         bool turnsLeft = SamusPoseMetadata.IsRightToLeftGroundTurnPose(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkTurnJumpLeftPose(samus.Pose);
+            SamusPoseMetadata.IsMoonwalkTurnToSpinJumpLeftPose(samus.Pose);
         bool turnsRight = SamusPoseMetadata.IsLeftToRightGroundTurnPose(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkTurnJumpRightPose(samus.Pose);
+            SamusPoseMetadata.IsMoonwalkTurnToSpinJumpRightPose(samus.Pose);
         if (!turnsLeft && !turnsRight)
         {
             throw new InvalidOperationException(
@@ -209,33 +205,30 @@ public static class SamusGroundedMovement
         }
 
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
-        if (movementType is not (SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping))
+        if (movementType is not (SamusMovementType.TurningOnGround or SamusMovementType.TurningRisingOrAimedCrouched))
             throw new InvalidOperationException(
                 $"Grounded turn pose {samus.Pose} has movement type {movementType}.");
-        if (movementType == SamusMovementType.TurningWhileJumping && !SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose))
-            throw new InvalidOperationException($"Grounded turning-while-jumping admission requires an aimed crouched turn, not {samus.Pose}.");
-        if (movementType == SamusMovementType.TurningWhileJumping && !samus.Kinematics.VerticalVelocity.HasNoDirection)
+        if (movementType == SamusMovementType.TurningRisingOrAimedCrouched && !SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose))
+            throw new InvalidOperationException($"A grounded rising-or-aimed-crouched turn requires an aimed crouched turn, not {samus.Pose}.");
+        if (movementType == SamusMovementType.TurningRisingOrAimedCrouched && !samus.Kinematics.VerticalVelocity.HasNoDirection)
         {
             throw new InvalidOperationException(
-                $"Airborne turning-while-jumping pose {samus.Pose} must execute through SamusAerialMovement.StepTurningInAir.");
+                $"Airborne rising-or-aimed-crouched turn pose {samus.Pose} must execute through SamusAerialMovement.StepTurningInAir.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectSpeedsFor(liquidMedium);
 
-        // The turn runs the complete X movement before
-        // cancelling boost. Because this movement type is not running, the Dash acceleration cannot
-        // add speed; it either clears an unowned pair or preserves an already established
-        // momentum pair for this final movement frame. The unconditional cancellation and
-        // zero writes below then retire it in the game's original order.
+        // The turn runs the complete X movement before ending her boost: the turn gains no Dash speed, and her extra
+        // speed and momentum last only through this update's movement before they are cleared.
         speed.HandleExtraRunSpeed(
             movementType,
             controllerInput: GameplayAction.None,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
-        // The turning-on-ground or turning-while-jumping speeds supply the
+        // The turning-on-ground or rising-or-aimed-crouched turn speeds supply the
         // deceleration. If it takes the speed below zero, the speed stops and the
         // acceleration mode returns to accelerating before the direction is chosen.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType);
@@ -253,10 +246,9 @@ public static class SamusGroundedMovement
             frameCounter,
             roomObjects);
 
-        // The turn cancels the speed boost on every turn frame. This matters even
-        // without the Speed Booster item: the turn setup folded the numeric extra component but
-        // deliberately left the running-momentum flag set until this movement. Then the movement
-        // cancels that momentum and zeroes the extra run speed, each separately observable.
+        // The turn cancels the speed boost on every turn update, even without the Speed Booster: the turn's setup
+        // folded in her extra speed but left her running momentum until this movement, which cancels the momentum and
+        // stops the extra run speed, each separately.
         speed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         speed.ExtraRunSpeed = default;
         return new GroundedMovementResult(horizontal, vertical);
@@ -285,10 +277,8 @@ public static class SamusGroundedMovement
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectSpeedsFor(liquidMedium);
 
-        // Moonwalking's horizontal movement starts with the Dash acceleration.
-        // Moonwalking never gains Dash speed there, but an
-        // existing momentum flag deliberately carries the extra pair through moonwalking;
-        // without the flag the pair is cleared before displacement is calculated.
+        // The extra run speed survives moonwalking while she has running momentum and is cleared otherwise; moonwalking
+        // never gains Dash speed.
         speed.HandleExtraRunSpeed(
             movementType: SamusMovementType.Moonwalking,
             controllerInput: GameplayAction.None,
@@ -402,11 +392,9 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Executes the knockback movement type's ordinary movement after a
-    /// special owner (normal damage knockback or Ceres Ridley's ejection) has restored the
-    /// normal step while leaving a knockback pose current. The game clears the
-    /// vertical-collision result and performs only the shared no-speed Y probe; it does not
-    /// invent another knockback arc or silently reinterpret the hurt body as standing.
+    /// Moves Samus at the end of a knockback, after its owner (damage or Ceres Ridley's ejection) has restored her
+    /// normal step while a knockback pose still shows: her vertical collision result is cleared and she probes for
+    /// ground, without moving.
     /// </summary>
     internal static BlockMoveResult StepKnockbackEnding(
         RoomLevelData level,

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectTourianAccessVisualFiles
 {
     /// <summary>Editable Tourian entrance access-floor visual JSON filename.</summary>
-    public const string VisualFileName = "tourian-access.json";
+    private const string VisualFileName = "tourian-access.json";
 
     /// <summary>The stages of a row's crumble the floor draws, in their published order (#2567): rock, pieces, dust.</summary>
     private static readonly BlockBreakupStage[] CrumbleStages = [BlockBreakupStage.Rock, BlockBreakupStage.Pieces, BlockBreakupStage.Dust];
@@ -32,7 +32,7 @@ public static class RoomObjectTourianAccessVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of every Tourian access draw, in the cartridge's order: the empty row, the crumble's stages, the clear.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All =>
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All =>
         [Compile(TourianAccessDraw.EmptyRow), .. CrumbleStages.Select(CompileCrumble),
             Compile(TourianAccessDraw.Clear)];
 
@@ -49,11 +49,11 @@ public static class RoomObjectTourianAccessVisualFiles
     private static string CrumbleVisualId(BlockBreakupStage stage) => "crumble-" + BlockBreakupStageKeys.Installed.Of(stage);
 
     /// <summary>The draw list of a Tourian access draw: its block shape written one four-block row at a time, top row first (#1862).</summary>
-    internal static RoomObjectDrawLists.DrawList Compile(TourianAccessDraw draw) =>
+    private static RoomObjectDrawLists.DrawList Compile(TourianAccessDraw draw) =>
         Compile(TourianAccessDraws.Family.Of(draw), TourianAccessDraws.Family, draw == TourianAccessDraw.Clear ? 6 : 1);
 
     /// <summary>The draw list of a drawn stage of a row's crumble: one four-block row (#2291).</summary>
-    internal static RoomObjectDrawLists.DrawList CompileCrumble(BlockBreakupStage stage) =>
+    private static RoomObjectDrawLists.DrawList CompileCrumble(BlockBreakupStage stage) =>
         Compile(TourianAccessDraws.Crumble(stage), TourianAccessDraws.CrumbleFamily, 1);
 
     /// <summary>The draw list of a frame of <paramref name="family"/>: its block shape written one four-block row at a time, top row first.</summary>

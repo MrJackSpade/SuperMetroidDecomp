@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal static class SporeSpawnCadenceDefinitions
 {
     /// <summary>
-    /// The updates on which the settled Spore Spawn raises a dust cloud at a random spot: every sixteenth update of the
-    /// frame counter, on the first of each sixteen. Each one draws a random number.
+    /// The updates on which the settled Spore Spawn raises a dust cloud at a random spot, counted on the frame counter at
+    /// the period's first place. Each one draws a random number.
     /// </summary>
-    internal static readonly UpdateCadence IdleDustEverySixteenthUpdate = new(16, 0);
+    internal static readonly UpdateCadence IdleDust = new(16, 0);
 }

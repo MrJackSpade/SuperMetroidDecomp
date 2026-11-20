@@ -15,8 +15,8 @@ public static class LavaAcidWaveDefinitions
     /// <summary>
     /// One period of each heat haze as its first phase shows it, one background displacement in pixels per line (#1468,
     /// #2054, #2367); each later phase draws it one line further down. The horizontal haze sways the lines sideways: a
-    /// four-line push one way from the third line, then a four-line push the other way from the ninth. The vertical haze
-    /// sways them up and down: two identical eight-line triangular half-periods, rising then falling.
+    /// push one way, then a push the other way. The vertical haze sways them up and down: two identical triangular
+    /// half-periods, rising then falling.
     /// </summary>
     public static FrozenDictionary<HeatHazeDirection, ImmutableArray<int>> HazeWaveforms { get; } =
         new Dictionary<HeatHazeDirection, ImmutableArray<int>>

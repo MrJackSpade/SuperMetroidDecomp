@@ -42,17 +42,16 @@ public sealed class SamusXrayState
     public bool OwnsSamusControl { get; private set; }
 
     /// <summary>
-    /// True when Reserve recovery cleared the shared freeze flag underneath X-Ray's
-    /// still-live finishing beam. The effect deliberately cannot clean itself up.
+    /// True when Reserve recovery let time run under X-Ray's still-live finishing beam, which then cannot end itself.
     /// </summary>
-    public bool IsReserveMode => IsActive && !OwnsSamusControl && !TimeIsFrozen;
+    private bool IsReserveMode => IsActive && !OwnsSamusControl && !TimeIsFrozen;
 
     /// <summary>
     /// The four independent subsystems X-Ray setup disables. Unlike shared
     /// time freeze, automatic Reserve completion and a room transition do not restore
     /// these subsystems; that mismatch is the game's direct/indirect G-Mode state.
     /// </summary>
-    public XraySuspendedSubsystems SuspendedSubsystems { get; private set; }
+    private XraySuspendedSubsystems SuspendedSubsystems { get; set; }
 
     /// <summary>Whether X-ray's independent enemy-projectile disable remains set; gates projectile updates and drawing even if Reserve recovery has cleared shared time freeze.</summary>
     public bool AreEnemyProjectilesSuspended =>
@@ -88,39 +87,38 @@ public sealed class SamusXrayState
     /// </summary>
     public XrayClosing Closing { get; private set; }
 
-    /// <summary>Right-facing angles occupy 0-127, left 128-255.</summary>
+    /// <summary>Right-facing aims lie in the turn's first half and left-facing ones in its second
+    /// (<see cref="RotationAngle.HalfTurn"/>).</summary>
     public RotationAngle Angle { get; private set; }
 
     /// <summary>
     /// The angle from the beam's centre to each of its edges, with its fraction of a step: zero at admission, grown by
     /// <see cref="AngularWideningSpeed"/> on each widening update, and clamped to exactly
-    /// <see cref="XrayScopeDefinitions.Cone.WidestHalfWidth"/> once it would reach a step beyond. The widening adds
-    /// carry the fraction into whole steps exactly as the game does; the widening step is a whole number of the angle's
-    /// finest turns, so no finer fraction ever arises.
+    /// <see cref="XrayScopeDefinitions.Cone.WidestHalfWidth"/> once it would reach a step beyond.
     /// </summary>
-    public RotationAngle AngularHalfWidth { get; private set; }
+    private RotationAngle AngularHalfWidth { get; set; }
 
-    /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, none through ten, which aim clamps and the cone read.</summary>
+    /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, up to <see cref="XrayScopeDefinitions.Cone.WidestHalfWidth"/>, which aim clamps and the cone read.</summary>
     public TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
 
     /// <summary>
     /// The widening speed, the turn the half-width grows by each update: zero at admission and raised by the fixed
     /// widening step before each widening update adds it to <see cref="AngularHalfWidth"/>.
     /// </summary>
-    public RotationAngle AngularWideningSpeed { get; private set; }
+    private RotationAngle AngularWideningSpeed { get; set; }
 
     /// <summary>
     /// The sequence of colours X-ray's suit colouring shows on the visor: widening at admission, full beam once the colouring
     /// sees the full-beam phase, and a request to restore the normal suit colours after teardown.
     /// </summary>
-    public XrayVisorShadeMode VisorShadeMode { get; private set; }
+    private XrayVisorShadeMode VisorShadeMode { get; set; }
 
     /// <summary>
-    /// The visor's shade sequence for <see cref="VisorShadeMode"/> (#2285, #2387), each shade shown for five colouring
-    /// updates: widening shows the widening glow's three and rests on its widest, showing it again each time it runs out;
-    /// the full beam cycles the steady visor cycle's three. Its first shade shows on the colouring update after it starts.
+    /// The visor's shade sequence for <see cref="VisorShadeMode"/> (#2285, #2387), each shade shown for the same colouring
+    /// updates: widening shows the widening glow's shades and rests on its widest, showing it again each time it runs out;
+    /// the full beam cycles the steady visor cycle's. Its first shade shows on the colouring update after it starts.
     /// </summary>
-    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Visor { get; } =
+    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Visor { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.XrayVisorWidening);
 
 /// <summary>
@@ -222,7 +220,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Installs the X-Ray pose and animation, replaces competing movement and colouring owners,
+    /// Gives Samus the X-Ray pose and animation, replaces competing movement and colouring owners,
     /// and requests the visor activation sound.
     /// </summary>
     private void InstallSamusControl(SamusState samus, SamusPoseId targetPose)
@@ -251,8 +249,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Models the control setup that takes Samus's pose input and movement from X-Ray when automatic
-    /// Reserve recovery begins. The independent cone effect and shared freeze flag remain.
+    /// Automatic reserve recovery takes Samus's pose input and movement from X-Ray; the cone and the frozen time stay.
     /// </summary>
     internal void RelinquishSamusControlForReserveRecovery()
     {
@@ -261,9 +258,8 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Models the shared freeze flag being set when automatic
-    /// Reserve recovery begins. A stranded finishing X-Ray beam from Reserve Mode sees
-    /// this second trigger and can execute its forced-stand cleanup on the following frame.
+    /// Automatic reserve recovery freezes time, which lets a stranded finishing X-Ray beam from Reserve Mode finish its
+    /// forced stand on the next update.
     /// </summary>
     internal void FreezeSharedTimeForReserveRecovery()
     {
@@ -272,9 +268,9 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Models the Reserve recovery state clearing the shared freeze flag before returning Samus's
-    /// pose input and movement to her pose. The X-Ray beam's last step observes time running and therefore leaves its cone effect
-    /// installed, producing Reserve Mode/greyout rather than normal X-Ray teardown.
+    /// Reserve recovery lets time run again before returning Samus's pose input and movement to her pose; a finishing
+    /// X-Ray beam then finds time running and leaves its cone in place, so Reserve Mode greys the screen rather than
+    /// X-Ray ending.
     /// </summary>
     internal void ClearSharedFreezeForReserveMode()
     {
@@ -283,8 +279,8 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Models the door-transition cleanup which removes direct G-Mode's stranded X-Ray
-    /// cone effect without restoring any of the four suspended subsystems.
+    /// A door transition removes direct G-Mode's stranded X-Ray cone without restoring any of the four suspended
+    /// subsystems.
     /// </summary>
     internal void TransitionDirectGModeToIndirect()
     {
@@ -332,8 +328,7 @@ public sealed class SamusXrayState
             if ((controllerInput & turnBinding) == GameplayAction.None)
                 return;
 
-            // Mirroring through `256 - angle` turns right-space 0-127 into its exact
-            // left-space counterpart and vice versa. This happens before selecting turn art.
+            // The turn mirrors the aim across the vertical, before the turn's picture is chosen.
             Angle = RotationAngle.Zero - Angle;
             bool crouching = movementType == SamusMovementType.Crouching;
             SamusPoseId targetPose = facingLeft
@@ -364,13 +359,13 @@ public sealed class SamusXrayState
     /// Executes the X-ray scope's movement: turning does nothing, while
     /// stable X-ray poses force the aim's hold and one of the five aims the angle selects.
     /// </summary>
-    internal SamusAnimationFrame? StepMovement(SamusState samus)
+    internal void StepMovement(SamusState samus)
     {
         Ensure.NotNull(samus);
         EnsureActive();
 
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.TurningOnGround)
-            return null;
+            return;
 
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         SamusAnimationFrame aim = facingLeft
@@ -383,7 +378,6 @@ public sealed class SamusXrayState
               Angle < XrayScopeDefinitions.AnimationAngles.RightLoweredFrom ? XrayScopeDefinitions.Aims.Level :
               Angle < XrayScopeDefinitions.AnimationAngles.RightDownFrom ? XrayScopeDefinitions.Aims.Lowered : XrayScopeDefinitions.Aims.Down;
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, aim, timer: XrayScopeDefinitions.Holds.Aim);
-        return aim;
     }
 
     /// <summary>
@@ -425,9 +419,8 @@ public sealed class SamusXrayState
                     break;
                 }
 
-                // The adds carry the fractions into whole steps exactly as the game does: the widening
-                // speed gains the fixed fractional step each update, and the width grows by the speed until
-                // its whole steps pass the widest half-width, where it is clamped.
+                // The widening speed grows each update, and the width grows by it until it passes the widest
+                // half-width, where it is clamped.
                 AngularWideningSpeed += XrayScopeDefinitions.Cone.WideningStep;
                 AngularHalfWidth += AngularWideningSpeed;
                 if (AngularHalfWidth.WholeStep > XrayScopeDefinitions.Cone.WidestHalfWidth)
@@ -460,9 +453,8 @@ public sealed class SamusXrayState
                 break;
 
             case XrayBeamPhase.Finish:
-                // The beam's last step performs every cleanup write only while the shared freeze
-                // flag is set. Automatic Reserve completion clears that flag first;
-                // the finishing beam then remains installed forever and produces greyout mode.
+                // The beam's last step ends the scope only while time is frozen. Automatic Reserve completion lets time
+                // run first, so the finishing beam then stays forever and the screen greys out.
                 if (TimeIsFrozen)
                     Finish(samus);
                 break;
@@ -517,8 +509,8 @@ public sealed class SamusXrayState
     /// which the later edge may not cross.
     /// </summary>
     /// <param name="center">The beam's centre.</param>
-    /// <param name="halfWidth">The whole steps from the centre to each edge, none through ten.</param>
-    internal static RotationAngle AimedUp(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
+    /// <param name="halfWidth">The whole steps from the centre to each edge.</param>
+    private static RotationAngle AimedUp(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
         ? TurnedBackToEarlierEdgeLimit(center, halfWidth, RotationAngle.Zero)
         : TurnedOnToLaterEdgeLimit(center, halfWidth, RotationAngle.Zero);
 
@@ -528,8 +520,8 @@ public sealed class SamusXrayState
     /// later edge may not cross; facing left, down turns back toward straight down, which the earlier edge may not cross.
     /// </summary>
     /// <param name="center">The beam's centre.</param>
-    /// <param name="halfWidth">The whole steps from the centre to each edge, none through ten.</param>
-    internal static RotationAngle AimedDown(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
+    /// <param name="halfWidth">The whole steps from the centre to each edge.</param>
+    private static RotationAngle AimedDown(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
         ? TurnedOnToLaterEdgeLimit(center, halfWidth, RotationAngle.HalfTurn)
         : TurnedBackToEarlierEdgeLimit(center, halfWidth, RotationAngle.HalfTurn);
 
@@ -568,7 +560,7 @@ public sealed class SamusXrayState
     /// <summary>
     /// How far the edge <paramref name="halfWidth"/> steps earlier in the turn than <paramref name="center"/> lies on
     /// from <paramref name="limit"/>, the shorter way round: negative once it has crossed back over the limit. The centre
-    /// stays on the limit's side of the turn and the half-width is at most ten steps, so the edge never lies further than
+    /// stays on the limit's side of the turn and the half-width is at most the cone's widest, so the edge never lies further than
     /// that behind the limit.
     /// </summary>
     private static int EarlierEdgeStepsFrom(RotationAngle center, TrigonometryAngle halfWidth, RotationAngle limit) =>
@@ -577,7 +569,7 @@ public sealed class SamusXrayState
     /// <summary>
     /// How far the edge <paramref name="halfWidth"/> steps later in the turn than <paramref name="center"/> lies on from
     /// <paramref name="limit"/>, the shorter way round: positive once it has crossed over the limit, which it never lies
-    /// further than ten steps beyond.
+    /// further than the cone's widest half-width beyond.
     /// </summary>
     private static int LaterEdgeStepsFrom(RotationAngle center, TrigonometryAngle halfWidth, RotationAngle limit) =>
         (center.ToTrigonometryAngle() + halfWidth).StepsFrom(limit.ToTrigonometryAngle());

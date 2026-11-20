@@ -43,11 +43,11 @@ public sealed class KzanEnemyState
     public int FallingTargetY { get; internal set; }
 
     /// <summary>
-    /// The speed, in pixels per update, the fall moves at. It starts at the spawn settings' fall speed, grows by one
-    /// sixteenth of a pixel per falling update and is capped at four pixels per update.
+    /// The speed, in pixels per update, the fall moves at. It starts at the spawn settings' fall speed, grows by
+    /// <see cref="KzanMotionDefinitions.FallAcceleration"/> each falling update and is capped at <see cref="KzanMotionDefinitions.FastestFall"/>.
     /// </summary>
     public SignedSixteenSixteen FallingSpeed { get; internal set; }
 
-    /// <summary>Post-landing wait in actor updates; loaded with 64 on landing and decremented to zero before upward motion begins.</summary>
+    /// <summary>Post-landing wait in actor updates; loaded with <see cref="KzanMotionDefinitions.RiseWait"/> on landing and decremented to zero before upward motion begins.</summary>
     public UpdateCountdown RiseWaitTimer { get; internal set; } = UpdateCountdown.Ended();
 }

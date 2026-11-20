@@ -2,6 +2,7 @@ using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
@@ -30,7 +31,8 @@ internal sealed class GameplayActorDrawing
     private readonly GameplayDisplayState _display;
     /// <summary>Determines whether time-dependent enemy projectile drawing is suspended.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Provides frame-counter cadence for blinking and drawing branches.</summary>
+    /// <summary>The update count that paces Samus's blinking and the alternate-update drawing of the elevator and the
+    /// crash's echoes.</summary>
     private readonly FrameClock _clock;
 
     /// <summary>Receives Samus's whole-frame draws in the same order as the sprites around them.</summary>
@@ -75,7 +77,8 @@ internal sealed class GameplayActorDrawing
         {
             // The Ceres elevator is drawn in front of Samus, as both its definitions are. Projectiles in front of
             // Samus are drawn here, before Samus.
-            room.CeresElevatorArrival?.Draw(_sprites, room.Enemies.Presentation, room.Camera.PixelPosition);
+            foreach (IActorInFrontOfSamus actor in room.ActorsInFrontOfSamus)
+                actor.DrawInFrontOfSamus(_sprites, room.Enemies.Presentation, room.Camera.PixelPosition);
             // A hit burst among the effect actors is one of Samus's weapon effects: it shows the sheet of the beams she
             // has equipped as it is drawn, as her charge flare does (#1713).
             room.Enemies.Projectiles.DrawEnemyProjectilesInFrontOfSamus(
@@ -104,8 +107,8 @@ internal sealed class GameplayActorDrawing
             {
                 // The colour update always runs charge/post-shot handling before running the
                 // selected special Samus colouring. Ordinary charged shots paint all of Samus's visible colours
-                // white for three updates and restore the suit on the fourth; Hyper shots
-                // step ten complete shades on alternating updates before restore.
+                // white for the flash's updates and restore the suit on the next; Hyper shots
+                // step through their complete shades before restore.
                 // A restored suit from the beam-charge colour step bypasses the entire special
                 // colour step on glow expiry. In particular, stored shine must not tick
                 // or overwrite the restored suit on this frame.
@@ -183,7 +186,7 @@ internal sealed class GameplayActorDrawing
                 room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive && SamusPoseMetadata.IsForwardFacingPose(samus.Pose);
             if (elevatorOwnsSamusDrawing)
             {
-                if (SamusCadenceDefinitions.ElevatorRideDrawnEverySecondUpdate.IsDue(_clock.Counter))
+                if (SamusCadenceDefinitions.ElevatorRideDrawn.IsDue(_clock.Counter))
                 {
                     // The elevator ride draws the body without the ordinary invincibility
                     // flicker, so this path cannot flicker twice.
@@ -196,12 +199,10 @@ internal sealed class GameplayActorDrawing
             else if (samus.Shinespark.Phase is
                      ShinesparkPhase.Crash or ShinesparkPhase.CrashHold)
             {
-                // The shinespark crash's drawing takes over at the instant an active
-                // shinespark crashes. Unlike the default drawing, it intentionally
-                // omits charging flare/audio, atmosphere, both arm-cannon priority
-                // paths, ordinary departing speed echoes, and grapple graphics. It
-                // draws the live body first, then the crash's second echo before its
-                // first on odd frames. The projectiles and trails below are still drawn after it.
+                // The shinespark crash's drawing takes over the instant an active shinespark crashes: it shows no
+                // charging flare or sound, atmosphere, arm cannon, departing speed echoes or grapple. It draws the body
+                // first, then the crash's second echo before its first on odd updates. The projectiles and trails below
+                // are still drawn after it.
                 samus.Presentation.Draw(samus, 
                     _sprites,
                     room.Camera.PixelPosition,
@@ -333,9 +334,8 @@ internal sealed class GameplayActorDrawing
             // The demo's input is never replaced with auto-jump.
             if (_attractSession.IsAttractDemo) samus.InputSnapshot.AutoJump.Reinstate();
 
-            // The charge-sound latch follows the drawing of Samus and her projectiles. A hurt flash's sound-recovery update
-            // may have armed this latch above; consuming it here preserves both the
-            // same-frame charging sound and ordering after projectile drawing.
+            // The charging sound starts after Samus and her shots are drawn, on the update the hurt flash's recovery
+            // allows it.
             SamusPostDrawAudio.Step(
                 samus,
                 _player.PreviousMovementTypeForXray,
@@ -358,11 +358,13 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus)
         {
-            // Once Ceres Ridley's animation starts, his Baby's animation runs after the actors' drawing steps.
-            room.Enemies.Ceres.StepCeresBabyAfterActors();
-            // The Baby and the door of Ridley's room, while it shows its overlay, each show once, at their own place.
-            room.Enemies.Ceres.PublishCeresBaby(_sprites, room.Camera.PixelPosition);
-            room.Enemies.Ceres.PublishRidleyRoomDoorOverlay(_sprites, room.Camera.PixelPosition);
+            // An encounter's scene whose animation runs after the actors' drawing steps (Ceres Ridley's Baby, once his
+            // animation starts) steps now, then shows its pictures once, each at its own place (#2573).
+            foreach (IEnemyPassScene scene in room.Enemies.PassScenes)
+            {
+                scene.StepAfterActors();
+                scene.Publish(_sprites, room.Camera.PixelPosition);
+            }
         }
     }
 }

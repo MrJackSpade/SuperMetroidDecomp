@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Poses;
 
@@ -51,7 +50,7 @@ public sealed class SamusKinematicsState
     /// </summary>
     internal SamusKinematicsState CreateCollisionProbe()
     {
-        var probe = new SamusKinematicsState { ProbeBodyAttack = ProbeBodyAttack };
+        var probe = new SamusKinematicsState();
         probe.Position = Position;
         probe.Radius = Radius;
         probe.VerticalVelocity = VerticalVelocity;
@@ -68,10 +67,8 @@ public sealed class SamusKinematicsState
     /// values of the enemies it lists.
     /// </summary>
     /// <remarks>
-    /// Movement owns this snapshot because every ordinary movement probes
-    /// solid/frozen enemies before reacting to room blocks. Empty remains the
-    /// correct default for rooms whose enemy actor loader has not run. Keeping the
-    /// list explicit prevents decorative render sprites from accidentally becoming physics.
+    /// The enemies Samus's movement collides with, solid or frozen, which every ordinary movement meets before room
+    /// blocks; a room whose enemies have not been placed has none.
     /// </remarks>
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveEnemies { get; set; } =
         Array.Empty<SolidEnemyCollisionBody>();
@@ -113,7 +110,7 @@ public sealed class SamusKinematicsState
     /// which the next vertical move without speed reads for its one-pixel grounding probe, and the next terrain Y move of
     /// some distance ends.
     /// </summary>
-    public bool PositionAdjustedBySlope { get; set; }
+    public bool PositionAdjustedBySlope { get; private set; }
 
     /// <summary>
     /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
@@ -147,11 +144,9 @@ public sealed class SamusKinematicsState
 
     /// <summary><paramref name="direction"/>, which must be one Samus can meet an enemy moving in.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not left, right, up or down.</exception>
-    internal static SamusCollisionDirection RequireContactDirection(SamusCollisionDirection direction) => direction switch
+    private static SamusCollisionDirection RequireContactDirection(SamusCollisionDirection direction) => direction switch
     {
         SamusCollisionDirection.Left or SamusCollisionDirection.Right or SamusCollisionDirection.Up or SamusCollisionDirection.Down => direction,
-        SamusCollisionDirection.NonDirectionalProbe => throw new ArgumentOutOfRangeException(nameof(direction), direction,
-            "A non-directional probe meets no solid enemy."),
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
 

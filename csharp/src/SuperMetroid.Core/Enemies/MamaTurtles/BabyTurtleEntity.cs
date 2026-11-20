@@ -2,11 +2,12 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>One of the mama turtle's babies (#2146): its crawl, its animation's cues, its own touch and its own shot and bomb stages.</summary>
 /// <param name="species">The mama turtle species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the baby occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="start">The Mama that heads the baby and the way it first crawls.</param>
-internal sealed class BabyTurtleEntity(MamaTurtleBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BabyTurtleStart start)
-    : TurtleEntity(species, place, common), IEnemyPrivateShotReaction
+internal sealed class BabyTurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BabyTurtleStart start)
+    : TurtleEntity(species, occupant, place, common), IEnemyPrivateShotReaction
 {
     /// <summary>The baby's own shot reaction, built over its state (#2554).</summary>
     private EnemyShotReaction OwnShotReaction => field ??= MamaTurtleBehavior.BabyTurtleShotReactionOf(State);
@@ -15,7 +16,7 @@ internal sealed class BabyTurtleEntity(MamaTurtleBehavior species, RoomEnemyPlac
     private EnemyBombReaction OwnBombReaction => field ??= MamaTurtleBehavior.BabyTurtleBombReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal BabyTurtleEnemyState State { get; } = MamaTurtleBehavior.InitializeBabyTurtle(place, start);
+    internal BabyTurtleEnemyState State { get; } = MamaTurtleBehavior.InitializeBabyTurtle(Occupant, place, start);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunBabyTurtleMainAi(Place, State, frame);

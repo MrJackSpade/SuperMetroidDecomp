@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The Baby Metroid's route from the ceiling to Samus after it releases Mother Brain (#1952).</summary>
 internal static class BabyMetroidRouteDefinitions
 {
-    /// <summary>What every route leg's gradual acceleration divides the remaining distance by: sixteen, its gentlest pull.</summary>
+    /// <summary>What every route leg's gradual acceleration divides the remaining distance by: its gentlest pull.</summary>
     internal const int AccelerationDivisor = BabyMetroidCutsceneFlightDefinitions.GentleAccelerationDivisor;
 
     /// <summary>

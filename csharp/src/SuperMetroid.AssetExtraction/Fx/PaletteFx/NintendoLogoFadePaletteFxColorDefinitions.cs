@@ -2,23 +2,17 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>Immutable mechanics of the Nintendo copyright's fade.</summary>
+/// <summary>The records of the Nintendo copyright's fade and the colours each writes, for the import.</summary>
 /// <remarks>
-/// Issue #850 / #625: the copyright definition sets index 402 and branches to the shared body, which the cartridge's
-/// boot logo, an effect no screen starts (#1686), also falls through to.
-/// Eight records of <c>3, colors[2], Wait</c> end in <c>Delete</c>
-/// after 24 frames; all 23 control words match. For record
-/// <c>f</c> (0..7), let <c>L = 4*f + 3</c>. The first BGR555 color is
-/// <c>L</c> in each of red, green and blue. The second has red zero, blue
-/// <c>L</c>, and green <c>floor((3*L + 4)/8)</c>. This rule matches all
-/// sixteen shared original colors exactly. They remain live presentation data
-/// supplied by the presentation compiler.
+/// The fade shares its records with the cartridge's boot logo, an effect no screen starts (#1686). Each record
+/// brightens the copyright's grey and its blue by the same step; this describes the authored colours, not arithmetic
+/// the game performs.
 /// </remarks>
 public static class NintendoLogoFadePaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes two live BGR555 colors.</summary>
-    public const int ColorsPerFrame = 2;
+    private const int ColorsPerFrame = 2;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.FadeInNintendoCopyright, ColorsPerFrame);

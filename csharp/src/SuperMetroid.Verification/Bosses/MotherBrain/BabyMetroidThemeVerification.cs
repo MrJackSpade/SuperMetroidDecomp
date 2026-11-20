@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFixtureHeadVerification;
@@ -14,12 +15,13 @@ internal static class BabyMetroidThemeVerification
     internal static int VerifyBabyMetroidTheme()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
         enemies.MotherBrainEncounter.BeginAsSetUp(state);
         var sequence = MotherBrainLateFightFixtures.NewSequence();
-        var baby = sequence.State.Baby;
-        baby.Arrived().Phase = BabyMetroidCutscenePhase.FinalCharge;
-        baby.Arrived().Health = 0;
+        // The Baby's health lives in the place the final beam's spawn makes it in (#2572).
+        var baby = MotherBrainLateFightFixtures.Arrive(sequence, FixedPosition<RoomPixels>.State.Zero);
+        global::SuperMetroid.Core.PrivateState.Set(baby.Arrived(), "Phase", BabyMetroidCutscenePhase.FinalCharge);
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Arrived().Health", 0);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         Action<BabyMetroidCutsceneStepResult> apply = step => enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state.Colours, step);
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);

@@ -23,7 +23,8 @@ public abstract class KraidAnimatedPartState : KraidPartState
     private static AnimationPlayback<KraidPartSegment> Starting(KraidPartSegment segment) =>
         new(KraidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
-    /// <summary>Installs the animation beginning at <paramref name="segment"/>, from its start; the part's timer is set separately.</summary>
+    /// <summary>Starts the animation beginning at <paramref name="segment"/>, from its start; the part's timer is set
+    /// separately.</summary>
     internal void SetAnimation(KraidPartSegment segment)
     {
         Playback = Starting(segment);
@@ -71,7 +72,8 @@ public abstract class KraidAnimatedPartState : KraidPartState
         return shown is AnimationShown<KraidPartSegment, KraidPartPose>.HeldFrame;
     }
 
-    /// <summary>Installs the animation beginning at <paramref name="segment"/> and runs its first step on the next update.</summary>
+    /// <summary>Starts the animation beginning at <paramref name="segment"/>, whose first step runs on the next
+    /// update.</summary>
     internal void StartAnimation(KraidPartSegment segment)
     {
         SetAnimation(segment);

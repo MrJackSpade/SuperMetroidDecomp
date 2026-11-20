@@ -18,6 +18,6 @@ internal static class FirefleaFxDefinitions
     /// <summary>The updates the room shows each look of its flash.</summary>
     internal const int FlashDuration = 6;
 
-    /// <summary>The Firefleas killed, five, from which the room stops flashing and holds its flash's brightest look.</summary>
+    /// <summary>The Firefleas killed from which the room stops flashing and holds its flash's brightest look.</summary>
     internal const int KilledToHoldFlash = 5;
 }

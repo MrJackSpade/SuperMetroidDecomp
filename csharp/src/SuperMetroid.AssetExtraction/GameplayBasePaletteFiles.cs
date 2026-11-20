@@ -61,7 +61,7 @@ public static class GameplayBasePaletteFiles
     /// <param name="json">The caller-owned stream holding the gameplay base-palette document.</param>
     /// <returns>The selected colours, detached from the document.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, palette lengths or RGB5 channels are invalid.</exception>
-    public static GameplayBasePalette Read(Stream json)
+    private static GameplayBasePalette Read(Stream json)
     {
         GameplayBasePaletteDocument document = JsonAssetDocument.Read<GameplayBasePaletteDocument>(
             json, GameplayBasePaletteFormat.JsonOptions, "gameplay base palette");
@@ -73,7 +73,7 @@ public static class GameplayBasePaletteFiles
     }
 
     /// <summary>Serializes a gameplay base-palette document as JSON.</summary>
-    public static byte[] Write(GameplayBasePaletteDocument document)
+    private static byte[] Write(GameplayBasePaletteDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             GameplayBasePaletteFormat.JsonOptions);

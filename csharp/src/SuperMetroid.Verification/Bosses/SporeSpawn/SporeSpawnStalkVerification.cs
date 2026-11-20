@@ -25,16 +25,16 @@ internal static class SporeSpawnStalkVerification
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
+        body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
-        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
+        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body.HeldOccupant(), body);
         SporeSpawnEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<SporeSpawnEntity>(body).State;
 
         AssertEqual(4, state.StalkLinks.Count, "Spore Spawn's stalk has four links");
         for (int link = 0; link < state.StalkLinks.Count; link++)
         {
-            AssertTrue(ReferenceEquals(enemies.Projectiles.ProjectileInPlace(14 + link), state.StalkLinks[link]),
+            AssertTrue(ReferenceEquals(enemies.Projectiles.SpawnedInPlace(14 + link), state.StalkLinks[link]),
                 $"Spore Spawn's stalk link {link} is the projectile in the original's place {14 + link}");
         }
         AssertEqual(new Position16<RoomPixels>(128, 560), state.StalkLinks[0].Position.Whole,

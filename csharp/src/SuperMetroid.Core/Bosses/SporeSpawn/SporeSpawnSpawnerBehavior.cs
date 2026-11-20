@@ -21,7 +21,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
     /// <summary>Releases spores on the spawner's random cadence while Spore Spawn lets it.</summary>
     /// <param name="context">The spawner and what its pass hands every motion.</param>
     /// <param name="motion">The spawner's motion, its releasing, which only a spawner's spawn starts.</param>
-    private protected override void Move(EnemyProjectileMotionContext context, SporeSpawnSpawnerMotion motion)
+    internal override void Move(EnemyProjectileMotionContext context, SporeSpawnSpawnerMotion motion)
     {
         switch (motion)
         {
@@ -51,9 +51,9 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
     /// Spawns one spore projectile and runs its setup. The spore shares <paramref name="sporeSpawn"/>'s body's colours as
     /// they show now (#1512).
     /// </summary>
-    internal void SpawnSporeSpawnSpore(Position16<RoomPixels> position, HorizontalDirection drift, SporeSpawnEnemyState sporeSpawn)
+    private void SpawnSporeSpawnSpore(Position16<RoomPixels> position, HorizontalDirection drift, SporeSpawnEnemyState sporeSpawn)
     {
-        EnemyProjectile? spore = projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? spore = projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnSpore, spores, SpriteGraphics.SharedIn(Ensure.NotNull(sporeSpawn).Colours.Sprites));
         if (spore is null)
             return;
 
@@ -75,7 +75,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
 
         if (emitter.ReleaseWait.IsZero)
         {
-            spawner.StartAnimation(new SporeSpawnSpawnerAnimation(SporeSpawnProjectileSegment.SpawnerRelease, this));
+            spawner.StartAnimation(new SporeSpawnSpawnerAnimation(this, SporeSpawnProjectileSegment.SpawnerRelease, this));
             emitter.ReleaseWait = WrappingCountdown.Start(room.Random.Next(SporeSpawnRandomDefinitions.SporeReleaseWait));
         }
         emitter.ReleaseWait = emitter.ReleaseWait.Decrement().Remaining;

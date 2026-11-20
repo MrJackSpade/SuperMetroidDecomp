@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// The glow Samus's suit shows after a charged shot (#1682, #2351), each kind a named shade sequence played through the
-/// shared animation player (<see cref="SamusGlowPlay"/>, #2458): an ordinary charged shot's flash shows the yellow glow
-/// for three updates, and the Hyper Beam shot's glow shows the Hyper Beam's full-body glow from its last frame to its
-/// first, each for two updates. On the update after its last shade the glow ends and the suit's own shade returns.
+/// shared animation player (<see cref="SamusGlowPlay"/>, #2458): an ordinary charged shot's flash shows the yellow glow,
+/// and the Hyper Beam shot's glow shows the Hyper Beam's full-body glow from its last frame to its first
+/// (<see cref="SamusGlowAnimationDefinitions"/>). On the update after its last shade the glow ends and the suit's own shade returns.
 /// </summary>
 /// <remarks>
 /// The glow's kind decides how it plays. The game decided by whether the Hyper Beam is equipped, and only a Hyper
@@ -30,10 +30,10 @@ public sealed class ChargedShotGlow
     public static ChargedShotGlow StartHyperBeamGlow() => new(ChargedShotGlowKind.HyperBeamGlow, SamusGlowSegment.HyperShotGlow);
 
     /// <summary>Which glow this is.</summary>
-    public ChargedShotGlowKind Kind { get; }
+    private ChargedShotGlowKind Kind { get; }
 
     /// <summary>The play of the glow's sequence: the shade it shows and the updates that shade has left.</summary>
-    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Play { get; }
+    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Play { get; }
 
     /// <summary>Whether the glow has played past its last shade, so the suit's own shade returns.</summary>
     internal bool HasEnded => Play.HasStopped;

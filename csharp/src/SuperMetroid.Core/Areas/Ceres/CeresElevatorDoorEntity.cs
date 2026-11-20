@@ -10,11 +10,12 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// explosions, which publishes its destruction so the shaft starts to turn.
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the door occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="floor">The room's turning floor, whose elevator platform the door cycles (#2382).</param>
-internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common, RoomFloor floor)
-    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
+internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, RoomFloor floor)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>How many updates the door's destruction lasts, the last the one it ends on (#2281).</summary>
     private const int RumbleDuration = 49;
@@ -110,7 +111,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
         // arrival's touchdown ends. The import pictures both strips (#1467).
         floor.Show(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.Of(frame)));
 
-        // The glow takes its next step every eight updates.
+        // The glow takes its next step at its cadence's place.
         doors.ElevatorRoomGlowStep = CeresDoorCadenceDefinitions.GlowStep.Of(frame);
     }
 }

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// </summary>
 /// <param name="head">Botwoon's head, which the segment trails and whose state its death and colours follow.</param>
 /// <param name="botwoon">Botwoon's state, which the segment holds from its spawn: his death and colours.</param>
-/// <param name="index">The segment's place in the body, zero (the tail) through twelve (behind the head).</param>
+/// <param name="index">The segment's place in the body, from zero (the tail) to the last, behind the head.</param>
 /// <param name="projectile">The enemy projectile Botwoon spawned to show the segment.</param>
 /// <param name="animation">The segment's animation, started on its projectile, whose pose the segment starts in.</param>
 internal sealed class BotwoonSegmentState(RoomEnemyPlace head, BotwoonEnemyState botwoon, int index, EnemyProjectile projectile, BotwoonSegmentAnimation animation)
@@ -22,8 +22,8 @@ internal sealed class BotwoonSegmentState(RoomEnemyPlace head, BotwoonEnemyState
     /// <summary>Botwoon's state, which the segment holds from its spawn (#2554): its death and colours follow it.</summary>
     internal BotwoonEnemyState Botwoon { get; } = Ensure.NotNull(botwoon);
 
-    /// <summary>The segment's place in the body, zero (the tail) through twelve (behind the head).</summary>
-    internal int Index { get; } = Ensure.BetweenInclusive(0, BotwoonFightDefinitions.BodySegments - 1, index);
+    /// <summary>The segment's place in the body, from zero (the tail) to the last, behind the head.</summary>
+    private int Index { get; } = Ensure.BetweenInclusive(0, BotwoonFightDefinitions.BodySegments - 1, index);
 
     /// <summary>Whether the segment is the tail, which shows the tail cap and signals the head when it lands.</summary>
     internal bool IsTail => Index == 0;

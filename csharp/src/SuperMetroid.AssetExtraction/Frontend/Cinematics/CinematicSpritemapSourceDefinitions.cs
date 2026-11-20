@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Cinematics;
 internal static class CinematicSpritemapSourceDefinitions
 {
     /// <summary>Bank $8C, where every cinematic spritemap is stored.</summary>
-    internal const byte Bank = 0x8c;
+    private const byte Bank = 0x8c;
 
     /// <summary>
     /// The spritemap of each step of the ending's typed texts (#2195), which shows its text typed as far as one more letter:
@@ -96,7 +96,6 @@ internal static class CinematicSpritemapSourceDefinitions
         new(CinematicSpritePose.ExaminedBabyNarrowing, new(Bank, 0x8d5a)),
         new(CinematicSpritePose.ExaminedBabyNarrow, new(Bank, 0x8d61)),
         new(CinematicSpritePose.CaretVisible, new(Bank, 0x8d68)),
-        new(CinematicSpritePose.Blank, null),
         new(CinematicSpritePose.NextPageArrowBright, new(Bank, 0x8ccf)),
         new(CinematicSpritePose.NextPageArrowFading, new(Bank, 0x8cdb)),
         new(CinematicSpritePose.NextPageArrowFaint, new(Bank, 0x8ce7)),

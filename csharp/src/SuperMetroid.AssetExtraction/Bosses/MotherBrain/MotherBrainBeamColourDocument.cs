@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// </summary>
 public sealed record MotherBrainBeamColourDocument
 {
-    /// <summary>Schema revision; loading requires <see cref="MotherBrainBeamColourFile.Version"/>.</summary>
+    /// <summary>Schema revision; loading requires <c>Version</c>.</summary>
     public required int Version { get; init; }
 
     /// <summary>The colour the backdrop shows on the beam's first frame, before its cycle starts.</summary>

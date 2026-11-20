@@ -12,9 +12,8 @@ internal abstract class EnemyProjectileAnimation
     /// the cue that did so would. A cue that hands the projectile over to another family's animation goes on in it. An animation that has shown a frame for good, or rests where its timeline
     /// holds, has stopped its hold and takes no step (#2380).
     /// </summary>
-    /// <param name="context">The projectile, Samus and the pass's camera, for cues that act on them.</param>
-    /// <param name="projectiles">The projectile engine, which carries out the shared cues.</param>
-    internal void Advance(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles)
+    /// <param name="context">The projectile, Samus, the pass's camera and the engine, for cues that act on them.</param>
+    internal void Advance(EnemyProjectileCueContext context)
     {
         EnemyProjectile projectile = context.Projectile;
         if (projectile.IsFrameHoldStopped)
@@ -26,7 +25,7 @@ internal abstract class EnemyProjectileAnimation
         // A cue that hands the projectile over to another animation ends this one's play; the projectile plays on in the
         // animation handed to, from its start, within this same pass (#2554).
         EnemyProjectileAnimation playing = this;
-        EnemyProjectileFrameStep step = NextFrame(context, projectiles);
+        EnemyProjectileFrameStep step = NextFrame(context);
         while (step is EnemyProjectileFrameStep.HandOver handOver)
         {
             playing = handOver.Next;
@@ -47,6 +46,10 @@ internal abstract class EnemyProjectileAnimation
                 projectile.StopFrameHold();
                 projectile.Frame = held.Frame;
                 return;
+            case EnemyProjectileFrameStep.Hide hidden:
+                projectile.FrameHold = WrappingCountdown.Start(hidden.Duration);
+                projectile.Frame = null;
+                return;
             case EnemyProjectileFrameStep.Rest:
                 // A held timeline rests on the frame it shows: the hold stops until the projectile's owner sets it again or
                 // starts another animation.
@@ -58,7 +61,9 @@ internal abstract class EnemyProjectileAnimation
     }
 
     /// <summary>Advances the timeline to its next frame, a frame shown for good, or its rest.</summary>
-    /// <param name="context">The projectile the animation runs on, Samus and the pass's camera, for cues that act on them.</param>
-    /// <param name="projectiles">The projectile engine, which carries out the shared cues.</param>
-    private protected abstract EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles);
+    /// <param name="context">
+    /// The projectile the animation runs on, Samus, the pass's camera and the engine that carries out the shared cues, for
+    /// cues that act on them.
+    /// </param>
+    private protected abstract EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context);
 }

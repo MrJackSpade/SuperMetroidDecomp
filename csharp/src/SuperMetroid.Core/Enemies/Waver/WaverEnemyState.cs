@@ -21,8 +21,8 @@ public sealed class WaverEnemyState
     public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>
-    /// The vertical wave's phase; only its whole step is read, so it wraps after a full turn. It advances two whole
-    /// steps per unobstructed update and a vertical collision reflects it by half a turn.
+    /// The vertical wave's phase; only its whole step is read, so it wraps after a full turn. It advances by
+    /// <see cref="WaverMotionDefinitions.WaveStep"/> each unobstructed update and a vertical collision reflects it by half a turn.
     /// </summary>
     public RotationAngle Angle { get; internal set; }
 

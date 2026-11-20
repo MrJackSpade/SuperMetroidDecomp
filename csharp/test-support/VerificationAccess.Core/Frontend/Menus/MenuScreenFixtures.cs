@@ -35,8 +35,8 @@ internal static class MenuScreenFixtures
     {
         Ensure.NotNull(graphics);
         var tiles = new BackgroundTile[4 * ScreenCells];
-        ShownAreaMapTiles.Of(graphics.AreaMap).CopyTo(tiles, 0);
-        SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).Screens.Page(MapScreenDefinitions.RoomFrame(graphics.icons.MapArea)).CopyTo(tiles.AsSpan(2 * ScreenCells));
+        ShownAreaMapTiles.Of(graphics.ShownCells).CopyTo(tiles, 0);
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).Screens.Page(MapScreenDefinitions.RoomFrame(graphics.Icons.MapArea)).CopyTo(tiles.AsSpan(2 * ScreenCells));
         return Load(MenuScreenMemory.Compose(maps, tiles));
     }
 

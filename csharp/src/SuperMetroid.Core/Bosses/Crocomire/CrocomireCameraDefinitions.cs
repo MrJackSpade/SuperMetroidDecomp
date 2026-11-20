@@ -21,6 +21,6 @@ internal static class CrocomireCameraDefinitions
     /// <summary>The room's four leftmost screens, in order, which a defeated room and the skeleton's end open.</summary>
     internal static readonly Position16<RoomScreens>[] ArenaScreens = [new(0, 0), new(1, 0), new(2, 0), new(3, 0)];
 
-    /// <summary>The bridge's scroll setup compares Samus's X against 1312 before closing the screen left of the bridge.</summary>
+    /// <summary>The X Samus must pass before the screen left of the bridge closes.</summary>
     internal const int BridgeVisibleSamusX = 1312;
 }

@@ -31,9 +31,9 @@ internal static class SamusImpulseDefinitionsVerification
             bomb.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
             // A surface word from 32768 up lies above the room, where the game's sign test finds no surface.
             int? surface = raw <= short.MaxValue ? raw : null;
-            bomb.LiquidPhysics.WaterSurfaceY = liquid == 1 ? surface : null;
-            bomb.LiquidPhysics.LavaAcidSurfaceY = liquid == 2 ? surface : null;
-            bomb.BombJumpRequest = SamusBombJumpRequest.Published(direction).Accept();
+            global::SuperMetroid.Core.PrivateState.Set(bomb.LiquidPhysics, "WaterSurfaceY", liquid == 1 ? surface : null);
+            global::SuperMetroid.Core.PrivateState.Set(bomb.LiquidPhysics, "LavaAcidSurfaceY", liquid == 2 ? surface : null);
+            bomb.BombJump = SamusBombJump.FromBlast(direction).Arm();
             bomb.BombJumpStarting = true;
             bomb.BombJumpActive = false;
             bomb.Kinematics.YAcceleration = new UnsignedSixteenSixteen(7, 123);
@@ -61,10 +61,10 @@ internal static class SamusImpulseDefinitionsVerification
             var hurt = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             SamusPoseMetadata.RefreshCollisionRadii(hurt);
             hurt.EquippedItems = (((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) | ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) | ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0));
-            hurt.LiquidPhysics.WaterSurfaceY = environment is 1 or 3 ? 0 : null;
-            hurt.LiquidPhysics.LavaAcidSurfaceY = environment == 2 ? 0 : null;
-            PrivateState.Set(hurt.LiquidPhysics, nameof(SamusLiquidPhysicsState.IgnoresWaterSurface), environment == 3);
-            hurt.BombJumpRequest = SamusBombJumpRequest.Published(SamusBombJumpDirection.Left).Accept();
+            global::SuperMetroid.Core.PrivateState.Set(hurt.LiquidPhysics, "WaterSurfaceY", environment is 1 or 3 ? 0 : null);
+            global::SuperMetroid.Core.PrivateState.Set(hurt.LiquidPhysics, "LavaAcidSurfaceY", environment == 2 ? 0 : null);
+            PrivateState.Set(hurt.LiquidPhysics, "IgnoresWaterSurface", environment == 3);
+            hurt.BombJump = SamusBombJump.FromBlast(SamusBombJumpDirection.Left).Arm();
             hurt.BombJumpStarting = true;
             hurt.BombJumpActive = true;
             hurt.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
@@ -76,7 +76,7 @@ internal static class SamusImpulseDefinitionsVerification
             AssertEqual(rom.ReadCartridgeWord((0x909ea1 + medium * 2)), hurt.Kinematics.YAcceleration.Fraction, "Hurt refreshes native gravity");
             AssertEqual(11, hurt.KnockbackHold.UpdatesLeft, "Hurt retains producer timer");
             AssertTrue(hurt.KnockbackActive && !hurt.BombJumpActive && !hurt.BombJumpStarting, "Hurt replaces bomb mover");
-            AssertEqual(SamusBombJumpRequest.None, hurt.BombJumpRequest, "Hurt drops the bomb-jump request");
+            AssertEqual(null, hurt.BombJump, "Hurt drops the bomb-jump request");
             AssertEqual(1, hurt.HurtFlash.Count, "Hurt starts flash");
             AssertEqual(SamusBodyAttack.None, hurt.HorizontalSpeed.BodyAttack, "Hurt cancels contact attack");
             hurtCases++;

@@ -13,21 +13,18 @@ public sealed class AlcoonEnemyState
     /// <summary>The current behaviour.</summary>
     public AlcoonAction Action { get; internal set; }
 
-    /// <summary>
-    /// The way it walks and faces, airborne and firing too; null from the start of each jump until it picks the side Samus
-    /// is on, while a stride moves it nowhere and it faces right.
-    /// </summary>
-    public HorizontalDirection? WalkingDirection { get; internal set; }
+    /// <summary>The way it walks and faces, airborne and firing too.</summary>
+    public AlcoonWalk WalkingDirection { get; internal set; }
 
     /// <summary>
-    /// Its vertical velocity in pixels per update: a jump starts at 12 pixels up and a retreat at 4 pixels up, and its
+    /// Its vertical velocity in pixels per update: a jump and a retreat each start at their own upward speed, and its
     /// acceleration pulls it back down.
     /// </summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 
     /// <summary>
     /// The population's whole-pixel spawn position. Y is restored after the initialization floor search and after
-    /// retreat, leaving where it lies within a pixel vertically unchanged; X enforces the 112-pixel walking range and is restored when
+    /// retreat, leaving where it lies within a pixel vertically unchanged; X enforces the walking range and is restored when
     /// hiding completes.
     /// </summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }

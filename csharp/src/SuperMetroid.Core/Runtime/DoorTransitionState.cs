@@ -34,7 +34,7 @@ internal sealed class DoorTransitionState
     public DoorTransitionPhase Phase => stage.Phase;
 
     /// <summary>Gets whether the transition has begun and has not yet completed.</summary>
-    public bool IsActive => stage is OrdinaryDoorTransition or OpeningDoorTransition;
+    private bool IsActive => stage is OrdinaryDoorTransition or OpeningDoorTransition;
 
     /// <summary>
     /// Whether the next update continues the destination's load from the update before, which began it on
@@ -235,7 +235,7 @@ internal sealed class DoorTransitionState
                     // Resetting the projectiles selects the beam again when Icon Cancel is
                     // on. This is the only gameplay effect of the Icon Cancel option.
                     samus.SelectedHudItem = SuperMetroid.Core.Samus.HudItem.Beam;
-                    samus.AutoCancelledItem = SuperMetroid.Core.Samus.HudItem.Beam;
+                    samus.AutoCancelledItem = null;
                 }
                 var fadeIn = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeLastStep, runtime.FadeStepCount);
                 runtime.DoorFade.FadeIn(fadeIn);

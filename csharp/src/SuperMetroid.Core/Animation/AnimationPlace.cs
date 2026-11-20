@@ -1,19 +1,46 @@
 namespace SuperMetroid.Core.Animation;
 
 /// <summary>
-/// Where an animation stands (#1600): its phase, the phase's next beat, and, in a repeated phase, the plays the phase has
-/// left (#2006).
+/// Where an animation stands (#1600): its phase; whether the play has not entered the phase yet, plays it, or holds in it;
+/// the beats of the phase it has passed; and, in a repeated phase, the plays the phase has left (#2006).
 /// </summary>
-/// <param name="Phase">The phase playing.</param>
-/// <param name="Beat">
-/// The phase's next beat, counted from the phase's first; past its last, the phase's play is done. Before its first,
-/// <see cref="NotEntered"/>: the play has not reached the phase yet, and starts counting its plays when it does. One past
-/// its last, the animation holds there: its play is done for good and it rests on its last frame.
-/// </param>
-internal readonly record struct AnimationPlace(int Phase, int Beat)
+internal readonly record struct AnimationPlace
 {
-    /// <summary>The beat of a phase the play has not entered yet.</summary>
-    internal const int NotEntered = -1;
+    /// <summary>
+    /// Playing phase <paramref name="phase"/>, its next beat <paramref name="beat"/>, counted from the phase's first; past
+    /// its last, the phase's play is done.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="beat"/> is negative.</exception>
+    internal AnimationPlace(int phase, int beat)
+        : this(phase, AnimationPlaceStage.Playing, Ensure.AtLeastZero(beat))
+    {
+    }
+
+    /// <summary>Standing in phase <paramref name="phase"/> at <paramref name="stage"/>, its first <paramref name="beat"/> beats passed.</summary>
+    private AnimationPlace(int phase, AnimationPlaceStage stage, int beat)
+    {
+        Phase = phase;
+        Stage = stage;
+        Beat = beat;
+    }
+
+    /// <summary>The phase the animation stands in.</summary>
+    internal int Phase { get; }
+
+    /// <summary>Whether the play has not entered the phase yet, plays it, or holds in it.</summary>
+    private AnimationPlaceStage Stage { get; }
+
+    /// <summary>
+    /// The beats of the phase passed: while the phase plays, its next beat counted from its first; none before the play
+    /// enters it; and every one of them where the animation holds in it.
+    /// </summary>
+    internal int Beat { get; }
+
+    /// <summary>Whether the play has not entered the phase yet, and starts counting its plays when it does.</summary>
+    internal bool HasNotEntered => Stage == AnimationPlaceStage.BeforePhase;
+
+    /// <summary>Whether the animation holds in the phase: its play is done for good and it rests on its last frame.</summary>
+    internal bool IsHolding => Stage == AnimationPlaceStage.Holding;
 
     /// <summary>
     /// The plays a repeated phase has left, the one playing included: entering the phase sets them to its plays, and the end
@@ -32,10 +59,10 @@ internal readonly record struct AnimationPlace(int Phase, int Beat)
     internal static AnimationPlace StartOfAnimation => Before(0);
 
     /// <summary>Holding in phase <paramref name="phase"/>, of <paramref name="beatCount"/> beats: its play done for good.</summary>
-    internal static AnimationPlace HoldingIn(int phase, int beatCount) => new(phase, beatCount + 1);
+    internal static AnimationPlace HoldingIn(int phase, int beatCount) => new(phase, AnimationPlaceStage.Holding, beatCount);
 
     /// <summary>Before phase <paramref name="phase"/>, which the next play enters.</summary>
-    internal static AnimationPlace Before(int phase) => new(phase, NotEntered);
+    internal static AnimationPlace Before(int phase) => new(phase, AnimationPlaceStage.BeforePhase, 0);
 
     /// <summary>This place, with <paramref name="playsLeft"/> plays of its repeated phase left, the one playing included.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="playsLeft"/> is negative.</exception>

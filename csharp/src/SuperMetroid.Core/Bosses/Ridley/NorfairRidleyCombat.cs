@@ -88,7 +88,7 @@ internal sealed class NorfairRidleyCombat
 
     /// <summary>
     /// Plays one update of the arena reveal Ridley holds his roar through (#2409): a Norfair-only fade of
-    /// <see cref="NorfairRidleyRevealDefinitions.RevealStepCount"/> colour steps, one every third update. The update after
+    /// <see cref="NorfairRidleyRevealDefinitions.RevealStepCount"/> colour steps, each held <see cref="NorfairRidleyRevealDefinitions.RevealStepUpdates"/>. The update after
     /// the last step's raises the battle's liquid and ends the hold.
     /// </summary>
     /// <returns>Whether the reveal ended this update, so he takes off.</returns>
@@ -133,7 +133,7 @@ internal sealed class NorfairRidleyCombat
 
         state.Phase = NorfairRidleyPhase.SwoopAimDown;
         state.SwoopPhaseTimer.LastFor(NorfairRidleyMotionDefinitions.SwoopDiveUpdates);
-        state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
+        state.Flight.SwoopHeading = RotationAngle.Zero;
     }
 
     /// <summary>Advances the swoop velocity arc and changes phase, for <paramref name="nextUpdates"/>, as its countdown runs out.</summary>
@@ -259,7 +259,7 @@ internal sealed class NorfairRidleyCombat
             return;
         }
 
-        // The fall is clamped to six pixels an update, so adding the acceleration stays far inside the speed's range.
+        // The fall is capped at the pogo's fastest fall.
         state.Flight.Velocity = state.Flight.Velocity.WithY(SignedEightEight.Min(state.Flight.Velocity.Y + state.PogoDownwardAcceleration, NorfairRidleyMotionDefinitions.PogoMaximumFallSpeed));
 
         if (!RidleyTail.RidleyTailTouchesTerrain(state.Tail, level))
@@ -300,8 +300,7 @@ internal sealed class NorfairRidleyCombat
             return;
         }
 
-        // The rise starts at its launch speed and slows toward rest, so adding the acceleration never passes the speed's
-        // range.
+        // The rise slows toward rest and stops at its peak.
         SignedEightEight nextVertical = state.Flight.Velocity.Y + state.PogoUpwardAcceleration;
         if (!nextVertical.IsNegative)
         {
@@ -318,7 +317,7 @@ internal sealed class NorfairRidleyCombat
     /// Launches a pogo bounce: one of the health band's four launches, chosen by the current random number, its sideways
     /// speed taken toward the bounce's side (<see cref="NorfairRidleyState.PogoBounce"/>).
     /// </summary>
-    internal void InitializeNorfairRidleyPogoVelocity(NorfairRidleyState state)
+    private void InitializeNorfairRidleyPogoVelocity(NorfairRidleyState state)
     {
         // The pogo choice samples the current random number; it does not advance shared RNG.
         RidleyPogoDefinition definition = state.HealthBand.PogoLaunch.Choose(_room.Random.Read());
@@ -431,7 +430,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>Tests Samus's radius against the facing and foot-frame adjusted claw point.</summary>
-    internal static bool RidleyClawOverlapsSamus(
+    private static bool RidleyClawOverlapsSamus(
         RoomEnemyPlace place,
         NorfairRidleyState state,
         SamusState samus,
@@ -467,7 +466,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>The hover acceleration divisor of Ridley's health band.</summary>
-    internal static int ReadRidleyHealthMovementDivisor(NorfairRidleyState state) => state.HealthBand.HoverDivisor;
+    private static int ReadRidleyHealthMovementDivisor(NorfairRidleyState state) => state.HealthBand.HoverDivisor;
 
     /// <summary>Checks the validated pose movement type against Ridley's grabbable states.</summary>
     internal static bool SamusMovementUsesRidleyGrab(SamusState samus)
@@ -580,7 +579,7 @@ internal sealed class NorfairRidleyCombat
     /// for the arena's centre, one past his movement bounds heads back inside them, and otherwise the seed decides whether
     /// the bounce heads toward Samus or away.
     /// </summary>
-    internal void SetRidleyPogoHorizontalDirection(RoomEnemyPlace place, NorfairRidleyState state, SamusState samus)
+    private void SetRidleyPogoHorizontalDirection(RoomEnemyPlace place, NorfairRidleyState state, SamusState samus)
     {
         int x = place.Position.X.Whole;
         if (state.Flight.Velocity.X.IsZero)

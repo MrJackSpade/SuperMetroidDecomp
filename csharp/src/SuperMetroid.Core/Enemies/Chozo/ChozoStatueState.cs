@@ -17,6 +17,9 @@ public sealed class ChozoStatueState
     /// <summary>Where the statue stands in its wait for Samus at its hand and its activation (#2476).</summary>
     public ChozoStatuePhase Phase { get; internal set; }
 
+    /// <summary>The site the statue's placement names, which decides what its hand's trigger records (#2558).</summary>
+    public required ChozoStatueSite Site { get; init; }
+
     /// <summary>Samus has triggered the statue's hand: a waiting statue's next update starts its activation.</summary>
     /// <exception cref="InvalidOperationException">The phase is undefined.</exception>
     internal void TriggerHand() => Phase = Phase switch

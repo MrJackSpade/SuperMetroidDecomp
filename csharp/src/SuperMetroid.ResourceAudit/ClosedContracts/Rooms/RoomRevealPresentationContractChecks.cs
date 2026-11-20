@@ -72,10 +72,21 @@ internal static class RoomRevealPresentationContractChecks
         // rules, not ROM or room input. Four chosen requests confirm this API change.
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
-        foreach (Enum? reaction in BlockReactionFamilies.ReadingsOf(type))
+        {
+            IReadOnlyList<BlockReaction> readings = BlockReactionFamilies.ReadingsOf(type);
+            // A kind that reads no reaction has one rule of its own, under no reaction.
+            if (readings.Count == 0)
+                Add(type, null);
+            foreach (BlockReaction reaction in readings)
+                Add(type, reaction);
+        }
+
+        void Add(RoomCollisionType type, BlockReaction? reaction)
+        {
             if (XrayReveals.Find(type, reaction) is { } command && InstalledXrayReveals.IsDrawable(command))
                 entries.Add(new(type, reaction, XrayRevealVisualBlocks.ForShape(command,
                     [.. new[] { 1, 2, 3, 4 }.Take(XrayRevealVisualBlocks.CountFor(command))])));
+        }
         // The overlays are required with the reveals (#1596); every required room overlay shows one block.
         var overlays = new InstalledXrayOverlays(InstalledXrayOverlays.TankKinds.ToDictionary(tank => tank, _ => RoomBlockAppearance.Of(0)),
             XrayRoomOverlayDefinitions.All.Select(overlay => new XrayRoomOverlayBlocks(overlay,

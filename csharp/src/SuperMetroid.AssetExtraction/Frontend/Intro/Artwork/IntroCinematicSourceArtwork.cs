@@ -28,16 +28,16 @@ public class IntroCinematicSourceArtwork
     }
 
     /// <summary>What the game binds of the opening: its backdrop and the Ceres scenes' backdrop and actor placements.</summary>
-    public IntroCinematicArtwork Cinematic { get; }
+    private IntroCinematicArtwork Cinematic { get; }
 
     /// <summary>The colour the opening shows where nothing is drawn, at full brightness: its first background colour (#1512).</summary>
-    public RgbColor Backdrop { get; }
+    private RgbColor Backdrop { get; }
 
     /// <summary>The Ceres approach's backdrop and placements.</summary>
-    public CeresFlightSourceArtwork CeresFlight { get; }
+    private CeresFlightSourceArtwork CeresFlight { get; }
 
     /// <summary>The destruction and Zebes-reveal actors' placements.</summary>
-    public CeresDestructionArtwork CeresDestruction { get; }
+    private CeresDestructionArtwork CeresDestruction { get; }
 
     /// <summary>
     /// Identity of the entire selected opening bundle's installed documents, which is the identity of what the game binds of

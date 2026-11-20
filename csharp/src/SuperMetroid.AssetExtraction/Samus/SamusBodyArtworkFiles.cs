@@ -32,7 +32,7 @@ public static class SamusBodyArtworkFiles
     /// Import-data JSON filename of the extracted body (#1638): split-DMA definitions, pose/frame selectors, spritemaps, whose
     /// parts are packed sprite placements, body placements, and the body pages' provenance hashes.
     /// </summary>
-    public const string ArtworkFileName = "samus-body-artwork.json";
+    private const string ArtworkFileName = "samus-body-artwork.json";
     /// <summary>
     /// Manifest revision containing source hashes, selectors, spritemaps stored as sprite parts, and body placements.
     /// Revision nine holds each pose's placement and its frames' own placements instead of the cartridge's offset tables
@@ -46,9 +46,11 @@ public static class SamusBodyArtworkFiles
     /// installs the body without the cartridge's digest and the arm cannon and death documents without manifests (#1693).
     /// Revision fifteen keys each pose's frames by their names in the pose's animation, the segment and the frame within it,
     /// and installs the frames each pose shows with the picture frame each draws (#2048). Revision sixteen names each
-    /// pose's art origin <c>artOrigin</c> (#2113).
+    /// pose's art origin <c>artOrigin</c> (#2113). Revision seventeen records a frame that names no lower half with no
+    /// lower group, as null (#2558).
     /// </summary>
-    private const int FormatVersion = 16;
+    private const int FormatVersion = 17;
+
     /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
     /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>
@@ -104,7 +106,7 @@ public static class SamusBodyArtworkFiles
         for (int index = 0; index < frames.Length; index++)
         {
             int address = SamusSourceDefinitions.BodyFrames.Value + index * 4;
-            frames[index] = new SamusBodyFrameSelection(bus.ReadCartridgeByte(address),
+            frames[index] = SamusBodyFrameSelection.FromCartridge(bus.ReadCartridgeByte(address),
                 bus.ReadCartridgeByte(address + 1), bus.ReadCartridgeByte(address + 2), bus.ReadCartridgeByte(address + 3));
         }
 
@@ -203,7 +205,7 @@ public static class SamusBodyArtworkFiles
     /// <param name="directory">The component directory, holding the installed death documents and the arm cannon's manifest.</param>
     /// <param name="importData">The component's import-data directory, holding the extracted body, atmosphere and arm cannon.</param>
     /// <exception cref="InvalidDataException">Metadata or linked artwork are invalid; diagnostics retain the offending filename.</exception>
-    public static SamusBodySources LoadForImport(string directory, string importData)
+    private static SamusBodySources LoadForImport(string directory, string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
         SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(importData, ArtworkFileName));

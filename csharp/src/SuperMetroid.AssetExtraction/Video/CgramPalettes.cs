@@ -16,10 +16,10 @@ public readonly struct CgramPalettes(IPaletteColors cgram)
     public const int ByteCount = ColorCount * ColourWordCodec.ByteCount;
 
     /// <summary>All 256 colours.</summary>
-    public CgramPalette All => new(cgram, PpuMemoryLayout.Cgram);
+    private CgramPalette All => new(cgram, PpuMemoryLayout.Cgram);
 
     /// <summary>The 128 background colours.</summary>
-    public CgramPalette Background => new(cgram, PpuMemoryLayout.BackgroundPalettes);
+    private CgramPalette Background => new(cgram, PpuMemoryLayout.BackgroundPalettes);
 
     /// <summary>The complete 256-colour image, in CGRAM order.</summary>
     public ReadOnlySpan<RgbColor> Image => All.Colors;
@@ -28,7 +28,7 @@ public readonly struct CgramPalettes(IPaletteColors cgram)
     public CgramPalette BackgroundRow(int row) => Background.Slice(RowStart(row), PpuMemoryLayout.ColorsPerRow);
 
     /// <summary>Converts a bank-local row from zero through seven into its first color index.</summary>
-    internal static int RowStart(int row) => (uint)row < PpuMemoryLayout.PaletteRowCount
+    private static int RowStart(int row) => (uint)row < PpuMemoryLayout.PaletteRowCount
         ? row * PpuMemoryLayout.ColorsPerRow
         : throw new ArgumentOutOfRangeException(nameof(row), row, "A palette bank has eight rows.");
 }

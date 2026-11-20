@@ -53,7 +53,7 @@ internal static class PauseMenuFixtureVerification
         Read(MapSourceDefinitions.Artwork.HudCharacters, HudTileAtlasFormat.CharacterByteCount).CopyTo(hud, 0);
 
         var singlePart = new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
-            TileColumn = 0, TileRow = 0, Size = 8, Priority = 0, Palette = null,
+            TileColumn = 0, TileRow = 0, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoom, Palette = null,
             FlipX = false, FlipY = false };
         // The map sprites' compositions are import data (#1638): the cartridge-derived extraction's.
         var sprites = JsonSerializer.Deserialize<MapSpriteDocument>(File.ReadAllBytes(Path.Combine(
@@ -105,8 +105,8 @@ internal static class PauseMenuFixtureVerification
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
         return InstalledFixtures.Record(new ImportAreaMapPresentation(new InstalledScreenContent(parts),
             new ImportPresentationCharacters(new MapCharacterArtwork(
-                new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
-                new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),
+                global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Frontend.Map.MapTileCharacters>([typeof(byte[])], new object?[] { Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount) }), new HudTileAtlas(hud),
+                global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Frontend.Map.MapTileCharacters>([typeof(byte[])], new object?[] { Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount) })),
                 MapSpriteArtwork.Read(spriteJson, spritePng), stock.EscapeTimerTiles, stock.BlockAnimationAtlas, stock.WorldCharacters,
                 stock.IntroFont, stock.EndingFont, stock.TitleGraphics),
             new ImportPresentationColours(stock.SamusColours, stock.TitlePalette,

@@ -66,7 +66,8 @@ internal static class Layer3PlaneVerification
         RoomEffectDefinition record = RoomFxDefinitions.AllRecords.First(candidate =>
             candidate.Type == RoomFxType.Water && candidate.DoorPointer == 0) with { LiquidStartLevel = 0x0080 };
         RoomFxOverlayState water = RoomFxOverlayState.ForDefinition(record, 0);
-        AssertEqual<RoomFxType?>(RoomFxType.Water, water.OverlayEffect, "the water room shows the water page");
+        AssertEqual(RoomFxType.Water, water.Type, "the water room loads the water effect");
+        AssertTrue(water.IsRenderable, "the water room shows its effect on the overlay");
 
         // The plane names the water page (#1466); the installed pages spell the words the cartridge writes for it.
         FxOverlayPlane shownPlane = water.EffectPlane;

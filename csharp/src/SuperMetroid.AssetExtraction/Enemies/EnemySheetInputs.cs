@@ -47,13 +47,13 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
     /// catalogue for the installation's sets; a fixture composing a set of its own names that set's rows, as its records'
     /// placement words name them.
     /// </summary>
-    internal IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, int[]> SetPaletteRows { get; init; } = EnemyGraphicsSetPaletteRowDefinitions.Rows;
+    internal IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, int[]> SetPaletteRows { get; private init; } = EnemyGraphicsSetPaletteRowDefinitions.Rows;
 
     /// <summary>
     /// The members each graphics set loads, by set (#1527): the retail catalogue for the installation's sets; a
     /// fixture composing a set of its own names that set's members.
     /// </summary>
-    internal IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> SetMembers { get; init; } = RoomEnemyGraphicsSetLists.Members;
+    internal IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> SetMembers { get; private init; } = RoomEnemyGraphicsSetLists.Members;
 
     /// <summary>The beam colours, which a frozen enemy's shade is coloured from (#1512).</summary>
     internal required InstalledBeamPalettes BeamPalettes { get; init; }

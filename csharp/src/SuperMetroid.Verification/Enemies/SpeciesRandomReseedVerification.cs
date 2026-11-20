@@ -45,8 +45,8 @@ internal static class SpeciesRandomReseedVerification
         };
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
 
-        place.Bind(EnemyDefinitionId.Sidehopper, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Sidehopper, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
         enemies.HoppersBehavior.InitializeHopper(place, place.SpawnSettings<HopperSpawnSettings>());
         AssertEqual(new ReseedCase([Word(HopperSeedOperand)], 1), new ReseedCase([.. seeds], draws),
@@ -54,15 +54,15 @@ internal static class SpeciesRandomReseedVerification
 
         seeds.Clear();
         draws = 0;
-        place.Bind(EnemyDefinitionId.Polyp, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Polyp, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemies.PolypBehavior.InitializePolyp(place);
         AssertEqual(new ReseedCase([Word(PolypSeedOperand)], 0), new ReseedCase([.. seeds], draws),
             "a Polyp's placement reseeds with the cartridge's seed");
 
         SamusState samus = NewSamus();
         seeds.Clear();
-        place.Bind(EnemyDefinitionId.Beetom, place.Definition);
+        place.Bind(EnemyDefinitionId.Beetom, place.KeptDefinition);
         enemies.BeetomBehavior.InitializeBeetom(place, samus, 0);
         AssertEqual(new ReseedCase([Word(BeetomSeedOperand)], 0), new ReseedCase([.. seeds], draws),
             "a Beetom's placement reseeds with the cartridge's seed");

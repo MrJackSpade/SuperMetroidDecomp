@@ -33,16 +33,16 @@ internal static class ScrollingSkyLayerVerification
                 ?? throw new InvalidOperationException("The configured sky publishes its layer.");
             AssertEqual(cameraY, layer.CameraRow, $"frame {frame} places the bands against the camera");
             AssertEqual(!frozen, layer.ShowsDrift, $"frame {frame} shows the drift only when time runs");
-            AssertEqual(ScrollingSkyBandDefinitions.Bands.Length, layer.Bands.Length, $"frame {frame} publishes every band");
-            for (int band = 0; band < layer.Bands.Length; band++)
+            AssertEqual(ScrollingSkyBandDefinitions.Bands.Length, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Fx.ScrollingSkyLayer, global::System.Collections.Immutable.ImmutableArray<global::SuperMetroid.Core.Fx.ShownSkyBand>>(layer, "Bands").Length, $"frame {frame} publishes every band");
+            for (int band = 0; band < global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Fx.ScrollingSkyLayer, global::System.Collections.Immutable.ImmutableArray<global::SuperMetroid.Core.Fx.ShownSkyBand>>(layer, "Bands").Length; band++)
             {
                 SkyBand definition = ScrollingSkyBandDefinitions.Bands[band];
-                AssertEqual(definition.TopRow, layer.Bands[band].FirstRow, $"frame {frame} band {band} top");
-                AssertEqual(band + 1 < layer.Bands.Length ? ScrollingSkyBandDefinitions.Bands[band + 1].TopRow : ScrollingSkyBandDefinitions.EndRow,
-                    layer.Bands[band].EndRow, $"frame {frame} band {band} end");
-                AssertEqual(expected[definition.Drift].Whole, layer.Bands[band].Offset, $"frame {frame} band {band} offset");
+                AssertEqual(definition.TopRow, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Fx.ScrollingSkyLayer, global::System.Collections.Immutable.ImmutableArray<global::SuperMetroid.Core.Fx.ShownSkyBand>>(layer, "Bands")[band].FirstRow, $"frame {frame} band {band} top");
+                AssertEqual(band + 1 < global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Fx.ScrollingSkyLayer, global::System.Collections.Immutable.ImmutableArray<global::SuperMetroid.Core.Fx.ShownSkyBand>>(layer, "Bands").Length ? ScrollingSkyBandDefinitions.Bands[band + 1].TopRow : ScrollingSkyBandDefinitions.EndRow,
+                    global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Fx.ScrollingSkyLayer, global::System.Collections.Immutable.ImmutableArray<global::SuperMetroid.Core.Fx.ShownSkyBand>>(layer, "Bands")[band].EndRow, $"frame {frame} band {band} end");
+                AssertEqual(expected[definition.Drift].Whole, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Fx.ScrollingSkyLayer, global::System.Collections.Immutable.ImmutableArray<global::SuperMetroid.Core.Fx.ShownSkyBand>>(layer, "Bands")[band].Offset, $"frame {frame} band {band} offset");
             }
-            AssertEqual(0, layer.Bands[^1].Offset, $"frame {frame} keeps the bottom band still");
+            AssertEqual(0, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Fx.ScrollingSkyLayer, global::System.Collections.Immutable.ImmutableArray<global::SuperMetroid.Core.Fx.ShownSkyBand>>(layer, "Bands")[^1].Offset, $"frame {frame} keeps the bottom band still");
         }
         AssertTrue(frozenFrames > 0 && expected.Values.Any(phase => phase.Whole != 0),
             "the fixture covers frozen frames and moving bands");

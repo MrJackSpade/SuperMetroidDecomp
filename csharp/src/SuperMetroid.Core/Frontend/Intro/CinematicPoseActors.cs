@@ -17,7 +17,7 @@ internal static class CinematicPoseActors
         where TCue : notnull
     {
         Ensure.NotNull(installedArt);
-        if (Ensure.NotNull(actor).Drawing() is not { } drawing || drawing.Shown == CinematicSpritePose.Blank)
+        if (Ensure.NotNull(actor).Drawing() is not { } drawing)
             return;
         installedArt.Draw(drawing.Shown, screenSprites, drawing.Place, drawing.Colouring);
     }

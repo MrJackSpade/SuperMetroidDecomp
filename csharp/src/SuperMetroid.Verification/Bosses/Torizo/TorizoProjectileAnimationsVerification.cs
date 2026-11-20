@@ -219,8 +219,6 @@ internal static class TorizoProjectileAnimationsVerification
                 .Concat(ShownFrames(GoldenTorizoEggAnimations.Segments, TorizoProjectileAnimationsConstants.Family, family))
                 .Concat(ShownFrames(GoldenTorizoWeaponAnimations.Segments, TorizoProjectileAnimationsConstants.Family, family))
                 .ToHashSet();
-            // The drool's delays and the eye beam's floor impact show the blank frame, which is installed nowhere (#2431).
-            shown.Remove(EnemyProjectileFrameId.Blank);
             AssertTrue(shown.SetEquals(installed), $"the {family} animations show exactly the installed frames");
             ushort[] keys = [.. installed.Select(EnemyProjectileProgramFrameSources.Operand)];
             AssertTrue(keys.Zip(keys.Skip(1), (first, second) => first < second).All(ascends => ascends), $"the {family} frames install in native operand order");

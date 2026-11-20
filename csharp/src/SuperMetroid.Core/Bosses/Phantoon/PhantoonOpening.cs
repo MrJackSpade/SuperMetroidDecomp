@@ -36,7 +36,7 @@ internal sealed class PhantoonOpening
         if (!state.PhaseWait.StepRunsOut())
             return;
 
-        _ = SpawnPhantoonStartingFlame(state, state.StartingFlames.NextFlame.Entry);
+        SpawnPhantoonStartingFlame(state, state.StartingFlames.NextFlame.Entry);
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.StartingFlameIntervalUpdates);
         if (state.StartingFlames.NextFlame.Following is { } next)
@@ -103,15 +103,15 @@ internal sealed class PhantoonOpening
             state.Wave.AmplitudeShrinking = true;
     }
 
-    /// <summary>Allocates one intro flame at its place on the circle round the body.</summary>
+    /// <summary>Allocates one intro flame at its place on the circle round the body; with no free place, none appears.</summary>
     /// <param name="phantoon">The encounter, whose body the flame circles.</param>
     /// <param name="start">The flame's starting angle round the body.</param>
-    internal bool SpawnPhantoonStartingFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
+    private void SpawnPhantoonStartingFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
     {
         RoomEnemyPlace body = phantoon.Body;
-        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PhantoonStartingFlame, _combat.StartingFlame, SpriteGraphics.SpawnedBy(phantoon.BodyOccupant, body.Shading));
         if (flame is null)
-            return false;
+            return;
 
         var orbit = new PhantoonOrbitingFlameState(phantoon, start);
         PhantoonCombat.IPhantoonFlame behavior = _combat.StartingFlame(orbit);

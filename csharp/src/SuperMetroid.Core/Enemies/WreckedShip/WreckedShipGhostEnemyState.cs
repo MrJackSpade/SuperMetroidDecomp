@@ -45,7 +45,7 @@ public sealed class WreckedShipGhostEnemyState
     public UpdateCountdown VisibleTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
-    /// The room Y about which the visible ghost oscillates, where it appeared: 64 pixels above a rising Samus near a
+    /// The room Y about which the visible ghost oscillates, where it appeared: above a rising Samus near a
     /// room's top it can lie a few pixels above the room's origin, and the bob compares with it the short way, as
     /// <see cref="DistanceAcrossRoomEdge.LiesBefore"/> compares rows.
     /// </summary>
@@ -62,9 +62,9 @@ public sealed class WreckedShipGhostEnemyState
 
     /// <summary>Samus's previous whole-pixel position.</summary>
     public Position16<RoomPixels> PreviousSamusPosition { get; internal set; }
-    /// <summary>The inclusive lower corner of the nearly-still box (previous position -1).</summary>
+    /// <summary>The inclusive lower corner of the nearly-still box: the previous position less <see cref="WreckedShipGhostAppearanceDefinitions.StillMargin"/>.</summary>
     public Position16<RoomPixels> SamusLowerBound { get; internal set; }
-    /// <summary>The exclusive upper corner of the nearly-still box (previous position +1).</summary>
+    /// <summary>The exclusive upper corner of the nearly-still box: the previous position plus <see cref="WreckedShipGhostAppearanceDefinitions.StillMargin"/>.</summary>
     public Position16<RoomPixels> SamusUpperBound { get; internal set; }
 
     /// <summary>Counts down from <see cref="WreckedShipGhostAppearanceDefinitions.StillPositionDuration"/> while Samus remains nearly still.</summary>

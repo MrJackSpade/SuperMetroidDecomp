@@ -28,7 +28,7 @@ public static class RoomPaletteFxPresentationFile
 
         var colors = new Dictionary<PaletteFxColorKey, RgbColor>();
         foreach (PaletteFxHeatProgramDefinition definition in
-                 PaletteFxHeatProgramMechanicsDefinitions.All)
+                 PaletteFxHeatPulseColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Suit switch
             {

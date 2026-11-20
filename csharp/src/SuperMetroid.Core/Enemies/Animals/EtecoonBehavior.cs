@@ -16,7 +16,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySettingsFactory<Ete
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Etecoon];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EtecoonSpawnSettings settings) => new EtecoonEntity(this, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EtecoonSpawnSettings settings) => EnemyOccupant.Of(new EtecoonEntity(this, occupant, place, common, settings));
 
     /// <summary>Probes the floor, walls, and ceiling throughout the teaching route.</summary>
     private readonly EnemyTerrain _terrain;
@@ -43,14 +43,14 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySettingsFactory<Ete
         samus.Position.X.Whole >= EtecoonRouteDefinitions.AudibleFromSamusX;
 
     /// <summary>Initializes the Etecoon.</summary>
-    internal static EtecoonEnemyState InitializeEtecoon(RoomEnemyPlace place, EtecoonSpawnSettings settings)
+    internal static EtecoonEnemyState InitializeEtecoon(RoomEnemyOccupant occupant, RoomEnemyPlace place, EtecoonSpawnSettings settings)
     {
         // The placement must name the route, which the Etecoon reads where it takes it (#2531).
         var state = new EtecoonEnemyState(EtecoonAction.Dormant, settings);
 
         // The setup makes the Etecoon animate, whether or not its placement does.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         state.Playback = EnemyAnimationPlayback.Start(place, EtecoonAnimations.StartingWith(EtecoonSegment.StartingCrouch));
         return state;
     }
@@ -62,7 +62,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySettingsFactory<Ete
         SamusState samus,
         RoomLevelData level)
     {
-        // An earthquake suspends the Etecoon for 128 updates; its route is kept.
+        // An earthquake suspends the Etecoon for its quake pause; its route is kept.
         if (state.QuakePauseFrames.IsRunning)
         {
             state.QuakePauseFrames.Count();
@@ -175,7 +175,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySettingsFactory<Ete
         state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.HopCrouch);
     }
 
-    /// <summary>Expires the wake pause, installs the first jump speed, and gates its sound by Samus's X.</summary>
+    /// <summary>Waits out the hop crouch, then starts the hop: its first jump speed, and its sound gated by Samus's X.</summary>
     private void RunEtecoonPreJumpCountdown(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -271,7 +271,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySettingsFactory<Ete
         state.Head(side: HorizontalDirection.Right);
     }
 
-    /// <summary>Runs right until the 32-pixel solid lookahead arms the airborne wall-jump state.</summary>
+    /// <summary>Runs right until the solid lookahead arms the airborne wall-jump state.</summary>
     private void RunEtecoonRightToWall(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -418,7 +418,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySettingsFactory<Ete
         StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
     }
 
-    /// <summary>Runs to X=600 and launches the stronger rightward demonstration jump.</summary>
+    /// <summary>Runs to <see cref="EtecoonRouteDefinitions.RunStartX"/> and launches the stronger rightward demonstration jump.</summary>
     private void RunEtecoonRightToLongJump(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -433,7 +433,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySettingsFactory<Ete
         StartEtecoonAnimation(place, state, EtecoonSegment.JumpingRight);
     }
 
-    /// <summary>Advances the long jump on both axes and returns to running art at X=680.</summary>
+    /// <summary>Advances the long jump on both axes and returns to running art at <see cref="EtecoonRouteDefinitions.LongJumpMidpointX"/>.</summary>
     private void RunEtecoonLongJump(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -449,7 +449,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySettingsFactory<Ete
         state.Action = EtecoonAction.RunRightAfterLongJump;
     }
 
-    /// <summary>Continues the long route to X=840 before installing its landing hop.</summary>
+    /// <summary>Continues the long route to <see cref="EtecoonRouteDefinitions.LongJumpEndX"/> before installing its landing hop.</summary>
     private void RunEtecoonRightAfterLongJump(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -689,7 +689,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySettingsFactory<Ete
     }
 
     /// <summary>Advances Etecoon's typed animation.</summary>
-    internal static void AdvanceEtecoonTypedAnimation(RoomEnemyPlace place, EtecoonEnemyState etecoonEnemyState, EnemyAnimationCueContext _) =>
+    internal static void AdvanceEtecoonTypedAnimation(RoomEnemyPlace place, EtecoonEnemyState etecoonEnemyState) =>
         EnemyAnimationPlayback.Advance(place, etecoonEnemyState, EtecoonAnimations.Segments,
             static (EtecoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Etecoon animation raised {cue}."));

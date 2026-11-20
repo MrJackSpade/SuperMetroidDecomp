@@ -20,7 +20,7 @@ internal static class RoomFxBlockAnimationSources
 
     /// <summary>Where the cartridge stores <paramref name="image"/>'s characters: its object's first picture, then one frame transfer further per picture.</summary>
     /// <exception cref="InvalidDataException">The object has no pictures in the atlas.</exception>
-    internal static SnesAddress Of(AnimatedTileImage image)
+    private static SnesAddress Of(AnimatedTileImage image)
     {
         (SnesAddress first, int byteCount) = image.Object switch
         {
@@ -33,7 +33,7 @@ internal static class RoomFxBlockAnimationSources
             BlockAnimation.Spores => Simple(RoomFxBlockAnimationSourceDefinitions.Spores),
             BlockAnimation.WreckedShipTreadmillRightwards => new PictureRun(
                 RoomFxBlockAnimationSourceDefinitions.WreckedShipTreadmill, RoomFxBlockAnimationLoops.TreadmillFrameByteCount),
-            BlockAnimation.WreckedShipTreadmillLeftwards or BlockAnimation.None or BlockAnimation.TourianStatuePhantoon or BlockAnimation.TourianStatueRidley
+            BlockAnimation.WreckedShipTreadmillLeftwards or BlockAnimation.TourianStatuePhantoon or BlockAnimation.TourianStatueRidley
                 or BlockAnimation.TourianStatueKraid or BlockAnimation.TourianStatueDraygon
                 => throw new InvalidDataException($"{image.Object} has no pictures in the room-FX atlas."),
             _ => throw new InvalidDataException($"Undefined room-FX object {image.Object}."),

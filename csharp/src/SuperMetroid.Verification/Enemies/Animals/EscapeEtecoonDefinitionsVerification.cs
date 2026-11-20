@@ -148,8 +148,8 @@ internal static class EscapeEtecoonDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().HasEvent = _ => false;
         RoomEnemyPlace etecoon = enemies.Places.InUpdateOrder[0];
-        etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.Definition);
-        etecoon.Bind(etecoon.DefinitionId, default(RoomEnemyDefinition));
+        etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.KeptDefinition);
+        etecoon.Bind(etecoon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         etecoon.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, 0);
         enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon, etecoon.SpawnSettings<EscapeEtecoonSpawnSettings>());
         return enemies;

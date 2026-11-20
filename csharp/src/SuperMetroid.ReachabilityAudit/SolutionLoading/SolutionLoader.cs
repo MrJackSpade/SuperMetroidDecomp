@@ -65,9 +65,11 @@ internal static class SolutionLoader
     /// Compiles every project of an already loaded solution, on all processors, and returns the error-free compilations
     /// in the solution's project order; any compile error in any project fails, listing every project's errors. The
     /// asynchronous cleanup loads the solution once and hands each of its steps the solution as the previous steps left
-    /// it (tools/cleanup/README.md).
+    /// it (tools/cleanup/README.md). A project <paramref name="mayFail"/> accepts is returned with its errors, which are
+    /// counted on standard error: the test-only-member fix binds checks that name private members their deleted access
+    /// stood in for, and regenerates that access.
     /// </summary>
-    public static async Task<LoadedSolution> CompileAsync(Solution solution, string repositoryRoot)
+    public static async Task<LoadedSolution> CompileAsync(Solution solution, string repositoryRoot, Func<Project, bool>? mayFail = null)
     {
         var projects = solution.Projects.ToList();
         var compiled = await Task.WhenAll(projects.Select(project => Task.Run(async () =>
@@ -83,7 +85,11 @@ internal static class SolutionLoader
         foreach (var result in compiled.Where(result => result.Errors.Count == 0))
             Console.WriteLine($"Compiled {result.Compilation.Project.Name}");
         // Every project's errors are reported together, so one load shows everything that must be fixed.
-        var compileErrors = compiled.SelectMany(result => result.Errors.Select(error => $"{result.Compilation.Project.Name}: {error}")).ToList();
+        foreach (var result in compiled.Where(result => result.Errors.Count != 0 && mayFail?.Invoke(result.Compilation.Project) == true))
+            Console.Error.WriteLine($"{result.Compilation.Project.Name}: {result.Errors.Count} compile errors accepted:\n" +
+                string.Join('\n', result.Errors));
+        var compileErrors = compiled.Where(result => mayFail?.Invoke(result.Compilation.Project) != true)
+            .SelectMany(result => result.Errors.Select(error => $"{result.Compilation.Project.Name}: {error}")).ToList();
         if (compileErrors.Count > 0)
             throw new InvalidOperationException(
                 $"{compileErrors.Count} compile errors:\n" + string.Join('\n', compileErrors.Distinct(StringComparer.Ordinal)));

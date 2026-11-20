@@ -27,7 +27,7 @@ internal static class BabyMetroidGradualAccelerationVerification
         runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+            place.Holds(EnemyDefinitionId.BabyMetroid));
 
         // The movie's state when the drain ends, entering RiseAfterFeeding with no velocity.
         BabyMetroidEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidEntity>(babyMetroid).State;
@@ -56,7 +56,7 @@ internal static class BabyMetroidGradualAccelerationVerification
         runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+            place.Holds(EnemyDefinitionId.BabyMetroid));
         var samus = runtime.Player.Samus;
         BabyMetroidEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidEntity>(babyMetroid).State;
         foreach ((ushort ySpeed, ushort expectedX, ushort expectedSpeed) in new VerifyBabyMetroidDrainCarryCase[]
@@ -102,7 +102,7 @@ internal static class BabyMetroidGradualAccelerationVerification
         runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+            place.Holds(EnemyDefinitionId.BabyMetroid));
         BabyMetroidEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidEntity>(babyMetroid).State;
         BabyMetroidBehavior behavior = runtime.Enemies.BabyMetroidBehavior;
         var samus = runtime.Player.Samus;

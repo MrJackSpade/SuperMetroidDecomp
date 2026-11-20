@@ -30,6 +30,7 @@ using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.NoobTube;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Exercises the Glass Tunnel PLM's two-stage trigger, break sequence, and reload state.</summary>
 internal static class NoobTubeObjectVerification
@@ -114,7 +115,7 @@ internal static class NoobTubeObjectVerification
 
         // A non-power-bomb hit is consumed by the same resident collision dispatcher but
         // only queues the retail ineffective-shot sound and clears the transient hit word.
-        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(new(blockX, blockY), SamusProjectileType.Of(SamusProjectileFamily.Missile)),
+        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(new(blockX, blockY), BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.Missile))),
             "n00b-tube collision block locates its resident PLM");
         StepNoobTube(roomObjects, level);
         AssertTrue(roomObjects.Sounds.SoundRequests.Contains(new SoundRequest(
@@ -259,7 +260,7 @@ internal static class NoobTubeObjectVerification
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
             projectile.Animation is NoobTubeProjectileAnimation first
             && ReferenceEquals(first.Playback.Animation, NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward]));
-        AssertEqual(0x0048, firstShard.StateOf<NoobTubeDebrisState>().X.Whole,
+        AssertEqual(0x0048, enemies.NoobTubeBehavior.TubePieces.Pieces.Of(firstShard).X.Whole,
             "first shard keeps its signed X origin as its own column");
         AssertEqual(0x0058, firstShard.Position.Y.Whole,
             "first shard stores its signed Y offset");
@@ -272,7 +273,7 @@ internal static class NoobTubeObjectVerification
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
             projectile.Animation is NoobTubeProjectileAnimation last
             && ReferenceEquals(last.Playback.Animation, NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownInner]));
-        AssertEqual(0x0078, lastShard.StateOf<NoobTubeDebrisState>().X.Whole,
+        AssertEqual(0x0078, enemies.NoobTubeBehavior.TubePieces.Pieces.Of(lastShard).X.Whole,
             "last shard uses final signed X offset");
         AssertEqual(0x0060, lastShard.Position.Y.Whole,
             "last shard uses final signed Y offset");
@@ -283,7 +284,7 @@ internal static class NoobTubeObjectVerification
 
         EnemyProjectile firstBubble = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
-            projectile.StateOf<NoobTubeDebrisState>().X.Whole == 0x0048);
+            enemies.NoobTubeBehavior.TubePieces.Pieces.Of(projectile).X.Whole == 0x0048);
         AssertEqual(0x0070, firstBubble.Position.Y.Whole,
             "first bubble uses its first absolute PLM-origin offset");
         AssertEqual(NoobTubeDebrisDefinitions.BubbleInitialYVelocity.RawValue,
@@ -291,7 +292,7 @@ internal static class NoobTubeObjectVerification
 
         EnemyProjectile lastBubble = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
-            projectile.StateOf<NoobTubeDebrisState>().X.Whole == 0x00d8);
+            enemies.NoobTubeBehavior.TubePieces.Pieces.Of(projectile).X.Whole == 0x00d8);
         AssertEqual(0x0074, lastBubble.Position.Y.Whole,
             "last bubble uses its final absolute PLM-origin offset");
 

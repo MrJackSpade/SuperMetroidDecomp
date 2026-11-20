@@ -58,7 +58,7 @@ internal static class BabyMetroidCutsceneFlightDefinitions
     internal static readonly SignedEightEight StagingWrongWaySpeed = SignedEightEight.FromPixelFraction(1, 16);
 
     /// <summary>
-    /// What a gentle approach divides the remaining distance by: sixteen, the pull of its approaches to Mother Brain, the
+    /// What a gentle approach divides the remaining distance by: the pull of its approaches to Mother Brain, the
     /// ceiling, Samus and its route, and of the stare-down and the legs staging the final charge.
     /// </summary>
     internal const int GentleAccelerationDivisor = 16;
@@ -78,13 +78,13 @@ internal static class BabyMetroidCutsceneFlightDefinitions
     /// <summary>Where the final charge's start aims the Baby.</summary>
     internal static readonly Position16<RoomPixels> FinalChargeAim = new(290, 128);
 
-    /// <summary>What the final charge's start divides the remaining distance by: six, a much firmer pull than sixteen.</summary>
+    /// <summary>What the final charge's start divides the remaining distance by: a much firmer pull than <see cref="GentleAccelerationDivisor"/>.</summary>
     internal const int ChargeStartDivisor = 6;
 
     /// <summary>Where on Mother Brain's brain the final charge aims: 32 pixels above it.</summary>
     internal static readonly Offset16<RoomPixels> FinalChargeOffset = new(0, -32);
 
-    /// <summary>What the final charge divides the remaining distance by: four, its firmest pull.</summary>
+    /// <summary>What the final charge divides the remaining distance by: its firmest pull.</summary>
     internal const int FinalChargeDivisor = 4;
 
     /// <summary>The fastest the Baby approaches a point, on each axis, in either direction: five pixels an update.</summary>

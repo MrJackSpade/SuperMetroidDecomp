@@ -84,7 +84,7 @@ internal static class VramTilemapImage
                         ink |= Plane(image, first + CellPixels + row, column) << 2 | Plane(image, first + CellPixels + row, column, 1) << 3;
                 }
                 screen[y * ScreenGeometry.ScreenWidthPixels + x] = (ink == 0 ? backdrop
-                    : colours[GameplayColourPositionDefinitions.BackgroundSetsFirst + cell.ColourVariant * rowInks + ink]).ToRgbaPixel();
+                    : colours[GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + cell.ColourVariant * rowInks + ink]).ToRgbaPixel();
             }
         }
         return screen;

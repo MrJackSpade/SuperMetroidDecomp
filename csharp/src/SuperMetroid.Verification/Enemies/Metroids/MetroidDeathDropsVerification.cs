@@ -36,17 +36,17 @@ internal static class MetroidDeathDropsVerification
         var samus = runtime.Player.Samus;
         samus.Control.LockOutPlayer();
         RoomEnemyPlace metroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.Metroid);
+            place.Holds(EnemyDefinitionId.Metroid));
         // The shot pass rejects the empty spritemap sentinel; install the frame the movie's
         // Metroid showed when it was shot ($F137).
         metroid.SpritemapPointer = 0xf137;
         // A frozen Metroid takes the frozen branch of its shot AI; one missile finishes it.
         metroid.Freeze.Restart(100);
         metroid.Health = 1;
-        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new((ushort)(metroid.Position.X.Whole - 0x80), (ushort)(metroid.Position.Y.Whole - 0x70)));
+        runtime.Enemies.PrepareEnemyProcessingList(new((ushort)(metroid.Position.X.Whole - 0x80), (ushort)(metroid.Position.Y.Whole - 0x70)));
 
         var shot = runtime.Projectiles.Shots[0];
-        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile); shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right; if (alreadyMarked) shot.Spend();
+        shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), 100); shot.Direction = SamusProjectileDirection.Right; if (alreadyMarked) shot.Spend();
         shot.Position = shot.Position.WithWhole(metroid.Position.Whole);
         shot.Radius = new(4, 4);
         shot.Animation = ProjectileFixturePlaybacks.Active();

@@ -64,7 +64,7 @@ public sealed class BossBodyFrame
     /// How a dissolve erases the picture step by step (#1652, #2478), as the import found it: Crocomire's melt images. Null for
     /// every other frame.
     /// </summary>
-    public PictureDissolve? Dissolve { get; }
+    private PictureDissolve? Dissolve { get; }
 
     /// <summary>The pixels the picture hides as this frame shows it (#1652), or null where it shows them all.</summary>
     public HiddenPicturePixels? Hidden { get; }

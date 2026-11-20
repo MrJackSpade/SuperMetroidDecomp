@@ -12,9 +12,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemySettingsFactory<Fi
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fireflea];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, FirefleaSpawnSettings settings) => new FirefleaEntity(this, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, FirefleaSpawnSettings settings) => EnemyOccupant.Of(new FirefleaEntity(this, occupant, place, common, settings));
 
-    /// <summary>Runs common touch handling before Fireflea's unconditional death call.</summary>
+    /// <summary>Runs the common touch, after which the Fireflea always dies.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Starts explosion and drop processing, including the second-death path.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -30,7 +30,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemySettingsFactory<Fi
     }
 
     /// <summary>Initializes the Fireflea from its flight and radius.</summary>
-    internal static FirefleaEnemyState InitializeFireflea(RoomEnemyPlace place, FirefleaSpawnSettings settings)
+    internal static FirefleaEnemyState InitializeFireflea(RoomEnemyOccupant occupant, RoomEnemyPlace place, FirefleaSpawnSettings settings)
     {
         FirefleaFlightState flight = settings.Flight switch
         {
@@ -70,7 +70,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemySettingsFactory<Fi
     }
 
     /// <summary>Runs the Fireflea's main AI, advancing circular angle or vertical travel.</summary>
-    internal static void RunFirefleaMain(RoomEnemyPlace place, FirefleaEnemyState state)
+    internal static void RunFirefleaMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, FirefleaEnemyState state)
     {
         switch (state.Flight)
         {
@@ -101,12 +101,13 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemySettingsFactory<Fi
     /// normal contact therefore kills an otherwise healthy Fireflea, while Screw Attack and
     /// similar contact attacks can increment the room kill count twice.
     /// </summary>
-    internal void ResolveFirefleaTouch(
-        RoomEnemyPlace place,
+    private void ResolveFirefleaTouch(
+        RoomEnemyOccupant fireflea,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
-        _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
+        RoomEnemyPlace place = fireflea.Place;
+        _collision.ResolveOrdinaryTouch(fireflea, samus, pseudoScrew);
 
         // The touch kills the Fireflea whatever it left, in the explosion the health the touch left names
         // (LeftoverNumberDeathExplosion). Queue that death animation before clearing the actor so its artwork and sound
@@ -114,7 +115,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemySettingsFactory<Fi
         // the emptied place, whose cleared health names the small explosion: the second explosion appears at the room's
         // top-left corner for whatever the place now holds (nothing, or the respawn placeholder), clears that placeholder,
         // and counts a second kill.
-        _deathsAndDrops.StartGenericEnemyDeath(place,
+        _deathsAndDrops.StartGenericEnemyDeath(fireflea,
             EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(place.Health), samus);
         AdvanceFirefleaDarkness();
     }
@@ -137,7 +138,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemySettingsFactory<Fi
     };
 
     /// <summary>Advances Fireflea's typed animation.</summary>
-    internal static void AdvanceFirefleaTypedAnimation(RoomEnemyPlace place, FirefleaEnemyState firefleaEnemyState, EnemyAnimationCueContext _) =>
+    internal static void AdvanceFirefleaTypedAnimation(RoomEnemyPlace place, FirefleaEnemyState firefleaEnemyState) =>
         EnemyAnimationPlayback.Advance(place, firefleaEnemyState, FirefleaAnimations.Segments,
             static (FirefleaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Fireflea animation raised {cue}."));
@@ -157,5 +158,5 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemySettingsFactory<Fi
 
     /// <summary>Runs Fireflea's touch reaction, the unconditional-death sequence.</summary>
     internal void ReactToFirefleaTouch(EnemyTouchContext context) =>
-        ResolveFirefleaTouch(context.Place, context.Samus, context.PseudoScrew);
+        ResolveFirefleaTouch(context.Occupant, context.Samus, context.PseudoScrew);
 }

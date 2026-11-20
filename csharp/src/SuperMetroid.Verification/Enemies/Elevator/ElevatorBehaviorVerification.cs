@@ -20,10 +20,10 @@ internal static class ElevatorBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Elevator, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Elevator, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Elevator, words => words);
-        enemies.ElevatorBehavior.InitializeElevator(place, RoomEnemyFrameFixtures.StandaloneSamus(), place.SpawnSettings<ElevatorSpawnSettings>());
+        enemies.ElevatorBehavior.InitializeElevator(place.HeldOccupant(), place, RoomEnemyFrameFixtures.StandaloneSamus(), place.SpawnSettings<ElevatorSpawnSettings>());
         AssertEqual(new AnimationPlayback<ElevatorSegment>(ElevatorAnimations.StartingWith(ElevatorSegment.Idle), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<ElevatorEntity, ElevatorEnemyState>() ?? throw new InvalidOperationException("The elevator has no state.")).Playback,
             "elevator initializer animation");
         place.AnimationClock.StepOnNextUpdate();
@@ -41,13 +41,13 @@ internal static class ElevatorBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace elevator = enemies.Places.InUpdateOrder[3];
-        elevator.Bind(EnemyDefinitionId.Elevator, elevator.Definition);
+        elevator.Bind(EnemyDefinitionId.Elevator, elevator.KeptDefinition);
         elevator.SetSpawnParameter1(EnemyDefinitionId.Elevator, 0);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         samus.BindBodyFixture(InstalledFixtures.SamusBody);
 
         enemies.ElevatorBehavior.PrepareElevatorArrival();
-        enemies.ElevatorBehavior.InitializeElevator(elevator, samus, elevator.SpawnSettings<ElevatorSpawnSettings>());
+        enemies.ElevatorBehavior.InitializeElevator(elevator.HeldOccupant(), elevator, samus, elevator.SpawnSettings<ElevatorSpawnSettings>());
         AssertTrue(ReferenceEquals(elevator, enemies.ElevatorBehavior.ArrivalElevator),
             "the arriving elevator is the placement the door loader waits for");
 

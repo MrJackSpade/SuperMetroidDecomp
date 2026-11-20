@@ -31,7 +31,7 @@ internal static class TorizoInitializationDefinitionsVerification
             Action<RoomEnemyPlace, TorizoVariant, SamusState, GameplayAction> initializeWithInput = enemies.TorizoBehavior.Movement.InitializeTorizo;
             void initialize(RoomEnemyPlace place) => initializeWithInput(place, variant != 0 ? TorizoVariant.Golden : TorizoVariant.Bomb, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0);
             var actor = enemies.Places.InUpdateOrder[0];
-            actor.Bind(variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo, actor.Definition);
+            actor.Bind(variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo, actor.KeptDefinition);
             // Every combination of engine properties (#1472: the property word's low byte is species settings, not
             // an engine property), with both additional properties varying across the combinations.
             for (int properties = 0; properties <= ushort.MaxValue; properties += 256)

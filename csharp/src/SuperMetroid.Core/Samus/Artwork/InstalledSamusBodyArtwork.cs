@@ -74,7 +74,7 @@ public sealed class InstalledSamusBodyArtwork
     /// frame is installed; false for any other pair, which <see cref="OriginRise"/> rejects.
     /// </summary>
     /// <remarks>The installation holds each pose's frames by the named frame of the pose's animation (#2048).</remarks>
-    public bool TryOriginRise(SamusPoseId pose, SamusAnimationFrame animationFrame, out int rise)
+    private bool TryOriginRise(SamusPoseId pose, SamusAnimationFrame animationFrame, out int rise)
     {
         rise = 0;
         return originRises.TryGetValue(pose, out IReadOnlyDictionary<SamusAnimationFrame, int>? frames) &&

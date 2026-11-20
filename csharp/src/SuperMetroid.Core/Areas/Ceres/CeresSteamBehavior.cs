@@ -35,7 +35,7 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<CeresSteamSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, CeresSteamAnimations.Segments, ref playback, cue => CarryOut(place, cue));
+        EnemyAnimationPlayback.PlayApplyingCues(place, CeresSteamAnimations.Segments, ref playback, (CeresSteamCueKind cue) => CarryOut(place, cue));
         if (place.AnimationClock.IsStopped)
         {
             place.AnimationClock.HoldFor(state.UpdatesToActivation);
@@ -45,18 +45,18 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
     }
 
     /// <summary>Carries out one cue of a vent's animation; the play runs on after each.</summary>
-    private static AnimationContinuation<CeresSteamSegment>? CarryOut(RoomEnemyPlace place, CeresSteamCueKind cue)
+    private static void CarryOut(RoomEnemyPlace place, CeresSteamCueKind cue)
     {
         switch (cue)
         {
             case CeresSteamCueKind.Vanish:
                 place.Presence = place.Presence.With(EnemyPresence.Hidden);
                 place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                return null;
+                return;
             case CeresSteamCueKind.Appear:
                 place.Presence = place.Presence.Without(EnemyPresence.Hidden);
                 place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
-                return null;
+                return;
             default:
                 throw new InvalidOperationException($"Undefined Ceres steam cue {cue}.");
         }
@@ -64,7 +64,7 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
 
     /// <summary>Initializes the Ceres steam, drawn where the motion <paramref name="motions"/> give its variant puts it.</summary>
     /// <exception cref="InvalidDataException">The room cannot place a vent of the variant's action.</exception>
-    internal CeresSteamEnemyState InitializeCeresSteam(RoomEnemyPlace place, CeresSteamVentMotions motions, CeresSteamSpawnSettings settings)
+    internal CeresSteamEnemyState InitializeCeresSteam(RoomEnemyOccupant occupant, RoomEnemyPlace place, CeresSteamVentMotions motions, CeresSteamSpawnSettings settings)
     {
         CeresSteamInitialization initialization = CeresSteamInitializations.Initialization(
             Ensure.NotNull(settings).Variant);
@@ -99,7 +99,7 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
         {
             throw new InvalidDataException(
                 $"Ceres steam touches through its frames' hitboxes with {CeresSteamReactions.Touch}; " +
-                $"frame hitboxes={context.UsesFrameHitboxes}, touch={context.HitboxTouch?.ToString() ?? "(unnamed)"}, " +
+                $"frame hitboxes={context.UsesFrameHitboxes}, touch={context.HitboxTouch}, " +
                 $"frame={context.Place.Frame}.");
         }
 
@@ -110,10 +110,8 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
 
     /// <summary>The reaction of the plume rectangle the frame shown has, when the probe overlaps it.</summary>
     /// <exception cref="InvalidDataException">The frame shown is not one of the steam's frames.</exception>
-    internal static bool? FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
-
         // Only the frame's plume rectangle damages Samus, whatever its installed picture shows; a hidden plume has none,
         // and a vent showing no frame shows no plume, so it touches nothing.
         if (enemy.Frame is not { } frame)
@@ -121,15 +119,14 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
         if (!CeresSteamCollisionDefinitions.Plumes.TryGetValue(frame, out EnemyHitboxRectangle? plume))
             throw new InvalidDataException($"Ceres steam frame {enemy.Frame} has no plume collision.");
         if (plume is not { } rectangle)
-            return false;
+            return EnemyHitboxContact.Missed;
 
         // The probe compares the edges by their signed distances, so an edge past the room's edge needs no wrapping.
         Position16<RoomPixels> vent = enemy.Position.Whole;
         if (!probe.Overlaps(vent.X + rectangle.Left, vent.Y + rectangle.Top, vent.X + rectangle.Right, vent.Y + rectangle.Bottom))
-            return false;
-        reaction = probe.SelectsShot
+            return EnemyHitboxContact.Missed;
+        return EnemyHitboxContact.Struck(probe.SelectsShot
             ? CeresSteamCollisionDefinitions.ShotReaction
-            : CeresSteamCollisionDefinitions.TouchReaction;
-        return true;
+            : CeresSteamCollisionDefinitions.TouchReaction);
     }
 }

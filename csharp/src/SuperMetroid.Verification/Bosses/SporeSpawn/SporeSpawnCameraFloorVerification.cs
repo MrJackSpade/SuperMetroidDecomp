@@ -34,9 +34,9 @@ internal static class SporeSpawnCameraFloorVerification
         // His body's own stages around common bomb damage, for the bomb that selects his shot reaction.
         EnemyBombReaction reaction = (body.Entity as IEnemyBombReaction)?.CommonBombDamageReaction(killingBomb)
             ?? throw new InvalidOperationException("Spore Spawn's body runs no stages of its own around common bomb damage.");
-        Action<EnemyBombContext> afterCommon = reaction.AfterCommon
+        Action<EnemyBombHitContext> afterCommon = reaction.AfterCommon
             ?? throw new InvalidOperationException("Spore Spawn's bomb reaction resolves nothing after the common damage.");
-        afterCommon(killingBomb);
+        afterCommon(new EnemyBombHitContext(killingBomb, body.Health));
         AssertTrue(defeated, "the killing bomb defeats Spore Spawn");
         AssertEqual<int?>(null, live.CameraFloor.LowestY, "Spore Spawn's death frees the camera");
 
@@ -71,10 +71,10 @@ internal static class SporeSpawnCameraFloorVerification
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => loadsDefeated;
         enemies.VerificationServices().SetAreaMiniBossDefeated = onDefeated;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
+        body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
-        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
+        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body.HeldOccupant(), body);
         return enemies;
     }
 
@@ -83,12 +83,10 @@ internal static class SporeSpawnCameraFloorVerification
     {
         var ordinaryProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
             new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-        var bomb = new SamusBomb(0)
-        {
-            Type = SamusProjectileType.Of(SamusProjectileFamily.Bomb),
-            Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole),
-        };
-        return new EnemyBombContext(body, bomb, ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
+        var bomb = new SamusBomb(0);
+        bomb.OccupyAsPlaced(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
+        bomb.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
+        return new EnemyBombContext(body.HeldOccupant(), bomb.HeldBomb(), ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
             SelectedShot: SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnReactions.Shot, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0))
         {
             StruckOccupant = body.OccupantStates,
@@ -100,10 +98,9 @@ internal static class SporeSpawnCameraFloorVerification
     {
         var storage = new byte[RoomScrollGrid.KeptCellCount];
         Array.Fill(storage, (byte)1);
-        var camera = new ScrollBoundaryCamera(RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(1, 3)))
+        var camera = global::SuperMetroid.Core.PrivateState.With<ScrollBoundaryCamera>(new ScrollBoundaryCamera(RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(1, 3)))
         {
-            Position = FixedPosition<RoomPixels>.FromStoredParts(0x0010, 0x1234, y, 0x5678),
-        };
+            }, "Position", FixedPosition<RoomPixels>.FromStoredParts(0x0010, 0x1234, y, 0x5678));
         return camera;
     }
 

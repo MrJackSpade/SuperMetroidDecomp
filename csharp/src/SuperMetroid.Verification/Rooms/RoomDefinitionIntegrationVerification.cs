@@ -6,7 +6,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using SuperMetroid.Core.Enemies.Gunship;
@@ -22,6 +21,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Checks compiled room definitions through the production post-Ceres landing path.</summary>
 internal static class RoomDefinitionIntegrationVerification
@@ -62,7 +62,7 @@ internal static class RoomDefinitionIntegrationVerification
         ushort initialCameraY = actual.Room.LoadedCamera.PixelPosition.Y;
         int frames = 0;
         bool cameraMoved = false;
-        while (!actual.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted) &&
+        while (!actual.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.LandingCompleted)) &&
                frames < PostCeresLandingMaximumFrames)
         {
             expected.StepFrame(0);
@@ -88,7 +88,7 @@ internal static class RoomDefinitionIntegrationVerification
 
         AssertTrue(cameraMoved,
             "post-Ceres production trajectory moves the camera through Landing Site");
-        AssertTrue(actual.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted),
+        AssertTrue(actual.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.LandingCompleted)),
             "guarded post-Ceres production trajectory reaches landing completion");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production entry and camera trajectory perform no compiled-definition ROM reads");
@@ -117,7 +117,7 @@ internal static class RoomDefinitionIntegrationVerification
         AddAddressRange(forbidden, LoadStationRomData.PointerTable,
             LoadStationRomData.DataEnd - LoadStationRomData.PointerTable);
 
-        foreach (ushort doorPointer in EnumerateRetailDoorPointers()
+        foreach (ushort doorPointer in RetailDoorHeaderCatalog.EnumeratePointers()
                      .Append(DoorDefinitionsAccess.SharedElevatorRidePointer)
                      .Distinct())
         {

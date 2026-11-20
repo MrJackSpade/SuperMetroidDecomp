@@ -13,7 +13,7 @@ public static class PhantoonWaveDefinitions
     public static RotationAngle PhaseStep { get; } = RotationAngle.FromSteps(8);
 
     /// <summary>
-    /// The introduction's wave's amplitude (#1936): it starts at twelve pixels and shrinks back to none, by
+    /// The introduction's wave's amplitude (#1936): it starts here and shrinks back to none, by
     /// <see cref="IntroAmplitudeChange"/> each update, once its timer runs out.
     /// </summary>
     public static SignedSixteenSixteen IntroAmplitude { get; } = SignedSixteenSixteen.FromWholePixels(12);
@@ -24,7 +24,7 @@ public static class PhantoonWaveDefinitions
     /// <summary>The change in the final death's wave's amplitude each update: a pixel, from none.</summary>
     public static SignedSixteenSixteen DeathAmplitudeChange { get; } = SignedSixteenSixteen.FromWholePixels(1);
 
-    /// <summary>The final death's wave's greatest amplitude: 240 pixels.</summary>
+    /// <summary>The final death's wave's greatest amplitude.</summary>
     public static SignedSixteenSixteen DeathAmplitude { get; } = SignedSixteenSixteen.FromWholePixels(240);
 
     /// <summary>The length of the wave the introduction starts.</summary>
@@ -34,9 +34,9 @@ public static class PhantoonWaveDefinitions
     public const PhantoonWaveLength DeathLength = PhantoonWaveLength.Long;
 
 
-    /// <summary>The screen lines of one whole cycle of the 64-line wave.</summary>
+    /// <summary>The screen lines of one whole cycle of the short wave.</summary>
     public const int ShortPeriod = 64;
 
-    /// <summary>The screen lines of one whole cycle of the 128-line wave.</summary>
+    /// <summary>The screen lines of one whole cycle of the long wave.</summary>
     public const int LongPeriod = 128;
 }

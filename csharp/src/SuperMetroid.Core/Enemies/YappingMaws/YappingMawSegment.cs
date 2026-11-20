@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>
-/// The Yapping Maw's eight attack bites and six cooldown animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Yapping Maw's eight attack bites and six cooldown animations (#641).
 /// Their steps are <see cref="YappingMawAnimations"/>.
 /// </summary>
 internal enum YappingMawSegment

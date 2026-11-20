@@ -862,6 +862,24 @@ is no longer English. Core names the wait and cites the definition that holds it
 hold (EndingExplosionFadeDefinitions.HoldUpdates)`). A wait for one update, a wait whose length is a
 named duration, a thing held to a bound, a held of frames, and line comments a blank line or code apart stay English.
 
+#2549 widens SME6454 to a value restated by number, and reads the import pipeline's assembly (`SuperMetroid.AssetExtraction`)
+for it as well as Core's, for nothing else: the pipeline may name the cartridge. Outside hardware owners it reports a
+cadence a comment or string counts by number, read across a documentation comment's line breaks and a run of line
+comments: every second, eighth, 64th or 128th update, frame, tick, pass, step, draw or visit, or every two, four or
+sixteen of them, with up to two words between (`every eighth update of his body's own update count`, `every 64th enemy
+pass`, `every fourth cinematic frame`), and every eighth or sixteenth of the updates, frames or passes. In every type it
+reports a declared name that spells a cadence, a wait or a size by number: `Every` followed by a count or an ordinal
+(`GrappleShockEveryEighthUpdate`, `BreathBubbleEvery128thUpdate`, `RocksEvery16Frames`), a count of updates, frames,
+seconds or ticks (`DroolFormingForTwoUpdates`, `WaveBeamThreeUpdateTrail`, `FourSecondHold`) and one count by another
+(`CentredSixteenByThirtyTwoBox`). A cadence's period, a wait's length and a box's size are the named member's value:
+the name says what the member paces, waits for or covers (`GrappleShock`, `DroolFormingShort`, `CentredBox`), and its
+documentation says where in its period a cadence falls (`counted on his body's own update count at the period's first
+place`) or cites the member that holds the value (`each for <see cref="CeresSteamAnimations.PuffPictureUpdates"/>`),
+never repeating the number. Every update, every other room, every 256th of a pixel kept, two of every four, a thing every
+step of the way, a name that spells one (`OneUpdateLate`), a fraction of a unit (`QuarterTurn`), a position in order
+(`SecondPhase`) or a number glued to a word (`Bg2Frames`), and a hardware owner, which describes the program it
+reproduces, stay English.
+
 #2533 widens SME6454, outside hardware owners, to the original's storage units, random bits and program bytes as enemy
 prose tells them, read across a documentation comment's line breaks: a value counted as a number of 256ths, in digits or
 words (`twelve 256ths of a pixel`, `1023 through 2815 256ths`, `32 or 64 256ths of a mark`, `four pixels and 80
@@ -899,6 +917,31 @@ says what the game does: how fast a thing moves in the game's fractions (thirtee
 five pixels an update), that a position or a speed carries its fraction of a pixel, which part of a block a setup
 changes, which closing a door starts. A speed in 1/256 pixels, a 256th or one 65536th of a pixel, a fraction of a pixel,
 an original alone, the original game and a hardware owner stay English.
+
+SME6479 (#2550) widens SME6454's storage, original-program and port-narration vocabularies, under its own id, to every
+phrasing the #1423 review found in Core's documentation. Outside hardware owners, each comment is read with its markup
+removed and its line breaks joined, and a run of line comments, one under another, is read as one text for a phrase that
+runs from one line to the next. It reports a value told by its storage's range or a machine number (`the short frame
+counter, 0 through 255`, `the lowest 16384 of the 65536 samples`, `-32768 through 32767` on a screen coordinate, `its
+lowest bit`, `a sample divisible by four`); a unit of the original's storage (`in 256ths of a pixel`, `whole 256ths`,
+`24/256`, `128ths of the whole`, `fifteen nontransparent colours`, `the fraction's overflow`); reasoning about a value's
+storage range (`never nears a wrap`, `stays far inside its range`, `at most fifty screens`, `a few thousand units of
+rest`, `The comparison is signed`); the original's program flow (`falls directly into`, `returns early`, `main/hurt
+entry`, `the frame tail`, `is never reached`); its routines and engine parts (`the projectile prelude`, `the common
+mover`, `init AI`, `collision walks`, `the pose-definition fallback`); installed animations and loaded or copied colours
+(`installs the laser head animation`, `which his initialization loads`, `the runaway colour copy`, `the records of`,
+`master brightness`); the display hardware (`the low-priority frames`, `sprite entries`, `drawn partly as a background
+layer`, `the icon's cells`); storage named for what the original kept (`the animating flag`, `set bits`, `the
+load-station record`, `population entries`, `rewrites only the block's type and parameter`, `the held controller
+mask`); its tables, entries and allocation (`the area's own tables`, `past-the-end`, `allocation order`, `a normal second
+enemy`); the port's reasoning and history (`deliberately owns only`, `Models the`, `Without this`, `rather than a saved
+perch coordinate`, `Despite its traditional name`); and the animation segment template and the original's drawing
+history (`one segment per animation a spawn, branch or wake enters`, `the second showing`, `the game draws it for two
+updates`). Core says what the game does: one explosion in four bursts as smoke, the Baby moves by its velocity, the wait's
+first update is the setup's, the block keeps its picture, the statue joins the statues that are animating. A 256th of a
+pixel, the background, a fall through a bridge, the game's music, the installed artwork, a cycle of sixteen colours, a
+turn's steps and a hardware owner stay English. Other assemblies, the import pipeline among them, tell the cartridge's
+storage and are not read.
 
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)
@@ -961,6 +1004,14 @@ velocity up away from rest (`SpedUpBy`) or dragging it toward rest (`DraggedBy`)
 `SamusVerticalVelocity`. Where the original's unsigned-magnitude arithmetic is observable, a compatibility service
 reproduces it (`SpeedAlongAngle`, `MultiviolaLeftOrUpSpeed`, `BullBackwardStep`).
 
+SME6476 (#2558) keeps magic values from standing for a role or absence. In Core and the import pipeline no array or
+sequence is filled with minus one or `int.MaxValue` (`Array.Fill(places, -1)`), no choice gives one beside a computed
+value (`found ? index : -1`, `index ?? -1`), no method returns one, no field or property is seeded with one, and no local
+is seeded with one that its body then tests against zero or minus one. An identity enum (`…Id`) has no `None`, `Empty`,
+`Blank` or `Nothing` member, and an identity or type value (`…Id`, `…Type`) no static of that name. Absence is a typed
+optional (`int?`, a nullable reference, a `TryGet`) or a closed type's case, and a role is a named member. A named
+constant, a sign beside another constant, a comparison's order and a library's own result are not sentinels.
+
 SME6472 (#2575) keeps definition data in domain catalogs. Outside a catalog file, Core builds no value of a Core type
 wholly from constants with a nonzero numeric literal among them (`new Offset16<RoomPixels>(1, 0)`,
 `SignedSixteenSixteen.FromWholePixels(1)`, `UpdateCountdown.Lasting(1)`) and passes no nonzero numeric literal by name
@@ -971,6 +1022,15 @@ member's summary (`DachoraMotionDefinitions.WaitingFloorProbe`, `GoldNinjaSpaceP
 value type names its own units (`SignedSixteenSixteen.OnePixel`, `SignedEightEight.FinestStep`, `Offset16<T>.OneDown`,
 `UpdateCountdown.LastingOneUpdate()`); zero, a literal beside computed state and a literal passed by position are not
 definitions.
+
+SME6474 (#2566) keeps every result read and every parameter needed, in Core and AssetExtraction. A method outside the
+assembly's public surface whose result no caller in the assembly reads, each caller discarding it (`_ = Step();`) or
+calling it as a statement, returns nothing (a spawn no caller acts on a refusal of reports nothing); an out result no
+caller reads is not given, and a call does not throw away an out result with the rest of its report. A method that
+returns null on every path returns nothing (a cue handler whose cues never start another animation plays through
+`AdvanceApplyingCues`), and a method takes no parameter it discards (`_`). A result some caller reads is the operation's
+report, which another caller may leave unread; the `Ensure` guards return the value they checked, and a method a
+delegate refers to, an override and an interface implementation keep their contract's shape.
 
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does

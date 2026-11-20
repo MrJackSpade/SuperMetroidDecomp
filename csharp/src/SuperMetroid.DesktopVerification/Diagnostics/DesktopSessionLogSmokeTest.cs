@@ -71,7 +71,7 @@ internal static class DesktopSessionLogSmokeTest
             });
             UnhandledExceptionConsole.SetFatalDiagnosticCheckpoint(null);
             // No network is used. Exercise the real reporter's asynchronous worker output.
-            using (var reporter = new GitHubErrorReporter("fixture/diagnostics", new LocalIssueClient()))
+            using (var reporter = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Desktop.Diagnostics.GitHubErrorReporter>([typeof(string), typeof(global::SuperMetroid.Desktop.Diagnostics.IGitHubIssueClient)], new object?[] { "fixture/diagnostics", new LocalIssueClient() }))
             {
                 reporter.Report(nested, new GitHubErrorContext("fixture frame boundary", Room: "FixtureRoom",
                     RoomState: "FixtureRoomState", InputRecordingPath: "fixture.smrec"));

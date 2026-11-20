@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -15,7 +16,7 @@ internal sealed class EndingAnimalEscapeParts : ICinematicSpriteFrames
     /// <summary>Centers the eight-pixel pod sprite four pixels left and above its actor origin.</summary>
     private const int SpriteOffset = 4;
     /// <summary>
-    /// $8C:BC43: the pod's single-small-OBJ pictures, centred on the actor, showing the priority-three, palette-seven
+    /// $8C:BC43: the pod's single-small-OBJ pictures, centred on the actor, showing the in-front, palette-seven
     /// characters $1E0 (the short trail) and $1E1 (the long trail; $1E2 and $1E3, which the flicker also steps through, hold
     /// the same pixels).
     /// </summary>
@@ -28,8 +29,8 @@ internal sealed class EndingAnimalEscapeParts : ICinematicSpriteFrames
     CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.EndingAnimalEscape;
     /// <inheritdoc/>
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
-    /// <summary>A pod frame: its one small piece of <paramref name="character"/> in palette seven, priority three, centred on the actor.</summary>
+    /// <summary>A pod frame: its one small piece of <paramref name="character"/> in palette seven, in front of the room, centred on the actor.</summary>
     private static SpriteComposition Pod(int character) => new(
-        [new CompiledSpritePart(SpritePart.Create(Offset16<ScreenPixels>.Of(-SpriteOffset, -SpriteOffset), large: false, character, palette: 7, priority: 3),
+        [new CompiledSpritePart(SpritePart.Create(Offset16<ScreenPixels>.Of(-SpriteOffset, -SpriteOffset), large: false, character, palette: 7, depth: ActorDepth.InFront),
             InheritPalette: false)]);
 }

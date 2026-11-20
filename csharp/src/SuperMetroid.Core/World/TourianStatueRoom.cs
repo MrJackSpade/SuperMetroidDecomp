@@ -33,15 +33,15 @@ public sealed class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgre
     public bool IsFinished => Animation.Finished;
 
     /// <summary>
-    /// How far the statues have lowered, zero through the authored distance and the few quarter-steps that first reach it,
-    /// exposed as a negative background vertical offset. The statue sequence lowers it.
+    /// How far the statues have sunk into the room, zero through the authored distance and the few quarter-steps that
+    /// first reach it, which the display shows as the statues' placement. The statue sequence lowers it.
     /// </summary>
     internal SignedSixteenSixteen Descent { get; set; }
 
     /// <inheritdoc/>
     /// <remarks>
-    /// The whole pixels of the statues' descent upward, which descends by a quarter pixel per frame. The upward distance's
-    /// whole pixels round toward negative infinity, so the first quarter-pixel step already reads -1. The descent stops at
+    /// The whole pixels of the statues' descent upward, which descends by <see cref="TourianStatueSequenceDefinitions.DescentStep"/> each frame. The upward distance's
+    /// whole pixels round toward negative infinity, so the first step already reads -1. The descent stops at
     /// its authored distance, so the offset stays between minus that distance and zero.
     /// </remarks>
     public int StatueOffset => (-Descent).WholePixels;

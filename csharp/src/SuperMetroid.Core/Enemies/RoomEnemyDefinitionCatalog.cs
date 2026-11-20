@@ -1,3 +1,29 @@
+using SuperMetroid.Core.Enemies.Beetom;
+using SuperMetroid.Core.Enemies.Bull;
+using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core.Enemies.Dragon;
+using SuperMetroid.Core.Enemies.Evir;
+using SuperMetroid.Core.Enemies.FaceBlocks;
+using SuperMetroid.Core.Enemies.Fireflea;
+using SuperMetroid.Core.Enemies.Kago;
+using SuperMetroid.Core.Enemies.KiHunters;
+using SuperMetroid.Core.Enemies.Magdollite;
+using SuperMetroid.Core.Enemies.MamaTurtles;
+using SuperMetroid.Core.Enemies.MaridiaSnails;
+using SuperMetroid.Core.Enemies.Metaree;
+using SuperMetroid.Core.Enemies.Metroids;
+using SuperMetroid.Core.Enemies.Owtch;
+using SuperMetroid.Core.Enemies.Platforms;
+using SuperMetroid.Core.Enemies.Powamp;
+using SuperMetroid.Core.Enemies.Ripper;
+using SuperMetroid.Core.Enemies.Shaktool;
+using SuperMetroid.Core.Enemies.Shutters;
+using SuperMetroid.Core.Enemies.Skree;
+using SuperMetroid.Core.Enemies.SpacePirates;
+using SuperMetroid.Core.Enemies.Sparks;
+using SuperMetroid.Core.Enemies.WorkRobots;
+using SuperMetroid.Core.Enemies.YappingMaws;
+using SuperMetroid.Core.Enemies.Yard;
 using System.Collections.Frozen;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Grapple;
@@ -11,7 +37,14 @@ namespace SuperMetroid.Core.Enemies;
 /// </remarks>
 public static class RoomEnemyDefinitionCatalog
 {
-    /// <summary>The 147 referenced enemy definitions.</summary>
+    /// <summary>
+    /// The health of an enemy no fight kills by damage, the largest the game's health holds: Crocomire and his tongue, whom
+    /// the lava ends; Ceres Ridley, who flees; the Ceres steam; and the animals. Damage still counts down from it, as from
+    /// any other health.
+    /// </summary>
+    private const int HealthNoFightDepletes = 32767;
+
+    /// <summary>The referenced enemy definitions.</summary>
     internal static readonly RoomEnemyDefinitionEntry[] Definitions =
     [
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.Boyon, new(1000, 10, new(8, 8), 4, null, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.OrdinaryTouch, EnemyReaction.OrdinaryShot, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, new EnemyDropChances(20, 10, 85, 130, 5, 5), EnemyVulnerabilityDefinitions.Boyon)),
@@ -163,13 +196,10 @@ public static class RoomEnemyDefinitionCatalog
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.PirateSilverWalking, new(500, 15, new(16, 32), 4, EnemySound.Yell, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Big, null, null, null, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, new EnemyDropChances(0, 0, 0, 255, 0, 0), EnemyVulnerabilityDefinitions.DoubledByMissiles)),
     ];
 
-    /// <summary>Number of distinct enemy definitions reachable from room states.</summary>
-    public const int Count = 147;
-
     /// <summary>
     /// Each referenced identity's definition, looked up by identity rather than by ordering the identities (#1452);
-    /// the count and each identity's single definition are checked when it is built.
+    /// each identity's single definition is checked when it is built.
     /// </summary>
     internal static readonly FrozenDictionary<EnemyDefinitionId, RoomEnemyDefinition> ById =
-        RoomEnemyDefinitionLookup.Index(Definitions, Count);
+        RoomEnemyDefinitionLookup.Index(Definitions);
 }

@@ -94,13 +94,8 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
         var uploadNmis = new EvidencedDoorMusicLoadFrames();
         var loaderProgress = new EvidencedRoomLoadProgress();
         var soundAcknowledgements = new EvidencedSoundAcknowledgements(memory);
-        var hostServices = new SuperMetroidGameHostServices
-        {
-            DoorMusicLoadFrames = uploadNmis,
-            RoomLoadProgress = loaderProgress,
-            SoundAcceptance = soundAcknowledgements,
-            GameplayFrames = CapturedGameplayFrames.Instance,
-        };
+        var hostServices = SuperMetroidGameHostServicesFixtures.With(uploadNmis, loaderProgress, soundAcknowledgements, CapturedGameplayFrames.Instance);
+
         if (movie.Snapshot is not null)
         {
             // The first input boundary completes the snapshot's frame. Its WRAM is the movie's

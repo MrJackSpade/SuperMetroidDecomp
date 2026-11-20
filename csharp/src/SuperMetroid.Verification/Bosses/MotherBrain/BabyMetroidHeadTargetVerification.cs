@@ -29,12 +29,12 @@ internal static class BabyMetroidHeadTargetVerification
         RoomEnemyPlace head = state.Head;
         MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(sequence);
-        BabyMetroidCutsceneState baby = sequence.State.Baby.Arrived();
-        RoomEnemyPlace place = baby.Place ?? throw new InvalidOperationException("Verification requires the Baby's place.");
+        BabyMetroidCutsceneState baby = sequence.State.Baby.Arrived() ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
+        RoomEnemyPlace place = baby.Place;
 
         head.Position = head.Position.WithWhole(new(0x007d, 0x005d));
-        baby.Phase = BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
-        baby.Position = FixedPosition<RoomPixels>.FromWhole(new(0x007d, 0x0045)).WithFractionsOf(baby.Position);
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody);
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Position", FixedPosition<RoomPixels>.FromWhole(new(0x007d, 0x0045)).WithFractionsOf(baby.Position));
 
         runtime.Enemies.BabyMetroidCutsceneBehavior.RunMotherBrainBabyMetroidMain((place), (place).RequireSpeciesState<BabyMetroidCutsceneState>(), runtime.Player.Samus, Position16<RoomPixels>.Zero);
         AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase, "the Baby reaches the head");

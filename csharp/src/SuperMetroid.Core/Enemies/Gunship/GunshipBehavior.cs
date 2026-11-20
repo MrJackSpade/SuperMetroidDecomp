@@ -37,9 +37,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
 
     /// <summary>The gunship's top hull, which moves the ship, or its bottom hull with the entrance pad (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no gunship definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.ShipTop)
             return new GunshipTopEntity(this, place, common, setup);
         throw new InvalidOperationException($"The gunship species creates no {place.DefinitionId}.");
@@ -49,6 +49,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
     private readonly EnemyAudioQueue _audio;
     /// <summary>Creates gunship dust during takeoff.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+
+    /// <summary>The dust clouds the gunship's liftoff raises, its own (#2571).</summary>
+    private GunshipLiftoffDust.GunshipDustBehavior Dust { get; } = new();
     /// <summary>The loaded room's bindings: its events and the game-state services that set up Samus's pose.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy places, where the top hull finds the ship's other pieces when it is placed.</summary>
@@ -128,7 +131,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
         GunshipState ship;
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
-            // Post-Ceres initialization attaches the top hull seventeen pixels above Samus and
+            // Post-Ceres initialization attaches the top hull above Samus and
             // enters the high-altitude descent used only after Ceres, which starts the ship above the room's top.
             place.Position = OffRoomPlaces.WithWholeY(place.Position, samus.Position.Y.Whole - GunshipMotionDefinitions.TopHullAboveSamus);
             ship = new GunshipState(GunshipPhase.DescendAfterCeres) { EngineSoundTimer = UpdateCountdown.For(GunshipHoverSoundDefinitions.FirstDelayAfterCeres) };
@@ -151,7 +154,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
     /// Initializes bottom hull or pad from the enemies its room lists before it; after Ceres the bottom hull is placed
     /// against the loading <paramref name="samus"/>.
     /// </summary>
-    internal GunshipPieceState InitializeGunshipBottom(RoomEnemyPlace place, SamusState samus, GunshipSpawnSettings settings)
+    internal GunshipPieceState InitializeGunshipBottom(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus, GunshipSpawnSettings settings)
     {
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
@@ -278,12 +281,12 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
         }
     }
 
-    /// <summary>Carries Samus and all ship parts downward, slowing below Y=768 before the landing clamp.</summary>
+    /// <summary>Carries Samus and all ship parts downward, slowing below <see cref="GunshipMotionDefinitions.SlowDescentY"/> before the landing clamp.</summary>
     private static void DescendPostCeresGunship(RoomEnemyPlace top, GunshipState gunshipState, GunshipPieces state, SamusState samus)
     {
-        // The after-Ceres descent carries all four actors as a rigid body. Above Y=768 it moves
-        // 4.5 pixels an update; below that threshold it slows to 2.5 and clamps the
-        // top hull to 1119 before beginning its seventeen-frame landing bounce.
+        // The after-Ceres descent carries all the ship's actors as a rigid body. Above its slowing height it
+        // moves fast; below that threshold it slows and clamps the top hull to its landing height
+        // before beginning its landing bounce.
         // The clamp writes only whole positions; the fractions of a pixel keep this update's sum.
         SignedSixteenSixteen delta = top.Position.Y.Whole < GunshipMotionDefinitions.SlowDescentY ? GunshipMotionDefinitions.FastDescentSpeed : GunshipMotionDefinitions.SlowDescentSpeed;
         MoveGunshipAndSamusVertically(samus, state, delta);
@@ -299,8 +302,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
         gunshipState.LandingBrake = GunshipLandingBrake.First;
     }
 
-    /// <summary>Applies seventeen authored brake offsets, then opens the pad and aligns Samus.</summary>
-    internal void BouncePostCeresGunship(RoomEnemyPlace top, GunshipPieces gunshipPieces, GunshipState state, SamusState samus)
+    /// <summary>Applies the authored brake offsets, then opens the pad and aligns Samus.</summary>
+    private void BouncePostCeresGunship(RoomEnemyPlace top, GunshipPieces gunshipPieces, GunshipState state, SamusState samus)
     {
         GunshipLandingBrake brake = state.LandingBrake;
         int yDelta = brake.YDelta;
@@ -367,7 +370,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
         GunshipPhase.FinishSamusExit or GunshipPhase.WaitForEngines;
 
     /// <summary>Cycles the four idle-bob phases while moving the hull and pad together.</summary>
-    internal static void StepGunshipBob(GunshipPieces gunshipPieces, GunshipState state)
+    private static void StepGunshipBob(GunshipPieces gunshipPieces, GunshipState state)
     {
         if (!state.BobTimer.Step())
             return;
@@ -484,10 +487,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
     }
 
     /// <summary>
-    /// Waits one update for the engines to fire up: on the wait's last update the gunship shows its takeoff look from this
-    /// update's frame on, and the engines fire up.
+    /// Waits for the engines to fire up: when the <see cref="GunshipTakeoffDefinitions.EngineStartUpdates"/> wait runs out the
+    /// gunship shows its takeoff look from this update's frame on, and the engines fire up.
     /// </summary>
-    internal void WaitForGunshipEngines(GunshipState state)
+    private void WaitForGunshipEngines(GunshipState state)
     {
         if (!TickGunshipPhaseTimer(state))
             return;
@@ -496,7 +499,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
         state.Phase = GunshipPhase.FireUpEngines;
     }
 
-    /// <summary>Runs the 128-frame engine-rumble phase.</summary>
+    /// <summary>Runs the engine-rumble phase (<see cref="GunshipTakeoffDefinitions.EngineRumbleFrames"/>).</summary>
     private void FireUpGunshipEngines(RoomEnemyPlace top, GunshipState state, GunshipPieces pieces, SamusState samus)
     {
         UpdateCountdown rumble = state.Rumble;
@@ -514,13 +517,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
             // The six clouds rise as the rumble strengthens. Each takes the highest projectile place still free, so
             // the last cloud, the outer left one, takes the highest place the other five left.
             foreach (GunshipDustPlacement cloud in GunshipDustDefinitions.LiftoffClouds)
-                GunshipLiftoffDust.SpawnCloud(_projectiles, cloud, samus);
+                GunshipLiftoffDust.SpawnCloud(_projectiles, Dust, cloud, samus);
         }
         if (rumbled)
             state.Phase = GunshipPhase.SteadyLiftoff;
     }
 
-    /// <summary>Runs constant two-pixel liftoff.</summary>
+    /// <summary>Runs the constant-speed liftoff (<see cref="GunshipTakeoffDefinitions.SteadyLiftoffRise"/>).</summary>
     private static void LiftGunshipAtConstantSpeed(RoomEnemyPlace top, GunshipState state, GunshipPieces pieces, SamusState samus)
     {
         // The steady liftoff rises two pixels an update from the landed ship until the hull passes 896, deep inside the

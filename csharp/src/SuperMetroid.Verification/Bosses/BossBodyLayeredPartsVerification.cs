@@ -50,7 +50,7 @@ internal static class BossBodyLayeredPartsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1]);
+        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.Crocomire), enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1]);
         state.TongueState.BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset;
         BossBodyCanvasFixtures.AttachCrocomire(enemies, sheets);
         Dictionary<string, BossBodyFrameSource> sources = SourcesOf(frames, BossBodyOwner.Crocomire);
@@ -70,7 +70,7 @@ internal static class BossBodyLayeredPartsVerification
             melting.ShowCrocomireMeltImage(state, pass);
             AssertEqual(1, ((BossBodyParts)enemies.Presentation.BossBodyDisplay!).Publish().Frames.Length, $"Crocomire's {pass} melt image replaces what his body showed");
             Compare($"showing his {pass} melt image");
-            melting.BeginCrocomireMeltPass(state, pass);
+            CrocomireMelting.BeginCrocomireMeltPass(state, pass);
             for (int erased = 1; erased <= CrocomireMeltingDefinitions.ColumnCount; erased++)
             {
                 melting.EraseNextCrocomireMeltingColumn(state);
@@ -96,6 +96,7 @@ internal static class BossBodyLayeredPartsVerification
     private static int CheckKraidHead(BossSourceArtwork frames)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        enemies.Places.BindKraidPartsInRoomOrder();
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         state.InitializeBodyLayer();
         state.ShowBody();
@@ -106,7 +107,7 @@ internal static class BossBodyLayeredPartsVerification
             state.BodyAppearance = appearance;
             foreach (KraidHeadFrame? head in new KraidHeadFrame?[] { null }.Concat(KraidHeadTilemapFormat.HeadsByMouthStage.Select(pose => (KraidHeadFrame?)pose)))
             {
-                state.DisplayedHeadFrame = head;
+                global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", head);
                 BossBodyLayer layer = enemies.KraidBehavior.BodyLayer.CaptureBodyLayer()
                     ?? throw new InvalidOperationException("Kraid showing his body layer draws his body.");
                 AssertEqual(2, layer.Frames.Length, $"Kraid's {appearance} body shows his body and one head");

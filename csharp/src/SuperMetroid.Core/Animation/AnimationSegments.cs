@@ -180,16 +180,16 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
             // An animation of no phase is over at once, or rests where it is when it holds.
             if (animation.Phases.Count == 0)
                 return animation.End is AnimationEnd.Hold ? AnimationShown<TSegment, TFrame>.Held.Instance : AnimationShown<TSegment, TFrame>.Ended.Instance;
-            if (place.Beat == AnimationPlace.NotEntered)
+            if (place.HasNotEntered)
                 place = Enter(animation, place.Phase);
             AnimationPhase<TSegment> phase = animation.Phases[place.Phase];
             // A held animation stays held: its last play is done and counts nothing again.
-            if (place.Beat > phase.BeatCount)
+            if (place.IsHolding)
                 return AnimationShown<TSegment, TFrame>.Held.Instance;
             if (place.Beat < phase.BeatCount)
             {
                 int beat = phase.FirstBeat + place.Beat;
-                place = place with { Beat = place.Beat + 1 };
+                place = new AnimationPlace(place.Phase, place.Beat + 1).WithPlaysLeft(place.PlaysLeft);
                 switch (beats[phase.Segment][beat])
                 {
                     case AnimationBeat<TFrame, TEvent>.Frame frame:
@@ -200,6 +200,8 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                         return new AnimationShown<TSegment, TFrame>.HeldFrame(held.Shown);
                     case AnimationBeat<TFrame, TEvent>.Pause pause:
                         return new AnimationShown<TSegment, TFrame>.Paused(pause.Duration);
+                    case AnimationBeat<TFrame, TEvent>.Hidden hidden:
+                        return new AnimationShown<TSegment, TFrame>.Hidden(phase.Segment, hidden.Duration);
                     case AnimationBeat<TFrame, TEvent>.Event raised:
                         React(raised.Raised, ref animation, ref place, react);
                         continue;

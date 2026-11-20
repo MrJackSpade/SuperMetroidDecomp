@@ -457,11 +457,11 @@ internal sealed class UnitScanner(CoreModel model)
             && symbol is IMethodSymbol { MethodKind: MethodKind.Constructor } && SymbolEqualityComparer.Default.Equals(containing.OriginalDefinition, family)
             ? creation : null;
         IReadOnlySet<string>? programs = construction is null ? null : model.ProgramsOf(semantic, construction, family);
-        if (programs is null && construction is { ArgumentList.Arguments: [var traced, ..] })
+        if (programs is null && construction is not null && model.ProgramArgumentOf(semantic, construction, family) is { } traced)
         {
             if (!scan.FamilyProgramArguments.TryGetValue(family, out List<(ExpressionSyntax, SemanticModel)>? arguments))
                 scan.FamilyProgramArguments.Add(family, arguments = []);
-            arguments.Add((traced.Expression, semantic));
+            arguments.Add((traced, semantic));
             programs = new HashSet<string>(StringComparer.Ordinal);
         }
         if (programs is null)

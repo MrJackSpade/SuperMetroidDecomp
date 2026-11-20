@@ -258,7 +258,7 @@ public static class ProgressionTableCodec
     /// </summary>
     /// <param name="value">An area's boss byte, as the table or a copy of it holds it.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte.</exception>
-    public static DefeatedBosses StoredBosses(int value)
+    private static DefeatedBosses StoredBosses(int value)
     {
         _ = Ensure.BetweenInclusive(0, byte.MaxValue, value);
         DefeatedBosses bosses = DefeatedBosses.None;
@@ -271,7 +271,7 @@ public static class ProgressionTableCodec
     }
 
     /// <summary>The boss byte that records <paramref name="bosses"/>.</summary>
-    public static byte EncodeBossMask(DefeatedBosses bosses)
+    private static byte EncodeBossMask(DefeatedBosses bosses)
     {
         int value = 0;
         for (int bit = 0; bit < BossFlagBits.Length; bit++)

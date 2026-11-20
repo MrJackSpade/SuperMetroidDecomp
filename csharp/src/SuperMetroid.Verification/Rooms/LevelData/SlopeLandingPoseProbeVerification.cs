@@ -41,14 +41,12 @@ internal static class SlopeLandingPoseProbeVerification
         }
 
         SamusState clipped = Falling(0x16d, 0x2fff);
-        AssertTrue(!SamusPoseTransitions.TryApplyAerialLanding(clipped, level, wasSpinning: false, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-            "a zero-distance changed-pose probe still meets slope $54 and rejects the landing");
+        SamusPoseTransitions.ApplyAerialLandingInRoom(clipped, level, wasSpinning: false, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
         AssertEqual(SamusPoseId.NeutralJumpRightPose, clipped.Pose, "the falling pose is retained");
         AssertEqual((ushort)0x16d, clipped.Position.Y.Whole, "the rejected landing leaves Y unchanged");
 
         SamusState deeper = Falling(0x16e, 0xb7ff);
-        AssertTrue(SamusPoseTransitions.TryApplyAerialLanding(deeper, level, wasSpinning: false, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-            "one pixel deeper the landing fits");
+        SamusPoseTransitions.ApplyAerialLandingInRoom(deeper, level, wasSpinning: false, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
         AssertEqual(SamusPoseId.NormalLandingRightPose, deeper.Pose, "native update 44759 lands");
         AssertEqual((ushort)0x16d, deeper.Position.Y.Whole, "the landing moves Samus up clear of slope $55");
         Console.WriteLine("Slope landing: a zero-distance pose-change probe rejects the landing on the clipped frame; the next frame lands.");

@@ -18,8 +18,14 @@ public sealed class CeresBaby
         Clock.Restart();
     }
 
-    /// <summary>Gets the Baby's behavior selecting hand attachment, falling setup, falling motion, or idle.</summary>
+    /// <summary>Gets the Baby's behaviour: held at a hand, falling, or idle.</summary>
     public CeresBabyAction Action { get; internal set; } = CeresBabyAction.CarriedInArms;
+
+    /// <summary>
+    /// Lets the Baby fall from where Ridley held it: its own update, later in the same update, sets its fall up and moves
+    /// it its first falling step (<see cref="CeresBabyAction.Dropping"/>).
+    /// </summary>
+    internal void Drop() => Action = CeresBabyAction.Dropping;
 
     /// <summary>
     /// Gets the Baby's room position. Its vertical fraction of a pixel is the one its fall left and
@@ -28,7 +34,7 @@ public sealed class CeresBaby
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
     /// <summary>
-    /// Gets the Baby's falling speed: zero until it is dropped, then faster by a thirty-second of a pixel an update each
+    /// Gets the Baby's falling speed: zero until it is dropped, then faster by <see cref="CeresRidleyArenaDefinitions.BabyFallGravity"/> each
     /// falling update until it lands.
     /// </summary>
     public SignedEightEight VerticalVelocity { get; internal set; }

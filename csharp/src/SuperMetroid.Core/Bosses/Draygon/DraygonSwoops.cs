@@ -37,7 +37,7 @@ internal sealed class DraygonSwoops
     }
 
     /// <summary>Captures Samus's height and computes the vertical waypoints for the next swoop, which it returns.</summary>
-    internal static DraygonSwoopPath BuildDraygonSwoopYPositions(DraygonEnemyState state, SamusState samus)
+    private static DraygonSwoopPath BuildDraygonSwoopYPositions(DraygonEnemyState state, SamusState samus)
     {
         // The climb ends only because its rising speed grows; every producer of the acceleration keeps it above zero.
         if (state.SwoopAcceleration <= SignedEightEight.Zero)
@@ -49,7 +49,7 @@ internal sealed class DraygonSwoops
         while (true)
         {
             speed += state.SwoopAcceleration;
-            // The path ends once it rises past the reset height, at most 384 pixels up, so the rising speed stays a few
+            // The path ends once it rises past the reset height, no higher than the swim line lies, so the rising speed stays a few
             // pixels an update.
             int candidate = OffRoomPlaces.Place(yPosition - speed.WholePixels);
             if (DistanceAcrossRoomEdge.LiesBefore(candidate, state.LeftSideReset.Y))
@@ -210,7 +210,7 @@ internal sealed class DraygonSwoops
     private static void SetDraygonSwoopVelocity(DraygonEnemyState state, int distance, int frameCount, HorizontalDirection direction) =>
         state.SwoopVelocity = SignedSixteenSixteen.Covering(distance, frameCount).Toward(direction);
 
-    /// <summary>Runs the four-pixel upward retreat.</summary>
+    /// <summary>Runs the upward retreat at <see cref="DraygonArenaDefinitions.SwoopClimbOutSpeed"/>.</summary>
     internal void FlyDraygonStraightUp(
         DraygonEnemyState state,
         SamusState samus,

@@ -9,10 +9,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class RoomObjectNativeWords
 {
-    /// <summary>The bank-$84 header pointer of each PLM; zero names the empty slot.</summary>
+    /// <summary>The bank-$84 header pointer of each PLM; the empty slot's zero names no object.</summary>
     internal static readonly NativeWordIdentities<RoomObjectKind> Headers = new(new Dictionary<RoomObjectKind, ushort>
     {
-        [RoomObjectKind.None] = 0x0000,
         [RoomObjectKind.RightwardsScrollExtension] = 0xb63b,
         [RoomObjectKind.LeftwardsScrollExtension] = 0xb63f,
         [RoomObjectKind.DownwardsScrollExtension] = 0xb643,

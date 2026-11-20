@@ -7,9 +7,9 @@ namespace SuperMetroid.AssetExtraction.Fx;
 [EncodingOwner("rain and fog layer-three tilemap word fields")]
 public static class RoomFxAtmosphereTilemapDefinitions
 {
-    /// <summary>Rain's palette field occupies bits10..12; other fields remain separate content.</summary>
+    /// <summary>Rain's palette field: bits 10 to 12; other fields remain separate content.</summary>
     public const ushort RainCalculatedMask = 0x1c00;
-    /// <summary>Fog's palette and priority fields occupy bits10..13.</summary>
+    /// <summary>Fog's palette and priority fields: bits 10 to 13.</summary>
     public const ushort FogCalculatedMask = 0x3c00;
 
     /// <summary>Selects the independently converted field mask for rain or fog only.</summary>
@@ -32,9 +32,9 @@ public static class RoomFxAtmosphereTilemapDefinitions
     };
 
     /// <summary>
-    /// Cell0..1055: rain's blank first row uses palette0, its remaining32 rows use6.
-    /// Fog uses palette6 and clear priority throughout. Values cover only the selected
-    /// mask; the independent graphical fields are described on the page owner below.
+    /// The calculated fields of the cell at <paramref name="index"/>: rain's blank first row uses palette 0 and its
+    /// remaining rows palette 6; fog uses palette 6 and clear priority throughout. Values cover only the selected
+    /// mask; the other fields are the page's own content (<see cref="RoomFxLayer3TilemapFormat"/>).
     /// </summary>
     public static ushort CalculatedFields(RoomFxType type, int index)
     {

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>
-/// Bull's idle and immune-shot animations (#641, #2477): one segment per animation a spawn, branch or wake enters, in authored order.
+/// Bull's idle and immune-shot animations (#641, #2477).
 /// Their steps are <see cref="BullAnimations"/>.
 /// </summary>
 internal enum BullSegment

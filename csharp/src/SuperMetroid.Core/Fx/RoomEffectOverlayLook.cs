@@ -18,10 +18,10 @@ public abstract record RoomEffectOverlayLook
     public RoomEffectBlend Blend { get; }
 
     /// <summary>A liquid blending as <paramref name="blend"/> describes.</summary>
-    public static RoomEffectOverlayLook Liquid(RoomEffectBlend blend) => new ShowsLiquid(blend);
+    private static ShowsLiquid Liquid(RoomEffectBlend blend) => new(blend);
 
     /// <summary>An atmosphere blending as <paramref name="blend"/> describes.</summary>
-    public static RoomEffectOverlayLook Atmosphere(RoomEffectBlend blend) => new ShowsAtmosphere(blend);
+    private static ShowsAtmosphere Atmosphere(RoomEffectBlend blend) => new(blend);
 
     /// <summary>
     /// <paramref name="look"/>, which an effect of kind <paramref name="type"/> shows on the overlay: a liquid's for an

@@ -13,13 +13,13 @@ internal sealed class ClipLibraryState
     internal long Start { get; private set; }
 
     /// <summary>Whether the sound still holds the library: it has not reached its logical end.</summary>
-    internal bool Active { get; private set; }
+    private bool Active { get; set; }
 
     /// <summary>Whether the library holds a high-priority sound, which admits only requests exempt from priority; otherwise any request replaces the sound.</summary>
-    internal bool HighPriority { get; private set; }
+    private bool HighPriority { get; set; }
 
     /// <summary>Whether the room library is in low-health mode, which rejects every request except those exempt from it.</summary>
-    internal bool InLowHealthMode { get; private set; }
+    private bool InLowHealthMode { get; set; }
 
     /// <summary>Whether the library's priority or low-health mode turns away a request under <paramref name="policy"/>.</summary>
     internal bool Rejects(SoundEffectClipPolicy policy) =>

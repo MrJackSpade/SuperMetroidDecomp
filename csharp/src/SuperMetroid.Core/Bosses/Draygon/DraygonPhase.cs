@@ -11,10 +11,10 @@ public abstract record DraygonPhase
     {
     }
 
-    /// <summary>Loads four Evir sprites, then waits 256 gameplay frames.</summary>
+    /// <summary>Loads the Evir sprites, then waits out the intro's delay (<see cref="DraygonArenaDefinitions.IntroUpdates"/>).</summary>
     public sealed record IntroInitialDelay : DraygonPhase;
 
-    /// <summary>Advances the opening Evir movement for 1,232 frames before the first swoop.</summary>
+    /// <summary>Advances the opening Evir movement for its duration (<see cref="DraygonIntroDanceDefinitions.DurationFrames"/>) before the first swoop.</summary>
     public sealed record IntroDance : DraygonPhase;
 
     /// <summary>
@@ -45,11 +45,11 @@ public abstract record DraygonPhase
     /// <param name="Path">The swoop path the last rightward swoop planned, which the swoop flies and a pass hands on to the next leftward swoop.</param>
     internal sealed record SwoopAscending(DraygonSwoopPath Path) : DraygonPhase;
 
-    /// <summary>Starts the one-pixel-per-frame goop path its pass's way: rightward at X=-80, leftward at the right reset X, at Y=384.</summary>
+    /// <summary>Starts the goop path its pass's way: rightward from <see cref="DraygonArenaDefinitions.OffscreenLeftX"/>, leftward from the right reset X, along <see cref="DraygonArenaDefinitions.SwimLineY"/>.</summary>
     /// <param name="Path">The swoop path the last rightward swoop planned, which the swoop flies and a pass hands on to the next leftward swoop.</param>
     internal sealed record GoopSetup(DraygonSwoopPath Path) : DraygonPhase;
 
-    /// <summary>Follows the oscillating path until horizontal separation from Samus is below 208 pixels.</summary>
+    /// <summary>Follows the oscillating path until horizontal separation from Samus is below <see cref="DraygonArenaDefinitions.GoopTailRange"/>.</summary>
     /// <param name="Path">The swoop path the last rightward swoop planned, which the swoop flies and a pass hands on to the next leftward swoop.</param>
     internal sealed record GoopApproach(DraygonSwoopPath Path) : DraygonPhase;
 
@@ -61,13 +61,13 @@ public abstract record DraygonPhase
     /// <param name="Path">The swoop path the last rightward swoop planned, which the swoop flies and a pass hands on to the next leftward swoop.</param>
     internal sealed record GoopRecovery(DraygonSwoopPath Path) : DraygonPhase;
 
-    /// <summary>Moves toward goop-slowed Samus at two pixels per frame and checks the eight-pixel claw window.</summary>
+    /// <summary>Moves toward goop-slowed Samus at <see cref="DraygonGrabDefinitions.ChaseSpeed"/> and checks the claw window (<see cref="DraygonArenaDefinitions.GrabWindow"/>).</summary>
     public sealed record TryGrabSamus : DraygonPhase;
 
     /// <summary>Repels a grapple beam that caught Draygon as he reached Samus: drops the beam and releases her without a grab (#1939).</summary>
     public sealed record RepelGrapple : DraygonPhase;
 
-    /// <summary>Carries Samus toward room pixel (256,384), then starts the rising spiral.</summary>
+    /// <summary>Carries Samus toward the spiral's target (<see cref="DraygonGrabDefinitions.SpiralTarget"/>), then starts the rising spiral.</summary>
     public sealed record CarrySamus : DraygonPhase;
 
     /// <summary>Expands and raises the carry orbit, with RNG-selected incidental tail whips.</summary>
@@ -91,15 +91,15 @@ public abstract record DraygonPhase
     /// <summary>Releases Samus, restores ordinary collision, and starts a tail flail before retreat.</summary>
     public sealed record ReleaseSamus : DraygonPhase;
 
-    /// <summary>Retreats upward four pixels per frame, then resets for a rightward swoop.</summary>
+    /// <summary>Retreats upward at <see cref="DraygonArenaDefinitions.SwoopClimbOutSpeed"/>, then resets for a rightward swoop.</summary>
     public sealed record FlyStraightUp : DraygonPhase;
 
-    /// <summary>Drifts toward room pixel (256,480), then spawns burial Evirs and retires the arms and tail.</summary>
+    /// <summary>Drifts toward his burial point (<see cref="DraygonArenaDefinitions.DeathTargetX"/>, <see cref="DraygonArenaDefinitions.DeathTargetY"/>), then spawns burial Evirs and retires the arms and tail.</summary>
     public sealed record Dying : DraygonPhase;
 
     /// <summary>Waits out the burial wait (<see cref="DraygonArenaDefinitions.BurialWaitUpdates"/>) while the burial Evirs approach, before the body sinks (#1939).</summary>
     public sealed record DyingWaitForEvirs : DraygonPhase;
 
-    /// <summary>Sinks one pixel per frame to Y=576, scatters drops, deletes the remaining parts, and persists defeat.</summary>
+    /// <summary>Sinks to <see cref="DraygonArenaDefinitions.BurialFinishedY"/>, scatters drops, deletes the remaining parts, and persists defeat.</summary>
     public sealed record DyingFinish : DraygonPhase;
 }

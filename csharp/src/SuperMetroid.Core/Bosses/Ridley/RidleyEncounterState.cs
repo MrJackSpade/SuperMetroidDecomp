@@ -38,7 +38,7 @@ public abstract class RidleyEncounterState
     public BossCountdown PhaseTimer { get; } = new();
 
     /// <summary>Which of his drawn parts show his hurt flash's colours, as his step last picked them (#2562).</summary>
-    internal RidleyHurtFlashShowing HurtFlashShows { get; set; }
+    internal RidleyHurtFlashShowing HurtFlashShows { private get; set; }
 
     /// <summary>The shading Ridley's tail and wings draw in: his own colours, or the hurt flash's (#1512).</summary>
     public PictureShading TailAndWingsShading => Colours.SpriteShading(HurtFlashShows.TailAndWings);

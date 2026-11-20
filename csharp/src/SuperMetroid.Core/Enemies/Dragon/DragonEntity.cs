@@ -5,45 +5,46 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// wing its room lists right after it (<see cref="DragonWingEntity"/>) and carrying each hit on to that wing.
 /// </summary>
 /// <param name="species">The Dragon species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DragonEntity(DragonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class DragonEntity(DragonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal DragonEnemyState State { get; } = species.InitializeDragonBody(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunDragonMain(Place, State, frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDragonMain(Occupant, Place, State, frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DragonBehavior.AdvanceDragonBodyTypedAnimation(Place, State);
 
     /// <summary>Whether the Dragon's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == DragonReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Dragon's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Occupant.Definition.Touch == DragonReactions.Touch)
             species.ReactToDragonTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Dragon's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.DragonShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == DragonReactions.Shot ? species.DragonShotReaction : base.ShotReaction;
 
     /// <summary>The Dragon's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? species.DragonBombReaction : base.CommonBombDamageReaction(context);
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
+        context.SelectedShot == DragonReactions.Shot ? species.DragonBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Dragon's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.DragonPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? species.DragonPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The Dragon's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == DragonReactions.Shot;
 }

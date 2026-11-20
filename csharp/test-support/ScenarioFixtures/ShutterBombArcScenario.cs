@@ -99,5 +99,5 @@ internal sealed class ShutterBombArcScenario
 
     /// <summary>One native-comparison row after <paramref name="frame"/> has run.</summary>
     internal string ArcRow(int frame) =>
-        $"{frame},{InSubpixels(Samus.Kinematics.Position.X)},{InSubpixels(Samus.Kinematics.Position.Y)},{Samus.Kinematics.VerticalVelocity.Speed.RawValue},{SamusBombJumpRequestCodec.ToNative(Samus.BombJumpRequest)},{Platform.Position.Y.Whole},{Platform.Position.Y.Fraction}";
+        $"{frame},{InSubpixels(Samus.Kinematics.Position.X)},{InSubpixels(Samus.Kinematics.Position.Y)},{Samus.Kinematics.VerticalVelocity.Speed.RawValue},{SamusBombJumpCodec.ToNative(Samus.BombJump)},{Platform.Position.Y.Whole},{Platform.Position.Y.Fraction}";
 }

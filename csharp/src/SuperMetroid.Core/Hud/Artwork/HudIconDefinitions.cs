@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>
 /// What each item icon stands for (#1908): the selectable item whose selection shades it. The installation names each icon
-/// by its <see cref="HudIcon"/> member, and the installed layout places it by that name.
+/// by its installed key (<see cref="HudIconKeys.Installed"/>), and the installed layout places it by that key.
 /// </summary>
 internal static class HudIconDefinitions
 {

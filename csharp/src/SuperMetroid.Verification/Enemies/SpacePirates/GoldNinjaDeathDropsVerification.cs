@@ -31,7 +31,7 @@ internal static class GoldNinjaDeathDropsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MetalPirates);
         var samus = runtime.Player.Samus;
         RoomEnemyPlace pirate = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.PirateGoldNinja);
+            place.Holds(EnemyDefinitionId.PirateGoldNinja));
         samus.Control.LockOutPlayer();
         // The Gold Ninja is invincible in almost every frame. Install
         // ExtendedSpritemaps_PirateNinja_28 ($B2:8EA2), whose lower piece
@@ -41,16 +41,16 @@ internal static class GoldNinjaDeathDropsVerification
         pirate.SpritemapPointer = normalShotFrame;
         pirate.AnimationClock.HoldFor(0x7fff);
         pirate.Health = 1;
-        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
+        runtime.Enemies.PrepareEnemyProcessingList(pirate.Position.Whole);
         MotherBrainRinkaDoorSpawnExpected target = new MotherBrainRinkaDoorSpawnExpected(pirate.Position.X.Whole, (ushort)(pirate.Position.Y.Whole + 15));
 
         var shot = runtime.Projectiles.Shots[0];
-        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;
+        shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300); shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(new(target.X, target.Y));
         shot.Radius = new(4, 4);
         shot.Animation = ProjectileFixturePlaybacks.Active();
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
-            pirate, Position16<RoomPixels>.Zero);
+            pirate.HeldOccupant(), Position16<RoomPixels>.Zero);
         AssertEqual(0, pirate.Health, "the shot kills the Gold Ninja Pirate");
 
         var projectiles = runtime.Enemies.Projectiles;

@@ -16,7 +16,7 @@ internal static class ChootOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Choot, place.Definition);
+        place.Bind(EnemyDefinitionId.Choot, place.KeptDefinition);
         place.Position = place.Position.WithWhole(new(0x0100, 0x0200));
         place.SetSpawnParameter1(EnemyDefinitionId.Choot, 2);
         ChootBehavior.InitializeChoot(place, place.SpawnSettings<ChootSpawnSettings>());
@@ -29,7 +29,7 @@ internal static class ChootOwnedStateVerification
         int jumpingUpdates = 0;
         while (state.Action != ChootAction.Falling)
         {
-            ChootBehavior.RunChootJump(place, state);
+            ChootBehavior.RunChootJump(place.HeldOccupant(), place, state);
             jumpingUpdates++;
             AssertTrue(jumpingUpdates <= initial, "the jump reaches its apex");
         }

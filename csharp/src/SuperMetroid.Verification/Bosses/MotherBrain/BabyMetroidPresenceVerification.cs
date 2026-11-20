@@ -29,9 +29,9 @@ internal static class BabyMetroidPresenceVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
-        BabyMetroidCutsceneState baby = lateFight.Baby.Arrived();
-        RoomEnemyPlace place = baby.Place
-            ?? throw new InvalidOperationException("Verification requires the Baby's place.");
+        BabyMetroidCutsceneState baby = lateFight.Baby.Arrived()
+            ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
+        RoomEnemyPlace place = baby.Place;
 
         // The population's animation and off-screen processing, plus initialization's Plasma Beam block.
         const EnemyContact contact = EnemyContact.BlocksPlasmaBeam;
@@ -43,19 +43,21 @@ internal static class BabyMetroidPresenceVerification
         void RunMain(int enemyFrame)
         {
             place.FrameCounter = enemyFrame;
-            runtime.Enemies.BabyMetroidCutsceneBehavior.RunMotherBrainBabyMetroidMain(place, place.RequireSpeciesState<BabyMetroidCutsceneState>(), runtime.Player.Samus, Position16<RoomPixels>.Zero);
+            runtime.Enemies.BabyMetroidCutsceneBehavior.RunBabyMetroidCutsceneMainAi(place, new ClockedEnemyAiFrame(
+                RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemyFrame) with { Samus = place.RequireSpeciesState<BabyMetroidCutsceneState>(), runtime.Player.Samus },
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero.After(enemyFrame))));
             AssertEqual(contact, place.Contact, $"enemy frame {enemyFrame}: the Baby's contact stands");
             AssertEqual(processing, place.Processing, $"enemy frame {enemyFrame}: the Baby's processing stands");
         }
 
-        baby.Phase = BabyMetroidCutscenePhase.DeathSequence;
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.DeathSequence);
         int frame = 0;
         while (baby.Phase == BabyMetroidCutscenePhase.DeathSequence)
         {
             if (frame == 1000)
                 throw new InvalidOperationException("The Baby's fade to black never finished.");
             RunMain(frame);
-            bool flickering = baby.Phase == BabyMetroidCutscenePhase.DeathSequence;
+            bool flickering = place.RequireSpeciesState<BabyMetroidCutsceneState>().Phase == BabyMetroidCutscenePhase.DeathSequence;
             EnemyPresence expected = flickering && frame % 2 == 1 ? EnemyPresence.None : EnemyPresence.Hidden;
             AssertEqual(expected, place.Presence, flickering
                 ? $"enemy frame {frame}: the death's flicker shows the Baby on odd frames and hides it on even"
@@ -75,7 +77,7 @@ internal static class BabyMetroidPresenceVerification
 
         // The update that reaches the final cutscene shows the room lights' first recovery step; the call after the
         // seventh ends it.
-        for (int lights = 1; baby.Phase == BabyMetroidCutscenePhase.FinalCutscene; lights++)
+        for (int lights = 1; place.RequireSpeciesState<BabyMetroidCutsceneState>().Phase == BabyMetroidCutscenePhase.FinalCutscene; lights++)
         {
             AssertEqual(EnemyPresence.Hidden, place.Presence, $"recovery step {lights}: the Baby stays hidden and in its place");
             AssertTrue(!baby.IsDeleted, $"recovery step {lights}: Mother Brain's rings still look for the Baby");

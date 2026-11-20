@@ -24,7 +24,7 @@ internal static class EnemyUpdateCountVerification
         EnemyDropsVerification.EnemyDropFixture fixture = EnemyDropsVerification.CreateEnemyDropFixture(samus, randomValues: []);
         RoomEnemyPlace enemy = fixture.System.Places.InUpdateOrder[0];
         // A waiting Sbug on screen, outside its one-pixel reach of Samus, runs its main behaviour and stays where it is.
-        enemy.Bind(EnemyDefinitionId.Sbug, enemy.Definition);
+        enemy.Bind(EnemyDefinitionId.Sbug, enemy.KeptDefinition);
         enemy.SetSpawnParameter1(EnemyDefinitionId.Sbug, 1);
         enemy.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
         SuperMetroid.Core.Enemies.Sbug.SbugBehavior.InitializeSbug(enemy, enemy.SpawnSettings<SbugSpawnSettings>());

@@ -111,7 +111,7 @@ internal static class RefillCompletionTransitionVerification
         samus.Position = samus.Position.WithWholeY(GunshipTakeoffDefinitions.TakeoffCompleteY + GunshipMotionDefinitions.TopHullAboveSamus - 8);
         game.Step(0);
         AssertEqual(0, samus.ReserveEnergy, "the refill's update moves the last reserve unit");
-        AssertTrue(runtime.EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted),
+        AssertTrue(runtime.EnemyFrameResults.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.EscapeTakeoffCompleted)),
             $"the ship's ascent completes the takeoff; the top hull is at {top.Position.Y.Whole} in {top.RequireSpeciesState<GunshipTop>().Ship.Phase}");
         AssertTrue(game.IsAt(EndingStep.LeavingZebes), $"the gunship's takeoff on the refill's completion update leaves Zebes; ended in {game.GameState}");
 

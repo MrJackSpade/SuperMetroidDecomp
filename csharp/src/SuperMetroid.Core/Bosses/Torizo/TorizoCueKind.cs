@@ -11,7 +11,7 @@ internal enum TorizoCueKind
     StartLeaping,
     /// <summary>Stops the body's motion: it holds still (#1931).</summary>
     StopMoving,
-    /// <summary>Marks Bomb Torizo's gut blown up and spawns six drool pieces.</summary>
+    /// <summary>Marks Bomb Torizo's gut blown up and spawns its drool pieces (<see cref="TorizoDeathDefinitions.GutDroolPieces"/>).</summary>
     BlowUpGut,
     /// <summary>Marks Bomb Torizo's face blown up.</summary>
     MarkFaceBlownUp,

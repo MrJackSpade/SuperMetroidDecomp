@@ -16,7 +16,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemySettingsFactory<El
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Elevator];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ElevatorSpawnSettings settings) => new ElevatorEntity(this, place, common, setup, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ElevatorSpawnSettings settings) => EnemyOccupant.FromSurroundings(new ElevatorEntity(this, occupant, place, common, setup, settings));
 
     /// <summary>The loaded room's bindings, whose game-state services set up Samus's elevator pose when the elevator departs.</summary>
     private readonly EnemyRoomBinding _room;
@@ -68,15 +68,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemySettingsFactory<El
         ElevatorStatus == ElevatorActorStatus.Departing ||
         (ElevatorStatus != ElevatorActorStatus.Inactive && ElevatorTravel == ElevatorTravelDirection.Down);
 
-    /// <summary>The room's elevator that a ride arriving in the room started on, with Samus on it, once its setup has run.</summary>
-    private RoomEnemyPlace? _arrivedOn;
-
     /// <summary>
     /// The elevator whose setup placed Samus on it as the room loaded for an arriving ride, while that arrival is still
     /// beginning, before the elevator's first update starts its return (#2562); null in any other room or once it has
     /// started. The door loader asks for it on the room's loading update.
     /// </summary>
-    public RoomEnemyPlace? ArrivalElevator => ElevatorStatus == ElevatorActorStatus.BeginArrivalReturn ? _arrivedOn : null;
+    public RoomEnemyPlace? ArrivalElevator { get => ElevatorStatus == ElevatorActorStatus.BeginArrivalReturn ? field : null; private set; }
 
     /// <summary>
     /// Publishes the elevator's pseudo-door collision before the next enemy pass.
@@ -109,11 +106,11 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemySettingsFactory<El
     }
 
     /// <summary>Initializes the Elevator.</summary>
-    internal ElevatorEnemyState InitializeElevator(RoomEnemyPlace place, SamusState samus, ElevatorSpawnSettings settings)
+    private ElevatorEnemyState InitializeElevator(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus, ElevatorSpawnSettings settings)
     {
         var state = new ElevatorEnemyState(settings);
 
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         state.Playback = EnemyAnimationPlayback.Start(place, ElevatorAnimations.StartingWith(ElevatorSegment.Idle));
         state.RestingY = place.Position.Y.Whole;
 
@@ -128,13 +125,13 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemySettingsFactory<El
 
         place.Position = place.Position.WithWholeY(settings.ArrivalY);
         PinSamusToElevator(place, samus);
-        _arrivedOn = place;
+        ArrivalElevator = place;
         return state;
     }
 
     /// <summary>Runs the elevator's main behaviour and its four phases.</summary>
     private void RunElevatorMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         ElevatorEnemyState state,
         SamusState samus,
         GameplayAction newlyPressedControllerInput,
@@ -150,7 +147,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemySettingsFactory<El
         {
             case ElevatorActorStatus.Inactive:
                 WaitForElevatorDirectionInput(
-                    place,
+                    occupant, place,
                     state,
                     samus,
                     newlyPressedControllerInput,
@@ -164,11 +161,11 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemySettingsFactory<El
             case ElevatorActorStatus.BeginArrivalReturn:
                 ElevatorStatus = ElevatorActorStatus.ReturningToRest;
                 _passEvents.Publish(new ElevatorEvent(ElevatorFrameEvent.ArrivalReturnStarted));
-                MoveElevatorBackToRest(place, state, samus);
+                MoveElevatorBackToRest(occupant, place, state, samus);
                 return;
 
             case ElevatorActorStatus.ReturningToRest:
-                MoveElevatorBackToRest(place, state, samus);
+                MoveElevatorBackToRest(occupant, place, state, samus);
                 return;
 
             default:
@@ -178,8 +175,8 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemySettingsFactory<El
     }
 
     /// <summary>Waits for the travel direction input.</summary>
-    internal void WaitForElevatorDirectionInput(
-        RoomEnemyPlace place,
+    private void WaitForElevatorDirectionInput(
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         ElevatorEnemyState state,
         SamusState samus,
         GameplayAction newlyPressedControllerInput,
@@ -217,7 +214,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemySettingsFactory<El
 
     /// <summary>Moves the arriving elevator back to rest.</summary>
     private void MoveElevatorBackToRest(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         ElevatorEnemyState state,
         SamusState samus)
     {
@@ -267,20 +264,20 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemySettingsFactory<El
     }
 
     /// <summary>Advances Elevator's typed animation.</summary>
-    internal static void AdvanceElevatorTypedAnimation(RoomEnemyPlace place, ElevatorEnemyState elevatorEnemyState, EnemyAnimationCueContext _) =>
+    internal static void AdvanceElevatorTypedAnimation(RoomEnemyPlace place, ElevatorEnemyState elevatorEnemyState) =>
         EnemyAnimationPlayback.Advance(place, elevatorEnemyState, ElevatorAnimations.Segments,
             static (ElevatorEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Elevator animation raised {cue}."));
 
     /// <summary>Runs Elevator's initialization AI.</summary>
-    internal ElevatorEnemyState SetUpElevator(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings, ElevatorSpawnSettings settings) =>
-        InitializeElevator(place, surroundings.Samus, settings);
+    internal ElevatorEnemyState SetUpElevator(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyPopulationSurroundings surroundings, ElevatorSpawnSettings settings) =>
+        InitializeElevator(occupant, place, surroundings.Samus, settings);
 
     /// <summary>Runs Elevator's main AI.</summary>
-    internal void RunElevatorMainAi(RoomEnemyPlace place, ElevatorEnemyState state, IEnemyAiFrame frame)
+    internal void RunElevatorMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, ElevatorEnemyState state, IEnemyAiFrame frame)
     {
         RunElevatorMain(
-            place,
+            occupant, place,
             state,
             frame.Samus,
             frame.NewlyPressedControllerInput,

@@ -68,7 +68,7 @@ internal static class CeresSteamAnimationsVerification
         enemies.VerificationServices().NextRandom = () => wait - 1;
         RoomEnemyPlace vent = enemies.Places.InUpdateOrder[0];
         vent.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)CeresSteamVariant.Up);
-        vent.Bind(EnemyDefinitionId.CeresSteam, vent.Definition);
+        vent.Bind(EnemyDefinitionId.CeresSteam, vent.KeptDefinition);
         vent.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(wait, SuperMetroid.Core.Enemies.EnemyPartners.Listed<CeresSteamEntity>(vent).State.UpdatesToActivation, "the vent draws its wait");
 

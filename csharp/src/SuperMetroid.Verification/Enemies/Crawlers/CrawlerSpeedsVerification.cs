@@ -48,12 +48,17 @@ internal static class CrawlerSpeedsVerification
         {
             for (ushort property = 0; property < 4; property++)
             {
+                // The most negative velocity has no reversal within its range (SignedEightEight fails it), and no crawl
+                // speed holds it, so the sweep skips the one reset that would reverse it.
+                if ((property == 0 && magnitude == 0x8000) || (property == 2 && (ushort)~magnitude == 0x8000))
+                    continue;
                 PixelVelocity<RoomPixels> velocity = reset(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.At(property), crawlSpeed,
                     new(new SignedEightEight((ushort)magnitude), new SignedEightEight((ushort)~magnitude)));
                 AssertEqual(property == 0 ? unchecked((ushort)-magnitude) : (ushort)magnitude, velocity.X.RawValue, "Crawler sentinel X sign");
                 AssertEqual(property == 2 ? unchecked((ushort)-(ushort)~magnitude) : (ushort)~magnitude, velocity.Y.RawValue, "Crawler sentinel Y sign");
             }
-            for (ushort direction = 0; direction < 8; direction++)
+            // As above, the most negative speed has no reversal, and no Yard crawls at it.
+            for (ushort direction = 0; direction < 8 && magnitude != 0x8000; direction++)
             {
                 int address = 0xa3cd82 + direction * 8;
                 var actual = YardCrawlVelocity.Apply(new SignedEightEight(magnitude), SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
@@ -66,7 +71,7 @@ internal static class CrawlerSpeedsVerification
         AssertEqual(rom.ReadCartridgeWord(0xa3e5f0 + 8 * 2), YardVelocityDefinitions.AggressiveCrawlSpeed.RawValue,
             "a landed kicked Yard crawls at the ninth crawling speed");
 
-        Console.WriteLine("Compiled crawling speeds: both 32-word copies, 384 real resets, 262144 sentinel resets and 524288 Yard sign pairs match native values without a bus.");
+        Console.WriteLine("Compiled crawling speeds: both 32-word copies, 384 real resets, and every sentinel reset and Yard sign pair of a reversible velocity match native values without a bus.");
     }
 
     /// <summary>Runs the focused compiled crawler speed check.</summary>

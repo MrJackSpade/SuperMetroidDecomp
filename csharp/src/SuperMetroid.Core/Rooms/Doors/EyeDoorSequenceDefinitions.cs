@@ -22,7 +22,7 @@ internal static class EyeDoorSequenceDefinitions
     internal const int HitThreshold = 3;
 
     /// <summary>How many times the destroyed eye flashes to the blue cap before it turns into it.</summary>
-    internal const int OpeningFlashes = 10;
+    private const int OpeningFlashes = 10;
 
     /// <summary>How near Samus must stand, across and up or down, to open the closed eye or keep it watching.</summary>
     internal static Extent16<RoomBlocks> WakeReach { get; } = new(6, 4);
@@ -87,7 +87,7 @@ internal static class EyeDoorSequenceDefinitions
             ],
         });
 
-    /// <summary>The closed eye, for four updates before it looks for Samus again.</summary>
+    /// <summary>The closed eye, held for its beat before it looks for Samus again.</summary>
     internal static Animation<EyeDoorSegment> Closed { get; } = Once(S.Closed);
 
     /// <summary>The eye opening as Samus nears.</summary>

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.SaveStation;
 
 /// <summary>The save-station electricity's typed animation: its discharge (#2061).</summary>
 internal sealed class SaveStationElectricityAnimation()
-    : EnemyProjectileCommonFrameAnimation<SaveStationElectricitySegment>(SaveStationElectricityAnimations.Discharge)
+    : EnemyProjectileCommonFrameAnimation<SaveStationElectricitySegment>(SaveStationElectricityAnimations.Discharge, EnemyProjectileCueRunners.Common<SaveStationElectricitySegment>())
 {
     /// <summary>The segment the discharge starts at: its cycle.</summary>
     private protected override SaveStationElectricitySegment SegmentStartedAt(Animation<SaveStationElectricitySegment> started) =>

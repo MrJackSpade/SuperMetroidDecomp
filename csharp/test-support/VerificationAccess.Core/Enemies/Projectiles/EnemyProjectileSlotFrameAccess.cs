@@ -24,7 +24,8 @@ internal static class EnemyProjectileSlotFrameAccess
     extension(EnemyProjectile self)
     {
         /// <summary>The bank-$8D spritemap word the native slot holds: zero once freed, the blank map under a program frame.</summary>
-        internal ushort SpritemapPointer => self.Frame is not { } frame ? (ushort)0
+        internal ushort SpritemapPointer => self.Frame is not { } frame
+                ? self.IsActive ? EnemyProjectileSpritemapDefinitions.BlankSpritemap : (ushort)0
             : EnemyProjectileFrames.IsComposition(frame) ? EnemyProjectileFrames.Composition(frame)
             : EnemyProjectileSpritemapDefinitions.BlankSpritemap;
 

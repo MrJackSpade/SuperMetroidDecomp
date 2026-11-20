@@ -14,6 +14,6 @@ internal static class InstalledXrayOverlaysAccess
         /// <summary>Explicitly partial room overlays for focused fixtures; never an installed catalog.</summary>
         internal static InstalledXrayOverlays FromOverlaysForVerification(IReadOnlyDictionary<InWorldCollectibleKind, RoomBlockAppearance> tankBlocks,
             IEnumerable<XrayRoomOverlayBlocks> rooms) =>
-            new InstalledXrayOverlays(tankBlocks, rooms, requiredOverlays: []);
+            global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.Abilities.Artwork.InstalledXrayOverlays>([typeof(global::System.Collections.Generic.IReadOnlyDictionary<global::SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind, global::SuperMetroid.Core.Rooms.LevelData.RoomBlockAppearance>), typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Samus.Abilities.XrayRoomOverlayBlocks>), typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinition>)], new object?[] { tankBlocks, rooms, (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinition>)([]) });
     }
 }

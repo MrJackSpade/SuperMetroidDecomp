@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -27,7 +26,8 @@ internal sealed class ActiveRoomState
     /// <summary>The source room's foreground screen during a door's opening scroll, or null (#1346).</summary>
     internal RoomDoorBackground? DoorSourceBackground { get; set; }
 
-    /// <summary>The load-station record that established the loading or loaded room; null for a room entered otherwise.</summary>
+    /// <summary>The load station that established the loading or loaded room; null for a room entered
+    /// otherwise.</summary>
     public LoadStation? ActiveLoadStation => _construction is { } construction ? construction.LoadStation : Scope?.LoadStation;
 
     /// <summary>Whether a room is loaded: none before the runtime's first room load completes, then the last one's.</summary>
@@ -62,18 +62,14 @@ internal sealed class ActiveRoomState
     }
 
     /// <summary>The value one room view reads: the part under construction during a load, otherwise the loaded scope's.</summary>
-    internal T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
+    private T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
         _construction is { } construction ? building(construction) : Scope is { } scope ? loaded(scope) : null;
 
-    /// <summary>The selected room/state definition for a generic backed room.</summary>
+    /// <summary>The selected room and state of the room loading or loaded.</summary>
     public SelectedRoom? ActiveRoom => View(c => c.Room, s => s.Room);
 
     /// <summary>The load-station door whose setup established the current room.</summary>
     public DoorDefinition? ActiveDoor => View(c => c.Door, s => s.Door);
-
-
-    /// <summary>The loaded room's Ceres elevator arrival; null while a load builds the next room's scope.</summary>
-    public CeresElevatorArrivalState? CeresElevatorArrival => _construction is null ? Scope?.CeresElevatorArrival : null;
 
     /// <summary>What one room's main hands the next, which room loading never clears.</summary>
     public RoomMainHandOvers RoomMainHandOvers { get; } = new();
@@ -91,7 +87,7 @@ internal sealed class ActiveRoomState
     /// Active room's loaded foreground, block behaviours and background. Rendering and collision must
     /// share this instance; null means no room level data has been loaded yet.
     /// </summary>
-    public RoomLevelData? LevelData => View(c => c.LevelData, s => s.LevelData);
+    private RoomLevelData? LevelData => View(c => c.LevelData, s => s.LevelData);
 
     /// <summary>The loading or loaded room's bombs, for frame roots such as the accepted-frame publication.</summary>
     internal SamusBombProjectileSystem? BombProjectiles => View(c => c.BombProjectiles, s => s.BombProjectiles);

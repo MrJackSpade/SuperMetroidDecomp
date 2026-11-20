@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public static class PowerBombGlowColorExtractor
 {
         /// <summary>The five-bit channel in each stored fixed-colour byte.</summary>
-        public const int ComponentMask = 0b1_1111;
+        private const int ComponentMask = 0b1_1111;
 
     /// <summary>Imports the sixteen pre-explosion and thirty-two explosion glow colours used by Power Bomb effects.</summary>
     /// <param name="bus">Non-null cartridge import address space containing the native three-byte fixed-color sequences.</param>

@@ -5,10 +5,11 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// (<see cref="NorfairLavaJumperFollowerEntity"/>) showing its second half while it rises.
 /// </summary>
 /// <param name="species">The Squeept species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class SqueeptEntity(SqueeptBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
+internal sealed class SqueeptEntity(SqueeptBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal SqueeptState State { get; } = SqueeptBehavior.InitializeSqueept(place);

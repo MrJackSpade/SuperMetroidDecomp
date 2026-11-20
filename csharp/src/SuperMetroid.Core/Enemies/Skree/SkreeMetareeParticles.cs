@@ -10,7 +10,7 @@ internal static class SkreeMetareeParticles
 {
 
     /// <summary>A Skree's or Metaree's burst particle (#1760): it flies under gravity until it leaves the camera.</summary>
-    internal static EnemyProjectileBehavior Behavior { get; } = new SingleMotionProjectileBehavior(
+    private static EnemyProjectileBehavior Behavior { get; } = new SingleMotionProjectileBehavior(
         context => Fly(context.Projectile, context.Camera));
 
     /// <summary>
@@ -19,13 +19,13 @@ internal static class SkreeMetareeParticles
     /// launch (<see cref="MetalParticleBurstDefinitions"/>). Each enemy's particles are its own: they show its look and draw
     /// from its own spawned-object sheet (#1435).
     /// </summary>
-    internal static void SpawnBurst(EnemyProjectileEngine projectiles, RoomEnemyPlace source, SkreeMetareeParticleSegment look)
+    internal static void SpawnBurst(EnemyProjectileEngine projectiles, RoomEnemyOccupant occupant, RoomEnemyPlace source, SkreeMetareeParticleSegment look)
     {
         Ensure.NotNull(projectiles);
-        SpawnParticle(projectiles, source, look, MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.OuterRightVelocity);
-        SpawnParticle(projectiles, source, look, MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.InnerRightVelocity);
-        SpawnParticle(projectiles, source, look, -MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.OuterRightVelocity.ReversedX());
-        SpawnParticle(projectiles, source, look, -MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.InnerRightVelocity.ReversedX());
+        SpawnParticle(projectiles, occupant, source, look, MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.OuterRightVelocity);
+        SpawnParticle(projectiles, occupant, source, look, MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.InnerRightVelocity);
+        SpawnParticle(projectiles, occupant, source, look, -MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.OuterRightVelocity.ReversedX());
+        SpawnParticle(projectiles, occupant, source, look, -MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.InnerRightVelocity.ReversedX());
     }
 
     /// <summary>Flies a particle under gravity, removing it once it leaves the view, whose right and bottom edges are already outside.</summary>
@@ -38,26 +38,21 @@ internal static class SkreeMetareeParticles
     }
 
     /// <summary>
-    /// Spawns one particle through the projectile spawn's definition copy (damage four, contact enabled, Skree or Metaree
+    /// Spawns one particle through the projectile spawn's definition copy (its damage, contact enabled, Skree or Metaree
     /// animation), then applies the shared particle setup's position and velocity. A spawn that finds
     /// every place held spawns nothing.
     /// </summary>
     private static void SpawnParticle(
         EnemyProjectileEngine projectiles,
-        RoomEnemyPlace source,
+        RoomEnemyOccupant occupant, RoomEnemyPlace source,
         SkreeMetareeParticleSegment look,
         int xOffset,
         PixelVelocity<RoomPixels> velocity)
     {
-        EnemyProjectile? particle = projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? particle = projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SkreeMetareeParticle, Behavior, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (particle is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            particle,
-            RoomEnemyProjectileKind.SkreeMetareeParticle,
-            Behavior,
-            SpriteGraphics.SpawnedBy(source));
         particle.StartAnimation(new SkreeMetareeParticleAnimation(look));
         particle.Position = particle.Position.WithWhole(new(source.Position.X.Whole + xOffset, source.Position.Y.Whole));
         particle.Velocity = velocity;

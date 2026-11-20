@@ -68,16 +68,16 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             if ($word -ne $fixedArgumentWords[$name]) { throw ('{0} argument {1:X4} differs from its fixed word.' -f $name, $word) }
             return 'null'
         }
-        if ($name -match '^(Chozo|Exposed|ShotBlock)') { return 'new CollectedItemArgument(@@ITEM:{0}@@)' -f $word }
+        if ($name -match '^(Chozo|Exposed|ShotBlock)') { return 'new CollectibleIdentity(@@ITEM:{0}@@)' -f $word }
         if ($name -match '^(GreyDoor|BombTorizoGreyDoor)') {
             $persistence = if (($word -band 0x8000) -eq 0) { 'Persistent' } else { 'Transient' }
             $condition = ($word -shr 10) -band 0x1f
             if ($condition -ge $greyDoorConditions.Count) { throw ('Grey door {0} argument {1:X4} selects no condition.' -f $name, $word) }
-            return 'new GreyDoorArgument(GreyDoorCondition.{0}, new LockedDoorArgument(@@DOOR:{1}@@, DoorOpeningPersistence.{2}))' -f $greyDoorConditions[$condition], ($word -band 0x3ff), $persistence
+            return 'new GreyDoorOpening(GreyDoorCondition.{0}, new DoorLock(@@DOOR:{1}@@, DoorOpeningPersistence.{2}))' -f $greyDoorConditions[$condition], ($word -band 0x3ff), $persistence
         }
         if ($name -match '^((Red|Green|Yellow)Door|EyeDoor)') {
             if (($word -band 0x8000) -ne 0) { throw ('Door {0} argument {1:X4} never persists.' -f $name, $word) }
-            return 'new LockedDoorArgument(@@DOOR:{0}@@, DoorOpeningPersistence.Persistent)' -f $word
+            return 'new DoorLock(@@DOOR:{0}@@, DoorOpeningPersistence.Persistent)' -f $word
         }
         # A refill station's word numbers it in room data, but neither its setup nor its refill reads the number (#1623):
         # the station is placed without an argument.
@@ -89,11 +89,11 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             $entry = $word -shr 1
             if ($name -eq 'DownwardGateShotBlock') {
                 if ($entry -ge $gateTriggerColors.Count * $gateTriggerSides.Count) { throw ('{0} argument {1:X4} selects no trigger.' -f $name, $word) }
-                return 'new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.{0}, HorizontalDirection.{1}))' -f $gateTriggerColors[$entry -shr 1], $gateTriggerSides[$entry -band 1]
+                return 'new GateShotTrigger(new DownwardGateTrigger(DownwardGateTriggerColor.{0}, HorizontalDirection.{1}))' -f $gateTriggerColors[$entry -shr 1], $gateTriggerSides[$entry -band 1]
             }
             if ($entry -ge $metroidRoomEvents.Count) { throw ('{0} argument {1:X4} selects no entry.' -f $name, $word) }
             if ($null -eq $metroidRoomEvents[$entry]) { return '@@HELDPLACE@@' }
-            return 'new MetroidRoomArgument(StoryEvent.{0})' -f $metroidRoomEvents[$entry]
+            return 'new WatchedMetroidRoom(StoryEvent.{0})' -f $metroidRoomEvents[$entry]
         }
         throw ('Room-object kind {0} has no decoded room argument for {1:X4}.' -f $name, $word)
     }
@@ -124,7 +124,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $statePhrases = @{}
     $roomPhrases = @{}
     foreach ($stateFile in Get-ChildItem (Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/World/RoomStates') -Filter '*RoomStateDefinitions.cs') {
-        foreach ($match in [regex]::Matches([IO.File]::ReadAllText($stateFile.FullName), '/// <summary>The ([^<]+?)''s ([^<]+)\.</summary>\s*public static RoomStateSettings (\w+) \{ get; \} =\s*new\("\3"[^;]*?RoomObjectPopulationDefinitions\.(\w+)')) {
+        foreach ($match in [regex]::Matches([IO.File]::ReadAllText($stateFile.FullName), '/// <summary>The ([^<]+?)''s ([^<]+)\.</summary>\s*public static RoomStateSettings (\w+) \{ get; \} =\s*new\("\w+"[^;]*?RoomObjectPopulationDefinitions\.(\w+)')) {
             $statePopulations[$match.Groups[3].Value] = $match.Groups[4].Value
             $statePhrases[$match.Groups[3].Value] = [pscustomobject]@{ Room = 'the ' + $match.Groups[1].Value; State = $match.Groups[2].Value }
         }
@@ -350,7 +350,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                     if ($areas.Count -ne 1) { throw "Save station population $name is loaded by no single area." }
                     $stationKey = '{0}:{1}' -f $areas[0], $Matches[1]
                     if (-not $stationsByAreaNumber.ContainsKey($stationKey)) { throw "Save station population $name names no load station $stationKey." }
-                    $argumentText = 'new SaveStationArgument(LoadStationDefinitions.{0})' -f $stationsByAreaNumber[$stationKey]
+                    $argumentText = 'new SaveStationPlace(LoadStationDefinitions.{0})' -f $stationsByAreaNumber[$stationKey]
                 }
                 foreach ($token in [regex]::Matches($argumentText, '@@(DOOR|ITEM):(\d+)@@')) {
                     $placements = if ($token.Groups[1].Value -eq 'DOOR') { $doorPlacements } else { $itemPlacements }
@@ -715,7 +715,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             'new(new({0}, {1}), RoomScrollState.{2})' -f $_.Column, $_.Row, $stateName
         })
         $scrollLines.Add(('            [RoomScrollChange.{0}] = [{1}],' -f $change.Name, ($writes -join ', ')))
-        $identityLines.Add(('    /// <summary>In the {0} room, {1}.</summary>' -f $change.Room, $change.Summary))
+        if (-not $roomPhrases.ContainsKey($change.Room)) { throw "Scroll change $($change.Name)'s room $($change.Room) has no state summary naming it." }
+        $identityLines.Add(('    /// <summary>In {0}, {1}.</summary>' -f $roomPhrases[$change.Room], $change.Summary))
         $identityLines.Add(('    {0},' -f $change.Name))
         $identityLines.Add('')
         $nativeLines.Add(('            [RoomScrollChange.{0}] = 0x{1:x4},' -f $change.Name, $pointer))

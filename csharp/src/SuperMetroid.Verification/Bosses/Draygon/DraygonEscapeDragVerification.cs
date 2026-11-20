@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Draygon;
@@ -21,7 +22,7 @@ internal static class DraygonEscapeDragVerification
         samus.DraygonGrabbed.Begin(samus, draygonFacing: HorizontalDirection.Left);
         samus.DraygonGrabbed.Release(samus);
 
-        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = new DraygonPhase.CarrySamus() };
+        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.DraygonBody), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = new DraygonPhase.CarrySamus() };
         state.Body.Position = state.Body.Position.WithWhole(new(0x013b, 0x0176));
         enemies.DraygonBehavior.Grab.MoveSamusWithDraygon(state, samus);
 

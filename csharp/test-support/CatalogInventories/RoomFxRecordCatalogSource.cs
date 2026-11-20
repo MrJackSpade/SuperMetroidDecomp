@@ -16,6 +16,13 @@ namespace SuperMetroid.TestSupport.CatalogInventories;
 /// <summary>Reads the retail room-FX headers and renders the generated Core catalog that holds them.</summary>
 internal static class RoomFxRecordCatalogSource
 {
+    /// <summary>Each catalog selection's member name in <see cref="RoomFxDefinitions"/>, which names it in the generated catalog.</summary>
+    private static readonly Dictionary<RoomFxSelection, string> SelectionNames = typeof(RoomFxDefinitions)
+        .GetProperties(BindingFlags.Public | BindingFlags.Static)
+        .Where(property => property.PropertyType == typeof(RoomFxSelection))
+        .ToDictionary(property => (RoomFxSelection)(property.GetValue(null)
+            ?? throw new InvalidDataException($"Room FX selection {property.Name} is null.")), property => property.Name);
+
     /// <summary>The checked-in generated catalog the renderer's output must equal.</summary>
     internal static readonly string GeneratedPath = Path.GetFullPath(Path.Combine(
         "csharp", "src", "SuperMetroid.Core", "Fx", "RoomFxDefinitions.cs"));
@@ -268,7 +275,8 @@ internal static class RoomFxRecordCatalogSource
         string surface = $", the liquid level starting at line {start.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
         if (effect.LiquidTargetLevel is not int target)
             return surface;
-        return surface + (effect.LiquidLevelSpeed.IsNegative ? " and rising to line " : " and falling to line ") +
+        // Levels are lines from the room's top, so a target above the start is a rise.
+        return surface + (target < start ? " and rising to line " : target > start ? " and falling to line " : " and holding at line ") +
             target.ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 
@@ -314,7 +322,7 @@ internal static class RoomFxRecordCatalogSource
             if (!first)
                 source.AppendLine();
             first = false;
-            string name = RoomFxSources.Fx(header).Name;
+            string name = SelectionNames[RoomFxSources.Fx(header)];
             ushort[] doorRecords = [.. pointers.TakeWhile(capture.Doors.ContainsKey)];
             ushort[] rest = [.. pointers.Skip(doorRecords.Length)];
             if ((rest.Length > 0 && MotherBrainRecordNames.ContainsKey(rest[0])) ||
@@ -322,10 +330,10 @@ internal static class RoomFxRecordCatalogSource
                 throw new InvalidDataException($"Room FX header {name} lists a record after its default that Mother Brain's fight does not apply.");
             source.AppendLine($"    /// <summary>{SelectionSummary(rest.Length == 0 ? null : capture.Records[rest[0]], doorRecords.Length)}</summary>");
             if (doorRecords.Length == 0)
-                source.AppendLine($"    public static RoomFxSelection {name} {{ get; }} = new(nameof({name}), [],");
+                source.AppendLine($"    public static RoomFxSelection {name} {{ get; }} = new([],");
             else
             {
-                source.AppendLine($"    public static RoomFxSelection {name} {{ get; }} = new(nameof({name}),");
+                source.AppendLine($"    public static RoomFxSelection {name} {{ get; }} = new(");
                 source.AppendLine("    [");
                 foreach (ushort pointer in doorRecords)
                     source.AppendLine($"        new({RenderDoor(capture.Doors[pointer])}, {RenderRecord(capture.Records[pointer])}),");

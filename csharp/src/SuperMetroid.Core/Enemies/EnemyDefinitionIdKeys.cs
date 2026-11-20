@@ -9,7 +9,6 @@ internal static class EnemyDefinitionIdKeys
     /// <summary>Each EnemyDefinitionId member's installed key.</summary>
     internal static InstalledKeys<EnemyDefinitionId> Installed { get; } = new(new Dictionary<EnemyDefinitionId, string>
     {
-        [EnemyDefinitionId.None] = "None",
         [EnemyDefinitionId.Boyon] = "Boyon",
         [EnemyDefinitionId.MamaTurtle] = "MamaTurtle",
         [EnemyDefinitionId.BabyTurtle] = "BabyTurtle",
@@ -165,7 +164,6 @@ internal static class EnemyDefinitionIdKeys
     /// <summary>The EnemyDefinitionId members in the order the installation lists them (#2567), written out beside the keys so reordering the members never reorders an installed sheet or document.</summary>
     internal static IReadOnlyList<EnemyDefinitionId> ListedOrder { get; } =
     [
-        EnemyDefinitionId.None,
         EnemyDefinitionId.Boyon,
         EnemyDefinitionId.MamaTurtle,
         EnemyDefinitionId.BabyTurtle,

@@ -33,7 +33,7 @@ public sealed class CeresFlightSpritePresentation : ICinematicSpriteFrames
 
     /// <summary>Loads exactly the six named visual compositions, rejecting duplicate properties, unsupported versions, missing frames, and invalid OAM parts; compiles selected artwork without importing actor timing or motion.</summary>
     /// <param name="json">Caller-owned UTF-8 JSON stream containing the versioned Ceres flight sprite document.</param>
-    /// <returns>The immutable bank-$8C-keyed presentation shared by approach and destruction scenes.</returns>
+    /// <returns>The immutable presentation shared by approach and destruction scenes, its compositions keyed by the poses that show them.</returns>
     public static CeresFlightSpritePresentation Load(Stream json)
     {
         Ensure.NotNull(json);

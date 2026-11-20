@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// The state of a growing shutter: its behaviour, its spawn row and growth direction, from which its four 16-pixel growth
+/// The state of a growing shutter: its behaviour, its spawn row and growth direction, from which its growth
 /// sections' origins follow, its growth level and its extended movement state. It reads how near Samus must come and how
 /// fast it grows from its spawn settings where it uses them (#2450).
 /// </summary>
@@ -30,7 +30,7 @@ public sealed class GrowingShutterEnemyState
     }
 
     /// <summary>The row the shutter spawned at, the first section's origin (#2183).</summary>
-    public int SpawnY { get; internal set; }
+    public int SpawnY { get; private set; }
 
     /// <summary>The way the shutter grows, from its spawn row.</summary>
     public VerticalDirection Growth { get; }
@@ -45,19 +45,19 @@ public sealed class GrowingShutterEnemyState
     public GrowingShutterAction Action { get; internal set; }
 
     /// <summary>
-    /// The timer-mode activation updates left, the one it grows on included: the placement's wait and the call it runs out on
-    /// (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>), so a wait of N grows on call N + 1 (#2281).
+    /// The timer-mode wait before the shutter grows: it grows on the update after its placement's wait
+    /// (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>) (#2281).
     /// </summary>
     public UpdateCountdown ActivationTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The origin row of the section grown at <paramref name="level"/>, derived from the spawn row (#2183): level 0 is the
-    /// spawn row and each later level is eight pixels further along the growth direction. Every placement grows down
-    /// from inside the room. A growing shutter only ever moves vertically, so a section's origin is a row
+    /// spawn row and each later level is <see cref="SectionOriginSpacing"/> further along the growth direction, down or
+    /// up. A growing shutter only ever moves vertically, so a section's origin is a row
     /// in the shutter's own column.
     /// </summary>
-    /// <param name="level">The growth level, 0 through 3.</param>
-    public int SectionOriginY(int level) =>
+    /// <param name="level">The growth level, from the spawn row's onward.</param>
+    private int SectionOriginY(int level) =>
         SpawnY + Ensure.BetweenInclusive(0, SectionCount - 1, level) *
             (SectionOriginSpacing.Toward(Growth));
 

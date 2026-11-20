@@ -20,7 +20,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SporeSpawn];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new SporeSpawnEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.Of(new SporeSpawnEntity(this, occupant, place, common));
 
     /// <summary>Provides boss event state, installed colors, and the room RNG.</summary>
     private readonly EnemyRoomBinding _room;
@@ -64,7 +64,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
     /// <summary>Sets Spore Spawn up when the room spawns it; his body holds his encounter from here on (#2231).</summary>
-    internal SporeSpawnEnemyState InitializeSporeSpawn(RoomEnemyPlace body)
+    internal SporeSpawnEnemyState InitializeSporeSpawn(RoomEnemyOccupant occupant, RoomEnemyPlace body)
     {
         var state = new SporeSpawnEnemyState
         {
@@ -78,7 +78,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Shading = state.Colours.Sprites;
 
         // He hangs from the ceiling by the stalk's links, the last he spawns highest (#1932).
-        state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => SpawnSporeSpawnStalk(body, segment)).OfType<EnemyProjectile>().Reverse()];
+        state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => SpawnSporeSpawnStalk(occupant, body, segment)).OfType<EnemyProjectile>().Reverse()];
 
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
@@ -96,7 +96,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _frameContext.RequestFullSweep();
         _cameraFloor.Hold(SporeSpawnArenaDefinitions.LowestCameraY);
         foreach (SporeSpawnEmitter emitter in SporeSpawnProjectileDefinitions.Emitters)
-            SpawnSporeSpawnSpawner(body, state, emitter);
+            SpawnSporeSpawnSpawner(occupant, body, state, emitter);
         UpdateSporeSpawnStalks(body, state);
         return state;
     }
@@ -155,10 +155,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Position = body.Position.WithWholeX(
             state.MovementCenter.X +
             EnemyMath.CircleCosinePixels(state.Angle.ToTrigonometryAngle(), state.SwayRadius.Reach.X));
-        // The vertical sway turns twice as fast as the horizontal, from a quarter turn behind it, sixteen pixels
-        // narrower. Spore Spawn only moves once the fight has started, which sets the radius to 48 or 64 first; the only
-        // other way into movement is a hit on the exposed core, which only the open frames after that start carry. The
-        // radius therefore never lies below sixteen when it is read.
+        // The vertical sway turns twice as fast as the horizontal, from a quarter turn behind it, narrower by its
+        // narrowing. Spore Spawn only moves once the fight has started, which sets the radius first; the only other way
+        // into movement is a hit on the exposed core, which only the open frames after that start carry. The radius
+        // therefore never lies below the narrowing when it is read.
         TrigonometryAngle swayBehind = (state.Angle - RotationAngle.QuarterTurn).ToTrigonometryAngle();
         body.Position = body.Position.WithWholeY(
             state.MovementCenter.Y +
@@ -194,13 +194,13 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         UpdateSporeSpawnStalks(body, state);
         // The dust follows the game's frame counter.
-        if (SporeSpawnCadenceDefinitions.IdleDustEverySixteenthUpdate.IsDue(_frameContext.FrameCounter))
+        if (SporeSpawnCadenceDefinitions.IdleDust.IsDue(_frameContext.FrameCounter))
         {
             int random = _room.Random.Generate();
             _ = _effectActors.SpawnRoomEffectActor(
                 new(SporeSpawnRandomDefinitions.IdleDustX.Of(random) + SporeSpawnArenaDefinitions.IdleDustLeft, SporeSpawnRandomDefinitions.IdleDustY.Of(random) + SporeSpawnArenaDefinitions.IdleDustTop),
                 RoomEffectActorKind.BigDustCloud,
-                graphics: default);
+                graphics: SpriteGraphics.SharedStandard);
         }
     }
 
@@ -316,14 +316,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 // His frames' hitboxes meet a shot with his shell's dud or his core's own reaction.
                 if (c.HitboxShot == EnemyReaction.DudShot)
                 {
-                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                     _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                     return true;
                 }
                 if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
                 {
                     // The shot has struck the vulnerable core, whose shot reaction rejects it before common damage.
-                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                     return true;
                 }
                 return false;
@@ -419,7 +419,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Deletes every enemy projectile but his stalk's links, as his death does: the stalk survives for the death animation
     /// (#1932).
     /// </summary>
-    internal void DeleteProjectilesButStalk(SporeSpawnEnemyState state)
+    private void DeleteProjectilesButStalk(SporeSpawnEnemyState state)
     {
         foreach (EnemyProjectile projectile in _projectiles.EnemyProjectiles)
         {
@@ -475,7 +475,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Shows <paramref name="band"/>'s colours of <paramref name="state"/> on his <paramref name="body"/>.</summary>
-    internal static void ShowSporeSpawnHealthShade(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnHealthBand band)
+    private static void ShowSporeSpawnHealthShade(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnHealthBand band)
     {
         state.Colours.ShowHealth(band);
         body.Shading = state.Colours.Sprites;
@@ -485,7 +485,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Shows step <paramref name="step"/> of his death fade over his body, the room's level and its background (#1512),
     /// as the import's shades of it.
     /// </summary>
-    internal static void ShowSporeSpawnDeathShade(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnDeathFadeStep step)
+    private static void ShowSporeSpawnDeathShade(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnDeathFadeStep step)
     {
         state.Colours.ShowDeath(step);
         body.Shading = state.Colours.Sprites;
@@ -508,7 +508,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _ = _effectActors.SpawnRoomEffectActor(
             new(body.Position.X.Whole + SporeSpawnRandomDefinitions.DyingExplosionX.Of(random) - SporeSpawnArenaDefinitions.DyingExplosionCentring.X, body.Position.Y.Whole + SporeSpawnRandomDefinitions.DyingExplosionY.Of(random) - SporeSpawnArenaDefinitions.DyingExplosionCentring.Y),
             RoomEffectActorKind.SmallExplosion,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         RequestSporeSpawnSound(SporeSpawnSoundDefinitions.DyingExplosion);
     }
 
@@ -526,17 +526,12 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             yScatter: SporeSpawnRandomDefinitions.DropY,
             samus: samus);
     /// <summary>Spawns the stalk link at <paramref name="segment"/> from his body and returns it, or none when the pool is full (#1932).</summary>
-    internal EnemyProjectile? SpawnSporeSpawnStalk(RoomEnemyPlace body, Offset16<RoomPixels> segment)
+    private EnemyProjectile? SpawnSporeSpawnStalk(RoomEnemyOccupant occupant, RoomEnemyPlace body, Offset16<RoomPixels> segment)
     {
-        if (_projectiles.AllocateEnemyProjectile() is not { } stalk)
+        if (_projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk, SpriteGraphics.SpawnedBy(occupant, body.Shading)) is not { } stalk)
             return null;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            stalk,
-            RoomEnemyProjectileKind.SporeSpawnStalk,
-            Stalk,
-            SpriteGraphics.SpawnedBy(body));
-        stalk.StartAnimation(new SporeSpawnStalkAnimation());
+        stalk.StartAnimation(new SporeSpawnStalkAnimation(Spawner, ));
         stalk.Position = stalk.Position.WithWhole(body.Position.Whole + segment);
         return stalk;
     }
@@ -546,9 +541,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="emitter">What the spawner keeps: Spore Spawn and the way its spores drift.</param>
     internal SporeSpawnSpawnerBehavior Spawner(SporeSpawnEmitterState emitter) => new(_room, _projectiles, _deathsAndDrops, emitter);
 
-    internal void SpawnSporeSpawnSpawner(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnEmitter emitter)
+    private void SpawnSporeSpawnSpawner(RoomEnemyOccupant occupant, RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnEmitter emitter)
     {
-        EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnSpawner, Spawner, SpriteGraphics.SpawnedBy(occupant, body.Shading));
         if (spawner is null)
             return;
 
@@ -563,14 +558,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The reaction of the first hitbox the probe overlaps on Spore Spawn's frame, or null when the frame is not one of his
-    /// collision frames; his own entity asks (#2301).
+    /// The first hitbox the probe overlaps on Spore Spawn's frame, whose reaction runs, or none; his own entity asks
+    /// (#2301).
     /// </summary>
-    internal static bool? FindSporeSpawnHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <exception cref="InvalidDataException">The frame is not one of his collision frames.</exception>
+    internal static EnemyHitboxContact FindSporeSpawnHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
         if (!SporeSpawnCollision.IsFrame(enemy.Frame))
-            return null;
+            throw EnemyCollision.UncoveredFrame(enemy);
 
         // Every rectangle and reaction of these eleven frames comes from Spore Spawn's collision catalog.
         foreach (EnemyCollisionComponent component in
@@ -585,10 +580,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 }

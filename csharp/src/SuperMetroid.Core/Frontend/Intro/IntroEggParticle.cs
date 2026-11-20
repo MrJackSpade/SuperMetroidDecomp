@@ -8,15 +8,14 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroEggParticle
 {
     /// <summary>The cinematic sprite showing the fragment: its position and animation.</summary>
-    internal readonly CinematicActor<IntroEggEffectAnimation, CinematicSpritePose, NoAnimationCue> sprite;
+    private readonly CinematicActor<IntroEggEffectAnimation, CinematicSpritePose, NoAnimationCue> sprite;
 
     /// <summary>Which piece of the shell this is: it selects the fragment's animation and horizontal velocity, and never changes.</summary>
     private readonly IntroEggShellFragment fragment;
 
     /// <summary>
-    /// The fragment's fall, counted once each update it flies: its age is its step along the fall's gravity curve, then
-    /// past it (#1781). Every fragment reaches the floor within its curve or the installed steps past it, and a later step
-    /// throws.
+    /// The updates the piece has fallen (#1781): its age is its step along the fall's gravity curve, then past it.
+    /// Every piece reaches the floor within its curve or the installed steps past it.
     /// </summary>
     private readonly UpdateCountdown fall;
 

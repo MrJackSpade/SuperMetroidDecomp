@@ -19,7 +19,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     /// <summary>WinMM result code indicating a completed device operation.</summary>
     private const uint MultimediaSuccess = 0;
     /// <summary>Pinned hardware buffers submitted in a rotating sequence.</summary>
-    internal readonly BufferSlot[] slots = [];
+    private readonly BufferSlot[] slots = [];
     /// <summary>Silent PCM submitted before resumed gameplay frames when preroll is required.</summary>
     private readonly short[] prerollSilence = [];
     /// <summary>Requested output gain applied to submitted samples.</summary>
@@ -28,7 +28,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     private readonly PendingFrameQueue pendingFrames = new(
         WaveOutAudioPolicy.ManagedQueueCapacityFrames);
     /// <summary>Serializes WinMM operations with reset and disposal.</summary>
-    internal readonly Lock deviceGate = new();
+    private readonly Lock deviceGate = new();
     /// <summary>Background owner of blocking waveOut buffer submission.</summary>
     private readonly Thread submissionWorker;
     /// <summary>Open WinMM wave output handle, or zero after cleanup.</summary>
@@ -38,9 +38,9 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     /// <summary>Changes on reset so queued frames from an earlier run can be discarded.</summary>
     private long queueGeneration;
     /// <summary>Number of managed frames admitted to the submission queue.</summary>
-    internal long enqueuedFrames;
+    private long enqueuedFrames;
     /// <summary>Number of frames completed by the submission worker.</summary>
-    internal long completedFrames;
+    private long completedFrames;
     /// <summary>Original worker exception rethrown on the UI submission thread.</summary>
     private ExceptionDispatchInfo? workerFailure;
     /// <summary>Requests silent hardware-buffer preroll after startup or reset.</summary>
@@ -382,7 +382,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     }
 
     /// <summary>Rethrows a captured worker error on the caller's thread.</summary>
-    internal void ThrowWorkerFailure() =>
+    private void ThrowWorkerFailure() =>
         Volatile.Read(ref workerFailure)?.Throw();
 
     /// <summary>Raises a device exception when a WinMM call does not report success.</summary>

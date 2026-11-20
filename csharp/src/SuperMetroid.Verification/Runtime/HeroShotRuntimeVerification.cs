@@ -74,7 +74,7 @@ internal static class HeroShotRuntimeVerification
                     // The recorded type word is compared as the projectile it decodes to: the column agrees when the
                     // shot is that projectile.
                     const int TypeColumn = 13;
-                    ushort type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(expected[TypeColumn]) == shot.Type
+                    ushort type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(expected[TypeColumn]) == shot.RecordedType
                         ? expected[TypeColumn] : unchecked((ushort)~expected[TypeColumn]);
                     ushort[] actual = [samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction,
                         samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction, (SamusPoseNumbers.Number(samus.Pose)),
@@ -103,7 +103,7 @@ internal static class HeroShotRuntimeVerification
                 {
                     AssertTrue(shot.IsActive, "Runtime Hero fixture fires from normal gameplay input");
                 }
-                if (shot.Type.Family == SamusProjectileFamily.BeamExplosion)
+                if (shot.RecordedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impact = frame;
                     AssertTrue(shot.Position.X.Whole is >= 856 and <= 880,
@@ -141,8 +141,7 @@ internal static class HeroShotRuntimeVerification
         var level = CreateRoom(new(16, 32), blocks, new RoomBlockBehavior[blocks.Length]);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FallingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 477)) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        AssertTrue(SamusPoseTransitions.TryApplyAerialLanding(samus, level, false, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-            "Constructed landing reaches actual larger-pose collision correction");
+        SamusPoseTransitions.ApplyAerialLandingInRoom(samus, level, false, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
         AssertEqual((ushort)475, samus.Position.Y.Whole, "Landing correction preserves the old bottom boundary");
         AssertEqual(19, samus.Kinematics.Radius.Y, "landing commit retains falling radius");
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -155,8 +154,7 @@ internal static class HeroShotRuntimeVerification
             "Checkpoint event is consumed once before normal scrolling replaces it");
         var unobstructed = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FallingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 400)) };
         SamusPoseMetadata.RefreshCollisionRadii(unobstructed);
-        AssertTrue(SamusPoseTransitions.TryApplyAerialLanding(unobstructed, level, false, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-            "Unobstructed pose expansion takes the no-correction branch");
+        SamusPoseTransitions.ApplyAerialLandingInRoom(unobstructed, level, false, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
         AssertEqual(previous, unobstructed.ApplyPreviousPositionWrites(previous),
             "No-collision pose expansion leaves the existing camera checkpoint untouched");
     }

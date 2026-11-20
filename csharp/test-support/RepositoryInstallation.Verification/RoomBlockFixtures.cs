@@ -47,7 +47,7 @@ internal static class RoomBlockFixtures
         int characterWord = 0)
     {
         PaintedBlocks painted = Paint(definitions, image, palette, characterWord);
-        ComposedSpriteSheet composed = painted.Canvas.ToSplitRoomSheet(painted.Colours, painted.Frames);
+        ComposedSpriteSheet composed = painted.Canvas.ToSplitRoomSheet(painted.Colours, painted.Frames, RoomTileCanvas.EveryFrame(painted.Frames));
         SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest with { Backdrop = 0 }, "blocks-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices);
         var blocks = new RoomBlockSheet(default(TilesetDefinition), sheet, Appearances(painted.Count));
@@ -175,7 +175,7 @@ internal static class RoomBlockFixtures
             },
         };
         // The image is installed as its part behind and its part in front, as extraction installs a room's background (#1634).
-        ComposedSpriteSheet composed = canvas.ToSplitRoomSheet(colours, frames);
+        ComposedSpriteSheet composed = canvas.ToSplitRoomSheet(colours, frames, RoomTileCanvas.EveryFrame(frames));
         SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest, "loaded-background-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices);
         var background = new RoomBackgroundImage("loaded-background-fixture", sheet, canvas.Size, []);

@@ -32,7 +32,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// that burns Samus, the heat glow that paces it and the beacon that sounds, are all started by the room's effect as
     /// the room loads and run until the room ends.
     /// </summary>
-    internal readonly List<RoomColourEffect> effects = [];
+    private readonly List<RoomColourEffect> effects = [];
     /// <summary>
     /// The effects whose animations ran to their end (#1597), in the order they settled: each keeps its final frame on its
     /// colours, without taking a turn, until an effect showing the same colours settles after it or the room ends.
@@ -59,7 +59,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// </summary>
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
     /// <param name="sounds">The update's sound requests of the runtime running the effects.</param>
-    internal ColourEffectSystem(ColourEffectSessionState session, GameplaySoundRequests sounds)
+    private ColourEffectSystem(ColourEffectSessionState session, GameplaySoundRequests sounds)
     {
         _session = Ensure.NotNull(session);
         this.sounds = Ensure.NotNull(sounds);
@@ -180,7 +180,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     /// <param name="suppliedEffect">A room effect to use instead of the door's selection.</param>
     /// <param name="sounds">The update's sound requests of the runtime running the effects.</param>
-    internal static ColourEffectSystem ForEffect(ColourEffectSessionState session, RoomFxSelection? fx, DoorDefinition? door,
+    private static ColourEffectSystem ForEffect(ColourEffectSessionState session, RoomFxSelection? fx, DoorDefinition? door,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomEffectDefinition? suppliedEffect, GameplaySoundRequests sounds)
     {
@@ -333,8 +333,8 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// The heat shimmer's condition. The shimmer deliberately owns both its look and the heat's damage: an unprotected
-    /// Samus takes a quarter unit of fractional damage per update, and the shimmer restarts on the heat phase the Norfair glow
+    /// The heat shimmer's condition. The shimmer owns both its look and the heat's damage: an unprotected Samus takes the
+    /// heat's fractional damage each update, and the shimmer restarts on the heat phase the Norfair glow
     /// published, which that glow, taking its turn after the shimmer, publishes for the following update.
     /// </summary>
     private void BurnSamusInHeat(
@@ -349,7 +349,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         {
             IRoomSamus burned = samus.Current;
             burned.TakePeriodicDamage(ColourEffectHeatData.DamagePerUpdate);
-            if (ColourEffectHeatData.DamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
+            if (ColourEffectHeatData.HeatDamageSound.IsDue(frameCounter) &&
                 burned.Health > ColourEffectHeatData.DamageSoundEnergyThreshold)
             {
                 sounds.QueueSound(RoomSound.IncrementalEnergy, ColourEffectHeatData.DamageSoundPriority);
@@ -382,14 +382,14 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// The frames Samus's suit groups showed during the last update, in order (#1512): she lays the shade of each over
-    /// her suit, as each frame overwrote her suit's colours then.
+    /// The frames Samus's suit groups showed during the last update, in order (#1512): she shows each frame's shade
+    /// over her suit in turn.
     /// </summary>
     internal IReadOnlyList<ShownColourEffectFrame> SuitShown => shownOnOwners.Suit;
 
     /// <summary>
-    /// The frames the escape's shutter flash showed during the last update, in order (#1512, #2288): the room's destroyable
-    /// shutters lay the shade of each over their draws, as each frame overwrote their colours then.
+    /// The frames the escape's shutter flash showed during the last update, in order (#1512, #2288): the room's
+    /// destroyable shutters show each frame's shade over their draws in turn.
     /// </summary>
     internal IReadOnlyList<ColourEffectFrame> ShutterFlashShown => shownOnOwners.ShutterFlash;
 
@@ -416,7 +416,8 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
 
     /// <summary>
     /// The looks the colour groups show now, in the order they are laid (#1597, #1598): the settled effects' final frames,
-    /// then the running effects' frames in turn order. A look laid later lies over an earlier one on the colours it writes.
+    /// then the running effects' frames in turn order. A look laid later lies over an earlier one on the colours it
+    /// shows.
     /// </summary>
     internal IReadOnlyList<ShownColourEffectFrame> Shown => ShownFrames();
 

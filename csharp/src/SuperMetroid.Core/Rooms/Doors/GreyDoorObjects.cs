@@ -43,21 +43,21 @@ internal sealed class GreyDoorObjects
     /// <summary>The lock a cap placed with <paramref name="condition"/> waits on, with what its test reads.</summary>
     private GreyDoorLock LockFor(GreyDoorCondition condition) => condition switch
     {
-        GreyDoorCondition.AreaBossDefeated => new GreyDoorLock.BossDefeated(condition, _system, _area, DefeatedBosses.AreaBoss),
-        GreyDoorCondition.AreaMiniBossDefeated => new GreyDoorLock.BossDefeated(condition, _system, _area, DefeatedBosses.AreaMiniBoss),
-        GreyDoorCondition.AreaTorizoDefeated => new GreyDoorLock.BossDefeated(condition, _system, _area, DefeatedBosses.AreaTorizo),
+        GreyDoorCondition.AreaBossDefeated => new GreyDoorLock.BossDefeated(_system, _area, DefeatedBosses.AreaBoss),
+        GreyDoorCondition.AreaMiniBossDefeated => new GreyDoorLock.BossDefeated(_system, _area, DefeatedBosses.AreaMiniBoss),
+        GreyDoorCondition.AreaTorizoDefeated => new GreyDoorLock.BossDefeated(_system, _area, DefeatedBosses.AreaTorizo),
         GreyDoorCondition.EnemyDeathQuota => new GreyDoorLock.EnemyDeathQuota(_system),
         GreyDoorCondition.Never => new GreyDoorLock.Never(),
         GreyDoorCondition.TourianStatueFinished => new GreyDoorLock.TourianStatueFinished(_tourianStatue),
-        GreyDoorCondition.CrittersEscaped => new GreyDoorLock.EventSet(condition, _system, StoryEvent.CrittersEscaped),
+        GreyDoorCondition.CrittersEscaped => new GreyDoorLock.EventSet(_system, StoryEvent.CrittersEscaped),
         _ => throw new InvalidDataException($"Undefined {nameof(GreyDoorCondition)} {condition}."),
     };
 
     /// <summary>Installs the resident projectile-trigger collision type while preserving the block's appearance.</summary>
     private static void ApplyGreyDoorSetup(RoomLevelData level, Position16<RoomBlocks> block)
     {
-        // Grey and coloured doors' setups share the exact same collision write. Only collision and behaviour change, so the
-        // block keeps its picture and what it shows (#2502).
+        // A grey door's block becomes shootable and solid, as a coloured door's does, and keeps its picture and what it
+        // shows (#2502).
         level.SetCollision(block, RoomCollisionType.ShootableBlock);
         level.SetBehavior(block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
     }

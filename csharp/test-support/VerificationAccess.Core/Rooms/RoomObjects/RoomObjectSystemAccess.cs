@@ -68,7 +68,7 @@ internal static class RoomObjectSystemAccess
                 .Select(entry => new ColoredDoorObjectSnapshot(
                     entry.Place.Block,
                     entry.Place.NativeRoomArgument,
-                    (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
+                    (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).PlacedColor,
                     entry.Door.Orientation,
                     entry.Door.Phase, checked((byte)entry.Door.HitCounter))),
         ];
@@ -82,7 +82,7 @@ internal static class RoomObjectSystemAccess
                     entry.Place.Block,
                     entry.Place.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation,
-                    entry.Door.Lock.Condition,
+                    entry.Door.Lock.PlacedCondition,
                     // A grey cap counts only the one shot that opens it, so an opening cap has counted its hit.
                     entry.Door.Phase, entry.Door.Phase == GreyDoorPhase.Opening ? (byte)1 : (byte)0, entry.Door)),
         ];
@@ -129,7 +129,7 @@ internal static class RoomObjectSystemAccess
                     continue;
                 if (!reached)
                     return false;
-                return self.ProjectileTriggers.TryNotifyResidentProjectileHit(block, projectileType);
+                return self.ProjectileTriggers.TryNotifyResidentProjectileHit(block, BlockStrike.By(projectileType));
             }
             return false;
         }
@@ -270,17 +270,21 @@ internal static class RoomObjectSystemAccess
         /// invisible resource/timing effect. A negative BTS is filtered by bank $94 before this
         /// method is called because it denotes an area-dependent/duplicate path.
         /// </remarks>
-        /// <returns>False only when every PLM slot is occupied.</returns>
-        internal bool TrySpawnBombReactionBlock(
+        /// <returns>Whether the reaction took a room-object place: false only when every place is occupied.</returns>
+        internal bool SpawnBombReactionBlock(
             RoomLevelData level,
             Position16<RoomBlocks> position,
             byte behavior,
             SamusProjectileType projectileType)
-            => self.BlockReactions.TrySpawnBombReactionBlock(
+        {
+            int active = self.Places.ActiveCount;
+            self.BlockReactions.SpawnBombReactionBlock(
                 level,
                 position,
                 RoomBlockBehaviorCodec.Decode(behavior),
                 projectileType);
+            return self.Places.ActiveCount > active;
+        }
 
         /// <summary>
         /// Runs the normal-bomb branch of the shootable-air/block entries selected at
@@ -414,13 +418,13 @@ internal static class RoomObjectSystemAccess
             RoomLevelData level,
             Position16<RoomBlocks> position,
             byte behavior,
-            SamusProjectileType projectileType,
+            BlockStrike strike,
             bool solidBlock)
             => self.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
                 position,
                 RoomBlockBehaviorCodec.Decode(behavior),
-                projectileType,
+                strike,
                 solidBlock);
 
         /// <summary>
@@ -437,17 +441,22 @@ internal static class RoomObjectSystemAccess
         /// family `$0300` still reaches Spawn_PLM, but `$84:CFA0` clears the new PLM header
         /// synchronously; observably no terrain changes and no active slot survives.
         /// </remarks>
-        internal bool TrySpawnBombedSpecialBlock(
+        /// <returns>Whether the reveal holds a room-object place once its setup has run.</returns>
+        internal bool SpawnBombedSpecialBlock(
             RoomLevelData level,
             Position16<RoomBlocks> position,
             byte behavior,
             AreaId area,
             SamusProjectileType projectileType)
-            => self.BlockReactions.TrySpawnBombedSpecialBlock(
+        {
+            int active = self.Places.ActiveCount;
+            self.BlockReactions.SpawnBombedSpecialBlock(
                 level,
                 position,
                 RoomBlockBehaviorCodec.Decode(area, behavior),
                 projectileType);
+            return self.Places.ActiveCount > active;
+        }
 
         /// <summary>
         /// Executes <c>PLM_Handler</c>'s timer/instruction portion for all translated slots. Drawn blocks change the level

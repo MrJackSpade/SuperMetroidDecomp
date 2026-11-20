@@ -8,8 +8,9 @@ using SuperMetroid.Core.Enemies.Corpses;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Enemy presentation state: the room's appearance, the boss body layer, the shared gradual-change
-/// counter, and drawing from the installed pre-coloured sheets under each draw's shading (#1512).
+/// Enemy presentation state: the room's appearance, the boss body layer, the shared fade step count
+/// (<see cref="SharedFadeStepCount"/>), and drawing from the installed pre-coloured sheets under each draw's shading
+/// (#1512).
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyPresentation
@@ -37,7 +38,7 @@ internal sealed class EnemyPresentation
     /// The population whose artwork the room's enemies and the objects they spawn draw from (#1599): the one the room's
     /// load placed, or none for a room that has placed no enemies, which draws from the standard artwork.
     /// </summary>
-    internal RoomEnemyPopulationDefinition? DrawnPopulation { get; private set; }
+    private RoomEnemyPopulationDefinition? DrawnPopulation { get; set; }
 
     /// <summary>
     /// Room load: the room's enemies and the objects they spawn draw from <paramref name="population"/>'s artwork from now
@@ -46,7 +47,7 @@ internal sealed class EnemyPresentation
     internal void DrawPopulation(RoomEnemyPopulationDefinition population) => DrawnPopulation = Ensure.NotNull(population);
 
     /// <summary>The artwork the room draws from: its population's, or the standard artwork while it has placed no enemies.</summary>
-    internal PopulationArtwork Artwork => DrawnPopulation is { } population ? Sheets.For(population) : Sheets.Standard;
+    private PopulationArtwork Artwork => DrawnPopulation is { } population ? Sheets.For(population) : Sheets.Standard;
 
     /// <summary>What gameplay shows over the room's load (#1466), as Kraid's rise shows his backdrop.</summary>
     internal RoomAppearance Appearance
@@ -74,7 +75,7 @@ internal sealed class EnemyPresentation
     internal BossShadings BossShadings { get; } = new();
 
     /// <summary>The look each of the room's encounters shows, which the frames its looks change show their pictures of (#1538).</summary>
-    internal EncounterLooks Looks { get; }
+    private EncounterLooks Looks { get; }
 
     /// <summary>Shows <paramref name="look"/> on its encounter's frames from this update on (#1538).</summary>
     internal void ShowLook(EncounterLook look) => Looks.Show(look);

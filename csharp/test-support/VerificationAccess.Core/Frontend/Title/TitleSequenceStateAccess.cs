@@ -8,8 +8,6 @@ internal static class TitleSequenceStateAccess
     /// <summary>Reads title display and demo-timer state for focused frontend verification.</summary>
     extension(TitleSequenceState self)
     {
-        /// <summary>Current screen brightness level; zero is black and fifteen is full.</summary>
-        internal byte Brightness => (byte)self.Brightness;
 
         /// <summary>The floor's current zoom, exposed for title regression checks.</summary>
         internal FloorZoom FloorZoom => self.Zoom;

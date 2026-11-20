@@ -15,12 +15,12 @@ internal static class SpriteSheetComposer
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
     /// family is drawn with them, sixteen colours each.</param>
     /// <param name="palette">The row of parts that do not choose their own.</param>
-    /// <param name="priority">The game's priority of parts that do not choose their own, from which each frame's depth is decided.</param>
-    internal static ComposedSpriteSheet Compose(SpriteSheetSources sources, int palette, int priority) =>
-        Compose(new SpriteSheetLayout(sources, palette, priority));
+    /// <param name="depth">The depth of parts that do not choose their own, from which each frame's depth is decided.</param>
+    internal static ComposedSpriteSheet Compose(SpriteSheetSources sources, int palette, ActorDepth depth) =>
+        Compose(new SpriteSheetLayout(sources, palette, depth));
 
     /// <summary>Paints <paramref name="layout"/>'s distinct frame images onto one sheet.</summary>
-    internal static ComposedSpriteSheet Compose(SpriteSheetLayout layout)
+    private static ComposedSpriteSheet Compose(SpriteSheetLayout layout)
     {
         Ensure.NotNull(layout);
         Extent16<ImagePixels> size = layout.Size;

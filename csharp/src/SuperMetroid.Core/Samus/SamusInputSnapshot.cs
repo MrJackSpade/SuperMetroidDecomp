@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
@@ -32,14 +31,14 @@ internal sealed class SamusInputSnapshot
     /// largest count continues from zero, and the auto-jump compares the count with its limit by whether their
     /// difference is negative, so a hold long enough reads as fresh again (<see cref="JumpHoldReadsAsFresh"/>).
     /// </summary>
-    public int AutoJumpTimer
+    private int AutoJumpTimer
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
+        set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
     }
 
     /// <summary>Held input published by the post-draw input filter and at the end of each update.</summary>
-    public GameplayAction PreviousDrawHeldInput { get; private set; }
+    private GameplayAction PreviousDrawHeldInput { get; set; }
 
     /// <summary>The one-shot auto-jump, when a landing or a turn has installed it as Samus's pose input.</summary>
     public AutoJumpInput AutoJump { get; } = new();
@@ -72,9 +71,9 @@ internal sealed class SamusInputSnapshot
     }
 
     /// <summary>
-    /// Whether a jump held for <paramref name="heldUpdates"/> reads as below the auto-jump limit: the game compares the
-    /// hold with the limit by whether their difference is negative (<see cref="WrappingCounter.IsBehind"/>), so a jump held for
-    /// half the count's range past the limit counts as pressed again, until the count continues from zero.
+    /// Whether a jump held for <paramref name="heldUpdates"/> reads as below the auto-jump limit
+    /// (<see cref="WrappingCounter.IsBehind"/>), so a jump held for half the count's range past the limit counts as
+    /// pressed again, until the count continues from zero.
     /// </summary>
     private static bool JumpHoldReadsAsFresh(int heldUpdates) =>
         WrappingCounter.IsBehind(heldUpdates, SamusAutoJumpDefinitions.TimerComparisonLimit);

@@ -17,7 +17,7 @@ internal sealed class PrePhantoonRoomBehavior
     /// <summary>The hold on the place the room's setup takes.</summary>
     private readonly PrePhantoonRoomHeldProjectilePlace _heldPlace = new();
 
-    /// <summary>Connects the room's rules to its loaded-room guard and projectile pool.</summary>
+    /// <summary>Binds the room's setup to the enemy projectile pool.</summary>
     internal PrePhantoonRoomBehavior(EnemyProjectileEngine projectiles)
     {
         _projectiles = projectiles;
@@ -25,7 +25,7 @@ internal sealed class PrePhantoonRoomBehavior
     }
 
     /// <summary>The room's held place (#1760): it holds still, showing nothing, until its hold runs out and frees it.</summary>
-    internal EnemyProjectileBehavior HoldingProjectile { get; }
+    private EnemyProjectileBehavior HoldingProjectile { get; }
 
     /// <summary>
     /// Runs the pre-Phantoon room's setup: takes the first free projectile place and holds it until the hold frees it or a
@@ -33,9 +33,8 @@ internal sealed class PrePhantoonRoomBehavior
     /// </summary>
     public void SpawnPrePhantoonRoomProjectile()
     {
-        if (_projectiles.AllocateEnemyProjectile() is not { } projectile)
+        if (_projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace, HoldingProjectile, graphics: SpriteGraphics.SharedStandard) is not { } projectile)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace, HoldingProjectile, graphics: default);
         _heldPlace.Take();
         projectile.StartAnimation(new PrePhantoonRoomAnimation());
     }

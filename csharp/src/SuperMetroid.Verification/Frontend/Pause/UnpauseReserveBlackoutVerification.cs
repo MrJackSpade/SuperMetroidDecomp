@@ -36,7 +36,7 @@ internal static class UnpauseReserveBlackoutVerification
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
             runtime.Player.Samus.Control.Unlock();
             game.AdoptRuntime(runtime);
-            game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+            global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
             return new UnpauseReserveBlackoutCreateResult(game, runtime);
         }
 

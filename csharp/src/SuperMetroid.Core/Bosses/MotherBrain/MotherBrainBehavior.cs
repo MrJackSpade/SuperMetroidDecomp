@@ -19,7 +19,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyGroupFactory, I
         [EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes];
 
     /// <summary>A falling tube of her glass, the piece its spawn names.</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MotherBrainTubeSpawnSettings settings) =>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MotherBrainTubeSpawnSettings settings) =>
         new MotherBrainTubesEntity(this, place, common, setup, settings);
 
     /// <inheritdoc/>
@@ -69,13 +69,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyGroupFactory, I
     internal MotherBrainFakeDeath FakeDeath { get; }
 
     /// <summary>Mother Brain rising into her second form: its graphics, brain setup, the rise and the menacing head shake.</summary>
-    internal MotherBrainAscent Ascent { get; }
+    private MotherBrainAscent Ascent { get; }
 
     /// <summary>Mother Brain's second-phase attacks: choosing one, the bomb walk, the lasers and the hand beam.</summary>
     internal MotherBrainAttacks Attacks { get; }
 
     /// <summary>Mother Brain's rainbow beam, its colours, and her death.</summary>
-    internal MotherBrainRainbowAndDeath RainbowAndDeath { get; }
+    private MotherBrainRainbowAndDeath RainbowAndDeath { get; }
 
     /// <summary>Mother Brain's hitboxes and touch, and what Samus's weapons do to her head and body.</summary>
     internal MotherBrainCombat Combat { get; }
@@ -94,7 +94,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyGroupFactory, I
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
         Projectiles = new MotherBrainProjectiles(_room, dependencies.Projectiles, dependencies.Earthquake, dependencies.DeathsAndDrops, _motherBrainEncounter, dependencies.RoomActors);
         Access = new MotherBrainEncounterAccess(_passEvents);
-        Head = new MotherBrainHead(new MotherBrainHeadDependencies { Room = _room, Places = dependencies.Places, Projectiles = dependencies.Projectiles, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access  });
+        Head = new MotherBrainHead(new MotherBrainHeadDependencies { Room = _room, Places = dependencies.Places, Projectiles = dependencies.Projectiles, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles });
         Body = new MotherBrainBody(new MotherBrainBodyDependencies { PassEvents = _passEvents, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access , Presentation = _presentation, Places = dependencies.Places });
         FakeDeath = new MotherBrainFakeDeath(new MotherBrainFakeDeathDependencies { PassEvents = _passEvents, Lifecycle = dependencies.Lifecycle, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, Access = Access, ProjectileAttacks = Projectiles });
         Ascent = new MotherBrainAscent(_room, dependencies.Projectiles, dependencies.Earthquake, _presentation, dependencies.FrameContext, _motherBrainEncounter);
@@ -105,7 +105,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyGroupFactory, I
 
 
 
-    /// <summary>Runs the common body main/hurt entry.</summary>
+    /// <summary>Runs her room flash, her body's stage and her contact with Samus.</summary>
     internal void RunMotherBrainBodyMain(
         RoomEnemyPlace body,
         MotherBrainEnemyState state,
@@ -165,7 +165,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyGroupFactory, I
     }
 
     /// <summary>Runs the phase of her fake death's descent her body is in, after her first phase ends.</summary>
-    internal void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState samus)
+    private void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState samus)
     {
         switch (state.DescentPhase)
         {
@@ -193,7 +193,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyGroupFactory, I
             case MotherBrainDescentPhase.PauseBeforeUnlock:
                 if (!state.PhaseTimer.StepRunsOut())
                     return;
-                // Restoring Samus's control reinstalls the normal input and movement modes.
+                // Samus's control returns to normal.
                 samus.Control.Unlock();
                 state.DescentPhase = MotherBrainDescentPhase.PauseBeforeFlash;
                 state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeFlashUpdates);
@@ -249,10 +249,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyGroupFactory, I
     }
 
     /// <summary>
-    /// Runs one update of Mother Brain's room flash, while it runs: it plays on through its fourteen images, each shown two
-    /// updates, looping (<see cref="MotherBrainRoomFlashAnimations"/>), and her room shows the image it stands on.
+    /// Runs one update of Mother Brain's room flash, while it runs: it plays on through its images, looping
+    /// (<see cref="MotherBrainRoomFlashAnimations"/>), and her room shows the image it stands on.
     /// </summary>
-    internal static void RunMotherBrainRoomFlash(MotherBrainEnemyState state)
+    private static void RunMotherBrainRoomFlash(MotherBrainEnemyState state)
     {
         if (state.RoomFlash is not { } flash)
             return;

@@ -60,7 +60,7 @@ public static class SamusAerialMovement
     /// Applies the Speed Booster jump bonus when Speed Booster is equipped: the dash's extra run speed raises the launch
     /// speed part by part, as <see cref="SpeedBoosterJumpBonus"/> describes.
     /// </summary>
-    public static void ApplyEquippedSpeedBoosterJumpBonus(SamusState samus)
+    private static void ApplyEquippedSpeedBoosterJumpBonus(SamusState samus)
     {
         Ensure.NotNull(samus);
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
@@ -111,9 +111,8 @@ public static class SamusAerialMovement
             if (horizontal.Collided)
                 samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
-            // The transition's Y frame is not empty: it applies only the externally produced
-            // displacement. Zero returns before collision, positive values gain the
-            // downward +1.0 bias, and negative values move upward exactly as supplied.
+            // The transition's vertical move applies only the extra displacement: none moves nothing, a downward one
+            // moves Samus one more pixel, and an upward one moves her exactly as given.
             SignedSixteenSixteen? externalY = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(
                 samus.Kinematics);
             BlockMoveResult? vertical = null;
@@ -160,7 +159,7 @@ public static class SamusAerialMovement
             !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
             samus.LiquidPhysics.IsTopBoundarySubmerged(samus);
         if (!fullySubmergedWithoutGravity)
-            TryRestartSpaceJump(samus, controllerNewInput);
+            RestartSpaceJump(samus, controllerNewInput);
 
         // The underwater Space Jump sound plays only at the last tick of the spin's
         // start and middle frames. Movement owns it, so it is published before the
@@ -199,7 +198,7 @@ public static class SamusAerialMovement
 
         // If acceleration did not overshoot the cap, spin jump retains motion only while
         // turning (SamusAccelerationMode.Turning) or while the input matching the pose's facing direction is held.
-        // A speed the maximum capped bypasses this test exactly as the game does.
+        // A speed the maximum capped bypasses this test.
         bool forwardHeld = IsForwardHeld(samus, controllerInput);
         bool allowHorizontal = calculation.ReachedMaximum ||
             speed.AccelerationMode == SamusAccelerationMode.Turning ||
@@ -340,9 +339,9 @@ public static class SamusAerialMovement
         // moves Samus as the ordinary jumping turns do
         // (unaimed, aimed up, down and diagonally up). The pose name therefore cannot be used as an admission gate.
         bool runsAerialTurn = SamusPoseMetadata.IsAerialTurnPose(samus.Pose) ||
-            (movementType == SamusMovementType.TurningWhileJumping &&
+            (movementType == SamusMovementType.TurningRisingOrAimedCrouched &&
              SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose));
-        if (movementType is not (SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling) ||
+        if (movementType is not (SamusMovementType.TurningRisingOrAimedCrouched or SamusMovementType.TurningWhileFalling) ||
             !runsAerialTurn)
             throw new InvalidOperationException($"Aerial-turn movement requires a jumping or falling turn pose, not {samus.Pose}.");
 
@@ -368,9 +367,8 @@ public static class SamusAerialMovement
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
 
-        // The vertical check-and-move selects the no-speed probe for no vertical direction even in
-        // airborne turn art. Moonfall therefore pauses gravity during its turn;
-        // this is the same branch used by grounded aimed crouching turns.
+        // The turn holds Samus still vertically, as the grounded aimed crouching turns do, so Moonfall pauses gravity
+        // during its turn.
         AerialMovementResult result;
         if (samus.Kinematics.VerticalVelocity.HasNoDirection)
         {
@@ -473,9 +471,8 @@ public static class SamusAerialMovement
             releasedFlightEnds = true;
         }
 
-        // The game selects SamusAccelerationMode.Decelerating every frame, so the speed calculation always takes its deceleration
-        // branch until it passes zero and resets to SamusAccelerationMode.Accelerating. Only then can an input-free frame
-        // clear base speed instead of calling the horizontal mover.
+        // The released flight always slows until its speed passes zero; only then can an update without input stop her
+        // base speed.
         speed.AccelerationMode = SamusAccelerationMode.Decelerating;
         // The release's speeds are the same in every medium, so the medium Samus is in does not choose them.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(SamusHorizontalSpeedDefinitions.GrappleRelease);
@@ -513,7 +510,7 @@ public static class SamusAerialMovement
     }
 
     /// <summary>Applies the selected medium's base speed and wall collision, preserving the no-input bypass and wall-jump exception.</summary>
-    private static BlockMoveResult MoveNormalAerialX(
+    private static void MoveNormalAerialX(
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -539,14 +536,13 @@ public static class SamusAerialMovement
             speed.BaseSpeed = default;
             // Samus then does not move horizontally, and the previous total speeds are kept: no slope alignment runs
             // either.
-            return BlockMoveResult.NotMoved;
+            return;
         }
 
         var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, calculation.Speed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-        return horizontal;
     }
 
     /// <summary>Runs the shared Y mover and reduces its collision scan to the landing and ceiling signals her movement reads.</summary>
@@ -701,19 +697,17 @@ public static class SamusAerialMovement
     /// Screw Attack can use this physics when both items are
     /// equipped even though its visible pose is the Screw Attack pose.
     /// </summary>
-    private static bool TryRestartSpaceJump(
+    private static void RestartSpaceJump(
         SamusState samus,
         GameplayAction controllerNewInput)
     {
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ||
             !samus.Kinematics.VerticalVelocity.IsFalling)
         {
-            return false;
+            return;
         }
 
-        // The window's bounds are whole 256ths of a pixel, and the full falling speed is compared with them. That is the
-        // game's comparison for every speed under 256 pixels an update, and a falling speed never reaches that: gravity
-        // adds under a pixel per update, so it would take over two thousand updates of falling, past any room's height.
+        // A fresh Jump restarts the spin while the fall's speed lies within the Space Jump window.
         UnsignedSixteenSixteen fallingSpeed = samus.Kinematics.VerticalVelocity.Speed;
         // The remembered medium is written by the preceding animation pass, not recomputed here. This
         // matters while crossing a surface: the top-boundary gate above and remembered
@@ -725,13 +719,12 @@ public static class SamusAerialMovement
             !fallingSpeed.IsSlowerThan(SamusVerticalMotionDefinitions.SpaceJumpFallingSpeedLimit) ||
             (controllerNewInput & GameplayAction.Jump) == GameplayAction.None)
         {
-            return false;
+            return;
         }
 
         // This is the same jump start used by a grounded launch: authored initial
         // magnitude, Speed Booster's split bonus, dry-air gravity, and upward direction.
         SamusAerialMovement.InitializeJump(samus);
-        return true;
     }
 
     /// <summary>Clears ordinary base X velocity and acceleration while leaving separate boost momentum intact.</summary>

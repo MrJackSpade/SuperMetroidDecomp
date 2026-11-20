@@ -15,6 +15,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed class RidleyProjectiles
 {
+    /// <summary>How many afterburns each fireball and afterburn has left to raise, given as it spawns.</summary>
+    private EnemyProjectileStates<RidleyAfterburnChainState> Afterburns { get; } = new();
+
     /// <summary>The loaded room, whose area selects Ridley's projectile damage.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns places used by fireballs and successive afterburn projectiles.</summary>
@@ -56,9 +59,7 @@ internal sealed class RidleyProjectiles
                 angle = RidleyFireballDefinitions.RightFacingAimEnd;
         }
 
-        // The speed is scaled by the game's sine and cosine of the aim, the cosine being the sine a quarter turn on:
-        // each takes the speed by the sine's size in 256ths and keeps the sine's direction, so neither part of the
-        // velocity ever exceeds the speed of five pixels an update.
+        // The speed is split along the aim, so neither part of the velocity exceeds the speed.
         state.FireballVelocity = new PixelVelocity<RoomPixels>(
             EnemyMath.SineSpeed(RidleyFireballDefinitions.FireballSpeed, angle),
             EnemyMath.SineSpeed(RidleyFireballDefinitions.FireballSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
@@ -70,7 +71,7 @@ internal sealed class RidleyProjectiles
     /// <param name="afterburns">The afterburn stages the fireball's impact spawns.</param>
     internal void SpawnRidleyFireball(RoomEnemyPlace ridley, RidleyFlightState state, int afterburns)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.RidleyFireball, Fireballs, FireballGraphics);
         if (projectile is null)
             return;
 
@@ -99,15 +100,10 @@ internal sealed class RidleyProjectiles
     /// <summary>Allocates the dust enemy projectile with one authored dust variant.</summary>
     internal void SpawnRidleyDust(Position16<RoomPixels> position, DustExplosionAnimation animation)
     {
-        EnemyProjectile? dust = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? dust = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DustOrExplosion, DustExplosionProjectileBehavior.Instance, graphics: SpriteGraphics.SharedStandard);
         if (dust is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            dust,
-            RoomEnemyProjectileKind.DustOrExplosion,
-            DustExplosionProjectileBehavior.Instance,
-            graphics: default);
         dust.Position = dust.Position.WithWhole(position);
         dust.StartAnimation(new DustExplosionProjectileAnimation(animation));
     }
@@ -121,14 +117,14 @@ internal sealed class RidleyProjectiles
         Position16<RoomPixels> position,
         int remaining)
     {
-        EnemyProjectile? center = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? center = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.RidleyAfterburnCenter, Fireballs, FireballGraphics);
         if (center is null)
             return;
         var centre = new FireballBehavior(this, new RidleyAfterburnChainState(remaining), flight: null);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(center, RoomEnemyProjectileKind.RidleyAfterburnCenter,
             centre, FireballGraphics);
         // The centre's animation raises the spawn of the pair along its axis.
-        center.StartAnimation(new RidleyFireballAnimation(
+        center.StartAnimation(new RidleyFireballAnimation(this,
             pairAxis == Axis.Horizontal ? RidleyFireballSegment.HorizontalCenter : RidleyFireballSegment.VerticalCenter, centre));
         center.Position = center.Position.WithWhole(position);
         // The afterburn's centre starts at rest; a new projectile otherwise keeps the velocity its place last held.
@@ -159,14 +155,14 @@ internal sealed class RidleyProjectiles
     /// flying at <paramref name="velocity"/>, which holds the way it flies, by <paramref name="flight"/>, with the afterburns
     /// its source's chain has left.
     /// </summary>
-    internal void SpawnDirectionalAfterburn(
+    private void SpawnDirectionalAfterburn(
         EnemyProjectile source,
         int remaining,
         RoomEnemyProjectileKind kind,
         PixelVelocity<RoomPixels> velocity,
         RidleyFireballMotion? flight)
     {
-        EnemyProjectile? afterburn = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? afterburn = _projectiles.AllocateEnemyProjectile(kind, Fireballs, FireballGraphics);
         if (afterburn is null)
             return;
         var behavior = new FireballBehavior(this, new RidleyAfterburnChainState(remaining), flight);
@@ -198,12 +194,12 @@ internal sealed class RidleyProjectiles
             flight);
     }
 
-    /// <summary>Switches an afterburn branch that struck something to its final five-frame animation; it keeps moving and still hurts Samus.</summary>
+    /// <summary>Switches an afterburn branch that struck something to its final animation: it stops, sparks and puffs while it still hurts Samus.</summary>
     /// <param name="projectile">The afterburn that struck something.</param>
     /// <param name="cues">The afterburn's behaviour, which owns its animations' cues.</param>
-    internal static void BeginAfterburnFinalAnimation(EnemyProjectile projectile, IEnemyProjectileCues<RidleyFireballCue> cues)
+    internal void BeginAfterburnFinalAnimation(EnemyProjectile projectile, IEnemyProjectileCues<RidleyFireballCue> cues)
     {
-        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.AfterburnFinal, cues));
+        projectile.StartAnimation(new RidleyFireballAnimation(this, RidleyFireballSegment.AfterburnFinal, cues));
         // The final animation's first cue stops the afterburn, which keeps its velocity and still hurts Samus: it
         // shows five frames, then the afterburn is gone.
     }

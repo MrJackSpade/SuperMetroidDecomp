@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
@@ -13,4 +16,22 @@ internal sealed class EndingPostShotScene(EndingRewardJump jump, EndingPostShot 
 
     /// <summary>The shot's picture, fades and hold.</summary>
     internal EndingPostShot Shot { get; } = Ensure.NotNull(shot);
+
+    /// <inheritdoc/>
+    internal override bool Step(EndingCreditsState ending)
+    {
+        ending.StepPostShot(this);
+        return true;
+    }
+
+    /// <inheritdoc/>
+    internal override void DrawActors(EndingCreditsState ending, ScreenSprites sprites, Func<EndingSpriteLayer, bool> shows)
+    {
+        if (shows(EndingSpriteLayer.Actors))
+            EndingCreditsPresentation.DrawJump(ending, sprites, Jump);
+    }
+
+    /// <inheritdoc/>
+    internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
+        EndingCreditsPresentation.CapturePostShot(ending, Shot, paint);
 }

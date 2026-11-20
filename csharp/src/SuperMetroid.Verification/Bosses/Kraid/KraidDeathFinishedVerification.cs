@@ -22,7 +22,7 @@ internal static class KraidDeathFinishedVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Kraid, body.Definition);
+        enemies.Places.BindKraidPartsInRoomOrder();
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         state.BodyState.DeathPhase = KraidDeathPhase.Finished;
         body.Presence = body.Presence.Without(EnemyPresence.Deleted | EnemyPresence.Hidden);

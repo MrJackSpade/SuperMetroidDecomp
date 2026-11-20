@@ -69,16 +69,30 @@ namespace SuperMetroid.Verification.Harness;
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>
 internal static class LookupStream2Verification
 {
-    /// <summary>Checks all 104 Yard visual frames retain their semantic group order and unique identities.</summary>
+    /// <summary>
+    /// Checks the Yard's 96 visual frames are distinct records with distinct names, and that with the eight shell-closed
+    /// records that store one of their pictures again (#2272) they account for all 104 records its programs show.
+    /// </summary>
     internal static void VerifyLookupStream2YardGroups()
     {
         var frames = YardVisualDefinitions.Frames();
-        AssertEqual(104, frames.Length, "Yard semantic groups preserve complete registry");
-        string identity = string.Join("\n", frames.Select(frame => $"{frame.Bank:X2}:{frame.Pointer:X4}:{frame.Name}"));
-        string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(identity)));
-        AssertEqual("2E09CB87CB8C4106F823834D08281C250FB4294981A52F4FE9F83BD983732954", hash,
-            "Yard exact pre-change native bank/pointer/name/order identity");
-        Console.WriteLine("Yard groups: 38 semantic program roles preserve all104 native frame identities/names/order.");
+        AssertEqual(96, frames.Length, "Yard semantic groups preserve complete registry");
+        HashSet<ushort> records = [.. frames.Select(frame => frame.Pointer)];
+        AssertEqual(frames.Length, records.Count, "every Yard frame is its own record");
+        AssertEqual(frames.Length, frames.Select(frame => frame.Name).Distinct(StringComparer.Ordinal).Count(),
+            "every Yard frame has its own name");
+        // The shell-closed twins are byte-identical copies of their bases' records (#2272): each shows its base's
+        // picture, which the frames already hold, so none is a frame of its own.
+        SnesAddress[] storedAgain = [.. EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt
+            .Where(pair => EnemyFrameCartridgeLocationDefinitions.Locations.TryGetValue(pair.Value, out SnesAddress shown) &&
+                shown.Bank == YardVisualDefinitions.Bank && records.Contains(shown.Offset))
+            .Select(pair => pair.Key)];
+        AssertEqual(8, storedAgain.Length, "eight Yard records store one of its pictures again");
+        AssertTrue(storedAgain.All(record => record.Bank == YardVisualDefinitions.Bank && !records.Contains(record.Offset)),
+            "a Yard record that stores a picture again is in the Yard's bank and is no frame of its own");
+        AssertEqual(104, records.Count + storedAgain.Length,
+            "the Yard's pictures and the records storing one again are the 104 records its programs show");
+        Console.WriteLine("Yard groups: 38 semantic program roles show 96 distinct pictures; with the 8 records storing one again they cover all 104 native records.");
     }
 
     /// <summary>Checks Chozo statue foot spritemap geometry and the compiled stock views.</summary>
@@ -106,7 +120,7 @@ internal static class LookupStream2Verification
                 {
                     OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadCartridgeByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
                     TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
-                    Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                    Palette = attributes.PaletteIndex, Depth = attributes.Depth,
                     FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
                 };
             }).ToArray();
@@ -169,7 +183,7 @@ internal static class LookupStream2Verification
         for (int color = 0; color < native.Length; color++)
         {
             native[color] = ReadVerificationWord(rom, 0xa899ac + color * 2);
-            AssertEqual(native[color], WreckedShipGhostAppearance.Colours[color], "Calculated ghost channels preserve native target words");
+            AssertEqual(native[color], SuperMetroid.Core.Compatibility.WreckedShipGhostFade.GhostColours[color], "Calculated ghost channels preserve native target words");
             AssertEqual(native[color], ReadVerificationWord(rom, 0xa8aafe + color * 2), "Kago shares exactly the same native palette inputs");
             if (color < 9) AssertEqual(native[color], ReadVerificationWord(rom, 0xa89f4f + color * 2), "Yapping Maw shares olive target inputs");
         }
@@ -251,7 +265,7 @@ internal static class LookupStream2Verification
             AssertEqual(64, cycle, "Native pass cadence sums to its exact loop period");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var actualSession = new ColourEffectSessionState();
-            var actual = new ColourEffectSystem(actualSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+            var actual = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { actualSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             actual.Start(definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);
@@ -263,7 +277,7 @@ internal static class LookupStream2Verification
                 PaletteFxRoomLook.LayShownShades(actual, cgram, colors);
                 for (int color = 0; color < 3; color++)
                     AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frameIndex, color)),
-                        cgram.Colors[definition.Object.AnimatedColours.CartridgeColour + color], "Actual CGRAM follows each exact native hold and loop boundary");
+                        cgram.Colors[definition.ColorFrames.Effect.AnimatedColours.CartridgeColour + color], "Actual CGRAM follows each exact native hold and loop boundary");
                 elapsed++;
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts, "Cadence execution avoids native mechanics reads");
@@ -339,7 +353,7 @@ internal static class LookupStream2Verification
         {
             AssertEqual((NorfairEnvironmentalPaletteOwner)count, item.Owner, "Norfair native owner order");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.DefinitionPointer + 2), item.ProgramStart, "Native Norfair definition/list binding");
-            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.Object.AnimatedColours.CartridgeByteIndex, "Native Norfair colours start where the object's colour group is placed");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.ColorFrames.Effect.AnimatedColours.CartridgeByteIndex, "Native Norfair colours start where the object's colour group is placed");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstRecordPointer, "Native Norfair loop target");
             AssertEqual(norfair[count].ProgramStart, item.ProgramStart, "Indexed and enumerated Norfair identities agree");
             count++;
@@ -350,7 +364,7 @@ internal static class LookupStream2Verification
         {
             AssertEqual((OldTourianEscapeAccentPaletteOwner)count, item.Owner, "Accent native owner order");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.DefinitionPointer + 2), item.ProgramStart, "Native accent definition/list binding");
-            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.Object.AnimatedColours.CartridgeByteIndex, "Native railings/panels colours start where the object's colour group is placed");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.ColorFrames.Effect.AnimatedColours.CartridgeByteIndex, "Native railings/panels colours start where the object's colour group is placed");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstFramePointer, "Native accent loop target");
             AssertEqual(accents[count].ProgramStart, item.ProgramStart, "Indexed and enumerated accent identities agree");
             count++;
@@ -621,7 +635,7 @@ internal static class LookupStream2Verification
         // The artwork fixture needs a display composition; staging copies the corpse rows whatever it holds.
         var displayParts = new Dictionary<EnemyFrameId, EnemySpritemapParts>
         {
-            [EnemyFrameId.DeadTorizoStanding] = EnemySpritemapParts.FromOwnedArray([SpritePart.Create(Offset16<ScreenPixels>.Of(70, 33), large: false, character: 0, palette: 7, priority: 3,
+            [EnemyFrameId.DeadTorizoStanding] = EnemySpritemapParts.FromOwnedArray([SpritePart.Create(Offset16<ScreenPixels>.Of(70, 33), large: false, character: 0, palette: 7, depth: SuperMetroid.Core.Assets.ActorDepth.InFront,
                 PictureFlip.Horizontal)]),
         };
         var displayBindings = new Dictionary<EnemyFrameId, EnemyFrameId> { [EnemyFrameId.DeadTorizoStanding] = EnemyFrameId.DeadTorizoStanding };
@@ -814,6 +828,7 @@ internal static class LookupStream2Verification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         // The parts hold Kraid's encounter, which the body's setup begins; this fixture begins it directly.
+        enemies.Places.BindKraidPartsInRoomOrder();
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         enemies.VerificationServices().ReadRandom = () => 1;
         Action<RoomEnemyPlace, KraidEnemyState> finish = enemies.KraidBehavior.Rise.FinishKraidGrowth;
@@ -855,18 +870,18 @@ internal static class LookupStream2Verification
         //60,120,180,185,245,255 when all resources are eligible.
         ushort[] randomValues = [1, 61, 121, 181, 186, 246];
         // The roll weighs the minor drops, then the major drops, in the native probability columns' order.
-        EnemyPickupKind[] weighed = [.. EnemyDropSelectionDefinitions.MinorDrops, .. EnemyDropSelectionDefinitions.MajorDrops];
+        EnemyDropRoll[] weighed = [.. EnemyDropSelectionDefinitions.MinorDrops, .. EnemyDropSelectionDefinitions.MajorDrops];
         AssertEqual(6, weighed.Length, "The roll weighs the six native probability columns");
         for (int column = 0; column < 6; column++)
         {
-            EnemyPickupKind expected = EnemyPickupNativeWords.Selectors.Decode(rom.ReadCartridgeByte(0x86f25e + column), "probability-column pickup");
+            EnemyDropRoll expected = EnemyPickupNativeWords.Outcome(rom.ReadCartridgeByte(0x86f25e + column));
             AssertEqual(expected, weighed[column],
                 "Native probability-column pickup identity, minor drops then major drops");
             var samus = CreateDropTestSamus();
             samus.Health = 50;
             samus.MaxMissiles = samus.MaxSuperMissiles = samus.MaxPowerBombs = 5;
             var fixture = CreateEnemyDropFixture(samus, [randomValues[column]]);
-            AssertEqual(expected, fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(NativeDropChances, fixture.Samus),
+            AssertEqual(expected, fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(EnemyDrops.Rolling(NativeDropChances), fixture.Samus),
                 "Actual cumulative selection preserves each semantic column");
         }
         Suite(nameof(VerifyEnemyDropSelectionRules), () => VerifyEnemyDropSelectionRules());
@@ -902,13 +917,13 @@ internal static class LookupStream2Verification
             for (int member = 0; member < 5; member++)
             {
                 var place = enemies.Places.InUpdateOrder[member];
-                place.Bind(EnemyDefinitionId.Gamet, place.Definition);
+                place.Bind(EnemyDefinitionId.Gamet, place.KeptDefinition);
                 place.Position = place.Position.WithWhole(new(128, 128)); place.SetSpawnParameter2(EnemyDefinitionId.Gamet, 64);
                 enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place, place.SpawnSettings<NorfairPipeBugSpawnSettings>());
                 place.AnimationClock.HoldFor((ushort)(member + 4));
             }
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
-            enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.Places.InUpdateOrder[0], (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")), samus);
+            enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.Places.InUpdateOrder[0].HeldOccupant(), enemies.Places.InUpdateOrder[0], (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")), samus);
             for (int member = 0; member < 5; member++)
             {
                 var state = enemies.NorfairPipeBugStates[member];
@@ -962,7 +977,9 @@ internal static class LookupStream2Verification
                 else { cursor += 2; }
             }
             var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            // The native interpreter's own trail, run beside the port's.
+            // The native interpreter's own trail, run beside the port's, for the same two sparkles: native keeps each
+            // picture's corner, the port the sparkle with its picture drawn centred on it (#2573), so equal OAM is the
+            // port's pictures landing where native draws them.
             var nativeTrail = new SuperMetroid.Verification.Samus.Projectiles.NativeTrail(
                 SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)),
                 SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)));
@@ -990,7 +1007,7 @@ internal static class LookupStream2Verification
                     if (sides.First.FrameHold != 0)
                         AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
                     AssertEqual(sides.First.FrameHold, sides.Second.FrameHold, "Trail artwork cannot change live timing");
-                    AssertEqual(sides.First.Position.Y, authoredTrail.Origin.Y + sides.Second.Offset.Y, "Trail artwork cannot change sibling-targeted movement");
+                    AssertEqual(sides.First.Sparkle.Y, authoredTrail.Origin.Y + sides.Second.Offset.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
         }
@@ -1059,20 +1076,19 @@ internal static class LookupStream2Verification
         {
             int selection = ProjectileTrailNative.Selection(trailingType);
             var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            var projectile = new SamusProjectile(0)
-            {
-                Type = trailingType,
-                Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3),
-                Position = new(new(100, 0), new(200, 0)),
-            };
-            projectiles.Trails.SpawnTrail(projectile);
+            var projectile = new SamusProjectile(0);
+            projectile.OccupyAsFired(trailingType);
+            projectile.Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3);
+            projectile.Position = new(new(SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.ShotColumn, 0), new(200, 0));
+            projectiles.Trails.SpawnTrail(projectile.HeldShot());
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
             if (projectiles.LiveTrails.SingleOrDefault() is not { } trail)
                 continue;
             AssertEqual(RomDataReader.ReadWordFixedBank(bus, start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
             AssertEqual(RomDataReader.ReadWordFixedBank(bus, SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");
             AssertEqual(1, trail.Left.FrameHold, "Selector extraction leaves allocation timer unchanged");
-            AssertEqual(96, trail.Origin.X + trail.Left.Offset.X, "Selector extraction leaves origin offset unchanged");
+            SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.AssertSelectedTrailStandsOnShot(
+                projectiles, trail, SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.ShotColumn);
         }
         Console.WriteLine("Trail selectors: every trailing projectile's real spawn selection passes.");
     }
@@ -1471,7 +1487,7 @@ internal static class LookupStream2Verification
             ushort pointer = (ushort)(0x86db + direction * 12);
             var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            _ = system.Animation.AdvanceProjectileAnimation(shot);
+            system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
         }
         int checkedWaveIce = 0;
@@ -1495,7 +1511,7 @@ internal static class LookupStream2Verification
                 checkedCappedSweep++;
             var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            _ = system.Animation.AdvanceProjectileAnimation(shot);
+            system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             checkedWaveIce++;
         }
@@ -1506,9 +1522,11 @@ internal static class LookupStream2Verification
         foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
-            var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var bomb = new SamusBomb(0);
+            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
-            _ = bombs.AdvanceProjectileAnimation(bomb);
+            bombs.AdvanceProjectileAnimation(bomb);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");
             checkedBombs++;
         }
@@ -1546,7 +1564,7 @@ internal static class LookupStream2Verification
                     {
                         OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadCartridgeByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
                         TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
-                        Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                        Palette = attributes.PaletteIndex, Depth = attributes.Depth,
                         FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
                     };
                 }).ToArray();

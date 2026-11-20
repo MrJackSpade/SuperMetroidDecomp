@@ -25,11 +25,11 @@ public static class MotherBrainBeamDefinitions
     public const int BeamEndedSamusCooldown = 8;
 
     /// <summary>
-    /// The times the beam's continuing steps queue its sound: one on each of its first seven steps, none after.
+    /// The times the beam's continuing steps queue its sound: one on each of its first steps, none after.
     /// </summary>
     public const int SoundAttempts = 7;
 
-    /// <summary>The rainbow beam's starting and narrowest angular width: two steps of a 256-step turn.</summary>
+    /// <summary>The rainbow beam's starting and narrowest width.</summary>
     public static readonly RotationAngle RainbowNarrowestWidth = RotationAngle.FromSteps(2);
 
     /// <summary>The rainbow beam's widest angular width: twelve steps.</summary>

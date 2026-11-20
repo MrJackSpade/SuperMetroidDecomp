@@ -57,7 +57,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     internal PhantoonCombat Combat { get; }
 
     /// <summary>Phantoon's fades, health colors, wave amplitude and animations, shared by every phase of the fight.</summary>
-    internal PhantoonPresentation Presentation { get; }
+    private PhantoonPresentation Presentation { get; }
 
     /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>
     internal PhantoonPatterns Patterns { get; }
@@ -89,9 +89,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     /// Sets Phantoon's body up when the room spawns it: it begins the encounter with his eye, tentacles and mouth, which
     /// his room lists right after his body (#2252), and holds its part of it.
     /// </summary>
-    internal PhantoonPart InitializePhantoonBody(RoomEnemyPlace body, IReadOnlyList<RoomEnemyPlace> parts)
+    internal PhantoonPart InitializePhantoonBody(RoomEnemyOccupant occupant, RoomEnemyPlace body, IReadOnlyList<RoomEnemyPlace> parts)
     {
-        var state = new PhantoonEnemyState(body, eye: parts[0], tentacles: parts[1], mouth: parts[2]);
+        var state = new PhantoonEnemyState(occupant, body, eye: parts[0], tentacles: parts[1], mouth: parts[2]);
         // The room steps his body wave and visibility and its display latches them from the room from here (#2194).
         _encounters.Attach(state);
 
@@ -107,8 +107,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
         state.StartingFlames.Orbiting = false;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         StartPhantoonPart(state.BodyPart);
-        // The body starts asking for no flame rain; no reader consumes it before a phase sets it (#1472).
-        state.NextPattern = PhantoonPatternChoice.FigureEight;
         // The encounter starts asking to hide his body, with no casual-flame burst, which the fight only starts much later;
         // his parts set up in the same pass, before anything reads either.
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Hide;
@@ -121,7 +119,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     internal static PhantoonPart InitializePhantoonEye(PhantoonEnemyState state)
     {
         StartPhantoonPart(state.EyePart);
-        state.Wave.Length = null;
+        state.Wave.End();
         return state.EyePart;
     }
 
@@ -148,7 +146,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     private static void StartPhantoonPart(PhantoonPart part)
     {
         RoomEnemyPlace place = part.Place;
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.Restart();
         place.Shading = part.Phantoon.Body.Shading;
     }
@@ -300,7 +298,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     }
 
     /// <summary>Shows his body in the colours of his health band.</summary>
-    internal static void ShowPhantoonHealthColours(PhantoonEnemyState state) =>
+    private static void ShowPhantoonHealthColours(PhantoonEnemyState state) =>
         state.Colours.Show(PhantoonBodyLook.Health(PhantoonPresentation.HealthBand(state.Body)));
 
     /// <summary>
@@ -325,7 +323,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     }
 
     /// <summary>Carries out one cue of a Phantoon part animation.</summary>
-    internal void ApplyPhantoonPartCue(
+    private void ApplyPhantoonPartCue(
         PhantoonEnemyState state,
         PhantoonPartCue cue)
     {
@@ -338,8 +336,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
 
             case PhantoonPartCue.BeginEyeTracking:
                 BeginPhantoonEyeTracking(state);
-                // The advance resumes its own cursor after the cue, so the animation's hold overwrites the
-                // eye animation this installs, as a rest does; the body's animation survives.
+                // The eye shows its tracking animation from the next update; the body keeps its own animation.
                 return;
 
             case PhantoonPartCue.PickNewPattern:
@@ -347,7 +344,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
                 return;
 
             case PhantoonPartCue.SpawnCasualFlame:
-                Patterns.SpawnPhantoonCasualFlame(state.Body);
+                Patterns.SpawnPhantoonCasualFlame(state.BodyOccupant, state.Body);
                 _audio.QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlamePriority);
                 return;
 
@@ -357,7 +354,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     }
 
     /// <summary>Starts the eye's Samus-tracking animation for the current attack phase.</summary>
-    internal void BeginPhantoonEyeTracking(PhantoonEnemyState state)
+    private void BeginPhantoonEyeTracking(PhantoonEnemyState state)
     {
         state.WindowEnd = PhantoonWindowEnd.EyeCloses;
         RoomEnemyPlace body = state.Body;

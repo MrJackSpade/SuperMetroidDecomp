@@ -4,11 +4,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One Rinka occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Rinka species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, RinkaSpawnSettings settings)
-    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, RinkaSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
     private EnemyBombReaction OwnRinkaBombReaction => field ??= species.RinkaBombReactionOf(State);
@@ -23,20 +24,20 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyPlace place, E
     internal RinkaEnemyState State { get; } = species.InitializeRinka(place, settings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunRinkaMainAi(Place, State, frame);
+    public void Initialize() => species.InitializeRinka(Occupant, State, Place);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RinkaBehavior.AdvanceRinkaTypedAnimation(Place, State, context);
 
     /// <summary>Whether Rinka's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == RinkaReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs Rinka's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
-            species.ReactToRinkaTouch(context, State);
+        if (Occupant.Definition.Touch == RinkaReactions.Touch)
+            species.ReactToRinkaTouch(Occupant, context, State);
         else
             base.ReactToTouch(context);
     }
@@ -53,9 +54,9 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyPlace place, E
     public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? OwnRinkaPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>Runs a frozen Rinka's own step before the common thaw; true when it ended the turn.</summary>
-    public override bool PreemptFrozenTurn() => species.ThawOrDieWhileFrozen(Place, State);
+    public override bool PreemptFrozenTurn() => species.ThawOrDieWhileFrozen(Occupant, State);
 
     /// <summary>Rinka's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == RinkaReactions.Shot;
 }

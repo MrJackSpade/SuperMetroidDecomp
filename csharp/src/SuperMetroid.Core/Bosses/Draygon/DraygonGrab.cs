@@ -80,7 +80,7 @@ internal sealed class DraygonGrab
         }
 
         samus.DraygonGrabbed.Begin(samus, state.Facing);
-        _passEvents.Publish(new DraygonHoldChanged());
+        _passEvents.Publish(new PoseRequestsDiscarded());
         state.SpiralCenter = state.SpiralCenter.StartSpiral(DraygonGrabDefinitions.SpiralTarget);
         state.SpiralXRadius = SignedSixteenSixteen.Zero;
         state.SpiralAngle = DraygonGrabDefinitions.InitialSpiralAngle;
@@ -96,8 +96,8 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Flies the grabbed pair toward the authored spiral center, then
-    /// install the facing-specific roar before the expanding orbit begins.
+    /// Flies Draygon and the grabbed Samus toward the authored spiral centre, then roars facing his way before the
+    /// expanding orbit begins.
     /// </summary>
     internal void CarrySamusToDraygonSpiral(DraygonEnemyState state, SamusState samus)
     {
@@ -147,7 +147,7 @@ internal sealed class DraygonGrab
         }
 
         RoomEnemyPlace body = state.Body;
-        // The radius starts at none and grows until it reaches its maximum of 160 pixels, so its whole pixels are never
+        // The radius starts at none and grows until it reaches its maximum, so its whole pixels are never
         // negative.
         body.Position = body.Position.WithWhole(state.SpiralCenter.Center.Whole + new Offset16<RoomPixels>(
             EnemyMath.CircleCosinePixels(state.SpiralAngle.ToTrigonometryAngle(), state.SpiralXRadius.WholePixels),
@@ -155,12 +155,12 @@ internal sealed class DraygonGrab
                 state.SpiralAngle.ToTrigonometryAngle(),
                 state.SpiralXRadius.WholePixels / DraygonArenaDefinitions.SpiralWidthToHeight)));
 
-        if (DraygonCadenceDefinitions.GrabFoamEveryEighthUpdate.IsDue(body.FrameCounter))
+        if (DraygonCadenceDefinitions.GrabFoam.IsDue(body.FrameCounter))
         {
             _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + DraygonParts.TowardFacing(DraygonArenaDefinitions.MouthFacingRight, state.Facing),
                 RoomEffectActorKind.DraygonFoam,
-                graphics: default);
+                graphics: SpriteGraphics.SharedStandard);
         }
 
         state.SpiralXRadius += DraygonGrabDefinitions.SpiralRadiusGrowth;
@@ -248,7 +248,7 @@ internal sealed class DraygonGrab
     /// update after an escape therefore drags the released Samus once more before Draygon
     /// switches to flying straight up.
     /// </summary>
-    internal void MoveSamusWithDraygon(DraygonEnemyState state, SamusState samus)
+    private void MoveSamusWithDraygon(DraygonEnemyState state, SamusState samus)
     {
         bool escaped = samus.DraygonGrabbed.CarryTo(
             samus,
@@ -291,6 +291,6 @@ internal sealed class DraygonGrab
     internal void ReleaseSamusDuringEnemyUpdate(SamusState samus)
     {
         samus.DraygonGrabbed.ReleaseByDraygon(samus);
-        _passEvents.Publish(new DraygonHoldChanged());
+        _passEvents.Publish(new PoseRequestsDiscarded());
     }
 }

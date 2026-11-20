@@ -33,7 +33,7 @@ internal static class RinkaSpawnReservationsVerification
         Position16<RoomPixels>[] cameras = DistinctScreens(spawns);
         AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Rinka, PopulationWords.Parameters(1, 0), new(500, 100)),
             "a room-wide Rinka placed at no spawn point's centre is refused at import");
-        AssertEqual(new RinkaSpawnSettings(RinkaSpawnPoint.CentreUpper),
+        AssertEqual<EnemySpawnSettings>(new RinkaSpawnSettings.SharingPoints(RinkaSpawnPoint.CentreUpper),
             EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Rinka, PopulationWords.Parameters(1, 0), RinkaSpawnReservations.Centre(RinkaSpawnPoint.CentreUpper)),
             "a room-wide Rinka's spawn point is the point whose centre places it");
         // Each set of held points is one case with its own reservations and its own original table state, reading only

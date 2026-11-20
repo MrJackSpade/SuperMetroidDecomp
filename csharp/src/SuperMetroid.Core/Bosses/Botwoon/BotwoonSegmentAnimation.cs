@@ -4,7 +4,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>A Botwoon body segment's typed animation (#2400): a body link, the tail cap or a hidden segment.</summary>
-internal sealed class BotwoonSegmentAnimation : EnemyProjectileFrameAnimation<BotwoonBodyAnimationSegment, NoAnimationCue>
+internal sealed class BotwoonSegmentAnimation : EnemyProjectileSilentFrameAnimation<BotwoonBodyAnimationSegment>
 {
     /// <summary>Starts the animation of <paramref name="segment"/>.</summary>
     internal BotwoonSegmentAnimation(BotwoonBodyAnimationSegment segment)

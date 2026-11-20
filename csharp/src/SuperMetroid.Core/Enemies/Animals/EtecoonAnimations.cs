@@ -98,7 +98,7 @@ internal static class EtecoonAnimations
     /// The animation that starts at each segment an owner can start or restart at (#2275): a crouch, a cling and the
     /// placed Etecoon's crouch are still pictures, and a wall jump either way leaps and then spins for good.
     /// </summary>
-    internal static IReadOnlyDictionary<EtecoonSegment, Animation<EtecoonSegment>> StartingAt { get; } = new Dictionary<EtecoonSegment, Animation<EtecoonSegment>>
+    private static Dictionary<EtecoonSegment, Animation<EtecoonSegment>> StartingAt { get; } = new Dictionary<EtecoonSegment, Animation<EtecoonSegment>>
     {
         [P.LookRightAtSamusAndRunLeft] = new([Segments.Whole(P.LookRightAtSamusAndRunLeft)], AnimationEnd.Holds),
         [P.BeginRunningLeft] = Animation<EtecoonSegment>.LeadingInto([Segments.Whole(P.BeginRunningLeft)], [Segments.Whole(P.RunningLeft)]),
@@ -118,7 +118,7 @@ internal static class EtecoonAnimations
         [P.StartingCrouch] = new([Segments.Whole(P.StartingCrouch)], AnimationEnd.Holds),
     };
 
-    /// <summary>The flex its wake starts (#2061): four plays of its six hop poses, then its two closing poses, held.</summary>
+    /// <summary>The flex its wake starts (#2061): its hop poses played over (<see cref="FlexRuns"/>), then its closing poses, held.</summary>
     internal static Animation<EtecoonSegment> Flexing { get; } = new([Segments.Repeated(P.Flexing, FlexRuns), Segments.Whole(P.FlexEnd)], AnimationEnd.Holds);
 
     /// <summary>

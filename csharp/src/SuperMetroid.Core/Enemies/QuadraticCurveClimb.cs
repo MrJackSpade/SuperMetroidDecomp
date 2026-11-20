@@ -17,9 +17,9 @@ internal readonly record struct QuadraticCurveClimb(SignedSixteenSixteen Height,
     /// <summary>
     /// The place the climb starts from: stepping from the curve's start <see cref="StepPerPass"/> a pass, the first place
     /// at which the coarse speeds (<see cref="QuadraticCurveSpeed"/>) of the places passed sum to <see cref="Height"/>;
-    /// summing full speeds would change every climb. The height is reached within the curve's marks or never: past them
-    /// reading the speed rejects the climb before the place could grow further, and a climb that steps nowhere sums the
-    /// start's speed of zero only (#1627).
+    /// at which the coarse speeds (<see cref="QuadraticCurveSpeed"/>) of the places passed sum to <see cref="Height"/>.
+    /// The height is reached within the curve's marks or never: past them the climb is rejected, and a climb that steps
+    /// nowhere sums the start's speed of zero only (#1627).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The height is negative.</exception>
     /// <exception cref="InvalidDataException">The climb does not reach its height within the curve's marks.</exception>

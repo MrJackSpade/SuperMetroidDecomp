@@ -11,47 +11,27 @@ internal sealed class EnemyProcessingWindow
 {
     /// <summary>Frame policy that can force off-screen enemies into the active list.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>The species' work stepped at the start of the update, before enemy selection.</summary>
-    private readonly IStepBeforeEnemySelection _stepBeforeSelection;
     /// <summary>The places traversed, in place order, while choosing active enemies.</summary>
     private readonly EnemyPlaces _places;
 
     /// <summary>Binds processing-window decisions to one room's frame policy and enemy pool.</summary>
     /// <param name="frameContext">The frame policy that can force off-screen enemies into the active list.</param>
-    /// <param name="stepBeforeSelection">The species' work that steps at the start of the update, before selection.</param>
     /// <param name="places">The room's enemy places.</param>
-    internal EnemyProcessingWindow(EnemyFrameContext frameContext, IStepBeforeEnemySelection stepBeforeSelection, EnemyPlaces places)
+    internal EnemyProcessingWindow(EnemyFrameContext frameContext, EnemyPlaces places)
     {
         _frameContext = frameContext;
-        _stepBeforeSelection = stepBeforeSelection;
         _places = places;
     }
     /// <summary>The enemies scheduled for AI this frame, including forced off-screen actors, in place order.</summary>
-    private readonly List<RoomEnemyPlace> _activeEnemies = new();
+    private readonly List<RoomEnemyOccupant> _activeEnemies = new();
     /// <summary>The active enemies still eligible for Samus interaction and grapple endpoint scans, in place order.</summary>
-    private readonly List<RoomEnemyPlace> _interactiveEnemies = new();
+    private readonly List<RoomEnemyOccupant> _interactiveEnemies = new();
 
     /// <summary>The enemies scheduled for AI this frame, in place order.</summary>
-    internal IReadOnlyList<RoomEnemyPlace> ActiveEnemies => _activeEnemies;
+    internal IReadOnlyList<RoomEnemyOccupant> ActiveEnemies => _activeEnemies;
 
     /// <summary>The active enemies still eligible for Samus interaction, in place order.</summary>
-    internal IReadOnlyList<RoomEnemyPlace> InteractiveEnemies => _interactiveEnemies;
-
-    /// <summary>
-    /// Steps the species' work that runs before selection (the Morph Ball eye's beam), then decides which enemies to process.
-    /// </summary>
-    /// <remarks>
-    /// Main gameplay builds the window first, before Samus's input and movement, so the grapple's endpoint scan sees this
-    /// update's interactive enemies, including one a death explosion respawned at the end of the previous update. The
-    /// Morph Ball eye's beam steps earlier still, at the start of the update, which shows as it starts, a beam set up on
-    /// one update beginning on the next, and as it ends, the full beam seeing the eye shut down on the update after.
-    /// </remarks>
-    /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
-    public void PrepareEnemyProcessingList(Position16<RoomPixels> camera)
-    {
-        _stepBeforeSelection.StepBeforeEnemySelection();
-        DetermineWhichEnemiesToProcess(camera);
-    }
+    internal IReadOnlyList<RoomEnemyOccupant> InteractiveEnemies => _interactiveEnemies;
 
     /// <summary>Rebuilds active and interactive lists after clearing deleted places and applying off-screen policy.</summary>
     internal void DetermineWhichEnemiesToProcess(Position16<RoomPixels> camera)
@@ -61,7 +41,7 @@ internal sealed class EnemyProcessingWindow
         foreach (RoomEnemyPlace place in _places.InUpdateOrder)
         {
             // A place with no enemy, one awaiting its enemy's respawn among them, is not processed.
-            if (place.DefinitionId == EnemyDefinitionId.None)
+            if (place.Occupant is not { } occupant)
                 continue;
             if (place.Presence.HasAny(EnemyPresence.Deleted))
             {
@@ -76,26 +56,26 @@ internal sealed class EnemyProcessingWindow
             if (!active)
                 continue;
 
-            _activeEnemies.Add(place);
+            _activeEnemies.Add(occupant);
             if (!place.Contact.HasAny(EnemyContact.IgnoresSamus))
-                _interactiveEnemies.Add(place);
+                _interactiveEnemies.Add(occupant);
         }
     }
 
     /// <summary>
     /// Whether the enemy lies within the processing window around the camera: its radius reaches the screen's width from
-    /// the camera's left edge, and its centre lies from eight pixels above the camera to 248 pixels below it. The window
+    /// the camera's left edge, and its centre lies from <see cref="ProcessingWindowAboveView"/> above the camera to the view's extent below it. The window
     /// selects the enemies an update processes, and also the enemies the draw pass reaches and the enemies Rios and
     /// pipe bugs treat as on screen.
     /// </summary>
     /// <remarks>
     /// The window measures across the room's axis, as <see cref="CameraPastRoomEdge.LiesBefore"/> reads it, because it tests
     /// every enemy and an enemy can lie above or left of the room's origin (#2537): a fly that has climbed through the
-    /// ceiling, or a Bull braking past Samus, as <see cref="EnemyDeathsAndDrops.TendEnemyPickup"/> records. Its centre then
+    /// ceiling, or a Bull braking past Samus, as <see cref="EnemyDeathsAndDrops"/> records. Its centre then
     /// lies at the end of the axis, and the window reads it the short way from the camera, across the axis. With the
     /// camera at or near the room's left edge, a body whose centre lies past that edge but whose radius reaches back past
     /// the camera is processed and drawn; with the camera at or near the room's top, so is a centre above that edge and no
-    /// more than eight pixels above the camera. A plain difference would read either centre as far right of or below the
+    /// further above the camera than the window reaches. A plain difference would read either centre as far right of or below the
     /// view. The camera lies inside its room, at most 12575 pixels along either axis (#2441), so the wrap changes nothing
     /// for a centre inside the room.
     /// </remarks>

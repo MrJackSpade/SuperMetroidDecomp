@@ -42,10 +42,13 @@ public sealed class EnemyProjectilePlace
     internal EnemyProjectileHandOver? LeftByLastProjectile => _last?.LeftInPlace;
 
     /// <summary>
-    /// Spawns a fresh projectile into the free place, starting from what the place keeps; the projectile is gone until its
-    /// spawner gives it a kind.
+    /// Spawns a fresh projectile of <paramref name="kind"/> bound to <paramref name="behavior"/> into the free place,
+    /// starting from what the place keeps.
     /// </summary>
-    internal EnemyProjectile Take() => _last = new EnemyProjectile(Number, Left);
+    /// <param name="kind">What the projectile is.</param>
+    /// <param name="behavior">What the projectile's kind does, bound to it for its life.</param>
+    internal EnemyProjectile Take(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior) =>
+        _last = new EnemyProjectile(Number, Left, kind, behavior);
 
     /// <summary>Frees the place for a new room: it keeps only what the room before left there.</summary>
     internal void StartRoom() => _last = null;

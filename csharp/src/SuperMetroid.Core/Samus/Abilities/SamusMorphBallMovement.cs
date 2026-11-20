@@ -8,15 +8,12 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Literal movement for ordinary and Spring-Ball morph poses.
+/// How the Morph Ball and Spring Ball move: grounded, falling, bouncing and in transition.
 /// </summary>
 /// <remarks>
-/// The game does not treat the ball as a generic circular rigid body. Grounded,
-/// falling, bouncing, and transition poses enter different movements which share only a few
-/// steps. This class keeps those movements separate while reusing their exact
-/// collision moves and their air, water and lava speeds. Solid enemies stop the ball through the shared block
-/// collision, conveyors carry it as inside-block reactions, and bomb-jump displacement lives
-/// in <see cref="SamusBombJumpMovement"/>.
+/// Each of those movements is its own, sharing a few steps: the collision moves and the air, water and lava
+/// speeds. Solid enemies stop the ball through the shared block collision, conveyors carry it as inside-block
+/// reactions, and bomb-jump displacement lives in <see cref="SamusBombJumpMovement"/>.
 /// </remarks>
 public static class SamusMorphBallMovement
 {
@@ -47,9 +44,8 @@ public static class SamusMorphBallMovement
         BlockMoveResult horizontal;
         if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && stationaryPose)
         {
-            // The rolling movement passes an explicit zero base magnitude through the ordinary
-            // direction-aware displacement path. With no external displacement this is a
-            // zero-pixel block scan, but it still publishes total X speed just like the game.
+            // A resting ball moves only by outside displacement and stops on a wall; it still publishes its total X
+            // speed.
             var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: default);
             horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
             if (horizontal.Collided)
@@ -397,7 +393,7 @@ public static class SamusMorphBallMovement
         return result;
     }
 
-    /// <summary>Rejects missing game, level, or Samus state before entering a morph movement path.</summary>
+    /// <summary>Rejects a missing level or Samus state before entering a morph movement path.</summary>
     private static void Validate(
         RoomLevelData level,
         SamusState samus)

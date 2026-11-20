@@ -38,13 +38,13 @@ internal static class PausePresentationContractChecks
                     wireframe.ApplyTo(page, PauseWireframeKind.VariaSuitHiJump);
                     wireframe.ApplyTo(page, (PauseWireframeKind)99);
                     labels.ApplyInventory(page, 0, 0, 0, 0, false);
-                    selector.Anchor(PauseEquipmentControls.SpaceJump);
-                    selector.Anchor(PauseEquipmentControls.SpeedBooster);
+                    selector.Draw(oam, sheet, PauseEquipmentControls.SpaceJump, look);
+                    selector.Draw(oam, sheet, PauseEquipmentControls.Boots[^1], look);
                     selector.Draw(oam, sheet, PauseEquipmentControls.ReserveMode, look);
                     tanks.Draw(oam, sheet, PauseReserveTankVisual.Full, PauseReserveTankDefinitions.AnchorCount - 1);
                     tanks.Draw(oam, sheet, (PauseReserveTankVisual)99, 0);
-                    tanks.Anchor(PauseReserveTankDefinitions.AnchorCount);
-                    tanks.Anchor(0);
+                    tanks.Draw(oam, sheet, PauseReserveTankVisual.Full, PauseReserveTankDefinitions.AnchorCount);
+                    tanks.Draw(oam, sheet, PauseReserveTankVisual.Full, 0);
                 }
             }
             """;
@@ -70,9 +70,10 @@ internal static class PausePresentationContractChecks
         Require(before.UnresolvedCount == 14, "fourteen calls must first reproduce the absent adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 10 && after.UnresolvedCount == 4 && after.MissingCount == 0 &&
             after.Consumers.Count == 14, "complete resources qualify, while wrong area/kind/identity constants still fail (expected 10/4/0/14; " + after.Describe() + ")");
-        // A selector is placed for a named control (#1772), so no selector can borrow another column's anchor.
-        Require(after.Findings.Count(item => item.Owner is "PauseSelectorPresentation.Anchor") == 0,
-            "every named control's selector anchor qualifies");
+        // A selector is placed for a named control (#1772), so no selector can borrow another column's anchor; its anchor is
+        // the presentation's own, read only by its draw (#2570).
+        Require(after.Findings.Count(item => item.Owner is "PauseSelectorPresentation.Draw") == 0,
+            "every named control's selector draw qualifies");
     }
 
     /// <summary>Fails the audit with the violated pause-provider contract predicate.</summary>

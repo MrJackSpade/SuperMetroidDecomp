@@ -21,31 +21,41 @@ internal static class ProjectileSpriteLocations
     /// A record selects a bank-$93 address that holds no projectile composition, or two records that show one frame store
     /// different compositions.
     /// </exception>
+    /// <returns>The frames that draw a composition, each with it; a frame whose records select the empty record draws none and is left out.</returns>
     internal static Dictionary<SamusProjectileFrameId, ProjectileSpriteId> RecordSprites(ISnesAddressSpace bus)
     {
         IImportCartridgeSource cartridge = bus;
         SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
         Dictionary<int, ProjectileSpriteId> stored = StoredProjectiles().ToDictionary(entry => entry.Key, entry => entry.Value);
-        ProjectileSpriteId SpriteAt(SamusProjectileFrameId frame, int record)
+        int AddressAt(int record) => RomDataReader.ReadWordFixedBank(cartridge,
+            SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(record + 2)));
+        string Selection(SamusProjectileFrameId frame, int record)
         {
-            int address = RomDataReader.ReadWordFixedBank(cartridge,
-                SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(record + 2)));
+            int address = AddressAt(record);
+            if (address == NothingStart)
+                return EmptySelection;
             return stored.TryGetValue(address, out ProjectileSpriteId sprite)
-                ? sprite
+                ? sprite.Name
                 : throw new InvalidDataException($"Timed projectile record {frame} at $93:{record:X4} selects ${address:X4}, which is no projectile composition.");
         }
-        return SamusProjectileFrameOrder.Frames.ToDictionary(frame => frame, frame =>
+        var pictured = new Dictionary<SamusProjectileFrameId, ProjectileSpriteId>();
+        foreach (SamusProjectileFrameId frame in SamusProjectileFrameOrder.Frames)
         {
-            ProjectileSpriteId sprite = SpriteAt(frame, lists.RecordPosition(frame));
+            string selected = Selection(frame, lists.RecordPosition(frame));
             foreach (int record in lists.RecordPositions(frame))
             {
-                ProjectileSpriteId other = SpriteAt(frame, record);
-                if (other != sprite)
-                    throw new InvalidDataException($"Timed projectile records showing {frame} store compositions {sprite.Name} and {other.Name}.");
+                string other = Selection(frame, record);
+                if (other != selected)
+                    throw new InvalidDataException($"Timed projectile records showing {frame} store compositions {selected} and {other}.");
             }
-            return sprite;
-        });
+            if (selected != EmptySelection)
+                pictured.Add(frame, stored[AddressAt(lists.RecordPosition(frame))]);
+        }
+        return pictured;
     }
+
+    /// <summary>How a record selecting the empty record, which draws nothing, is named in a mismatch.</summary>
+    private const string EmptySelection = "the empty record";
 
     /// <summary>The bank-$93 address of each projectile composition: the first record that stores it.</summary>
     internal static Dictionary<ProjectileSpriteId, ushort> Projectiles() =>
@@ -88,8 +98,6 @@ internal static class ProjectileSpriteLocations
     internal static ushort PointerAt(int index)
     {
         if ((uint)index >= ProjectileSpriteDefinitions.Stored.Count) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index < 1) return (ushort)(NothingStart + index * RecordBytes(0));
-        index -= 1;
         if (index < 8) return (ushort)(PowerStart + index * RecordBytes(1));
         index -= 8;
         if (index < 4) return (ushort)(PlasmaStart + index / 2 * (RecordBytes(4) + RecordBytes(6)) + index % 2 * RecordBytes(4));

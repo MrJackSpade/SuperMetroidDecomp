@@ -9,6 +9,6 @@ internal enum MotherBrainEffectCueKind
     ReleaseDrool,
     /// <summary>Deletes the projectile.</summary>
     Delete,
-    /// <summary>Lowers the released drool twelve pixels.</summary>
+    /// <summary>Lowers the released drool by <see cref="MotherBrainFightDefinitions.DroolReleaseDrop"/>.</summary>
     DropDrool,
 }

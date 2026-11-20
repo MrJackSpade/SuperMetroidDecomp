@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 
@@ -18,7 +17,7 @@ public sealed class RoomBackgroundImage
     public const string FrameName = "image";
 
     /// <summary>Pixels along a cell's side.</summary>
-    public const int CellPixels = 16;
+    private const int CellPixels = 16;
 
     /// <summary>
     /// Checks the image is whole cells across and down, that each installed part of its picture (#1634) is the image's size,
@@ -68,7 +67,7 @@ public sealed class RoomBackgroundImage
     /// <summary>The image's width and height.</summary>
     public Extent16<ImagePixels> Size { get; }
 
-    /// <summary>The image's 16x16 cells, row by row across the picture.</summary>
+    /// <summary>The image's block-sized cells, row by row across the picture.</summary>
     public int CellCount { get; }
 
     /// <summary>The cells whose pictures change with the room's appearance inputs; every other cell always shows the image.</summary>
@@ -80,11 +79,10 @@ public sealed class RoomBackgroundImage
         $"Sky{ScrollingSkyKeys.Installed.Of(sky)}.{RoomBlockSheet.NameOf(tileset)}";
 
     /// <summary>
-    /// The installed name of <paramref name="background"/>'s picture in a room of <paramref name="tileset"/>: the picture a
-    /// room entered through <paramref name="door"/> shows when that door shows its own picture, otherwise, for no door,
-    /// the ordinary one.
+    /// The installed name of <paramref name="background"/>'s picture <paramref name="picture"/> in a room of
+    /// <paramref name="tileset"/>: a door's picture is named for its door, the ordinary picture for the background alone.
     /// </summary>
     [InstalledKey]
-    public static string NameOf(LibraryBackground background, DoorDefinition? door, TilesetDefinition tileset) =>
-        $"{Ensure.NotNull(background).Name}{(door is null ? "" : "." + door.Name)}.{RoomBlockSheet.NameOf(tileset)}";
+    public static string NameOf(LibraryBackground background, LibraryBackgroundPicture picture, TilesetDefinition tileset) =>
+        $"{Ensure.NotNull(background).Name}{(Ensure.NotNull(picture) is LibraryBackgroundPicture.DoorPicture shown ? "." + shown.Door.Name : "")}.{RoomBlockSheet.NameOf(tileset)}";
 }

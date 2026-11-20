@@ -15,7 +15,6 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -101,15 +100,17 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         EnemyFrameName firstIdentity = DraygonBg2FrameDefinitions.Frames[0];
         EnemyBg2WriteDocument first = document.Frames[firstIdentity.Name][0];
-        AssertTrue(DrawDraygonBg2(stock, firstIdentity.Pointer, false).All(value => value == 0),
-            "Draygon BG2 drawing keeps the native new-frame producer gate");
+        // His body shows his current frame on every update it is drawn (#2573), also one whose cue selected no new frame.
+        AssertTrue(ShowsWrittenWords(ReadReferenceExtendedBg2Vram(rom, DraygonBg2FrameToolingDefinitions.Bank, firstIdentity.Pointer, true),
+                DrawDraygonBg2(stock, firstIdentity.Pointer, false)),
+            "Draygon's body shows his current frame on an update that selects no new frame");
         document.Frames[firstIdentity.Name][0] = first with { X = 32 };
         using var invalid = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             CamelCaseJson));
         AssertThrows<InvalidDataException>(
             () => DraygonBg2FrameCatalog.Load(invalid),
             "Draygon BG2 write outside its tilemap fails loudly");
-        Console.WriteLine("  Draygon BG2 frames: 34 selected frames and 102 native writes match installed VRAM; producer gate, ROM guard and strict validation pass.");
+        Console.WriteLine("  Draygon BG2 frames: 34 selected frames and 102 native writes match installed VRAM; the body's current frame on every update, ROM guard and strict validation pass.");
     }
 
     /// <summary>Compares native frame roots and hitbox lists, then runs the production overlap walker with cartridge reads denied.</summary>
@@ -180,8 +181,8 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         // denied. This checks the actual dispatch, not just a matching table.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.DraygonBody, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.DraygonBody, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.Position = place.Position.WithWhole(new(0x100, 0x100));
         foreach (ushort pointer in new ushort[] { 0xa31b, 0xa643, 0xa36b })
         {
@@ -224,8 +225,8 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Draygon);
         enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.DraygonBody, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.DraygonBody, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.CollidesByFrameHitboxes = true;
         if (newInstructionFrame)
             SuperMetroid.Core.PrivateState.Set(place.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);

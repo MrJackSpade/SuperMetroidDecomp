@@ -185,7 +185,7 @@ internal static void VerifyRoomEnemyLoading()
     RoomEnemyDefinition definition = place.Definition;
     // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
     AssertEqual<SoundEffectId?>(EnemySound.Squeaks, definition.HurtSoundEffect, "definition hurt cry offset $0E");
-    AssertEqual<GrappleEnemyReaction?>(GrappleEnemyReaction.Cancel, definition.GrappleResponse, "definition grapple response offset $1A");
+    AssertEqual(GrappleEnemyReaction.Cancel, definition.GrappleResponse, "definition grapple response offset $1A");
     // Offset $28 names the species' own Power Bomb routine, which a definition leaves to the species (#1759).
     AssertEqual<EnemyReaction?>(null, definition.PowerBombReaction,
         "definition power-bomb reaction offset $28 names no shared reaction");
@@ -197,7 +197,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(0x0020),
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSetAt(bus, TestAddressSpace.FixtureHeaderPointer(specialDefinitionPointer)),
         "the import decodes the special definition's tile set size without its bit 15");
-    AssertEqual(EnemyHeaderTables.DropChances(bus, 0xf206), definition.DropChances,
+    AssertEqual(EnemyHeaderTables.Drops(bus, 0xf206), definition.Drops,
         "definition item-drop table offset $3A");
     AssertEqual(EnemyHeaderTables.Vulnerability(bus, 0xec48), definition.Vulnerability,
         "definition vulnerability table offset $3C");
@@ -236,7 +236,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0, enemies.Places.EnemyCount, "empty population clears enemy count");
     AssertTrue(enemies.Presentation.DrawnPopulation is null, "an empty population loads no enemy artwork");
     AssertEqual(enemies.Places.InUpdateOrder[0], enemies.Places.FindFreePlace(), "an empty population leaves the first slot free");
-    AssertEqual(1, enemies.PopulationLoader.DeathQuota, "empty population preserves native death-quota quirk");
+    AssertEqual(1, enemies.PopulationLoader.DeathQuota, "an empty population, which has no quota, keeps the previous room's death quota");
     AssertEqual<AreaBoss?>(null, enemies.RoomStatus.Boss, "room load clears the boss before an empty population");
     AssertEqual(0x5a, vram.ReadByte(0xe000), "empty population leaves enemy VRAM untouched");
     AssertTrue(enemies.Presentation.DrawnPopulation is null,
@@ -332,36 +332,32 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var shotsEarthquake = new RoomEarthquake();
     var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), shotsEarthquake);
     SamusProjectile owner = shots.Shots[0];
-    owner.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
-    owner.Damage = 0x012c;
+    owner.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 0x012c);
     owner.Direction = SamusProjectileDirection.Right;
     owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
     owner.Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f3b, updates: 15);
     owner.SpritemapPointer = 0xae0f;
-    owner.Install(SamusShotBehaviors.SuperMissile, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
+    owner.HeldShot().Install(SamusShotBehaviors.SuperMissile, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
     SamusProjectile link = shots.Shots[1];
-    link.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
-    link.Damage = 0x012c;
+    link.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 0x012c);
     link.Direction = SamusProjectileDirection.Right;
     link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
     link.Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f7b);
     link.SpritemapPointer = 0;
-    link.Install(SamusShotBehaviors.SuperMissileLink, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
+    link.HeldShot().Install(SamusShotBehaviors.SuperMissileLink, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
-    int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
+    enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
         shots,
         new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
 
-    AssertEqual(2, hits,
-        "blocking enemy projectile visits Super Missile owner and linked slot");
-    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), owner.Type,
+    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), owner.HeldShot().Type,
         "enemy-projectile collision preserves fresh Super Missile family");
     AssertEqual(0x9f3b, owner.InstructionPointer,
         "enemy-projectile collision preserves fresh Super Missile animation program");
     AssertTrue(owner.IsSpent,
         "enemy-projectile collision marks Super Missile owner lifecycle");
-    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), link.Type,
+    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), link.HeldShot().Type,
         "enemy-projectile collision does not turn invisible link into an explosion");
     AssertEqual(0, link.SpritemapPointer,
         "enemy-projectile collision leaves Super Missile link invisible");
@@ -513,7 +509,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     RipperEnemyState ripperState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<RipperEntity>(ripper).State;
     AssertEqual(new AnimationPlayback<RipperSegment>(RipperAnimations.StartingWith(RipperSegment.RipperMovingRight), AnimationPlace.StartOfAnimation),
         ripperState.Playback, "Ripper init right animation");
-    SignedSixteenSixteen ripperSpeed = ripper.SpawnSettings<RipperSpawnSettings>().Speed;
+    SignedSixteenSixteen ripperSpeed = ripper.HeldOccupant().SpawnSettings<RipperSpawnSettings>().Speed;
     AssertEqual(1, RipperBehavior.FlyingVelocity(ripperSpeed, ripperState.Heading).UnsignedWholePixels, "Ripper init signed whole X velocity");
     AssertEqual(0, RipperBehavior.FlyingVelocity(ripperSpeed, ripperState.Heading).Fraction, "Ripper init X subvelocity");
 
@@ -556,8 +552,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         Health = 99,
         Position = FixedPosition<RoomPixels>.FromWhole(ripper.Position.Whole),
     };
-    AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), controllerInput: 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ripper, Position16<RoomPixels>.Zero),
-        "Ripper radius contact reaches common touch AI");
+    enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), controllerInput: 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ripper.HeldOccupant(), Position16<RoomPixels>.Zero);
     AssertEqual(94, samus.Health, "Ripper header contact damage");
     AssertEqual(0x60, samus.InvincibilityTimer.RawValue, "Ripper contact invincibility clock");
     AssertEqual(5, samus.KnockbackHold.UpdatesLeft, "Ripper contact knockback clock");
@@ -583,8 +578,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ushort damage)
     {
         SamusProjectile projectile = pool.Pool.Occupy(0);
-        projectile.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type);
-        projectile.Damage = damage;
+        projectile.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), damage);
         projectile.Direction = SamusProjectileDirection.Right;
         projectile.Position = projectile.Position.WithWhole(target.Position.Whole);
         projectile.Radius = new(4, 4);
@@ -593,13 +587,12 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     }
 
     SamusProjectile shot = ArmProjectile(projectiles, ripper, type: 0x8000, damage: 20);
-    AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
-        "Ripper ineffective power-beam collision");
+    enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
+    AssertTrue(shot.IsSpent, "Ripper ineffective power-beam collision spends the shot");
     AssertEqual(200, ripper.Health, "Ripper power-beam immunity comes from ROM vulnerability");
 
     shot = ArmProjectile(projectiles, ripper, type: 0x8002, damage: 20);
-    AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
-        "Ripper Ice Beam collision");
+    enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
     AssertEqual(400, ripper.Freeze.UpdatesLeft, "Ripper Ice vulnerability freezes actor");
     ushort frozenX = ripper.Position.X.Whole;
     // The Ice Beam froze it, so Samus has it equipped; an enemy thaws at once when she has not.
@@ -621,19 +614,18 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     for (int hit = 0; hit < 2; hit++)
     {
         shot = ArmProjectile(projectiles, ripper, type: 0x0200, damage: 100);
-        AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
-            $"Ripper Super Missile hit {hit + 1}");
+        enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(criesBefore + hit + 1, enemies.Audio.SoundRequests.Count(request =>
             request.SoundEffect == expectedHurtCry && request.Priority.Requests == 3),
             "common shot queues the header cry for surviving and lethal hits");
     }
     AssertEqual(0, ripper.Health, "Ripper Super Missile vulnerability reaches zero health");
-    AssertEqual(EnemyDefinitionId.None, ripper.DefinitionId,
+    AssertTrue(ripper.Occupant is null,
         "Ripper generic death clears its common enemy record immediately");
-    EnemyProjectile ripperDeath = enemies.Projectiles.ProjectileInPlace(17);
+    EnemyProjectile ripperDeath = enemies.Projectiles.SpawnedInPlace(17);
     AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, ripperDeath.Kind,
         "Ripper zero health allocates the shared F345 death actor");
-    AssertEqual(definitionPointer, ripperDeath.StateOf<EnemyDeathExplosionState>().DropDefinitionId,
+    AssertEqual(definitionPointer, enemies.DeathsAndDrops.Explosions.Of(ripperDeath).Dropper?.DefinitionId,
         "Ripper death actor retains its header for EEAF drop selection");
     AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "Ripper death increments room kill count");
 
@@ -1046,8 +1038,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
             projectiles, samusBombs),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
-        observedNormalRidleyPalette |= !state.HurtFlashShows.Body;
-        observedFlashRidleyPalette |= state.HurtFlashShows.Body;
+        observedNormalRidleyPalette |= !global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState, global::SuperMetroid.Core.Bosses.Ridley.RidleyHurtFlashShowing>(state, "HurtFlashShows").Body;
+        observedFlashRidleyPalette |= global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState, global::SuperMetroid.Core.Bosses.Ridley.RidleyHurtFlashShowing>(state, "HurtFlashShows").Body;
         if (hit == 49)
             AssertEqual(0x7000, Shown()[0xf1],
                 "Ceres Ridley 50-hit health palette");
@@ -1092,11 +1084,10 @@ internal static void VerifyCeresRidleyRoomEntry()
             retreatBackgroundColor ??= RgbColor.FromWord(Shown()[0x51]);
         // Room main follows enemy AI, so the handoff frame also takes getaway step zero.
         enemies.CeresEscape.RunGetawayRoomMain(samus, ceresFloor, 0);
-        observedFakeRetreat |= state.Phase is
-            CeresRidleyPhase.FakeRetreatMoveToPosition or
-            CeresRidleyPhase.FakeRetreatRising or
-            CeresRidleyPhase.WaitBeforeRetrievingBaby or
-            CeresRidleyPhase.RetrieveBaby;
+        observedFakeRetreat |= state.Phase == CeresRidleyPhase.FakeRetreatMoveToPosition ||
+            state.Phase == CeresRidleyPhase.FakeRetreatRising ||
+            state.Phase == CeresRidleyPhase.WaitBeforeRetrievingBaby ||
+            state.Phase == CeresRidleyPhase.RetrieveBaby;
         retreatFrames++;
     }
     AssertTrue(observedFakeRetreat,
@@ -1110,7 +1101,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(ridley.Presence.HasAny(EnemyPresence.Hidden),
         "Ceres Ridley ordinary actor yields to getaway presentation");
     RoomEnemyPlace[] mode7Walls = enemies.Places.InUpdateOrder
-        .Where(place => place.DefinitionId == EnemyDefinitionId.CeresGetawayChamberWall)
+        .Where(place => place.Holds(EnemyDefinitionId.CeresGetawayChamberWall))
         .ToArray();
     AssertTrue(mode7Walls.All(wall => wall.Presence.HasAny(EnemyPresence.Hidden)), "the getaway wall actors draw nothing; the getaway scene shows the walls");
     AssertEqual(2, mode7Walls.Length,
@@ -1298,7 +1289,7 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
             WriteTestByte(bus, cursor++, checked((byte)character));
     }
 
-    Word(EscapeTypewriterExtractor.DelayCommand);
+    Word(checked((ushort)EscapeTypewriterExtractor.DelayCommand));
     Word(EscapeTypewriterDefinitions.CharacterDelayFrames);
     Word((ushort)EscapeTypewriterCommand.LineStart);
     Word(0x4905);

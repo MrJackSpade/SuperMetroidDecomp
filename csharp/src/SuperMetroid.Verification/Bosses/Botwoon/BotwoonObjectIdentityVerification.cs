@@ -25,17 +25,17 @@ internal static class BotwoonObjectIdentityVerification
         for (int i = 0; i < 40; i++)
         {
             BotwoonWallMutation mutation = (i & 1) == 0 ? BotwoonWallMutation.Clear : BotwoonWallMutation.Crumble;
-            AssertTrue(roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(assets.LevelData, mutation), "Botwoon slot allocation succeeds until full");
+            roomObjects.BossRoomMutations.BotwoonWall.Spawn(assets.LevelData, mutation);
             var place = roomObjects.PopulationPlaces.Single(place => place.UpdatePosition == i);
             AssertEqual(new Position16<RoomBlocks>(15, 4), place.Block, "hardcoded Botwoon placement");
             TerrainChange expectedChange = (i & 1) == 0 ? BotwoonWallMutationDefinitions.Clear : BotwoonWallMutationDefinitions.Crumble;
-            AssertTrue(place.Behaviour is TerrainChangeObject { Change: var change } && change == expectedChange,
+            AssertTrue(place.Behaviour is TerrainChangeObject started && started.Starts(expectedChange),
                 "header-specific Botwoon change");
             AssertEqual((i & 1) == 0 ? 1 : 64, expectedChange.FirstFrameDelay, "header-specific Botwoon delay");
             AssertEqual((i & 1) != 0, place.Behaviour is BotwoonWallCrumbleObject, "only the crumble opens the scrolls");
         }
         var before = roomObjects.PopulationPlaces.ToArray();
-        AssertTrue(!roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(assets.LevelData, BotwoonWallMutation.Clear), "full native PLM pool declines spawn");
+        roomObjects.BossRoomMutations.BotwoonWall.Spawn(assets.LevelData, BotwoonWallMutation.Clear);
         AssertTrue(before.SequenceEqual(roomObjects.PopulationPlaces), "failed spawn preserves every owner and timer");
         roomObjects = RoomObjectFixtures.Unbound();
         AssertEqual(0, roomObjects.PopulationPlaces.Count, "room reset retires both Botwoon walls");

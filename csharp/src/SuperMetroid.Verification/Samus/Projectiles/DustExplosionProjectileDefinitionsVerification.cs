@@ -49,7 +49,7 @@ internal static class DustExplosionProjectileDefinitionsVerification
             SmokePuffPlacements.Point,
             SmokePuffPlacementsConstants.CentredEightPixelSquare,
             SmokePuffPlacementsConstants.CentredSixteenPixelSquare,
-            SmokePuffPlacements.CentredSixteenByThirtyTwoBox,
+            SmokePuffPlacements.CentredBox,
             SmokePuffPlacementsConstants.CentredThirtyTwoBySixtyFourBox,
         ];
         for (int index = 0; index < placements.Length; index++)
@@ -74,7 +74,7 @@ internal static class DustExplosionProjectileDefinitionsVerification
             enemies.VerificationServices().ReadRandom = () => random;
             enemies.VerificationServices().NextRandom = () => { advances++; return 0xbeef; };
             Action<EnemyProjectile, DustExplosionAnimation, DustExplosionPlacement, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
-            EnemyProjectile smoke = enemies.Projectiles.ProjectileInPlace(0);
+            EnemyProjectile smoke = enemies.Projectiles.Occupy(0, RoomEnemyProjectileKind.EyeDoorSmoke);
             initialize(smoke, DustExplosionAnimation.CorpseDustCloud, definition, new(7, 9));
             AssertTrue(smoke.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.CorpseDustCloud },
                 $"eye-door smoke production instruction {index}");

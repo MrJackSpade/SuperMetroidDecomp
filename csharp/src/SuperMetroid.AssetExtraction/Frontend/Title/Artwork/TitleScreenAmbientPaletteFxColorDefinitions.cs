@@ -20,8 +20,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 /// odd records write <c>[00AC,0145]</c>. These frames reuse the initial
 /// title palette's material paint through named bindings and calculated shading.
 /// The initial palette's independent paint values remain separately required
-/// under TitlePalettePresentation.colors; each supplied initial or animated
-/// edit preserves every other installed value. Missing inputs report an error
+/// under <see cref="TitlePalettePresentation.colours"/>; each supplied initial or animated
+/// edit preserves every other colour the import reads. Missing inputs report an error
 /// rather than falling back to reading the original game data.
 /// </remarks>
 public static class TitleScreenAmbientPaletteFxColorDefinitions
@@ -39,7 +39,6 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
         new()
         {
             Owner = TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight,
-            Colours = ColourEffectColours.BabyMetroidTubeLight,
             FrameCount = 2 * TubeDimmingSteps,
             ColorsPerFrame = TubeColourCount,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TitleScreenBabyMetroidTubeLight, TubeColourCount),
@@ -49,7 +48,6 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
         new()
         {
             Owner = TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays,
-            Colours = ColourEffectColours.TitleScreenDisplays,
             FrameCount = DisplayStates,
             ColorsPerFrame = DisplayColourCount,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TitleScreenFlickeringDisplays, DisplayColourCount),

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>
-/// Owtch's left and right shell-cycling animations (#641): each facing's entry cue, which the animation a spawn, branch or
-/// wake starts there plays once, and the crawl it then loops (#2276), in authored order. Their steps are
+/// Owtch's left and right shell-cycling animations (#641): each facing's entry cue, which plays once, and the crawl it
+/// then loops (#2276). Their steps are
 /// <see cref="OwtchAnimations"/>.
 /// </summary>
 internal enum OwtchSegment

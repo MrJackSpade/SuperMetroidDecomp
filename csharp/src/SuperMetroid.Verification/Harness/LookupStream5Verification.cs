@@ -121,7 +121,7 @@ internal static class LookupStream5Verification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)),
             "Skeleton transfer oracle revision");
         VerifyCrocomireSkeletonArtwork(oracle, InstalledFixtures.EnemyArtwork);
-        AssertThrows<InvalidDataException>(() => CrocomireSkeletonArtwork.IsChunk(-1),
+        AssertThrows<InvalidDataException>(() => CrocomireSkeletonArtwork.RequireChunk(-1),
             "Skeleton negative transfer index rejects");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireSourceDefinitions.SkeletonChunk(6),
             "Skeleton view excludes sentinel");
@@ -190,14 +190,14 @@ internal static class LookupStream5Verification
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body, eye, system.Places.InUpdateOrder[2], system.Places.InUpdateOrder[3]);
+            var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, system.Places.InUpdateOrder[2], system.Places.InUpdateOrder[3]);
             system.BeginPhantoonAsSetUp(state);
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls == 1 ? bucket : nextPattern);
             // The fade writes Phantoon's palette rows toward its installed fade colors.
             system.BossArtwork = InstalledFixtures.BossArtwork;
             Action<PhantoonEnemyState> fade = system.PhantoonBehavior.Patterns.RunPhantoonFlameRainFadeOut;
-            Action<RoomEnemyPlace, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain;
+            Action<RoomEnemyPlace, PhantoonEnemyState> tick = (phantoon, encounter) => system.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain(phantoon.HeldOccupant(), phantoon, encounter);
             body.Position = body.Position.WithWhole(new(111, 99)); state.FigureEight.PathPlace = PhantoonPath.At(42); state.PhaseWait.LastFor(17);
             state.Phase = PhantoonPhase.FadeOutDuringFlameRain;
             // He fades out of the colouring the fight shows him in (#1512), his health band's.
@@ -251,7 +251,7 @@ internal static class LookupStream5Verification
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
             var mouth = system.Places.InUpdateOrder[3];
-            var state = new PhantoonEnemyState(body, eye, system.Places.InUpdateOrder[2], mouth);
+            var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, system.Places.InUpdateOrder[2], mouth);
             system.BeginPhantoonAsSetUp(state);
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => { randomCalls++; return (ushort)(reversed ? 1 : 0); };
@@ -320,7 +320,7 @@ internal static class LookupStream5Verification
         CeresFloorActorPicture[] strips = [CeresFloorActorPicture.ElevatorLight, CeresFloorActorPicture.ElevatorDark];
         for (int frame = 0; frame < strips.Length; frame++)
         {
-            IReadOnlyDictionary<int, int> cells = CeresFloorDrawings.Cells(strips[frame]);
+            Dictionary<int, int> cells = CeresFloorDrawings.Cells(strips[frame]);
             for (int cell = 0; cell < 4; cell++)
                 AssertEqual<int>(rom.ReadCartridgeByte(CeresSourceDefinitionsDoorConstants.PlatformFrames + frame * 4 + cell), cells[12 * 128 + 14 + cell],
                     "The import pictures the platform strip's native cells");
@@ -365,7 +365,7 @@ internal static class LookupStream5Verification
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
             var tentacles = system.Places.InUpdateOrder[2];
-            var state = new PhantoonEnemyState(body, eye, tentacles, system.Places.InUpdateOrder[3]);
+            var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, tentacles, system.Places.InUpdateOrder[3]);
             system.BeginPhantoonAsSetUp(state);
             system.VerificationServices().NextRandom = () => (ushort)bucket;
             Action<PhantoonEnemyState> open = system.PhantoonBehavior.BeginPhantoonEyeTracking;
@@ -809,11 +809,11 @@ internal static class LookupStream5Verification
         {
             native[i] = ControllerWordCodec.FromJoypadWord(ReadVerificationWord(rom, MapSourceDefinitions.FileSelectMap.ScrollArrows + i * 10 + 6), "native map arrow mask");
             AssertEqual(i + 1, (int)ReadVerificationWord(rom, MapSourceDefinitions.FileSelectMap.ScrollArrows + i * 10 + 8), "Native direction identity");
-            AssertEqual(native[i], MapScrollControls.ButtonFor((MapScrollDirection)(i + 1)), "Native directional mask");
+            AssertEqual(native[i], MapScrollControls.ButtonFor((MapScrollDirection)i), "Native directional mask");
             AssertEqual(native[i], MapScrollControls.Buttons[i], "Calculated ordered view");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor(MapScrollDirection.None), "No direction has no binding");
-        AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor((MapScrollDirection)5), "Invalid direction");
+        AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor((MapScrollDirection)(-1)), "No direction has no binding");
+        AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor((MapScrollDirection)4), "Invalid direction");
         var state = new SharedGameState(new SharedRandom());
         state.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
         state.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
@@ -828,12 +828,12 @@ internal static class LookupStream5Verification
                 int delta = tick >= 4 ? 8 : 0;
                 AssertEqual(startX + (selected == 0 ? -delta : selected == 1 ? delta : 0), (int)stock.Scroll.X, "Horizontal pulse");
                 AssertEqual(startY + (selected == 2 ? -delta : selected == 3 ? delta : 0), (int)stock.Scroll.Y, "Vertical pulse");
-                AssertEqual(tick == 8 ? MapScrollDirection.None : (MapScrollDirection)(selected + 1), stock.Direction, "Accepted direction survives release");
+                AssertEqual(tick == 8 ? null : (MapScrollDirection)selected, stock.StepUnderWay?.Direction, "Accepted direction survives release");
             }
         }
         var priority = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, state), new(240, 128));
         _ = priority.Step((native[0] | native[1] | native[2] | native[3]));
-        AssertEqual(MapScrollDirection.Left, priority.Direction, "Left takes priority among simultaneous directions");
+        AssertEqual(MapScrollDirection.Left, priority.StepUnderWay?.Direction, "Left takes priority among simultaneous directions");
         Console.WriteLine("Map buttons: four native semantic cases, domain bounds, four-direction pulses, release and priority pass.");
     }
 
@@ -966,7 +966,7 @@ internal static class LookupStream5Verification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Marker reference ROM revision");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var body = enemies.Places.InUpdateOrder[0];
-        var state = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        var state = new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
         Action<RoomEnemyPlace, PhantoonEnemyState, ushort, int> shot = (shotPlace, shotPhantoon, shotType, shotDamage) =>
             enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(shotPlace, shotPhantoon, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(shotType), shotDamage);
         ushort random = 0;
@@ -1101,12 +1101,12 @@ internal static class LookupStream5Verification
                 // The mount's beam follows the eye listed right after it (#1835).
                 var followed = enemies.Places.InUpdateOrder[1];
                 followed.SetSpawnParameter1(EnemyDefinitionId.MorphBallEye, 0);
-                followed.Bind(EnemyDefinitionId.MorphBallEye, followed.Definition);
+                followed.Bind(EnemyDefinitionId.MorphBallEye, followed.KeptDefinition);
                 var place = enemies.Places.InUpdateOrder[0];
                 place.SetSpawnParameter2(EnemyDefinitionId.MorphBallEye, (ushort)(0x8000 | direction));
-                place.Bind(EnemyDefinitionId.MorphBallEye, place.Definition);
+                place.Bind(EnemyDefinitionId.MorphBallEye, place.KeptDefinition);
                 place.Position = place.Position.WithWhole(new(origin, origin));
-                new Action<RoomEnemyPlace>(enemies.MorphBallEyeBehavior.InitializeMorphBallEyeMount)(place);
+                new Action<RoomEnemyPlace>(fixturePlace => enemies.MorphBallEyeBehavior.InitializeMorphBallEyeMount(fixturePlace.HeldOccupant(), fixturePlace))(place);
                 AssertEqual(unchecked((ushort)(origin + expected.First)), place.Position.X.Whole, "Actual mount X with native wrap");
                 AssertEqual(unchecked((ushort)(origin + expected.Second)), place.Position.Y.Whole, "Actual mount Y with native wrap");
                 MorphBallEyeMountState mountState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<MorphBallEyeMountEntity>(enemies.Places.InUpdateOrder[0]).State;
@@ -1119,8 +1119,8 @@ internal static class LookupStream5Verification
         var owner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var body = owner.Places.InUpdateOrder[1];
         body.SetSpawnSettings(new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
-        body.Bind(EnemyDefinitionId.MorphBallEye, body.Definition);
-        new Action<RoomEnemyPlace>(MorphBallEyeBehavior.InitializeMorphBallEyeBody)(body);
+        body.Bind(EnemyDefinitionId.MorphBallEye, body.KeptDefinition);
+        new Action<RoomEnemyPlace>(fixturePlace => MorphBallEyeBehavior.InitializeMorphBallEyeBody(fixturePlace.HeldOccupant(), fixturePlace))(body);
         (SuperMetroid.Core.Enemies.EnemyPartners.Listed<MorphBallEyeEntity>(body).State).IsActivated = true;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Body = body;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
@@ -1134,7 +1134,7 @@ internal static class LookupStream5Verification
                 rom.ReadCartridgeByte(0x88ea8d + phase * 4) & FadeLevelColour.FullLevel).ToColour();
             AssertEqual(expected, MorphBallEyeBeamDefinitions.CycleColors[phase], "Native two-channel triangle intensities");
             step();
-            AssertEqual(expected, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Color, "Actual beam colour, zero blue intensity included");
+            AssertEqual(expected, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBeamState, global::SuperMetroid.Core.Assets.RgbColor>(owner.MorphBallEyeBehavior.MorphBallEyeBeam, "Color"), "Actual beam colour, zero blue intensity included");
             AssertEqual(MorphBallEyeBeamColour.All[(phase + 1) & 15], owner.MorphBallEyeBehavior.MorphBallEyeBeam.NextColour, "Actual cycling and wrap after the sixteenth colour");
         }
         AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.MorphBallEye, PopulationWords.Parameters(0, 0x8004)),
@@ -1278,18 +1278,18 @@ internal static class LookupStream5Verification
             enemies.VerificationServices().NextRandom = () => { calls++; return random; };
             var body = enemies.Places.InUpdateOrder[0];
             var eye = enemies.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+            var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
             enemies.BeginPhantoonAsSetUp(state);
             state.PhaseWait.LastFor(1);
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
-            new Action<RoomEnemyPlace, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);
+            enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain(body.HeldOccupant(), body, state);
             AssertEqual(rom.ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathPlace.Place, "Real rain cursor handoff");
             AssertEqual(rom.ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
             AssertEqual(rom.ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
             AssertEqual(PhantoonPathDirection.Forwards, state.FigureEight.Direction, "Real rain direction reset");
             AssertEqual(PhantoonPhase.BecomeSolidAfterFlameRain, state.Phase, "Real rain phase handoff");
             AssertEqual(1, calls, "Rain consumes one RNG word");
-            var flames = enemies.Projectiles.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.StateOf<PhantoonRainFlameState>().HangUpdates).ToArray();
+            var flames = enemies.Projectiles.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => enemies.PhantoonBehavior.Combat.DestroyableFlame.Rains.Of(p).HangUpdates).ToArray();
             AssertEqual(8, flames.Length, "Actual rain population");
             AssertTrue(flames.All(flame => flame.Position.X.Whole != body.Position.X.Whole), "Calculated rain gap lies at the body X");
             for (int i = 0; i < 8; i++)
@@ -1297,7 +1297,7 @@ internal static class LookupStream5Verification
                 int column = (rom.ReadCartridgeByte(0xa7cfc2 + pattern) + i) % 9;
                 AssertEqual(rom.ReadCartridgeByte(0x8698f7 + column), flames[i].Position.X.Whole, "Actual rain column order with wrap");
                 AssertEqual((ushort)40, flames[i].Position.Y.Whole, "Actual rain ceiling Y");
-                AssertEqual((i + 1) * 8, flames[i].StateOf<PhantoonRainFlameState>().HangUpdates, "Actual staggered rain delay");
+                AssertEqual((i + 1) * 8, enemies.PhantoonBehavior.Combat.DestroyableFlame.Rains.Of(flames[i]).HangUpdates, "Actual staggered rain delay");
             }
         }
 
@@ -1307,7 +1307,7 @@ internal static class LookupStream5Verification
         Action<RoomEnemyPlace, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
         RoomEnemyPlace eyeBody = eyeEnemies.Places.InUpdateOrder[0];
         RoomEnemyPlace trackingEye = eyeEnemies.Places.InUpdateOrder[1];
-        var eyeState = new PhantoonEnemyState(eyeBody, trackingEye, eyeEnemies.Places.InUpdateOrder[2], eyeEnemies.Places.InUpdateOrder[3]);
+        var eyeState = new PhantoonEnemyState(eyeBody.HeldOccupant(), eyeBody, trackingEye, eyeEnemies.Places.InUpdateOrder[2], eyeEnemies.Places.InUpdateOrder[3]);
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, CompassDirection direction, _) in eyeTargets)
         {
@@ -1600,7 +1600,7 @@ internal static class LookupStream5Verification
         var installed = EnemySpritemapDocuments.Load(new MemoryStream(stockJson, writable: false));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(SpawnedObjectFixtures.InstalledTilesWith(installed)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
-        enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.Places.InUpdateOrder[0].Definition);
+        enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.Places.InUpdateOrder[0].KeptDefinition);
         enemies.Places.InUpdateOrder[0].SetUpPlaced<CeresRidleyState>();
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
@@ -1816,7 +1816,7 @@ internal static class LookupStream5Verification
                 door.FrameCounter = (ushort)counter; door.ElevatorDoor().RunMainAi(aiFrame);
                 int row = (counter & 0x38) >> 3;
                 // The tick names the glow step the room's pictures show, which the import paints from this row (#1512).
-                AssertEqual(row, system.CeresDoorBehavior.ElevatorRoomGlowStep, "Actual native eight-tick row selection");
+                AssertEqual(row, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior, int?>(system.CeresDoorBehavior, "ElevatorRoomGlowStep"), "Actual native eight-tick row selection");
             }
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
             {
@@ -1965,5 +1965,5 @@ internal static class LookupStream5Verification
     /// <summary>An enemy update's frame for the Ceres elevator door's own update, which reads nothing of it.</summary>
     private static ClockedEnemyAiFrame CeresDoorAiFrame() => new(
         RoomEnemyFrameFixtures.Standalone(SuperMetroid.Core.Rooms.LevelData.RoomLevelData.CollisionOnly(new(1, 1),
-            [SuperMetroid.Core.Rooms.LevelData.RoomCollisionType.Air]), 0), new FrameCounters(0));
+            [SuperMetroid.Core.Rooms.LevelData.RoomCollisionType.Air]), 0), new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 }

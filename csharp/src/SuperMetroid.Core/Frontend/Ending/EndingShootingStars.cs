@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingShootingStars
 {
     /// <summary>Each authored star's flight, each holding its own definition (#2541), retained across scene updates.</summary>
-    internal readonly EndingShootingStar[] stars = new EndingShootingStar[EndingShootingStarDefinitions.Count];
+    private readonly EndingShootingStar[] stars = new EndingShootingStar[EndingShootingStarDefinitions.Count];
 
     /// <summary>Seeds each star at the common origin and arms any authored start delay.</summary>
     internal EndingShootingStars()
@@ -69,7 +69,7 @@ internal sealed class EndingShootingStars
     }
 
     /// <summary>The pace <paramref name="definition"/>'s star flies at.</summary>
-    private static EndingShootingStarPace Pace(EndingShootingStarDefinition definition) => new(definition.Period);
+    private static EndingShootingStarPace Pace(EndingShootingStarDefinition definition) => definition.Pace;
 
     /// <summary>The star <paramref name="definition"/> authors at the shared origin, undelayed, at the start of its lead-in.</summary>
     private static EndingShootingStar Started(EndingShootingStarDefinition definition) => new()

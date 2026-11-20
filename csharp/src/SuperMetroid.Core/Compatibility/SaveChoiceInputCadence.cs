@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class SaveChoiceInputCadence
 {
     /// <summary>The updates an opened confirmation waits before its first read.</summary>
-    public const int UpdatesBeforeFirstRead = 2;
+    private const int UpdatesBeforeFirstRead = 2;
 
     /// <summary>The updates the confirmation waits between one read and the next.</summary>
     private const int UpdatesBetweenReads = 1;

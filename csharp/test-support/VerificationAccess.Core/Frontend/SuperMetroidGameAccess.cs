@@ -68,7 +68,7 @@ internal static class SuperMetroidGameAccess
                 throw new InvalidOperationException($"Main gameplay can be entered only from a fresh dispatcher; this one is in {self.GameState}.");
             RoomStateSettings roomState = runtime.Room.LoadedRoom.State;
             self.AdoptRuntime(runtime);
-            self.Session.LastAudioRoomState = roomState;
+            global::SuperMetroid.Core.PrivateState.Set(self.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(roomState));
             self.Session.Enter(SuperMetroidGameState.MainGameplay);
         }
 

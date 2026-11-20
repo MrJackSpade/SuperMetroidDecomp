@@ -4,9 +4,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainGlassShards
 {
     /// <summary>
-    /// One of three horizontal emitter positions on the glass: right (+8), left (-40), or centre (-16), all two blocks
-    /// below the glass's origin block. These signed offsets are added after scaling block coordinates by 16; the setup then
-    /// applies independent -8..7 jitter on each axis.
+    /// One of the horizontal emitter positions on the glass: right, left or centre, all below the glass's origin block;
+    /// the setup then applies an independent jitter on each axis.
     /// </summary>
     internal static MotherBrainGlassShardPlacement Placement(MotherBrainGlassShard shard) =>
         MotherBrainGlassShardDefinitions.EmitterXs.TryGetValue(shard, out int x)

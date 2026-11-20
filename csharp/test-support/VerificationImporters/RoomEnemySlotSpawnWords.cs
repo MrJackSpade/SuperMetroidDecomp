@@ -23,13 +23,19 @@ internal static class RoomEnemySlotSpawnWords
     /// </summary>
     internal static void SetSpawnWords(this RoomEnemyPlace place, EnemyDefinitionId species, Func<PopulationWords, PopulationWords> change)
     {
-        RoomEnemyPlacement current = place.Spawn.Population;
         PopulationWords blank = EnemySpawnSettingsCodec.Blank(species);
-        Type kind = KindOf(EnemySpawnSettingsCodec.Decode(species, blank, current.Position).GetType());
-        PopulationWords words = !current.Equals(default(RoomEnemyPlacement)) && KindOf(current.SpawnSettings.GetType()) == kind
+        if (place.History is not PopulatedEnemyPlace populated)
+        {
+            place.PopulateFor(species, EnemySpawnSettingsCodec.Decode(species, change(blank), Position16<RoomPixels>.Zero));
+            return;
+        }
+        RoomEnemyPlacement current = populated.LastSpawn;
+        Position16<RoomPixels> position = RoomEnemyPopulationRecordCodec.PositionWordsOf(current.Placing);
+        Type kind = KindOf(EnemySpawnSettingsCodec.Decode(species, blank, position).GetType());
+        PopulationWords words = KindOf(current.SpawnSettings.GetType()) == kind
             ? EnemySpawnSettingsCodec.Encode(species, current.SpawnSettings)
             : blank;
-        place.SetSpawnSettings(EnemySpawnSettingsCodec.Decode(species, change(words), current.Position));
+        place.SetSpawnSettings(EnemySpawnSettingsCodec.Decode(species, change(words), position));
     }
 
     /// <summary>The kind of settings <paramref name="settings"/> is: its own type, or the settings its species' parts share.</summary>

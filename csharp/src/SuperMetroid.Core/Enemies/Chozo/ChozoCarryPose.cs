@@ -6,30 +6,30 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// </summary>
 public enum ChozoCarryPose
 {
-    /// <summary>The open hand Samus is placed in: the statue stands still, holding her 32 pixels up and 28 to its side.</summary>
+    /// <summary>The open hand Samus is placed in: the statue stands still, holding her up at its side.</summary>
     Reaching,
 
-    /// <summary>The hand closing on Samus: the statue stands still, holding her 25 pixels up and 30 to its side.</summary>
+    /// <summary>The hand closing on Samus: the statue stands still, drawing her in toward its grip.</summary>
     Closing,
 
-    /// <summary>The hand gripping Samus: the statue stands still, holding her 23 pixels up and 32 to its side.</summary>
+    /// <summary>The hand gripping Samus: the statue stands still, holding her in its grip.</summary>
     Gripping,
 
-    /// <summary>The statue holding Samus before it walks or lets her go: still, 23 pixels up and 32 to its side.</summary>
+    /// <summary>The statue holding Samus before it walks or lets her go: still, Samus in its grip.</summary>
     Holding,
 
-    /// <summary>The stride's first step: the statue shifts its weight two pixels on, Samus held 23 pixels up.</summary>
+    /// <summary>The stride's first step: the statue shifts its weight on, Samus held in its grip.</summary>
     StrideWeightShift,
 
-    /// <summary>The stride's second step: the statue moves as far as its support foot does, Samus bobbing one pixel higher.</summary>
+    /// <summary>The stride's second step: the statue moves as far as its support foot does, Samus bobbing higher.</summary>
     StrideLift,
 
-    /// <summary>The stride's third step: the statue moves as far as its support foot does, Samus bobbing two pixels higher.</summary>
+    /// <summary>The stride's third step: the statue moves as far as its support foot does, Samus bobbing higher still.</summary>
     StrideSwing,
 
     /// <summary>
-    /// The stride's last step: the statue moves as far as its support foot does and slides one pixel more as the foot
-    /// plants, Samus bobbing one pixel higher.
+    /// The stride's last step: the statue moves as far as its support foot does and slides a little more as the foot
+    /// plants, Samus bobbing back down.
     /// </summary>
     StridePlant,
 }

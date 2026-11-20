@@ -65,7 +65,7 @@ public sealed class WeightedRandomChoice<TOutcome>
     }
 
     /// <summary>The field of the sample the choice reads.</summary>
-    public RandomSampleField Field { get; }
+    private RandomSampleField Field { get; }
 
     /// <summary>The outcome <paramref name="sample"/> chooses.</summary>
     /// <param name="sample">A random sample, 0 through 65535.</param>

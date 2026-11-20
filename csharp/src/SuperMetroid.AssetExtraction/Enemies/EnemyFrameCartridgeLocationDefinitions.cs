@@ -1867,6 +1867,6 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [new(0xa9, 0xee3c)] = EnemyFrameId.LargeSidehopperLegsBent,
         [new(0xa9, 0xee61)] = EnemyFrameId.LargeSidehopperLegsCrouched,
         [new(0xa9, 0xee86)] = EnemyFrameId.LargeSidehopperLegsStraight,
-        [new(0xb4, 0xbda6)] = EnemyFrameId.Empty,
+        [new(0xb4, 0xbda6)] = EnemyFrameId.PointAtOrigin,
     };
 }

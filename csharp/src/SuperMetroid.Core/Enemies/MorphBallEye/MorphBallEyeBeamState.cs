@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// The eye beam's room-global state: its lifetime, the eye that casts it, its angular half-width and the colour it
 /// adds. It describes a colour-addition reveal, not an enemy projectile or damage source.
 /// </summary>
-public sealed class MorphBallEyeBeamState
+public sealed class MorphBallEyeBeamState : IDisplayLatch
 {
     /// <summary>The beam's lifetime, advanced before enemy AI and separate from the eye's own AI action.</summary>
     public MorphBallEyeBeamPhase Phase { get; internal set; }
@@ -16,14 +16,14 @@ public sealed class MorphBallEyeBeamState
     /// <summary>
     /// The angle from the beam's centre to each of its edges, with its fraction of a step: zero when the beam appears,
     /// grown by <see cref="AngularHalfWidthGrowth"/> each widening update with the fraction carrying into whole steps,
-    /// and set to four whole steps, keeping its fraction, on the update it reaches four.
+    /// and set to <see cref="MorphBallEyeBeamDefinitions.FullHalfWidth"/>, keeping its fraction, on the update its whole steps reach it.
     /// </summary>
     public RotationAngle AngularHalfWidth { get; internal set; }
 
-    /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, none through four, which the beam's window geometry uses.</summary>
-    public TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
+    /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, which the beam's window geometry uses.</summary>
+    private TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
 
-    /// <summary>The widening speed, the turn the half-width grows by each update: zero when the beam appears and raised by a quarter step before each widening update adds it.</summary>
+    /// <summary>The widening speed, the turn the half-width grows by each update: zero when the beam appears and raised by <see cref="MorphBallEyeBeamDefinitions.WidthGrowthStep"/> before each widening update adds it.</summary>
     public RotationAngle AngularHalfWidthGrowth { get; internal set; }
 
     /// <summary>The colour of the sixteen-colour yellow brightness cycle the full beam shows next.</summary>
@@ -35,13 +35,21 @@ public sealed class MorphBallEyeBeamState
     /// (<see cref="FadeLevelColour"/>) a channel an update and is removed on the update its green is found at none, so the
     /// beam's lifetime depends on those levels, as the beam fade tests the colour's green before darkening it.
     /// </summary>
-    public RgbColor Color { get; internal set; }
+    internal RgbColor Color { private get; set; }
 
     /// <summary>
-    /// The cone the frame ending now shows: the beam's phase, width and colour with its eye's position and aim as they
-    /// stand at the frame-end latch; none while no beam exists.
+    /// The cone the frame boundary last latched: the beam's phase, width and colour with its eye's position and aim as they
+    /// stood at the latch; none while no beam existed then.
     /// </summary>
-    internal MorphBallEyeBeamCone? LatchDisplay()
+    internal MorphBallEyeBeamCone? Latched { get; private set; }
+
+    /// <summary>Latches the cone the frame ending now shows (<see cref="Latched"/>).</summary>
+    void IDisplayLatch.LatchDisplay() => Latched = Cone();
+
+    /// <summary>
+    /// The cone the beam shows now: its phase, width and colour with its eye's position and aim; none while no beam exists.
+    /// </summary>
+    private MorphBallEyeBeamCone? Cone()
     {
         // A beam exists from its eye's request until its fade removes it, always with the eye that cast it.
         if (Caster is not { } caster)

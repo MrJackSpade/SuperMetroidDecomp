@@ -20,10 +20,10 @@ internal static class SbugMovementDefinitionsVerification
         const int activationTable = 0xa3a121;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = SbugBehavior.InitializeSbug;
-        Action<RoomEnemyPlace, SamusState> runMain = SbugBehavior.RunSbugMain;
+        Action<RoomEnemyPlace> initialize = fixturePlace => SbugBehavior.InitializeSbug(fixturePlace.HeldOccupant(), fixturePlace);
+        Action<RoomEnemyPlace, SamusState> runMain = (fixturePlace, fixtureArg1) => SbugBehavior.RunSbugMain(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Sbug, place.Definition);
+        place.Bind(EnemyDefinitionId.Sbug, place.KeptDefinition);
 
         for (int facing = 0; facing < 8; facing++)
         {
@@ -61,7 +61,7 @@ internal static class SbugMovementDefinitionsVerification
 
             ushort native = rom.ReadCartridgeWord(instructionTable + selector * 2);
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
-            CompassDirection forward = SbugBehavior.ForwardLeg(place).Facing;
+            CompassDirection forward = SbugBehavior.ForwardLeg(place.HeldOccupant()).Facing;
             AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[selector], forward,
                 $"Sbug production facing {selector}");
             AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(forward)), AnimationPlace.StartOfAnimation), state.Playback,

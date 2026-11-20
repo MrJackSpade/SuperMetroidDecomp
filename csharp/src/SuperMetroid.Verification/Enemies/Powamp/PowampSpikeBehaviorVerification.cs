@@ -32,14 +32,14 @@ internal static class PowampSpikeBehaviorVerification
         // Spawning searches the pool from its last place down, so the eighth spike takes the lowest of the eight places.
         AssertEqual<int?>(spikes.Min(spike => spike.Place), lastSpikePlace, "the burst reports the place of the last spike it fired");
         // The cartridge's burst counts its direction down from the table's last, so the highest place flies up and left.
-        AssertTrue(spikes.OrderByDescending(spike => spike.Place).Select(spike => spike.StateOf<PowampSpikeState>().Direction)
+        AssertTrue(spikes.OrderByDescending(spike => spike.Place).Select(spike => enemies.PowampBehavior.Spike.States.Of(spike).Direction)
                 .SequenceEqual(PowampSpikeCartridgeOrder.Directions.Reverse()),
             "the burst's spikes take their pool places in the cartridge's firing order");
         foreach (EnemyProjectile spike in spikes)
         {
-            AssertEqual(PowampSpikeSegment.Flying, ProgramOf(spike), $"spike {spike.StateOf<PowampSpikeState>().Direction} starts its looping program");
+            AssertEqual(PowampSpikeSegment.Flying, ProgramOf(spike), $"spike {enemies.PowampBehavior.Spike.States.Of(spike).Direction} starts its looping program");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spike, Entry(PowampSpikeSegment.Flying), 40,
-                $"Powamp spike {spike.StateOf<PowampSpikeState>().Direction}");
+                $"Powamp spike {enemies.PowampBehavior.Spike.States.Of(spike).Direction}");
             AssertTrue(!deleted, "a spike's loop runs until collision deletes it");
         }
 

@@ -17,17 +17,15 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="HurtResponse">What the enemy does while it is hurt and flashing.</param>
 /// <param name="DeathExplosion">The explosion the enemy leaves when an ordinary shot kills it.</param>
 /// <param name="PowerBombReaction">
-/// The Power Bomb reaction, or null when the definition names none and the common Power Bomb damage applies.
+/// The Power Bomb reaction: the ignoring one, or the common Power Bomb damage (<see cref="EnemyReaction.CommonPowerBomb"/>).
 /// </param>
-/// <param name="Touch">The Samus-contact reaction, or null when the definition names none and only extended hitboxes name one.</param>
-/// <param name="Shot">The projectile-hit reaction, or null when the definition names none and only extended hitboxes name one.</param>
+/// <param name="Touch">The Samus-contact reaction that runs when Samus meets the enemy by its radius: a shared one or its species' own.</param>
+/// <param name="Shot">The projectile-hit reaction that runs when a shot or bomb meets the enemy by its radius: a shared one or its species' own.</param>
 
 /// <param name="TouchHitboxScan">Whether Samus's touch is tested against the enemy's extended hitboxes or withheld.</param>
 /// <param name="ShotHitboxScan">Whether shots and bombs are tested against the enemy's extended hitboxes or withheld.</param>
-/// <param name="DropChances">The item-drop chances, or null when the enemy drops nothing.</param>
-/// <param name="Vulnerability">
-/// The enemy's own vulnerabilities, or null when it takes the standard ones; <see cref="EnemyVulnerabilities.Of"/> resolves it.
-/// </param>
+/// <param name="Drops">What the enemy's death drops: nothing, or a pickup its chances roll for.</param>
+/// <param name="Vulnerability">The enemy's vulnerabilities, the standard ones (<see cref="EnemyVulnerabilityDefinitions.Standard"/>) or its own.</param>
 public readonly record struct RoomEnemyDefinition(
     int Health,
     int Damage,
@@ -38,10 +36,10 @@ public readonly record struct RoomEnemyDefinition(
     GrappleEnemyReaction GrappleResponse,
     EnemyHurtResponse HurtResponse,
     EnemyDeathExplosion DeathExplosion,
-    EnemyReaction? PowerBombReaction,
-    EnemyReaction? Touch,
-    EnemyReaction? Shot,
+    EnemyReaction PowerBombReaction,
+    EnemyReaction Touch,
+    EnemyReaction Shot,
     EnemyHitboxScan TouchHitboxScan,
     EnemyHitboxScan ShotHitboxScan,
-    EnemyDropChances? DropChances,
-    EnemyVulnerabilities? Vulnerability);
+    EnemyDrops Drops,
+    EnemyVulnerabilities Vulnerability);

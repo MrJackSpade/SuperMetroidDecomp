@@ -19,12 +19,12 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         GrappleResponse: GrappleEnemyReaction.Cancel,
         HurtResponse: EnemyHurtResponse.Inert,
         DeathExplosion: EnemyDeathExplosion.Small,
-        PowerBombReaction: null,
-        Touch: null,
+        PowerBombReaction: EnemyReaction.CommonPowerBomb,
+        Touch: SpeciesOwnReactions.BabyMetroidCutsceneTouch,
         Shot: EnemyReaction.Ignore,
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Withheld,
-        DropChances: new EnemyDropChances(0, 0, 0, 255, 0, 0),
+        Drops: EnemyDrops.Rolling(new EnemyDropChances(0, 0, 0, 255, 0, 0)),
         Vulnerability: EnemyVulnerabilityDefinitions.Standard);
 
     /// <summary>The falling tubes of Mother Brain's cutscene.</summary>
@@ -38,12 +38,12 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         GrappleResponse: GrappleEnemyReaction.Cancel,
         HurtResponse: EnemyHurtResponse.Inert,
         DeathExplosion: EnemyDeathExplosion.Small,
-        PowerBombReaction: null,
+        PowerBombReaction: EnemyReaction.CommonPowerBomb,
         Touch: EnemyReaction.Ignore,
         Shot: EnemyReaction.Ignore,
         TouchHitboxScan: EnemyHitboxScan.Withheld,
         ShotHitboxScan: EnemyHitboxScan.Withheld,
-        DropChances: null,
+        Drops: EnemyDrops.Nothing,
         Vulnerability: EnemyVulnerabilityDefinitions.Standard);
 
     /// <summary>
@@ -60,16 +60,16 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         GrappleResponse: GrappleEnemyReaction.Cancel,
         HurtResponse: EnemyHurtResponse.Inert,
         DeathExplosion: EnemyDeathExplosion.Small,
-        PowerBombReaction: null,
+        PowerBombReaction: EnemyReaction.CommonPowerBomb,
         Touch: EnemyReaction.Ignore,
         Shot: EnemyReaction.Ignore,
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Scanned,
-        DropChances: null,
-        Vulnerability: null);
+        Drops: EnemyDrops.Nothing,
+        Vulnerability: EnemyVulnerabilityDefinitions.Standard);
 
     /// <summary>The cutscene actors' and getaway chamber walls' definitions, by identity.</summary>
-    internal static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
+    private static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
         new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
     {
         [EnemyDefinitionId.BabyMetroidCutscene] = BabyMetroidCutscene,

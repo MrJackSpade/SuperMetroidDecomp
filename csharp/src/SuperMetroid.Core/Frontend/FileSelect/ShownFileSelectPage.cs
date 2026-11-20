@@ -12,9 +12,8 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </summary>
 /// <param name="Page">The page.</param>
 /// <param name="Slots">Each slot's field, or none where the slot holds no save.</param>
-/// <param name="OperationSource">The slot a copy or clear names first.</param>
-/// <param name="CopyTarget">The slot a copy names as its destination.</param>
-internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDictionary<SaveSlot, ShownFileSelectSave?> Slots, SaveSlot OperationSource, SaveSlot CopyTarget)
+/// <param name="SlotChoice">The slots the copy or clear has chosen, which its prompts name.</param>
+internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDictionary<SaveSlot, ShownFileSelectSave?> Slots, FileSelectSlotChoice SlotChoice)
 {
     /// <summary>Whether the page lays its slots out as the main menu does, rather than as copy and clear do.</summary>
     internal bool Main => Page is FileSelectPage.MainWithData or FileSelectPage.MainEmpty;
@@ -39,17 +38,17 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDiction
     /// <summary>The slot letters the page names and where.</summary>
     private FileSelectPromptLetter[] Letters() => Page switch
     {
-        FileSelectPage.CopyDestination => [new(FileSelectAnchor.CopyDestinationSource, OperationSource)],
+        FileSelectPage.CopyDestination => [new(FileSelectAnchor.CopyDestinationSource, SlotChoice.ChosenSource)],
         FileSelectPage.CopyConfirm or FileSelectPage.CopyCompleted =>
-            [new(FileSelectAnchor.CopyConfirmSource, OperationSource), new(FileSelectAnchor.CopyConfirmDestination, CopyTarget)],
-        FileSelectPage.ClearConfirm or FileSelectPage.ClearCompleted => [new(FileSelectAnchor.ClearConfirmSource, OperationSource)],
+            [new(FileSelectAnchor.CopyConfirmSource, SlotChoice.ChosenSource), new(FileSelectAnchor.CopyConfirmDestination, SlotChoice.ChosenTarget)],
+        FileSelectPage.ClearConfirm or FileSelectPage.ClearCompleted => [new(FileSelectAnchor.ClearConfirmSource, SlotChoice.ChosenSource)],
         FileSelectPage.MainWithData or FileSelectPage.MainEmpty or FileSelectPage.CopySource or FileSelectPage.ClearSelection => [],
         _ => throw new InvalidOperationException($"Undefined file-select page {Page}."),
     };
 
     /// <summary>
     /// One slot's field at <paramref name="layout"/>'s anchors: NO DATA for an empty slot, else ENERGY, the health's last two
-    /// digits, a filled or empty tank for each hundred of maximum health, and the time as HH:MM.
+    /// digits, a filled or empty tank for each tank's worth of maximum health (<see cref="SamusEnergyDefinitions.EnergyPerTank"/>), and the time as HH:MM.
     /// </summary>
     private static IEnumerable<PlacedFrame> Field(ShownFileSelectSave? save, FileSelectSlotFieldDocument layout)
     {
@@ -65,7 +64,7 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDiction
         yield return new PlacedFrame(FileSelectParts.DigitFrame(health % FileSelectFieldDefinitions.DigitBase), Right(layout.HealthAnchor, 1));
         int filled = save.Health / SamusEnergyDefinitions.EnergyPerTank;
         int tanks = save.MaxHealth / SamusEnergyDefinitions.EnergyPerTank;
-        // Tanks fill rows of seven left to right, the first row below ENERGY and each later row one tank above the last.
+        // Tanks fill rows left to right, the first row below ENERGY and each later row one tank above the last.
         for (int tank = 0; tank < tanks; tank++)
         {
             int column = FileSelectEnergyTankDefinitions.ColumnOffset + tank % FileSelectEnergyTankDefinitions.TanksPerRow;

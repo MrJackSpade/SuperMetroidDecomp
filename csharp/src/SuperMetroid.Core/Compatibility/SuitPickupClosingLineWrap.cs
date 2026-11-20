@@ -15,9 +15,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// A stateless rule.
 /// </para>
 /// <para>
-/// Evidence: the dissipation ($88:E22B) adds eight to the low byte of the beam's edge word and subtracts eight from its
-/// high byte, each within its byte, and advances to the pickup's finish once the low byte reads 112 or more; the shrinking
-/// stage ($88:E1BA) leaves that word at $F8FF, the left edge 255 and the right edge 248; the suit pickup carryover check
+/// Evidence: the dissipation ($88:E22B) moves the left edge eight columns right and the right edge eight columns left,
+/// each within the screen's row, and advances to the pickup's finish once the left edge reaches column 112 or more; the
+/// shrinking stage ($88:E1BA) leaves the left edge at column 255 and the right at 248; the suit pickup carryover check
 /// confirms the edges at every update of a Varia transformation.
 /// </para>
 /// </remarks>
@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Compatibility;
 public static class SuitPickupClosingLineWrap
 {
     /// <summary>The columns of the screen's row the line's edges move within.</summary>
-    public const int RowColumns = 256;
+    private const int RowColumns = 256;
 
     /// <summary>The columns each edge moves inward on every update.</summary>
     private const int ColumnsPerUpdate = 8;

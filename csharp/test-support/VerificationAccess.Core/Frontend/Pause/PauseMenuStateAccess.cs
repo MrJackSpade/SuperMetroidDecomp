@@ -37,10 +37,10 @@ internal static class PauseMenuStateAccess
         /// imported snapshot places it; no scroll step is under way afterwards.
         /// </summary>
         internal void ScrollMapTo(Offset16<MapPixels> scroll) =>
-            self.FrameMap(new MapScroll(self.ActiveMapScroll.Framing, self.ActiveMapScroll.Limits, scroll));
+            self.FrameMap(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.Map.MapScroll>([typeof(global::SuperMetroid.Core.Frontend.Map.MapFraming), typeof(global::SuperMetroid.Core.Frontend.Map.MapScrollLimits), typeof(global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.MapPixels>)], new object?[] { self.ActiveMapScroll.Framing, self.ActiveMapScroll.Limits, scroll }));
 
         /// <summary>True while a map/equipment page change is fading or loading; page input waits for it.</summary>
-        internal bool IsPageTransitionActive => self.Transition != default;
+        internal bool IsPageTransitionActive => self.Transition is not null;
 
         /// <summary>The column the cursor is in: its selected control's category.</summary>
         internal PauseEquipmentCategory SelectedCategory => self.SelectedControl.Category;

@@ -9,7 +9,7 @@ public static class AttractDemoDefinitions
     /// <summary>Energy the low-health demo setup leaves Samus with; her maximum energy is unchanged.</summary>
     public const int LowHealthEnergy = 20;
 
-    /// <summary>The Big Pink screen, in the room's fourth column and seventh row, the Charge Beam demo closes to the camera.</summary>
+    /// <summary>The Big Pink screen the Charge Beam demo closes to the camera.</summary>
     public static readonly Position16<RoomScreens> ChargeBeamClosedScreen = new(3, 6);
 
     /// <summary>The updates Kraid's body waits before its next action in the Kraid demo, the last included.</summary>

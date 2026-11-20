@@ -12,7 +12,7 @@ public sealed class SnesVram
     public const int WordCount = 32 * 1024;
 
     /// <summary>Two bytes per word gives the physical 64 KiB storage size.</summary>
-    public const int ByteCount = WordCount * sizeof(ushort);
+    private const int ByteCount = WordCount * sizeof(ushort);
 
     /// <summary>VMADD's fifteen address bits: register arithmetic wraps within the VRAM words.</summary>
     private const int WordAddressMask = WordCount - 1;

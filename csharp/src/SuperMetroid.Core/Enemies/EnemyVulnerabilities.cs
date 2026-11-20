@@ -19,9 +19,8 @@ public sealed record EnemyVulnerabilities(
     EnemyOrdnanceVulnerability Ordnance,
     EnemyContactVulnerability Contact)
 {
-    /// <summary>How <paramref name="definition"/>'s enemy takes every weapon's hits: its own vulnerabilities, or the standard ones.</summary>
-    public static EnemyVulnerabilities Of(RoomEnemyDefinition definition) =>
-        definition.Vulnerability ?? EnemyVulnerabilityDefinitions.Standard;
+    /// <summary>How <paramref name="definition"/>'s enemy takes every weapon's hits: the vulnerabilities its definition names.</summary>
+    public static EnemyVulnerabilities Of(RoomEnemyDefinition definition) => definition.Vulnerability;
 
     /// <summary>How the enemy takes the beam combination <paramref name="combination"/>.</summary>
     /// <remarks>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>An enemy that may react to Samus touching it.</summary>
-internal interface IEnemyTouchReaction : IEnemyEntity
+internal interface IEnemyTouchReaction
 {
     /// <summary>Whether the enemy reacts to Samus's touch now; the touch pass skips one that does not.</summary>
     bool ReactsToTouch { get; }

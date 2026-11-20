@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>A family of Samus projectile or charge-flare compositions, named in installed composition and binding files.</summary>
 public enum ProjectileSpriteGroup
 {
-    /// <summary>The empty composition an invisible projectile draws.</summary>
-    Nothing,
     /// <summary>The eight small Power beam poses: Ice shows the first four, and the Wave beam's centre the first (#2295).</summary>
     Power,
     /// <summary>Plasma's axial and diagonal strips.</summary>

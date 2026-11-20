@@ -18,7 +18,7 @@ internal static class CrocomireFightDefinitions
     /// <summary>How far above the bottom of his body the dust he raises rises, in pixels.</summary>
     internal const int DustAboveBodyBottom = 16;
 
-    /// <summary>How far his invisible wall pushes Samus each update she presses it: four pixels back and one up.</summary>
+    /// <summary>How far his invisible wall pushes Samus each update she presses it: back and a little up.</summary>
     internal static readonly Offset16<RoomPixels> WallPush = new(-4, -1);
 
 
@@ -61,10 +61,10 @@ internal static class CrocomireFightDefinitions
     /// <summary>How far a claw's touch pushes Samus back, in pixels.</summary>
     internal const int ClawPush = -4;
 
-    /// <summary>Where his spit leaves his body: thirty-two pixels ahead of it and sixteen up.</summary>
+    /// <summary>Where his spit leaves his body: ahead of it and up.</summary>
     internal static readonly Offset16<RoomPixels> SpitOffset = new(-32, -16);
 
-    /// <summary>The speed his spit leaves at: two pixels an update left, and down as slowly as a speed can fall.</summary>
+    /// <summary>The speed his spit leaves at: leftward, and down as slowly as a speed can fall.</summary>
     internal static readonly PixelVelocity<RoomPixels> SpitVelocity = new(SignedEightEight.FromPixels(-2), SignedEightEight.FromPixelFraction(1, 256));
 
     /// <summary>How many places after his body the room lists his tongue, the one part his body heads.</summary>

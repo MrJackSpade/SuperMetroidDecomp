@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>Where the n00b tube's crack, glass shards and released-air bubbles appear and how they move.</summary>
 public static class NoobTubeDebrisDefinitions
 {
-    /// <summary>Where the tube cracks: 96 pixels right of and 48 below the top-left corner of the tube's block.</summary>
+    /// <summary>Where the tube cracks: right of and below the top-left corner of the tube's block.</summary>
     private static readonly Offset16<RoomPixels> CrackOffset = new(96, 48);
 
     /// <summary>The bubbles' initial vertical speed: five pixels upward per update.</summary>
-    public static SignedEightEight BubbleInitialYVelocity { get; } = SignedEightEight.FromPixels(-5);
+    private static SignedEightEight BubbleInitialYVelocity { get; } = SignedEightEight.FromPixels(-5);
 
     /// <summary>The tube's crack, which spreads across the glass where the tube cracks.</summary>
     public static NoobTubePiece Crack { get; } =

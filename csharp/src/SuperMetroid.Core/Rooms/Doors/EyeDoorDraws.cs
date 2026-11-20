@@ -47,16 +47,16 @@ internal static class EyeDoorDraws
     };
 
     /// <summary>
-    /// The component <paramref name="look"/> draws, or null for the clear, which clears the whole door's four blocks once
-    /// the eye opens.
+    /// What <paramref name="look"/> draws: a component of the door, or the clear, which clears the whole door's four blocks
+    /// once the eye opens.
     /// </summary>
     /// <exception cref="InvalidOperationException">The look is undefined.</exception>
-    internal static EyeDoorComponent? PartOf(EyeDoorLook look) => look switch
+    internal static EyeDoorDrawnPart PartOf(EyeDoorLook look) => look switch
     {
-        EyeDoorLook.Clear => null,
-        EyeDoorLook.EyeClosed or EyeDoorLook.EyeHalfOpen or EyeDoorLook.EyeOpen or EyeDoorLook.EyeFlinching or EyeDoorLook.EyeOpenSolid => EyeDoorComponent.Eye,
-        EyeDoorLook.MiddleResting or EyeDoorLook.MiddleSwelling or EyeDoorLook.MiddleSwollen => EyeDoorComponent.Door,
-        EyeDoorLook.BottomResting or EyeDoorLook.BottomSwelling or EyeDoorLook.BottomSwollen => EyeDoorComponent.Bottom,
+        EyeDoorLook.Clear => EyeDoorDrawnPart.WholeDoorClear,
+        EyeDoorLook.EyeClosed or EyeDoorLook.EyeHalfOpen or EyeDoorLook.EyeOpen or EyeDoorLook.EyeFlinching or EyeDoorLook.EyeOpenSolid => EyeDoorDrawnPart.Eye,
+        EyeDoorLook.MiddleResting or EyeDoorLook.MiddleSwelling or EyeDoorLook.MiddleSwollen => EyeDoorDrawnPart.Door,
+        EyeDoorLook.BottomResting or EyeDoorLook.BottomSwelling or EyeDoorLook.BottomSwollen => EyeDoorDrawnPart.Bottom,
         _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorLook)} {look}."),
     };
 
@@ -65,11 +65,11 @@ internal static class EyeDoorDraws
     /// <param name="Orientation">The way the door the draw belongs to faces; the two clears differ only in this.</param>
     internal readonly record struct Draw(EyeDoorLook Look, EyeDoorOrientation Orientation)
     {
-        /// <summary>The component the draw writes, or null for the clear.</summary>
-        internal EyeDoorComponent? Part => PartOf(Look);
+        /// <summary>What the draw writes: a component, or the whole door's clear.</summary>
+        internal EyeDoorDrawnPart Part => PartOf(Look);
 
         /// <summary>Whether the draw's blocks stand in a column: the eye's and the clear's.</summary>
-        internal bool Vertical => Part is null or EyeDoorComponent.Eye;
+        internal bool Vertical => Part is EyeDoorDrawnPart.WholeDoorClear or EyeDoorDrawnPart.Eye;
 
         /// <summary>The draw's blocks from its first and how each collides.</summary>
         internal RoomBlockShape Blocks => Shapes[this];
@@ -80,6 +80,5 @@ internal static class EyeDoorDraws
     /// shared clear mirrored.
     /// </summary>
     internal static RoomObjectDrawFamily<Draw> Family { get; } =
-        RoomObjectDrawFamily<Draw>.Pictured<InstalledRoomObjectEyeDoorVisuals>("eye-door", frame => frame.Blocks,
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<Draw>("eye-door", frame => frame.Blocks);
 }

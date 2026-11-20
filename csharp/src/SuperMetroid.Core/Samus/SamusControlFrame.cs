@@ -17,7 +17,8 @@ namespace SuperMetroid.Core.Samus;
 /// </summary>
 internal sealed class SamusControlFrame
 {
-    /// <summary>Samus's camera point carried across the frame boundary; movement and the frame tail advance it.</summary>
+    /// <summary>Samus's camera point from the update before; her movement and the end of her update advance
+    /// it.</summary>
     internal FixedPosition<RoomPixels> PreviousCameraPoint { get; private set; }
 
     /// <summary>The pose the input phase sampled before any movement.</summary>
@@ -47,8 +48,8 @@ internal sealed class SamusControlFrame
     /// <summary>Whether a bomb jump locks pose input this frame.</summary>
     internal bool BombJumpLocksPoseInput { get; private set; }
 
-    /// <summary>Whether the input lookup fell through to the pose-definition fallback.</summary>
-    internal bool UsePoseDefinitionFallback { get; private set; }
+    /// <summary>Whether her input chose no new pose, so her pose's no-input fallback applies.</summary>
+    internal bool InputChoseNoPose { get; private set; }
 
     /// <summary>
     /// The input mode installed at the frame's start and the movement mode the frame runs, read from the installed modes when
@@ -66,8 +67,8 @@ internal sealed class SamusControlFrame
     internal bool DeceleratingFallbackHasMomentum { get; private set; }
 
     /// <summary>
-    /// Whether Samus movement was enabled when the input phase's head finished; the input phase's tail, the resample after the enemy update and the movement phase
-    /// movement run only then.
+    /// Whether Samus's movement was enabled once her input was read; the rest of her input, the second reading after
+    /// the enemies' update and her movement run only then.
     /// </summary>
     internal bool MovementEnabled { get; private set; }
 
@@ -169,14 +170,15 @@ internal sealed class SamusControlFrame
         PostureTransitionSkipsPoseInput = MovementTypeAtFrameStart == SamusMovementType.PostureTransition;
     }
 
-    /// <summary>Samples whether <paramref name="lookup"/> fell through to the pose-definition fallback, and whether Samus kept horizontal momentum.</summary>
+    /// <summary>Samples whether <paramref name="lookup"/> found that her input chose no new pose, and whether Samus
+    /// kept horizontal momentum.</summary>
     internal void SamplePoseLookup(SamusPoseTransitionLookup lookup, SamusState samus)
     {
-        UsePoseDefinitionFallback = lookup.UsesPoseDefinitionFallback;
+        InputChoseNoPose = lookup.UsesPoseDefinitionFallback;
         DeceleratingFallbackHasMomentum = samus.HorizontalSpeed.HasBaseSpeed;
     }
 
-    /// <summary>Samples whether Samus movement is enabled as the input phase's head finishes.</summary>
+    /// <summary>Samples whether Samus's movement is enabled once her input has been read.</summary>
     internal void SampleMovementEnabled(bool enabled) => MovementEnabled = enabled;
 
     /// <summary>Samples whether the ordinary input phase's HUD, bomb and projectile owners run.</summary>

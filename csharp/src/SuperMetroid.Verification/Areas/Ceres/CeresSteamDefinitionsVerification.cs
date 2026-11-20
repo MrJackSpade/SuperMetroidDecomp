@@ -41,7 +41,7 @@ internal static class CeresSteamDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => 0x001f;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)index);
-            place.Bind(EnemyDefinitionId.CeresSteam, place.Definition);
+            place.Bind(EnemyDefinitionId.CeresSteam, place.KeptDefinition);
             place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
 
             AssertEqual(new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), SuperMetroid.Core.Enemies.EnemyPartners.Listed<CeresSteamEntity>(place).State.Playback,

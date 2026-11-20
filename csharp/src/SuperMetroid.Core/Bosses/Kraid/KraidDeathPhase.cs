@@ -7,7 +7,7 @@ public enum KraidDeathPhase
     Initialize,
     /// <summary>Fades the room background out while continuing the head animation.</summary>
     FadeOut,
-    /// <summary>Shows his body whole and parks his lints for sinking.</summary>
+    /// <summary>Shows his whole body and moves on to his sinking.</summary>
     ShowBody,
     /// <summary>Starts the death quake and the wait for the sinking body's first rumble, makes his body solid and sets his arm sinking.</summary>
     StartSinking,

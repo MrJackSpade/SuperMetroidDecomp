@@ -9,6 +9,6 @@ public enum MochtroidMovementMode
 {
     /// <summary>Uses proportional free flight toward Samus.</summary>
     NotTouchingSamus,
-    /// <summary>Moves one pixel per axis toward Samus while contact is republished.</summary>
+    /// <summary>Moves toward Samus at <see cref="MochtroidBehaviorDefinitions.AttachedSpeed"/> on each axis while contact is republished.</summary>
     TouchingSamus,
 }

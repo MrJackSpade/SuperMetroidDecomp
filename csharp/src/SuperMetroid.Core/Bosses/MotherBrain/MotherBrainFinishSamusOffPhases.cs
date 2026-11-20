@@ -23,7 +23,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// <see cref="MotherBrainFinishOffDefinitions.StandUpOnionRingHits"/> onion ring hits as Samus's suits divide them,
     /// plus <see cref="MotherBrainFinishOffDefinitions.EnergyMargin"/>.
     /// </summary>
-    internal static int StandUpToFinishOffEnergy(SamusEquipmentFlags equippedItems) =>
+    private static int StandUpToFinishOffEnergy(SamusEquipmentFlags equippedItems) =>
         SamusSuitDamage.Reduce(MotherBrainAttackDamage.OnionRing, equippedItems) * MotherBrainFinishOffDefinitions.StandUpOnionRingHits
         + MotherBrainFinishOffDefinitions.EnergyMargin;
 
@@ -31,7 +31,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// The energy at or below which Mother Brain keeps to onion rings rather than choosing her bomb: one bomb hit as
     /// Samus's suits divide it, plus <see cref="MotherBrainFinishOffDefinitions.EnergyMargin"/>.
     /// </summary>
-    internal static int OnionRingsOnlyEnergy(SamusEquipmentFlags equippedItems) =>
+    private static int OnionRingsOnlyEnergy(SamusEquipmentFlags equippedItems) =>
         SamusSuitDamage.Reduce(MotherBrainAttackDamage.Bomb, equippedItems) + MotherBrainFinishOffDefinitions.EnergyMargin;
 
     /// <summary>
@@ -48,12 +48,12 @@ internal sealed class MotherBrainFinishSamusOffPhases
             return false;
         }
 
-        // Above the floor, the hold-back chance does nothing. Every
-        // 32nd enemy frame that idle route may ask her to alternate between standing and leaning down. This is visible body animation, not a
+        // Above the floor, the hold-back chance does nothing. At its posture
+        // cadence that idle route may ask her to alternate between standing and leaning down. This is visible body animation, not a
         // direct pose assignment, so retain the separate animation-stage delay.
         if (frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.FinishOffHoldsBack))
         {
-            if (MotherBrainCadenceDefinitions.FinishOffPostureEveryThirtySecondUpdate.IsDue(frame.EnemyFrameCounter))
+            if (MotherBrainCadenceDefinitions.FinishOffPosture.IsDue(frame.EnemyFrameCounter))
                 _state.MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
             return false;
         }
@@ -97,7 +97,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool AdmireSamus()
     {
-        // Stand-up falls through here, so the admiration's first update is the update she stands up on.
+        // The admiration's first update is the update she stands up on.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase2);

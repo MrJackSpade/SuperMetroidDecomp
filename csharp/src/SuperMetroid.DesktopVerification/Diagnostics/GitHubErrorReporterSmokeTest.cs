@@ -33,7 +33,7 @@ public static class GitHubErrorReporterSmokeTest
 
         string repeatedFingerprint;
         string duplicateFingerprint;
-        using (var reporter = new GitHubErrorReporter("owner/private-repository", client))
+        using (var reporter = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Desktop.Diagnostics.GitHubErrorReporter>([typeof(string), typeof(global::SuperMetroid.Desktop.Diagnostics.IGitHubIssueClient)], new object?[] { "owner/private-repository", client }))
         {
             var context = new GitHubErrorContext(
                 "smoke-test frame boundary",
@@ -52,11 +52,11 @@ public static class GitHubErrorReporterSmokeTest
             repeatedFingerprint = reporter.Report(repeated, context);
             duplicateFingerprint = reporter.Report(repeated, context);
             _ = reporter.Report(existing, context);
-            var firstDispatch = new SuperMetroid.Core.UnmodeledBehaviorException(
+            var firstDispatch = new SuperMetroid.Core.UnsupportedGameStateException(
                 "grapple/type-C/bts-45", "block 12 (2,3)");
-            var movedDispatch = new SuperMetroid.Core.UnmodeledBehaviorException(
+            var movedDispatch = new SuperMetroid.Core.UnsupportedGameStateException(
                 "grapple/type-C/bts-45", "block 99 (4,5)");
-            var otherDispatch = new SuperMetroid.Core.UnmodeledBehaviorException(
+            var otherDispatch = new SuperMetroid.Core.UnsupportedGameStateException(
                 "grapple/type-C/bts-4F", "block 12 (2,3)");
             var otherRoom = context with { Room = "Draygon", InputRecordingPath = "new-run.smrec" };
             Require(GitHubErrorReporter.CreateFingerprint(firstDispatch, context) == GitHubErrorReporter.CreateFingerprint(movedDispatch, otherRoom),
@@ -107,14 +107,14 @@ public static class GitHubErrorReporterSmokeTest
                 Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray()))));
         var random = new SharedRandom();
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
+        var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroidGameHostServices.Default, random });
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay, random: random, audio: game.AudioForVerification);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
         runtime.Player.Samus = samus;
         PrivateState.Set(samus.Drained, nameof(SamusDrainedState.GetUpCheck), DrainedGetUpCheck.UnableToStand);
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(8), 1);
         PrivateState.Set(samus.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Acid);
-        samus.LiquidPhysics.LavaAcidSurfaceY = 100;
+        global::SuperMetroid.Core.PrivateState.Set(samus.LiquidPhysics, "LavaAcidSurfaceY", (int?)(100));
         game.AdoptRuntime(runtime);
         GameplaySnapshot beforeSnapshot = game.CaptureGameplaySnapshot();
         string before = GameplayFrameFailureDiagnostics.Describe(beforeSnapshot);
@@ -140,7 +140,7 @@ public static class GitHubErrorReporterSmokeTest
     {
         var recovery = new AudioFrameRecovery();
         var client = new RecordingIssueClient();
-        using var reporter = new GitHubErrorReporter("owner/private-repository", client);
+        using var reporter = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Desktop.Diagnostics.GitHubErrorReporter>([typeof(string), typeof(global::SuperMetroid.Desktop.Diagnostics.IGitHubIssueClient)], new object?[] { "owner/private-repository", client });
         var context = new GitHubErrorContext("audio rendering/submission after completed gameplay frame");
         int completedFrames = 0;
         for (int frame = 0; frame < 3; frame++)

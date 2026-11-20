@@ -5,5 +5,5 @@ internal static class ListSlotsConstants
 {
     /// <summary>How many slots <paramref name="slots"/> holds, which only checks read.</summary>
     /// <param name="slots">The slots, if any.</param>
-    internal static int HeldBy(ListSlots? slots) => slots?.places.Held ?? 0;
+    internal static int HeldBy(ListSlots? slots) => slots?._places.Held ?? 0;
 }

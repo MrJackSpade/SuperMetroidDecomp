@@ -82,7 +82,7 @@ internal static class BeamPaletteArtworkVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { EquippedBeams = beams };
             samus.SpecialColouring.Take(SamusSpecialColouringKind.CrystalFlash);
-            PrivateState.Set(samus.CrystalFlash, nameof(SamusCrystalFlashState.Colouring), SpecialColouringStage.Ending);
+            PrivateState.Set(samus.CrystalFlash, "Colouring", SpecialColouringStage.Ending);
             var finishedColours = new SamusColours();
             AssertTrue(samus.CrystalFlash.UpdateColouring(finishedColours, samus),
                 $"{beams}: Crystal Flash's finish runs");
@@ -108,7 +108,7 @@ internal static class BeamPaletteArtworkVerification
         runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         var flash = runtime.Player.Samus.CrystalFlash;
         runtime.Player.Samus.SpecialColouring.Take(SamusSpecialColouringKind.CrystalFlash);
-        PrivateState.Set(flash, nameof(SamusCrystalFlashState.Colouring), SpecialColouringStage.Ending);
+        PrivateState.Set(flash, "Colouring", SpecialColouringStage.Ending);
         AssertTrue(flash.UpdateColouring(runtime.Player.Colours, runtime.Player.Samus), "Crystal Flash completes");
         AssertEqual(SamusShades.Beam(SamusBeamCombinations.Of(runtime.Player.Samus.EquippedBeams)), runtime.Player.Colours.Beams,
             "Crystal Flash completion shows the equipped beams' shade");

@@ -38,11 +38,11 @@ public sealed class BabyMetroidEnemyState
     /// (<see cref="BabyMetroidMembraneAnimations"/>). It starts on its first phase, which it leaves on its first update, so
     /// the first phase it shows is its second.
     /// </summary>
-    internal AnimationPlayer<BabyMetroidMembranePace, BabyMetroidMembranePulse, BabyMetroidMembraneCue> Membrane { get; set; } =
+    internal AnimationPlayer<BabyMetroidMembranePace, BabyMetroidMembranePulse, BabyMetroidMembraneCue> Membrane { get; private set; } =
         BabyMetroidMembraneAnimations.StandingOn(BabyMetroidMembranePace.Calm, BabyMetroidMembranePulse.First, 1);
 
     /// <summary>The pace of the membrane's pulse: calm, or quick while it feeds.</summary>
-    public BabyMetroidMembranePace MembranePace { get; internal set; }
+    public BabyMetroidMembranePace MembranePace { get; private set; }
 
     /// <summary>
     /// Sets the membrane's pulse to <paramref name="pace"/>: the phase showing keeps the updates it has left, and the phases
@@ -55,8 +55,8 @@ public sealed class BabyMetroidEnemyState
     }
 
     /// <summary>
-    /// The wait of the current action that counts past zero: the entrance delay, the rises after feeding and after
-    /// draining Samus, the pause after draining her, the flights beside her and the hold before her release (#2253).
+    /// The current action's wait: the entrance delay, the rises after feeding and after draining Samus, the pause after
+    /// draining her, the flights beside her and the hold before her release (#2253).
     /// </summary>
     public BossCountdown StateTimer { get; } = new();
 

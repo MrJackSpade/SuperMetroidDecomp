@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -36,9 +35,9 @@ public sealed class SamusState
 
     /// <summary>Samus's current pose.</summary>
     /// <remarks>
-    /// An ordinary write also models the pose setup, publishing the
-    /// pose's direction and movement type to <see cref="InitializedPose"/>. Only the
-    /// writes that skip that setup use <see cref="WritePoseWithoutInitialization"/>.
+    /// An ordinary write also sets the pose up, publishing the pose's direction and movement type to
+    /// <see cref="InitializedPose"/>. Only the writes that skip that setup use
+    /// <see cref="WritePoseWithoutInitialization"/>.
     /// </remarks>
     public SamusPoseId Pose
     {
@@ -144,7 +143,7 @@ public sealed class SamusState
     public WrappingCountdown AnimationFrameTimer { get; internal set; }
 
     /// <summary>
-    /// The updates added to each frame of Samus's animation (#2286): two in water, three in lava or acid, and on dry ground
+    /// The updates added to each frame of Samus's animation (#2286): its liquid delay in water, lava or acid, and on dry ground
     /// her <see cref="SlowdownLevel"/>, so 0 through <see cref="SamusHorizontalSpeedState.LargestSlowdownLevel"/>; the
     /// setter rejects any other value.
     /// </summary>
@@ -156,9 +155,8 @@ public sealed class SamusState
     public SamusHorizontalSpeedState HorizontalSpeed { get; }
 
     /// <summary>
-    /// Live room-FX surface values and remembered liquid medium. Physics, animation, and
-    /// pose initialization intentionally share this object because the game shares
-    /// room-FX values across all three phases.
+    /// Live room-FX surface values and remembered liquid medium, which Samus's physics, animation and pose setup all
+    /// read.
     /// </summary>
     public SamusLiquidPhysicsState LiquidPhysics { get; }
 
@@ -168,8 +166,6 @@ public sealed class SamusState
 
     /// <summary>
     /// Stored-shine colouring countdown and the shinespark's hold on her movement.
-    /// Its fields are the values documented on
-    /// <see cref="SamusShinesparkState"/> and keep their individual values.
     /// </summary>
     public SamusShinesparkState Shinespark { get; }
 
@@ -180,9 +176,8 @@ public sealed class SamusState
     internal GameplaySoundRequests AudioRequests { get; }
 
     /// <summary>
-    /// Crystal Flash initiation, ammo cadence, energy restoration, and its hold on her
-    /// movement. It is deliberately separate from <see cref="Shinespark"/> even though the
-    /// game shares a few values between the mutually exclusive effects.
+    /// Crystal Flash initiation, ammo cadence, energy restoration, and its hold on her movement, apart from
+    /// <see cref="Shinespark"/>, which never runs with it.
     /// </summary>
     public SamusCrystalFlashState CrystalFlash { get; }
 
@@ -227,9 +222,9 @@ public sealed class SamusState
 
     /// <summary>
     /// How slowed Samus is (#2286), 0 through <see cref="SamusHorizontalSpeedState.LargestSlowdownLevel"/>, as her own view
-    /// of <see cref="SamusHorizontalSpeedState.SlowdownLevel"/>. The game keeps one level for two effects: her speed is
-    /// halved once per level, and on dry ground each level adds an update to every frame of her animation
-    /// (<see cref="ExtraAnimationDelay"/>). The setter rejects values outside that range.
+    /// of <see cref="SamusHorizontalSpeedState.SlowdownLevel"/>: each level halves her speed once and, on dry ground,
+    /// adds an update to every frame of her animation (<see cref="ExtraAnimationDelay"/>). The setter rejects values
+    /// outside that range.
     /// </summary>
     [IntegerQuantity("halvings of Samus's horizontal speed, zero when she is not slowed")]
     public int SlowdownLevel
@@ -242,7 +237,7 @@ public sealed class SamusState
     public int Health { get; set; } = SamusEnergyDefinitions.StartingEnergy;
 
     /// <summary>
-    /// The previous energy for the hurt check: initialized from Energy when Samus is initialized,
+    /// The previous energy for the hurt check: initialized from <see cref="Health"/> when Samus is initialized,
     /// then compared and refreshed after Samus/projectile drawing by the post-draw input filter.
     /// </summary>
     public int PreviousHealthForHurtCheck { get; set; } = SamusEnergyDefinitions.StartingEnergy;
@@ -253,7 +248,7 @@ public sealed class SamusState
     /// of one update is never rounded on its own; how the fraction reaches the whole energy is the compatibility layer's
     /// (<see cref="PeriodicDamageEnergyFraction"/>).
     /// </summary>
-    public PeriodicDamageEnergyFraction EnergyFraction { get; private set; }
+    private PeriodicDamageEnergyFraction EnergyFraction { get; set; }
 
     /// <summary>
     /// Takes periodic damage as the game's periodic damage does: the fraction comes off <see cref="EnergyFraction"/>
@@ -277,7 +272,7 @@ public sealed class SamusState
         Health = health;
     }
 
-    /// <summary>Maximum normal energy; defaults to the initial 99.</summary>
+    /// <summary>Maximum normal energy; defaults to <see cref="SamusEnergyDefinitions.StartingEnergy"/>.</summary>
     public int MaxHealth { get; set; } = SamusEnergyDefinitions.StartingEnergy;
 
     /// <summary>Current reserve energy.</summary>
@@ -312,15 +307,15 @@ public sealed class SamusState
 
     /// <summary>
     /// The item chosen for auto-cancel, by pressing Select while Item Cancel is held: the HUD returns to the beam when its
-    /// use ends. <see cref="HudItem.Beam"/> when no item was chosen that way.
+    /// use ends. Null when no item was chosen that way.
     /// </summary>
-    public HudItem AutoCancelledItem { get; set; }
+    public HudItem? AutoCancelledItem { get; set; }
 
     /// <summary>Returns the HUD to the beam, with no item chosen for auto-cancel.</summary>
     public void SelectBeam()
     {
         SelectedHudItem = HudItem.Beam;
-        AutoCancelledItem = HudItem.Beam;
+        AutoCancelledItem = null;
     }
 
     /// <summary>
@@ -338,17 +333,15 @@ public sealed class SamusState
 
     /// <summary>
     /// The beam's charge (#1577): the session's one count, which the projectile pass advances and her movement, bombs,
-    /// sounds and colourings read; at least 60 is a full charge, which makes her spin and wall jump a pseudo Screw Attack.
+    /// sounds and colourings read; at least <see cref="BeamChargeDefinitions.FullyChargedCounter"/> is a full charge, which makes her spin and wall jump a pseudo Screw Attack.
     /// Every clear, hers or the projectiles', clears it for every reader.
     /// </summary>
     internal BeamChargeState BeamCharge { get; }
 
     /// <summary>
-    /// The shared bomb-spread charge timeout. The game clears this
-    /// timeout in the morphing-transition pose setup after a
-    /// successful Morph Ball item check, regardless of the humanoid movement family that
-    /// selected the transition. Keeping it separate from the beam flare counter prevents a
-    /// mid-air morph from accidentally cancelling ordinary arm-cannon charge state.
+    /// The shared bomb-spread charge timeout. The morphing-transition pose setup clears it after a successful Morph
+    /// Ball item check, whatever humanoid movement chose the transition; it is apart from the beam flare counter, so a
+    /// mid-air morph leaves the arm cannon's charge as it is.
     /// </summary>
     /// <remarks>
     /// The hold of Down while a spread is charged, lasting
@@ -392,12 +385,11 @@ public sealed class SamusState
     public SamusBallBounceState MorphBallBounceState { get; set; }
 
     /// <summary>
-    /// The bomb jump a bomb's blast asked of Samus: its launch direction, and whether her pose handling has accepted it,
-    /// which keeps the same request from arming the jump again. It is her state from the blast's overlap until her pose
-    /// handling rejects it, an input transition to another pose cancels it, or the jump it armed ends: the rising arc reads
-    /// its direction throughout, and a later blast replaces it whole.
+    /// Samus's bomb jump, from the blast that starts it until her pose handling rejects it, an input transition to another
+    /// pose cancels it, or the jump ends: its launch direction, which the rising arc reads throughout, and whether her pose
+    /// handling has armed it. A later blast starts a new one. None while she is not bomb jumping.
     /// </summary>
-    public SamusBombJumpRequest BombJumpRequest { get; set; }
+    public SamusBombJump? BombJump { get; set; }
 
     /// <summary>True for the bomb jump's one-frame start, which sets her velocity (<see cref="SamusMovementOwner.BombJump"/>).</summary>
     public bool BombJumpStarting { get; set; }
@@ -416,13 +408,13 @@ public sealed class SamusState
 
     /// <summary>
     /// The count her hurt flash runs on, which a knockback, a health loss and a moving shinespark write; the hurt flash's
-    /// shading advances it and clears it on reaching sixty (<see cref="SamusHurtFlashDefinitions.EndingUpdate"/>).
+    /// shading advances it and clears it on reaching its end (<see cref="SamusHurtFlashDefinitions.EndingUpdate"/>).
     /// </summary>
     public SharedHurtFlashCount HurtFlash { get; }
 
     /// <summary>
     /// Whether the charging-beam sound resumes on the next post-draw sound pass if Shoot is still held (#1682). Hurt-flash
-    /// recovery sets it at counter forty when a non-spinning Samus is still holding a sufficiently charged beam, and the
+    /// recovery sets it at its sound recovery count when a non-spinning Samus is still holding a sufficiently charged beam, and the
     /// post-draw sound check consumes it later in the same gameplay pass; a spin's end sets it for the next pass.
     /// </summary>
     public ChargingSoundResumption ChargingSound { get; } = new();
@@ -436,7 +428,7 @@ public sealed class SamusState
     public WrappingCountdown InvincibilityTimer { get; set; }
 
     /// <summary>
-    /// The knockback hold: started for five updates by enemy damage collision and counted once per gameplay update. The
+    /// The knockback hold: started for its knockback updates by enemy damage collision and counted once per gameplay update. The
     /// knockback holds her movement only while it runs.
     /// </summary>
     public UpdateCountdown KnockbackHold { get; set; } = UpdateCountdown.Ended();
@@ -489,7 +481,7 @@ public sealed class SamusState
     public SamusArtworkBinding Artwork { get; }
 
     /// <summary>
-    /// The room's visor shade cycle, advancing every five updates, used only by backdrop-blending rooms.
+    /// The room's visor shade cycle, advancing at its own pace, used only by backdrop-blending rooms.
     /// </summary>
     public SamusVisorShadeState VisorShades { get; } = new();
 
@@ -594,7 +586,7 @@ public sealed class SamusState
     /// next one. Most movement methods return collision results directly; Draygon-held movement has no displacement and its
     /// sole effect is forgetting this result. A downward move keeps a wall jump's result unless it lands.
     /// </summary>
-    public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; set; }
+    public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; private set; }
 
     /// <summary>A downward move leaves its result: landed when it collided, otherwise falling, unless a wall jump's is kept.</summary>
     internal void LeaveDownwardMoveResult(bool landed)
@@ -760,21 +752,16 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Executes the unusual two-pass distance probe of the
-    /// changed-pose collision detection.
+    /// Runs the two-pass distance probe of the changed-pose collision detection.
     /// </summary>
     /// <remarks>
-    /// A pose expansion of eight pixels or more is not tested only at its final leading
-    /// boundary. The game first tests the signed displacement rounded to the intermediate
-    /// eight-pixel boundary and returns immediately if that scan collides, then tests the
-    /// complete displacement only when the intermediate scan was clear. That first scan is
-    /// observable on square half-blocks: an eleven-pixel compact-to-standing expansion can
-    /// cross from the solid lower quadrant into an air upper quadrant at its final boundary.
-    /// A single final-boundary scan therefore misses the floor, expands Samus downward, and
-    /// lets her fall through the platform. Each probe uses a separate kinematics copy because
-    /// the collision check publishes a distance without moving live Samus.
-    /// The probe carries the pose being installed: the pose setup writes it to Samus's pose
-    /// before the larger-radius check, so the elevator ride's standing-pose gate tests it.
+    /// A pose expansion of <see cref="SamusPoseCollisionDefinitions.IntermediateProbeExpansion"/> or more is first tested
+    /// at the intermediate boundary and stops there if that scan collides; only a clear intermediate scan goes on to the
+    /// complete displacement. On square half-blocks a compact-to-standing expansion can cross from the solid lower
+    /// quadrant into an air upper quadrant at its final boundary, and the first scan finds the floor there and keeps
+    /// Samus on the platform. Each probe tests a copy of Samus's movement, which publishes a distance without moving her.
+    /// The probe carries the pose being set up: the pose setup gives Samus the pose before the larger-radius check, so
+    /// the elevator ride's standing-pose gate tests it.
     /// </remarks>
     internal BlockMoveResult ProbeChangedPoseVertical(
         RoomLevelData level,
@@ -868,10 +855,9 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Records Samus's previous Y position as set by something such as
-    /// changed-pose collision correction or facing forward's lift. The previous
-    /// fraction is deliberately not changed: the game writes only the whole pixels, not the fraction.
-    /// The write is absolute, discarding any earlier bottom-alignment shift this frame.
+    /// Records Samus's previous Y position as set by something such as changed-pose collision correction or facing
+    /// forward's lift: only its whole pixels change, and its fraction stays. The write is absolute, discarding any
+    /// earlier bottom-alignment shift this update.
     /// </summary>
     internal void WritePreviousYPosition(int correctedY) => PreviousPositionCorrections.WriteY(correctedY);
 

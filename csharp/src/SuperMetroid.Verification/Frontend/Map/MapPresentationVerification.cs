@@ -512,12 +512,6 @@ internal static class MapPresentationVerification
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
-                ToGrey = document.ToGrey.Select((item, index) => index == 0 ?
-                    item with { TrailingColor = null } : item).ToArray(),
-            }, ArtworkJson.Options))), "reject missing Mother Brain grey trailing color");
-        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
-            {
                 Normal = document.Normal with { Body = document.Normal.Body.Take(14).ToArray() },
             }, ArtworkJson.Options))), "reject truncated Mother Brain normal palette");
         MotherBrainBeamColourDocument beam = JsonSerializer.Deserialize<MotherBrainBeamColourDocument>(
@@ -654,7 +648,7 @@ internal static class MapPresentationVerification
             screenContent: original, sheets: MenuSheetFixtures.For(original));
         AssertTrue(SuperMetroid.TestSupport.FrameRendering.ScenePixels.Same(stock.BackgroundsScene(new(0, 0)), installed.BackgroundsScene(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");
-        AssertTrue(AreaMapProjection.Project(original.Get(AreaId.Crateria), system).Cells.SequenceEqual(installed.AreaMap.Cells),
+        AssertTrue(AreaMapProjection.Project(original.Get(AreaId.Crateria), system).Cells.SequenceEqual(installed.ShownCells.Cells),
             "file-select shows the exact projected map cells");
         // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(installed);

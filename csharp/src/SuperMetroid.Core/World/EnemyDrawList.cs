@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Rooms;
@@ -18,16 +16,12 @@ namespace SuperMetroid.Core.World;
 [RoomLifetime]
 internal sealed class EnemyDrawList
 {
-    /// <summary>Draws the dead Torizo's sand heap after the queued enemies.</summary>
-    private readonly DeadTorizoBehavior _deadTorizoBehavior;
+    /// <summary>The encounters' sprites drawn after every queued enemy, in their order (#2571).</summary>
+    private readonly IReadOnlyList<IEnemyLateDraw> _lateDraws;
     /// <summary>Supplies the shared enemy frame counter that phases the hit flash.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Shows a reached enemy's boss body frame before its picture is drawn.</summary>
     private readonly EnemyAnimationPlayer _animationPlayer;
-    /// <summary>Draws Mother Brain's late parts after the queued enemies.</summary>
-    private readonly MotherBrainBehavior _motherBrainBehavior;
-    /// <summary>The encounters of the room's bosses, whose Mother Brain's brain the late draw shows (#2194).</summary>
-    private readonly RoomBossEncounters _bossEncounters;
     /// <summary>Publishes each enemy's frame picture to the frame's sprites.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies every installed enemy frame's display and validates active room ownership.</summary>
@@ -38,11 +32,9 @@ internal sealed class EnemyDrawList
     /// <summary>Retains the behavior and presentation owners used by the enemy phase's draw pass.</summary>
     internal EnemyDrawList(EnemyDrawListDependencies dependencies)
     {
-        _deadTorizoBehavior = dependencies.DeadTorizoBehavior;
+        _lateDraws = dependencies.LateDraws;
         _frameContext = dependencies.FrameContext;
         _animationPlayer = dependencies.AnimationPlayer;
-        _motherBrainBehavior = dependencies.MotherBrainBehavior;
-        _bossEncounters = dependencies.BossEncounters;
         _presentation = dependencies.Presentation;
         _room = dependencies.Room;
         _puyoCeilingTurn = dependencies.PuyoCeilingTurn;
@@ -81,7 +73,7 @@ internal sealed class EnemyDrawList
             // Power-bomb damage runs after queue construction and can clear a
             // queued actor or replace it with the inert respawn reservation.
             // Neither lifecycle state owns a display composition.
-            if (place.DefinitionId == EnemyDefinitionId.None)
+            if (place.Occupant is not { } occupant)
                 continue;
 
             // The draw offset is zero for enemies the room places; the offset is added
@@ -92,8 +84,8 @@ internal sealed class EnemyDrawList
                 .RelativeToCamera(camera);
 
             // The draw pass consumes one shake tick of an enemy it reaches while forming
-            // its origin. The enemy's own update count chooses one pixel left or right; this is deliberately not the
-            // room's background displacement. An earthquake that shakes the enemies, as Ceres's does
+            // its origin. The enemy's own update count chooses one pixel left or right, apart from the room's shake. An
+            // earthquake that shakes the enemies, as Ceres's does
             // (EarthquakeShake.ShakesEnemies), restarts the shake for every active enemy, which is why its door sprites
             // visibly move with the station instead of remaining pinned to host screen space.
             if (reached && place.Shake.IsRunning)
@@ -108,7 +100,7 @@ internal sealed class EnemyDrawList
             if (place.Frame is not { } shown)
             {
                 if (reached)
-                    throw new InvalidDataException($"Enemy {place.DefinitionId} draws before showing a frame.");
+                    throw new InvalidDataException($"Enemy {occupant.DefinitionId} draws before showing a frame.");
                 continue;
             }
             // Resolve the sprite picture and the body frame through one presentation binding. Validate the
@@ -116,11 +108,11 @@ internal sealed class EnemyDrawList
             // and collision definitions. The empty frame draws nothing and is on no sheet (#1513).
             EnemyFrameDisplays displays = _room.Session.FrameDisplays;
             if (!displays.TryGetDisplay(shown, out bool pictured))
-                throw new InvalidDataException($"Enemy {place.DefinitionId} frame {shown} has no installed presentation.");
+                throw new InvalidDataException($"Enemy {occupant.DefinitionId} frame {shown} has no installed presentation.");
             // Only the draw pass shows a boss body frame; a frame without a body shows none.
             if (reached)
-                EnemyAnimationPlayer.DrawBossBodyFrame(place, displays.GetDisplayFrame(shown));
-            prepared.Add(new PreparedEnemyDraw(place, origin, drawShading, shown, pictured, placed?.PictureDepth));
+                EnemyAnimationPlayer.DrawBossBodyFrame(place, occupant, displays.GetDisplayFrame(shown));
+            prepared.Add(new PreparedEnemyDraw(place, occupant, origin, drawShading, shown, pictured, placed?.PictureDepth));
         }
         return new PreparedEnemyDraws(prepared);
     }
@@ -159,7 +151,7 @@ internal sealed class EnemyDrawList
             // Every frame is one whole sheet picture placed at the enemy's origin. Collision still
             // uses the game's own frame hitboxes, never the picture.
             if (draw.Pictured)
-                _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(place.DefinitionId, EnemySheetDefinitions.FrameName(draw.Frame),
+                _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(draw.Occupant.DefinitionId, EnemySheetDefinitions.FrameName(draw.Frame),
                     draw.Origin)
                 {
                     Shading = draw.Shading,
@@ -168,10 +160,10 @@ internal sealed class EnemyDrawList
                 });
         }
 
-        // Mother Brain's late parts advance her brain, which reads the room's random numbers, after every queued
-        // enemy's draw.
-        _motherBrainBehavior.Head.DrawMotherBrainBrainAndNeck(_bossEncounters.MotherBrain, sprites, camera, samus);
-        _deadTorizoBehavior.DrawDeadTorizoSandHeap(sprites, camera);
+        // The encounters' late draws follow every queued enemy's draw; Mother Brain's advances her brain, which reads the
+        // room's random numbers.
+        foreach (IEnemyLateDraw late in _lateDraws)
+            late.DrawAfterEnemies(sprites, camera, samus);
     }
 
     /// <summary>One live enemy queued to show.</summary>
@@ -181,13 +173,14 @@ internal sealed class EnemyDrawList
 
     /// <summary>One queued enemy's draw, formed by <see cref="Advance"/>.</summary>
     /// <param name="Place">The enemy.</param>
+    /// <param name="Occupant">The enemy holding the place, whose identity names its sheet.</param>
     /// <param name="Origin">Its screen origin, shaken when the draw pass reaches it.</param>
     /// <param name="Shading">The shading the common draw selected for this frame (#1512).</param>
     /// <param name="Frame">The frame the enemy shows, which names its sheet picture.</param>
     /// <param name="Pictured">Whether the frame has a sheet picture: the empty frame, a frame shown only on a boss body and
     /// a frame whose pieces show nothing have none.</param>
     /// <param name="Depth">The depth the enemy places its picture at (#2210), or null for its picture's own.</param>
-    internal readonly record struct PreparedEnemyDraw(RoomEnemyPlace Place,
+    internal readonly record struct PreparedEnemyDraw(RoomEnemyPlace Place, RoomEnemyOccupant Occupant,
         Offset16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId Frame, bool Pictured, ActorDepth? Depth);
 
     /// <summary>

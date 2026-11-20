@@ -215,7 +215,7 @@ internal static class DraygonAnimationsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
+        body.Bind(EnemyDefinitionId.DraygonBody, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(256, 384));
         // Draygon is set up through his group's factory, his eye, tail and arms built as its parts in the places after him.
         RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1], tail = enemies.Places.InUpdateOrder[2], arms = enemies.Places.InUpdateOrder[3];
@@ -337,7 +337,7 @@ internal static class DraygonAnimationsVerification
         EnemyProjectile goop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.DraygonGoop);
         AssertTrue(goop.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileSegment.Goop },
             "the real goop producer starts the typed goop loop");
-        goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.GoopTouch));
+        goop.StartAnimation(new DraygonProjectileAnimation(enemies.DraygonBehavior.Shots.Goop, DraygonProjectileSegment.GoopTouch));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         enemies.Projectiles.AdvanceEnemyProjectileAnimations(goop, samus, Position16<RoomPixels>.Zero, shortCounter: 0);
         AssertEqual<Enum?>(DraygonShotMotion.GoopStuckToSamus, goop.MotionKind, "the goop touch sticks the goop to Samus");

@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core;
@@ -274,26 +275,28 @@ internal static class EnemyExtendedFrameArtworkVerification
         enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         EnemyFrameId? frame = RoomEnemyPlaceFrameAccess.TryFrameAt(bank, pointer);
-        place.Bind(ExtendedFrameShower(frame), place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(ExtendedFrameShower(frame), place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        // A boss's part draws in a room whose boss has attached the body its body frames show on (#2573).
+        BossBodyCanvasFixtures.AttachBodyOfPart(enemies, place);
         if (art is not null)
         {
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
-            enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(place.DefinitionId));
+            enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(place.HeldOccupant().DefinitionId));
             place.Shading = PictureShading.Standard;
         }
         // Ridley's scene draws his tail and wings before his body while his movement animation runs, and his AI latches
         // whether his body draws in the hurt flash; this fixture's animation is off and its latch holds his own colours.
-        if (place.DefinitionId == EnemyDefinitionId.Ridley)
+        if (place.Holds(EnemyDefinitionId.Ridley))
         {
             place.SetUpPlaced<NorfairRidleyState>();
         }
         place.CollidesByFrameHitboxes = true;
         place.Frame = frame;
         // Kraid's arm and foot show the pose their record stores, its step and depth, through their part state (#2210).
-        if (place.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
+        if (place.Occupant?.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
         {
-            place.SetSpeciesState<SuperMetroid.Core.Bosses.Kraid.KraidPartState>(place.DefinitionId == EnemyDefinitionId.KraidArm
+            place.SetSpeciesState<SuperMetroid.Core.Bosses.Kraid.KraidPartState>(place.Holds(EnemyDefinitionId.KraidArm)
                 ? new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState(new SuperMetroid.Core.Bosses.Kraid.KraidParts()).ArmState
                 : new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState(new SuperMetroid.Core.Bosses.Kraid.KraidParts()).FootState);
             place.SpritemapPointer = pointer;

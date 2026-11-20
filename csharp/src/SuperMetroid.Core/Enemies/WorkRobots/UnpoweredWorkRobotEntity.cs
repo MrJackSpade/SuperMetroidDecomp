@@ -2,14 +2,15 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>An unpowered work robot (#2146, #2179): it holds the pose its placement names and takes no action of its own.</summary>
 /// <param name="species">The work robot species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the robot occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class UnpoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, WorkRobotSpawnSettings settings)
-    : WorkRobotEntity(species, place, common)
+internal sealed class UnpoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, WorkRobotSpawnSettings settings)
+    : WorkRobotEntity(species, occupant, place, common)
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal UnpoweredWorkRobotEnemyState State { get; } = species.InitializeUnpoweredWorkRobot(place, settings);
+    internal UnpoweredWorkRobotEnemyState State { get; } = species.InitializeUnpoweredWorkRobot(Occupant, place, settings);
 
     /// <summary>Takes no action of its own.</summary>
     /// <param name="frame">The enemy frame.</param>

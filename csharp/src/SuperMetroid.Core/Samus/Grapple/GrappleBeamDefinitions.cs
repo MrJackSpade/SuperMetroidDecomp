@@ -31,7 +31,7 @@ public static class GrappleBeamDefinitions
     /// <summary>Angular-physics coefficients embedded in behavior.</summary>
     public static class Physics
     {
-        /// <summary>A fired beam that connects: the rope retracts by itself eight pixels per frame after connecting clears its change of length.</summary>
+        /// <summary>A fired beam that connects: how fast the rope retracts by itself, in pixels per frame, after connecting clears its change of length.</summary>
         public const int InitialConnectionRetraction = -8;
         /// <summary>How far the rope grows each update while the beam is fired.</summary>
         public const int FiringExtension = 12;
@@ -42,7 +42,7 @@ public static class GrappleBeamDefinitions
         /// <see cref="FiringExtension"/> and then cancels it, and connected motion keeps it shorter still.
         /// </summary>
         public const int LongestRopeLength = FiringCancelLength - 1 + FiringExtension;
-        /// <summary>Per-update downward angular acceleration: 24/256 of a step.</summary>
+        /// <summary>Per-update downward angular acceleration, a little under a tenth of a step.</summary>
         public static readonly AngularSpeed GravityMagnitude = AngularSpeed.FromStepFraction(3, 32);
         /// <summary>Per-update angular acceleration contributed by directional input: 12/256 of a step.</summary>
         public static readonly AngularSpeed DirectionInputMagnitude = AngularSpeed.FromStepFraction(3, 64);
@@ -148,9 +148,9 @@ public static class GrappleBeamDefinitions
     /// <summary>Firing the beam: the pose-change auto-fire wait and the art origin of the poses Draygon holds Samus in.</summary>
     public static class Firing
     {
-        /// <summary>Firing initializes the grapple's pose-change auto-fire timer to ten; the pose-change check decrements before checking the pose.</summary>
+        /// <summary>What firing initializes the grapple's pose-change auto-fire timer to; the pose-change check counts down before checking the pose.</summary>
         public const int PoseChangeAutoFireFrames = 10;
-        /// <summary>The art origin firing uses, six pixels, for the moving poses Draygon holds Samus in.</summary>
+        /// <summary>The art origin firing uses for the moving poses Draygon holds Samus in.</summary>
         public const int DraygonMovingArtOrigin = 6;
     }
 

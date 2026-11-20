@@ -32,7 +32,7 @@ public sealed class SamusBodySources
     /// <summary>Each lower-body definition group's first record.</summary>
     private readonly int[] bottomSetStarts;
     /// <summary>Each pose's first frame selector.</summary>
-    internal readonly Dictionary<SamusPoseId, int> poseFirstFrames;
+    private readonly Dictionary<SamusPoseId, int> poseFirstFrames;
     /// <summary>The contiguous frame-selector interval.</summary>
     private readonly SamusBodyFrameSelection[] frames;
     /// <summary>Each pose's installed animation frames' half pictures, or none where not installed.</summary>
@@ -100,10 +100,10 @@ public sealed class SamusBodySources
     /// The fatal-damage suit, suitless and whiteout colours her death shades are pre-coloured from (#1512); gameplay
     /// reads only the order of those steps, through <see cref="InstalledSamusBodyArtwork.DeathSteps"/>.
     /// </summary>
-    public SuperMetroid.Core.Samus.Death.SamusDeathSteps DeathSteps { get; }
+    private SuperMetroid.Core.Samus.Death.SamusDeathSteps DeathSteps { get; }
 
     /// <summary>Where each pose with a record places the body: its art origin and, where they differ, each frame's own placement.</summary>
-    public IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements { get; }
+    private IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements { get; }
 
     /// <summary>
     /// SHA-256 of all visual selectors and bundled Samus presentation catalogs the import composes the sheets from. The body
@@ -137,13 +137,13 @@ public sealed class SamusBodySources
     public ReadOnlySpan<int> BottomSetStarts => bottomSetStarts;
 
     /// <summary>The contiguous frame-selector interval.</summary>
-    public ReadOnlySpan<SamusBodyFrameSelection> Frames => frames;
+    private ReadOnlySpan<SamusBodyFrameSelection> Frames => frames;
 
     /// <summary>The definition record <paramref name="picture"/> shows: the import numbers the pictures by their records.</summary>
     public static int Record(SamusBodyPicture picture) => picture.Ordinal;
 
     /// <summary>The picture that shows definition <paramref name="record"/>.</summary>
-    public static SamusBodyPicture Picture(int record) => new(record);
+    private static SamusBodyPicture Picture(int record) => new(record);
 
     /// <summary>
     /// Adds every pose's placement to <paramref name="content"/> in the cartridge's pose order, which the import keeps
@@ -289,7 +289,7 @@ public sealed class SamusBodySources
         if (!SamusPoseNumbers.CoversRecordedPoses(parts.PoseFirstFrames))
             throw new InvalidDataException("Samus body frame lists do not cover exactly the poses with records.");
         if (parts.Frames.Any(frame => !IsSelectorComponent(frame.TopSet) || !IsSelectorComponent(frame.TopPosition) ||
-                !IsSelectorComponent(frame.BottomSet) || !IsSelectorComponent(frame.BottomPosition)))
+                (frame.BottomSet is int bottomSet && !IsSelectorComponent(bottomSet)) || !IsSelectorComponent(frame.BottomPosition)))
             throw new InvalidDataException("Samus body frame selector components must be table indices from 0 through 255.");
         foreach (int firstFrame in parts.PoseFirstFrames.Values)
             if ((uint)firstFrame >= FrameCount)
@@ -305,11 +305,11 @@ public sealed class SamusBodySources
             selected = default;
             if (!placement.TryFrameRise(animationFrame, out frameRise) ||
                 !TryDefinitionRecord(parts.TopSetStarts, parts.BottomSetStarts, first, SamusBodyHalf.Top, selection.TopSet, selection.TopPosition, out int top) ||
-                (selection.NamesBottom && !TryDefinitionRecord(parts.TopSetStarts, parts.BottomSetStarts, first, SamusBodyHalf.Bottom,
-                    selection.BottomSet, selection.BottomPosition, out _)))
+                (selection.BottomSet is int lowerSet && !TryDefinitionRecord(parts.TopSetStarts, parts.BottomSetStarts, first, SamusBodyHalf.Bottom,
+                    lowerSet, selection.BottomPosition, out _)))
                 return false;
-            selected = new SamusBodyFramePictures(Picture(top), selection.NamesBottom
-                ? Picture(parts.BottomSetStarts[selection.BottomSet] + selection.BottomPosition) : null);
+            selected = new SamusBodyFramePictures(Picture(top), selection.BottomSet is int bottom
+                ? Picture(parts.BottomSetStarts[bottom] + selection.BottomPosition) : null);
             return true;
         }
         var pictures = new Dictionary<SamusPoseId, IReadOnlyList<SamusBodyFramePictures?>>();
@@ -348,7 +348,12 @@ public sealed class SamusBodySources
     private static bool TryDefinitionRecord(int[] topStarts, int[] bottomStarts, int firstRecord, SamusBodyHalf half, int set, int position, out int record)
     {
         int[] starts = half == SamusBodyHalf.Top ? topStarts : bottomStarts;
-        record = set >= 0 && set < starts.Length && IsSelectorComponent(position) ? starts[set] + position : -1;
+        if (set < 0 || set >= starts.Length || !IsSelectorComponent(position))
+        {
+            record = default;
+            return false;
+        }
+        record = starts[set] + position;
         return record >= firstRecord && record < RecordCount;
     }
 

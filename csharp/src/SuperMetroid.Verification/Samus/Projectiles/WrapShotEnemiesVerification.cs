@@ -33,7 +33,7 @@ internal static class WrapShotEnemiesVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RedTower);
-            var enemy = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Ripper);
+            var enemy = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Ripper));
             foreach (var other in runtime.Enemies.Places.InUpdateOrder) if (!ReferenceEquals(other, enemy)) other.Clear();
             enemy.Processing = enemy.Processing.With(EnemyProcessing.OffScreen);
             // Run the first real animation entry before freezing; a never-drawn
@@ -48,7 +48,7 @@ internal static class WrapShotEnemiesVerification
             // Populate the real interactive list while freezing AI movement. The
             // remote enemy must be eligible, not silently excluded as offscreen.
             runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 0), TimeIsFrozen = true });
-            AssertTrue(runtime.Enemies.InteractiveEnemies.Contains(enemy), "Remote control enemy is collision-eligible");
+            AssertTrue(runtime.Enemies.InteractiveEnemies.Any(occupant => occupant.Place == enemy), "Remote control enemy is collision-eligible");
 
             var words = new RoomTerrainBlock[64 * 128];
             for (int row = 0; row < 128; row++)
@@ -69,7 +69,7 @@ internal static class WrapShotEnemiesVerification
                 GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
                 bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
                 shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)(left ? 0 : 768), 0), bombs, new SharedGameState(new SharedRandom()));
-                AssertEqual(0, runtime.Enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.Samus), "Tile alias does not redirect the projectile enemy hitbox");
+                runtime.Enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.Samus);
             }
             AssertEqual(RoomTerrainBlock.Of(0x052, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlockByIndex(target).Terrain, "Same shot actually triggers the remote tile");
             AssertEqual(health, enemy.Health, "Remote enemy health is unchanged");
@@ -79,7 +79,8 @@ internal static class WrapShotEnemiesVerification
             // live projectile. A real collision proves the negative was spatial,
             // not a dead projectile, inactive enemy or disabled collision path.
             enemy.Position = enemy.Position.WithWhole(shots.Shots[0].Position.Whole);
-            AssertEqual(1, runtime.Enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.Samus), "World-space overlap reaches the same enemy collision dispatcher");
+            runtime.Enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.Samus);
+            AssertTrue(shots.Shots[0].IsSpent, "World-space overlap reaches the same enemy collision dispatcher: the shot is spent on it");
         }
         Console.WriteLine("PASS wrap-shot enemy separation: both remote tile hits spare eligible enemies; world-space controls collide.");
     }

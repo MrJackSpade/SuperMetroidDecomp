@@ -21,6 +21,7 @@ internal static class KraidNailContourVerification
         Suite(nameof(VerifyKraidNailPastLedges), () => VerifyKraidNailPastLedges(rom));
         var session = EnemySessionFixtures.WithInstalledServices();
         var enemies = EnemySystemFixtures.New(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        enemies.Places.BindKraidPartsInRoomOrder();
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         Func<RoomEnemyPlace, bool> reflect = place => enemies.KraidBehavior.Projectiles.KraidBodyContourReflectsNail(place, place.RequireSpeciesState<KraidNailState>());
         var body = enemies.Places.InUpdateOrder[0];

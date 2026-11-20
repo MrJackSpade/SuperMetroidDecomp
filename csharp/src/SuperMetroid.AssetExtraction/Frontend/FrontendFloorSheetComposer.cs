@@ -72,7 +72,7 @@ internal static class FrontendFloorSheetComposer
     /// <exception cref="InvalidDataException">
     /// The installed map or characters are shorter than the title loads, or the map shows no cell of the Baby.
     /// </exception>
-    internal static ComposedSpriteSheet Title(TitleGraphicsCharacters graphics, TitlePalettePresentation palette)
+    private static ComposedSpriteSheet Title(TitleGraphicsCharacters graphics, TitlePalettePresentation palette)
     {
         TitleGraphicsCharacters title = Ensure.NotNull(graphics);
         if (title.FloorMap.Length < TitleFloorTileDefinitions.FloorMapByteCount)
@@ -120,18 +120,19 @@ internal static class FrontendFloorSheetComposer
     /// <exception cref="InvalidDataException">No cell of the map shows the Baby's tiles.</exception>
     private static BabyCellRectangle BabyCells(byte[] map)
     {
-        int left = FloorSheetComposer.Side, top = FloorSheetComposer.Side, right = -1, bottom = -1;
+        // The cells' bounds so far, none before the first cell of the Baby's.
+        ImageContentBox? bounds = null;
         for (int cell = 0; cell < map.Length; cell++)
         {
             if (map[cell] is < TitleFloorTileDefinitions.BabyFirstTile or >= TitleFloorTileDefinitions.BabyFirstTile + TitleFloorTileDefinitions.BabyTileCount)
                 continue;
             int column = cell % FloorSheetComposer.Side, row = cell / FloorSheetComposer.Side;
-            left = Math.Min(left, column);
-            top = Math.Min(top, row);
-            right = Math.Max(right, column);
-            bottom = Math.Max(bottom, row);
+            // The cells are visited row by row, so the bounds' top is the first cell's row and each cell's row the lowest yet.
+            bounds = bounds is { } held
+                ? held.Including(new ImageRowRun(column, column), row)
+                : ImageContentBox.OfRow(new ImageRowRun(column, column), row);
         }
-        return right >= 0 ? new BabyCellRectangle(left, top, right - left + 1, bottom - top + 1)
+        return bounds is { } found ? new BabyCellRectangle(found.Left, found.Top, found.Right - found.Left + 1, found.Bottom - found.Top + 1)
             : throw new InvalidDataException("The title floor's map shows no cell of the Baby Metroid.");
     }
 
@@ -149,7 +150,7 @@ internal static class FrontendFloorSheetComposer
     /// <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
-    internal static ComposedSpriteSheet Ceres(ImportIntroCinematicArtwork intro, IPaletteFxColorSource paletteFx) =>
+    private static ComposedSpriteSheet Ceres(ImportIntroCinematicArtwork intro, IPaletteFxColorSource paletteFx) =>
         Ceres(Ensure.NotNull(intro).FlightCharacters, intro.CeresDestructionMaps,
             intro.FlightPalette, paletteFx);
 
@@ -159,7 +160,7 @@ internal static class FrontendFloorSheetComposer
     /// from <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
-    internal static ComposedSpriteSheet Ceres(CeresFlightCharacters flight, CeresDestructionMaps destruction, CeresFlightPalette colours,
+    private static ComposedSpriteSheet Ceres(CeresFlightCharacters flight, CeresDestructionMaps destruction, CeresFlightPalette colours,
         IPaletteFxColorSource paletteFx)
     {
         Ensure.NotNull(flight);

@@ -21,19 +21,24 @@ internal static class EnemyEffectResourcesVerification
         AssertThrows<InvalidDataException>(() => BossBodySheetComposer.Frames(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork, BossBodyOwner.Crocomire),
             "missing melt art fails the installation");
         CrocomireMeltingArtwork art = MeltEffectArtwork();
-        CheckCrocomireResourceFailure(art, fixture => fixture.InitializeMap((CrocomireMeltingIllustration)(-1)), "unknown melt image");
-        CheckCrocomireResourceFailure(art, fixture => fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, (CrocomireMeltingIllustration)(-1))),
-            "unknown melt pass");
+        // An illustration that is neither of his two melt images names no frame of his body sheet: the frame-name table
+        // rejects it as an argument outside the illustrations (#2401), before any stage, actor or body changes.
+        CheckCrocomireResourceFailure<ArgumentOutOfRangeException>(art,
+            fixture => fixture.InitializeMap((CrocomireMeltingIllustration)(-1)), "unknown melt image");
         Console.WriteLine("  Enemy effect resources: missing/unknown art fails before changing WRAM, phases, actors, graphics or VRAM.");
     }
 
-    /// <summary>Checks that one Crocomire resource error leaves effect mechanics, band pictures, tilemap, and VRAM intact.</summary>
-    private static void CheckCrocomireResourceFailure(CrocomireMeltingArtwork? art,
+    /// <summary>
+    /// Checks that one Crocomire melt failure, thrown as <typeparamref name="TException"/>, leaves effect mechanics, band
+    /// pictures, tilemap, and VRAM intact.
+    /// </summary>
+    private static void CheckCrocomireResourceFailure<TException>(CrocomireMeltingArtwork? art,
         Action<CrocomireEffectFixture> operation, string context)
+        where TException : Exception
     {
         var expected = new CrocomireEffectFixture(art);
         var actual = new CrocomireEffectFixture(art);
-        AssertThrows<InvalidDataException>(() => operation(actual), context + " fails loudly");
+        AssertThrows<TException>(() => operation(actual), context + " fails loudly");
         AssertCrocomireEffectMechanics(expected, actual, context);
         AssertTrue(BossBodyCanvasFixtures.ShowSame(((BossBodyParts)expected.Enemies.Presentation.BossBodyDisplay!), ((BossBodyParts)actual.Enemies.Presentation.BossBodyDisplay!)),
             context + " shown body unchanged");

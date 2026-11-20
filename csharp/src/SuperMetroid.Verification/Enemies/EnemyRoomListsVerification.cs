@@ -58,8 +58,13 @@ internal static class EnemyRoomListsVerification
             }
             AssertEqual(0xffff, ReadVerificationWord(bus, address),
                 $"population $A1:{pointer:X4} length reaches its native terminator");
-            AssertEqual(bus.ReadCartridgeByte(address + 2), compiled.DeathQuota,
-                $"population $A1:{pointer:X4} death quota follows its terminator");
+            // The room load reads the quota after the terminator only of a list that places enemies; an empty list has
+            // none, and the byte after the first list's terminator is the next list's first (#2584).
+            if (compiled is PlacedRoomEnemyPopulationDefinition placed)
+            {
+                AssertEqual(bus.ReadCartridgeByte(address + 2), placed.DeathQuota,
+                    $"population $A1:{pointer:X4} death quota follows its terminator");
+            }
             populationRecords += records.Length;
         }
         AssertEqual(RoomEnemyPopulationDefinitions.PlacementCount, populationRecords,

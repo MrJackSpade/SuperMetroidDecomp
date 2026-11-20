@@ -66,9 +66,9 @@ internal static class RoomPaletteFxPresentationVerification
 
         var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var nativeSession = new ColourEffectSessionState();
-        var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         var installedSession = new ColourEffectSessionState();
-        var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         foreach (NorfairEnvironmentalPaletteFxColorDefinition definition in
                  NorfairEnvironmentalPaletteFxColorDefinitions.All)
         {
@@ -117,7 +117,7 @@ internal static class RoomPaletteFxPresentationVerification
                 .ToArray() }, TourianStatueGreyPaletteFxColorDefinitions.FramesThroughDeletion));
         {
             CrateriaLightningPaletteFxColorDefinition definition = CrateriaLightningPaletteFxColorDefinitions.Surface;
-            VerifyInstalledPaletteFxFamily(bus, presentation, "Crateria surface lightning", new PaletteFxFamilyShape { FrameCount = definition.Frames.Count, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [CrateriaLightningPaletteFxColorDefinition.DefinitionPointer] }, definition.CycleFrames * 2, CrateriaLightningDefinitions.SamusHighOnSurfaceHeight);
+            VerifyInstalledPaletteFxFamily(bus, presentation, "Crateria surface lightning", new PaletteFxFamilyShape { FrameCount = definition.Frames.Count, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [CrateriaLightningPaletteFxColorDefinition.DefinitionPointer] }, CrateriaLightningPaletteFxColorDefinition.CycleFrames * 2, CrateriaLightningDefinitions.SamusHighOnSurfaceHeight);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Ceres gunship-engine lights", new PaletteFxFamilyShape { FrameCount = CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineFrameCount, ColorsPerFrame = CeresCinematicLightPaletteFxColorDefinitions
                 .GunshipEngineColorsPerFrame, ColorPointer = CeresCinematicLightPaletteFxColorDefinitions
@@ -142,7 +142,7 @@ internal static class RoomPaletteFxPresentationVerification
                  CinematicGlowPaletteFxColorDefinitions.All)
         {
             // The old Mother Brain fight's lights run on the intro's screen, the gunship's glow in its room (#1733).
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"Cinematic glow {definition.Owner}", new PaletteFxFamilyShape { FrameCount = CinematicGlowPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], OnScreen = ColourEffectScreenColourDefinitions.FrontendScreenGroups.Contains(definition.Object.AnimatedColours) }, definition.CycleFrames * 2);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"Cinematic glow {definition.Owner}", new PaletteFxFamilyShape { FrameCount = CinematicGlowPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], OnScreen = ColourEffectScreenColourDefinitions.FrontendScreenGroups.Contains(definition.ColorFrames.Effect.AnimatedColours) }, definition.CycleFrames * 2);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "exploding Zebes fade", new PaletteFxFamilyShape { FrameCount = ExplodingZebesFadePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = ExplodingZebesFadePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = ExplodingZebesFadePaletteFxColorDefinitions.ColorPointer, Definitions = [ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer], OnScreen = true }, ExplodingZebesFadePaletteFxColorDefinitions.CycleFrames + 1));
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "title-logo fade", new PaletteFxFamilyShape { FrameCount = TitleLogoFadePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = TitleLogoFadePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = TitleLogoFadePaletteFxColorDefinitions.ColorPointer, Definitions = [TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer], OnScreen = true }, TitleLogoFadePaletteFxColorDefinitions.CycleFrames + 1));
@@ -216,7 +216,7 @@ internal static class RoomPaletteFxPresentationVerification
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
         foreach (PaletteFxHeatProgramDefinition definition in
-                 PaletteFxHeatProgramMechanicsDefinitions.All)
+                 PaletteFxHeatPulseColorDefinitions.All)
         {
             var forbidden = new HashSet<int>();
             foreach (var frame in definition.Frames)
@@ -239,9 +239,9 @@ internal static class RoomPaletteFxPresentationVerification
 
             var guard = NewTitlePresentationReadBus(bus, forbidden, forbidReads: true);
             var nativeSession = new ColourEffectSessionState();
-            var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+            var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             var installedSession = new ColourEffectSessionState();
-            var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+            var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             ushort equipment = definition.Suit switch
             {
                 ColourEffectHeatSuit.Power => 0,
@@ -301,10 +301,10 @@ internal static class RoomPaletteFxPresentationVerification
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var nativeSession = new ColourEffectSessionState();
             var nativeSounds = SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone();
-            var native = new ColourEffectSystem(nativeSession, nativeSounds);
+            var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, nativeSounds });
             var installedSession = new ColourEffectSessionState();
             var installedSounds = SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone();
-            var installed = new ColourEffectSystem(installedSession, installedSounds);
+            var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, installedSounds });
             StartFamily(native, shape, definition);
             StartFamily(installed, shape, definition);
             var nativeCgram = new SnesCgram();
@@ -365,9 +365,9 @@ internal static class RoomPaletteFxPresentationVerification
         {
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var nativeSession = new ColourEffectSessionState();
-            var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+            var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             var installedSession = new ColourEffectSessionState();
-            var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+            var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             native.Start(definition, equippedItems: 0);
             installed.Start(definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
@@ -418,9 +418,9 @@ internal static class RoomPaletteFxPresentationVerification
 
         var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var nativeSession = new ColourEffectSessionState();
-        var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         var installedSession = new ColourEffectSessionState();
-        var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         foreach (MaridiaEnvironmentalPaletteFxColorDefinition definition in
                  MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {

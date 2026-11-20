@@ -52,9 +52,8 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
             // A blue cap's closing turns into the grey door's frames too, so the fixture binds every installed picture (#1557).
             var roomObjects = RoomObjectFixtures.Unbound();
             RoomBlockBehavior behavior = RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(orientation));
-            AssertTrue(roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, level.BlockAt(origin), behavior,
-                SamusProjectileType.None),
-                $"{orientation} blue door allocates its native opening actor");
+            roomObjects.DoorObjects.SpawnBlueDoorOpening(level, level.BlockAt(origin), behavior,
+                BlockStrike.GrappleTouch.Instance);
             var guarded = NewBlueDoorDrawReadGuard(rom, lists);
             roomObjects.Step(level);
             int stride = orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right
@@ -93,8 +92,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
                 DestinationScreen: new(0, 0),
                 SamusSpeed: DoorSamusSpeed.None,
                 Setup: DoorSetupDefinitions.None);
-            AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, closingDoor),
-                $"{orientation} places the blue cap closing behind Samus");
+            roomObjects.DoorObjects.SpawnDoorClosingObject(level, closingDoor);
             AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closing } closer && closer.Orientation == orientation,
                 $"{orientation} closing cap faces the travel direction");
             for (int frame = 0; frame < 20 && roomObjects.Places.ActiveCount != 0; frame++)

@@ -14,10 +14,10 @@ public static class EndingMotionDefinitions
     /// <summary>The escape scenes' initial floor angle.</summary>
     public static TrigonometryAngle EscapeInitialAngle { get; } = new(32);
 
-    /// <summary>The escape and explosion scenes' initial zoom: a quarter floor pixel per screen pixel.</summary>
+    /// <summary>The escape and explosion scenes' initial zoom.</summary>
     public static FloorZoom EscapeInitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(1, 4);
 
-    /// <summary>The zoom at which the side-cloud and top-and-bottom-cloud escapes begin fading out: one and a half floor pixels per screen pixel.</summary>
+    /// <summary>The zoom at which the side-cloud and top-and-bottom-cloud escapes begin fading out.</summary>
     public static FloorZoom EscapeEndZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(3, 2);
 
     /// <summary>The side-cloud escape's zoom change each update.</summary>
@@ -32,7 +32,7 @@ public static class EndingMotionDefinitions
     /// <summary>The zoom below which the top-and-bottom-cloud escape's clouds keep moving.</summary>
     public static FloorZoom TopAndBottomCloudZoomLimit { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(11, 16);
 
-    /// <summary>The space view's initial zoom for the gunship's emergence: twelve floor pixels per screen pixel.</summary>
+    /// <summary>The space view's initial zoom for the gunship's emergence.</summary>
     public static FloorZoom PlanetEscapeInitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(12);
 
     /// <summary>The zoom below which fast spinning gives way to the slower emergence.</summary>
@@ -41,7 +41,7 @@ public static class EndingMotionDefinitions
     /// <summary>The zoom below which the accelerating fly-to-camera phase starts.</summary>
     public static FloorZoom PlanetSlowEndZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(37, 8);
 
-    /// <summary>The fly-to-camera zoom below which the ship turns toward its exit angle on every fourth update.</summary>
+    /// <summary>The fly-to-camera zoom below which the ship turns toward its exit angle at its turn cadence.</summary>
     public static FloorZoom PlanetTurnStartZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(3, 2);
 
     /// <summary>The fly-to-camera zoom below which gunship colours are restored and the operation-success message begins.</summary>
@@ -80,22 +80,22 @@ public static class EndingMotionDefinitions
     /// <summary>The fly-to-camera phase's zoom change each update.</summary>
     public static FloorZoomStep PlanetFlyToCameraZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 64);
 
-    /// <summary>The fly-to-camera phase's initial horizontal velocity: half a pixel per update.</summary>
+    /// <summary>The fly-to-camera phase's initial horizontal velocity.</summary>
     public static SignedSixteenSixteen PlanetInitialVelocity => SignedSixteenSixteen.FromPixelFraction(1, 2);
 
     /// <summary>The fly-to-camera phase's velocity decrease each update.</summary>
     public static SignedSixteenSixteen PlanetAcceleration => SignedSixteenSixteen.FromPixelFraction(1, 256);
 
-    /// <summary>The starfield's flyaway speed when the fast planet escape starts it: a quarter pixel an update to the right.</summary>
+    /// <summary>The starfield's flyaway speed to the right when the fast planet escape starts it.</summary>
     public static SignedSixteenSixteen StarsFlyawayInitialVelocity => SignedSixteenSixteen.FromPixelFraction(1, 4);
 
     /// <summary>The starfield's flyaway slowing each update, applied before it moves.</summary>
     public static SignedSixteenSixteen StarsFlyawayDeceleration => SignedSixteenSixteen.FromPixelFraction(1, 2048);
 
-    /// <summary>The credits' vertical scroll per update: half a pixel.</summary>
+    /// <summary>The credits' vertical scroll per update.</summary>
     public static SignedSixteenSixteen CreditsScrollVelocity => SignedSixteenSixteen.FromPixelFraction(1, 2);
 
-    /// <summary>The angle the slow-spinning gunship approaches one unit per update.</summary>
+    /// <summary>The angle the slow-spinning gunship approaches by <see cref="PlanetSlowTurnSteps"/> each update.</summary>
     public static RotationAngle PlanetSlowTargetAngle => RotationAngle.FromSteps(224);
 
     /// <summary>The angle the final fly-to-camera turn approaches, separate from the slow-spin target.</summary>

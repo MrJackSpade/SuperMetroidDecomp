@@ -28,7 +28,7 @@ internal static class EndingShootingStarsTests
             Require(definition.Acceleration.X.RawValue == Word(0x8be9cf + index * 8), "Native X acceleration");
             Require(definition.Acceleration.Y.RawValue == Word(0x8be9d1 + index * 8), "Native Y acceleration");
             // A still star's cartridge period, 3840 updates, outlasts every flight, so its picture never advances (#1983).
-            Require(definition.Period is { } period ? period == Word(0x8be9d3 + index * 8) : Word(0x8be9d3 + index * 8) == 3840,
+            Require(definition.Pace.Animates ? definition.Pace.Period == Word(0x8be9d3 + index * 8) : Word(0x8be9d3 + index * 8) == 3840,
                 "Native animation period");
             Require(definition.Delay == Word(0x8be9d5 + index * 8), "Native start delay");
         }
@@ -92,7 +92,7 @@ internal static class EndingShootingStarsTests
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects));
         scene.InstalledArtwork.ShowCreditsColours();
         scene.CreditsRoll.SetupPostCreditsBlank();
-        PrivateState.Set(scene, nameof(EndingCreditsState.Phase), EndingCreditsPhase.PostCreditsBlank);
+        scene.ShowCastPhase(EndingCreditsPhase.PostCreditsBlank);
         PrivateState.Set(scene, nameof(EndingCreditsState.PhaseHold), UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.PostCreditsBlankFrames));
         var seen = new HashSet<EndingCreditsPhase>();
         for (int tick = 0; tick < 400; tick++)

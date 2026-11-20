@@ -177,7 +177,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         {
             RoomEnemyPlace place = enemy.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
-            place.Bind(EnemyDefinitionId.TourianStatue, place.Definition);
+            place.Bind(EnemyDefinitionId.TourianStatue, place.KeptDefinition);
             EnemySystemFixtures.InitializeStatuePlacement(place);
         }
 

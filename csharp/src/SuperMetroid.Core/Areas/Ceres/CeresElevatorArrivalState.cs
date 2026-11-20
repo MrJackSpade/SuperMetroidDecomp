@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// it, which hides the landing recess until she lands and both leave.
 /// </summary>
 [RoomLifetime]
-public sealed class CeresElevatorArrivalState
+public sealed class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActorInFrontOfSamus
 {
     /// <summary>The moving pad, which lowers Samus before the platform checks for her landing, and its wait before it moves.</summary>
     private readonly CeresElevatorPad pad;
@@ -35,7 +35,7 @@ public sealed class CeresElevatorArrivalState
             samus.Position.Whole.WithY(CeresElevatorArrivalDefinitions.StationaryPlatformY));
     }
 
-    /// <summary>True after both actors leave, once Samus has landed at Y=72.</summary>
+    /// <summary>True after both actors leave, once Samus has landed at <see cref="CeresElevatorArrivalDefinitions.LandingSamusY"/>.</summary>
     public bool IsComplete => !pad.Actor.Active && !platform.Active;
 
     /// <summary>Runs the pad, then the platform.</summary>
@@ -44,7 +44,7 @@ public sealed class CeresElevatorArrivalState
     {
         Ensure.NotNull(samus);
 
-        // The pad moves Samus before the platform tests whether she has landed at Y=72, so both leave on the update
+        // The pad moves Samus before the platform tests whether she has landed at her landing height, so both leave on the update
         // she lands, without showing another pose (#2424).
         if (pad.Actor.Active)
         {
@@ -87,12 +87,12 @@ public sealed class CeresElevatorArrivalState
     }
 
     /// <summary>
-    /// Emits the low-priority frames selected by the live animations.
+    /// Draws the pad and platform pictures the live animations select, at their actor depth.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="presentation">Publishes the platforms from the room's enemy artwork.</param>
     /// <param name="camera">Camera position in whole room pixels.</param>
-    internal void Draw(SpriteFrameBuffer sprites, EnemyPresentation presentation, Position16<RoomPixels> camera)
+    void SuperMetroid.Core.Enemies.IActorInFrontOfSamus.DrawInFrontOfSamus(SpriteFrameBuffer sprites, EnemyPresentation presentation, Position16<RoomPixels> camera)
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(presentation);

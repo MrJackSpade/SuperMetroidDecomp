@@ -30,7 +30,7 @@ internal static class PhantoonCasualFlamesVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var body = enemies.Places.InUpdateOrder[0];
         var mouth = enemies.Places.InUpdateOrder[3];
-        var state = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], mouth);
+        var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], mouth);
         enemies.BeginPhantoonAsSetUp(state);
         void step(RoomEnemyPlace _) => enemies.PhantoonBehavior.Patterns.StepPhantoonCasualFlameSchedule(state);
         ushort random = 0;

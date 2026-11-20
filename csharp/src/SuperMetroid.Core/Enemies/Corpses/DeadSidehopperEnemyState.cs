@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
@@ -69,7 +68,7 @@ public sealed class DeadSidehopperEnemyState
     /// ends on, the <see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/>th, starts rotting, and the corpse never
     /// returns to the delay.
     /// </summary>
-    public UpdateCountdown PreRotDelay { get; internal set; } = UpdateCountdown.Lasting(CorpseRotScheduleDefinitions.PreRotDelayUpdates);
+    public UpdateCountdown PreRotDelay { get; } = UpdateCountdown.Lasting(CorpseRotScheduleDefinitions.PreRotDelayUpdates);
 
     /// <summary>
     /// The post-landing pause, lasting <see cref="DeadSidehopperVictimDefinitions.PostLandingPause"/>: the update it ends on

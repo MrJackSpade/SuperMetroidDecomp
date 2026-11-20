@@ -43,7 +43,7 @@ internal static class DoorEntryEnemySoundVerification
         samus.Control.LockOutPlayer();
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        var body = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.KihunterGreen);
+        var body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KihunterGreen));
         var state = runtime.Enemies.KiHunterBodyStates[body.Ordinal];
         body.Position = body.Position.WithWhole(new(128, 128));
         (state ?? throw new InvalidOperationException("Verification requires state.")).Action = KiHunterAction.AnimatingOnGround;
@@ -52,7 +52,7 @@ internal static class DoorEntryEnemySoundVerification
         state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
         body.AnimationClock.StepOnNextUpdate();
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)

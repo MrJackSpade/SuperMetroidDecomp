@@ -13,14 +13,13 @@ internal static class MapScrollControls
     public static ImmutableArray<MapScrollDirection> Directions { get; } =
         [MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down];
 
-    /// <summary>The eight-pixel map scroll applied by one accepted scroll pulse in <paramref name="direction"/>.</summary>
+    /// <summary>The map scroll one accepted scroll pulse applies in <paramref name="direction"/>.</summary>
     public static Offset16<MapPixels> StepOffset(MapScrollDirection direction) => direction switch
     {
         MapScrollDirection.Left => new(-MapScrollDefinitions.StepPixels, 0),
         MapScrollDirection.Right => new(MapScrollDefinitions.StepPixels, 0),
         MapScrollDirection.Up => new(0, -MapScrollDefinitions.StepPixels),
         MapScrollDirection.Down => new(0, MapScrollDefinitions.StepPixels),
-        MapScrollDirection.None => throw new ArgumentOutOfRangeException(nameof(direction), direction, "No map scroll step is active."),
         _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "No map scroll step is active."),
     };
 
@@ -31,7 +30,6 @@ internal static class MapScrollControls
         MapScrollDirection.Right => ControllerButton.Right,
         MapScrollDirection.Up => ControllerButton.Up,
         MapScrollDirection.Down => ControllerButton.Down,
-        MapScrollDirection.None => throw new ArgumentOutOfRangeException(nameof(direction)),
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
 }

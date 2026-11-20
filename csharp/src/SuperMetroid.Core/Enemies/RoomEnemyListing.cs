@@ -22,7 +22,7 @@ internal static class RoomEnemyListing
         _ = Ensure.BetweenInclusive(1, EnemyPlaceOrder.Capacity - 1, distance);
         int place = part.Ordinal + distance;
         return place < EnemyPlaceOrder.Capacity ? enemies.InUpdateOrder[place] : throw new InvalidDataException(
-            $"Enemy {part.Ordinal} ({part.DefinitionId}) has no place listed {distance} after it for its partner.");
+            $"Enemy {part.Ordinal} ({part.Occupant?.DefinitionId}) has no place listed {distance} after it for its partner.");
     }
 
     /// <summary>
@@ -40,6 +40,12 @@ internal static class RoomEnemyListing
         int place = part.Ordinal + distance;
         return place >= EnemyPlaceOrder.Capacity ? null : enemies.InUpdateOrder[place];
     }
+
+    /// <summary>Every place the population lists after <paramref name="part"/>, nearest first; none for the last place.</summary>
+    /// <param name="enemies">The room's enemy places.</param>
+    /// <param name="part">The part looking for its partners.</param>
+    internal static IEnumerable<RoomEnemyPlace> AllListedAfter(this EnemyPlaces enemies, RoomEnemyPlace part) =>
+        Ensure.NotNull(enemies).InUpdateOrder.Skip(Ensure.NotNull(part).Ordinal + 1);
 
     /// <summary>The <paramref name="count"/> places the population lists directly after <paramref name="part"/>, nearest first.</summary>
     /// <param name="enemies">The room's enemy places.</param>
@@ -67,7 +73,7 @@ internal static class RoomEnemyListing
         _ = Ensure.BetweenInclusive(1, EnemyPlaceOrder.Capacity - 1, distance);
         int place = part.Ordinal - distance;
         return place >= 0 ? enemies.InUpdateOrder[place] : throw new InvalidDataException(
-            $"Enemy {part.Ordinal} ({part.DefinitionId}) has no place listed {distance} before it for its partner.");
+            $"Enemy {part.Ordinal} ({part.Occupant?.DefinitionId}) has no place listed {distance} before it for its partner.");
     }
 
     /// <summary>

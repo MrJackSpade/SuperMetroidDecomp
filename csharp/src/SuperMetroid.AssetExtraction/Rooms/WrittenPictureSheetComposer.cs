@@ -314,7 +314,7 @@ internal static class WrittenPictureSheetComposer
         foreach (PartFrame frame in partFrames)
             frames.Add(frame.Name, Frame(canvas, partCorners[frame.Part] + (frame.Corner - Position16<ImagePixels>.Zero), frame.Size, kind));
         // A written picture covers its layer wherever it lies, so one that inks nothing is still installed (#1634).
-        return new ComposedPictures(canvas.ToSplitRoomSheet(colours, frames, kind, split, keepsEmpty: true), inputsOf);
+        return new ComposedPictures(canvas.ToSplitRoomSheet(colours, frames, split, kind, keepsEmpty: true), inputsOf);
 
         // `subject`'s words as they show while `depends` take `values`, named `name`, laid from its top-left written tile;
         // none where a word's character shows nothing for them.
@@ -419,7 +419,7 @@ internal static class WrittenPictureSheetComposer
         }
     }
 
-    /// <summary><paramref name="words"/> laid out from the top-left, 32 to a row, each tile at its pixel.</summary>
+    /// <summary><paramref name="words"/> laid out from the top-left, <see cref="SheetTiles"/> to a row, each tile at its pixel.</summary>
     private static SubjectWord[] Rows(ushort[] words) => Rows(words, SheetTiles);
 
     /// <summary>The words of rows <paramref name="width"/> tiles wide, each at its tile's pixel.</summary>

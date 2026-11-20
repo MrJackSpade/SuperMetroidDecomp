@@ -17,9 +17,10 @@ internal static class EnemyRoomCountersVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
 
         AssertEqual(0, enemies.RoomStatus.FirefleaDarkness.FirefleasKilled, "a room loads with no Fireflea darkness");
-        for (int death = 1; death <= 7; death++)
+        for (int death = 1; death <= 6; death++)
             enemies.RoomStatus.RecordFirefleaDeath();
-        AssertEqual(6, enemies.RoomStatus.FirefleaDarkness.FirefleasKilled, "darkness reaches its last step, which a seventh death leaves");
+        // The darkness's last step is the fifth death's, which every later death keeps (#2573).
+        AssertEqual(5, enemies.RoomStatus.FirefleaDarkness.FirefleasKilled, "darkness reaches its last step, which a sixth death leaves");
 
         enemies.Places.EnemyCount = EnemyPlaceOrder.Capacity;
         AssertEqual(32, enemies.Places.EnemyCount, "a full population fills every slot");
@@ -28,10 +29,10 @@ internal static class EnemyRoomCountersVerification
         AssertThrows<ArgumentOutOfRangeException>(() => enemies.Places.EnemyCount = -1,
             "the population count cannot be negative");
 
-        enemies.RoomStatus.EnemiesKilled = 65535;
+        global::SuperMetroid.Core.PrivateState.Set(enemies.RoomStatus, "EnemiesKilled", 65535);
         enemies.RoomStatus.RecordKill();
         AssertEqual(65536, enemies.RoomStatus.EnemiesKilled, "the kill count keeps counting past 65535");
-        AssertThrows<ArgumentOutOfRangeException>(() => enemies.RoomStatus.EnemiesKilled = -1,
+        AssertThrows<ArgumentOutOfRangeException>(() => global::SuperMetroid.Core.PrivateState.Set(enemies.RoomStatus, "EnemiesKilled", -1),
             "the kill count rejects a negative count");
 
         Console.WriteLine("Enemy room counters: darkness, slot-table and kill-count ranges hold at their bounds.");

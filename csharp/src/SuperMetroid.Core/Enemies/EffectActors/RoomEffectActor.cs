@@ -40,7 +40,7 @@ public sealed class RoomEffectActor
     public SpriteGraphics Graphics { get; internal set; }
 
     /// <summary>The animation the object plays and where it stands in it (#1600), or null once it has ended.</summary>
-    internal AnimationPlayback<RoomEffectActorSegment>? Playback { get; private set; }
+    private AnimationPlayback<RoomEffectActorSegment>? Playback { get; set; }
 
     /// <summary>
     /// The object's animation clock (#2477), as an enemy's is: how long <see cref="Frame"/> holds before the animation moves

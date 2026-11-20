@@ -13,7 +13,7 @@ public sealed class DisplayPacket
     /// <summary>What the frame shows: a layered scene, a turning floor with its sprites, or one colour.</summary>
     public DisplayScene Scene { get; }
 
-    /// <summary>The frame's visible size of 256 by 224 pixels, the HUD included where there is one, before the host scales it to the window.</summary>
+    /// <summary>The frame's visible size (<see cref="Spatial.ScreenGeometry.ScreenSize"/>), the HUD included where there is one, before the host scales it to the window.</summary>
     public Extent16<ScreenPixels> Size { get; } = ScreenGeometry.ScreenSize;
 
     /// <summary>
@@ -34,7 +34,7 @@ public sealed class DisplayPacket
 
     /// <summary>Creates a frame filled with one colour, shown at <paramref name="brightness"/>.</summary>
     /// <param name="frameNumber">The number of the game update this frame shows.</param>
-    /// <param name="solidColor">The colour filling all 256 by 224 pixels before the brightness applies.</param>
+    /// <param name="solidColor">The colour filling the whole screen before the brightness applies.</param>
     /// <param name="brightness">The frame's brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>.</param>
     /// <exception cref="ArgumentOutOfRangeException">The frame number is negative, or the brightness is below black or above full.</exception>
     public DisplayPacket(int frameNumber, RgbaPixel solidColor, int brightness = DisplayBrightness.Full)

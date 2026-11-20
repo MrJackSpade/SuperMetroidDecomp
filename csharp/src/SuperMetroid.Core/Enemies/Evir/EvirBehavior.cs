@@ -39,12 +39,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     /// body's definition; only their placement tells them apart.
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no Evir definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.EvirProjectile)
-            return new EvirSpitEntity(this, place, common);
-        throw new InvalidOperationException($"The Evir species creates no {place.DefinitionId}.");
+            return EnemyOccupant.Of(new EvirSpitEntity(this, occupant, place, common));
+        throw new InvalidOperationException($"The Evir species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>
@@ -69,7 +69,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     }
 
     /// <summary>Carries out one cue of the Evir spit's animations: the spit sound and the regeneration steps.</summary>
-    private EvirSegment? ApplyEvirCue(EvirSpitState state, EvirCue cue)
+    private void ApplyEvirCue(EvirSpitState state, EvirCue cue)
     {
         switch (cue.Kind)
         {
@@ -88,7 +88,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EvirCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
     /// <summary>Initializes an Evir's arms.</summary>
@@ -113,7 +112,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
         _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), EvirPartListingDefinitions.FollowUpReach));
 
     /// <summary>Initializes an Evir's body, facing Samus.</summary>
-    internal EvirBodyState InitializeEvirBody(RoomEnemyPlace place, SamusState samus, EvirSpawnSettings settings)
+    internal EvirBodyState InitializeEvirBody(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus, EvirSpawnSettings settings)
     {
         PlaceFollowUpRecipients(place);
 
@@ -139,7 +138,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
         public int DirectionChangePeriod(RoomEnemyPlace enemy) => settingsOf.Of(Ensure.NotNull(enemy)).DirectionChangePeriod;
 
         /// <inheritdoc/>
-        public bool IsEvirSpit(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).DefinitionId == EnemyDefinitionId.EvirProjectile;
+        public bool IsEvirSpit(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).Holds(EnemyDefinitionId.EvirProjectile);
     }
 
     /// <summary>Initializes the Evir's spit.</summary>
@@ -168,11 +167,11 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     private static void RequirePlacedBody(RoomEnemyPlace body, RoomEnemyPlace part, string partName)
     {
         if (body.Entity is not EvirBodyEntity)
-            throw new InvalidDataException($"Evir {partName} of enemy {part.Ordinal} follows {body.DefinitionId}, not an Evir body.");
+            throw new InvalidDataException($"Evir {partName} of enemy {part.Ordinal} follows {body.Occupant?.DefinitionId}, not an Evir body.");
     }
 
     /// <summary>Tracks Samus while the spit is present and alternates the body's timed vertical travel.</summary>
-    private static void RunEvirMain(RoomEnemyPlace place, EvirBodyState state, SamusState samus)
+    private static void RunEvirMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, EvirBodyState state, SamusState samus)
     {
         // Direction is allowed to follow Samus only while the projectile is fully present.
         // During regeneration the mouth, arms, and projectile retain their launch facing. The body reads its spit's place
@@ -439,8 +438,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     };
 
     /// <summary>Runs an Evir body's main AI: it bobs and turns.</summary>
-    internal static void RunEvirBodyMainAi(RoomEnemyPlace place, EvirBodyState state, IEnemyAiFrame frame) =>
-        RunEvirMain(place, state, frame.Samus);
+    internal static void RunEvirBodyMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, EvirBodyState state, IEnemyAiFrame frame) =>
+        RunEvirMain(occupant, place, state, frame.Samus);
 
     /// <summary>Runs an Evir's arms' main AI: they follow the body.</summary>
     internal static void RunEvirArmsMainAi(RoomEnemyPlace place, EvirArmsState state) =>
@@ -473,10 +472,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<EvirSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, EvirAnimations.Segments, ref playback,
-            cue => ApplyEvirCue(state, cue) is { } target
-                ? new AnimationContinuation<EvirSegment>(EvirAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+        EnemyAnimationPlayback.PlayApplyingCues(place, EvirAnimations.Segments, ref playback,
+            (EvirCue cue) => ApplyEvirCue(state, cue));
         state.Playback = playback;
     }
 

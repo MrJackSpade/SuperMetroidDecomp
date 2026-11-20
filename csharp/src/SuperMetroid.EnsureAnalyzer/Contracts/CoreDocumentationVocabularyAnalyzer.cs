@@ -210,6 +210,11 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// accumulators, elevator, boss and event flags, loading game state, FX motion, subpositions, liquid physics type, one-in-four
 /// branch, normal enemy touch and shot, collision prelude, pseudo-doors, initialization AI and the like
 /// (<see cref="OriginalLabelNameWord"/>).
+/// #2549 adds, in Core and AssetExtraction, a value restated by number: outside hardware owners, a cadence a comment or
+/// string counts by number (every eighth update, every 64th pass, every sixteenth of the updates), read across a
+/// documentation comment's and a line-comment run's line breaks; and, in every type, a declared name that spells a
+/// cadence, a wait or a size by number (an EveryEighthUpdate cadence, a ForTwoUpdates or FourSecondHold wait, a
+/// SixteenByThirtyTwo box) (<see cref="CadenceByNumberProse"/>, <see cref="NumberSpelledNameWord"/>).
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -321,7 +326,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly Regex CompoundName = new(@"\b(?:[A-Z][a-z0-9]+|[a-z][a-z0-9]+)(?:[A-Z][A-Za-z0-9]*)+\b", RegexOptions.CultureInvariant);
 
     /// <summary>A documentation comment's markup, whose cross-references the compiler checks itself.</summary>
-    private static readonly Regex Markup = new(@"<[^>]*>", RegexOptions.CultureInvariant);
+    internal static readonly Regex Markup = new(@"<[^>]*>", RegexOptions.CultureInvariant);
 
     /// <summary>
     /// The machine's vocabulary in prose, as whole words with a plural or verb ending; the processor's direct page, spaced
@@ -2406,6 +2411,51 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// A count of two or more, in digits or words, that <see cref="CountedWaitAndCalculatorProse"/> reads a wait's length in
     /// (#2530, #2543): one update is no wait to restate.
     /// </summary>
+    /// <summary>
+    /// A cadence counted by number (#2549), outside hardware owners and markup, read across a documentation comment's and a
+    /// line-comment run's line breaks: every second, eighth, 64th or 128th update, frame, tick, pass, step, draw or visit,
+    /// or every two, four or sixteen of them, with up to two words between (every eighth update, every 64th enemy pass,
+    /// every fourth cinematic frame, every sixteen updates); and every eighth or sixteenth of the updates, frames or passes.
+    /// A cadence's period is the named cadence's value: documentation says what the cadence paces and where in its period
+    /// it falls, and cites the cadence. English stays legal: every update, every other room, every 256th of a pixel kept,
+    /// two of every four, a thing every step of the way and a hardware owner, which describes the program it reproduces.
+    /// </summary>
+    private static readonly Regex CadenceByNumberProse = new(
+        @"\bevery\s+(?:" + CadenceOrdinal + @"|" + WaitCount + @")\s+(?:[\w'’-]+\s+){0,2}?(?:updates?|frames?|ticks?" +
+        @"|pass(?:es)?|steps?|draws?|visits?)\b" +
+        @"|\bevery\s+" + CadenceOrdinal + @"\s+of\s+the\s+(?:updates|frames|passes)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>An ordinal from second up, in words or digits, that <see cref="CadenceByNumberProse"/> reads a period in (#2549).</summary>
+    private const string CadenceOrdinal =
+        @"(?:second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|thirteenth|fourteenth|fifteenth|" +
+        @"sixteenth|twentieth|thirtieth|thirty-second|sixty-fourth|hundredth|[2-9](?:nd|rd|th)|\d{2,}(?:st|nd|rd|th))";
+
+    /// <summary>
+    /// A declared name's words that spell a cadence, a wait or a size by number (#2549), read in every type: Every followed
+    /// by a count or an ordinal (EveryEighthUpdate, Every128thUpdate, Every16Frames, EverySecondGlyph), a count of updates,
+    /// frames, seconds or ticks (ForTwoUpdates, ThreeUpdateTrail, FourSecondHold) and one count by another
+    /// (SixteenByThirtyTwoBox). A name says what the member is; the number it would spell is the member's value. Names that
+    /// spell one (OneUpdateLate, WaitOneUpdate), a fraction of a unit (QuarterTurn, HalfPixel), a position in order
+    /// (SecondPhase, ThirdFrameCount) or a number glued to a word (Bg2Frames) are not read.
+    /// </summary>
+    private static readonly Regex NumberSpelledNameWord = new(
+        @"Every(?:" + NameCount + @"|" + NameOrdinal + @"|\d+(?:st|nd|rd|th)?)(?=[A-Z]|$)" +
+        @"|(?:" + NameCount + @")(?:Update|Frame|Second|Tick)s?(?=[A-Z]|$)" +
+        @"|(?:" + NameCount + @")By(?:" + NameCount + @")(?=[A-Z]|$)",
+        RegexOptions.CultureInvariant);
+
+    /// <summary>A count from two up spelled in a declared name's words (#2549, <see cref="NumberSpelledNameWord"/>).</summary>
+    private const string NameCount =
+        @"(?:Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten|Eleven|Twelve|Thirteen|Fourteen|Fifteen|Sixteen|" +
+        @"Seventeen|Eighteen|Nineteen|Twenty|Thirty|Forty|Fifty|Sixty|Seventy|Eighty|Ninety|Hundred)(?:One|Two|Three|Four|" +
+        @"Five|Six|Seven|Eight|Nine)?";
+
+    /// <summary>An ordinal from second up spelled in a declared name's words (#2549, <see cref="NumberSpelledNameWord"/>).</summary>
+    private const string NameOrdinal =
+        @"(?:Other|Second|Third|Fourth|Fifth|Sixth|Seventh|Eighth|Ninth|Tenth|Eleventh|Twelfth|Thirteenth|Fourteenth|" +
+        @"Fifteenth|Sixteenth|Twentieth|ThirtySecond|SixtyFourth|Hundredth)";
+
     private const string WaitCount =
         @"(?:[2-9][\d,]*|1[\d,]+|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|" +
         @"sixteen|seventeen|eighteen|nineteen|(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:-(?:one|two|three|" +
@@ -2508,7 +2558,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// <see cref="RandomOddnessByPronounProse"/>, <see cref="BossTableCountAndFractionProse"/> and
     /// <see cref="StorageUnitAndOriginalProgramProse"/> read as a space so a phrase runs on across it.
     /// </summary>
-    private static readonly Regex CommentLineBreak = new(@"\s*\r?\n\s*(?:///?|\*+)?\s*", RegexOptions.CultureInvariant);
+    internal static readonly Regex CommentLineBreak = new(@"\s*\r?\n\s*(?:///?|\*+)?\s*", RegexOptions.CultureInvariant);
 
     /// <summary>
     /// A storage unit told on a member whose type already measures it (#2491), outside hardware owners and markup: a
@@ -2901,6 +2951,11 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterCompilationStartAction(start =>
         {
+            if (start.Compilation.AssemblyName == ExtractionAssembly)
+            {
+                start.RegisterSyntaxTreeAction(tree => AnalyzeRestatedNumbers(tree, tree.IsGeneratedCode));
+                return;
+            }
             if (start.Compilation.AssemblyName != CoreLayerAnalyzer.CoreAssembly)
                 return;
             Compilation compilation = start.Compilation;
@@ -2934,6 +2989,51 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
                     context.ReportDiagnostic(Diagnostic.Create(Rule, trivia.GetLocation(), owner.Value));
             }
         }
+    }
+
+    /// <summary>The import pipeline's assembly, whose text is read only for values restated by number (#2549).</summary>
+    private const string ExtractionAssembly = "SuperMetroid.AssetExtraction";
+
+    /// <summary>
+    /// Reports each comment, string literal and run of line comments of an AssetExtraction tree that counts a cadence by
+    /// number (<see cref="CadenceByNumberProse"/>), outside hardware owners, and each declared name that spells a cadence,
+    /// a wait or a size by number (<see cref="NumberSpelledNameWord"/>), outside generated code (#2549). The import pipeline
+    /// may name the cartridge, so its text is read for nothing else.
+    /// </summary>
+    private static void AnalyzeRestatedNumbers(SyntaxTreeAnalysisContext context, bool generated)
+    {
+        SyntaxNode root = context.Tree.GetRoot(context.CancellationToken);
+        foreach (SyntaxTrivia trivia in root.DescendantTrivia(descendIntoTrivia: false))
+        {
+            if (!trivia.IsKind(SyntaxKind.SingleLineCommentTrivia) && !trivia.IsKind(SyntaxKind.MultiLineCommentTrivia) &&
+                !trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) &&
+                !trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
+                continue;
+            ReportCadenceByNumber(context, trivia.ToFullString(), trivia.GetLocation(), trivia.Token.Parent);
+        }
+        AnalyzeLineCommentRuns(context, root);
+        foreach (SyntaxToken token in root.DescendantTokens())
+        {
+            if (token.IsKind(SyntaxKind.StringLiteralToken) || token.IsKind(SyntaxKind.InterpolatedStringTextToken) ||
+                token.IsKind(SyntaxKind.Utf8StringLiteralToken) || token.IsKind(SyntaxKind.MultiLineRawStringLiteralToken) ||
+                token.IsKind(SyntaxKind.SingleLineRawStringLiteralToken))
+                ReportCadenceByNumber(context, token.ValueText, token.GetLocation(), token.Parent);
+        }
+        if (generated)
+            return;
+        foreach (SyntaxNode node in root.DescendantNodes())
+        {
+            if (DeclaredName(node) is { } name && NumberSpelledNameWord.IsMatch(name.ValueText))
+                context.ReportDiagnostic(Diagnostic.Create(Rule, name.GetLocation(), name.ValueText));
+        }
+    }
+
+    /// <summary>Reports <paramref name="text"/> once when it counts a cadence by number outside a hardware owner (#2549).</summary>
+    private static void ReportCadenceByNumber(SyntaxTreeAnalysisContext context, string text, Location location, SyntaxNode? owner)
+    {
+        if (!IsInHardwareOwner(owner) &&
+            CadenceByNumberProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } cadence)
+            context.ReportDiagnostic(Diagnostic.Create(Rule, location, cadence.Value));
     }
 
     /// <summary>Every name Core's code spells: each identifier of every source file, declared or used.</summary>
@@ -2976,7 +3076,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         foreach (SyntaxNode node in root.DescendantNodes())
         {
             if (DeclaredName(node) is { } name &&
-                (OriginalLabelNameWord.IsMatch(name.ValueText) ||
+                (OriginalLabelNameWord.IsMatch(name.ValueText) || NumberSpelledNameWord.IsMatch(name.ValueText) ||
                     ((CallNameWord.IsMatch(name.ValueText) || ExecutionCounterNameWord.IsMatch(name.ValueText) ||
                         TranslatedNameWord.IsMatch(name.ValueText) || MainLoopNameWord.IsMatch(name.ValueText)) && !IsInHardwareOwner(node))))
                 context.ReportDiagnostic(Diagnostic.Create(Rule, name.GetLocation(), name.ValueText));
@@ -3008,7 +3108,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Whether only white space, with one line break, lies between <paramref name="above"/> and <paramref name="below"/>.</summary>
-    private static bool OnTheNextLine(Microsoft.CodeAnalysis.Text.SourceText source, SyntaxTrivia above, SyntaxTrivia below)
+    internal static bool OnTheNextLine(Microsoft.CodeAnalysis.Text.SourceText source, SyntaxTrivia above, SyntaxTrivia below)
     {
         string between = source.ToString(Microsoft.CodeAnalysis.Text.TextSpan.FromBounds(above.Span.End, below.SpanStart));
         return between.All(char.IsWhiteSpace) && between.Count(character => character == '\n') == 1;
@@ -3031,7 +3131,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             lineStarts.Add(joined.Length);
             joined.Append(comment.ToString().Substring(2).Trim());
         }
-        foreach (Match match in CountedWaitAndCalculatorProse.Matches(joined.ToString()))
+        foreach (Match match in CountedWaitAndCalculatorProse.Matches(joined.ToString()).Cast<Match>()
+            .Concat(CadenceByNumberProse.Matches(joined.ToString()).Cast<Match>()))
         {
             if (lineStarts.Any(start => start > match.Index && start < match.Index + match.Length))
             {
@@ -3221,6 +3322,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : typedParameterUnit is not null ? typedParameterUnit
             : RandomOddnessByPronounProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } randomOddness ? randomOddness.Value
             : StorageUnitAndOriginalProgramProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } storageUnit ? storageUnit.Value
+            : CadenceByNumberProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } cadence ? cadence.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;
@@ -3299,7 +3401,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         string.Concat(snakeCase.Split('_').Select(part => part.Length == 0 ? part : char.ToUpperInvariant(part[0]) + part.Substring(1)));
 
     /// <summary>Whether a node lies in a type marked as a compatibility service or encoding owner.</summary>
-    private static bool IsInHardwareOwner(SyntaxNode? node)
+    internal static bool IsInHardwareOwner(SyntaxNode? node)
     {
         for (SyntaxNode? current = node; current is not null; current = current.Parent)
         {

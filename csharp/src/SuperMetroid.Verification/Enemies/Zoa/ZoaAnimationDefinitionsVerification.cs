@@ -67,7 +67,7 @@ internal static class ZoaAnimationDefinitionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Position = place.Position.WithWhole(new(0x0100, 0x0080));
 
-        place.Bind(EnemyDefinitionId.Zoa, place.Definition);
+        place.Bind(EnemyDefinitionId.Zoa, place.KeptDefinition);
         ZoaBehavior.InitializeZoa(place);
         ZoaEnemyState state = (enemies.ZoaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ZoaStates[0]."));
 

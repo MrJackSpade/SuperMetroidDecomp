@@ -62,7 +62,13 @@ public sealed class SamusPowerBombExplosionState
     /// Runs one update of the explosion's active stage step.
     /// </summary>
     /// <returns>True only on the frame that cleanup completes.</returns>
-    public bool StepFrame(InstalledPowerBombGlowColors colors) => Blast.StepFrame(colors);
+    public bool StepFrame(InstalledPowerBombGlowColors colors)
+    {
+        // Only the afterglow's end stops a running blast, so a blast that ran before the step and not after it cleaned up.
+        bool wasRunning = Blast.IsRunning;
+        Blast.StepFrame(colors);
+        return wasRunning && !Blast.IsRunning;
+    }
 
     /// <summary>
     /// Releases the armed flag after cleanup when Crystal Flash did not take ownership.

@@ -26,7 +26,7 @@ internal static class DraygonGrabVerification
         var (runtime, samus, draygon) = GrabSamus(spiralYFraction: 0, pendingPose: SamusPoseId.RunningAimDiagonalUpLeftPose);
         AssertEqual(draygon.Facing == HorizontalDirection.Right ? SamusPoseId.DraygonGrabbedNeutralRightPose : SamusPoseId.DraygonGrabbedNeutralLeftPose,
             samus.Pose, "Draygon grabs Samus");
-        AssertTrue(runtime.Enemies.LastEnemyFrame.Has<DraygonHoldChanged>(),
+        AssertTrue(runtime.Enemies.LastEnemyFrame.Has<PoseRequestsDiscarded>(),
             "the grab publishes that alpha's pose requests are discarded");
         AssertTrue(samus.CuePose.Named is null, "the grab empties Samus's super-special pose request");
         Console.WriteLine("Draygon grab pose requests: the grab discards the pose requests alpha chose.");

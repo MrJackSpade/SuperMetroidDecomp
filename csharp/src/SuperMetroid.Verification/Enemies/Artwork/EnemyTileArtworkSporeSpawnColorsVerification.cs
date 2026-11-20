@@ -63,11 +63,11 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: stock.Bosses);
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
-        body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
+        body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
+        body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
-        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
+        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body.HeldOccupant(), body);
         SporeSpawnEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<SporeSpawnEntity>(body).State;
         // His live colour handlers name shades of his sprites and room (#1512); the import pre-colours each from the
         // installed colours.

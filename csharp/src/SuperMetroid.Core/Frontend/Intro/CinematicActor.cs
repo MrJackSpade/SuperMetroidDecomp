@@ -4,8 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// A cinematic actor: its position and colouring, playing one of its family's typed animations (#641, #1600, #2197)
-/// where every cinematic sprite's update ran its animation.
+/// A cinematic actor: its position and colouring, playing one of its family's typed animations (#641, #1600, #2197).
 /// </summary>
 /// <remarks>
 /// The actor's motion belongs to the owner that steps it (#1903): every cue goes to that owner, and an owner-less cue
@@ -68,7 +67,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     }
 
     /// <summary>The drawn shade of the colouring the current frame's recolourable parts draw in (#1512).</summary>
-    public PictureShade Colouring { get; private set; }
+    private PictureShade Colouring { get; set; }
 
     /// <summary>Applies a cinematic cue's change of the colours the actor draws in.</summary>
     public void SetColouring(PictureShade colouring) => Colouring = colouring;
@@ -77,7 +76,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     internal TFrame? Shown { get; private set; }
 
     /// <summary>The actor's animation and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<TAnimation> Playback { get; private set; }
+    private AnimationPlayback<TAnimation> Playback { get; set; }
 
     /// <summary>Starts <paramref name="animation"/> on the actor's next update, discarding the old frame countdown.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No actor of the family starts <paramref name="animation"/>.</exception>
@@ -133,6 +132,11 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
             case AnimationShown<TAnimation, TFrame>.Frame frame:
                 frameHold.Restart(frame.Duration);
                 Shown = frame.Shown;
+                return;
+            case AnimationShown<TAnimation, TFrame>.Hidden hidden:
+                // A hidden beat shows no pose for its updates (#2558).
+                frameHold.Restart(hidden.Duration);
+                Shown = null;
                 return;
             case AnimationShown<TAnimation, TFrame>.HeldFrame rested:
                 // A held frame shows from now on: the animation plays on no further until its owner starts another.

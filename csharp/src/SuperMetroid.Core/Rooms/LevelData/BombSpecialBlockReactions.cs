@@ -12,7 +12,7 @@ public static class BombSpecialBlockReactions
     /// <summary>
     /// The crumble reveal, the Speed Booster block's reveal, or the reaction that does nothing but hold its place for an update,
     /// for a special block with <paramref name="reaction"/>. Brinstar's own Speed Booster blocks are revealed as Speed
-    /// Booster blocks; the import resolves the same entries of the other areas' tables to plain solid blocks (#1805).
+    /// Booster blocks; in the other areas those blocks stay plain solid blocks (#1805).
     /// </summary>
     /// <param name="read">The block's reaction.</param>
     internal static BlockReactionChange ChangeFor(SpecialBlockReaction read)

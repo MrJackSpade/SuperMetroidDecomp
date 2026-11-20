@@ -62,8 +62,7 @@ internal static class EndingCloudPlacementVerification
         for (int frame = 0; frame < 200; frame++)
         {
             ending.Step();
-            if (ending.Phase is not (EndingCreditsPhase.FadeInTopAndBottomCloudEscape or
-                EndingCreditsPhase.TopAndBottomCloudEscape or EndingCreditsPhase.FadeOutTopAndBottomCloudEscape))
+            if (!(ending.Phase == EndingCreditsPhase.FadeInTopAndBottomCloudEscape || ending.Phase == EndingCreditsPhase.TopAndBottomCloudEscape || ending.Phase == EndingCreditsPhase.FadeOutTopAndBottomCloudEscape))
                 break;
             steppedFrames++;
             for (int index = 0; index < actors.Length; index++)

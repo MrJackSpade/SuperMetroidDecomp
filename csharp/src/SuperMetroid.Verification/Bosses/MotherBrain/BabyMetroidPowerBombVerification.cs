@@ -23,11 +23,11 @@ internal static class BabyMetroidPowerBombVerification
         runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+            place.Holds(EnemyDefinitionId.BabyMetroid));
         BabyMetroidEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidEntity>(babyMetroid).State;
         state.Action = BabyMetroidAction.WaitForCamera;
 
-        _ = runtime.Enemies.Collision.ResolveOrdinaryPowerBombHits(
+        runtime.Enemies.Collision.ResolveOrdinaryPowerBombHits(
             babyMetroid.Position.Whole, 64, runtime.Room.LoadedLevelData, new(512, 0), runtime.Player.Samus);
         AssertEqual(BabyMetroidAction.WaitForCamera, state.Action, "the blast runs no step of the Shitroid's behaviour");
         Console.WriteLine("  Shitroid Power Bomb: the blast passes the Shitroid by.");

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectNoobTubeVisualFiles
 {
     /// <summary>Editable n00b-tube visual JSON filename.</summary>
-    public const string VisualFileName = "noob-tube.json";
+    private const string VisualFileName = "noob-tube.json";
 
     /// <summary>The n00b-tube as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -36,11 +36,16 @@ public static class RoomObjectNoobTubeVisualFiles
         yield return NoobTubeDraw.LowerRowsOpen;
     }
 
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the glass tube draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a glass tube draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a glass tube draw.");
+
     /// <summary>
     /// The draw list of a tube draw (#1862): its block shape written as the glass's one block, or as its twelve-block rows
     /// top row first, the lower rows' cleared glass block before them.
     /// </summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryShape(NoobTubeObjectDraws.Family, request, out RoomBlockShape? shape))
         {
@@ -62,11 +67,11 @@ public static class RoomObjectNoobTubeVisualFiles
     private static RoomObjectShapeRun[] TubeRows(params int[] rows) => [.. rows.Select(row => RoomObjectShapeRun.Row(new(0, row), 12))];
 
     /// <summary>Converts a validated tube draw to its artwork catalog ID.</summary>
-    internal static string VisualId(RoomObjectDraw request) =>
+    private static string VisualId(RoomObjectDraw request) =>
         VisualId(RoomObjectDrawIdentity.FrameOf<NoobTubeDraw>(request, "n00b-tube draw with a visual ID"));
 
     /// <summary>Names the intact, cracking or opened glass, or the opened upper or lower rows.</summary>
-    internal static string VisualId(NoobTubeDraw frame) => frame switch
+    private static string VisualId(NoobTubeDraw frame) => frame switch
     {
         NoobTubeDraw.Intact => "intact",
         NoobTubeDraw.Cracking => "cracking",
@@ -77,14 +82,13 @@ public static class RoomObjectNoobTubeVisualFiles
     };
 
     /// <summary>Builds each known tube layout's draw list.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
             foreach (NoobTubeDraw frame in Draws())
             {
-                TryGet(NoobTubeObjectDraws.Family.Of(frame), out var list);
-                yield return list;
+                yield return DrawListOf(NoobTubeObjectDraws.Family.Of(frame));
             }
         }
     }

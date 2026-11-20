@@ -27,7 +27,7 @@ public sealed class BrinstarPipeBugState
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
     /// <summary>
-    /// The room Y of the highest point of the bug's emergence, sixteen pixels above its spawn point. The bug keeps rising
+    /// The room Y of the highest point of the bug's emergence, above its spawn point. The bug keeps rising
     /// while it is still below this point.
     /// </summary>
     public int EmergenceTopY { get; internal set; }
@@ -38,7 +38,7 @@ public sealed class BrinstarPipeBugState
     public HorizontalDirection Flight { get; internal set; }
 
     /// <summary>
-    /// The respawn countdown, in AI updates: started at 48 when the bug leaves the screen, and expiring when a decrement
+    /// The respawn countdown, in AI updates: started at its respawn delay when the bug leaves the screen, and expiring when a decrement
     /// reaches zero.
     /// </summary>
     public UpdateCountdown RespawnDelay { get; internal set; } = UpdateCountdown.Ended();

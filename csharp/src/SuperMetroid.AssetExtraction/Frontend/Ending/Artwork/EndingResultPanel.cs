@@ -7,6 +7,6 @@ public sealed record EndingResultPanel
 {
     /// <summary>Exactly 288 tiles in nine 32-cell rows; the producer-label region is cleared and replaced during loading.</summary>
     public required BackgroundTile[] Template { get; init; }
-    /// <summary>One through eleven uppercase letters or spaces drawn in the small font beginning at row 0, column 10 of the result panel.</summary>
+    /// <summary>Uppercase letters or spaces drawn in the small font in the result panel's field, whose width and place <see cref="EndingTextDefinitions.ResultProducedBy"/> holds.</summary>
     public required string Text { get; init; }
 }

@@ -15,25 +15,17 @@ public sealed class EndingTextPresentation
     private readonly BackgroundTile[] copyrightPanel;
     /// <summary>The installed Japanese subtitle's tiles.</summary>
     private readonly BackgroundTile[] japaneseSubtitle;
-    /// <summary>Glyph placements for the item-percentage typewriter sequence.</summary>
-    internal readonly EndingTextCharacter[] percentage;
-    /// <summary>Glyph placements for the final message typewriter sequence.</summary>
-    internal readonly EndingTextCharacter[] finalMessage;
 
-    /// <summary>Retains the installed panels and the compiled ending glyphs.</summary>
+    /// <summary>Retains the installed panels.</summary>
     private EndingTextPresentation(
         BackgroundTile[] resultPanel,
         BackgroundTile[] copyrightPanel,
         BackgroundTile[] japaneseSubtitle,
-        EndingTextCharacter[] percentage,
-        EndingTextCharacter[] finalMessage,
         string contentIdentity)
     {
         this.resultPanel = resultPanel;
         this.copyrightPanel = copyrightPanel;
         this.japaneseSubtitle = [.. japaneseSubtitle];
-        this.percentage = percentage;
-        this.finalMessage = finalMessage;
         ContentIdentity = contentIdentity;
     }
 
@@ -114,10 +106,14 @@ public sealed class EndingTextPresentation
     /// <exception cref="InvalidDataException">The label's length or glyphs are invalid.</exception>
     private static EndingTextCharacter[] Final(string finalMessage) => Compile(finalMessage, EndingTextDefinitions.FinalMessage, "final message");
 
-    /// <summary>Loads and validates <c>ending-text.json</c>, compiling bounded labels and keeping the installed result and subtitle tiles, without importing cinematic timers or instructions.</summary>
+    /// <summary>
+    /// Loads and validates <c>ending-text.json</c>, compiling its bounded panel labels and keeping the installed result and
+    /// subtitle tiles, without importing cinematic timers or instructions. The typewriter text is installed on its own
+    /// (<see cref="ExtractTypewriter"/>) and validated where the game reads it (<see cref="ReadTypewriter"/>).
+    /// </summary>
     /// <param name="json">UTF-8 JSON read from the current stream position to its end; the stream remains open.</param>
-    /// <returns>A presentation with validated dimensions and glyphs, compiled text sequences, and an identity derived from the source bytes.</returns>
-    /// <exception cref="InvalidDataException">The JSON, version, template dimensions, text lengths, or supported glyphs are invalid.</exception>
+    /// <returns>A presentation with validated dimensions and glyphs and an identity derived from the source bytes.</returns>
+    /// <exception cref="InvalidDataException">The JSON, version, template dimensions, panel label lengths, or supported glyphs are invalid.</exception>
     public static EndingTextPresentation Load(Stream json)
     {
         Ensure.NotNull(json);
@@ -154,11 +150,7 @@ public sealed class EndingTextPresentation
             EndingTextDefinitions.CopyrightRows, "copyright year");
         Apply(copyright, document.CopyrightCompany, EndingTextDefinitions.CopyrightCompany,
             EndingTextDefinitions.CopyrightRows, "copyright company");
-        EndingTextCharacter[] percentage = Percentage(document.PercentageHeading, document.PercentageDetail);
-        EndingTextCharacter[] final = Final(document.FinalMessage);
-        return new(result, copyright,
-            document.JapaneseSubtitle,
-            percentage, final, Convert.ToHexString(SHA256.HashData(source)));
+        return new(result, copyright, document.JapaneseSubtitle, Convert.ToHexString(SHA256.HashData(source)));
     }
 
     /// <summary>Serializes an editable ending-text document as UTF-8 JSON.</summary>

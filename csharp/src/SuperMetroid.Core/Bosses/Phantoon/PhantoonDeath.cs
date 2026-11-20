@@ -56,7 +56,7 @@ internal sealed class PhantoonDeath
             state.Phase = PhantoonPhase.DyingFadeInOut;
     }
 
-    /// <summary>Alternates five fade-outs and five fade-ins.</summary>
+    /// <summary>Alternates fade-outs and fade-ins (<see cref="PhantoonArenaDefinitions.DyingFadeCycles"/>).</summary>
     internal void RunPhantoonDyingFadeCycles(
         RoomEnemyPlace body,
         PhantoonEnemyState state)
@@ -79,7 +79,7 @@ internal sealed class PhantoonDeath
         state.Death.ExplosionPasses = 0;
     }
 
-    /// <summary>Runs the dying explosions: the opening explosions, then the repeated explosions three times over.</summary>
+    /// <summary>Runs the dying explosions: the opening explosions, then the repeated explosions (<see cref="PhantoonDeathExplosionDefinitions.PassCount"/>).</summary>
     internal void RunPhantoonDyingExplosions(
         RoomEnemyPlace body,
         PhantoonEnemyState state)
@@ -108,7 +108,7 @@ internal sealed class PhantoonDeath
             state.Phase = PhantoonPhase.BeginFinalWavyDeath;
     }
 
-    /// <summary>Starts the distorted background and pixelation stages after the fatal swoop.</summary>
+    /// <summary>Starts his body's wave and pixelation after the fatal swoop.</summary>
     internal void BeginPhantoonWavyPixelatedDeath(PhantoonEnemyState state)
     {
         RoomEnemyPlace mouth = state.Mouth;
@@ -147,7 +147,7 @@ internal sealed class PhantoonDeath
         PhantoonDeathState death = state.Death;
         if (!death.PixelationFinished)
         {
-            if (!PhantoonCadenceDefinitions.DeathPixelationGrowsEverySixteenthUpdate.IsDue(_frameContext.FrameCounter))
+            if (!PhantoonCadenceDefinitions.DeathPixelationGrows.IsDue(_frameContext.FrameCounter))
                 return;
 
             if (death.PixelationSize == PhantoonDeathDefinitions.FinalPixelationSize)
@@ -171,7 +171,7 @@ internal sealed class PhantoonDeath
     internal static void ClearPhantoonDeathGraphics(PhantoonEnemyState state)
     {
         state.Death.PixelationSize = PhantoonDeathDefinitions.InitialPixelationSize;
-        state.Wave.Length = null;
+        state.Wave.End();
         state.Translucent = false;
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.HideForGood;
         state.Phase = PhantoonPhase.Dead;
@@ -189,14 +189,14 @@ internal sealed class PhantoonDeath
     {
         if (state.PhaseWait.StepKeepsRunning())
             return;
-        if (!PhantoonCadenceDefinitions.PowerReturnStepEveryFourthUpdate.IsDue(_frameContext.FrameCounter))
+        if (!PhantoonCadenceDefinitions.PowerReturnStep.IsDue(_frameContext.FrameCounter))
             return;
 
         if (!AdvanceWreckedShipPowerOn(state))
             return;
 
-        // The death drops scatter room-graphics pickups over the visible boss arena.
-        // The coordinates are absolute room coordinates, not offsets from Phantoon's body.
+        // The death drops scatter energy and ammunition pickups over the visible boss arena. The coordinates are
+        // absolute room coordinates, not offsets from Phantoon's body.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.PhantoonBody,
             count: PhantoonArenaDefinitions.DeathDropCount,
@@ -224,7 +224,7 @@ internal sealed class PhantoonDeath
     /// progress: every colour but Phantoon's body's fades toward its powered colour, a typed fade the room shows.
     /// </summary>
     /// <returns>Whether the power had finished coming on.</returns>
-    internal static bool AdvanceWreckedShipPowerOn(PhantoonEnemyState state)
+    private static bool AdvanceWreckedShipPowerOn(PhantoonEnemyState state)
     {
         if (state.ShipPowerOn.TakeStep(PhantoonColorDefinitions.PowerOnSteps) is { } step)
         {

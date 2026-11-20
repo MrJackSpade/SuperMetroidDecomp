@@ -13,9 +13,9 @@ internal static class EnemyExtendedFrames
     /// Finds the installed frame <paramref name="frame"/> draws. The empty frame draws nothing, so it resolves without a
     /// stored frame.
     /// </summary>
-    internal static bool TryResolve(EnemyExtendedFrameCatalog catalog, EnemyFrameId frame, out EnemyFrameId? stored)
+    private static bool TryResolve(EnemyExtendedFrameCatalog catalog, EnemyFrameId frame, out EnemyFrameId? stored)
     {
-        if (frame == EnemyFrameId.Empty)
+        if (frame == EnemyFrameId.PointAtOrigin)
         {
             stored = null;
             return true;
@@ -47,7 +47,7 @@ internal static class EnemyExtendedFrames
     /// The components of a frame the placements resolved: the stored frame's, none for the empty frame
     /// (resolved without a stored frame), or nothing when the frame is not installed.
     /// </summary>
-    internal static bool Components(EnemyExtendedFrameCatalog catalog, bool resolved, EnemyFrameId? stored,
+    private static bool Components(EnemyExtendedFrameCatalog catalog, bool resolved, EnemyFrameId? stored,
         out ReadOnlyMemory<EnemyExtendedDrawComponent> components)
     {
         components = !resolved ? default

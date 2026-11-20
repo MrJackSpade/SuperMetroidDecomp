@@ -11,6 +11,29 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 public static class SpecialAirReactions
 {
+    /// <summary>What each special-air reaction does to Samus inside the block and when her movement reaches it.</summary>
+    private static readonly Dictionary<SpecialAirReaction, SpecialAirReactionEffects> Reactions = new()
+    {
+        [SpecialAirReaction.FloorPlant] = new(SpecialAirInsideReaction.BrinstarFloorPlant, SpecialAirCollisionReaction.PassesThrough),
+        [SpecialAirReaction.CeilingPlant] = new(SpecialAirInsideReaction.BrinstarCeilingPlant, SpecialAirCollisionReaction.PassesThrough),
+        [SpecialAirReaction.QuicksandSurface] = new(SpecialAirInsideReaction.QuicksandSurface, SpecialAirCollisionReaction.QuicksandSurface),
+        [SpecialAirReaction.SubmergingQuicksand] = new(SpecialAirInsideReaction.SubmergingQuicksand, SpecialAirCollisionReaction.SubmergingQuicksand),
+        [SpecialAirReaction.SlowSandfall] = new(SpecialAirInsideReaction.SlowSandfall, SpecialAirCollisionReaction.SlowSandfall),
+        [SpecialAirReaction.FastSandfall] = new(SpecialAirInsideReaction.FastSandfall, SpecialAirCollisionReaction.FastSandfall),
+        [SpecialAirReaction.PassesThrough] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.Nothing),
+        [SpecialAirReaction.RightwardConveyorOnFoot] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.Nothing),
+        [SpecialAirReaction.LeftwardConveyorOnFoot] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.Nothing),
+        [SpecialAirReaction.RightwardConveyor] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.Nothing),
+        [SpecialAirReaction.LeftwardConveyor] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.Nothing),
+        [SpecialAirReaction.ScrollTrigger] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.Nothing),
+        [SpecialAirReaction.SlowRespawningSpeedBlock] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock),
+        [SpecialAirReaction.SlowPermanentSpeedBlock] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.BrinstarSlowPermanentSpeedBlock),
+        [SpecialAirReaction.DachoraRespawningSpeedBlock] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.DachoraRespawningSpeedBlock),
+        [SpecialAirReaction.PermanentSpeedBlock] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.PermanentSpeedBlock),
+        [SpecialAirReaction.WreckedShipChozoHand] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.WreckedShipChozoHand),
+        [SpecialAirReaction.LowerNorfairChozoHand] = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.LowerNorfairChozoHand),
+    };
+
     /// <summary>What the special-air block with reaction <paramref name="reaction"/> does to Samus inside it.</summary>
     /// <param name="reaction">The block's reaction.</param>
     public static SpecialAirInsideReaction InsideOf(SpecialAirReaction reaction) => reaction switch
@@ -33,21 +56,10 @@ public static class SpecialAirReactions
     /// <param name="reaction">The block's reaction.</param>
     public static SpecialAirCollisionReaction CollisionOf(SpecialAirReaction reaction) => reaction switch
     {
-        SpecialAirReaction.FloorPlant or SpecialAirReaction.CeilingPlant => SpecialAirCollisionReaction.PassesThrough,
-        SpecialAirReaction.SlowRespawningSpeedBlock => SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock,
-        SpecialAirReaction.SlowPermanentSpeedBlock => SpecialAirCollisionReaction.BrinstarSlowPermanentSpeedBlock,
-        SpecialAirReaction.DachoraRespawningSpeedBlock => SpecialAirCollisionReaction.DachoraRespawningSpeedBlock,
-        SpecialAirReaction.PermanentSpeedBlock => SpecialAirCollisionReaction.PermanentSpeedBlock,
-        SpecialAirReaction.LowerNorfairChozoHand => SpecialAirCollisionReaction.LowerNorfairChozoHand,
-        SpecialAirReaction.WreckedShipChozoHand => SpecialAirCollisionReaction.WreckedShipChozoHand,
-        SpecialAirReaction.QuicksandSurface => SpecialAirCollisionReaction.QuicksandSurface,
-        SpecialAirReaction.SubmergingQuicksand => SpecialAirCollisionReaction.SubmergingQuicksand,
-        SpecialAirReaction.SlowSandfall => SpecialAirCollisionReaction.SlowSandfall,
-        SpecialAirReaction.FastSandfall => SpecialAirCollisionReaction.FastSandfall,
-        SpecialAirReaction.PassesThrough or SpecialAirReaction.RightwardConveyorOnFoot or SpecialAirReaction.LeftwardConveyorOnFoot or
-            SpecialAirReaction.RightwardConveyor or SpecialAirReaction.LeftwardConveyor or SpecialAirReaction.ScrollTrigger
-            => SpecialAirCollisionReaction.Nothing,
-        var undefined => throw new InvalidOperationException($"Undefined {nameof(SpecialAirReaction)} {undefined}."),
-    };
+        SpecialAirReaction validated = Validate(reaction, context);
+        return Reactions.TryGetValue(validated, out var does)
+            ? does
+            : throw new InvalidOperationException($"Undefined {nameof(SpecialAirReaction)} {validated}.");
+    }
 
 }

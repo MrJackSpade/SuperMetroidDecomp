@@ -23,7 +23,7 @@ internal static class EnemyMathBoundsVerification
 
         var services = new VerificationRoomEnemyServices(null) { NextRandom = () => ushort.MaxValue, ReadRandom = () => ushort.MaxValue };
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: services);
-        var projectile = new EnemyProjectile(0, default)
+        var projectile = new EnemyProjectile(0, default, RoomEnemyProjectileKind.DustOrExplosion)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectDownwardGateVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for six downward-gate column frames and eight left/right trigger layouts.</summary>
-    public const string VisualFileName = "downward-gates.json";
+    private const string VisualFileName = "downward-gates.json";
 
     /// <summary>The gate's frames in the installed file's order (#2567): the column open, lowering and closed, then the four colours' left and right triggers.</summary>
     private static readonly IReadOnlyList<DownwardGateDraw> FrameOrder = Ensure.EveryMemberOnce<DownwardGateDraw>(
@@ -53,8 +53,13 @@ public static class RoomObjectDownwardGateVisualFiles
             yield return DownwardGateObjectDraws.Family.Of(gate);
     }
 
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the downward gate draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a downward gate draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a downward gate draw.");
+
     /// <summary>Builds the draw list of a recognized column or trigger draw from its geometry.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         bool found = RoomObjectDrawIdentity.TryFrame(request, out DownwardGateDraw gate);
         DownwardGateObjectDraws.Draw draw = DownwardGateObjectDraws.Describe(gate);
@@ -73,7 +78,7 @@ public static class RoomObjectDownwardGateVisualFiles
     }
 
     /// <summary>Maps a draw to its published artwork identity: the column by how far it is lowered, a trigger by its colour and side (#1994).</summary>
-    internal static string VisualId(RoomObjectDraw request)
+    private static string VisualId(RoomObjectDraw request)
     {
         if (!RoomObjectDrawIdentity.TryFrame(request, out DownwardGateDraw gate))
             throw new InvalidDataException($"Downward gate draw list {request} has no visual ID.");
@@ -98,14 +103,13 @@ public static class RoomObjectDownwardGateVisualFiles
     }
 
     /// <summary>Builds every column and trigger draw list from its calculated shape.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
             foreach (RoomObjectDraw draw in Draws())
             {
-                TryGet(draw, out var list);
-                yield return list;
+                yield return DrawListOf(draw);
             }
         }
     }

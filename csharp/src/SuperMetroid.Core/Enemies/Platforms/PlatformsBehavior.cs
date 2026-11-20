@@ -15,7 +15,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, PlatformSpawnSettings settings) => new PlatformsEntity(this, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, PlatformSpawnSettings settings) => EnemyOccupant.Of(new PlatformsEntity(this, occupant, place, common, settings));
 
     /// <summary>Clips the Tripper's and the suspensor platform's horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
@@ -34,11 +34,11 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
     /// Sets up a Tripper or a suspensor platform: its direction and speed from its spawn settings, its first rise and the
     /// height it rests at below where it was placed.
     /// </summary>
-    internal static PlatformEnemyState InitializePlatform(RoomEnemyPlace place, PlatformSpawnSettings settings)
+    internal static PlatformEnemyState InitializePlatform(RoomEnemyOccupant occupant, RoomEnemyPlace place, PlatformSpawnSettings settings)
     {
         var state = new PlatformEnemyState(settings)
         {
-            Kind = place.DefinitionId == EnemyDefinitionId.SuspensorPlatform ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper,
+            Kind = place.Holds(EnemyDefinitionId.SuspensorPlatform) ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper,
         };
 
         // The platform moves left or right as its spawn settings say.
@@ -54,7 +54,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
 
     /// <summary>Runs the Tripper's and the suspensor platform's main AI.</summary>
     private void RunPlatformMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -69,8 +69,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
 
         // The sinking carry measures the horizontal step from the position before it.
         int preHorizontalX = place.Position.X.Whole;
-        MovePlatformHorizontally(place, state, level);
-        MovePlatformVertically(place, state, samus, level, movement, preHorizontalX);
+        MovePlatformHorizontally(occupant, place, state, level);
+        MovePlatformVertically(occupant, place, state, samus, level, movement, preHorizontalX);
 
         // A newly selected vertical movement restarts the speed curve only after its first update:
         // that update can move by the curve's second mark, and the next starts from the curve's start.
@@ -81,7 +81,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
 
     /// <summary>Applies horizontal movement, reversing the horizontal direction and still-art animation on wall collision.</summary>
     private void MovePlatformHorizontally(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         PlatformEnemyState state,
         RoomLevelData level)
     {
@@ -101,6 +101,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
     }
 
     /// <summary>Routes the platform through rise or sink physics and carries a riding Samus by accepted motion.</summary>
+    /// <param name="occupant">The enemy holding <paramref name="place"/>.</param>
     /// <param name="place">The platform's place.</param>
     /// <param name="state">The platform's state.</param>
     /// <param name="samus">Samus, carried while riding.</param>
@@ -108,7 +109,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
     /// <param name="movement">The vertical movement this update's rider test chose.</param>
     /// <param name="preHorizontalX">The platform's whole X before this update's horizontal movement.</param>
     private void MovePlatformVertically(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level,
@@ -118,10 +119,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
         switch (movement)
         {
             case PlatformVerticalMovement.Rising:
-                RaisePlatform(place, state, level);
+                RaisePlatform(occupant, place, state, level);
                 return;
             case PlatformVerticalMovement.Sinking:
-                SinkPlatform(place, state, samus, level, preHorizontalX);
+                SinkPlatform(occupant, place, state, samus, level, preHorizontalX);
                 return;
             default:
                 throw new InvalidDataException(
@@ -129,14 +130,14 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
         }
     }
 
-    /// <summary>Returns a depressed platform toward its spawn height with the one-pixel stop offset.</summary>
+    /// <summary>Returns a depressed platform toward its spawn height, stopping at its resting depth.</summary>
     private void RaisePlatform(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         PlatformEnemyState state,
         RoomLevelData level)
     {
-        // Normal platforms stop once they have risen from their depressed position past their resting height, one
-        // pixel below their original spawn center.
+        // Normal platforms stop once they have risen from their depressed position past their resting height, just
+        // below their original spawn center.
         if (place.Position.Y.Whole < state.RestingY)
         {
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
@@ -155,13 +156,14 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
     }
 
     /// <summary>Accelerates a ridden platform downward and publishes its collision-clipped displacement to Samus.</summary>
+    /// <param name="occupant">The enemy holding <paramref name="place"/>.</param>
     /// <param name="place">The platform's place.</param>
     /// <param name="state">The platform's state.</param>
     /// <param name="samus">Samus, carried by the platform's accepted movement.</param>
     /// <param name="level">The room's collision data.</param>
     /// <param name="preHorizontalX">The platform's whole X before this update's horizontal movement.</param>
     private void SinkPlatform(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level,
@@ -224,7 +226,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
     }
 
     /// <summary>Selects the moving animation from which platform it is and its current horizontal direction.</summary>
-    internal static void StartPlatformMovingAnimationForHeading(
+    private static void StartPlatformMovingAnimationForHeading(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
@@ -233,7 +235,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
     }
 
     /// <summary>Selects the stationary animation from which platform it is and its current horizontal direction.</summary>
-    internal static void StartPlatformStillAnimationForHeading(
+    private static void StartPlatformStillAnimationForHeading(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
@@ -266,13 +268,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
     };
 
     /// <summary>Runs Platforms's main AI.</summary>
-    internal void RunPlatformsMainAi(RoomEnemyPlace place, PlatformEnemyState state, IEnemyAiFrame frame)
+    internal void RunPlatformsMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, PlatformEnemyState state, IEnemyAiFrame frame)
     {
-        RunPlatformMain(place, state, frame.Samus, frame.Level);
+        RunPlatformMain(occupant, place, state, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Platforms's typed animation.</summary>
-    internal static void AdvancePlatformsTypedAnimation(RoomEnemyPlace place, PlatformEnemyState platformEnemyState, EnemyAnimationCueContext _) =>
+    internal static void AdvancePlatformsTypedAnimation(RoomEnemyPlace place, PlatformEnemyState platformEnemyState) =>
         EnemyAnimationPlayback.Advance(place, platformEnemyState, PlatformAnimations.Segments,
             static (PlatformEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>

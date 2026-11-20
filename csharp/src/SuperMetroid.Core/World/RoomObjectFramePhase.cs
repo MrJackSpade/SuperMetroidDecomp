@@ -56,15 +56,13 @@ internal sealed class RoomObjectFramePhase
     /// before the following frame boundary.
     /// </summary>
     /// <remarks>
-    /// The ordinary frame step intentionally suppresses room objects while the shared
-    /// door/elevator freeze flag is set. This step is the game's one exception: it
-    /// advances the freshly loaded room objects' sequences once before the destination fades in.
+    /// Room objects do not run while a door or an elevator freezes time; this step is the one exception: it advances
+    /// the freshly loaded room objects' sequences once before the destination fades in.
     /// </remarks>
     internal static void RunRoomObjectsForDoor(RoomScope room, SamusState samus)
     {
-        // The room objects' door-transition update still enters the common room-object step,
-        // which returns at once while the X-ray suspends the room objects.
-        // Indirect G-Mode deliberately carries that suspension across the door.
+        // The room objects' door-transition update stands still while the X-ray holds the room objects, and Indirect
+        // G-Mode carries that hold across the door.
         if (samus.Xray.AreObjectsSuspended)
             return;
 
@@ -109,7 +107,7 @@ internal sealed class RoomObjectFramePhase
                     room.Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(shard);
                     break;
                 case BombTorizoStatueProjectileRequest fragment:
-                    _ = room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(fragment);
+                    room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(fragment);
                     break;
                 default:
                     throw new InvalidDataException($"A room object threw the undefined projectile {thrown}.");

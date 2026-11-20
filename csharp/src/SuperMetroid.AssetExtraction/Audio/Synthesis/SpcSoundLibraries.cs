@@ -47,22 +47,25 @@ internal sealed class SpcSoundLibraries
     /// when that value changed. $1621 then echoes the acted-on value and latches the CPU's
     /// current write, so a request is echoed one service after the service that reads it.
     /// </remarks>
-    internal void HandleSoundLibraryCommand(int libraryIndex, SoundRequestCheck<byte> poll) =>
-        ApplySoundLibraryCommand(libraryIndex, poll.Changed, poll.Request?.Sound ?? 0);
+    internal void HandleSoundLibraryCommand(int libraryIndex, SoundRequestCheck<byte> poll)
+    {
+        // The native library priority/cancellation gates pass a changed request that names a sound, which selects its
+        // stream; otherwise the library advances the sound it plays, if any.
+        ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
+        int? changed = poll.Changed ? poll.Request?.Sound : null;
+        if (changed is { } command && command != ManagedSpcSoundLibrary.SilentCommand &&
+            !RejectsRequest(libraryIndex, command, library.Priority, library.Mode))
+            StartSound(libraryIndex, command);
+        else if (library.IsPlaying)
+            ProcessSoundLibrary(libraryIndex);
+    }
 
-    /// <summary>Applies native library priority/cancellation gates, then selects a new sound stream or advances the active one.</summary>
-    private void ApplySoundLibraryCommand(int libraryIndex, bool changed, int command)
+    /// <summary>Selects the stream of sound <paramref name="command"/> in library <paramref name="libraryIndex"/>, silencing the sound it played.</summary>
+    private void StartSound(int libraryIndex, int command)
     {
         ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
-        if (!changed || command == 0 || RejectsRequest(libraryIndex, command, library.Priority, library.Mode))
-        {
-            if (library.CurrentSound != 0)
-                ProcessSoundLibrary(libraryIndex);
-            return;
-        }
-
         ManagedSpcSoundChannel[] libraryChannels = soundChannels[libraryIndex];
-        if (library.CurrentSound != 0)
+        if (library.IsPlaying)
         {
             library.EnabledVoices = 0;
             foreach (ManagedSpcSoundChannel channel in libraryChannels)
@@ -265,7 +268,7 @@ internal sealed class SpcSoundLibraries
         musicChannel.PanFlags = soundChannel.PhaseInvert;
         if (library.EnabledVoices == 0)
         {
-            library.CurrentSound = 0;
+            library.CurrentSound = ManagedSpcSoundLibrary.SilentCommand;
             library.Priority = 0;
             library.InitializationFlag = 0;
         }

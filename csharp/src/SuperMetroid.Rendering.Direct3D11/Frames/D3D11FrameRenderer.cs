@@ -110,7 +110,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         : this(owner, name => typeof(D3D11FrameRenderer).Assembly.GetManifestResourceStream(name)) { }
 
     /// <summary>Resource-lookup seam for strict missing-shader startup verification.</summary>
-    internal D3D11FrameRenderer(D3D11RenderDevice owner, Func<string, Stream?> openShaderResource)
+    private D3D11FrameRenderer(D3D11RenderDevice owner, Func<string, Stream?> openShaderResource)
     {
         this.owner = Ensure.NotNull(owner);
         this.openShaderResource = Ensure.NotNull(openShaderResource);
@@ -334,8 +334,9 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[3] = unchecked((ushort)r.ForegroundScroll.X);
         data[4] = unchecked((ushort)r.ForegroundScroll.Y);
         data[8] = layer.RevealBlocks ? 1u : 0u;
-        data[9] = BlendWord(layer.Blend);
-        FadeLevelColour blendColour = ShaderLevels(layer.Blend.Colour);
+        ShaderBlend blend = ShaderBlendOf(layer);
+        data[9] = BlendWord(blend);
+        FadeLevelColour blendColour = ShaderLevels(blend.Colour);
         data[10] = (uint)blendColour.Red; data[11] = (uint)blendColour.Green; data[12] = (uint)blendColour.Blue;
         // The foreground is always the room's; the background stage draws a boss's body, or else what the room publishes for
         // its background (#1403, #2573).
@@ -407,9 +408,36 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>Xray.hlsli's bit for a blend subtracting what it combines.</summary>
     private const uint BlendSubtracts = 128;
 
+    /// <summary>
+    /// What the shader's blend changes and how, and the colour it combines with where nothing lies behind, for the effect
+    /// <paramref name="layer"/> shows.
+    /// </summary>
+    /// <param name="Blended">What the blend changes where it is frontmost.</param>
+    /// <param name="Operation">Whether the blend adds or subtracts what it combines with.</param>
+    /// <param name="Halved">Whether the combined colour is halved where something lies behind.</param>
+    /// <param name="Colour">The colour combined with where nothing lies behind.</param>
+    private readonly record struct ShaderBlend(BlendedLayers Blended, Core.Assets.BlendOperation Operation, bool Halved, RgbColor Colour);
+
+    /// <summary>The shader's blend drawing the effect <paramref name="layer"/> shows.</summary>
+    /// <exception cref="InvalidOperationException">The effect is not one the backend draws.</exception>
+    private static ShaderBlend ShaderBlendOf(GameplayBlendLayer layer) => layer.Blend switch
+    {
+        FirefleaDarknessBlend darkness => new(BlendedLayers.Background | BlendedLayers.Backdrop, Core.Assets.BlendOperation.Subtract,
+            false, darkness.Shade),
+        PhantoonTranslucenceBlend => new(BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop,
+            Core.Assets.BlendOperation.Add, false, RgbColor.Black),
+        EffectBehindRoomBlend behind => new(behind.Effect.Blended, behind.Effect.Operation, false, RgbColor.Black),
+        XrayDimmingBlend dimming => new(
+            dimming.Mode.KeepsBackgrounds ? BlendedLayers.Foreground | BlendedLayers.Backdrop
+                : BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop,
+            dimming.Mode.KeepsDarkness || dimming.RoomDarkens ? Core.Assets.BlendOperation.Subtract : Core.Assets.BlendOperation.Add,
+            !dimming.Mode.KeepsDarkness && layer.OverlayBehind is not null, dimming.Tint),
+        _ => throw new InvalidOperationException($"Undefined gameplay blend {layer.Blend}."),
+    };
+
     /// <summary>The bits Xray.hlsli tests for what a blend changes and how.</summary>
     /// <exception cref="InvalidOperationException">The blend's operation is not defined.</exception>
-    private static uint BlendWord(GameplayBlend blend) =>
+    private static uint BlendWord(ShaderBlend blend) =>
         ((blend.Blended & BlendedLayers.Foreground) != 0 ? BlendsForeground : 0)
         | ((blend.Blended & BlendedLayers.Background) != 0 ? BlendsBackground : 0)
         | ((blend.Blended & BlendedLayers.Actors) != 0 ? BlendsActors : 0)
@@ -435,13 +463,30 @@ public sealed class D3D11FrameRenderer : IDisposable
     internal static uint DepthWord(ActorDepth depth) => depth switch
     {
         ActorDepth.BehindRoom => 0,
-        ActorDepth.BehindFrontParts => 1,
-        ActorDepth.InFront => 2,
+        ActorDepth.BehindRoomInFrontOfFloor => 1,
+        ActorDepth.BehindFrontParts => 2,
+        ActorDepth.InFront => 3,
         _ => throw new InvalidOperationException($"Undefined actor depth {depth}."),
     };
 
-    /// <summary>The <see cref="D3D11TileDispatch.DrawnDepth"/> of a pass inserting the sprites at <paramref name="depth"/>.</summary>
-    private static uint Inserting(ActorDepth depth) => DepthWord(depth) + 1;
+    /// <summary>
+    /// The <see cref="D3D11TileDispatch.DrawnDepth"/> of a pass inserting the sprites at <paramref name="depths"/>: a bit for
+    /// each depth's word, as Tiles.hlsl's sprite insertion tests it.
+    /// </summary>
+    private static uint Inserting(ReadOnlySpan<ActorDepth> depths)
+    {
+        uint inserted = 0;
+        foreach (ActorDepth depth in depths)
+            inserted |= 1u << (int)DepthWord(depth);
+        return inserted;
+    }
+
+    /// <summary>The depths in front of a turning floor (#2583): every depth but the one behind the floor.</summary>
+    private static readonly ActorDepth[] InFrontOfFloor =
+        [ActorDepth.BehindRoomInFrontOfFloor, ActorDepth.BehindFrontParts, ActorDepth.InFront];
+
+    /// <summary>The depth behind a turning floor (#2583).</summary>
+    private static readonly ActorDepth[] BehindFloor = [ActorDepth.BehindRoom];
 
     /// <summary>
     /// The <see cref="D3D11TileDispatch.DrawnDepth"/> of a room layer pass drawing its back or its front tiles: the part of its
@@ -466,8 +511,8 @@ public sealed class D3D11FrameRenderer : IDisposable
 
     /// <summary>
     /// Composes a room with a perspective floor below the HUD's lines (#1514): the room's scenery behind everything (#1545),
-    /// the floor with the actors over it, and on the band below it the background's layers and the actors in
-    /// <see cref="GameplaySceneLayer.Order"/>. The HUD is its own layer (#1466).
+    /// the actors behind the floor, the floor, the actors in front of it (#2583), and on the band below it the background's
+    /// layers and the actors in <see cref="GameplaySceneLayer.Order"/>. The HUD is its own layer (#1466).
     /// </summary>
     private void DispatchFloorRoom(TurningRoomLayer layer)
     {
@@ -482,8 +527,16 @@ public sealed class D3D11FrameRenderer : IDisposable
                 Table = roomLevels.PlaneTable(scenery.Plane), Scroll = PlaneScroll(scenery.Scroll), RoomSource = D3D11RoomSource.PicturedPlane,
                 FirstScanline = (uint)layer.HudLines,
             });
+        // The actors behind the floor show only through its clear pixels; every other depth lies in front of it (#2583).
+        DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch
+        {
+            DrawnDepth = Inserting(BehindFloor), FirstScanline = (uint)layer.HudLines, EndScanline = (uint)floorStart,
+        });
         DispatchFloor(layer.Transform, layer.HudLines, floorStart);
-        DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { FirstScanline = (uint)layer.HudLines, EndScanline = (uint)floorStart });
+        DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch
+        {
+            DrawnDepth = Inserting(InFrontOfFloor), FirstScanline = (uint)layer.HudLines, EndScanline = (uint)floorStart,
+        });
         if (layer.LowerBand is not { } band)
             return;
         // Only the band below the floor shows the background; transparent pixels keep the backdrop. The band shows no
@@ -520,13 +573,16 @@ public sealed class D3D11FrameRenderer : IDisposable
     private static ShownRoomWarning? WarningAt(RoomBackgrounds? rooms, RoomWarningDepth depth) =>
         rooms?.Warning is { } warning && warning.Depth == depth ? warning : null;
 
-    /// <summary>The depth of the actors a gameplay actor layer shows.</summary>
+    /// <summary>
+    /// The depths of the actors a gameplay actor layer shows: the actors behind the room are those at both depths behind it,
+    /// which lie together where no turning floor shows (#2583).
+    /// </summary>
     /// <exception cref="InvalidOperationException"><paramref name="layer"/> shows no actors.</exception>
-    private static ActorDepth ActorsAt(GameplayLayer layer) => layer switch
+    private static ReadOnlySpan<ActorDepth> ActorsAt(GameplayLayer layer) => layer switch
     {
-        GameplayLayer.ActorsBehindRoom => ActorDepth.BehindRoom,
-        GameplayLayer.ActorsBehindFrontParts => ActorDepth.BehindFrontParts,
-        GameplayLayer.ActorsInFront => ActorDepth.InFront,
+        GameplayLayer.ActorsBehindRoom => ActorsBehindRoom,
+        GameplayLayer.ActorsBehindFrontParts => ActorsBehindFrontParts,
+        GameplayLayer.ActorsInFront => ActorsInFront,
         GameplayLayer.BackgroundBackPart or GameplayLayer.ForegroundBackPart or GameplayLayer.BackgroundFrontPart
             or GameplayLayer.ForegroundFrontPart or GameplayLayer.BossBodyBehindActors or GameplayLayer.BossBodyInFrontOfActors
             => throw new InvalidOperationException($"Gameplay layer {layer} shows no actors."),
@@ -983,8 +1039,20 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
-    /// <summary>The actor depths from the front back: the order the paint's draws are packed in (#1514).</summary>
-    private static readonly ActorDepth[] FrontToBack = [ActorDepth.InFront, ActorDepth.BehindFrontParts, ActorDepth.BehindRoom];
+    /// <summary>The depths <see cref="GameplayLayer.ActorsBehindRoom"/> shows: both behind the room (#2583).</summary>
+    private static readonly ActorDepth[] ActorsBehindRoom = [ActorDepth.BehindRoomInFrontOfFloor, ActorDepth.BehindRoom];
+
+    /// <summary>The depth <see cref="GameplayLayer.ActorsBehindFrontParts"/> shows.</summary>
+    private static readonly ActorDepth[] ActorsBehindFrontParts = [ActorDepth.BehindFrontParts];
+
+    /// <summary>The depth <see cref="GameplayLayer.ActorsInFront"/> shows.</summary>
+    private static readonly ActorDepth[] ActorsInFront = [ActorDepth.InFront];
+
+    /// <summary>
+    /// The actor depths from the front back, grouped as the paint's draws are packed (#1514): the two depths behind the
+    /// room are one group, packed in emission order, since only a turning floor tells them apart (#2583).
+    /// </summary>
+    private static readonly ActorDepth[][] FrontToBack = [ActorsInFront, ActorsBehindFrontParts, ActorsBehindRoom];
 
     /// <summary>The frame's draws in the order they are packed, reused from frame to frame.</summary>
     private readonly List<ImageSpriteDraw> packedDraws = [];
@@ -994,7 +1062,7 @@ public sealed class D3D11FrameRenderer : IDisposable
 
     /// <summary>
     /// Lays out <paramref name="scene"/>'s draws and their depths in the order they are packed (#1514): the paint's draws
-    /// grouped by depth from the front back, each depth's in emission order, then every sprite layer's as the scene lists
+    /// grouped by depth from the front back, each group's in emission order, then every sprite layer's as the scene lists
     /// them, in front, since a sprite layer is drawn whole at its place among the scene's layers. The draws a whole-gameplay
     /// layer composes sit at their frames' depths; a frontend screen's paint draws, which only a turning floor's glow
     /// composes, sit at their frames' depths where their frames have one and in front of the floor otherwise.
@@ -1006,12 +1074,12 @@ public sealed class D3D11FrameRenderer : IDisposable
         packedDepths.Clear();
         ReadOnlySpan<ImageSpriteDraw> draws = scene.SpriteDraws.AsSpan();
         int paintDraws = scene.Paint.SpriteDraws.Length;
-        foreach (ActorDepth depth in FrontToBack)
+        foreach (ActorDepth[] group in FrontToBack)
         {
             foreach (ImageSpriteDraw image in draws[..paintDraws])
             {
                 ActorDepth shown = composesGameplay ? DepthOf(image) : image.Depth ?? ActorDepth.InFront;
-                if (shown != depth)
+                if (Array.IndexOf(group, shown) < 0)
                     continue;
                 packedDraws.Add(image);
                 packedDepths.Add(shown);

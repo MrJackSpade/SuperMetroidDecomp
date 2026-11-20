@@ -45,7 +45,7 @@ internal static class WaverAnimationDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Waver, place.Definition);
+            place.Bind(EnemyDefinitionId.Waver, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.Waver, parameter);
             WaverBehavior.InitializeWaver(place, place.SpawnSettings<WaverSpawnSettings>());
             WaverSegment expected = WaverNativeWords.Animations.Decode(parameter, "Waver spawn facing");

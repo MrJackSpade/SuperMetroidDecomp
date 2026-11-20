@@ -22,7 +22,7 @@ internal static class EnemySpritemapNativeDrawAccess
             EnemyFrameId frame = RoomEnemyPlaceFrameAccess.FrameAt(draw.Bank, draw.Pointer)
                 ?? throw new ArgumentOutOfRangeException(nameof(draw), draw, "A native draw of word zero shows no frame.");
             // The common empty frame is compiled definition data, not missing artwork.
-            if (frame == EnemyFrameId.Empty)
+            if (frame == EnemyFrameId.PointAtOrigin)
                 return;
             if (self?.TryGetDisplay(EnemyFrameCartridgeLookupTooling.Bank(frame), EnemyFrameCartridgeLookupTooling.Word(frame),
                     out EnemySpritemapParts installed) != true)

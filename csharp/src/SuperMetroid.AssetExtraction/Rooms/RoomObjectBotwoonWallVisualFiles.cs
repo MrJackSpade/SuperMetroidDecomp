@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectBotwoonWallVisualFiles
 {
     /// <summary>Editable Botwoon wall-clear visual JSON filename.</summary>
-    public const string VisualFileName = "botwoon-wall.json";
+    private const string VisualFileName = "botwoon-wall.json";
 
     /// <summary>The Botwoon wall as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -29,7 +29,7 @@ public static class RoomObjectBotwoonWallVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Assigns the lone wall-clear draw its stable artwork key and rejects other draw identities.</summary>
-    internal static string VisualId(RoomObjectDraw draw) => draw == BotwoonWallObjectDrawDefinitions.Clear
+    private static string VisualId(RoomObjectDraw draw) => draw == BotwoonWallObjectDrawDefinitions.Clear
         ? "clear-wall"
         : throw new InvalidDataException($"Botwoon wall draw {draw} has no visual ID.");
 
@@ -38,7 +38,7 @@ public static class RoomObjectBotwoonWallVisualFiles
     /// colliding as the game's block shape for the clear says (#1608). The run form is the cartridge's; the game draws
     /// the shape.
     /// </summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {

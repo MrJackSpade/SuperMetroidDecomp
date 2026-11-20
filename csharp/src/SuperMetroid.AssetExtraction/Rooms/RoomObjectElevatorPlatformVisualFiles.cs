@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectElevatorPlatformVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for the elevator platform's three six-cell artwork frames.</summary>
-    public const string VisualFileName = "elevator-platforms.json";
+    private const string VisualFileName = "elevator-platforms.json";
 
     /// <summary>The platform's frames in the installed file's order (#2567): dim, glowing, bright.</summary>
     private static readonly IReadOnlyList<ElevatorPlatformDraw> FrameOrder = Ensure.EveryMemberOnce<ElevatorPlatformDraw>(
@@ -36,27 +36,31 @@ public static class RoomObjectElevatorPlatformVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of the three platform frames in order.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> DrawLists
+    private static IEnumerable<RoomObjectDrawLists.DrawList> DrawLists
     {
         get
         {
             foreach (ElevatorPlatformDraw platform in FrameOrder)
             {
-                TryGetDraw(ElevatorPlatformDraws.Family.Of(platform), out var list);
-                yield return list;
+                yield return DrawListOf(ElevatorPlatformDraws.Family.Of(platform));
             }
         }
     }
 
     /// <summary>Maps a platform draw to its stable artwork identifier.</summary>
-    internal static string VisualId(RoomObjectDraw request) =>
+    private static string VisualId(RoomObjectDraw request) =>
         ElevatorPlatformDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<ElevatorPlatformDraw>(request, "elevator-platform draw list"));
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the elevator platform draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a elevator platform draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGetDraw(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a elevator platform draw.");
 
     /// <summary>
     /// The draw list of a platform frame (#1862): its block shape written as its two upper edge blocks, the object's and
     /// the one three right of it, then the four-block row below them.
     /// </summary>
-    internal static bool TryGetDraw(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    private static bool TryGetDraw(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryShape(ElevatorPlatformDraws.Family, request, out RoomBlockShape? shape))
         {

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal static class EscapeAnimalMotionDefinitions
 {
     /// <summary>
-    /// The room row at or below which both escape animals' acid-height branches find the acid still low.
+    /// The room row at or below which the escaping animals find the acid still low.
     /// </summary>
     internal const int LowAcidSurfaceY = 206;
 

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
 /// One of the two echoes a shinespark crash releases as it finishes: a shot that flies out from Samus along its
-/// departure angle, eight pixels further each update, and leaves once it is off the screen. The crash shows the echo
+/// departure angle, further each update by <see cref="ShinesparkDefinitions.EchoRadiusStep"/>, and leaves once it is off the screen. The crash shows the echo
 /// where its shot last placed it for as long as the shot carries it, and on Samus on the update it departs, before its
 /// shot first moves.
 /// </summary>
@@ -14,7 +14,7 @@ public sealed class ShinesparkCrashEcho
     private Position16<RoomPixels> _position;
 
     /// <summary>The shot that carries the echo, or none before the echo first departs and after Samus's shots are cleared.</summary>
-    internal SamusProjectile? Shot { get; private set; }
+    private SamusProjectile? Shot { get; set; }
 
     /// <summary>Where the echo is shown, or none once no shot carries it.</summary>
     public Position16<RoomPixels>? ShownPosition =>
@@ -38,9 +38,5 @@ public sealed class ShinesparkCrashEcho
     internal void MoveTo(Position16<RoomPixels> position) => _position = position;
 
     /// <summary>Samus's shots have been cleared, and with them the echo.</summary>
-    internal void Forget()
-    {
-        Shot = null;
-        _position = Position16<RoomPixels>.Zero;
-    }
+    internal void Forget() => Shot = null;
 }

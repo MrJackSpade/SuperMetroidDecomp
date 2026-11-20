@@ -22,11 +22,8 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// Installed-asset owner of the pause map/equipment menu.
 /// </summary>
 /// <remarks>
-/// This object deliberately owns only the pause-menu-local display image. The outer
-/// <see cref="SuperMetroidGame"/> game-state loop retains the pause game states, while the
-/// live <see cref="SamusState"/> remains the sole owner of inventory. Consequently an
-/// equipment-screen A press changes the same flags consumed by movement, rendering, and saving;
-/// there is no separate copy that can diverge from gameplay.
+/// The pause menu owns what its screens show; the game keeps the pause's steps, and Samus keeps her equipment, so an
+/// equipment-screen press changes Samus's equipment directly, as movement, drawing and saving see it.
 /// </remarks>
 internal sealed class PauseMenuState : IMenuFrontendScreen
 {
@@ -51,58 +48,58 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Queues menu navigation and animation sounds.</summary>
     private readonly AudioQueues audio;
     /// <summary>The map's highlight cycle, advanced once per accepted stable menu update.</summary>
-    internal readonly MapHighlightAnimation mapHighlight;
+    private readonly MapHighlightAnimation mapHighlight;
     /// <summary>Live inventory owner mutated by equipment and reserve controls.</summary>
     private readonly SamusState samus;
-    /// <summary>Provides persistent area map and exploration bits.</summary>
+    /// <summary>The collected area maps and the explored map cells.</summary>
     private readonly SharedGameState system;
     /// <summary>Area whose map and pause backdrop are displayed.</summary>
-    internal readonly AreaId area;
+    private readonly AreaId area;
     /// <summary>Room definition map origin used to locate Samus on the area map.</summary>
     private readonly Position16<MapTiles> roomMapPosition;
     /// <summary>Visibility rule for the installed map and its scroll bounds.</summary>
     private readonly MapRevealMode mapRevealMode;
     /// <summary>Installed map artwork, bound when the game is bound to its installed content.</summary>
     private InstalledScreenContent screenContent;
-    /// <summary>The pause screen: its artwork, pictures (including the retained gameplay HUD rows), colours and sprite entries (#1358).</summary>
-    internal readonly PauseScreen screen;
+    /// <summary>The pause screen: its artwork, pictures (including the retained gameplay HUD rows), colours and sprites (#1358).</summary>
+    private readonly PauseScreen screen;
     /// <summary>
     /// What the equipment page shows this frame (#1467, #1515): each label in its item's state now, the wireframe of the
     /// equipped suit and boots, the reserve labels and digits once Samus has reserve capacity, and the arrow as the cursor
     /// and the reserve mode light it now (#1597).
     /// </summary>
-    internal ShownEquipmentPage EquipmentPage => ShownEquipmentPage.Of(
+    private ShownEquipmentPage EquipmentPage => ShownEquipmentPage.Of(
         new PauseInventory(samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems, samus.EquippedItems, samus.HyperBeamEnabled),
         samus.MaxReserveEnergy == 0 ? null : new ShownReserveDisplay(samus.ReserveTankMode, samus.ReserveEnergy),
         samus.MaxReserveEnergy == 0 ? ShownReserveArrow.NoReserves
             : ReserveArrow != ReserveArrowState.Dim ? ShownReserveArrow.Lit : ShownReserveArrow.Dim);
     /// <summary>Which of the frame's button labels are lit (#1467); it survives page transitions and artwork rebinds.</summary>
-    internal PauseButtonHighlight ButtonHighlight { get; private set; }
+    private PauseButtonHighlight ButtonHighlight { get; set; }
     /// <summary>How the map page shows the area map (#1466, #1467), as last loaded.</summary>
-    internal ShownAreaMap ShownMap { get; private set; }
-    /// <summary>Current map/equipment fade or load phase.</summary>
-    internal PauseMenuTransition Transition { get; private set; }
+    private ShownAreaMap ShownMap { get; set; }
+    /// <summary>Current map/equipment fade or load phase, or null while no page change is in progress.</summary>
+    private PauseMenuTransition? Transition { get; set; }
     /// <summary>
-    /// The page transition's fade: one level darker every update on the way out, and one level brighter every second
-    /// update on the way in after the load.
+    /// The page transition's fade: one level darker every update on the way out, and one level brighter on alternate
+    /// updates on the way in after the load.
     /// </summary>
     private readonly ScreenFade transitionFade = new(DisplayBrightness.Full);
     /// <summary>Current page-transition brightness, from black to full intensity.</summary>
-    internal int TransitionBrightness => transitionFade.Level;
+    private int TransitionBrightness => transitionFade.Level;
     /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
-    internal PauseEquipmentControl SelectedControl { get; private set; } = PauseEquipmentControls.ReserveMode;
+    private PauseEquipmentControl SelectedControl { get; set; } = PauseEquipmentControls.ReserveMode;
     /// <summary>The map page's scroll, framed from the visible area cells as the pause sets up (#2554).</summary>
-    internal MapScroll ActiveMapScroll { get; }
+    private MapScroll ActiveMapScroll { get; }
     /// <summary>The map screen's scroll position.</summary>
-    internal Offset16<MapPixels> MapScrollPosition => ActiveMapScroll.Scroll;
+    private Offset16<MapPixels> MapScrollPosition => ActiveMapScroll.Scroll;
     /// <summary>Animated map arrows and their current visibility state.</summary>
     internal FileSelectMapAnimations MapArrows { get; }
     /// <summary>The map-position marker's pulse.</summary>
-    internal readonly MapIndicatorPulse mapIndicator = new();
+    private readonly MapIndicatorPulse mapIndicator = new();
     /// <summary>The equipment selector's installed animation, which restarts on each equipment-page entry.</summary>
-    internal readonly ShowingAnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue> itemSelector;
+    private readonly ShowingAnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue> itemSelector;
 
-    /// <summary>Creates the isolated pause display image and initial map/equipment state from live gameplay.</summary>
+    /// <summary>Creates the pause screen and its map and equipment state from live gameplay.</summary>
     public PauseMenuState(PauseMenuEntry entry)
     {
 
@@ -124,18 +121,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             ? entry.MapRevealMode
             : throw new ArgumentOutOfRangeException(nameof(entry.MapRevealMode));
 
-        // The pause's setup loads the map, pause interface, menu sprites and HUD artwork; the
-        // screen binds that artwork and its capture places the pictures.
+        // The pause screen shows the map, the pause interface, the menu sprites and the HUD.
         screen = new PauseScreen(entry.ScreenContent, entry.SpriteSheets);
         BindSpriteSheets(entry.SpriteSheets);
         // Pause shows the HUD gameplay displayed (#1351, #1466) and draws it in its colours, so the energy and ammo HUD
         // stays over the area it covers instead of the map showing there.
         screen.ShowHud(entry.GameplayHud);
 
-        // Pause setup ends by clearing the effect overlay
-        // beneath the HUD. Pause draws
-        // only the HUD's own pictures (PauseScreen.ShownHudPictures), so every otherwise-empty map
-        // square shows nothing.
 
         // The pause screen's base page shows the button page's two label rows over the backdrop's bottom rows, its labels
         // lit or dimmed by the highlight; the frame is the area's backdrop picture, the button rows' picture and each
@@ -157,7 +149,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <param name="delayedHeldInput">The held buttons that repeat on this update, which the page chrome reads.</param>
     /// <param name="newlyPressedInput">The buttons newly pressed this update, which the equipment page reads.</param>
     /// <param name="heldInput">The ordinary held buttons, which the map's scroll arrows read.</param>
-    /// <param name="frameCycle">The runtime's short frame counter, the colour animation's phase.</param>
+    /// <param name="frameCycle">The update's place in the pause cadences, which the colour animation follows.</param>
     /// <param name="bombs">Samus's bombs frozen under the pause, which a same-frame toggle into the first reserve row repaints (#1505).</param>
     public bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton heldInput, int frameCycle,
         SamusBombProjectileSystem bombs)
@@ -166,11 +158,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
         AdvanceAnimations(frameCycle, PauseAnimationPhase.Stable);
-        if (ScreenMode == PauseScreenMode.Map && Transition == PauseMenuTransition.None)
+        if (ScreenMode == PauseScreenMode.Map && Transition is null)
             MapArrows.StepArrows(ActiveMapScroll.CanScroll);
         ControllerButton delayedPressed = delayedHeldInput;
         ControllerButton newlyPressed = newlyPressedInput;
-        if (Transition != PauseMenuTransition.None)
+        if (Transition is not null)
         {
             StepPageTransition();
             return false;
@@ -212,7 +204,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
     /// <summary>
     /// The pause screen's Start-button handling, run last on both stable
-    /// pages. It reads the delayed-held buttons: a fresh press is excluded for three frames by
+    /// pages. It reads the delayed-held buttons: a fresh press is excluded for <see cref="PauseCadenceDefinitions.HeldInputRepeatDelay"/> by
     /// the controller's delayed-held filter before becoming menu input. True requests the unpause state.
     /// </summary>
     private bool HandleStartButton(ControllerButton delayedPressed)
@@ -228,10 +220,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// Advances the sprite animation drawn by the current pause-menu substate.
     /// </summary>
     /// <remarks>
-    /// Rendering itself is intentionally pure. The game advances these counters from its
-    /// draw steps, but a host may draw the same frame more than once while paused
-    /// (for example, a screen capture). The game-state loop calls this exactly
-    /// once per frame so extra draws cannot change game-visible timing.
+    /// The pause animations advance once each update, however many times the screen is drawn.
     /// </remarks>
     public void AdvanceAnimations(int frameCycle, PauseAnimationPhase phase)
     {
@@ -272,7 +261,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Back to front (#1514): the area's frame, the page inside it, the page's markers, cursors and labels, and the
         // retained HUD over the top band. Each picture and sprite is drawn whole at its layer's place, in its layer's order.
         DisplayLayer[] layers = [frame, page, screen.SpriteLayer(), hud];
-        return new(screen.Paint(), layers, Transition == PauseMenuTransition.None ? DisplayBrightness.Full : TransitionBrightness);
+        return new(screen.Paint(), layers, Transition is null ? DisplayBrightness.Full : TransitionBrightness);
     }
 
     /// <summary>Assembles map markers or equipment sprites in their page-specific order.</summary>
@@ -335,10 +324,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             case PauseMenuTransition.EquipmentToMapFadeIn:
                 // The load set the fade to wait one update before each brightness step.
                 if (transitionFade.Brighten())
-                    Transition = PauseMenuTransition.None;
+                    Transition = null;
                 return;
 
-            case PauseMenuTransition.None:
+            case null:
             default:
                 throw new InvalidDataException($"Invalid pause-page transition {Transition}.");
         }
@@ -365,7 +354,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         SelectedControl = PauseEquipmentControls.ReserveMode;
     }
 
-    /// <summary>Builds the area map from installed presentation and exploration bits into the map page.</summary>
+    /// <summary>Builds the area map from installed presentation and the explored cells into the map page.</summary>
     [MemberNotNull(nameof(ShownMap))]
     private void LoadMapPage()
     {
@@ -439,8 +428,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>
-    /// Runs the three button-label lighting variants and the redraw of the two label rows
-    /// that follows each: the frame shows its labels in <paramref name="highlight"/>'s shades from the next capture.
+    /// Sets which button labels are lit: the frame shows its labels in <paramref name="highlight"/>'s shades from the
+    /// next capture.
     /// </summary>
     private void SetPauseButtonLabelMode(PauseButtonHighlight highlight) =>
         ButtonHighlight = Enum.IsDefined(highlight) ? highlight : throw new ArgumentOutOfRangeException(nameof(highlight), highlight, "Undefined pause highlight.");
@@ -661,8 +650,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         screen.BindArtwork(catalog);
         // The equipment page, its reserve arrow included, is derived from Samus's and the cursor's state each frame
         // (#1515, #1597), so the rebound sheets' pictures show it again.
-        // The live button highlight, including a Start/fade highlight, is state the frame's pictures show again; do not
-        // rerun controls.
+        // The live button highlight, a Start or fade highlight included, shows again on the rebound pictures.
         // The scroll position and transition timing stay as they are. Only the map page
         // refreshes, and only when it is shown; the equipment page shares its layer.
         if (ScreenMode == PauseScreenMode.Map) LoadMapPage();
@@ -672,7 +660,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// The shading the reserve arrow's picture shows (#1512, #1597): its standard colours while Samus has no reserve
     /// capacity, the pulse phase of the accepted frame while AUTO pulses it, and its solid colours otherwise.
     /// </summary>
-    internal PictureShading ReserveArrowShading => samus.MaxReserveEnergy == 0
+    private PictureShading ReserveArrowShading => samus.MaxReserveEnergy == 0
         ? PictureShading.Standard
         : PictureShading.Shaded(ReserveArrow == ReserveArrowState.Animated
             ? PauseReserveArrowShades.Pulse(PauseReserveArrowPulseFrame.PacedBy(pauseFrameCycle))
@@ -692,7 +680,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
     }
 
-    /// <summary>Accepted frame phase (zero through 255) retained so repeated renders cannot advance tank fill flicker or the arrow's pulse.</summary>
+    /// <summary>The accepted update's place in the pause cadences, which the tank fill flicker and the arrow's pulse
+    /// follow.</summary>
     private int pauseFrameCycle;
 
     /// <summary>Draws the reserve strip's full/partial/empty tanks and final cap.</summary>
@@ -732,7 +721,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// cursor stays on the transfer when no beam can take it) takes its sound on its only update, as the game's countdown
     /// from zero did.
     /// </summary>
-    internal UpdateCountdown? ReserveRefillSound { get; private set; }
+    private UpdateCountdown? ReserveRefillSound { get; set; }
 
     /// <summary>Runs the reserve tank controls' input before their D-pad response.</summary>
     private void HandleReserveInput(ControllerButton pressed)

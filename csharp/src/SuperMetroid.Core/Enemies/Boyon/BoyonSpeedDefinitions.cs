@@ -2,13 +2,13 @@ using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Enemies.Boyon;
 
-/// <summary>How far down the Boyon bounce curve rises before it saturates, and the bounces its arcs allow.</summary>
+/// <summary>The samples of the Boyon's bounce curve, and how far down it rises before it saturates.</summary>
 public static class BoyonSpeedDefinitions
 {
     /// <summary>
     /// The curve's rising speeds from its top (#2369, #2555), before the Boyon's multiplier scales them: at place k the sum
-    /// of zero through k, k(k+1)/2, of the finest steps a speed takes, a 256th of a pixel an update each, for the first 23
-    /// places, ending just short of a pixel.
+    /// of zero through k, k(k+1)/2, of the finest steps a speed takes, a 256th of a pixel an update each, for each place
+    /// it lists, ending just short of a pixel.
     /// </summary>
     public static ImmutableArray<UnsignedSixteenSixteen> RisingSamples { get; } =
     [

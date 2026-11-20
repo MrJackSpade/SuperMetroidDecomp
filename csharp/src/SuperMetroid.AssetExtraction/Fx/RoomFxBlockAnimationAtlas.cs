@@ -1,8 +1,8 @@
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// The installed two-bit characters of the simple room-FX, Tourian statue and Wrecked Ship treadmill pictures (#1409),
-/// read back from the installed atlas so the import composes room sheets and the Tourian statues' pictures from them
+/// The two-bit characters of the simple room-FX, Tourian statue and Wrecked Ship treadmill pictures (#1409), read from
+/// the import's room-FX atlas so the import composes room sheets and the Tourian statues' pictures from them
 /// (#1527). The game draws the composed sheets and never reads these characters.
 /// </summary>
 public sealed class RoomFxBlockAnimationAtlas

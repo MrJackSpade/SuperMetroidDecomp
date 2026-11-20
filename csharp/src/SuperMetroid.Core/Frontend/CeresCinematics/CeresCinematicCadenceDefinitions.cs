@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class CeresCinematicCadenceDefinitions
 {
     /// <summary>
-    /// The updates on which the planet reveal's pixelation narrows its blocks one pixel (#1774): every fourth update of the
-    /// cinematic frame counter, on its first place.
+    /// The updates on which the planet reveal's pixelation narrows its blocks one pixel (#1774), counted on the cinematic
+    /// frame counter at the period's first place.
     /// </summary>
-    internal static readonly UpdateCadence RevealPixelationStepEveryFourthUpdate = new(4, 0);
+    internal static readonly UpdateCadence RevealPixelationStep = new(4, 0);
 }

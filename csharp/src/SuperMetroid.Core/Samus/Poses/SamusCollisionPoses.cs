@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusCollisionPoses
 {
     /// <summary>What room collision needs to know about <paramref name="pose"/>.</summary>
-    internal static SamusCollisionPose ForRoomCollision(this SamusPoseId pose) =>
+    private static SamusCollisionPose ForRoomCollision(this SamusPoseId pose) =>
         pose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose ? SamusCollisionPose.StandingNormal
         : pose == SamusPoseId.RanIntoWallLeftPose ? SamusCollisionPose.RanIntoWallLeft
         : pose == SamusPoseId.RanIntoWallRightPose ? SamusCollisionPose.RanIntoWallRight

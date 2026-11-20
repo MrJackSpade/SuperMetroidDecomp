@@ -13,9 +13,8 @@ internal static class MotherBrainDeathExplosionDefinitions
 
     /// <summary>
     /// The groups of four body-relative explosion positions her death explosions burst at, in the order they burst
-    /// (#2315), read before the random number that selects each explosion's type. The explosion's setup adds these
-    /// offsets to the moving body without velocity integration; the explosion projectile has zero hitbox radii and cannot
-    /// damage Samus.
+    /// (#2315), read before the random number that selects each explosion's type. The explosions ride with her moving
+    /// body and cannot hurt Samus.
     /// </summary>
     internal static IReadOnlyList<MotherBrainDeathExplosionGroup> Groups { get; } =
     [
@@ -29,8 +28,8 @@ internal static class MotherBrainDeathExplosionDefinitions
     ];
 
     /// <summary>
-    /// The shared misc-dust animation each of Mother Brain's death explosions shows: the small explosion, smoke and the big
-    /// explosion.
+    /// The shared dust and explosion animation each of Mother Brain's death explosions shows: the small explosion,
+    /// smoke and the big explosion.
     /// </summary>
     internal static readonly IReadOnlyDictionary<MotherBrainDeathExplosionAnimation, DustExplosionAnimation> Animations =
         new Dictionary<MotherBrainDeathExplosionAnimation, DustExplosionAnimation>

@@ -103,7 +103,7 @@ internal sealed class DraygonGoop
             FinishDraygonGoopFiring(state, path, direction);
     }
 
-    /// <summary>Places Draygon offscreen and selects the next swoop after a goop pass exits.</summary>
+    /// <summary>Ends the goop firing: his arms go idle and he starts his recovery pass.</summary>
     private static void FinishDraygonGoopFiring(DraygonEnemyState state, DraygonSwoopPath path, HorizontalDirection direction)
     {
         state.ArmsPart.StartAnimation(direction == HorizontalDirection.Right
@@ -151,7 +151,7 @@ internal sealed class DraygonGoop
     }
 
     /// <summary>Applies the goop pass's horizontal motion and one-step Y oscillation.</summary>
-    internal static void MoveDraygonAlongGoopPath(DraygonEnemyState state)
+    private static void MoveDraygonAlongGoopPath(DraygonEnemyState state)
     {
         state.Body.Position = state.Body.Position.WithWholeY(
             DraygonArenaDefinitions.SwimLineY + EnemyMath.CircleCosinePixels(state.GoopYOscillationAngle.ToTrigonometryAngle(), DraygonArenaDefinitions.GoopSwayRadius));

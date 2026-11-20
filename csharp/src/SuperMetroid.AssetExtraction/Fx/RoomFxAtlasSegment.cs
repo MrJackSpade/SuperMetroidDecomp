@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// One ordered strip of characters in the installed room-FX artwork atlas (#1415): a picture of an animated-tile
+/// One ordered strip of characters in the import's room-FX character atlas (#1415): a picture of an animated-tile
 /// object, or the shared Tourian statue strip. Each kind is its own record; extraction maps each to where the source
 /// stores it.
 /// </summary>

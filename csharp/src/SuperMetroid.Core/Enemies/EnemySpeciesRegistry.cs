@@ -41,7 +41,7 @@ internal sealed class EnemySpeciesRegistry
     /// <param name="common">The shared participation every entity composes.</param>
     /// <param name="factories">The species' factories.</param>
     /// <exception cref="InvalidOperationException">Two factories own one definition, or two take one kind of settings.</exception>
-    internal EnemySpeciesRegistry(EnemyCommonParticipation common, IEnumerable<IEnemySpeciesFactory> factories)
+    private EnemySpeciesRegistry(EnemyCommonParticipation common, IEnumerable<IEnemySpeciesFactory> factories)
     {
         Common = Ensure.NotNull(common);
         foreach (IEnemySpeciesFactory factory in Ensure.NotNull(factories))
@@ -172,48 +172,48 @@ internal sealed class EnemySpeciesRegistry
     }
 
     /// <summary>
-    /// Builds the enemy for the occupant <paramref name="place"/> now holds, from the settings its entry tells it, through its
-    /// species' factory; a group's head takes its parts' places from <paramref name="listedAfter"/>.
+    /// Builds the enemy for <paramref name="occupant"/>, from the settings its entry tells it, through its species' factory;
+    /// a group's head takes its parts' places from <paramref name="listedAfter"/>.
     /// </summary>
-    /// <param name="place">The place, already holding its new identity and entry.</param>
+    /// <param name="occupant">The occupant its place's binding installed.</param>
     /// <param name="setup">How the occupant comes to be set up.</param>
     /// <param name="listedAfter">The places the room's population lists right after the occupant; empty for a spawn.</param>
-    internal EnemyPlaced Place(RoomEnemyPlace place, EnemySetup setup, IReadOnlyList<RoomEnemyPlace> listedAfter) =>
-        Ensure.NotNull(place).Spawn.Population.SpawnSettings.Place(this, new EnemyPlacing(place, setup, listedAfter));
+    internal EnemyPlaced Place(RoomEnemyOccupant occupant, EnemySetup setup, IReadOnlyList<RoomEnemyPlace> listedAfter) =>
+        Ensure.NotNull(occupant).Spawn.SpawnSettings.Place(this, new EnemyPlacementRequest(occupant, setup, listedAfter));
 
     /// <summary>
     /// Builds the enemy of an entry that tells its species nothing, through the factory of its definition, which the room's
     /// load checked it has (<see cref="Validate"/>).
     /// </summary>
-    internal EnemyPlaced PlaceUntold(EnemyPlacing placing)
+    internal EnemyPlaced PlaceUntold(EnemyPlacementRequest placing)
     {
-        RoomEnemyPlace place = Ensure.NotNull(placing).Place;
-        if (_untoldGroups.TryGetValue(place.DefinitionId, out IEnemyGroupFactory? group))
-            return group.CreateGroup(new EnemyGroupPlaces(place, PartsOf(placing, group.PartCount)), Common);
-        return EnemyPlaced.Single(_untold[place.DefinitionId].Create(place, Common, placing.Setup));
+        RoomEnemyOccupant occupant = Ensure.NotNull(placing).Occupant;
+        if (_untoldGroups.TryGetValue(occupant.DefinitionId, out IEnemyGroupFactory? group))
+            return group.CreateGroup(new EnemyGroupPlaces(occupant, PartsOf(placing, group.PartCount)), Common);
+        return EnemyPlaced.Single(_untold[occupant.DefinitionId].Create(occupant, occupant.Place, Common, placing.Setup));
     }
 
     /// <summary>
     /// Builds the enemy of an entry that tells its species <paramref name="settings"/>, through the factory taking them,
     /// which the room's load checked it has (<see cref="Validate"/>).
     /// </summary>
-    internal EnemyPlaced Place<TSettings>(TSettings settings, EnemyPlacing placing) where TSettings : EnemySpawnSettings
+    internal EnemyPlaced Place<TSettings>(TSettings settings, EnemyPlacementRequest placing) where TSettings : EnemySpawnSettings
     {
         Ensure.NotNull(settings);
-        Ensure.NotNull(placing);
-        var key = new EnemySettingsKey(typeof(TSettings), placing.Place.DefinitionId);
+        RoomEnemyOccupant occupant = Ensure.NotNull(placing).Occupant;
+        var key = new EnemySettingsKey(typeof(TSettings), occupant.DefinitionId);
         // Each dictionary holds under a settings type only a factory registered as taking that type.
         if (_toldGroups.TryGetValue(key, out IEnemySpeciesFactory? groupOwner))
         {
             var group = (IEnemySettingsGroupFactory<TSettings>)groupOwner;
-            return group.CreateGroup(new EnemyGroupPlaces(placing.Place, PartsOf(placing, group.PartCount)), Common, settings);
+            return group.CreateGroup(new EnemyGroupPlaces(occupant, PartsOf(placing, group.PartCount)), Common, settings);
         }
-        return EnemyPlaced.Single(((IEnemySettingsFactory<TSettings>)_told[key]).Create(placing.Place, Common, placing.Setup, settings));
+        return EnemyPlaced.Single(((IEnemySettingsFactory<TSettings>)_told[key]).Create(occupant, occupant.Place, Common, placing.Setup, settings));
     }
 
     /// <summary>
     /// The places of a group's <paramref name="count"/> parts, the first <paramref name="count"/> listed after its head,
     /// which the room's load checked it lists (<see cref="Validate"/>).
     /// </summary>
-    private static RoomEnemyPlace[] PartsOf(EnemyPlacing placing, int count) => [.. placing.ListedAfter.Take(count)];
+    private static RoomEnemyPlace[] PartsOf(EnemyPlacementRequest placing, int count) => [.. placing.ListedAfter.Take(count)];
 }

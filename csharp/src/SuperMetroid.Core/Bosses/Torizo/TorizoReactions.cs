@@ -9,14 +9,14 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoReactions
 {
     /// <summary>The Torizos' touch reaction.</summary>
-    internal static EnemyReaction Touch { get; } = EnemyReaction.OfSpecies("Torizo.Touch");
+    internal static EnemyReaction Touch => SpeciesOwnReactions.TorizoTouch;
 
     /// <summary>Bomb Torizo's shot reaction, which Golden Torizo's ordinary body hitboxes also name.</summary>
-    internal static EnemyReaction Shot { get; } = EnemyReaction.OfSpecies("Torizo.Shot");
+    internal static EnemyReaction Shot => SpeciesOwnReactions.TorizoShot;
 
     /// <summary>The shot reaction of the frames that stand up and sit down.</summary>
     internal static EnemyReaction StandUpSitDownShot { get; } = EnemyReaction.OfSpecies("Torizo.StandUpSitDownShot");
 
     /// <summary>Golden Torizo's own shot reaction, which its contact takes by its radius.</summary>
-    internal static EnemyReaction GoldenShot { get; } = EnemyReaction.OfSpecies("Torizo.GoldenShot");
+    internal static EnemyReaction GoldenShot => SpeciesOwnReactions.TorizoGoldenShot;
 }

@@ -16,7 +16,7 @@ internal static class IntroNarrationAnimations
             [A.CaretBlinking] =
             [
                 B.Show(S.CaretVisible, 5),
-                B.Show(S.Blank, 5),
+                B.Hide(5),
             ],
             [A.NextPageArrow] =
             [
@@ -25,7 +25,7 @@ internal static class IntroNarrationAnimations
                 B.Show(S.NextPageArrowFaint, 10),
                 B.Show(S.NextPageArrowFading, 10),
             ],
-            [A.NextPageArrowDelayed] = [B.Show(S.Blank, 60)],
+            [A.NextPageArrowDelayed] = [B.Hide(60)],
         },
         plays => new Dictionary<IntroNarrationAnimation, Animation<IntroNarrationAnimation>>
         {

@@ -41,17 +41,20 @@ internal class BlockReactionObject : RoomObjectBehaviour
         }
         if (frame.SoundBefore is { } sound)
             context.QueueSound(sound, frame.SoundPriority);
-        if (frame.Draw is { } draw)
+        switch (frame.Image)
         {
-            context.Draw(place, draw);
-        }
-        else
-        {
-            RestoreBlock(place, context);
+            case BlockReactionImage.Drawn drawn:
+                context.Draw(place, drawn.Draw);
+                break;
+            case BlockReactionImage.RestoresSavedTerrain:
+                RestoreBlock(place, context);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined block reaction image {frame.Image}.");
         }
         // The owner of the room's block reactions learns as each image shows whether the block now stands broken open,
         // which a room object waiting on a block's breakup observes.
-        context.RoomObjects.BlockReactions.RecordImageShown(place.Block, frame.Draw);
+        context.RoomObjects.BlockReactions.RecordImageShown(place.Block, frame.Image);
     }
 
     /// <summary>

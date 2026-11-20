@@ -55,7 +55,7 @@ internal sealed class RoomBlockInventory
     /// The inventory of <paramref name="states"/>, each showing what its level places and what <paramref name="writers"/> its
     /// installed data starts write; a Ceres state shows only what its level places.
     /// </summary>
-    internal static RoomBlockInventory Of(IEnumerable<InventoriedRoomState> states, IReadOnlyList<RoomBlockWriter> writers)
+    private static RoomBlockInventory Of(IEnumerable<InventoriedRoomState> states, IReadOnlyList<RoomBlockWriter> writers)
     {
         Ensure.NotNull(states);
         Ensure.NotNull(writers);
@@ -90,8 +90,8 @@ internal sealed class RoomBlockInventory
     {
         ILookup<RoomDefinition, DoorDefinition> entrances = RoomDoorListDefinitions.ByRoom.Values
             .SelectMany(list => list)
-            .Select(entry => entry.Door)
-            .OfType<DoorDefinition>()
+            .OfType<DoorBlockExit.ThroughDoor>()
+            .Select(exit => exit.Door)
             .ToLookup(door => door.DestinationRoom);
         var straddledShots = new Dictionary<InstalledRoomLevel, IReadOnlySet<RoomTerrainReaction>>();
         foreach (RoomDefinition room in RetailRooms.All)

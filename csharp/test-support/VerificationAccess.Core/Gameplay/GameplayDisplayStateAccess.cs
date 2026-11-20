@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Gameplay;
 
@@ -26,13 +25,13 @@ internal static class GameplayDisplayStateAccess
 
         /// <summary>
         /// The Ceres perspective floor the most recent accepted frame shows, or null for another kind of frame. It is latched
-        /// with <see cref="SuperMetroidRuntime.DisplayedSprites"/>: rendering uses both together rather than mixing the
+        /// with <c>DisplayedSprites</c>: rendering uses both together rather than mixing the
         /// main loop's current transform with the preceding frame's sprites.
         /// </summary>
         public PerspectiveFloor? DisplayedPerspectiveFloor => (self.Latched as PerspectiveFloorFrameLatch)?.Floor;
         /// <summary>
         /// Ordinary BG scroll registers and room-shake deltas published by the most recent
-        /// accepted NMI. These belong to the same PPU-visible frame as <see cref="SuperMetroidRuntime.DisplayedSprites"/>.
+        /// accepted NMI. These belong to the same PPU-visible frame as <c>DisplayedSprites</c>.
         /// </summary>
         public GameplayRenderSnapshot DisplayedGameplayScrolls => self.LatchedRoomFrame.Scrolls;
         /// <summary>Room-FX BG3 state published by the most recent accepted NMI.</summary>

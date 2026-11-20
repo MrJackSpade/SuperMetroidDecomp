@@ -25,17 +25,17 @@ internal static class ScrollBoundaryCameraAccess
         /// </summary>
         private void ApplyDebugStimulusX(ushort pixelDistance, ushort target)
         {
-            self.Speed = self.Speed.WithX(SignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.X.Fraction));
-            PrivateState.Set(self, nameof(ScrollBoundaryCamera.IdealPosition), self.IdealPosition.WithX(target));
-            self.Position = self.Position.WithX(self.Position.X.WithWhole(target));
+            global::SuperMetroid.Core.PrivateState.Set(self, "Speed", self.Speed.WithX(SignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.X.Fraction)));
+            PrivateState.Set(self, "IdealPosition", self.IdealPosition.WithX(target));
+            global::SuperMetroid.Core.PrivateState.Set(self, "Position", self.Position.WithX(self.Position.X.WithWhole(target)));
         }
 
         /// <summary>The vertical counterpart of <see cref="ApplyDebugStimulusX"/>.</summary>
         private void ApplyDebugStimulusY(ushort pixelDistance, ushort target)
         {
-            self.Speed = self.Speed.WithY(SignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.Y.Fraction));
-            PrivateState.Set(self, nameof(ScrollBoundaryCamera.IdealPosition), self.IdealPosition.WithY(target));
-            self.Position = self.Position.WithY(self.Position.Y.WithWhole(target));
+            global::SuperMetroid.Core.PrivateState.Set(self, "Speed", self.Speed.WithY(SignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.Y.Fraction)));
+            PrivateState.Set(self, "IdealPosition", self.IdealPosition.WithY(target));
+            global::SuperMetroid.Core.PrivateState.Set(self, "Position", self.Position.WithY(self.Position.Y.WithWhole(target)));
         }
 
         /// <summary>Applies a debug rightward stimulus, then runs <c>$80:A641</c>.</summary>

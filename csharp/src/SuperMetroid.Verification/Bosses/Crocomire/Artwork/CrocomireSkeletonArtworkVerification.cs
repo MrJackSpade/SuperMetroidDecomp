@@ -53,11 +53,11 @@ internal static class CrocomireSkeletonArtworkVerification
                 EnemyRomTablePointersCrocomire.DeathVramDestinationWords +
                 frames * 2),
             "Crocomire skeleton seventh destination is the native terminator");
-        AssertTrue(!CrocomireSkeletonArtwork.IsChunk(frames),
+        AssertThrows<InvalidDataException>(() => CrocomireSkeletonArtwork.RequireChunk(frames),
             "compiled Crocomire skeleton terminator ends uploads");
         int invalidIndex = frames + 1;
         AssertThrows<InvalidDataException>(
-            () => CrocomireSkeletonArtwork.IsChunk(invalidIndex),
+            () => CrocomireSkeletonArtwork.RequireChunk(invalidIndex),
             "out-of-range Crocomire skeleton upload fails loudly");
 
         (byte[] installedCharacters, CrocomireDeathState installedState,

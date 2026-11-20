@@ -21,6 +21,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend.Menus;
@@ -71,7 +72,7 @@ internal static class FileSelectRoomMapVerification
                 ShownMapCell expected = explored ? ShownMapCell.Explored(stockCell)
                     : downloaded && map.IsRevealedByMapStation(at) ? ShownMapCell.Unexplored(stockCell)
                     : ShownMapCell.Unexplored(MapCell.Empty);
-                AssertEqual(expected, graphics.AreaMap.Cells[y * 64 + x],
+                AssertEqual(expected, graphics.ShownCells.Cells[y * 64 + x],
                     $"room-select area {area} downloaded={downloaded} cell {x},{y}");
                 AssertEqual(expected, pause.Cells[y * 64 + x], "shared builder shows the pause map's hidden cells empty");
                 AssertEqual(explored, system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y))), "map projection does not mark exploration");
@@ -158,8 +159,10 @@ internal static class FileSelectRoomMapVerification
         var bus = new TestAddressSpace();
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var arrows = new Dictionary<string, MapArrowEntry>();
-        foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
-            arrows[direction.ToString()] = new() { X = 32 + ((int)direction - 1) * 24, Y = 79 };
+        // The fixture's arrows stand 24 pixels apart from the left one at 32, in the order their directions are listed.
+        MapScrollDirection[] arrowOrder = [MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down];
+        for (int arrow = 0; arrow < arrowOrder.Length; arrow++)
+            arrows[arrowOrder[arrow].ToString()] = new() { X = 32 + arrow * 24, Y = 79 };
         using var arrowJson = new MemoryStream();
         MapArrowFile.Write(arrowJson, new() { Version = MapArrowFormat.Version, Arrows = arrows });
         arrowJson.Position = 0;
@@ -177,10 +180,10 @@ internal static class FileSelectRoomMapVerification
         var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
         {
-            MapSpriteId id = MapArrowSprites.Picture(direction);
+            MapSpriteId id = Ensure.Listed(MapArrowDefinitions.ArrowPictures, direction);
             string name = MapSpriteArtwork.FrameNames.Single(frame => frame.Id == id).Name;
             spriteDocument.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
-                TileColumn = 0, TileRow = 1, Size = 8, Priority = 3, Palette = null, FlipX = false, FlipY = false }];
+                TileColumn = 0, TileRow = 1, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.InFront, Palette = null, FlipX = false, FlipY = false }];
         }
         var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(spriteDocument, options)),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
@@ -246,7 +249,7 @@ internal static class FileSelectRoomMapVerification
         {
             string name = MapSpriteArtwork.FrameNames.Single(frame => frame.Id == MapSpriteOrdinals.Spritemaps.Decode(id, "map spritemap ordinal")).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
-                TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Priority = 3,
+                TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.InFront,
                 Palette = null, FlipX = false, FlipY = false }];
         }
         var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
@@ -447,11 +450,11 @@ internal static class FileSelectRoomMapVerification
                     "map scroll vertical exact pulse frame");
                 AssertEqual(frame == 8, sound, "map scroll sound occurs at completion, not displacement");
             }
-            AssertEqual(MapScrollDirection.None, scroll.Direction, "released direction completes its accepted step");
+            AssertEqual<MapScrollDirection?>(null, scroll.StepUnderWay?.Direction, "released direction completes its accepted step");
         }
         var precedence = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, system), new(240, 128));
         precedence.Step((ControllerButton.Up | ControllerButton.Down | ControllerButton.Left | ControllerButton.Right));
-        AssertEqual(MapScrollDirection.Left, precedence.Direction, "simultaneous map input uses native arrow order");
+        AssertEqual(MapScrollDirection.Left, precedence.StepUnderWay?.Direction, "simultaneous map input uses native arrow order");
         var empty = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, new SharedGameState(new SharedRandom())), new(216, 48));
         AssertEqual(208, empty.Limits.Left, "empty map uses retail left default");
         AssertEqual(224, empty.Limits.Right, "empty map uses retail right default");
@@ -484,7 +487,7 @@ internal static class FileSelectRoomMapVerification
         {
             string name = MapSpriteArtwork.FrameNames.Single(frame => frame.Id == MapSpriteOrdinals.Spritemaps.Decode(id, "map spritemap ordinal")).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = -2, OffsetY = -3,
-                TileColumn = 1, TileRow = 0, Size = 8, Priority = 3, Palette = null,
+                TileColumn = 1, TileRow = 0, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.InFront, Palette = null,
                 FlipX = false, FlipY = false }];
         }
         var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),

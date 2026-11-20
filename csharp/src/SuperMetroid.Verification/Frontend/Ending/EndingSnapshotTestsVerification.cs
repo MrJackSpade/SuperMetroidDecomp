@@ -61,7 +61,7 @@ internal static class EndingSnapshotTestsVerification
                         "ending packet survives subsequent palette/tile/sprite updates");
                 bool firstPhaseFrame = phases.Add(legacy.Phase);
                 if (firstPhaseFrame) phaseEntryFrames.Add(legacy.Phase, tick);
-                if (legacy.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionCrossfade)
+                if ((legacy.Phase == EndingCreditsPhase.FadeInZebesExplosion || legacy.Phase == EndingCreditsPhase.ZebesExplosionCrossfade))
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.FadeInZebesExplosion];
                     var explosion = Live();
@@ -133,10 +133,10 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var burst = Live();
                     var sub = burst.LayersOf<AddedPicturedPlaneLayer>().Single();
-                    AssertTrue(ShowsOnly(legacy, sub.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingExplosionPicture.Blank)),
+                    AssertTrue(ShowsOnly(legacy, sub.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionPicture(EndingExplosionPicture.BurstGlow)),
                         "F2B7 selects burst BG2 map");
                     AssertTrue(ShowsOnly(legacy, (sub.GlowsOver ?? throw new InvalidOperationException("Verification requires sub.GlowsOver.")).Plane,
-                            SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingExplosionPicture.WideExplosion)),
+                            SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionPicture(EndingExplosionPicture.WideExplosion)),
                         "the burst glows over the planet's map, not over the sky");
 
                     burstDisplayFrames++;
@@ -147,7 +147,7 @@ internal static class EndingSnapshotTestsVerification
                     var finale = Live();
                     var backgrounds = finale.LayersOf<PicturedPlaneLayer>();
                     AssertTrue(backgrounds.Length == 2 && backgrounds.Zip(new[] { EndingExplosionPicture.Eclipse, EndingExplosionPicture.ConcentricExplosion })
-                            .All(shown => ShowsOnly(legacy, shown.First.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(shown.Second))),
+                            .All(shown => ShowsOnly(legacy, shown.First.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionPicture(shown.Second))),
                         "the explosion finale shows its glow's map behind the planet's");
                     AssertTrue(finale.LayersOf<SpritesLayer>().All(layer => layer.Blend == SpriteBlend.Glows),
                         "the finale's debris only glows, never covering the planet");
@@ -239,7 +239,7 @@ internal static class EndingSnapshotTestsVerification
                     }
                 }
                 if (hours < 10 && phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsReward, out int rewardStart)
-                    && legacy.Phase is EndingCreditsPhase.PostCreditsReward or EndingCreditsPhase.PostCreditsCopyright)
+                    && (legacy.Phase == EndingCreditsPhase.PostCreditsReward || legacy.Phase == EndingCreditsPhase.PostCreditsCopyright))
                 {
                     int elapsed = tick - rewardStart;
                     int activeElapsed = elapsed <= 64 ? elapsed : elapsed < 244 ? 64 : elapsed - 180;
@@ -274,7 +274,7 @@ internal static class EndingSnapshotTestsVerification
                             EndingPictureNames.CopyrightPanel),
                         "native E293 selects copyright BG1 after first 64 reveal frames");
                 }
-                if (legacy.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue)
+                if ((legacy.Phase == EndingCreditsPhase.WaitForPlanetEscapeMusic || legacy.Phase == EndingCreditsPhase.WaitForPlanetEscapeMusicQueue))
                 {
                     var flash = Live();
                     AssertEqual(0, flash.Layers.Length, "native F32B disables both screens for explosion whiteout");
@@ -294,7 +294,7 @@ internal static class EndingSnapshotTestsVerification
                             "reward reveal selects the waiting backdrop, not the producer panel");
                     }
                 }
-                if (legacy.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
+                if ((legacy.Phase == EndingCreditsPhase.PlanetEscapeFast || legacy.Phase == EndingCreditsPhase.PlanetEscapeSlow || legacy.Phase == EndingCreditsPhase.PlanetEscapeAccelerating))
                 {
                     gunshipPalettes.Add(string.Join(',', legacy.screen.Colours.Shading.Shades
                         .Where(shade => shade.Effect == ColourEffectShades.Of(ColourEffectColours.GunshipEmergingFromExplosion, new ColourEffectFrame(ColourEffectId.GunshipEmergingFromZebesExplosion, 0)).Effect)));
@@ -319,7 +319,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertTrue(Live().SpriteParts().All(part => part.Part.Palette <= 2),
                         "explosion actors delete before operation text, leaving only text OBJ palettes");
                 }
-                if (legacy.Phase >= EndingCreditsPhase.ItemPercentage)
+                if (!EndingCreditsPhaseOrder.IsBefore(legacy.Phase, EndingCreditsPhase.ItemPercentage))
                 {
                     // E58A clears cinematic actors; the independent star field survives.
                     var stars = legacy.CreditsRoll.ShootingStars;

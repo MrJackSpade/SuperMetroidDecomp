@@ -9,7 +9,7 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>, 
     public SignedEightEight(int rawValue) => RawValue = checked((ushort)rawValue);
 
     /// <summary>The unchanged two's-complement form, eight whole and eight fractional bits.</summary>
-    public ushort RawValue { get; init; }
+    private ushort RawValue { get; init; }
 
     /// <summary>No velocity at all.</summary>
     public static SignedEightEight Zero => default;

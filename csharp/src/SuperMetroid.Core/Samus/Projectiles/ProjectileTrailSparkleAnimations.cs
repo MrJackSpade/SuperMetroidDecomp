@@ -25,7 +25,7 @@ internal static class ProjectileTrailSparkleAnimations
     /// pixel before every scattered frame and once more before its fading frame, which holds for its beat; the left and
     /// right ice sparkles run alike, each falling on its own side.
     /// </summary>
-    internal static AnimationSegments<R, F, ProjectileTrailCue> Segments { get; } = new(
+    private static AnimationSegments<R, F, ProjectileTrailCue> Segments { get; } = new(
         new Dictionary<R, AnimationBeat<F, ProjectileTrailCue>[]>
         {
             [R.IceClustered] = [Show(F.IceSparkleClustered, 1)],
@@ -52,9 +52,9 @@ internal static class ProjectileTrailSparkleAnimations
         });
 
     /// <summary>The animation of each sparkle: its runs played once, after which the sparkle is gone.</summary>
-    internal static IReadOnlyDictionary<ProjectileTrailSegment, Animation<R>> StartingAt { get; } = new Dictionary<ProjectileTrailSegment, Animation<R>>
+    private static Dictionary<ProjectileTrailSegment, Animation<R>> StartingAt { get; } = new Dictionary<ProjectileTrailSegment, Animation<R>>
     {
-        [ProjectileTrailSegment.Empty] = new([], AnimationEnd.Stops),
+        [ProjectileTrailSegment.EndsWithoutSparkle] = new([], AnimationEnd.Stops),
         [ProjectileTrailSegment.LeftIce] = IceSparkle(R.LeftIceFall, R.LeftIceScatteredFall),
         [ProjectileTrailSegment.RightIce] = IceSparkle(R.RightIceFall, R.RightIceScatteredFall),
         [ProjectileTrailSegment.Wave] = new([Segments.Whole(R.Wave)], AnimationEnd.Stops),

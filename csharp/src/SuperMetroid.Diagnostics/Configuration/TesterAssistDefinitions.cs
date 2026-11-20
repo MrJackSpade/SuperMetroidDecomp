@@ -32,7 +32,7 @@ public static class TesterAssistDefinitions
     };
 
     /// <summary>
-    /// The encounters <see cref="SuperMetroidGameOptions.ResetBossesOnLoad"/> returns when a regular save is loaded: the
+    /// The encounters <c>ResetBossesOnLoad</c> returns when a regular save is loaded: the
     /// bosses, minibosses and Torizos of every area but Tourian, the Shaktool path, and the five eye doors.
     /// </summary>
     public static SavedEncounterReset EncounterReset { get; } = new()

@@ -33,7 +33,7 @@ internal static class IntroProjectileArtworkVerification
         {
             projectiles.Reset();
             var shot = projectiles.Shots[0];
-            shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family); shot.Animation = ProjectileFixturePlaybacks.Active(); shot.SpritemapPointer = sprite;
+            shot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family)); shot.Animation = ProjectileFixturePlaybacks.Active(); shot.SpritemapPointer = sprite;
             shot.Position = shot.Position.WithWhole(new(100, 100));
             AssertEqual(sheet.Frame(ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite))),
                 Shown(intro, SpriteSourceKind.SamusProjectile).Image, $"Intro family ${family:X} shows its frame of the intro's projectile sheet");

@@ -35,32 +35,22 @@ public static class SamusPoseInputTransitions
     private const GameplayAction StartAndItemSelect = GameplayAction.Start | GameplayAction.ItemSelect;
 
     /// <summary>
-    /// The poses each input-transition list can select, found once per list the first time it is asked about by reading
-    /// the list under every held chord its transitions read and every part of that chord newly pressed.
-    /// </summary>
-    private static readonly FrozenDictionary<SamusPoseInputList, Lazy<FrozenSet<SamusPoseId>>> SelectableTargets =
-        Enum.GetValues<SamusPoseInputList>().ToFrozenDictionary(list => list, list => new Lazy<FrozenSet<SamusPoseId>>(() => Selectable(list)));
-
-    /// <summary>
     /// Whether the input transitions of <paramref name="currentPose"/> select <paramref name="target"/> for some held and
     /// newly pressed actions (#2397).
     /// </summary>
     /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
     internal static bool CanSelect(SamusPoseId currentPose, SamusPoseId target) =>
-        SelectableTargets[SamusPoseTraits.Of(currentPose).Inputs].Value.Contains(target);
+        SamusPoseTraits.Of(currentPose).Inputs.SelectableTargets.Contains(target);
 
     /// <summary>
-    /// Runs the complete lookup and preserves whether failure enters
-    /// the pose handling's pose-definition fallback.
+    /// Looks the pose's input transitions up: a new pose, the pose's no-input fallback, or keeping the pose.
     /// </summary>
     /// <remarks>
-    /// There are two observably different ways to return without a prospective pose.
-    /// Zero input or exhausting a nonempty list of transitions calls the pose-definition fallback. A pose
-    /// with no transitions returns directly while any input is held;
-    /// matching a transition whose target is the current pose returns directly. A nullable
-    /// transition alone cannot represent that distinction. In particular, running-gun
-    /// pose <see cref="SamusPoseId.MovingRightGunExtendedPose"/> matches itself while Right+Shoot is held, but Shoot alone reaches
-    /// the end of its transitions and must fall back to standing pose <see cref="SamusPoseId.FacingRightNormalPose"/>.
+    /// No input, or input no transition of the pose matches, takes the pose's no-input fallback. A pose with
+    /// no transitions keeps its pose while any input is held, and so does a match whose target is the current pose.
+    /// Running-gun pose <see cref="SamusPoseId.MovingRightGunExtendedPose"/> keeps itself while Right+Shoot is held,
+    /// but Shoot alone matches none of its transitions and falls back to standing pose
+    /// <see cref="SamusPoseId.FacingRightNormalPose"/>.
     /// </remarks>
     public static SamusPoseTransitionLookup Lookup(
         SamusPoseId currentPose,
@@ -77,11 +67,11 @@ public static class SamusPoseInputTransitions
         GameplayAction held = heldActions & ~StartAndItemSelect;
         GameplayAction newlyPressed = newlyPressedActions & ~StartAndItemSelect;
 
-        SamusPoseInputMatch match = SamusPoseInputs.Match(SamusPoseTraits.Of(currentPose).Inputs, held, newlyPressed);
+        SamusPoseInputMatch match = SamusPoseInputRules.Match(SamusPoseTraits.Of(currentPose).Inputs, held, newlyPressed);
         if (match.Transition is not { } transition)
             return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: match.HasConditions);
 
-        // The game returns directly when the winning condition keeps this pose.
+        // A match that keeps this pose keeps it, and its fallback is not consulted.
         return transition.ProspectivePose == currentPose
             ? new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: false)
             : new SamusPoseTransitionLookup(transition, UsesPoseDefinitionFallback: false);
@@ -91,7 +81,7 @@ public static class SamusPoseInputTransitions
     /// The poses <paramref name="inputList"/> selects under some held chord its transitions read, with any part of it newly
     /// pressed, as <see cref="Lookup"/> reads it: with an action held and Start and item selection left out.
     /// </summary>
-    private static FrozenSet<SamusPoseId> Selectable(SamusPoseInputList inputList)
+    internal static FrozenSet<SamusPoseId> Selectable(SamusPoseInputList inputList)
     {
         GameplayAction[] read = [.. ActionOrder.Where(action =>
             action != GameplayAction.None && (action & StartAndItemSelect) == GameplayAction.None)];
@@ -102,7 +92,7 @@ public static class SamusPoseInputTransitions
             foreach (GameplayAction[] pressedActions in Subsets(heldActions))
             {
                 GameplayAction newlyPressed = pressedActions.Aggregate(GameplayAction.None, (chord, action) => chord | action);
-                if (SamusPoseInputs.Match(inputList, held, newlyPressed).Transition is { } transition)
+                if (SamusPoseInputRules.Match(inputList, held, newlyPressed).Transition is { } transition)
                     targets.Add(transition.ProspectivePose);
             }
         }

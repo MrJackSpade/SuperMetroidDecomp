@@ -131,11 +131,9 @@ public sealed class SamusCeresRidleyEjectionState
             // Moving left or right ends by killing X speed when a collision is detected,
             // which cancels speed boosting and clears the extra-run speed as well.
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-            // Return her movement to her pose. Then
-            // the knockback's vertical collision sees the still-set collision flag,
-            // clears the movement and aligns the feet to the previous pose. The push
-            // never sets knockback direction, so the knockback check does not convert the
-            // hurt pose; the knockback pose remains for her pose's own movement.
+            // Return her movement to her pose: the knockback lands her and aligns her feet to her earlier pose. The
+            // push gives no knockback direction, so her hurt pose is kept, and the knockback pose stays for her pose's
+            // own movement.
             Stage = new CeresRidleyShoveStage.Inactive();
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
             samus.AlignBottomAfterPoseChange(
@@ -144,7 +142,7 @@ public sealed class SamusCeresRidleyEjectionState
             return;
         }
 
-        // Her fall speeds up only while its whole pixels are below five, and she falls by that speed alone, whichever way
+        // Her fall speeds up only while its whole pixels are below the shove's falling speed, and she falls by that speed alone, whichever way
         // her velocity heads and without the extra pixel an ordinary fall adds.
         UnsignedSixteenSixteen fallSpeed = samus.Kinematics.VerticalVelocity.Speed;
         if (fallSpeed.IsSlowerThan(SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed))

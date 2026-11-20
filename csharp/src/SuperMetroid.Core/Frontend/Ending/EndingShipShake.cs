@@ -20,7 +20,7 @@ public static class EndingShipShake
     private static readonly SignedSixteenSixteen OneLeft = -OneRight;
 
     /// <summary>
-    /// The fast spin's shake, half a pixel at a time: four steps right and two left, twice, then two right and two left.
+    /// The fast spin's shake, half a pixel at a time, right and left in turn.
     /// </summary>
     public static IReadOnlyList<SignedSixteenSixteen> Fast { get; } =
     [
@@ -29,7 +29,7 @@ public static class EndingShipShake
         HalfRight, HalfRight, HalfLeft, HalfLeft,
     ];
 
-    /// <summary>The slow spin's shake, a pixel at a time: three steps right, two left, two right and one left.</summary>
+    /// <summary>The slow spin's shake, a pixel at a time, right and left in turn.</summary>
     public static IReadOnlyList<SignedSixteenSixteen> Slow { get; } =
     [
         OneRight, OneRight, OneRight, OneLeft, OneLeft, OneRight, OneRight, OneLeft,

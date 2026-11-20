@@ -11,6 +11,4 @@ public enum SamusCollisionDirection
     Up,
     /// <summary>Probes toward increasing room Y using the current bottom edge.</summary>
     Down,
-    /// <summary>The pose-observation probe; not an actual contact in any direction.</summary>
-    NonDirectionalProbe,
 }

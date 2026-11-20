@@ -20,8 +20,8 @@ internal static class CeresDoorQuakeDefinitions
     internal const int LightQuakeFrames = 2;
 
     /// <summary>
-    /// The animation of each explosion of the elevator door's destruction (#1619): the lowest 16384 of the 65536 samples, a
-    /// quarter, burst as smoke; the rest as small explosions.
+    /// The animation of each explosion of the elevator door's destruction (#1619): one explosion in four bursts as
+    /// smoke, the rest as small explosions.
     /// </summary>
     internal static readonly RandomChance RumbleExplosion = RandomChance.Lowest(16384, RandomSampleField.Whole);
 

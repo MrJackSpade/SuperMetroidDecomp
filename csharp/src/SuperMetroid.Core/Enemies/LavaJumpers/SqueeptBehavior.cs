@@ -71,7 +71,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySettingsFactory<Ene
     /// Runs the jumping parent's main behaviour: its rising, flipping and falling actions. Main advances the shared
     /// random numbers once each update.
     /// </summary>
-    internal void RunSqueeptMain(
+    private void RunSqueeptMain(
         RoomEnemyPlace place,
         SqueeptState state)
     {
@@ -90,8 +90,8 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySettingsFactory<Ene
                 MoveSqueeptVertically(place, state);
                 state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
 
-                // The flip starts once the rise has slowed to four pixels an update. Jumps start rising at about eight,
-                // so the flip always comes before the top of the arc.
+                // The flip starts once the rise has slowed to its switch speed. Jumps start rising much faster, so the
+                // flip always comes before the top of the arc.
                 if (state.YVelocity.IsNegative && state.YVelocity >= NorfairLavaJumpDefinitions.AnimationSwitchVelocity)
                 {
                     StartSqueeptAnimation(place, state, NorfairLavaJumperSegment.Jump);
@@ -192,8 +192,8 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySettingsFactory<Ene
             throw new InvalidDataException(
                 $"Norfair lava-jumping follower in place {follower.Ordinal} must immediately follow " +
                 "a parent of the same definition. " +
-                $"Preceding place: definition={parent.DefinitionId}, " +
-                $"health={parent.Health}, spawn={parent.Spawn.Population.SpawnSettings}, contact={parent.Contact}, processing={parent.Processing}, presence={parent.Presence}.");
+                $"Preceding place: definition={parent.Occupant?.DefinitionId}, " +
+                $"health={parent.Health}, spawn={parent.Occupant?.Spawn.SpawnSettings}, contact={parent.Contact}, processing={parent.Processing}, presence={parent.Presence}.");
         }
         return squeept.State;
     }

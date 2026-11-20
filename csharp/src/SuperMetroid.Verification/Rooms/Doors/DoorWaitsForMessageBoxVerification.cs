@@ -42,7 +42,7 @@ internal static class DoorWaitsForMessageBoxVerification
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
             .First();
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
 
         // The gameplay call's movement published the door; its PLM handler opened the notice.

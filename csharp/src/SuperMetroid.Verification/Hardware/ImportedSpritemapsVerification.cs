@@ -2,11 +2,9 @@ using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Hardware;
 /// <summary>Uses cartridge spritemaps as a diagnostic oracle for installed enemy artwork.</summary>
@@ -70,8 +68,8 @@ internal static class ImportedSpritemapsVerification
             clipVerticalWrap: true, originYIsOnScreen: true);
         AssertEqual(expected.NextByteOffset, actual.NextByteOffset,
             $"projectile frame $86:{operand:X4} native sprite part count");
-        AssertTrue(expected.ImageEquals(actual),
-            $"projectile frame $86:{operand:X4} installed composition matches native OAM");
+        AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.SameApartFromPriority(expected, actual),
+            $"projectile frame $86:{operand:X4} installed composition matches native OAM apart from the priority tier each part's depth replaces (#2550)");
     }
 
     /// <summary>Reads a native bank-$86 projectile frame-selector byte for the OAM comparison.</summary>

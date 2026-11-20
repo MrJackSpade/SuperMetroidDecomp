@@ -109,7 +109,7 @@ internal static class SuperMetroidRuntimeAccess
             throw new InvalidOperationException("The loaded room's setup spawns no Ceres haze.");
 
         /// <summary>The loaded room's block animations: its effect's and a door's Wrecked Ship treadmill.</summary>
-        internal RoomBlockAnimations BlockAnimations => self.Room.LoadedScope.BlockAnimations;
+        internal RoomBlockAnimations BlockAnimations => global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.World.RoomScope, global::SuperMetroid.Core.Fx.RoomBlockAnimations>(self.Room.LoadedScope, "BlockAnimations");
 
         /// <summary>The loaded room's Maridia elevatube room main; the room must be the elevatube.</summary>
         internal MaridiaElevatubeRoomMainState MaridiaElevatube => self.Room.LoadedScope.MaridiaElevatube ??
@@ -154,13 +154,14 @@ internal static class SuperMetroidRuntimeAccess
             self.InitializeDebugSamus(new(xPosition, 0));
             ushort yRadius = self.Player.Samus.Kinematics.Radius.Y;
 
-            if ((uint)minimumFloorBlockY >= self.Room.LevelData.Size.Y)
+            RoomLevelData level = self.Room.LevelData ?? throw new InvalidOperationException("The room holds no level data.");
+            if ((uint)minimumFloorBlockY >= level.Size.Y)
                 throw new ArgumentOutOfRangeException(nameof(minimumFloorBlockY));
 
             int blockX = xPosition >> 4;
-            for (int blockY = minimumFloorBlockY; blockY < self.Room.LevelData.Size.Y; blockY++)
+            for (int blockY = minimumFloorBlockY; blockY < level.Size.Y; blockY++)
             {
-                RoomCollisionBlock floor = self.Room.LevelData.GetCollisionBlock(new(checked((ushort)blockX), checked((ushort)blockY)));
+                RoomCollisionBlock floor = level.GetCollisionBlock(new(checked((ushort)blockX), checked((ushort)blockY)));
 
                 int height;
                 if (floor.CollisionType == RoomCollisionType.SolidBlock)

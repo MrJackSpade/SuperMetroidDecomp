@@ -27,7 +27,7 @@ internal sealed class EnemyPopulationLoader
     }
     /// <summary>
     /// The kills that clear the room for its grey doors and clearance watches: the room population's own quota
-    /// (<see cref="RoomEnemyPopulationDefinition.DeathQuota"/>) when the room places enemies; a room that places none
+    /// (<see cref="PlacedRoomEnemyPopulationDefinition.DeathQuota"/>) when the room places enemies; a room that places none
     /// keeps the quota of the last room that did.
     /// </summary>
     public int DeathQuota
@@ -57,17 +57,17 @@ internal sealed class EnemyPopulationLoader
 
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(enemy);
             RoomEnemyPlace place = _places.InUpdateOrder[ordinal];
-            _lifecycle.InitializePlaceFromDefinition(place, population, definition);
+            RoomEnemyOccupant occupant = _lifecycle.InitializePlaceFromDefinition(place, population, definition);
             if (definition.Boss is { } boss)
                 _roomStatus.Boss = boss;
             if (parts.TryDequeue(out EnemyPartBuild? part))
             {
-                _lifecycle.SetUpPart(place, part, surroundings);
+                _lifecycle.SetUpPart(occupant, part, surroundings);
             }
             else
             {
                 RoomEnemyPlace[] listedAfter = [.. _places.InUpdateOrder.Skip(ordinal + 1).Take(placements.Length - ordinal - 1)];
-                foreach (EnemyPartBuild headed in _lifecycle.SetUpEnemy(place, surroundings, listedAfter))
+                foreach (EnemyPartBuild headed in _lifecycle.SetUpEnemy(occupant, surroundings, listedAfter))
                     parts.Enqueue(headed);
             }
 
@@ -75,16 +75,16 @@ internal sealed class EnemyPopulationLoader
             // its first animation tick replaces it, and one that collides by its frames' hitboxes collides at the point
             // at its origin meanwhile. An enemy without an animation shows no frame.
             place.Frame = place.Processing.HasAny(EnemyProcessing.Animates)
-                ? EnemyFrameId.Empty
+                ? EnemyFrameId.PointAtOrigin
                 : null;
 
         }
 
-        // An empty population leaves the enemy count at zero and keeps the previous room's
-        // death quota. A nonempty one publishes both after every initialization has run.
-        if (placements.IsEmpty)
+        // An empty population has no quota: it leaves the enemy count at zero and keeps the previous room's
+        // death quota. One that places enemies publishes both after every initialization has run.
+        if (populationDefinition is not PlacedRoomEnemyPopulationDefinition placed)
             return;
-        DeathQuota = populationDefinition.DeathQuota;
+        DeathQuota = placed.DeathQuota;
         _places.EnemyCount = placements.Length;
     }
 }

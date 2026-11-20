@@ -134,8 +134,7 @@ internal static class TourianAccessObjectProgramsVerification
         RoomLevelData level = CreateRoom(new(width, height), words,
             new RoomBlockBehavior[words.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.Tourian.TrySpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble),
-            $"Tourian {(clear ? "clear" : "crumble")} PLM allocates");
+        roomObjects.Tourian.SpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble);
         var bus = NewTourianAccessSourceGuard(new TestAddressSpace());
         int deletionFrame = -1;
         for (int frame = 0; frame < 120 && roomObjects.Places.ActiveCount != 0; frame++)

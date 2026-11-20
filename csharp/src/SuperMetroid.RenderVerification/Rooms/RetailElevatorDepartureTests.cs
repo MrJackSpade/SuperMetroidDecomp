@@ -33,7 +33,7 @@ internal static class RetailElevatorDepartureTests
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPresentation.InitializeAnimation(samus);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.ElevatorToBlueBrinstar);
-        var actor = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Elevator);
+        var actor = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Elevator));
         samus.Position = samus.Position.WithWhole(new(actor.Position.X.Whole, unchecked((ushort)(actor.Position.Y.Whole - ElevatorCaptureFixtureDefinitions.SamusAttachmentOffset))));
         samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
         runtime.Enemies.ElevatorBehavior.PublishElevatorDoorContact();
@@ -49,7 +49,7 @@ internal static class RetailElevatorDepartureTests
         }
         runtime.StepFrame(ControllerButton.Down);
         Compare("departure start");
-        if (!runtime.Enemies.LastEnemyFrame.Reports(ElevatorFrameEvent.DepartureStarted))
+        if (!runtime.Enemies.LastEnemyFrame.Reports(new ElevatorEvent(ElevatorFrameEvent.DepartureStarted)))
             throw new InvalidOperationException("Downward elevator did not accept the input edge.");
         while (runtime.EnteredDoor is null && departure < 240)
         {

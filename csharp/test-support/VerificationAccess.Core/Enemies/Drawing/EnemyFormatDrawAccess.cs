@@ -159,6 +159,6 @@ internal static class EnemyFormatDrawAccess
         /// <paramref name="oam"/>.
         /// </summary>
         internal void DrawAsOam(OamBuffer oam, EnemyPresentation presentation, Position16<RoomPixels> camera) =>
-            oam.AppendDrawn(frame => arrival.Draw(frame, presentation, camera));
+            oam.AppendDrawn(frame => ((IActorInFrontOfSamus)arrival).DrawInFrontOfSamus(frame, presentation, camera));
     }
 }

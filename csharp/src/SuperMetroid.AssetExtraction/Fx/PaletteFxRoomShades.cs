@@ -60,8 +60,8 @@ internal static class PaletteFxRoomShades
     /// from <paramref name="colours"/>.
     /// </summary>
     /// <param name="rooms">The rooms whose pictures are shaded, each with the state it loads.</param>
-    /// <param name="colours">The records' installed colours.</param>
-    /// <exception cref="InvalidDataException">A record has no installed colour, or writes past its group's colours.</exception>
+    /// <param name="colours">The import's palette-effect colours of the records.</param>
+    /// <exception cref="InvalidDataException">A record has no colour in the import's palette-effect colours, or writes past its group's colours.</exception>
     internal static IReadOnlyList<SheetShade> Of(IEnumerable<SelectedRoom> rooms, IPaletteFxColorSource colours)
     {
         Ensure.NotNull(rooms);
@@ -80,12 +80,12 @@ internal static class PaletteFxRoomShades
 
     /// <summary>The first ink of a room picture the room's colour group <paramref name="group"/> recolours.</summary>
     /// <exception cref="InvalidDataException">The group recolours no room picture.</exception>
-    internal static int FirstInk(ColourEffectColours group) => FirstInks.TryGetValue(group, out int ink) ? ink
+    private static int FirstInk(ColourEffectColours group) => FirstInks.TryGetValue(group, out int ink) ? ink
         : throw new InvalidDataException($"Palette-FX colours {group} recolour no room picture.");
 
     /// <summary>The shade of the room's <paramref name="group"/> showing <paramref name="frame"/>, coloured from <paramref name="colours"/>.</summary>
-    /// <exception cref="InvalidDataException">A colour is not installed, or the frame's record writes past its group's colours.</exception>
-    internal static SheetShade Shade(ColourEffectColours group, ColourEffectFrame frame, IPaletteFxColorSource colours)
+    /// <exception cref="InvalidDataException">A colour is missing from the import's palette-effect colours, or the frame's record writes past its group's colours.</exception>
+    private static SheetShade Shade(ColourEffectColours group, ColourEffectFrame frame, IPaletteFxColorSource colours)
     {
         int first = FirstInk(group);
         return PaletteFxRecordShades.Shade(group, frame, new InkRange(first, (first / GroupInks + 1) * GroupInks), colours);

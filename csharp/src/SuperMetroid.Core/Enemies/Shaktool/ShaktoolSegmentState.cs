@@ -12,8 +12,8 @@ public sealed class ShaktoolSegmentState
     /// <summary>The angle around the immediately preceding segment; its whole step selects the orbit displacement.</summary>
     public RotationAngle OrbitAngle { get; internal set; }
     /// <summary>
-    /// The turn the segment orbits by each update, up to four whole steps: an authored curling rate, or a sixty-fourth of
-    /// the whole steps left to its chain's target. Its chain's motion gives its direction.
+    /// The turn the segment orbits by each update: an authored curling rate, or a share of the whole steps left to its
+    /// chain's target (<see cref="ShaktoolOrbitDefinitions.ConvergenceShares"/>). Its chain's motion gives its direction.
     /// </summary>
     public RotationAngle AngularVelocity { get; internal set; }
     /// <summary>
@@ -25,7 +25,7 @@ public sealed class ShaktoolSegmentState
     public bool OrientationReversed { get; internal set; }
     /// <summary>
     /// The final saw's curl progress: the turns it has orbited by since the chain last reached its target, short of a
-    /// full turn. Reaching 240 whole steps starts the chain straightening, which stops the accumulation one update's turn
+    /// full turn. Reaching <see cref="ShaktoolOrbitDefinitions.StraighteningThreshold"/> starts the chain straightening, which stops the accumulation one update's turn
     /// past it at most.
     /// </summary>
     public RotationAngle CurlProgress { get; internal set; }
@@ -36,7 +36,10 @@ public sealed class ShaktoolSegmentState
     /// </summary>
     public ShaktoolSegmentMotion Motion { get; internal set; } = ShaktoolSegmentMotion.Idle;
 
-    /// <summary>Empties the orientation, curl progress and reversal together, as the game clears them together.</summary>
+    /// <summary>
+    /// Resets the orientation, curl progress and reversal, as the chain does when it starts over: a reset segment faces
+    /// up, a real direction it is drawn facing until the chain orients it.
+    /// </summary>
     internal void ResetOrientation()
     {
         Orientation = CompassDirection.Up;

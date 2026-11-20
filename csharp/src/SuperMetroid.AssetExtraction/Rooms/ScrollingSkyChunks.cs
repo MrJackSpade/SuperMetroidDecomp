@@ -8,15 +8,15 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// and the game never knows the pages.
 /// </summary>
 /// <remarks>
-/// A sky is <see cref="ChunkCount"/> chunks down its span, each showing one of the seven sky pages, and every chunk shows
-/// one of its own sky's pages. The land sky has five chunks, pages 0 through 4, and repeats them from its first: chunks 5
-/// through 7 show pages 0 through 2. The ocean sky has six chunks, pages 0 through 3 and then 5 and 6, skipping page 4,
-/// and repeats them from its first: chunks 6 and 7 show pages 0 and 1.
+/// A sky is <see cref="ChunkCount"/> chunks down its span, each showing one of the sky pages, and every chunk shows one of
+/// its own sky's pages. The land sky's own chunks (<see cref="LandChunks"/>) show its pages in order, and its later chunks
+/// repeat them from its first. The ocean sky's own chunks (<see cref="OceanChunks"/>) show its pages in order, skipping
+/// <see cref="OceanSkippedPage"/>, and its later chunks repeat them from its first.
 /// </remarks>
 internal static class ScrollingSkyChunks
 {
     /// <summary>The chunks down the sky's span before the span repeats.</summary>
-    internal const int ChunkCount = 8;
+    private const int ChunkCount = 8;
 
     /// <summary>The land sky's own chunks, which show pages 0 through 4.</summary>
     private const int LandChunks = 5;

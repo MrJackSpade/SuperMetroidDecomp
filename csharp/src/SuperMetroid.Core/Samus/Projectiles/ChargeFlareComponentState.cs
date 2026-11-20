@@ -23,7 +23,7 @@ internal sealed class ChargeFlareComponentState
     }
 
     /// <summary>The component whose animation this is.</summary>
-    internal ChargeFlareComponent Component { get; }
+    private ChargeFlareComponent Component { get; }
 
     /// <summary>The component's animation.</summary>
     private readonly Animation<ChargeFlareSegment> animation;

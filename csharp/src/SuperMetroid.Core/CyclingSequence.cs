@@ -18,7 +18,7 @@ internal readonly record struct CyclingSequence<T>
     }
 
     /// <summary>The place of the value taken next, counted from the first.</summary>
-    internal int Position { get; }
+    private int Position { get; }
 
     /// <summary>The value the place stands at: the one taken next.</summary>
     internal T Current => values[Position];

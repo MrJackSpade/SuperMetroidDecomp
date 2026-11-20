@@ -25,5 +25,5 @@ internal class SingleMotionProjectileBehavior : EnemyProjectileMotionBehavior<Si
     internal void StartMoving(EnemyProjectile projectile) => StartMotion(projectile, SingleMotion.Moving);
 
     /// <inheritdoc/>
-    private protected sealed override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => _move(context);
+    internal sealed override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => _move(context);
 }

@@ -6,4 +6,8 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 /// <param name="Encounter">The encounter.</param>
 /// <param name="Looks">What each look copies, by look in the order the encounter shows them; nothing for the room's load.</param>
-internal sealed record EncounterLookSteps(ComposedEncounter Encounter, IReadOnlyList<IReadOnlyList<EncounterArtworkUpload>> Looks);
+internal sealed record EncounterLookSteps(ComposedEncounter Encounter, IReadOnlyList<IReadOnlyList<EncounterArtworkUpload>> Looks)
+{
+    /// <summary>The place of the room's load among an encounter's looks: the first, which copies nothing over the loaded characters.</summary>
+    internal const int RoomLoad = 0;
+}

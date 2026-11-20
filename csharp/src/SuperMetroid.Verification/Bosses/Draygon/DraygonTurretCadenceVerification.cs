@@ -39,7 +39,7 @@ internal static class DraygonTurretCadenceVerification
         int StepWith(byte counter8, ushort counter16)
         {
             int before = WallTurrets();
-            stepped = runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.Samus, ShortCounter = counter8, FrameCounter = counter16 };
+            stepped = runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.Samus, ShortCounter = new SuperMetroid.Core.Compatibility.ShortFrameCount(counter8), FrameCounter = counter16 };
             runtime.Enemies.StepStandaloneFrame(stepped);
             return WallTurrets() - before;
         }
@@ -57,7 +57,7 @@ internal static class DraygonTurretCadenceVerification
             runtime.Enemies.DraygonBehavior.Parts.SpawnDraygonGoop(boss, HorizontalDirection.Left);
             EnemyProjectile goop = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
                 p.Kind == RoomEnemyProjectileKind.DraygonGoop);
-            AngledFlightState flight = goop.StateOf<AngledFlightState>();
+            AngledFlightState flight = runtime.Enemies.DraygonBehavior.Shots.Goop.Flights.Of(goop);
             var velocity = new SpawnGoopResult(flight.Heading, flight.Velocity);
             goop.Delete();
             return velocity;
@@ -81,7 +81,7 @@ internal static class DraygonTurretCadenceVerification
         runtime.Player.Samus.SlowdownLevel = 3;
         ushort bombedX = bombed.Position.X.Whole;
         runtime.Enemies.AdvanceEnemyProjectileAnimations(runtime.Room.LoadedLevelData, runtime.Player.Samus,
-            new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), runtime.Enemies.NextStandaloneProjectileFrame(),
+            new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), new SuperMetroid.Core.Compatibility.ShortFrameCount(runtime.Enemies.NextStandaloneProjectileFrame()),
             samusBombs: runtime.BombProjectiles, frameCounter: runtime.Enemies.FrameContext.EnemyPassCount);
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
         AssertEqual(0, runtime.Player.Samus.SlowdownLevel, "$86:8D93 clears Samus's X speed divisor");

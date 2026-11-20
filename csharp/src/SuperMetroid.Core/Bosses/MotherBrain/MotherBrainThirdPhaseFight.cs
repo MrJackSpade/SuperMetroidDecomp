@@ -20,8 +20,8 @@ internal sealed class MotherBrainThirdPhaseFight
 
     /// <summary>
     /// Mother Brain's phase-three walking.
-    /// This is deliberately separate from the visible body animation: the walking
-    /// decides what Mother Brain wants to do only while the animation-owned pose is standing.
+    /// Apart from the visible body animation, the walking decides what Mother Brain wants to do only while her animated
+    /// pose is standing.
     /// </summary>
     public MotherBrainPhase3WalkingPhase Phase3WalkingPhase { get; private set; } =
         MotherBrainPhase3WalkingPhase.Inactive;
@@ -30,8 +30,8 @@ internal sealed class MotherBrainThirdPhaseFight
     private readonly MotherBrainWalkCounter _walk;
 
     /// <summary>
-    /// Mother Brain's walk credit as the sequence uses it. Ordinary projectiles subtract
-    /// 256; Hyper Beam subtracts 266; the walking adds 32 on each update she spends standing.
+    /// Mother Brain's walk credit as the sequence uses it. Ordinary projectiles and the Hyper Beam each
+    /// subtract their cost, and the walking adds credit on each update she spends standing (<see cref="MotherBrainWalkCredit"/>).
     /// </summary>
     public MotherBrainWalkCredit Phase3WalkCounter
     {
@@ -43,7 +43,7 @@ internal sealed class MotherBrainThirdPhaseFight
     public int Phase3TargetXPosition { get; private set; }
 
     /// <summary>Mother Brain's phase-three neck movement.</summary>
-    public MotherBrainPhase3NeckPhase Phase3NeckPhase { get; internal set; } =
+    internal MotherBrainPhase3NeckPhase Phase3NeckPhase { private get; set; } =
         MotherBrainPhase3NeckPhase.Inactive;
 
     /// <summary>The wait of her neck's recoil from a Hyper Beam hit (#2469), which its recoil phase runs out.</summary>
@@ -74,7 +74,7 @@ internal sealed class MotherBrainThirdPhaseFight
             case MotherBrainPhase3WalkingPhase.TryToInchForward:
                 if (Phase3WalkCounter.IsEmpty)
                 {
-                    // With no credit left she retreats: she picks a point fourteen pixels left and starts retreating
+                    // With no credit left she retreats: she picks a point her retreat's distance left and starts retreating
                     // quickly in this same update.
                     Phase3TargetXPosition = _state.BodyPosition.X - MotherBrainLateFightDefinitions.Phase3RetreatPixels;
                     Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.RetreatQuickly;
@@ -118,7 +118,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 if (!_state.RequestWalkBackward(Phase3TargetXPosition, MotherBrainWalkSpeed.Fast))
                     return;
 
-                // She goes back to inching forward with a credit of 64 toward a point one pixel ahead.
+                // She goes back to inching forward with her after-retreat credit toward a point one pixel ahead.
                 SetPhase3WalkingToTryToInchForward(MotherBrainLateFightDefinitions.Phase3AfterRetreatCredit);
                 return;
 
@@ -207,7 +207,7 @@ internal sealed class MotherBrainThirdPhaseFight
     /// </summary>
     internal bool RecoverAndBackAway()
     {
-        // The recovery changes her form before the wait to fight, and she walks back fourteen pixels quickly; at
+        // The recovery changes her form before the wait to fight, and she walks back her retreat's distance quickly; at
         // the arena's left limit she stays where she is.
         Encounter.Form = MotherBrainForm.ThirdPhase;
         Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverSetupForFighting;

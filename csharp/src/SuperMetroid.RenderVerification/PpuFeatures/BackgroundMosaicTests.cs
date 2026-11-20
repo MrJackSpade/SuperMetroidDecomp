@@ -55,13 +55,12 @@ internal static class BackgroundMosaicTests
             var ordinary = new GameplaySceneLayer(registers, rooms, new BackgroundLineScrolls { Horizontal = horizontal, Vertical = vertical });
             // Mode two shows the pixelated background only lying behind the backdrop, which it brightens; mode one blends nothing.
             DisplayLayer layer = mode is 0 or 3 ? ordinary : new GameplayBlendLayer(ordinary, ScreenWindow.Closed, false,
-                new GameplayBlend
+                new EffectBehindRoomBlend(new SuperMetroid.Core.Fx.OverlayBehindRoomBlend
                 {
                     Blended = mode == 2 ? BlendedLayers.Backdrop : default,
                     Operation = BlendOperation.Add,
-                    Halved = false,
-                    Colour = RgbColor.Black,
-                }, backgroundBehind: mode == 2);
+                    BackgroundBehind = mode == 2,
+                }), backgroundBehind: mode == 2);
             var scene = new LayeredScene(memory, [layer], 15);
             cases++;
             var packet = new DisplayPacket(0, scene);

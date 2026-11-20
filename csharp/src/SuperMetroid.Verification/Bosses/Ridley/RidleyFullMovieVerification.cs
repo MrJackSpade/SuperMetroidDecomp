@@ -109,10 +109,10 @@ internal static class RidleyFullMovieVerification
         runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."), runtime.BombProjectiles.PowerBombExplosion);
         AssertEqual(112, state.PhaseTimer.CartridgeCount, "native swoop setup retains general AI timer");
         state.Phase = NorfairRidleyPhase.SwoopAimDown; state.SwoopPhaseTimer.LastFor(2);
-        runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData, runtime.BombProjectiles.PowerBombExplosion);
+        runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, Ensure.NotNull(runtime.Room.LevelData), runtime.BombProjectiles.PowerBombExplosion);
         AssertEqual(NorfairRidleyPhase.SwoopAimDown, state.Phase, "the dive's first of two updates keeps diving");
         AssertEqual(112, state.PhaseTimer.CartridgeCount, "native swoop countdown retains general timer");
-        runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData, runtime.BombProjectiles.PowerBombExplosion);
+        runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, Ensure.NotNull(runtime.Room.LevelData), runtime.BombProjectiles.PowerBombExplosion);
         AssertEqual(NorfairRidleyPhase.SwoopAimSideways, state.Phase, "the dive's last update begins the sweep");
         AssertEqual(NorfairRidleyMotionDefinitions.SwoopSweepUpdates - 1, state.SwoopPhaseTimer.CartridgeCount, "native next swoop phase installs its own duration");
         AssertEqual(112, state.PhaseTimer.CartridgeCount, "native phase transition retains general timer");
@@ -134,7 +134,7 @@ internal static class RidleyFullMovieVerification
         AssertTrue(runtime.System.HasDefeatedAnyOf(AreaId.Norfair, DefeatedBosses.AreaBoss) && runtime.Enemies.ActiveEnemyDropPickups > 0,
             "death finish publishes boss defeat and drops");
         int random = runtime.System.RandomNumber;
-        runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData, runtime.BombProjectiles.PowerBombExplosion);
+        runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, Ensure.NotNull(runtime.Room.LevelData), runtime.BombProjectiles.PowerBombExplosion);
         AssertEqual(random, runtime.System.RandomNumber, "terminal return does not spawn another drop scatter");
         AssertEqual(-1, state.PhaseTimer.CartridgeCount, "terminal return retains the countdown expired one update past zero");
         Console.WriteLine("Ridley death finish: native terminal return, deletion, defeat/drop publication and inert subsequent dispatch pass.");
@@ -197,7 +197,7 @@ internal static class RidleyFullMovieVerification
             state.Phase = phase; state.PhaseTimer.LastFor(1);
             state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(0xffca)); state.Flight.Velocity = state.Flight.Velocity.WithY(new SignedEightEight(0xfecb));
             state.Target = state.Target.WithX(208); body.Position = body.Position.WithWhole(new(212, 142));
-            runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, samus, 0, runtime.Room.LevelData, runtime.BombProjectiles.PowerBombExplosion);
+            runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, samus, 0, Ensure.NotNull(runtime.Room.LevelData), runtime.BombProjectiles.PowerBombExplosion);
             AssertEqual((ushort)0xffca, state.Flight.Velocity.X.RawValue, "native expiry skips X acceleration");
             AssertEqual((ushort)0xfecb, state.Flight.Velocity.Y.RawValue, "native expiry skips Y acceleration");
             AssertEqual(phase == NorfairRidleyPhase.CarryRise ? NorfairRidleyPhase.CarryRelease : NorfairRidleyPhase.SelectAttack, state.Phase, "native expiry selects next carry phase");
@@ -356,9 +356,8 @@ internal static class RidleyFullMovieVerification
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x97ff);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var previous = FixedPosition<RoomPixels>.FromStoredParts(128, 0, 401, 0xb7ff);
-            AssertTrue(SamusPosturePoseTransitions.TryApplyMorphTransition(samus, level,
-                left ? SamusPoseId.MorphingTransitionLeftPose : SamusPoseId.MorphingTransitionRightPose, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-                "source6289 airborne morph accepted");
+            SamusPosturePoseTransitions.ApplyMorphTransition(samus, level,
+                left ? SamusPoseId.MorphingTransitionLeftPose : SamusPoseId.MorphingTransitionRightPose, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual((ushort)411, samus.Position.Y.Whole, "native morph center alignment");
             AssertEqual((ushort)0x97ff, samus.Kinematics.Position.Y.Fraction, "morph preserves current fraction");
             AssertEqual(previous.WithY(previous.Y.WithWhole(411)), samus.ApplyPreviousPositionWrites(previous),
@@ -367,9 +366,8 @@ internal static class RidleyFullMovieVerification
 
             samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            AssertTrue(SamusPosturePoseTransitions.TryApplyMorphTransition(samus, level,
-                left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-                "unmorph command seven accepted");
+            SamusPosturePoseTransitions.ApplyMorphTransition(samus, level,
+                left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual(previous.WithY(previous.Y.WithWhole(samus.Position.Y.Whole)), samus.ApplyPreviousPositionWrites(previous),
                 "zero alignment entry still replaces previous whole Y");
         }
@@ -384,7 +382,7 @@ internal static class RidleyFullMovieVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            AssertTrue(SamusPoseTransitions.TryApplyAerialLanding(samus, level, false, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled), "aim-up landing fits");
+            SamusPoseTransitions.ApplyAerialLandingInRoom(samus, level, false, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual(1, samus.AnimationNumber, "native standing initializer skips raised-gun frame");
             AssertEqual((ushort)2, samus.AnimationFrameTimer.RawValue, "native source3604 landing delay");
             samus.Pose = pose;
@@ -408,7 +406,7 @@ internal static class RidleyFullMovieVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
-        var projectile = runtime.Enemies.Projectiles.ProjectileInPlace(16);
+        var projectile = runtime.Enemies.Projectiles.Occupy(16, RoomEnemyProjectileKind.RidleyFireball);
         projectile.Position = new(new(0x49, 0x8c00), new(0x54, 0xd900));
         projectile.Velocity = new(new SignedEightEight(0xfb64), new SignedEightEight(0xfe1b));
         projectile.Radius = new(6, 6);
@@ -446,10 +444,10 @@ internal static class RidleyFullMovieVerification
             var samus = runtime.Player.Samus;
             runtime.Enemies.RidleyProjectiles.SpawnRidleyFireball(runtime.Enemies.Places.InUpdateOrder[0],
                 (runtime.Enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.")).Flight, afterburns: 0);
-            var fireball = runtime.Enemies.Projectiles.ProjectileInPlace(slotIndex--);
+            var fireball = runtime.Enemies.Projectiles.SpawnedInPlace(slotIndex--);
             AssertEqual(norfairDamage, fireball.Damage, $"the Norfair room's fireball damage with Samus's record in {samusArea}");
             runtime.Enemies.RidleyProjectiles.SpawnDirectionalAfterburn(fireball, RoomEnemyProjectileKind.RidleyHorizontalAfterburn, new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(3584), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0)));
-            AssertEqual(norfairDamage, runtime.Enemies.Projectiles.ProjectileInPlace(slotIndex--).Damage, "directional afterburn takes the same room row");
+            AssertEqual(norfairDamage, runtime.Enemies.Projectiles.SpawnedInPlace(slotIndex--).Damage, "directional afterburn takes the same room row");
             samus.Position = samus.Position.WithWhole(fireball.Position.Whole);
             samus.Health = 700; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -473,7 +471,7 @@ internal static class RidleyFullMovieVerification
         state.Tail.Tip.Position = new Position16<RoomPixels>(4, 118);
         runtime.AudioRequests.BeginRecordedUpdate();
         runtime.Enemies.NorfairRidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, runtime.Player.Samus, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
-        var dust = runtime.Enemies.Projectiles.ProjectileInPlace(17);
+        var dust = runtime.Enemies.Projectiles.SpawnedInPlace(17);
         AssertEqual(RoomEnemyProjectileKind.DustOrExplosion, dust.Kind, "native tail impact allocates highest free slot");
         AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
         AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
@@ -662,7 +660,7 @@ internal static class RidleyFullMovieVerification
             {
                 menu.Step(0, 0);
                 AssertEqual(update / 2, menu.TransitionBrightness, "native delay-one fade-in brightness");
-                AssertEqual(update == 30, menu.Transition == PauseMenuTransition.None,
+                AssertEqual(update == 30, menu.Transition is null,
                     "input returns only after the thirtieth fade-in update");
             }
         }
@@ -761,7 +759,7 @@ internal static class RidleyFullMovieVerification
         samus.Position = new(new(20, 0x2000), new(111, 0x5bff));
         FixedCoordinate xFixed = samus.Kinematics.Position.X, yFixed = samus.Kinematics.Position.Y;
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         game.Session.Enter(DoorTransitionStep.EnteringDoor);
         game.Step(0);
         AssertEqual(0xef3a, runtime.System.RandomNumber, "native entry HDMA swap then RNG");
@@ -773,7 +771,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(0xa4e1, runtime.Clock.Counter, "sound wait accepts exactly one NMI");
         AssertEqual(DoorTransitionPhase.FadeOutSourceRoom, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
         var actor = runtime.Enemies.Places.InUpdateOrder[6];
-        AssertEqual(EnemyDefinitionId.Zebbo, actor.DefinitionId, "native source-room pipe bug");
+        AssertEqual(EnemyDefinitionId.Zebbo, actor.Occupant?.DefinitionId, "native source-room pipe bug");
         var pipeBugPointers = new PipeBugNativeInstructionPointers(bus);
         BrinstarPipeBugState pipeBug = runtime.Enemies.BrinstarPipeBugStates[6] ?? throw new InvalidOperationException("The source-room pipe bug has no state.");
         pipeBug.Playback = pipeBugPointers.PlaybackAt(NativeSnapshotMemory.PipeBugBeforeFadeInstruction);

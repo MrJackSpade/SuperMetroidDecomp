@@ -542,11 +542,11 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(SaveSlot.C, ram.ReadSelectedSlot(), "twelve-byte completion signature preserves selected slot");
         ram.RestoreHistory(SaveFileHistory.None);
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var text = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native), writable: false));
+        var text = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextPresentation.TypewriterOf(
+            SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native));
         // The game binds the installed sheets with the ending, which draws its stars from them.
         var ending = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, Inventory = default, JapaneseText = false, CrittersEscaped = false },
-            text.Typewriter(), InstalledFixtures.EndingBackdrops, InstalledFixtures.SpriteSheets);
+            text, InstalledFixtures.EndingBackdrops, InstalledFixtures.SpriteSheets);
         // The ending stands on the item percentage's last move-down update, below the final logo.
         _ = ending.CreditsRoll.StartItemPercentage();
         PrivateState.Set(ending, nameof(EndingCreditsState.Scene), new EndingLogoScene(new EndingLogo(ending.Stage, () => { })));

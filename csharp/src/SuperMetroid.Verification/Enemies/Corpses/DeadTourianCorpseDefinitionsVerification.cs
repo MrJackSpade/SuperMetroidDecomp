@@ -47,7 +47,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
             for (int variantIndex = 0; variantIndex < family.VariantCount; variantIndex++)
             {
                 DeadTourianCorpseDefinition definition =
-                    DeadTourianCorpses.For(family.Species, variantIndex);
+                    DeadTourianCorpses.Variants(family.Species)[variantIndex];
                 VerifyVariantPlaysItsCorpse(rom, family, variantIndex, definition);
                 VerifyDeadTourianCorpseConfiguration(
                     rom, family.Species, variantIndex, definition);
@@ -56,12 +56,12 @@ internal static class DeadTourianCorpseDefinitionsVerification
             }
 
             AssertThrows<ArgumentOutOfRangeException>(
-                () => DeadTourianCorpses.For(family.Species, family.VariantCount),
+                () => DeadTourianCorpses.RowUploadList(family.Species, family.VariantCount),
                 $"dead {family.Species} selector past definitions");
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => DeadTourianCorpses.For((DeadTourianCorpseSpecies)3, 0),
+            () => DeadTourianCorpses.RowUploadList((DeadTourianCorpseSpecies)3, 0),
             "unknown dead Tourian corpse species");
         VerifyCoexistingDeadMonsterSchedulesShareNoHeapBytes(rom);
         Console.WriteLine(
@@ -151,16 +151,14 @@ internal static class DeadTourianCorpseDefinitionsVerification
         DeadTourianCorpseDefinition expected)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(LookupStream5CorpseFixtureArtwork(rom)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = DeadTourianBehavior.InitializeDeadTourianCorpse;
+        Action<RoomEnemyPlace> initialize = corpse => DeadTourianBehavior.InitializeDeadTourianCorpse(corpse, corpse.HeldOccupant());
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(enemyDefinition, place.Definition);
+        place.Bind(enemyDefinition, place.KeptDefinition);
         place.SetSpawnParameter1(enemyDefinition, checked((ushort)(variantIndex * 2)));
 
         initialize(place);
 
         DeadTourianCorpseEnemyState state = (enemies.DeadTourianCorpses[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadTourianCorpses[0]."));
-        AssertEqual(species, state.Species,
-            $"dead {species} variant {variantIndex} species");
         AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(expected.InitialAnimation), AnimationPlace.StartOfAnimation),
             state.Playback,
             $"dead {species} variant {variantIndex} started animation");

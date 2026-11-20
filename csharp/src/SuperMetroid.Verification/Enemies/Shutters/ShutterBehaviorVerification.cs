@@ -41,7 +41,7 @@ internal static class ShutterBehaviorVerification
                 {
                     place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
                     VerticalShutterEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<VerticalShutterEntity>(place).State;
-                    AssertEqual(ShuttersBehavior.InitialAction(place.SpawnSettings<ShutterSpawnSettings>().TriggerMode), state.Action,
+                    AssertEqual(ShuttersBehavior.InitialAction(place.HeldOccupant().SpawnSettings<ShutterSpawnSettings>().TriggerMode), state.Action,
                         $"shutter {definition} starts in its trigger's initial action (#2075)");
                 },
                 enemies => enemies.Places.InUpdateOrder[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback);
@@ -49,7 +49,7 @@ internal static class ShutterBehaviorVerification
 
         RoomEnemySystem kamerSystem = NewSystem();
         RoomEnemyPlace kamer = NewPlace(kamerSystem, EnemyDefinitionId.Kamer);
-        kamer.Bind(EnemyDefinitionId.Kamer, kamer.Definition);
+        kamer.Bind(EnemyDefinitionId.Kamer, kamer.KeptDefinition);
         // The Kamer's own entity sets it up, showing its platform (#2179).
         AssertTrue(kamer.Entity is KamerEntity, "the Kamer is its own entity");
         kamer.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
@@ -83,8 +83,8 @@ internal static class ShutterBehaviorVerification
     private static RoomEnemyPlace NewPlace(RoomEnemySystem enemies, EnemyDefinitionId definition)
     {
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(definition, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(definition, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(2, 0));
         return place;
     }
@@ -189,16 +189,16 @@ internal static class ShutterBehaviorVerification
             place.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
             place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
                 LittleEndianBytes.Word(speedIndex, primaryDirection), 0, 0, LittleEndianBytes.Word(0, travelDistance), 0));
-            ShuttersBehavior.InitializeVerticalShutter(place, ShutterSegment.FullyGrown, place.SpawnSettings<ShutterSpawnSettings>());
+            ShuttersBehavior.InitializeVerticalShutter(place.HeldOccupant(), place, ShutterSegment.FullyGrown, place.SpawnSettings<ShutterSpawnSettings>());
             VerticalShutterEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<VerticalShutterEntity>(place).State;
             string context = $"primary direction {primaryDirection} at Y {spawnY}";
             AssertEqual(expectedUpperY, state.UpperEndpointY, $"{context}: upper endpoint");
             AssertEqual(expectedLowerY, state.LowerEndpointY, $"{context}: lower endpoint");
             SignedSixteenSixteen down = EnemyLinearSpeedTable.Speed(speedIndex);
             SignedSixteenSixteen up = -down;
-            AssertEqual(down, ShuttersBehavior.VerticalShutterVelocity(place, VerticalDirection.Down),
+            AssertEqual(down, ShuttersBehavior.VerticalShutterVelocity(place.HeldOccupant(), VerticalDirection.Down),
                 $"{context}: downward velocity is the speed record's first entry");
-            AssertEqual(up, ShuttersBehavior.VerticalShutterVelocity(place, VerticalDirection.Up),
+            AssertEqual(up, ShuttersBehavior.VerticalShutterVelocity(place.HeldOccupant(), VerticalDirection.Up),
                 $"{context}: upward velocity is the speed record's second entry");
         }
     }
@@ -233,7 +233,7 @@ internal static class ShutterBehaviorVerification
         RoomEnemyPlace SetUp(int ordinal, EnemyDefinitionId definition)
         {
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[ordinal];
-            place.Bind(definition, place.Definition);
+            place.Bind(definition, place.KeptDefinition);
             place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(2, 0));
             place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
             place.Shading = PictureShading.Standard;

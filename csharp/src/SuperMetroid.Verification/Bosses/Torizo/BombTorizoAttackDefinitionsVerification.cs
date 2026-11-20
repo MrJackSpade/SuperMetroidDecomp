@@ -49,7 +49,7 @@ internal static class BombTorizoAttackDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemyPlace torizo) =
                 CreateBombTorizoAttackFixture(facingRight);
             enemies.TorizoBehavior.Attacks.SpawnBombTorizoExplosiveSwipe(torizo, torizo.RequireSpeciesState<TorizoEnemyState>(), expected);
-            EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
+            EnemyProjectile projectile = enemies.Projectiles.SpawnedInPlace(17);
 
             AssertTrue(projectile.IsActive,
                 $"Bomb Torizo swipe {index} facing {facingRight} allocation");
@@ -69,7 +69,7 @@ internal static class BombTorizoAttackDefinitionsVerification
                 (RoomEnemySystem enemies, RoomEnemyPlace torizo) =
                     CreateBombTorizoAttackFixture(facingRight);
                 enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthExplosion(torizo, torizo.RequireSpeciesState<TorizoEnemyState>(), parameter);
-                EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
+                EnemyProjectile projectile = enemies.Projectiles.SpawnedInPlace(17);
 
                 AssertTrue(projectile.IsActive,
                     $"Bomb Torizo explosion {parameter} facing {facingRight} allocation");
@@ -77,7 +77,7 @@ internal static class BombTorizoAttackDefinitionsVerification
                     $"Bomb Torizo explosion {parameter} facing {facingRight} X");
                 AssertEqual(unchecked((ushort)(500 + expected.Y)), projectile.Position.Y.Whole,
                     $"Bomb Torizo explosion {parameter} facing {facingRight} Y");
-                AssertEqual(projectile.Position.Whole, projectile.StateOf<AnchoredProjectileState>().Anchor,
+                AssertEqual(projectile.Position.Whole, projectile.Anchor,
                     $"Bomb Torizo explosion {parameter} returns to its spawn point");
             }
         }

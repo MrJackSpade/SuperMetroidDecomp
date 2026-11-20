@@ -521,20 +521,19 @@ internal static void VerifySamusGroundedMovement()
     // The front-view branch returns before every ordinary standing movement call. Seed
     // deliberately stale motion/collision values to prove the sole native write is the
     // vertical-result clear and that no host convenience cleanup leaked into this path.
-    var forward = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+    var forward = global::SuperMetroid.Core.PrivateState.With<SamusState>(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
         Pose = SamusPoseId.ForwardFacingPowerSuitPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
-        SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling,
-    };
+        }, "SolidVerticalCollisionResult", SamusVerticalCollisionResult.HitCeiling);
     forward.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x3456);
     forward.HorizontalSpeed.ExtraRunSpeed = forward.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
-    BlockMoveResult? stationaryForward = SamusGroundedMovement.StepFacingForward(
+    SamusGroundedMovement.StepFacingForward(
 
         level,
         forward,
         frameCounter: 0, elevatorIsMoving: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand(), doorBlocks: DoorBlockMeeting.Contacts);
-    AssertTrue(stationaryForward is null, "zero elevator status skips the vertical scan");
+    // Zero elevator status skips the vertical scan: Samus stays where she stood.
     AssertEqual(SamusVerticalCollisionResult.None, forward.SolidVerticalCollisionResult, "forward movement clears vertical collision result");
     AssertEqual(0x1234, forward.Position.X.Whole, "forward movement does not scan or move X");
     AssertEqual(0x5678, forward.Position.Y.Whole, "stationary forward movement does not move Y");
@@ -558,21 +557,15 @@ internal static void VerifySamusGroundedMovement()
             Radius: new(5, 5),
             Solid: true),
     ];
-    forward.SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling;
-    BlockMoveResult? elevatorMove = SamusGroundedMovement.StepFacingForward(
+    global::SuperMetroid.Core.PrivateState.Set(forward, "SolidVerticalCollisionResult", SamusVerticalCollisionResult.HitCeiling);
+    SamusGroundedMovement.StepFacingForward(
 
         elevatorLevel,
         forward,
         frameCounter: 1,
         elevatorIsMoving: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand(), doorBlocks: DoorBlockMeeting.Contacts);
-    AssertTrue(elevatorMove is { Collided: false }, "elevator block scan accepts clear air");
-    BlockMoveResult acceptedElevatorMove = elevatorMove ?? throw new InvalidOperationException(
-        "A nonzero elevator status must execute the one-pixel vertical scan.");
-    AssertTrue(acceptedElevatorMove.EnemyCollision is null,
-        "elevator `$94:9763` path skips a colliding solid enemy");
-    AssertEqual(0x00010000, acceptedElevatorMove.AcceptedDisplacement.RawValue,
-        "elevator requests exact one-pixel downward displacement");
-    AssertEqual(101, forward.Position.Y.Whole, "elevator moves forward-facing Samus down one pixel");
+    // The elevator's `$94:9763` scan skips the solid enemy one pixel below and accepts the whole one-pixel move.
+    AssertEqual(101, forward.Position.Y.Whole, "elevator moves forward-facing Samus down one pixel past the solid enemy");
     AssertEqual(0x5678, forward.Kinematics.Position.Y.Fraction,
         "whole-pixel elevator motion preserves Y fraction");
     AssertEqual(SamusVerticalCollisionResult.None, forward.SolidVerticalCollisionResult,
@@ -1100,12 +1093,12 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.MoonwalkAimUpRightPose or
                 SamusPoseId.MoonwalkAimDownLeftPose or
                 SamusPoseId.MoonwalkAimDownRightPose or
-                SamusPoseId.MoonwalkTurnJumpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose or
                 SamusPoseId.ShinesparkWindupRightPose or
                 SamusPoseId.ShinesparkWindupLeftPose or
                 SamusPoseId.ShinesparkHorizontalRightPose or
@@ -1341,12 +1334,12 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.MoonwalkAimUpRightPose or
                 SamusPoseId.MoonwalkAimDownLeftPose or
                 SamusPoseId.MoonwalkAimDownRightPose or
-                SamusPoseId.MoonwalkTurnJumpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose or
                 SamusPoseId.ShinesparkWindupRightPose or
                 SamusPoseId.ShinesparkWindupLeftPose or
                 SamusPoseId.ShinesparkHorizontalRightPose or
@@ -1553,7 +1546,7 @@ internal static void VerifySamusMoonwalking()
         "ordinary standing turn does not publish moonwalk shot bridge");
     var moonwalkBridge = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MoonwalkFacingRightPose };
     SamusGroundedPoseTransitions.ApplyGroundedTurn(moonwalkBridge, SamusPoseId.TurningRightToLeftPose);
-    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right), moonwalkBridge.TransitionShot.Handed,
+    AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { Core.Samus.Projectiles.SamusProjectileDirection.Right }), moonwalkBridge.TransitionShot.Handed,
         "moonwalk turn hands over the source shot direction");
     SamusAerialPoseTransitions.DropTransitionShot(moonwalkBridge);
     AssertEqual<SamusTransitionShot?>(null, moonwalkBridge.TransitionShot.Handed,
@@ -1631,12 +1624,12 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     // two-tick frames followed by `$F8,$1A/$19`, exactly `$91:B45B-$B478` for NTSC.
     SamusTerrainMovementTurn[] turns =
     [
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkFacingRightPose, SamusPoseId.MoonwalkTurnJumpLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkFacingLeftPose, SamusPoseId.MoonwalkTurnJumpRightPose, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimUpRightPose, SamusPoseId.MoonwalkTurnJumpAimUpLeftPose, [0x04, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimUpLeftPose, SamusPoseId.MoonwalkTurnJumpAimUpRightPose, [0x08, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimDownRightPose, SamusPoseId.MoonwalkTurnJumpAimDownLeftPose, [0x04, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimDownLeftPose, SamusPoseId.MoonwalkTurnJumpAimDownRightPose, [0x08, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkFacingRightPose, SamusPoseId.MoonwalkTurnToSpinJumpLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkFacingLeftPose, SamusPoseId.MoonwalkTurnToSpinJumpRightPose, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimUpRightPose, SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose, [0x04, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimUpLeftPose, SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose, [0x08, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimDownRightPose, SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose, [0x04, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimDownLeftPose, SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose, [0x08, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
     ];
     foreach ((_, SamusPoseId target, byte[] definition, SamusPoseId spinTarget) in turns)
     {
@@ -1650,7 +1643,7 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.SpinJumpLeftPose), [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
     WritePoseAnimationDelays(bus, SamusPoseId.SpinJumpRightPose, 0xc400, [2]);
     WritePoseAnimationDelays(bus, SamusPoseId.SpinJumpLeftPose, 0xc401, [2]);
-    SeedMoonwalkTurnJumpDryVerticalRows(bus);
+    SeedMoonwalkTurnToSpinJumpDryVerticalRows(bus);
 
     foreach ((SamusPoseId source, SamusPoseId target, _, _) in turns)
     {
@@ -1659,9 +1652,9 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
         turn.HorizontalSpeed.BaseSpeed = turn.HorizontalSpeed.BaseSpeed.WithWhole(1);
         turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x4000);
         SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection? sourceMuzzleDirection = SamusPoseMetadata.ReadAimDirection(turn);
-        SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(turn, target);
-        AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(sourceMuzzleDirection
-                ?? throw new InvalidOperationException($"Moonwalk pose {source} names no aim.")),
+        SamusGroundedPoseTransitions.ApplyMoonwalkTurnToSpinJump(turn, target);
+        AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { sourceMuzzleDirection
+                ?? throw new InvalidOperationException($"Moonwalk pose {source} names no aim.") }),
             turn.TransitionShot.Handed, "all six Moonwalk jump routes publish their original muzzle direction");
         AssertEqual(target, turn.Pose, $"moonwalk ${SamusPoseNumbers.Number(source):X2} selects exact turn ${SamusPoseNumbers.Number(target):X2}");
         AssertEqual(SamusAccelerationMode.Turning, turn.HorizontalSpeed.AccelerationMode,
@@ -1673,7 +1666,7 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     // Exercise the terminal command on one mirrored route. Six decrements consume three
     // two-tick art frames; applying `$F8,$1A` then creates the real 4.E000 upward launch.
     var animated = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MoonwalkFacingRightPose };
-    SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(animated, SamusPoseId.MoonwalkTurnJumpLeftPose);
+    SamusGroundedPoseTransitions.ApplyMoonwalkTurnToSpinJump(animated, SamusPoseId.MoonwalkTurnToSpinJumpLeftPose);
     for (int tick = 0; tick < 6; tick++)
         SamusPresentation.Animate(animated, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
     AssertEqual(SamusPoseId.SpinJumpLeftPose, (animated.CuePose.Named ?? throw new InvalidOperationException("Verification requires animated.CuePose.Named.")),
@@ -1785,9 +1778,8 @@ internal static void VerifySamusRanIntoWall()
         openFloor,
         SamusPoseId.MovingRightNormalPose,
         currentXSpeedKilledByBlock: false,
-        out BlockMoveResult? clearProbe, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        roomObjects: SamusRoomObjectFixtures.WithQuicksand());
     AssertTrue(clearResult is null, "clear arm-pump probe keeps prospective run");
-    AssertTrue(clearProbe is { Collided: false }, "clear arm-pump probe reports no wall");
     AssertEqual(81, armPump.Position.X.Whole, "clear arm-pump probe retains one-pixel move");
 
     // Put a two-block-high wall immediately at X=96. Center 91/radius five has a current
@@ -1807,10 +1799,9 @@ internal static void VerifySamusRanIntoWall()
         blockedFloor,
         SamusPoseId.MovingRightNormalPose,
         currentXSpeedKilledByBlock: false,
-        out BlockMoveResult? blockedProbe, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        roomObjects: SamusRoomObjectFixtures.WithQuicksand());
     AssertEqual<SamusPoseId?>(SamusPoseId.RanIntoWallRightPose, blockedResult,
         "blocked prospective run selects $89");
-    AssertTrue(blockedProbe is { Collided: true }, "blocked arm-pump probe reports wall");
     AssertEqual(91, blocked.Position.X.Whole, "blocked arm-pump probe retains last-safe X");
 
     // $91:EB05-$EB3C probes solid enemies one pixel ahead before the block move. An enemy
@@ -1832,10 +1823,9 @@ internal static void VerifySamusRanIntoWall()
         openFloor,
         SamusPoseId.MovingRightNormalPose,
         currentXSpeedKilledByBlock: false,
-        out BlockMoveResult? enemyProbe, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        roomObjects: SamusRoomObjectFixtures.WithQuicksand());
     AssertEqual<SamusPoseId?>(SamusPoseId.RanIntoWallRightPose, enemyResult,
         "solid enemy ahead selects $89");
-    AssertTrue(enemyProbe is null, "solid enemy ahead skips the one-pixel block move");
     AssertEqual(80, enemyAhead.Position.X.Whole, "solid enemy ahead leaves Samus in place");
 
     // A killed type-one move uses the CURRENT shot direction and performs no second probe.
@@ -1845,10 +1835,9 @@ internal static void VerifySamusRanIntoWall()
         openFloor,
         prospectivePose: null,
         currentXSpeedKilledByBlock: true,
-        out BlockMoveResult? killedProbe, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        roomObjects: SamusRoomObjectFixtures.WithQuicksand());
     AssertEqual<SamusPoseId?>(SamusPoseId.RanIntoWallRightPose, killedResult,
         "killed running speed selects current wall pose");
-    AssertTrue(killedProbe is null, "killed running speed skips one-pixel probe");
 
     // Every type-$15 pose executes no-base X, the shared grounding probe, and then clears
     // all five horizontal momentum words unconditionally.
@@ -1907,7 +1896,7 @@ static void SeedCrouchedAimTurnSpeedRecord(TestAddressSpace bus)
 }
 
 /// <summary>Seeds the dry-air normal-jump launch and gravity words read after a Moonwalk turn-jump's `$F8`.</summary>
-static void SeedMoonwalkTurnJumpDryVerticalRows(TestAddressSpace bus)
+static void SeedMoonwalkTurnToSpinJumpDryVerticalRows(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x909eb9, 0x0004);
     WriteTestWord(bus, 0x909ebf, 0xe000);

@@ -29,7 +29,7 @@ internal static class SquareSlopeDefinitionsVerification
     private const byte NativeSolidBit = 0x80;
 
     /// <summary>The quadrant a native table's byte describes: bit zero the right half, bit one the bottom half.</summary>
-    private static SquareSlopeQuadrant NativeQuadrant(int index) => new(SquareSlopeQuadrant.ColumnFor((index & 1) != 0), SquareSlopeQuadrant.RowFor((index & 2) != 0));
+    private static SquareSlopeQuadrant NativeQuadrant(int index) => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.Movement.SquareSlopeQuadrant>([typeof(global::SuperMetroid.Core.Samus.Movement.SquareSlopeColumnHalf), typeof(global::SuperMetroid.Core.Samus.Movement.SquareSlopeRowHalf)], new object?[] { SquareSlopeQuadrant.ColumnFor((index & 1) != 0), SquareSlopeQuadrant.RowFor((index & 2) != 0) });
 
     /// <summary>Whether the shape and quadrant the native index names are solid.</summary>
     private static bool SolidAtNativeIndex(int index) => SquareSlopes.IsSolid(NativeShapeOrder[index / 4], NativeQuadrant(index));

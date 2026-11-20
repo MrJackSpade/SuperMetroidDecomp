@@ -61,7 +61,7 @@ internal static class ProjectileCooldownsVerification
             var shared = CreateBombFixture();
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.NormalJumpGunExtendedLeftPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(211, 288)), EquippedBeams = (chargeEquipped ? SamusBeamFlags.Charge : SamusBeamFlags.None) | SamusBeamFlags.Wave | SamusBeamFlags.Plasma };
-            samus.TransitionShot.Hand(new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left));
+            samus.TransitionShot.Hand(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { SamusProjectileDirection.Left }));
             SamusProjectileSlotObservation slotsBefore = projectiles.ObserveSlots();
             projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? 0 : GameplayAction.Shoot }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
             AssertEqual(0, slotsBefore.FiredSlot(projectiles),
@@ -93,7 +93,7 @@ internal static class ProjectileCooldownsVerification
                 EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam), SelectedHudItem = HudItem.PowerBomb, PowerBombs = 10 };
             AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
                 "Each native special beam attack reaches its actual cooldown publisher");
-            AssertEqual(retail.ReadCartridgeByte(SamusSourceDefinitionsConstants.ChargedCooldowns + projectiles.Shots[0].Type.BeamCombination.TableIndex),
+            AssertEqual(retail.ReadCartridgeByte(SamusSourceDefinitionsConstants.ChargedCooldowns + projectiles.Shots[0].HeldShot().Type.BeamCombination.TableIndex),
                 shared.CooldownTimer, "A special attack waits its combination's charged-shot cooldown, the row its first particle selects");
         }
         Console.WriteLine("Projectile cooldowns: 48 combination cooldown bytes, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass.");

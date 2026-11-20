@@ -10,7 +10,7 @@ internal static class ListIdentity
         internal int Identity => Mix(layout.Count, Spread(layout.Weight()));
 
         /// <summary>The sum of every list's entry.</summary>
-        internal int Weight()
+        private int Weight()
         {
             int weight = 0;
             for (int list = 0; list < layout.Count; list++)
@@ -20,8 +20,8 @@ internal static class ListIdentity
     }
 
     /// <summary>Mixes two words into an identity.</summary>
-    internal static int Mix(int high, int low) => high * 31 + low;
+    private static int Mix(int high, int low) => high * 31 + low;
 
     /// <summary>Spreads a layout's weight over an identity.</summary>
-    internal static int Spread(int weight) => weight << 4;
+    private static int Spread(int weight) => weight << 4;
 }

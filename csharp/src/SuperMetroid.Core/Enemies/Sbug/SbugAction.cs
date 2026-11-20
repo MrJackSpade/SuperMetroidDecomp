@@ -12,11 +12,11 @@ public enum SbugAction
     ActivateMoveForward,
     /// <summary>Starts zig-zagging from the next update.</summary>
     ActivateZigZag,
-    /// <summary>Initializes the 32-update forward segment without moving yet.</summary>
+    /// <summary>Initializes the forward leg (<see cref="SbugMovementDefinitions.LegDuration"/>) without moving yet.</summary>
     ActivateMoveForwardThenWait,
     /// <summary>Moves the bug along its spawn heading at its placement's speed each update.</summary>
     MoveForward,
-    /// <summary>Selects side velocity and facing by whether the enemy frame counter is in the second half of each 32-frame cycle.</summary>
+    /// <summary>Selects side velocity and facing by whether the enemy frame counter is in the second leg of its zigzag (<see cref="SbugDefinitions.ZigZagSecondLeg"/>).</summary>
     ZigZag,
     /// <summary>Counts the segment down before moving and returns to proximity waiting on the update it runs out.</summary>
     MoveForwardThenWait,

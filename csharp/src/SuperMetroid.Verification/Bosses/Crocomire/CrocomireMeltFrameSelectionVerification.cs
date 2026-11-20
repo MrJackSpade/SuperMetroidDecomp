@@ -30,7 +30,7 @@ internal static class CrocomireMeltFrameSelectionVerification
             // A round shows the image's six bands, and the bare skull's one more update that shows none (#2573).
             int bands = CrocomireMelting.BandRound(pass);
             fixture.InitializeMap(pass);
-            fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
+            fixture.Call(_ => state => CrocomireMelting.BeginCrocomireMeltPass(state, pass));
             AssertBands(fixture, expected, $"{pass} pass begins");
 
             ListStep<CrocomireDeathStage> showing = fixture.Actor.DeathStage;

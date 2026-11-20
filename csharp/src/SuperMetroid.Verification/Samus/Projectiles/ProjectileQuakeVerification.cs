@@ -33,7 +33,7 @@ internal static class ProjectileQuakeVerification
         enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.Samus);
         var actor = enemies.Projectiles.EnemyProjectiles.First(p => p.Kind == RoomEnemyProjectileKind.TourianStatueRidley);
         foreach (var other in enemies.Projectiles.EnemyProjectiles)
-            if (other != actor) other.Kind = 0;
+            if (other != actor) other.Delete();
         ushort nativeSpritemap = NativeEnemyProjectileSpritemap(bus, actor);
         int cases = 0;
         foreach (ushort type in Enumerable.Range(0, NativeEarthquakeTypes.ShownTypeCount).Select(x => (ushort)x))

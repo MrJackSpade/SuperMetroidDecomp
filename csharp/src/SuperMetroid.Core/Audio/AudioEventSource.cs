@@ -45,7 +45,7 @@ internal sealed class AudioEventSource
                     events.Add(new AudioEvent.SelectMusicTrack(play.Track));
                     break;
                 case AudioRequest.StopMusic:
-                    events.Add(new AudioEvent.SelectMusicTrack(null));
+                    events.Add(new AudioEvent.StopMusic());
                     break;
                 case AudioRequest.RequestSound sound:
                     clock.Request(sound.Sound.Library, new RequestedSound<SoundEffectId>(sound.Sound));

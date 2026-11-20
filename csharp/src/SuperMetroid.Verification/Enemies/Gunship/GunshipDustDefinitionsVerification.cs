@@ -21,9 +21,10 @@ internal static class GunshipDustDefinitionsVerification
     {
         ushort Word(int address) => LittleEndianBytes.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var spawn = new Action<GunshipDustPlacement, SamusState>((placement, spawnSamus) => GunshipLiftoffDust.SpawnCloud(enemies.Projectiles, placement, spawnSamus));
+        var spawn = new Action<GunshipDustPlacement, SamusState>((placement, spawnSamus) => GunshipLiftoffDust.SpawnCloud(enemies.Projectiles, enemies.GunshipBehavior.Dust, placement, spawnSamus));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-        var slot = enemies.Projectiles.ProjectileInPlace(17);
+        // The place's projectile before each spawn is a stale cloud the check leaves there.
+        var slot = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.GunshipLiftoffDustCloud);
         AssertEqual(6, GunshipDustDefinitions.LiftoffClouds.Count, "Six liftoff dust clouds");
         // Samus at least 128 pixels from either end of the room space on both axes keeps every cloud inside it.
         const int margin = 128;
@@ -46,7 +47,7 @@ internal static class GunshipDustDefinitionsVerification
                 slot.Velocity = new(new SignedEightEight(0x1234), new SignedEightEight(0x1234));
                 spawn(definition, samus);
                 // A spawn creates a new projectile in the place, which the place now holds (#1590).
-                slot = enemies.Projectiles.ProjectileInPlace(17);
+                slot = enemies.Projectiles.SpawnedInPlace(17);
                 AssertEqual(RoomEnemyProjectileKind.GunshipLiftoffDustCloud, slot.Kind, "Native reverse allocation chooses last free slot");
                 AssertEqual(samus.Position.X.Whole + dx, (int)slot.Position.X.Whole, "Actual dust signed X placement");
                 AssertEqual(samus.Position.Y.Whole + Word(0x86a2c5), (int)slot.Position.Y.Whole, "Actual dust Y placement");
@@ -60,9 +61,9 @@ internal static class GunshipDustDefinitionsVerification
                 AssertEqual((ushort)0, slot.Velocity.Y.RawValue, "Dust clears stale Y velocity");
             }
         }
-        foreach (var occupied in enemies.Projectiles.EveryPlace())
+        foreach (int place in Enumerable.Range(0, EnemyProjectileEngine.PlaceCount))
         {
-            occupied.Kind = RoomEnemyProjectileKind.PhantoonStartingFlame;
+            EnemyProjectile occupied = enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.PhantoonStartingFlame);
             occupied.Position = occupied.Position.WithWholeX(0x1234);
             occupied.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         }

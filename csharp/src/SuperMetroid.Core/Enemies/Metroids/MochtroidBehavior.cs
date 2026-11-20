@@ -13,7 +13,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mochtroid];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new MochtroidEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.Of(new MochtroidEntity(this, occupant, place, common));
 
     /// <summary>Resolves axis movement against terrain in the order for each flight mode.</summary>
     private readonly EnemyTerrain _terrain;
@@ -76,9 +76,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        // Each axis's speed moves toward Samus by a 256th of a pixel an update for every four
-        // pixels between them: a proportional attraction toward Samus, not a fixed-speed seek,
-        // and the speed's fraction shows before either whole part reaches three pixels.
+        // Each axis's speed moves toward Samus by an amount in proportion to the distance
+        // between them: a proportional attraction toward Samus, not a fixed-speed seek,
+        // and the speed's fraction shows before either whole part reaches its fastest flight.
         int yDifference = place.Position.Y.Whole - samus.Position.Y.Whole;
         SignedSixteenSixteen yVelocity = ClampMochtroidVelocity(state.Velocity.Y - EnemyMath.HomingPull(yDifference));
         StoreMochtroidYVelocity(state, yVelocity);
@@ -97,18 +97,18 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             place, state, MochtroidSegment.FreeFlight);
     }
 
-    /// <summary>Caps a velocity by its whole-pixel component at three pixels.</summary>
+    /// <summary>Caps a velocity by its whole-pixel component at <see cref="MochtroidBehaviorDefinitions.FastestFlight"/>.</summary>
     private static SignedSixteenSixteen ClampMochtroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.LimitedEitherWay(velocity, MochtroidBehaviorDefinitions.FastestFlight);
 
-    /// <summary>Moves one pixel per axis toward Samus, resolving X before Y while attached.</summary>
+    /// <summary>Moves toward Samus at <see cref="MochtroidBehaviorDefinitions.AttachedSpeed"/> on each axis, resolving X before Y while attached.</summary>
     private void RunMochtroidAttachedFlight(
         RoomEnemyPlace place,
         MochtroidEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        // Attached mode discards proportional acceleration. It moves exactly one pixel per
-        // axis toward Samus, with X collision resolved before Y and ignored return values.
+        // Attached mode discards proportional acceleration. It moves exactly its attached speed
+        // on each axis toward Samus, with X collision resolved before Y and ignored return values.
         SignedSixteenSixteen xVelocity = place.Position.X.Whole == samus.Position.X.Whole
             ? SignedSixteenSixteen.Zero
             : MochtroidBehaviorDefinitions.AttachedSpeed.Toward(
@@ -137,7 +137,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts a changed flight or attachment animation and restarts its frame timers (#2145).</summary>
-    internal static void SetMochtroidAnimation(
+    private static void SetMochtroidAnimation(
         RoomEnemyPlace place,
         MochtroidEnemyState state,
         MochtroidSegment segment) =>
@@ -145,11 +145,12 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Resolves the family-specific portion of a Mochtroid's touch.</summary>
     private void ResolveMochtroidTouch(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant mochtroid,
         MochtroidEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
+        RoomEnemyPlace place = mochtroid.Place;
         state.MovementMode = MochtroidMovementMode.TouchingSamus;
         SetMochtroidAnimation(
             place, state, MochtroidSegment.Attached);
@@ -159,7 +160,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!applyCommonTouch)
         {
             // Every attached Mochtroid queues its own drain sound, so a room full of them queues one each.
-            if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.EnemyPassCount) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
+            if (MetroidCadenceDefinitions.DrainSound.IsDue(_frameContext.EnemyPassCount) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
                 _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
             if (state.DrainPeriod.IsOver)
@@ -175,23 +176,23 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus.HorizontalSpeed.BodyAttack == SamusBodyAttack.None)
         {
             // The Mochtroid's touch hurts Samus without knocking her back: only the suit-divided damage applies.
-            SamusSuitDamage.Hurt(samus, place.Definition.Damage);
+            SamusSuitDamage.Hurt(samus, mochtroid.Definition.Damage);
         }
         else
         {
             // Samus's body attack hurts the Mochtroid as it hurts any enemy. This
             // includes Speed Booster, shinespark, Screw Attack, and pseudo-Screw.
-            _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
+            _collision.ResolveOrdinaryTouch(mochtroid, samus, pseudoScrew);
         }
 
         // Unlike any other enemy, the Mochtroid cancels at once the invincibility and knockback its
         // touch's damage started: Samus stays attached rather than being knocked back with a grace
-        // period, so another 80-contact drain cycle can follow.
+        // period, so another drain cycle can follow.
         samus.ClearHurtTimers();
     }
 
     /// <summary>Advances Mochtroid's typed animation.</summary>
-    internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place, MochtroidEnemyState mochtroidEnemyState, EnemyAnimationCueContext _) =>
+    internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place, MochtroidEnemyState mochtroidEnemyState) =>
         EnemyAnimationPlayback.Advance(place, mochtroidEnemyState, MochtroidAnimations.Segments,
             static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"Mochtroid's cue-free animation raised {cue}."));
@@ -206,7 +207,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="context">The touch.</param>
     /// <param name="state">The enemy's own state, which the touch acts on.</param>
     internal void ReactToMochtroidTouch(EnemyTouchContext context, MochtroidEnemyState state) =>
-        ResolveMochtroidTouch(context.Place, state, context.Samus, context.PseudoScrew);
+        ResolveMochtroidTouch(context.Occupant, state, context.Samus, context.PseudoScrew);
 
     /// <summary>The Mochtroid's own shot reaction, which runs the common shot damage with no stage of its own.</summary>
     internal static EnemyShotReaction MochtroidShotReaction { get; } = new();

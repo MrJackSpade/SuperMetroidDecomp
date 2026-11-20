@@ -5,10 +5,11 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// orange Zoomer that pursues Samus (<see cref="OrangeZoomerEntity"/>), each with the surface animations and the shared
 /// reactions.
 /// </summary>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the crawler occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class CrawlerEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
+internal abstract class CrawlerEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The crawler's state, which its setup builds as it is built (#2554).</summary>
     internal abstract CrawlerEnemyState State { get; }

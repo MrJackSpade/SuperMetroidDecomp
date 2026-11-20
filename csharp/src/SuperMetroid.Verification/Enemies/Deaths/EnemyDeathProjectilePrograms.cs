@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Deaths;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Deaths;
 
@@ -22,6 +23,6 @@ internal static class EnemyDeathProjectilePrograms
 
     /// <summary>The death explosion animation <paramref name="projectile"/> plays (#2061).</summary>
     internal static Animation<EnemyDeathExplosionSegment> AnimationOf(EnemyProjectile projectile) =>
-        projectile.Animation is EnemyDeathExplosionAnimation animation ? animation.Playback.Animation
+        projectile.Animation is EnemyDeathExplosionAnimation animation ? animation.PlaybackOf().Animation
             : throw new InvalidOperationException($"Projectile {projectile.Place} runs no death explosion program.");
 }

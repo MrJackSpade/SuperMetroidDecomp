@@ -35,7 +35,6 @@ internal static class EnemyProjectileDefinitionsVerification
     internal static void VerifyEnemyProjectileDefinitions(CartridgeImportAddressSpace rom)
     {
         RoomEnemyProjectileKind[] kinds = Enum.GetValues<RoomEnemyProjectileKind>()
-            .Where(kind => kind != RoomEnemyProjectileKind.None)
             .Distinct()
             .ToArray();
         // #1269 added Mother Brain's small purple breath and the Climb's fake-wall explosion; #2024 removed the spike-clearing
@@ -47,7 +46,7 @@ internal static class EnemyProjectileDefinitionsVerification
         AssertEqual(100, kinds.Length, "compiled enemy-projectile definition count");
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
-        Dictionary<RoomEnemyProjectileKind, Enum?> startingMotions = kinds.ToDictionary(kind => kind, kind => ProductionStartingMotion(rom, kind));
+        Dictionary<RoomEnemyProjectileKind, ushort[]> startingMotions = kinds.ToDictionary(kind => kind, kind => ProductionStartingMotions(rom, kind));
 
         const ushort populationPointer = 0x9400;
         TestAddressSpace setupBus = CreateEmptyEnemyPopulationCartridge(populationPointer);
@@ -57,18 +56,22 @@ internal static class EnemyProjectileDefinitionsVerification
             statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(setupBus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
-        EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
+        EnemyProjectile projectile = enemies.Projectiles.Occupy(17, kinds[0]);
         Func<EnemyProjectile, SamusState, SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?> collideWithSamus =
             EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision;
 
         foreach (RoomEnemyProjectileKind kind in kinds)
         {
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
-            projectile.Delete();
+            // Each kind spawns a fresh projectile into the place, as production spawns one.
+            projectile = enemies.Projectiles.Occupy(17, kind);
             FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
-            AssertEqual(startingMotions[kind], projectile.Motion,
-                $"{kind} production pre-instruction");
+            if (startingMotions[kind].Length == 0)
+                AssertTrue(projectile.HoldsStill, $"{kind} production pre-instruction holds still");
+            // Every record of the kind starts the motion the projectile moves by.
+            foreach (ushort startingMotion in startingMotions[kind])
+                AssertEqual(projectile.MotionOfWord(startingMotion), projectile.Motion, $"{kind} production pre-instruction");
             // A kind whose spawner starts a typed initial program (#641, #1760) runs it in place of the definition's native list.
             bool typedStart = FamilyProjectileStarts.StartsTypedAnimation(kind);
             AssertEqual(typedStart, projectile.Animation is not null, $"{kind} production typed start");
@@ -132,20 +135,20 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(ReferenceEquals(initialProgram, projectile.Animation), $"{kind} production touch keeps its program");
             }
 
+            projectile = enemies.Projectiles.Occupy(17, kind);
             FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedStandard);
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             SamusProjectile shot = shots.Shots[0];
-            shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false);
-            shot.Damage = 1;
+            shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false), 1);
             shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
-            int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
+            enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
                 shots,
                 new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
-            AssertEqual(1, hits, $"{kind} production shot admitted");
+            AssertTrue(shot.IsSpent, $"{kind} production shot admitted: the Wave shot is spent");
             if (kind == RoomEnemyProjectileKind.DraygonGoop)
             {
                 AssertTrue(projectile.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileSegment.GoopShot },
@@ -191,8 +194,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 {
                     RoomEnemyProjectileKind.SporeSpawnStalk => SporeSpawnProjectileSegment.Stalk,
                     RoomEnemyProjectileKind.SporeSpawnSpore => SporeSpawnProjectileSegment.SporeShot,
-                    RoomEnemyProjectileKind.None or
-                        RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
+                    RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                         RoomEnemyProjectileKind.YappingMawBody or
                         RoomEnemyProjectileKind.SkreeMetareeParticle or
                         RoomEnemyProjectileKind.CrocomireProjectile or
@@ -304,8 +306,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 {
                     RoomEnemyProjectileKind.GoldenTorizoEgg => TorizoProjectileSegment.ChozoOrbWallImpact,
                     RoomEnemyProjectileKind.GoldenTorizoSuperMissile => TorizoProjectileSegment.SuperMissileImpact,
-                    RoomEnemyProjectileKind.None or
-                        RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
+                    RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                         RoomEnemyProjectileKind.YappingMawBody or
                         RoomEnemyProjectileKind.SkreeMetareeParticle or
                         RoomEnemyProjectileKind.CrocomireProjectile or
@@ -453,10 +454,6 @@ internal static class EnemyProjectileDefinitionsVerification
             }
         }
 
-        AssertThrows<InvalidDataException>(
-            () => EnemyProjectileKinds.Get(RoomEnemyProjectileKind.None),
-            "inactive enemy-projectile identity has no definition");
-
         Console.WriteLine(
             $"Enemy projectile definitions: {kinds.Length:N0} complete seven-word records, " +
             "common initialization, Samus touch, and projectile-shot consumers pass with " +
@@ -464,21 +461,16 @@ internal static class EnemyProjectileDefinitionsVerification
     }
 
     /// <summary>
-    /// The motion a production spawn of <paramref name="kind"/> starts with (#1843): the one its native records'
-    /// pre-instruction stands for, which every record of a kind several identical records name agrees on (#2278), except
-    /// the Pirates' and Mother Brain's laser and a wall turret's shot, whose spawners hold them still past their record's
-    /// flight until their animations start it.
+    /// The pre-instruction routines a production spawn of <paramref name="kind"/> starts with (#1843): the ones its native records name,
+    /// whose motion every record of a kind several identical records name agrees on (#2278), each resolved through the
+    /// projectile's behaviour (#2571); none for the Pirates' and Mother Brain's laser and a wall turret's shot, whose
+    /// spawners hold them still past their record's flight until their animations start it.
     /// </summary>
-    private static Enum? ProductionStartingMotion(CartridgeImportAddressSpace rom, RoomEnemyProjectileKind kind)
-    {
-        if (kind is RoomEnemyProjectileKind.PirateMotherBrainLaser or RoomEnemyProjectileKind.DraygonWallTurret)
-            return null;
-        Enum?[] motions = [.. EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind]
-            .Select(word => EnemyProjectileMotionAccess.FromWord(rom.ReadCartridgeWord((0x860000 | word) + 2)))
-            .Distinct()];
-        AssertEqual(1, motions.Length, $"every {kind} record starts one motion");
-        return motions[0];
-    }
+    private static ushort[] ProductionStartingMotions(CartridgeImportAddressSpace rom, RoomEnemyProjectileKind kind) =>
+        kind is RoomEnemyProjectileKind.PirateMotherBrainLaser or RoomEnemyProjectileKind.DraygonWallTurret
+            ? []
+            : [.. EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind]
+                .Select(word => rom.ReadCartridgeWord((0x860000 | word) + 2))];
 
     /// <summary>
     /// Checks every compiled enemy-projectile definition against its seven-word bank-$86 record

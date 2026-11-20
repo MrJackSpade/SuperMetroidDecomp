@@ -74,12 +74,12 @@ internal static class NativeSnapshotImport
         ScrollBoundaryCamera camera = runtime.Room.LoadedCamera;
         // The room load wrote only the integer layer-one words; import the native fractions,
         // ideal position and speed words as whole camera values.
-        camera.Position = camera.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(
-                0, W(NativeSnapshotMemory.CameraXFraction), 0, W(NativeSnapshotMemory.CameraYFraction)));
-        PrivateState.Set(camera, nameof(ScrollBoundaryCamera.IdealPosition), new Position16<RoomPixels>(W(NativeSnapshotMemory.IdealCameraX), W(NativeSnapshotMemory.IdealCameraY)));
-        camera.Speed = FixedVector<RoomPixels>.FromStoredParts(
+        global::SuperMetroid.Core.PrivateState.Set(camera, "Position", camera.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(
+                0, W(NativeSnapshotMemory.CameraXFraction), 0, W(NativeSnapshotMemory.CameraYFraction))));
+        PrivateState.Set(camera, "IdealPosition", new Position16<RoomPixels>(W(NativeSnapshotMemory.IdealCameraX), W(NativeSnapshotMemory.IdealCameraY)));
+        global::SuperMetroid.Core.PrivateState.Set(camera, "Speed", FixedVector<RoomPixels>.FromStoredParts(
                 W(NativeSnapshotMemory.CameraSpeedX), W(NativeSnapshotMemory.CameraSpeedXFraction),
-                W(NativeSnapshotMemory.CameraSpeedY), W(NativeSnapshotMemory.CameraSpeedYFraction));
+                W(NativeSnapshotMemory.CameraSpeedY), W(NativeSnapshotMemory.CameraSpeedYFraction)));
         runtime.Room.LoadedCamera.FinishSamusScrolling(FixedPosition<RoomPixels>.FromStoredParts(
             W(NativeSnapshotMemory.PreviousSamusX), W(NativeSnapshotMemory.PreviousSamusXFraction),
             W(NativeSnapshotMemory.PreviousSamusY), W(NativeSnapshotMemory.PreviousSamusYFraction)));
@@ -198,17 +198,17 @@ internal static class NativeSnapshotImport
             throw new InvalidDataException("The native Ridley checkpoint requires the installation's Samus body artwork.");
         SamusBodyHalfFrame drawnTop = SamusSpritemapNative.Frame(bodyArtwork.Spritemaps, SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose)), SamusBodyHalf.Top, W(NativeSnapshotMemory.SamusTopSpritemap))
             ?? throw new InvalidDataException("The native Ridley checkpoint names no top body picture.");
-        PrivateState.Set(samus.Presentation, nameof(SamusPresentation.DrawnFrame), new SamusBodyFrame(drawnTop.Pose, SamusAnimationNumbers.Frame(drawnTop.Pose, drawnTop.AnimationFrame)));
-        PrivateState.Set(samus.Presentation, nameof(SamusPresentation.DrawOrigin), Offset16<ScreenPixels>.Wrapped(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY)));
-        PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.Frame), SamusArmCannonCoverNativeCodec.FromNative(W(NativeSnapshotMemory.CannonFrame)));
+        PrivateState.Set(samus.Presentation, "DrawnFrame", new SamusBodyFrame(drawnTop.Pose, SamusAnimationNumbers.Frame(drawnTop.Pose, drawnTop.AnimationFrame)));
+        PrivateState.Set(samus.Presentation, "DrawOrigin", Offset16<ScreenPixels>.Wrapped(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY)));
+        PrivateState.Set(samus.ArmCannon, "Frame", SamusArmCannonCoverNativeCodec.FromNative(W(NativeSnapshotMemory.CannonFrame)));
         PrivateState.SetField(samus.ArmCannon, "stability",
             UpdateCountdownAccess.AtAge(SamusArmCannonDefinitions.StableSelectionUpdates, W(NativeSnapshotMemory.CannonToggle)));
         PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.DrawOrder), SuperMetroid.AssetExtraction.Samus.SamusArmCannonDrawOrderCodec.FromDrawingMode(W(NativeSnapshotMemory.CannonDrawingMode)));
-        PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.IsOpen), memory[NativeSnapshotMemory.CannonFlags] != 0);
-        PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.IsTransitioning), memory[NativeSnapshotMemory.CannonFlags + 1] != 0);
+        PrivateState.Set(samus.ArmCannon, "IsOpen", memory[NativeSnapshotMemory.CannonFlags] != 0);
+        PrivateState.Set(samus.ArmCannon, "IsTransitioning", memory[NativeSnapshotMemory.CannonFlags + 1] != 0);
         new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,
             NativeSnapshotMemory.SamusSlopeAdjusted - NativeSnapshotMemory.ProjectileInheritancePrefix));
-        samus.Kinematics.PositionAdjustedBySlope = W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0;
+        global::SuperMetroid.Core.PrivateState.Set(samus.Kinematics, "PositionAdjustedBySlope", W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0);
         // Each direction's recorded word names the enemy in that place of the loaded room, or none (#1702).
         for (int direction = 0; direction < 4; direction++)
             samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirectionNativeWords.Directions.Decode(direction, "solid-enemy collision direction"),
@@ -229,12 +229,12 @@ internal static class NativeSnapshotImport
         runtime.Projectiles.Charge.ChargeGlowStep = (chargePaletteByteOffset & 1) == 0
             ? chargePaletteByteOffset / sizeof(ushort)
             : throw new InvalidDataException($"Native charge palette byte offset {chargePaletteByteOffset} names no step.");
-        runtime.BombProjectiles.BombCounter = W(NativeSnapshotMemory.BombCount);
+        global::SuperMetroid.Core.PrivateState.Set(runtime.BombProjectiles, "BombCounter", (int)(W(NativeSnapshotMemory.BombCount)));
         samus.BombSpreadCharge = UpdateCountdownAccess.AtAge(MorphBallBombDefinitions.DownChargeTimeoutUpdates, W(NativeSnapshotMemory.BombSpreadChargeTimeout));
         samus.TransitionShot.Hand(SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection)));
         samus.HyperBeamEnabled = SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam));
         if (SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound))) samus.ChargingSound.Arm(); else samus.ChargingSound.Cancel();
-        PrivateState.Set(samus.InputSnapshot, nameof(SamusInputSnapshot.PreviousDrawHeldInput), GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredHeld), "native Samus filtered held input"));
+        PrivateState.Set(samus.InputSnapshot, "PreviousDrawHeldInput", GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredHeld), "native Samus filtered held input"));
         samus.InputSnapshot.PressesSeenLastUpdate = GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredNew), "native Samus filtered new input");
         samus.InputSnapshot.AutoJumpTimer = W(NativeSnapshotMemory.SamusAutoJumpTimer);
         samus.PreviousHealthForHurtCheck = SamusCountWords.Decode(W(NativeSnapshotMemory.SamusPreviousHealthForFlash));
@@ -251,10 +251,12 @@ internal static class NativeSnapshotImport
         samus.KnockbackDirection = SamusMovementNativeWords.KnockbackDirections.Decode(W(NativeSnapshotMemory.KnockbackDirection), "Samus knockback direction");
         samus.KnockbackXDirection = (KnockbackHorizontalDirection)W(NativeSnapshotMemory.KnockbackXDirection);
         samus.HurtFlash.HoldAt(W(NativeSnapshotMemory.HurtFlashCounter));
-        PrivateState.Set(samus, nameof(SamusState.EnergyFraction), SuperMetroid.Core.Compatibility.PeriodicDamageEnergyFraction.Holding(W(NativeSnapshotMemory.SubunitHealth)));
+        PrivateState.Set(samus, "EnergyFraction", SuperMetroid.Core.Compatibility.PeriodicDamageEnergyFraction.Holding(W(NativeSnapshotMemory.SubunitHealth)));
         samus.SelectedHudItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.SelectedHudItem));
         PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.PreviousSelectedHudItem), samus.SelectedHudItem);
-        samus.AutoCancelledItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.AutoCancelHudItemIndex));
+        // The cartridge records no auto-cancel as the beams' index.
+        samus.AutoCancelledItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.AutoCancelHudItemIndex)) is var autoCancelled &&
+            autoCancelled != HudItem.Beam ? autoCancelled : null;
         samus.ReserveTankMode = SaveSlotNumbering.SavedReserveMode(W(NativeSnapshotMemory.ReserveMode));
         samus.MaxReserveEnergy = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxReserve));
         samus.ReserveEnergy = SamusCountWords.Decode(W(NativeSnapshotMemory.Reserve));
@@ -281,7 +283,7 @@ internal static class NativeSnapshotImport
         samus.HorizontalSpeed.BodyAttack = SamusMovementNativeWords.ContactDamage.Decode(
             W(NativeSnapshotMemory.ContactDamageIndex), "Samus body attack");
         samus.MorphBallBounceState = SamusSnapshotWords.DecodeBallBounce(W(NativeSnapshotMemory.MorphBallBounceState));
-        samus.BombJumpRequest = SuperMetroid.TestSupport.VerificationImporters.SamusBombJumpRequestImport.FromNative(W(NativeSnapshotMemory.BombJumpDirection));
+        samus.BombJump = SuperMetroid.TestSupport.VerificationImporters.SamusBombJumpImport.FromNative(W(NativeSnapshotMemory.BombJumpDirection));
 
         // The checkpoint's live native trail places become trails, which show the pictures of the beams equipped there, as
         // its projectile graphics hold them (#1586); a place whose sparkles have both ended holds no trail.
@@ -319,7 +321,7 @@ internal static class NativeSnapshotImport
         }
         samus.ExtraAnimationDelay = W(NativeSnapshotMemory.AnimationFrameBuffer);
         PrivateState.Set(samus.LiquidPhysics, nameof(SamusLiquidPhysicsState.MediumLastEntered), SamusLiquidMediumCodec.FromNative(W(NativeSnapshotMemory.LiquidPhysicsType)));
-        PrivateState.Set(samus.PeriodicDamage, nameof(SamusPeriodicDamage.Pending), SuperMetroid.Core.Compatibility.EnergyAmount.FromStoredParts(W(NativeSnapshotMemory.PeriodicDamage), W(NativeSnapshotMemory.PeriodicSubDamage)));
+        PrivateState.Set(samus.PeriodicDamage, "Pending", SuperMetroid.Core.Compatibility.EnergyAmount.FromStoredParts(W(NativeSnapshotMemory.PeriodicDamage), W(NativeSnapshotMemory.PeriodicSubDamage)));
 
         // The snapshot was recorded after the entering door PLM deleted itself.
         // Restore the empty physical pool rather than executing fresh room-entry actors.
@@ -330,8 +332,8 @@ internal static class NativeSnapshotImport
             initialObjects[index].Delete();
         }
         // Every place takes the snapshot's projectile, or, for a free one, what it holds for the room's next spawn there.
-        foreach (var projectile in runtime.Enemies.Projectiles.EveryPlace())
-            ImportNativeEnemyProjectile(runtime.Enemies, projectile, runtime.Enemies.GraphicsSet, bus, W);
+        for (int place = 0; place < EnemyProjectileEngine.PlaceCount; place++)
+            ImportNativeEnemyProjectile(runtime.Enemies, place, runtime.Enemies.GraphicsSet, bus, W);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
         runtime.Enemies.FrameContext.SeedEnemyPassCount(W(NativeSnapshotMemory.MainEnemyRoutineCount));
@@ -361,12 +363,20 @@ internal static class NativeSnapshotImport
             var enemy = runtime.Enemies.Places.InUpdateOrder[index];
             int address = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(index);
             if (W(address) != 0)
-                VerificationAssertions.AssertTrue(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(enemy.DefinitionId) == W(address), "initial enemy species agrees with room population");
+                VerificationAssertions.AssertTrue(enemy.Occupant is { } loaded && SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(loaded.DefinitionId) == W(address), "initial enemy species agrees with room population");
             // A recorded occupant is the one the room load placed, which keeps its species state; a slot the recording
             // holds free loses its loaded occupant with that occupant's state (#1543).
-            EnemyDefinitionId recordedOccupant = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionSlotWords.FromSlotWord(W(address));
-            if (recordedOccupant != enemy.DefinitionId)
-                enemy.Bind(recordedOccupant, enemy.Definition);
+            if (W(address) == 0)
+            {
+                if (enemy.Occupant is not null)
+                    enemy.Vacate();
+            }
+            else
+            {
+                EnemyDefinitionId recordedOccupant = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIdsConstants.FromHeaderPointer(W(address));
+                if (!enemy.Holds(recordedOccupant))
+                    enemy.Bind(recordedOccupant, enemy.KeptDefinition);
+            }
             enemy.Position = FixedPosition<RoomPixels>.FromStoredParts(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
             enemy.Radius = new(W(address + 10), W(address + 12));
             // The species bits of the property words are the entry's spawn settings, which the population already holds.
@@ -420,7 +430,7 @@ internal static class NativeSnapshotImport
                 pipe.SpawnPosition = new(words.B, words.C);
                 pipe.RespawnDelay = UpdateCountdownAccess.Recorded(unchecked((short)words.D));
                 SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind kind =
-                    runtime.Enemies.Places.InUpdateOrder[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind;
+                    runtime.Enemies.Places.InUpdateOrder[index].HeldOccupant().SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind;
                 pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * NativeSnapshotMemory.EnemyExtraBytes);
                 // The game keeps the requested animation beside the installed one and installs a request in the same AI
                 // update, so a record whose two differ fails (#1810). Core keeps only the playing animation (#2145): the
@@ -445,7 +455,7 @@ internal static class NativeSnapshotImport
         samus.PreviousHealthForHurtCheck = samus.Health;
         runtime.PlayerActions.Latch(GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.HeldInput), "native held input"));
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         // The pause screen's import enters it with the menu it builds (below); every other step is entered here.
         if (W(NativeSnapshotMemory.GameState) != GameStateNumberCodec.PauseMenuNumber)
             GameStateNumberCodec.Enter(game, W(NativeSnapshotMemory.GameState));
@@ -510,8 +520,8 @@ internal static class NativeSnapshotImport
     }
 
     /// <summary>
-    /// Enemy-projectile kinds whose complete state is the native slot arrays: no family keeps
-    /// port-only words (afterburn chains, death-drop sources) that the arrays cannot supply.
+    /// Enemy-projectile kinds whose complete state is the native slot arrays and the Mother Brain they belong to: no
+    /// family keeps port-only words (afterburn chains, death-drop sources) that the arrays cannot supply.
     /// </summary>
     private static readonly HashSet<RoomEnemyProjectileKind> NativeSlotOnlyEnemyProjectileKinds =
     [
@@ -526,20 +536,26 @@ internal static class NativeSnapshotImport
     /// hold; the definition-derived radii and properties must already agree with them. A free slot's place holds a gone
     /// projectile at the slot's position and velocity words, which the next spawn there starts from.
     /// </summary>
-    private static void ImportNativeEnemyProjectile(SuperMetroid.Core.World.RoomEnemySystem enemies, EnemyProjectile projectile, SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition graphicsSet, IImportCartridgeSource cartridge,
+    private static void ImportNativeEnemyProjectile(SuperMetroid.Core.World.RoomEnemySystem enemies, int place, SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition graphicsSet, IImportCartridgeSource cartridge,
         Func<int, ushort> W)
     {
-        int index = projectile.Place * 2;
+        int index = place * 2;
         ushort id = W(NativeSnapshotMemory.EnemyProjectileId + index);
+        var leftPosition = new Position16<RoomPixels>(W(NativeSnapshotMemory.EnemyProjectileX + index), W(NativeSnapshotMemory.EnemyProjectileY + index));
+        var leftVelocity = new PixelVelocity<RoomPixels>(
+            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileXVelocity + index)),
+            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileYVelocity + index)));
         if (id == 0)
         {
-            // Room loading spawns the room's projectiles afresh; a slot the snapshot holds
-            // empty (for example Mother Brain's destroyed turrets) must be empty here too.
-            projectile.Delete();
+            // Room loading spawns the room's projectiles afresh; a slot the snapshot holds empty (for example Mother
+            // Brain's destroyed turrets) holds no projectile here either, only what its last one left for the next spawn.
+            enemies.Projectiles.ImportLeftover(place, new SuperMetroid.Core.Compatibility.EnemyProjectileHandOver(leftPosition, leftVelocity));
         }
         else
         {
             RoomEnemyProjectileKind kind = EnemyProjectileNativeWords.Kinds.Decode(id, "enemy projectile definition");
+            // The room's load spawned the place's projectile, which carries its spawner's state; a place it left free is occupied afresh.
+            EnemyProjectile projectile = enemies.Projectiles.LatestInPlace(place) ?? enemies.Projectiles.Occupy(place, kind);
             VerificationAssertions.AssertTrue(NativeSlotOnlyEnemyProjectileKinds.Contains(kind),
                 $"initial native enemy projectile {projectile.Place} kind ${id:X4} has a verified slot-only import");
             // The snapshot's graphics word packs the projectile's tile base and palette row as an attribute word does: the
@@ -550,7 +566,14 @@ internal static class NativeSnapshotImport
             int standardRow = graphics.TileNumber == 0 ? SuperMetroid.AssetExtraction.Enemies.EnemySheetRowDefinitions.Common : graphics.PaletteIndex;
             FamilyProjectileStarts.Initialize(enemies, projectile, kind, new SpriteGraphics(graphicsSet.OwnerDrawingAt(graphics.TileNumber),
                 SpriteColouringAccess.ShadingInRow(graphics.PaletteIndex, standardRow)));
-            projectile.Motion = EnemyProjectileMotionAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
+            // Each slot-only kind belongs to the room's Mother Brain, which her spawn gives it in her behaviour's table
+            // (#2571): her head pins the charge and the small breath's end clears her flag. The place's previous projectile
+            // leaves no entry the import may borrow, so the projectile is given its own as her spawn gives it.
+            SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEnemyState motherBrain = enemies.BossEncounters.MotherBrain ?? throw new InvalidDataException(
+                $"Initial native enemy projectile {projectile.Place} kind {kind} is Mother Brain's, but the room has no Mother Brain encounter.");
+            enemies.MotherBrainBehavior.Projectiles.Projectile.MotherBrains.Start(
+                projectile, new SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectileState(motherBrain));
+            projectile.StartMotionFromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
             ushort instruction = W(NativeSnapshotMemory.NativeEnemyProjectileInstruction + index);
             // The typed family resumes at the step the recorded native pointer stands for.
             EnemyProjectileAnimation typed = projectile.Animation ?? throw new InvalidOperationException(
@@ -577,11 +600,8 @@ internal static class NativeSnapshotImport
             if (projectile.BlocksSamusProjectiles) properties |= NativeSnapshotMemory.EnemyProjectileShotCollision;
             VerificationAssertions.AssertEqual(W(NativeSnapshotMemory.EnemyProjectileProperties + index), properties,
                 $"initial enemy projectile {projectile.Place} properties");
+            projectile.Position = projectile.Position.WithWhole(leftPosition);
+            projectile.Velocity = leftVelocity;
         }
-        projectile.Position = projectile.Position.WithWhole(new(
-            W(NativeSnapshotMemory.EnemyProjectileX + index), W(NativeSnapshotMemory.EnemyProjectileY + index)));
-        projectile.Velocity = new(
-            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileXVelocity + index)),
-            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileYVelocity + index)));
     }
 }

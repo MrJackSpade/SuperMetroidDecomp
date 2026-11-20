@@ -35,13 +35,13 @@ internal static class MotherBrainTubeHdmaDeletionVerification
 
         // The real main-tube landing raises the deletion of HDMA objects 0-3.
         runtime.Enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainFallingTube(runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidOperationException("Verification requires Mother Brain's encounter."), MotherBrainTubePiece.Main);
-        RoomEnemyPlace tube = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.MotherBrainTubes);
+        RoomEnemyPlace tube = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.MotherBrainTubes));
         MotherBrainFallingTubeState tubeState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<MotherBrainTubesEntity>(tube).State;
         tubeState.Action = MotherBrainTubeAction.Falling;
         tubeState.FallSpeed = default;
         tube.Position = tube.Position.WithWholeY(0x00fc); // the head follows at Y-$38 = $C4, the landing height
         runtime.Enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain(tube);
-        AssertTrue(runtime.Enemies.LastEnemyFrame.Has<MotherBrainTubeLanded>(), "the main tube's landing stops the liquid surface's motion");
+        AssertTrue(runtime.Enemies.LastEnemyFrame.Has<LiquidSurfaceStilled>(), "the main tube's landing stops the liquid surface's motion");
 
         fx.StopLiquidMotion();
         runtime.System.SetRandomNumber(0xb9ad);

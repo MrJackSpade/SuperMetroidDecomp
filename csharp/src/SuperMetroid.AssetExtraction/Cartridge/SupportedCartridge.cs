@@ -7,9 +7,9 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 public static class SupportedCartridge
 {
     /// <summary>Unheadered retail image: 96 physical LoROM banks, 3 MiB total.</summary>
-    public const int RomByteCount = CartridgeImportAddressSpace.RetailRomByteCount;
+    private const int RomByteCount = CartridgeImportAddressSpace.RetailRomByteCount;
     /// <summary>Optional copier metadata preceding the first physical ROM bank.</summary>
-    public const int CopierHeaderByteCount = 512;
+    private const int CopierHeaderByteCount = 512;
     /// <summary>SHA-256 of the verified unmodified Japan/USA NTSC v1.0 image.</summary>
     public const string Sha256 = "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72";
     /// <summary>Human-readable revision accepted by the installer.</summary>

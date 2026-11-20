@@ -272,7 +272,7 @@ internal static class MenuSheetFixtures
     /// <summary>Composes, loads and registers one fixture sheet under a name of its own.</summary>
     private static SpriteSheet Load(SpriteSheetId id, SpriteSheetSources sources, string fixture)
     {
-        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
+        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
         // A name of its own keeps its frames apart from the installed sheet's in the frame-source registry.
         SpriteSheet loaded = SpriteSheetFileConstants.Load(sheet.Manifest,
             $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", sheet.Size, sheet.Pixels, sheet.PaletteIndices);

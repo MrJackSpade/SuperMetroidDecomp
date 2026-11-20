@@ -8,10 +8,9 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// Visible animation core of the intro Mother Brain's cinematic sprite definition.
 /// </summary>
 /// <remarks>
-/// The actor starts at (56,111) in her own colouring,
-/// in front of the scene. Its animation cycles four authored frames at
-/// sixteen frames apiece. The actor also retains the hit counter, eight-frame colour
-/// flash, and the 128-frame exploding state and the room picture's shake.
+/// The actor starts at <see cref="IntroMotherBrainDefinitions.MotherBrainOrigin"/> in her own colouring,
+/// in front of the scene. Its animation cycles her authored frames. The actor also retains the hit counter,
+/// colour flash, and the exploding state and the room picture's shake.
 /// </remarks>
 internal sealed class IntroMotherBrainSpriteState
 {
@@ -102,7 +101,7 @@ internal sealed class IntroMotherBrainSpriteState
     }
 
     /// <summary>
-    /// Eight-frame white/normal alternation of every colour Mother Brain draws in (#1512).
+    /// White/normal alternation of every colour Mother Brain draws in (#1512), each look for <see cref="IntroMotherBrainDefinitions.HurtFlashUpdates"/>.
     /// </summary>
     public void ApplyHurtFlash()
     {
@@ -114,12 +113,12 @@ internal sealed class IntroMotherBrainSpriteState
     }
 
     /// <summary>
-    /// Mother Brain's hit test: the highest missile left of X=84 is killed and counted as a hit.
-    /// The fourth hit starts her explosion, which tests no missiles, so from then on every missile passes through.
+    /// Mother Brain's hit test: the highest missile left of <see cref="IntroMotherBrainDefinitions.MissileImpactLine"/> is killed and counted as a hit.
+    /// Her last hit starts her explosion, which tests no missiles, so from then on every missile passes through.
     /// </summary>
     /// <param name="impacts">The flashback projectile system's enemy impacts, which kill the missile.</param>
     /// <param name="samusBombs">The flashback's bombs and power-bomb explosion, which the kill consults.</param>
-    /// <returns>Whether this hit was the fourth, which starts the explosion.</returns>
+    /// <returns>Whether this hit was her last, which starts the explosion.</returns>
     public bool TakeMissileHit(ProjectileEnemyImpacts impacts, SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(impacts);
@@ -129,7 +128,7 @@ internal sealed class IntroMotherBrainSpriteState
     }
 
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>
-    public bool RecordMissileHit()
+    private bool RecordMissileHit()
     {
         hurtFlash.Restart(IntroMotherBrainDefinitions.HurtFlashUpdates);
         hitCount++;
@@ -162,8 +161,8 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>Shakes the room picture: its scroll alternates between the flashback's scroll and four pixels further.</summary>
     private void ApplyScreenShake(int cinematicFrameCounter)
     {
-        // The shake adds four on even cinematic frames and subtracts four on odd ones, so the room's scroll alternates
-        // between twelve and the flashback's eight and never passes the room's top.
+        // The shake adds its pixels on even cinematic frames and subtracts them on odd ones, so the room's scroll alternates
+        // between the flashback's own and further down, and never passes the room's top.
         Background = Background.WithY(Background.Y + IntroMotherBrainDefinitions.RoomShakePixels.Toward(
             IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter) ? VerticalDirection.Up : VerticalDirection.Down));
     }

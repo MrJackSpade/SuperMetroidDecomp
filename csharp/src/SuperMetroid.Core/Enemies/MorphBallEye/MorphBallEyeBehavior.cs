@@ -38,7 +38,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySettingsFactor
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();
 
     /// <summary>Initializes a closed eye body from its spawn facing.</summary>
-    internal static MorphBallEyeEnemyState InitializeMorphBallEyeBody(RoomEnemyPlace place, MorphBallEyeBodySpawnSettings settings)
+    internal static MorphBallEyeEnemyState InitializeMorphBallEyeBody(RoomEnemyOccupant occupant, RoomEnemyPlace place, MorphBallEyeBodySpawnSettings settings)
     {
         var state = new MorphBallEyeEnemyState(MorphBallEyeAction.WaitForSamus, settings);
         ShowNothingUntilAnimated(place);
@@ -51,7 +51,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySettingsFactor
     }
 
     /// <summary>Offsets a beam mount to its side of the eye, starts its pose and resets the room-global beam.</summary>
-    internal MorphBallEyeMountState InitializeMorphBallEyeMount(RoomEnemyPlace place, MorphBallEyeMountSpawnSettings settings)
+    internal MorphBallEyeMountState InitializeMorphBallEyeMount(RoomEnemyOccupant occupant, RoomEnemyPlace place, MorphBallEyeMountSpawnSettings settings)
     {
         var state = new MorphBallEyeMountState();
         ShowNothingUntilAnimated(place);
@@ -73,13 +73,13 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySettingsFactor
     private static void ShowNothingUntilAnimated(RoomEnemyPlace place)
     {
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.Restart();
     }
 
     /// <summary>Runs the body state machine only after Morph Ball is collected, preserving activation and tracking independently of equipment selection.</summary>
     private void RunMorphBallEyeMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
@@ -91,13 +91,13 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySettingsFactor
         switch (state.Action)
         {
             case MorphBallEyeAction.WaitForSamus:
-                WaitForSamusNearMorphBallEye(place, state, samus);
+                WaitForSamusNearMorphBallEye(occupant, place, state, samus);
                 return;
             case MorphBallEyeAction.Activating:
                 AdvanceMorphBallEyeActivation(place, state, samus);
                 return;
             case MorphBallEyeAction.Active:
-                TrackSamusWithMorphBallEye(place, state, samus);
+                TrackSamusWithMorphBallEye(occupant, place, state, samus);
                 return;
             case MorphBallEyeAction.Deactivating:
                 AdvanceMorphBallEyeDeactivation(state);
@@ -110,7 +110,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySettingsFactor
 
     /// <summary>Starts the eye's opening once Samus is closer than its opening reach on both axes.</summary>
     private static void WaitForSamusNearMorphBallEye(
-        RoomEnemyPlace eye,
+        RoomEnemyOccupant occupant, RoomEnemyPlace eye,
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
@@ -149,7 +149,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySettingsFactor
     /// once she leaves the wider reach on either axis.
     /// </summary>
     private void TrackSamusWithMorphBallEye(
-        RoomEnemyPlace eye,
+        RoomEnemyOccupant occupant, RoomEnemyPlace eye,
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
@@ -247,8 +247,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySettingsFactor
     }
 
     /// <summary>
-    /// Accelerates the beam's angular half-width by a quarter step per update until its whole steps reach four;
-    /// that update sets the whole steps to four, keeping the fraction, and the beam is full.
+    /// Accelerates the beam's angular half-width by <see cref="MorphBallEyeBeamDefinitions.WidthGrowthStep"/> each update until its whole steps reach
+    /// <see cref="MorphBallEyeBeamDefinitions.FullHalfWidth"/>; that update sets the whole steps to it, keeping the fraction, and the beam is full.
     /// </summary>
     private void WidenMorphBallEyeBeam()
     {
@@ -263,7 +263,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySettingsFactor
     }
 
     /// <summary>Cycles the sixteen beam colors while the body stays activated, otherwise begins fading.</summary>
-    internal void StepFullMorphBallEyeBeam(MorphBallEyeEnemyState bodyState)
+    private void StepFullMorphBallEyeBeam(MorphBallEyeEnemyState bodyState)
     {
         if (!bodyState.IsActivated)
         {
@@ -315,8 +315,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySettingsFactor
     }
 
     /// <summary>Runs MorphBallEye's main AI.</summary>
-    internal void RunMorphBallEyeMainAi(RoomEnemyPlace place, MorphBallEyeEnemyState state, IEnemyAiFrame frame)
+    internal void RunMorphBallEyeMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, MorphBallEyeEnemyState state, IEnemyAiFrame frame)
     {
-        RunMorphBallEyeMain(place, state, frame.Samus);
+        RunMorphBallEyeMain(occupant, place, state, frame.Samus);
     }
 }

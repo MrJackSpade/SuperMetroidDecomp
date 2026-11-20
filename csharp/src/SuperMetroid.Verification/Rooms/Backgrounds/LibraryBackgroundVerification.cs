@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Rooms.RoomBackgroundLibraryParityVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -170,7 +171,7 @@ internal static void VerifyLibraryBackgroundLoader()
     vram = new SnesVram();
     vram.ExecuteWordTransfer([0xffff], 0x4800, 1);
     ImportedLibraryBackgroundList clear = LibraryBackgroundProgramImporter.Read(bus, 0xe040);
-    LibraryBackgroundReplay.Execute(vram, clear.Name, clear.Instructions, activeDoor: FixtureRooms.UnmatchedDoor, artwork: new LibraryBackgroundArtwork());
+    LibraryBackgroundReplay.Execute(vram, clear.Name, clear.Instructions, picture: LibraryBackgroundPicture.Ordinary, artwork: new LibraryBackgroundArtwork());
     AssertEqual(0x0338, vram.ReadWord(0x4800), "library background clear first word");
     AssertEqual(0x0338, vram.ReadWord(0x4fff), "library background clear final word");
 
@@ -185,7 +186,7 @@ internal static void VerifyLibraryBackgroundLoader()
 private static SnesVram Replay(LibraryBackgroundProgram program, LibraryBackgroundArtwork artwork)
 {
     var vram = new SnesVram();
-    LibraryBackgroundReplay.Execute(vram, program, FixtureRooms.UnmatchedDoor, artwork);
+    LibraryBackgroundReplay.Execute(vram, program, LibraryBackgroundPicture.Ordinary, artwork);
     return vram;
 }
 

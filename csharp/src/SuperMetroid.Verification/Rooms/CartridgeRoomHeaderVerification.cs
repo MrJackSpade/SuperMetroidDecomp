@@ -18,7 +18,7 @@ internal static class CartridgeRoomHeaderVerification
         int isolated = 0;
         foreach (RoomDefinition definition in RetailRooms.All)
         {
-            SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(definition, RoomStateSelectionContexts.NoProgress);
+            SelectedRoom room = SelectedRoom.ForProgress(definition, RoomStateSelectionContexts.NoProgress);
             AssertEqual(definition.UsesIsolatedDoorTransition, room.UsesIsolatedDoorTransition,
                 $"room ${definition.Pointer:X4} isolated door transition");
             AssertEqual(definition.FallingCameraOffset, room.FallingCameraOffset, $"room ${definition.Pointer:X4} up scroller");

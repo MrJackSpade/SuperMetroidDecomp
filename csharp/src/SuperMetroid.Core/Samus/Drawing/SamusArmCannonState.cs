@@ -27,19 +27,19 @@ public sealed class SamusArmCannonState
     internal SamusArmCannonState(SamusArtworkBinding artwork) => _artwork = Ensure.NotNull(artwork);
 
     /// <summary>Whether the cover is open or opening; false while closed or closing.</summary>
-    public bool IsOpen { get; private set; }
+    private bool IsOpen { get; set; }
 
     /// <summary>Whether an opening or closing is still under way.</summary>
-    public bool IsTransitioning { get; private set; }
+    private bool IsTransitioning { get; set; }
 
     /// <summary>The cover picture shown, or null while the cover is closed.</summary>
-    public SamusArmCannonCoverFrame? Frame { get; private set; }
+    private SamusArmCannonCoverFrame? Frame { get; set; }
 
     /// <summary>
     /// The HUD selection's stability wait, lasting <see cref="SamusArmCannonDefinitions.StableSelectionUpdates"/>: a
     /// change starts it again, counting the changing update as its first, and a transition may begin once it is over.
     /// </summary>
-    internal readonly UpdateCountdown stability = UpdateCountdown.Lasting(SamusArmCannonDefinitions.StableSelectionUpdates);
+    private readonly UpdateCountdown stability = UpdateCountdown.Lasting(SamusArmCannonDefinitions.StableSelectionUpdates);
 
     /// <summary>Where this frame's cover is drawn relative to the body, from the pose's drawing mode.</summary>
     public SamusArmCannonDrawOrder DrawOrder { get; private set; }
@@ -84,8 +84,7 @@ public sealed class SamusArmCannonState
         Ensure.NotNull(sprites);
         Ensure.NotNull(samus);
 
-        // The cannon shares Samus's invincibility flicker, and a closed frame performs
-        // neither sprite nor artwork work. The game returns before even consulting pose data.
+        // The cannon shares Samus's invincibility flicker; a closed or flickered-out cover draws nothing.
         if (Frame is not { } cover || (!samus.InvincibilityTimer.IsZero && SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter)))
             return;
 
@@ -107,7 +106,7 @@ public sealed class SamusArmCannonState
     }
 
     /// <summary>
-    /// Starts opening or closing only after the HUD item has been stable for two updates. The starting update already
+    /// Starts opening or closing only after the HUD item has been stable for <see cref="SamusArmCannonDefinitions.StableSelectionUpdates"/>. The starting update already
     /// shows the transition's first picture: slightly open for an opening, fully open for a closing.
     /// </summary>
     private void TryStartTransition(HudItem selectedHudItem)

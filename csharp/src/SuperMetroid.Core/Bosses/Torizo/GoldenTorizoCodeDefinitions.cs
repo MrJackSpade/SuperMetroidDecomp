@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class GoldenTorizoCodeDefinitions
 {
     /// <summary>The secret chord: exactly Jump, Dash, Shoot and item cancel held, with no other action.</summary>
-    internal const GameplayAction ControllerChord = GameplayAction.Jump | GameplayAction.Dash | GameplayAction.Shoot | GameplayAction.ItemCancel;
-    /// <summary>Current and maximum energy, exactly 700 rather than 799.</summary>
+    private const GameplayAction ControllerChord = GameplayAction.Jump | GameplayAction.Dash | GameplayAction.Shoot | GameplayAction.ItemCancel;
+    /// <summary>Current and maximum energy.</summary>
     internal const int Energy = 700;
     /// <summary>Current and maximum reserve energy; the reserve mode stays as it was.</summary>
     internal const int ReserveEnergy = 300;
@@ -21,12 +21,12 @@ internal static class GoldenTorizoCodeDefinitions
     /// Every item but the Screw Attack, replacing the collected and equipped items without merging
     /// prior upgrades.
     /// </summary>
-    internal const SamusEquipmentFlags Items = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall |
+    private const SamusEquipmentFlags Items = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall |
         SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots |
         SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster |
         SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope;
     /// <summary>Every beam, collected and equipped, including simultaneous Spazer and Plasma.</summary>
-    internal const SamusBeamFlags Beams = SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer |
+    private const SamusBeamFlags Beams = SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer |
         SamusBeamFlags.Plasma | SamusBeamFlags.Charge;
     /// <summary>The whole loadout and the chord that grants it (#2410).</summary>
     internal static TorizoSecretCode Code { get; } = new(ControllerChord, Energy, ReserveEnergy, Missiles, SuperMissiles, PowerBombs, Items, Beams);

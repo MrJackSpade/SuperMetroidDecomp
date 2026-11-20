@@ -86,7 +86,7 @@ internal sealed class InstalledEnemyFrameDisplays
         if (ordinary.TryGetValue(frame, out EnemyFrameId selected) && OrdinaryFrames.Value.Contains(selected))
             return true;
         EnemyFrameId? displayed = extended.TryGetValue(frame, out selected) && ExtendedFrames.Value.ContainsKey(selected) ? selected
-            : frame != EnemyFrameId.Empty && ExtendedFrames.Value.ContainsKey(frame) ? frame : null;
+            : frame != EnemyFrameId.PointAtOrigin && ExtendedFrames.Value.ContainsKey(frame) ? frame : null;
         return displayed is { } stored && !EnemyExtendedFrameBounds.IsBg2Only(ExtendedFrames.Value[stored]);
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 
@@ -10,21 +11,28 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="norfair">Lower Norfair Ridley's encounter behaviour.</param>
 /// <param name="ceres">Ceres Ridley's encounter behaviour.</param>
 /// <param name="escape">The station's escape progress, which ends Ceres Ridley's touch and drawing.</param>
+[RoomLifetime]
 internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRidleyBehavior ceres, ICeresEscapeStatus escape) : IEnemyEntityFactory, IEnemySettingsFactory<RidleyExplosionSpawnSettings>
 {
+    /// <summary>Lower Norfair Ridley's encounter behaviour.</summary>
+    private NorfairRidleyBehavior Norfair { get; } = norfair;
+
+    /// <summary>Ceres Ridley's encounter behaviour.</summary>
+    private CeresRidleyBehavior Ceres { get; } = ceres;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
         [EnemyDefinitionId.Ridley, EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.RidleyBreakupPiece];
 
     /// <summary>Lower Norfair Ridley, Ceres Ridley, or a piece of the breakup explosion (#2146); a defeated room's Lower Norfair Ridley is deleted before any setup (#2554).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Ridley definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Ridley)
         {
             if (!norfair.Combat.IsDeletedAtOnce)
-                return new NorfairRidleyEntity(norfair, place, common);
+                return EnemyOccupant.Of(new NorfairRidleyEntity(Norfair, occupant, place, common));
             NorfairRidleyCombat.DeleteDefeatedRidley(place);
             return new DefeatedNorfairRidleyEntity(place, common);
         }

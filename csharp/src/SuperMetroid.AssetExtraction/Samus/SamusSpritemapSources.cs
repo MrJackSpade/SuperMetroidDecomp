@@ -22,7 +22,7 @@ public sealed class SamusSpritemapSources
     private const int MaxParts = 128;
 
     /// <summary>Validated selected compositions, each at its identity's ordinal.</summary>
-    internal readonly SamusSpritemapDefinition[] definitions;
+    private readonly SamusSpritemapDefinition[] definitions;
     /// <summary>Each pose's first upper-half table entry.</summary>
     private readonly Dictionary<SamusPoseId, int> topBases;
     /// <summary>Each pose's first lower-half table entry.</summary>
@@ -57,7 +57,7 @@ public sealed class SamusSpritemapSources
     /// <summary>The composition <paramref name="frame"/> shows; false only for a frame with none, which composes nothing.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose has no record.</exception>
     /// <exception cref="InvalidDataException">The animation frame is past every frame installed for the pose half.</exception>
-    public bool TryGetComposition(SamusBodyHalfFrame frame, out SamusSpritemapId composition)
+    private bool TryGetComposition(SamusBodyHalfFrame frame, out SamusSpritemapId composition)
     {
         IReadOnlyList<SamusSpritemapId?> frames = Frames(frame);
         SamusSpritemapId? shown = (uint)frame.AnimationFrame < (uint)frames.Count
@@ -107,7 +107,12 @@ public sealed class SamusSpritemapSources
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("top base", topBases[pose]);
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("bottom base", bottomBases[pose]);
         foreach (SamusSpritemapId? entry in Entries)
-            content.Append("entry", entry?.Ordinal ?? -1);
+        {
+            if (entry is { } held)
+                content.Append("entry", held.Ordinal);
+            else
+                content.Append("empty entry", 0);
+        }
         foreach (SamusSpritemapDefinition definition in definitions)
         {
             content.Append("part count", definition.Parts.Length);
@@ -117,19 +122,19 @@ public sealed class SamusSpritemapSources
     });
 
     /// <summary>The complete table in native order, preserving repeated compositions and entries with none.</summary>
-    public ReadOnlySpan<SamusSpritemapId?> Entries => entries;
+    private ReadOnlySpan<SamusSpritemapId?> Entries => entries;
 
     /// <summary>The table entry at which <paramref name="pose"/>'s upper half begins (native $92:9263).</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose has no record in the pose tables.</exception>
-    public int TopBase(SamusPoseId pose) => Base(topBases, pose);
+    private int TopBase(SamusPoseId pose) => Base(topBases, pose);
 
     /// <summary>The table entry at which <paramref name="pose"/>'s lower half begins (native $92:945D).</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose has no record in the pose tables.</exception>
-    public int BottomBase(SamusPoseId pose) => Base(bottomBases, pose);
+    private int BottomBase(SamusPoseId pose) => Base(bottomBases, pose);
 
     /// <summary>The table entry <paramref name="frame"/> reads: its pose half's first entry plus its animation frame.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose has no record in the pose tables.</exception>
-    public int EntryIndex(SamusBodyHalfFrame frame) => frame.Half switch
+    private int EntryIndex(SamusBodyHalfFrame frame) => frame.Half switch
     {
         SamusBodyHalf.Top => TopBase(frame.Pose),
         SamusBodyHalf.Bottom => BottomBase(frame.Pose),
@@ -138,7 +143,7 @@ public sealed class SamusSpritemapSources
 
     /// <summary>The composition the entry at <paramref name="index"/> names; false only for an entry with none, which draws nothing.</summary>
     /// <exception cref="InvalidDataException">The index is outside the table.</exception>
-    public bool TryGetEntry(int index, out SamusSpritemapId composition)
+    private bool TryGetEntry(int index, out SamusSpritemapId composition)
     {
         SamusSpritemapId? entry = entries[Checked(index)];
         composition = entry ?? default;

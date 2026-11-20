@@ -38,7 +38,7 @@ internal static class DraygonBodyPublicationVerification
         {
             draygon.Body.Position = draygon.Body.Position.WithWhole(body);
             // His body is placed at his position, moved by his body graphics' displacement (#1940, #2031).
-            Position16<RoomPixels> expected = body + draygon.BodyPictureShift;
+            Position16<RoomPixels> expected = body + global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState, global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.RoomPixels>>(draygon, "BodyPictureShift");
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             AssertEqual<Position16<RoomPixels>?>(expected, runtime.Display.LatchedOrdinaryRoom.Bosses.Placement, $"Draygon at {body} publishes his body's placement");
             AssertTrue(!runtime.Display.LatchedOrdinaryRoom.Bosses.Hidden, $"Draygon at {body} shows his body");

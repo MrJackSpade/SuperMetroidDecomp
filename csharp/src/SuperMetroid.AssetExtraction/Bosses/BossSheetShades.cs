@@ -187,7 +187,7 @@ internal static class BossSheetShades
     /// The shades of Draygon's body layer: his material
     /// colours, their white flash and his eight health bands.
     /// </summary>
-    internal static IReadOnlyList<SheetShade> DraygonBackground(BossSourceArtwork bosses)
+    private static List<SheetShade> DraygonBackground(BossSourceArtwork bosses)
     {
         DraygonColorCatalog draygon = bosses.DraygonColors;
         var shades = new List<SheetShade>

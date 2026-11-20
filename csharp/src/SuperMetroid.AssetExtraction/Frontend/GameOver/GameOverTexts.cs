@@ -4,14 +4,13 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver;
 
 /// <summary>The game-over page's five text elements and the cells they start on.</summary>
 /// <remarks>
-/// Independently reviewed for #1165: the menu's initialization loads the title, objective, prompt, Yes and No
-/// elements in this order. The elements start at screen columns/rows (11,5), (5,14), (10,16), (7,19) and (7,23).
-/// Named screen-element cases select the text and its origin directly, without persistent record storage.
+/// The menu's initialization loads the title, objective, prompt, Yes and No elements in this order, each from the
+/// screen cell <see cref="Get"/> gives it.
 /// </remarks>
 public static class GameOverTexts
 {
     /// <summary>Selects one text element; unsupported selectors are rejected.</summary>
-    public static GameOverTextStream Get(GameOverTextElement element) => element switch
+    private static GameOverTextStream Get(GameOverTextElement element) => element switch
     {
         GameOverTextElement.Title => new(element, new(11, 5), "GAME OVER"),
         GameOverTextElement.Objective => new(element, new(5, 14), "FIND THE METROID LARVA"),

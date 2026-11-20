@@ -74,7 +74,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
             AssertEqual((byte)0, CpuBusRegionRead.Read(bus, record + 9),
                 $"Ceres-door Mode-7 transfer {frame} terminator");
             byte[] nativeFrame = RomDataReader.ReadFixedBank(bus, source, stripCells);
-            IReadOnlyDictionary<int, int> pictured = CeresFloorDrawings.Cells(strips[frame]);
+            Dictionary<int, int> pictured = CeresFloorDrawings.Cells(strips[frame]);
             AssertTrue(nativeFrame.Select((tile, cell) => pictured[stripFirstCell + cell] == tile).All(same => same),
                 $"the import pictures Ceres-door floor strip {frame} from the native transfer");
         }

@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's shared neck math. Both the live room-enemy actor
-/// and the later rainbow-beam sequence use these exact angle steps; keeping them here
-/// prevents the two encounter halves from slowly acquiring different articulation rules.
+/// How Mother Brain's neck bobs, lowers and raises, by the same angle steps in the fight and in the rainbow beam's
+/// sequence.
 /// </summary>
 internal static class MotherBrainNeckKinematics
 {
@@ -40,7 +39,7 @@ internal static class MotherBrainNeckKinematics
         {
             case MotherBrainNeckMovement.None:
                 break;
-            case MotherBrainNeckMovement.BobDown: // Bob down to five thirty-seconds of a turn, then reverse.
+            case MotherBrainNeckMovement.BobDown: // Bob down to the bob's floor, then reverse.
             {
                 RotationAngle candidate = lowerAngle - turn;
                 if (candidate.CompareTo(LowerBobFloor) < 0)
@@ -51,7 +50,7 @@ internal static class MotherBrainNeckKinematics
                 lowerAngle = candidate;
                 break;
             }
-            case MotherBrainNeckMovement.BobUp: // Bob up to nine sixteenths of a turn unless the brain is already above its highest bob.
+            case MotherBrainNeckMovement.BobUp: // Bob up to the lower neck's ceiling unless the brain is already above its highest bob.
                 if (brainY < MotherBrainNeckJointDefinitions.BobUpHighestBrainY)
                 {
                     lowerMovement = MotherBrainNeckMovement.BobDown;
@@ -94,8 +93,7 @@ internal static class MotherBrainNeckKinematics
                     $"Unsupported lower-neck movement {lowerMovement}.");
         }
 
-        // Runs the upper step after the lower step, so it observes the
-        // lower angle and movement-index mutations made immediately above on this frame.
+        // The upper neck moves after the lower neck and sees its new angle and movement.
         switch (upperMovement)
         {
             case MotherBrainNeckMovement.None:
@@ -117,7 +115,7 @@ internal static class MotherBrainNeckKinematics
                     upperAngle = candidate;
                 }
                 break;
-            case MotherBrainNeckMovement.BobUp: // Follow eight angle units above the newly updated lower segment.
+            case MotherBrainNeckMovement.BobUp: // Follow the upper neck's lead above the newly updated lower segment.
             {
                 RotationAngle target = lowerAngle + UpperLeadOverLower;
                 RotationAngle candidate = upperAngle + turn;
@@ -129,7 +127,7 @@ internal static class MotherBrainNeckKinematics
                 upperAngle = candidate;
                 break;
             }
-            case MotherBrainNeckMovement.Lower: // One-way lower to an eighth of a turn.
+            case MotherBrainNeckMovement.Lower: // One-way lower to the upper neck's floor.
             {
                 RotationAngle candidate = upperAngle - turn;
                 if (candidate.CompareTo(UpperFloor) < 0)
@@ -140,7 +138,7 @@ internal static class MotherBrainNeckKinematics
                 upperAngle = candidate;
                 break;
             }
-            case MotherBrainNeckMovement.Raise: // One-way raise to lower angle plus a thirty-second of a turn.
+            case MotherBrainNeckMovement.Raise: // One-way raise to the lower angle plus the upper neck's lead.
             {
                 RotationAngle target = lowerAngle + UpperLeadOverLower;
                 RotationAngle candidate = upperAngle + turn;
@@ -190,6 +188,6 @@ internal static class MotherBrainNeckKinematics
     /// <summary>
     /// One axis of a joint's displacement: its distance times the angle's sine, in whole pixels rounded down.
     /// </summary>
-    internal static int CalculateSignedComponent(TrigonometryAngle angle, int distance) =>
+    private static int CalculateSignedComponent(TrigonometryAngle angle, int distance) =>
         UnitComponent.SineOf(angle).ReachRoundedDownOf(distance);
 }

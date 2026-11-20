@@ -1,4 +1,4 @@
-using SuperMetroid.Core;
+﻿using SuperMetroid.Core;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -25,8 +25,7 @@ internal static class DownwardGateProjectileBehaviorVerification
         IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, DownwardGateProjectileNativeListAddresses.Extent, "downward gate");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        EnemyProjectile gate = enemies.Projectiles.ProjectileInPlace(0);
-        FamilyProjectileStarts.Initialize(enemies, gate, RoomEnemyProjectileKind.DownwardGateMoving,
+        EnemyProjectile gate = FamilyProjectileStarts.Spawn(enemies, 0, RoomEnemyProjectileKind.DownwardGateMoving,
             SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
         AssertTrue(gate.Animation is DownwardGateProjectileAnimation { PlayingSegment: DownwardGateProjectileSegment.Moving }, "the moving gate starts its program");
         // The gate's start binds the behaviour its spawn builds, keeping a sliding gate at the room's first block.
@@ -42,12 +41,12 @@ internal static class DownwardGateProjectileBehaviorVerification
             current = gate.Animation is DownwardGateProjectileAnimation playing
                 ? playing.PlayingSegment
                 : throw new InvalidOperationException("The gate lost its animation.");
-            DownwardGateProjectileSegment stage = gate.StateOf<DownwardGateState>().Stage;
-            gate.StateOf<DownwardGateState>().BlockTravel = UpdateCountdownAccess.AtAge(RoomGridConversions.BlockPixels, RoomGridConversions.BlockPixels - 1);
+            DownwardGateProjectileSegment stage = enemies.DownwardGateBehavior.Gate.Gates.Of(gate).Stage;
+            enemies.DownwardGateBehavior.Gate.Gates.Of(gate).BlockTravel.PlaceAt(UpdateCountdownAccess.AtAge(RoomGridConversions.BlockPixels, RoomGridConversions.BlockPixels - 1));
             gate.Velocity = gate.Velocity.WithY(new SignedEightEight(256));
-            DownwardGateBehavior.RunDownwardGateProjectileMovement(gate);
+            DownwardGateBehavior.RunDownwardGateProjectileMovement(enemies.DownwardGateBehavior.Gate, gate);
             DownwardGateProjectileSegment resumed = DownwardGateProjectileAnimations.NextStage[stage];
-            AssertEqual(resumed, gate.StateOf<DownwardGateState>().Stage, $"a block's travel takes {current} on to the stage it names next");
+            AssertEqual(resumed, enemies.DownwardGateBehavior.Gate.Gates.Of(gate).Stage, $"a block's travel takes {current} on to the stage it names next");
             AssertTrue(gate.Animation is DownwardGateProjectileAnimation next && next.PlayingSegment == resumed, $"a block's travel takes {current} on to {resumed}");
             AssertEqual((ushort)1, gate.FrameHold.RawValue, $"{resumed} wakes on the same pass");
             current = resumed;

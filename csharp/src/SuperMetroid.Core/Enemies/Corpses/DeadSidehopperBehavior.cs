@@ -14,7 +14,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySettingsFact
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseSidehopper];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, DeadSidehopperSpawnSettings settings) => new DeadSidehopperEntity(this, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, DeadSidehopperSpawnSettings settings) => EnemyOccupant.Of(new DeadSidehopperEntity(this, occupant, place, common, settings));
 
     /// <summary>Provides installed artwork and the room random source for corpse decomposition.</summary>
     private readonly EnemyRoomBinding _room;
@@ -45,21 +45,21 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySettingsFact
     }
 
     /// <summary>Carries out the dead Sidehopper's animation cue.</summary>
-    private static DeadTourianSegment? ApplyDeadSidehopperCue(DeadSidehopperEnemyState state, DeadTourianCue cue)
+    private static void ApplyDeadSidehopperCue(DeadSidehopperEnemyState state, DeadTourianCue cue)
     {
         switch (cue.Kind)
         {
             case DeadTourianCueKind.EndHop:
                 // The end-hop cue ends the landing animation and hands ownership back to main AI.
                 SelectDeadSidehopperPostAnimationState(state);
-                return null;
+                return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(DeadTourianCueKind)} {cue.Kind}.");
         }
     }
 
     /// <summary>Initializes the dead Sidehopper.</summary>
-    internal DeadSidehopperEnemyState InitializeDeadSidehopper(RoomEnemyPlace place, DeadSidehopperSpawnSettings settings)
+    internal DeadSidehopperEnemyState InitializeDeadSidehopper(RoomEnemyOccupant occupant, RoomEnemyPlace place, DeadSidehopperSpawnSettings settings)
     {
         DeadSidehopperLayout layout = settings.Layout;
         return layout switch
@@ -73,8 +73,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySettingsFact
     /// <summary>Runs the Baby Metroid victim layout.</summary>
     private DeadSidehopperEnemyState InitializeBabyMetroidVictimSidehopper(RoomEnemyPlace place)
     {
-        // The victim stops being solid to Samus and is processed off screen; the other contact and processing
-        // properties the room's population gave it stay as they were, which is observable.
+        // The victim stops being solid to Samus and keeps updating off screen; everything else about its contact stays
+        // as the room gave it.
         place.Contact = place.Contact.Without(EnemyContact.SolidToSamus);
         place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
         // A Baby Metroid that has already fed on this Sidehopper leaves no victim.
@@ -117,7 +117,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySettingsFact
         RunDeadSidehopperState(place, state, samus, level, camera);
 
     /// <summary>Advances the authored hop, post-landing delay, drain, or collision-triggered decay state.</summary>
-    internal void RunDeadSidehopperState(
+    private void RunDeadSidehopperState(
         RoomEnemyPlace place,
         DeadSidehopperEnemyState state,
         SamusState samus,
@@ -287,9 +287,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySettingsFact
     }
 
     /// <summary>
-    /// The end-hop cue selects the post-landing state from whether Baby Metroid has begun draining the victim. It is
-    /// deliberately cue-driven: replacing it with a main-AI timer would make animation length and movement
-    /// cadence diverge.
+    /// The end of the landing animation selects what follows the landing, from whether the Baby Metroid has begun
+    /// draining the victim.
     /// </summary>
     private static void SelectDeadSidehopperPostAnimationState(DeadSidehopperEnemyState state)
     {
@@ -311,14 +310,15 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySettingsFact
 
     /// <summary>Resolves Samus touching the dead Sidehopper.</summary>
     private void ResolveDeadSidehopperTouch(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant corpse,
         DeadSidehopperEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
+        RoomEnemyPlace place = corpse.Place;
         if (!state.IsDrained)
         {
-            _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
+            _collision.ResolveOrdinaryTouch(corpse, samus, pseudoScrew);
             return;
         }
         TriggerDeadSidehopperRotting(place, state);
@@ -371,7 +371,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySettingsFact
 
 
     /// <summary>Starts a new dead Sidehopper animation, resetting both animation clocks before its first step runs.</summary>
-    internal static void SetDeadSidehopperAnimation(RoomEnemyPlace place, DeadSidehopperEnemyState state, DeadTourianSegment segment) =>
+    private static void SetDeadSidehopperAnimation(RoomEnemyPlace place, DeadSidehopperEnemyState state, DeadTourianSegment segment) =>
         state.Playback = StartDeadTourianAnimation(place, segment);
 
     /// <summary>Resets <paramref name="place"/>'s animation clocks and returns the playback of <paramref name="segment"/>'s animation from its start.</summary>
@@ -397,10 +397,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySettingsFact
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<DeadTourianSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, DeadTourianAnimations.Segments, ref playback,
-            cue => ApplyDeadSidehopperCue(state, cue) is { } target
-                ? new AnimationContinuation<DeadTourianSegment>(DeadTourianAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+        EnemyAnimationPlayback.PlayApplyingCues(place, DeadTourianAnimations.Segments, ref playback,
+            (DeadTourianCue cue) => ApplyDeadSidehopperCue(state, cue));
         state.Playback = playback;
     }
 
@@ -412,14 +410,14 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySettingsFact
     };
 
     /// <summary>Marks projectile collision while withholding damage until the transformed corpse can decay.</summary>
-    /// <remarks>The common projectile prelude always marks the shot, but the private reaction ignores it until the
-    /// victim is fully drained. Even then it starts rotting without vulnerability damage or impact.</remarks>
+    /// <remarks>The shot is marked as having hit, but the victim ignores it until it is fully drained; even then it
+    /// starts rotting without taking damage or an impact.</remarks>
     /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
     internal static EnemyShotReaction DeadSidehopperShotReactionOf(DeadSidehopperEnemyState state) => new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             ResolveDeadSidehopperShot(c.Enemy, state);
             return true;
         },
@@ -431,5 +429,5 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySettingsFact
     internal void ReactToDeadSidehopperTouch(EnemyTouchContext context, DeadSidehopperEnemyState state) =>
         // Before Baby Metroid finishes feeding, the touch reaction uses normal contact damage without a death animation. At
         // the end of the drain it instead starts the corpse decomposition and never enters common touch damage.
-        ResolveDeadSidehopperTouch(context.Place, state, context.Samus, context.PseudoScrew);
+        ResolveDeadSidehopperTouch(context.Occupant, state, context.Samus, context.PseudoScrew);
 }

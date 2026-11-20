@@ -5,20 +5,19 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The four Rinkas (the ring-shaped “Cheerios”) fired during the Mother Brain flashback.
+/// The Rinkas (the ring-shaped “Cheerios”) fired during the Mother Brain flashback.
 /// </summary>
 /// <remarks>
-/// This models the Rinka definitions, their animations and the scene's two waves of launches.
-/// Only the first Rinka launched is scripted to strike Samus; the other three deliberately miss.
-/// The hit step does not subtract health in the cinematic. It publishes eleven
-/// frames of invincibility and knockback, which makes Samus flash and visibly react.
+/// The scene launches its Rinkas in two waves. Only the first Rinka launched strikes Samus; the others miss.
+/// The hit step does not subtract health in the cinematic. It publishes its invincibility and knockback
+/// (<see cref="IntroRinkaDefinitions.StrikeKnockbackUpdates"/>), which makes Samus flash and visibly react.
 /// The Rinkas are a list in spawn order with no cap (#1625): only the first one launched touches Samus, so the order the
 /// others step and draw in is not observable.
 /// </remarks>
 internal sealed class IntroRinkaSystem
 {
     /// <summary>The live Rinkas, in spawn order; a deleted Rinka leaves the list at the end of the pass that deletes it.</summary>
-    internal readonly List<IntroRinka> rinkas = [];
+    private readonly List<IntroRinka> rinkas = [];
     /// <summary>The waves of launches still to come, the next first (<see cref="IntroRinkaDefinitions.Launches"/>).</summary>
     private readonly Queue<IntroRinkaLaunchWave> waves = new(IntroRinkaDefinitions.Launches);
     /// <summary>The next wave's wait, counted once each update; the update it ends on launches the wave.</summary>
@@ -137,7 +136,7 @@ internal sealed class IntroRinkaSystem
 
     /// <summary>
     /// Where a Rinka at <paramref name="position"/> drifts to: sideways by <paramref name="sideways"/> and down by half a
-    /// pixel, so every second update the half pixels add up to one more whole pixel.
+    /// pixel, so on alternate updates the half pixels add up to one more whole pixel.
     /// </summary>
     private static FixedVector<ScreenPixels> Drifted(FixedVector<ScreenPixels> position, SignedSixteenSixteen sideways) =>
         new(position.X + sideways, position.Y + IntroRinkaDefinitions.DownwardDrift);

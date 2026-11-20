@@ -19,16 +19,15 @@ public abstract class RoomMainBehavior
     public string Name { get; }
 
     /// <summary>Has the room <paramref name="scope"/> builds compose this main, with the state it keeps.</summary>
-    /// <param name="scope">The room being loaded: its door, its state and the working value the previous room's main left.</param>
+    /// <param name="scope">The room being loaded: its door, its state and what the previous room's main left the room
+    /// mains to share.</param>
     internal abstract void Compose(RoomScopeConstruction scope);
 
     /// <inheritdoc/>
     public override string ToString() => Name;
 
     /// <summary>
-    /// No room-specific main behaviour runs: the state names no main, one that returns at once and leaves the working
-    /// value the room mains share (<see cref="RoomMainHandOvers"/>) untouched (#1787), or Ridley's room's, whose only work nothing
-    /// reads (#2287).
+    /// These rooms run no room-specific behaviour each update (#1787, #2287).
     /// </summary>
     public static RoomMainBehavior None { get; } = new NoRoomMain();
 
@@ -66,9 +65,9 @@ public abstract class RoomMainBehavior
         new EscapeRoomMain(nameof(ShakeScreenLightHorizontalAndMediumDiagonal), EscapeExplosionSite.Indoors,
             ZebesEscapeDefinitions.LightShakingTurnsMediumDiagonal);
 
-    /// <summary>Sets off a random explosion every fourth gameplay update.</summary>
-    public static RoomMainBehavior RandomExplosionEveryFourthUpdate { get; } =
-        new EscapeRoomMain(nameof(RandomExplosionEveryFourthUpdate), EscapeExplosionSite.Indoors, null);
+    /// <summary>Sets off the escape's random indoor explosions at their cadence.</summary>
+    public static RoomMainBehavior RandomEscapeExplosions { get; } =
+        new EscapeRoomMain(nameof(RandomEscapeExplosions), EscapeExplosionSite.Indoors, null);
 
     /// <summary>Alternates medium horizontal and strong diagonal shaking.</summary>
     public static RoomMainBehavior ShakeScreenMediumHorizontalAndStrongDiagonal { get; } =

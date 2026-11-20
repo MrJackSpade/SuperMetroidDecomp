@@ -17,7 +17,7 @@ internal static class DownwardGateProjectileCueRules
         [NativeEnemyProjectileInstruction.FrameBehaviorInY] = NativeCueCommand<DownwardGateProjectileCue>.Of<DownwardGateProjectileCue.Signal>(2, (operands, cue, at) =>
         {
             VerificationAssertions.AssertEqual(DownwardGateProjectileCueKind.StartSliding, cue.Kind, $"{at}: cue");
-            VerificationAssertions.AssertEqual<Enum?>(SingleMotion.Moving, EnemyProjectileMotionAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction");
+            VerificationAssertions.AssertTrue(EnemyProjectileMotionAccess.StandsFor(LittleEndianBytes.Word(operands[0], operands[1]), SingleMotion.Moving), $"{at}: pre-instruction");
         }),
         [NativeEnemyProjectileInstruction.DownwardGateSetYVelocityInstruction] = NativeCueCommand<DownwardGateProjectileCue>.Of<DownwardGateProjectileCue.SetYVelocity>(2, (operands, cue, at) =>
             VerificationAssertions.AssertEqual(LittleEndianBytes.Word(operands[0], operands[1]), cue.YVelocity.RawValue, $"{at}: Y velocity")),

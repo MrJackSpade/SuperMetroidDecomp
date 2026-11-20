@@ -3,8 +3,10 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <summary>
 /// Every slope shape (#1805), each with its surface's height under each pixel column, the share of a grounded horizontal
 /// move that crosses it (<see cref="SlopeSpeedDefinitions"/> names the families) and the share of a crawler's tangent
-/// speed that carries along it. Heights count pixels down from the block's top: sixteen is a column with no surface in the
-/// block, and twenty a surface below it. The coefficients are the game's authored tuning (#1165).
+/// speed that carries along it. Heights count pixels down from the block's top: the block's full height is a column whose
+/// surface is the block's bottom edge, with nothing solid in the block, and <see cref="SlopeShape.BelowBlockHeight"/> a
+/// surface below it. Both are distances the collision arithmetic subtracts from and compares like any other height, not
+/// markers standing for a missing surface (#2558). The coefficients are the game's authored tuning (#1165).
 /// </summary>
 public static class SlopeShapeDefinitions
 {
@@ -49,8 +51,8 @@ public static class SlopeShapeDefinitions
         SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
 
     /// <summary>
-    /// A flat surface at the block's top that no slope uses, numbered six ways by the game. It is the surface of
-    /// <see cref="Solid"/>, kept apart from it because a block keeps its behaviour through a change of collision kind
+    /// A flat surface at the block's top that no slope uses. It is the surface of <see cref="Solid"/>, kept apart from
+    /// it because a block keeps its behaviour through a change of collision kind
     /// (<see cref="SuperMetroid.Core.Compatibility.BlockParameterCarryOver{TBehavior, TReading}"/>): a slope written as
     /// <see cref="Solid"/> keeps that shape's own behaviour, which this shape's would not (#1909).
     /// </summary>

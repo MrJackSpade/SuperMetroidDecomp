@@ -1,9 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
-/// <summary>How long a Hibashi rests and whether it is the collision part (#1472, #1519).</summary>
-/// <param name="InactiveTime">The updates it rests between flames.</param>
-/// <param name="Part">Which part of the Hibashi it is.</param>
-internal sealed record HibashiSpawnSettings(int InactiveTime, HibashiPart Part) : EnemySpawnSettings
+/// <summary>What a Hibashi placement is (#1472, #1519, #2342): its flame or the collision part the flame moves and sizes.</summary>
+internal abstract record HibashiSpawnSettings : EnemySpawnSettings
 {
     /// <inheritdoc/>
     internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);

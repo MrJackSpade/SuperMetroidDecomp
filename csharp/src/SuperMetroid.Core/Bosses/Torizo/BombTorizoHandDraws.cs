@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
@@ -11,7 +10,6 @@ internal static class BombTorizoHandDraws
 {
     /// <summary>The intact and cleared hand, pictured by the installed hand frames.</summary>
     internal static RoomObjectDrawFamily<BombTorizoHandDraw> Family { get; } =
-        RoomObjectDrawFamily<BombTorizoHandDraw>.Pictured<InstalledRoomObjectBombTorizoHandVisuals>("Bomb Torizo hand",
-            frame => RoomObjectDrawFamily<BombTorizoHandDraw>.Defined(BombTorizoHandObjectDrawDefinitions.Shapes, frame),
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<BombTorizoHandDraw>("Bomb Torizo hand",
+            frame => RoomObjectDrawFamily<BombTorizoHandDraw>.Defined(BombTorizoHandObjectDrawDefinitions.Shapes, frame));
 }

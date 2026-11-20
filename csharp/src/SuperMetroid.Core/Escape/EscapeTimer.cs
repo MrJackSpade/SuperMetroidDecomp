@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Escape;
 /// at the screen's centre, moves into its corner while counting, and reports expiry when the countdown reaches zero.
 /// </summary>
 /// <remarks>
-/// The countdown is held in centiseconds and removes one or two each update by the cadence that makes 128 updates take
-/// 2.13 seconds (<see cref="EscapeTimerCadence"/>). Counting below zero stops at zero. An expired countdown is only drawn
+/// The countdown is held in centiseconds and removes one or two each update by the timer's cadence
+/// (<see cref="EscapeTimerCadence"/>). Counting below zero stops at zero. An expired countdown is only drawn
 /// until the time-up stops it (#2499).
 /// </remarks>
 public sealed class EscapeTimer
@@ -32,7 +32,7 @@ public sealed class EscapeTimer
     public bool IsActive => Phase is not (EscapeTimerPhase.Inactive or EscapeTimerPhase.Starting or EscapeTimerPhase.StoppedAtTimeUp);
 
     /// <summary>The countdown remaining, in centiseconds, 0 through <see cref="LongestTime"/>.</summary>
-    public int RemainingCentiseconds { get; private set; }
+    private int RemainingCentiseconds { get; set; }
 
     /// <summary>The minutes, seconds and centiseconds the timer shows.</summary>
     public EscapeTimeReadout Readout => EscapeTimeReadout.Of(RemainingCentiseconds);
@@ -41,7 +41,7 @@ public sealed class EscapeTimer
     /// The timer's signed place on the screen, from the screen's top-left corner, its fractions kept as it slides into its
     /// corner.
     /// </summary>
-    public FixedVector<ScreenPixels> Position { get; private set; }
+    private FixedVector<ScreenPixels> Position { get; set; }
 
     /// <summary>The whole-pixel screen place the timer's label and digits are drawn from.</summary>
     public Offset16<ScreenPixels> ScreenPlace => Position.Whole;

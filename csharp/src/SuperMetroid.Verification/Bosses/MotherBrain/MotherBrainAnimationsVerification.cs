@@ -68,10 +68,10 @@ internal static class MotherBrainAnimationsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace bodyPlace = enemies.Places.InUpdateOrder[0];
-        bodyPlace.Bind(EnemyDefinitionId.MotherBrainBody, bodyPlace.Definition);
+        bodyPlace.Bind(EnemyDefinitionId.MotherBrainBody, bodyPlace.KeptDefinition);
         RoomEnemyPlace headPlace = enemies.Places.InUpdateOrder[1];
-        headPlace.Bind(EnemyDefinitionId.MotherBrainHead, headPlace.Definition);
-        var state = new MotherBrainEnemyState(bodyPlace, headPlace, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+        headPlace.Bind(EnemyDefinitionId.MotherBrainHead, headPlace.KeptDefinition);
+        var state = new MotherBrainEnemyState(bodyPlace.HeldOccupant(), headPlace, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
         enemies.MotherBrainEncounter.BeginAsSetUp(state);
         return new NewMotherBrainResult(enemies, state);
     }
@@ -196,20 +196,22 @@ internal static class MotherBrainAnimationsVerification
         IImportCartridgeSource cartridge = rom;
         int compared = 0;
         foreach ((MotherBrainGlassSegment program, ushort entry) in GlassEntries)
-            compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainGlassShard, new MotherBrainGlassAnimation(program), entry, 64, $"glass {program}");
+            compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainGlassShard,
+                enemies => new MotherBrainGlassAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile, program), entry, 64, $"glass {program}");
         foreach ((MotherBrainTurretDirection direction, ushort turretPose, ushort bulletPose, int selectorEntry) in TurretEntries)
         {
             compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurret,
-                new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(direction)),
+                enemies => new MotherBrainTurretAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile, MotherBrainTurretPose.Turret(direction)),
                 turretPose, 4, $"turret {direction}", timesItsFrames: false);
             compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
-                new MotherBrainTurretAnimation(MotherBrainTurretPose.Bullet(direction)),
+                enemies => new MotherBrainTurretAnimation(enemies.MotherBrainBehavior.Projectiles.TurretBullet, MotherBrainTurretPose.Bullet(direction)),
                 bulletPose, 4, $"bullet {direction}", timesItsFrames: false);
             // The bullet list's direction selector jumps to this pose; the typed bullet starts it directly.
             AssertEqual(bulletPose, cartridge.ReadCartridgeWord(selectorEntry),
                 $"the bullet selector's {direction} entry");
         }
-        compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, new MotherBrainTurretAnimation(MotherBrainTurretPose.BulletImpact),
+        compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
+            enemies => new MotherBrainTurretAnimation(enemies.MotherBrainBehavior.Projectiles.TurretBullet, MotherBrainTurretPose.BulletImpact),
             BulletImpact, 64, "bullet impact");
         compared += CompareHandBeam(cartridge);
         Console.WriteLine($"  Mother Brain projectile programs: {compared} updates of glass, turret, bullet and hand-beam frames match bank $86.");
@@ -219,18 +221,17 @@ internal static class MotherBrainAnimationsVerification
     /// Runs <paramref name="animation"/> on a projectile of <paramref name="kind"/> beside its native list; returns the
     /// updates compared. A still pose, which holds its frame for good (#2318), times nothing, so its timer is not compared.
     /// </summary>
-    private static int CompareProjectile(IImportCartridgeSource cartridge, RoomEnemyProjectileKind kind, EnemyProjectileAnimation animation,
+    private static int CompareProjectile(IImportCartridgeSource cartridge, RoomEnemyProjectileKind kind, Func<RoomEnemySystem, EnemyProjectileAnimation> animation,
         ushort entry, int updates, string name, bool timesItsFrames = true)
     {
         (RoomEnemySystem enemies, _) = NewMotherBrain();
-        EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
-        FamilyProjectileStarts.Initialize(enemies, projectile, kind, MotherBrainTurretDefinitions.Graphics);
-        projectile.StartAnimation(animation);
+        EnemyProjectile projectile = FamilyProjectileStarts.Spawn(enemies, 17, kind, MotherBrainTurretDefinitions.Graphics);
+        projectile.StartAnimation(animation(enemies));
         var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
         int update = 0;
         for (; update < updates && !native.Deleted; update++)
         {
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             native.Step(cartridge);
             string at = $"{name} update {update}";
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
@@ -259,8 +260,7 @@ internal static class MotherBrainAnimationsVerification
         enemies.VerificationServices().ReadRandom = () => 0;
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         state.HandBeamNextVelocity = new(new SignedEightEight(256), new SignedEightEight(0));
-        EnemyProjectile beam = enemies.Projectiles.ProjectileInPlace(17);
-        FamilyProjectileStarts.Initialize(enemies, beam, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, default);
+        EnemyProjectile beam = FamilyProjectileStarts.Spawn(enemies, 17, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, default);
         // The charging beam holds the encounter that spawned it, as its spawn gives it (#2218).
         var beamBehavior = enemies.MotherBrainBehavior.Projectiles.WithEncounter(new MotherBrainProjectileState(state));
         beam.Rebind(beamBehavior);
@@ -271,7 +271,7 @@ internal static class MotherBrainAnimationsVerification
         for (; update < 64 && !native.Deleted; update++)
         {
             FixedPosition<RoomPixels> aim = state.HandBeamNextPosition;
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(beam, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(beam, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             native.Step(cartridge);
             string at = $"hand beam update {update}";
             bool spawned = native.Calls.Count > 0;

@@ -41,7 +41,7 @@ internal static class RoomPerformanceStateFixture
         }
         runtime.Player.Samus.Control.LockOutPlayer();
         runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new((ushort)(camera + (surface ? 128 : 64)), (ushort)(camera + 160)));
-        data.Game.Session.Enter(SuperMetroidGameState.MainGameplay);
+        data.Game.Session.Enter(data.Game.Session.Phases.MainGameplay);
         double stepMs = 0, renderMs = 0, audioMs = 0;
         var pcm = new short[AudioSession.PcmSamplesPerFrame];
         RgbaPixel[]? pixels = null;

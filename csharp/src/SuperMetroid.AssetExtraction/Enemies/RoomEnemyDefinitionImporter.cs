@@ -42,7 +42,7 @@ public static class RoomEnemyDefinitionImporter
     }
 
     /// <summary>Header offset of the bank byte that qualifies the header's code and palette words.</summary>
-    internal const int BankOffset = 12;
+    private const int BankOffset = 12;
 
     /// <summary>Header offset of the palette word.</summary>
     private const int PaletteOffset = 2;
@@ -52,10 +52,10 @@ public static class RoomEnemyDefinitionImporter
         EnemySourceDefinitions.EnemyHeaderBank | unchecked((ushort)(header + offset));
 
     /// <summary>Reads the little-endian header word <paramref name="offset"/> bytes into the header at <paramref name="header"/>.</summary>
-    internal static ushort ReadWord(IImportCartridgeSource cartridge, int header, int offset) =>
+    private static ushort ReadWord(IImportCartridgeSource cartridge, int header, int offset) =>
         RomDataReader.ReadWordFixedBank(cartridge, HeaderAddress(header, offset));
 
     /// <summary>Reads the header byte <paramref name="offset"/> bytes into the header at <paramref name="header"/>.</summary>
-    internal static byte ReadByte(IImportCartridgeSource cartridge, int header, int offset) =>
+    private static byte ReadByte(IImportCartridgeSource cartridge, int header, int offset) =>
         cartridge.ReadCartridgeByte(HeaderAddress(header, offset));
 }

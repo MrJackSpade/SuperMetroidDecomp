@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomGraphicsSetCodec
 {
     /// <summary>Each graphics set at the position of its number in the cartridge.</summary>
-    internal static readonly RoomGraphicsSet[] Numbered =
+    private static readonly RoomGraphicsSet[] Numbered =
     [
         RoomGraphicsSet.UpperCrateria, RoomGraphicsSet.RedCrateria, RoomGraphicsSet.LowerCrateria, RoomGraphicsSet.OldTourian, RoomGraphicsSet.WreckedShipPowerOn,
         RoomGraphicsSet.WreckedShipPowerOff, RoomGraphicsSet.GreenBlueBrinstar, RoomGraphicsSet.RedBrinstarKraid, RoomGraphicsSet.StatuesHall, RoomGraphicsSet.HeatedNorfair,

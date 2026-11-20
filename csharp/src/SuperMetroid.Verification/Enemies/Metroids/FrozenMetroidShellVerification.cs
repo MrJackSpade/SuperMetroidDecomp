@@ -24,7 +24,7 @@ internal static class FrozenMetroidShellVerification
         int tileBase = enemies.GraphicsSet.TileBaseOf(EnemyDefinitionId.Metroid);
         var enemy = enemies.Places.InUpdateOrder[0];
         enemy.Position = enemy.Position.WithWhole(new(120, 100));
-        enemy.Bind(EnemyDefinitionId.Metroid, enemy.Definition);
+        enemy.Bind(EnemyDefinitionId.Metroid, enemy.KeptDefinition);
         enemy.Shading = PictureShading.Standard;
         enemy.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
         enemies.MetroidBehavior.InitializeMetroid(enemy, enemy.SpawnSettings<MetroidSpawnSettings>());

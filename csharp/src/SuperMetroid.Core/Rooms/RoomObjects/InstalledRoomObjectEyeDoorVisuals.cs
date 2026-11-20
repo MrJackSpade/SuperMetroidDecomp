@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The installed pictures of the eye doors' eye, middle, bottom and clearing frames (#1557); the opening clear shows the
 /// shared clear's picture mirrored. Door terrain, attack logic, hit counters, timers and persistence stay the game's.
 /// </summary>
-public sealed class InstalledRoomObjectEyeDoorVisuals
+public sealed class InstalledRoomObjectEyeDoorVisuals : IRoomObjectFamilyPictures
 {
     /// <summary>The shared clear's picture mirrored left to right, which the right door's opening clear shows.</summary>
     private readonly RoomObjectFrameImage mirroredClear;
@@ -23,8 +23,7 @@ public sealed class InstalledRoomObjectEyeDoorVisuals
     /// <summary>Every eye-door frame's picture but the mirrored opening clear's, keyed by its draw.</summary>
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
-    /// <summary>The picture <paramref name="draw"/> shows; the mirrored opening clear shows the shared clear mirrored.</summary>
-    /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
-        Ensure.NotNull(draw) == EyeDoorObjectDrawDefinitions.MirroredOpeningClear ? mirroredClear : Images.Image(draw);
+    /// <inheritdoc/>
+    IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
+        new Dictionary<RoomObjectDraw, RoomObjectFrameImage>(Images.All) { [EyeDoorObjectDrawDefinitions.MirroredOpeningClear] = mirroredClear };
 }

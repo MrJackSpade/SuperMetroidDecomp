@@ -28,7 +28,7 @@ internal static class DoorDefinitionsVerification
         Suite(nameof(VerifyRetailDoorListMapping), () => VerifyRetailDoorListMapping(bus));
         Suite(nameof(VerifyDoorBlockCollision), () => VerifyDoorBlockCollision());
         Suite(nameof(VerifySharedLevelDoorBlocks), () => VerifySharedLevelDoorBlocks());
-        Console.WriteLine("Doors: all596 physical headers, full elevator overlap and261 room lists match original ROM; collision resolves without native reads.");
+        Console.WriteLine("Doors: all 594 held headers, full elevator overlap and 261 room lists match original ROM; collision resolves without native reads.");
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ internal static class DoorDefinitionsVerification
             RoomLevelData.NothingBeyondGrid(), [new RoomDoorBlock(at, DoorBlockExit.Physical(CrateriaDoorDefinitions.LandingSiteToParlor))]);
         SamusCollisionPose pose = SamusPoseId.ForwardFacingPowerSuitPose.ForRoomCollision();
         DoorBlockExit exit = level.DoorExitAt(level.GetCollisionBlock(at));
-        AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, exit.Door,
+        AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, (exit as DoorBlockExit.ThroughDoor)?.Door,
             "the door block leads through the door its room names");
         var contacts = new RoomDoorContacts();
         contacts.Meet(DoorContact.Of(exit, pose));
@@ -100,28 +100,6 @@ internal static class DoorDefinitionsVerification
             differing++;
         }
         AssertTrue(differing > 0, "some shared level has door blocks");
-    }
-
-    /// <summary>
-    /// Enumerates both physical door-header runs around the bank-$83 FX data gap, leaving out the door only the room no door
-    /// reaches lists.
-    /// </summary>
-    internal static IEnumerable<ushort> EnumerateRetailDoorPointers()
-    {
-        for (int pointer = DoorHeaderRomDataConstants.PreFxBlockStart;
-             pointer <= DoorHeaderRomDataConstants.PreFxBlockEnd;
-             pointer += DoorHeaderRomDataConstants.RecordByteCount)
-        {
-            if (pointer != DoorHeaderRomDataConstants.UnreferencedRoomDoor)
-                yield return checked((ushort)pointer);
-        }
-
-        for (int pointer = DoorHeaderRomDataConstants.PostFxBlockStart;
-             pointer <= DoorHeaderRomDataConstants.PostFxBlockEnd;
-             pointer += DoorHeaderRomDataConstants.RecordByteCount)
-        {
-            yield return checked((ushort)pointer);
-        }
     }
 
     /// <summary>Reads a native door word solely for verification against compiled definitions.</summary>

@@ -10,7 +10,7 @@ internal sealed class PlasmaSpecialAttackRing(PlasmaParticleState state) : Speci
     /// <inheritdoc/>
     private protected override SoundEffectId? Step(SamusShotUpdate update)
     {
-        update.Shots.Combos.StepPlasmaCombo(update.Samus, update.Shot, state, update.SamusBombs, update.Camera);
+        update.Shots.Combos.StepPlasmaCombo(update.Samus, update.Held, state, update.SamusBombs, update.Camera);
         return null;
     }
 }

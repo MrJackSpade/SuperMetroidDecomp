@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 public readonly record struct SamusVerticalVelocity
 {
     /// <summary>The velocity of <paramref name="speed"/> heading <paramref name="direction"/>.</summary>
-    internal SamusVerticalVelocity(UnsignedSixteenSixteen speed, SamusVerticalDirection direction)
+    private SamusVerticalVelocity(UnsignedSixteenSixteen speed, SamusVerticalDirection direction)
     {
         Speed = speed;
         Direction = direction switch

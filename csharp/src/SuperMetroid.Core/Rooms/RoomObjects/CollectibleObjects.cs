@@ -89,8 +89,8 @@ internal sealed class CollectibleObjects
 
     /// <summary>
     /// Publishes Samus contact with a visible item block. The item's touch setup
-    /// finds the item room object sharing this block and arms its trigger timer;
-    /// acquisition remains owned by the following room-object step.
+    /// finds the item room object sharing this block and moves it to its touched phase,
+    /// which the following room-object step collects.
     /// </summary>
     public bool TryNotifyCollectibleTouch(Position16<RoomBlocks> block)
     {
@@ -119,7 +119,7 @@ internal sealed class CollectibleObjects
     /// Triggers the Chozo orb or concealed item block at <paramref name="block"/> that a shot, bomb or grapple reached:
     /// whatever reached it, the item responds with the same trigger.
     /// </summary>
-    public bool TryNotifyCollectibleProjectileHit(
+    public void NotifyCollectibleProjectileHit(
         Position16<RoomBlocks> block)
     {
         foreach (RoomObjectPlace place in _places.FromLastPlace)
@@ -131,12 +131,11 @@ internal sealed class CollectibleObjects
                     CollectiblePhase.ShotBlock or CollectiblePhase.ShotBlockShot or
                     CollectiblePhase.CollectedShotBlock or CollectiblePhase.CollectedShotBlockShot))
             {
-                return false;
+                return;
             }
             item.Trigger();
-            return true;
+            return;
         }
-        return false;
     }
 
     /// <summary>
@@ -161,7 +160,8 @@ internal sealed class CollectibleObjects
 
         RoomTerrainBlock setup = original.Terrain.WithCollision(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
-        // The setup rewrites only the block's type and parameter, so it keeps its picture and what it shows (#2502).
+        // The setup changes how the block collides and reacts, and the block keeps its picture and what it shows
+        // (#2502).
         level.SetCollision(place.Block, setup.Collision);
         level.SetBehavior(place.Block, RoomBlockBehavior.Reacting(ShootableReaction.CollectibleTrigger));
 

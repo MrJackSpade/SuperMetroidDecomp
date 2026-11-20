@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public sealed class ChargeFlareSprites
 {
     /// <summary>Installed OAM parts keyed by the distinct flare compositions.</summary>
-    internal readonly InstalledProjectileSprites sprites;
+    private readonly InstalledProjectileSprites sprites;
     /// <summary>Keeps the compiled compositions separate from the flare's cadence and placement.</summary>
     private ChargeFlareSprites(InstalledProjectileSprites sprites) => this.sprites = sprites;
 

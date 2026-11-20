@@ -87,7 +87,9 @@ internal static class FxOverlayPlacementIdentityVerification
         foreach (int cameraY in new[] { 0, 150 })
         {
             // The tide carries the surface through both extremes; a surface four lines below the room's top leaves the room.
-            RoomEffectDefinition record = Still(RetailRecord(type)) with { LiquidStartLevel = baseLine, Liquid = liquid };
+            RoomEffectDefinition still = Still(RetailRecord(type));
+            var record = new RoomEffectDefinition(baseLine, still.LiquidTargetLevel, still.LiquidLevelSpeed, still.LiquidMoveDelay, still.Type,
+                still.VisorAnimation, still.EffectBlend, liquid, still.ColourEffects, still.BlockAnimations, still.Tint);
             RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(record, 0);
             var camera = new Position16<RoomPixels>(0, cameraY);
             int lowest = int.MaxValue, highest = int.MinValue;

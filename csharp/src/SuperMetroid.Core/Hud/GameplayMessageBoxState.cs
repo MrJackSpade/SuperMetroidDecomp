@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Hud;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The box pauses gameplay, opens a window around Y=124, holds the message for a fixed interval, waits for input, and
+/// The box pauses gameplay, opens a window around its centre line, holds the message for a fixed interval, waits for input, and
 /// closes the same window before gameplay resumes. What it shows is a <see cref="ShownMessage"/>: the message, the
 /// button its panel names and the highlighted save choice, whose installed image the backend draws.
 /// </para>
@@ -55,22 +55,22 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     public GameplayMessageId? MessageId { get; private set; }
 
     /// <summary>The message box's current step.</summary>
-    public GameplayMessageBoxPhase Phase { get; private set; }
+    private GameplayMessageBoxPhase Phase { get; set; }
 
     /// <summary>
     /// Half-height of the row window visible in the most recently completed frame.
-    /// The radius grows and shrinks by exactly two pixels per update.
+    /// The radius grows and shrinks by exactly its radius step each update.
     /// </summary>
-    public int RadiusPixels { get; private set; }
+    private int RadiusPixels { get; set; }
 
     /// <summary>The mandatory display before controller input is inspected.</summary>
-    public UpdateCountdown MinimumDisplay { get; private set; } = UpdateCountdown.Ended();
+    private UpdateCountdown MinimumDisplay { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// What the box shows while a message has begun (#1466): the message, the button its panel names for the configured
     /// shoot or run binding, and the save choice a confirmation highlights; null while no message has begun.
     /// </summary>
-    public ShownMessage? Shown => MessageId is not { } message ? null
+    private ShownMessage? Shown => MessageId is not { } message ? null
         : new ShownMessage(message, PanelButton(message),
             ConfirmationOf(message) != GameplayMessageConfirmation.None ? ConfirmationSelection : null);
 
@@ -82,7 +82,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     public ExposedMessage? Exposed => RadiusPixels > 0 && Shown is { } shown ? new ExposedMessage(shown, RadiusPixels) : null;
 
     /// <summary>The answer a save confirmation highlights.</summary>
-    public SaveChoice ConfirmationSelection { get; private set; } = SaveChoice.Yes;
+    private SaveChoice ConfirmationSelection { get; set; } = SaveChoice.Yes;
 
     /// <summary>
     /// Starts one ordinary gameplay message with its authored layout.
@@ -322,7 +322,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     {
         GameplayMessagePanelButtonBinding.Shoot => GameplayMessageButtons.Shown(_bindings.Shoot),
         GameplayMessagePanelButtonBinding.Run => GameplayMessageButtons.Shown(_bindings.Dash),
-        GameplayMessagePanelButtonBinding.None => null,
+        null => null,
         _ => throw new InvalidDataException($"Unknown gameplay-message panel binding for {messageId}."),
     };
 }

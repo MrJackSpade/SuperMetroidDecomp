@@ -30,7 +30,7 @@ internal static class EscapeAnimalBlocksVerification
         // continue stepping alongside the rescue animation, as it does in gameplay.
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, system, AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, 0x8412), RoomObjectServiceFixtures.Uninstalled with { Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
         var origin = new Position16<RoomBlocks>(15, 10);
-        AssertTrue(roomObjects.EscapeAnimals.TrySpawnCrittersEscapeWall(level, origin), "the rescue wall spawns with a place free");
+        roomObjects.EscapeAnimals.SpawnCrittersEscapeWall(level, origin);
         AssertEqual(0x4f, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(15, 10)).Behavior), "rescue origin has the critters-escape behaviour");
         for (int y = 11; y <= 12; y++)
             AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.VerticalExtension), level.GetCollisionBlock(new(15, checked((ushort)y))).Terrain, "rescue extensions preserve visual tile");
@@ -47,8 +47,8 @@ internal static class EscapeAnimalBlocksVerification
             AssertEqual(0x4f, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(15, 10)).Behavior), "grapple leaves rescue wall intact");
             AssertTrue(!system.HasEvent(StoryEvent.CrittersEscaped), "grapple alone cannot rescue animals");
         }
-        AssertTrue(!roomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, SamusProjectileType.None, true), "native zero grapple word rejected");
-        AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false), true), "nonzero beam opens rescue wall");
+        AssertTrue(!roomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, BlockStrike.GrappleTouch.Instance, true), "native zero grapple word rejected");
+        AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false)), true), "nonzero beam opens rescue wall");
         AssertTrue(!system.HasEvent(StoryEvent.CrittersEscaped), "rescue event waits for animation");
         for (int frame = 0; frame < 16; frame++)
             roomObjects.Step(level);

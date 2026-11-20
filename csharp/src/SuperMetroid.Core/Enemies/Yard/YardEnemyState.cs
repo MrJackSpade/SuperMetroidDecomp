@@ -36,8 +36,8 @@ public sealed class YardEnemyState
     internal const int MissedProbesBeforeFalling = 4;
 
     /// <summary>
-    /// Consecutive missing-surface probe count, 0 through 4, reset on surface contact and landing; the fourth failure
-    /// drops Yard instead of installing another outside-corner turn.
+    /// Consecutive missing-surface probe count, reset on surface contact and landing; the failure past
+    /// <see cref="MissedProbesBeforeFalling"/> drops Yard instead of installing another outside-corner turn.
     /// </summary>
     public int ConsecutiveTurnCounter
     {
@@ -58,9 +58,9 @@ public sealed class YardEnemyState
     public YardDirection Crawl { get; internal set; }
 
     /// <summary>
-    /// The airborne Yard's velocity in pixels per update. Gravity adds an eighth of a pixel to its fall, its sideways
-    /// speed slows by a sixteenth of a pixel toward rest while it meets nothing, and a collision reverses each part as the
-    /// compatibility services describe; a downward collision lands it while it falls less than three pixels an update.
+    /// The airborne Yard's velocity in pixels per update. Gravity adds to its fall, its sideways speed slows toward rest
+    /// while it meets nothing, and a collision reverses each part as the compatibility services describe; a downward
+    /// collision lands it while it falls slower than its landing limit.
     /// </summary>
     public FixedVector<RoomPixels> AirborneVelocity { get; internal set; }
     /// <summary>
@@ -68,7 +68,7 @@ public sealed class YardEnemyState
     /// slope alignment, a turn or a landing starts <see cref="YardMotionDefinitions.TurnSuppressionPasses"/> of them, each
     /// unadjusted crawl pass counts one, and once they are over it may turn.
     /// </summary>
-    public UpdateCountdown TurnSuppressionPassesLeft { get; internal set; } = UpdateCountdown.Ended();
+    public UpdateCountdown TurnSuppressionPassesLeft { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether the Yard may not yet turn at a corner, crawling past it instead (<see cref="TurnSuppressionPassesLeft"/>).</summary>
     internal bool TurnsSuppressed => TurnSuppressionPassesLeft.IsRunning;

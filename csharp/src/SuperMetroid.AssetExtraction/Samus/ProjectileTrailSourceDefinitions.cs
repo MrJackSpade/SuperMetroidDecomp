@@ -11,7 +11,7 @@ internal static class ProjectileTrailSourceDefinitions
     /// <summary>The bank-$90 address of each program's first step.</summary>
     internal static readonly FrozenDictionary<ProjectileTrailSegment, ushort> Starts = new Dictionary<ProjectileTrailSegment, ushort>
     {
-        [ProjectileTrailSegment.Empty] = 0xb4c9,
+        [ProjectileTrailSegment.EndsWithoutSparkle] = 0xb4c9,
         [ProjectileTrailSegment.LeftIce] = 0xb4cb,
         [ProjectileTrailSegment.RightIce] = 0xb52d,
         [ProjectileTrailSegment.Wave] = 0xb58f,

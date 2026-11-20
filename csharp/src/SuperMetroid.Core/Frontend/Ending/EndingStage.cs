@@ -30,7 +30,7 @@ internal sealed class EndingStage
     /// <summary>The screen's brightness and the cadence of its fades, shared through scene and colour handoffs.</summary>
     internal ScreenFade Fade { get; } = new(0);
 
-    /// <summary>Master brightness during cinematic fades, from black through full.</summary>
+    /// <summary>The screen's brightness through the scene's fades, from black through full.</summary>
     internal int Brightness => Fade.Level;
 
     /// <summary>The turning floor's view, which the escape, the explosion and the planet escape share (#2541).</summary>
@@ -57,8 +57,7 @@ internal sealed class EndingStage
         Place(new EndingPictureSprite(new(position, EndingShades.Drawn(colouring), EndingSceneAnimations.Pictures, animation), role));
 
     /// <summary>Adds the typed text <paramref name="definition"/> authors in its place in the running order (#2195).</summary>
-    /// <returns>The actor added.</returns>
-    internal EndingSprite SpawnText(EndingTextDefinition definition, EndingSpriteRole role) =>
+    internal void SpawnText(EndingTextDefinition definition, EndingSpriteRole role) =>
         Place(new EndingTextSprite(new(definition.Position, EndingShades.Drawn(definition.Colouring), EndingTextAnimations.Texts, definition.Text), role));
 
     /// <summary>
@@ -69,24 +68,24 @@ internal sealed class EndingStage
     private EndingSprite Place(EndingSprite added)
     {
         EndingSpriteRole role = added.Role;
-        int rank = SoleActorRank(role);
-        if (rank >= 0)
+        int? rank = SoleActorRank(role);
+        if (rank is not null)
             sprites.RemoveAll(actor => actor.Role == role);
         // A sole actor stands before the first sole actor ranked after it; any other actor before the first sole actor.
-        int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) > rank && SoleActorRank(actor.Role) >= 0);
+        int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) is int other && (rank is not int own || other > own));
         sprites.Insert(place >= 0 ? place : sprites.Count, added);
         return added;
     }
 
     /// <summary>
     /// Where <paramref name="role"/> stands among the actors the ending shows one of at a time, zero for the first to run, or
-    /// minus one for an actor that runs in spawn order ahead of them.
+    /// null for an actor that runs in spawn order ahead of them.
     /// </summary>
-    private static int SoleActorRank(EndingSpriteRole role) => Array.IndexOf(EndingCastOrderDefinitions.SoleActorsLast, role);
+    private static int? SoleActorRank(EndingSpriteRole role) =>
+        Array.IndexOf(EndingCastOrderDefinitions.SoleActorsLast, role) is int rank and >= 0 ? rank : null;
 
-    /// <summary>Installs a sprite from its authored position, attributes and animation.</summary>
-    /// <returns>The actor added.</returns>
-    internal EndingSprite SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
+    /// <summary>Adds an actor from its definition's position, colouring and animation.</summary>
+    internal void SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
         SpawnSprite(
             definition.Position,
             definition.Colouring,
@@ -139,10 +138,10 @@ internal sealed class EndingStage
     /// <summary>The ending scenes' installed backdrops (#1544).</summary>
     internal EndingBackdrops Backdrops { get; private set; }
 
-    /// <summary>Starts a fast fade: the next step lands two updates from now, and one every two updates after it.</summary>
+    /// <summary>Starts a fast fade, a step every <see cref="EndingCadenceDefinitions.FastFadeUpdatesPerStep"/> from now.</summary>
     internal void StartFastFade() => Fade.StepEvery(EndingCadenceDefinitions.FastFadeUpdatesPerStep);
 
-    /// <summary>Starts the post-credits reveal's slow fade: the next step lands two updates from now, then one every four updates.</summary>
+    /// <summary>Starts the post-credits reveal's slow fade: its first step lands soon, then the rest at the slow fade's pace.</summary>
     internal void StartPostCreditsFade() =>
         Fade.SetCadence(EndingCadenceDefinitions.PostCreditsFadeStepDelay, EndingCadenceDefinitions.PostCreditsFadeFirstWait);
 

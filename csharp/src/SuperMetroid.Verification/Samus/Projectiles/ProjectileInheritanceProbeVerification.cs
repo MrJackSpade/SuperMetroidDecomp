@@ -50,7 +50,7 @@ internal static class ProjectileInheritanceProbeVerification
     internal static void ProbeProjectileVelocityInheritance()
     {
         var initialize = new Action<ProjectileLaunchInheritance, SamusProjectile>((launchRecords, launched) =>
-            BeamFiring.InitializePowerBeamVelocity(launchRecords, launched, InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring));
+            BeamFiring.InitializePowerBeamVelocity(launchRecords, launched.HeldShot(), InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring));
         var inheritance = new ProjectileLaunchInheritance();
         var records = new ProjectileInheritanceRecordsAccess(inheritance);
         int failures = 0;
@@ -65,6 +65,8 @@ internal static class ProjectileInheritanceProbeVerification
             {
                 int baseSpeed = direction is 1 or 3 or 6 or 8 ? DiagonalBaseSpeed : StraightBaseSpeed;
                 var slot = new SamusProjectile(0) { Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction) };
+                // The launched beam holds its place as an uncharged Power beam, whose speed rows the probe reads.
+                slot.OccupyAsFired(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
                 initialize(inheritance, slot);
                 // Direct transcription of loads/LSR/ORA/ADC at $90:B218..B2F5.
                 // Do not replace these overlapping reads with idealized fixed-point math.
@@ -235,7 +237,7 @@ internal static class ProjectileInheritanceProbeVerification
             restored.Player.Samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon);
             restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings.Shoot));
             var shot = restored.Projectiles.Shots.First(slot => slot.IsActive);
-            AssertEqual(family, shot.Type.Family, "Each resumed runtime fires the weapon it selected");
+            AssertEqual(family, shot.HeldShot().Type.Family, "Each resumed runtime fires the weapon it selected");
             AssertEqual(unchecked((short)(inherited + launchSpeed)), shot.Velocity.X.InTwoHundredFiftySixthsOfPixel,
                 "Debugger graph round trip retains native WRAM inheritance for resumed launch");
         }

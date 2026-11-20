@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// When a Yapping Maw may grab Samus (#2454). The Maw's cooldown starts at 48 updates when its tongue finishes
-/// retracting, when it lets Samus go and on every update it waits with Samus closer than 32 pixels, and at none when it
+/// When a Yapping Maw may grab Samus (#2454). The Maw's cooldown starts at <see cref="Enemies.YappingMaws.YappingMawAttackDefinitions.GrabCooldown"/> when its tongue finishes
+/// retracting, when it lets Samus go and on every update it waits with Samus closer than <see cref="Enemies.YappingMaws.YappingMawAttackDefinitions.GrabSafetyDistance"/>, and at none when it
 /// is placed and when it grabs her. Counted down past none, it lets the Maw grab for the next 32768 updates; then it
 /// refuses for 32768 updates, lets the Maw grab for the 32768 after those, and so on in rounds of 65536 updates, until
 /// the cooldown starts again.
@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <para>
 /// <b>When it matters:</b> the Maw updates only while it is on screen, and nothing starts its cooldown while Samus stays
 /// further from it than its reach. A Samus who keeps a Maw on screen for 32768 of its updates without coming within its
-/// reach or within 32 pixels of it finds its next bite closing on her without holding her; that bite's retraction starts
+/// reach or within its safety distance of it finds its next bite closing on her without holding her; that bite's retraction starts
 /// the cooldown again, so the bite after it grabs as usual.
 /// </para>
 /// <para>
@@ -26,7 +26,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// The Yapping Maw grab cooldown check counts the production cooldown through two full rounds.
 /// </para>
 /// </remarks>
-[CompatibilityService("a Yapping Maw may grab Samus only in alternate runs of 32768 updates after its cooldown runs out, the first starting 48 updates after the cooldown starts")]
+[CompatibilityService("a Yapping Maw may grab Samus only in alternate runs of 32768 updates after its cooldown runs out, the first starting as the cooldown runs out")]
 public readonly record struct YappingMawGrabCooldown
 {
     /// <summary>The countdown whose sign decides whether the Maw may grab.</summary>

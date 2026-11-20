@@ -12,9 +12,8 @@ namespace SuperMetroid.Core.Samus.Death;
 
 /// <summary>
 /// Owns Samus's fatal-damage pose, picture, shade, flashing, whiteout, and suit-
-/// explosion sequence. This is deliberately not folded into knockback merely because the
-/// death-sequence poses have the knockback movement type: the death game states stop Samus's normal input
-/// and movement phases and run this independent state machine instead.
+/// explosion sequence. It is apart from knockback, though the death-sequence poses have the knockback movement type:
+/// the death stops Samus's normal input and movement and runs this sequence instead.
 /// </summary>
 public sealed class SamusDeathSequenceState : IGameplayShadingSource
 {
@@ -23,8 +22,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
     /// <summary>
     /// True from the death sequence's setup through the terminal white frame. A completed sequence
-    /// remains an owner until the outer game-state fade replaces the room, preventing normal
-    /// knockback movement code from accidentally resuming on <see cref="SamusPoseId.DeathSequenceRightPose"/> and <see cref="SamusPoseId.DeathSequenceLeftPose"/>.
+    /// remains an owner until the outer game-state fade replaces the room, so normal knockback movement never resumes
+    /// on <see cref="SamusPoseId.DeathSequenceRightPose"/> and <see cref="SamusPoseId.DeathSequenceLeftPose"/>.
     /// </summary>
     public bool IsActive => Phase != SamusDeathSequencePhase.Inactive;
 
@@ -35,20 +34,20 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     public UpdateCountdown PreFlashingTimer { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
-    /// The flash's shades (#2387): after three updates it shows her second death shade for one update and her first for
-    /// three, over and over, until the suit explodes. The death pose starts it again.
+    /// The flash's shades (#2387): after an opening wait it shows her second death shade and then her first, each for its
+    /// own hold, over and over, until the suit explodes. The death pose starts it again.
     /// </summary>
-    internal AnimationPlayer<SamusDeathFlashSegment, SamusDeathShade, NoAnimationCue> Flash { get; private set; } =
+    private AnimationPlayer<SamusDeathFlashSegment, SamusDeathShade, NoAnimationCue> Flash { get; set; } =
         SamusDeathAnimations.FlashStarting();
 
     /// <summary>The flashing, lasting <see cref="SamusDeathSequenceDefinitions.FlashFrameCount"/>: the suit explodes on its last update.</summary>
-    public UpdateCountdown Flashing { get; private set; } = UpdateCountdown.Ended();
+    private UpdateCountdown Flashing { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
-    /// The suit's explosion (#2388), its nine pictures played once for their dwell times; the flash's last update starts it
+    /// The suit's explosion (#2388), its pictures played once for their dwell times; the flash's last update starts it
     /// again on its first picture, and the sequence completes once its last picture has shown.
     /// </summary>
-    internal AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue> Explosion { get; private set; } =
+    private AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue> Explosion { get; set; } =
         SamusDeathAnimations.ExplosionStarting();
 
     /// <summary>
@@ -59,26 +58,20 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     internal ListStep<SamusWhiteoutShade>? WhiteoutBrightening { get; private set; }
 
     /// <summary>
-    /// The whiteout shade the explosion shows, or null before its first: the explosion's last update shows
-    /// <see cref="SamusWhiteoutShade.Final"/>.
-    /// </summary>
-    public SamusWhiteoutShade? WhiteoutShade { get; private set; }
-
-    /// <summary>
     /// The colour the explosion's whiteout shows every picture and sprite in but Samus's body, or null before the
     /// whiteout's first shade. Each whiteout step shows the next installed shade, and the last one stays.
     /// </summary>
     public RgbColor? Whiteout { get; private set; }
 
     /// <summary>The signed screen place captured at death-pose setup: left of or above the screen is negative.</summary>
-    public Offset16<ScreenPixels> ScreenPosition { get; private set; }
+    private Offset16<ScreenPixels> ScreenPosition { get; set; }
 
 /// <summary>The suit-explosion picture shown, or null outside the explosion.</summary>
-    public SamusDeathExplosionFrame? ExplosionFrame =>
+    private SamusDeathExplosionFrame? ExplosionFrame =>
         Phase == SamusDeathSequencePhase.SuitExplosion && Explosion is { HasStopped: false } explosion ? explosion.Shown : null;
 
     /// <summary>The facing captured before pose metadata is replaced by the death-sequence pose.</summary>
-    public bool FacingLeft { get; private set; }
+    private bool FacingLeft { get; set; }
 
     /// <summary>
     /// Sets Samus's death-sequence pose. It runs once
@@ -121,7 +114,6 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         Flashing = UpdateCountdown.Lasting(SamusDeathSequenceDefinitions.FlashFrameCount);
         Explosion = SamusDeathAnimations.ExplosionStarting();
         WhiteoutBrightening = null;
-        WhiteoutShade = null;
         Whiteout = null;
         // Dying while spin jumping ends the spin's sound at normal priority.
         if (sourceMovementType == SamusMovementType.SpinJumping)
@@ -196,7 +188,6 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         }
 
         return new SamusDeathSequenceStepResult(
-            Phase,
             draws,
             Phase == SamusDeathSequencePhase.Complete);
     }
@@ -226,7 +217,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     }
 
     /// <summary>Publishes the one right/left explosion frame at the captured screen position, from <paramref name="sheets"/>.</summary>
-    public void DrawExplosion(SpriteFrameBuffer sprites, InstalledSpriteSheets sheets)
+    private void DrawExplosion(SpriteFrameBuffer sprites, InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(sheets);
@@ -280,7 +271,6 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// </summary>
     private void ShowWhiteout(SamusColours samusColours, SamusDeathSteps artwork, SamusWhiteoutShade shade)
     {
-        WhiteoutShade = shade;
         Whiteout = artwork.WhiteoutColour(shade);
         samusColours.ShowBeams(SamusShades.DeathWhiteout(shade));
     }

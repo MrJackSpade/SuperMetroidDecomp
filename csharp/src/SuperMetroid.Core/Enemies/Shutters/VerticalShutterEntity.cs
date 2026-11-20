@@ -7,21 +7,22 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// definition leaves them to it.
 /// </summary>
 /// <param name="species">The Shutters species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="pose">The pose the shutter shows from its setup.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, ShutterSegment pose, ShutterSpawnSettings settings)
-    : ShuttersEntity(species, place, common), IEnemyPrivateShotReaction
+internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, ShutterSegment pose, ShutterSpawnSettings settings)
+    : ShuttersEntity(species, occupant, place, common), IEnemyPrivateShotReaction
 {
     /// <summary>The vertical shutter's own Power Bomb reaction, built over its state (#2554).</summary>
-    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= species.VerticalShutterPowerBombReactionOf(State);
+    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= species.VerticalShutterPowerBombReactionOf(Occupant, State);
 
     /// <summary>The shutter's state, which its setup builds as it is built (#2554).</summary>
     internal VerticalShutterEnemyState State { get; } = ShuttersBehavior.InitializeVerticalShutter(place, pose, settings);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunVerticalShutterMainAi(Place, State, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunVerticalShutterMainAi(Occupant, Place, State, frame);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceVerticalShutterTypedAnimation(Place, State, context);

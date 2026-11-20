@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
@@ -13,4 +16,21 @@ internal sealed class EndingWhiteFlashScene(EndingRewardJump jump, WhiteWash fla
 
     /// <summary>The flash's white wash.</summary>
     internal WhiteWash Flash { get; } = Ensure.NotNull(flash);
+
+    /// <inheritdoc/>
+    internal override bool Step(EndingCreditsState ending)
+    {
+        ending.StepWhiteFlash(this);
+        return true;
+    }
+
+    /// <inheritdoc/>
+    internal override void DrawActors(EndingCreditsState ending, ScreenSprites sprites, Func<EndingSpriteLayer, bool> shows)
+    {
+        if (shows(EndingSpriteLayer.Actors))
+            EndingCreditsPresentation.DrawJump(ending, sprites, Jump);
+    }
+    /// <inheritdoc/>
+    internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
+        EndingCreditsPresentation.CaptureSharedScreen(ending, paint);
 }

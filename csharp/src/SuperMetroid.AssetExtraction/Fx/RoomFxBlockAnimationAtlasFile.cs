@@ -3,13 +3,13 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// The installed room-FX atlas PNG (#1409): its file name, pixel geometry and the stable order of the character segments
+/// The import's room-FX atlas PNG (#1409): its file name, pixel geometry and the stable order of the character segments
 /// it holds. Only the import pipeline reads and writes
 /// the file, and composes room sheets from its compiled characters (<see cref="RoomFxBlockAnimationAtlasFormat"/>).
 /// </summary>
 public static class RoomFxBlockAnimationAtlasFile
 {
-    /// <summary>Installed indexed PNG filename for the append-only strip of room-FX and related animated characters.</summary>
+    /// <summary>Import-data indexed PNG filename of the import's room-FX atlas: the strip of room-FX and related animated characters.</summary>
     public const string FileName = "room-fx-block-animations.png";
     /// <summary>Two planar bitplanes per pixel, producing sixteen bytes for each 8-by-8 character.</summary>
     public const int BitsPerPixel = 2;

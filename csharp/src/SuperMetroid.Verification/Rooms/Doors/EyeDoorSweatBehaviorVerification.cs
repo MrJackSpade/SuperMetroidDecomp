@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -38,7 +39,7 @@ internal static class EyeDoorSweatBehaviorVerification
             EyeDoorSweatNativeListAddresses.Entry(EyeDoorSweatSegment.Falling), 20, "eye-door sweat fall");
         AssertTrue(!deleted, "the fall loops");
 
-        EyeDoorBehavior.DripEyeDoorSweat(sweat, level);
+        EyeDoorBehavior.DripEyeDoorSweat(enemies.EyeDoorBehavior.Sweat, sweat, level);
         AssertTrue(sweat.Animation is EyeDoorSweatAnimation { PlayingSegment: EyeDoorSweatSegment.HitFloor }, "the floor collision starts the splash");
         AssertEqual<Enum?>(null, sweat.MotionKind,
             "the splash stops the drop with the native inert pre-instruction");

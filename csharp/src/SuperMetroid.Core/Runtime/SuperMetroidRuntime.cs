@@ -2,7 +2,6 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -29,7 +28,7 @@ using SuperMetroid.Core.Saves;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
-/// Incremental, frame-steppable C# runtime shell for the Super Metroid systems.
+/// The owner that advances the game one gameplay update at a time.
 /// </summary>
 /// <remarks>
 /// Each update begins at the frame boundary, which shows the previous update's frame, latches
@@ -48,7 +47,7 @@ internal sealed class SuperMetroidRuntime
     internal LiquidWaveAndStatueDescentOrder LiquidWaveAndStatueDescentOrder { get; } = new();
 
     /// <summary>
-    /// How a door transition's scroll counts frames on the short frame counter; created with the runtime, whose room
+    /// How a door transition's scroll counts the enemies' short update count; created with the runtime, whose room
     /// loader starts and ends it.
     /// </summary>
     internal DoorTransitionFrameCounting DoorFrameCounting { get; } = new();
@@ -80,7 +79,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Loads games, rooms and doors: each room's level, camera, effects, room objects and enemies.</summary>
     internal RoomLoader RoomLoader { get; }
     /// <summary>Applies room-scoped enemy effects before frame owners advance.</summary>
-    internal EnemyRoomEffects EnemyRoomEffects { get; }
+    private EnemyRoomEffects EnemyRoomEffects { get; }
     /// <summary>Retains scripted demo input and progression across runtime frames.</summary>
     internal AttractDemoSession AttractSession { get; } = new();
 
@@ -110,16 +109,16 @@ internal sealed class SuperMetroidRuntime
     internal ActiveAssists Assists { get; }
 
     /// <summary>The installed pictures of the room objects' blocks, one set for each kind of room object.</summary>
-    internal RoomObjectVisuals RoomObjectVisuals { get; }
+    private RoomObjectVisuals RoomObjectVisuals { get; }
 
     /// <summary>Draws Samus, her shots and grapple beam and the enemies each update.</summary>
-    internal GameplayActorDrawing ActorDrawing { get; }
+    private GameplayActorDrawing ActorDrawing { get; }
 
     /// <summary>
     /// How far the camera last measured Samus moving sideways, plus one pixel, which a kicked Yard flies off with; created
     /// with the runtime, recorded by the update's scrolling and handed to every room's enemies.
     /// </summary>
-    internal YardKickTrackingDistance YardKickDistance { get; } = new();
+    private YardKickTrackingDistance YardKickDistance { get; } = new();
 
     /// <summary>Initialises the runtime's first Samus and each new one its setups start.</summary>
     private SamusInitialization SamusInitialization { get; }
@@ -135,31 +134,31 @@ internal sealed class SuperMetroidRuntime
     /// The session's unauthored Speed Booster cadence, which the runtime hands its room loader and attract demo for every
     /// Samus they build and every room's enemies, whose Ceres Ridley getaway leaves its delays behind.
     /// </summary>
-    internal UnauthoredBoostCadence UnauthoredBoostCadence { get; }
+    private UnauthoredBoostCadence UnauthoredBoostCadence { get; }
 
     /// <summary>
     /// The session's camera fractions kept across games: the runtime's first room's camera starts from them, and
     /// <see cref="LeaveCameraFractions"/> keeps this runtime's when the session releases it.
     /// </summary>
-    internal CameraFractionsKeptAcrossGames CameraFractions { get; }
+    private CameraFractionsKeptAcrossGames CameraFractions { get; }
 
     /// <summary>
     /// The compatibility services reproducing what Samus's glitch paths read past their data, from the installed content;
     /// the runtime hands each to the owner that consults it as it builds that owner and every Samus and room.
     /// </summary>
-    internal SamusOverreadServices SamusOverreads { get; }
+    private SamusOverreadServices SamusOverreads { get; }
 
     /// <summary>What the X-ray scope reveals of the room's hidden blocks and items.</summary>
-    internal XrayReveal Xray { get; }
+    private XrayReveal Xray { get; }
 
     /// <summary>The layers gameplay chooses to show and the accepted frame shows.</summary>
-    internal GameplayScreenLayers ScreenLayers { get; }
+    private GameplayScreenLayers ScreenLayers { get; }
 
     /// <summary>The escapes' room effects: their setup as Samus enters a room and their step each update.</summary>
-    internal EscapeRoomEffects EscapeEffects { get; }
+    private EscapeRoomEffects EscapeEffects { get; }
 
     /// <summary>The enemies' part of each update: the enemies and their projectiles run, and Samus's shots hit them.</summary>
-    internal EnemyFramePhase EnemyPhase { get; }
+    private EnemyFramePhase EnemyPhase { get; }
 
     /// <summary>The title screen's attract demo: its room and Samus, and the recorded input that plays her.</summary>
     internal AttractDemoDriver AttractDemo { get; }
@@ -168,9 +167,9 @@ internal sealed class SuperMetroidRuntime
     internal DoorTransitionRunner DoorTransition { get; }
 
     /// <summary>The installed artwork the runtime draws and colours from: rooms, skies, Samus, beams, the grapple beam and the map.</summary>
-    internal RuntimeArtwork Artwork { get; }
+    private RuntimeArtwork Artwork { get; }
 
-    /// <summary>Creates the frame-steppable runtime under its assists, Samus in her starting shades.</summary>
+    /// <summary>Creates the runtime under its assists, Samus in her starting shades.</summary>
     /// <param name="assists">The assists the runtime plays under; <see cref="GameplayAssists.None"/> for the unassisted game.</param>
     /// <param name="artwork">
     /// The installed catalogs, every one required (#2049); their Samus overread services
@@ -369,7 +368,7 @@ internal sealed class SuperMetroidRuntime
     public ShownHud AcceptedHud => Display.Latched.Hud;
 
     /// <summary>Whether the colour effects run, and the heat phases, which outlive each room's colour effects.</summary>
-    public ColourEffectSessionState ColourEffectSession { get; } = new();
+    private ColourEffectSessionState ColourEffectSession { get; } = new();
 
     /// <summary>The colours a door's fades show, which the door transition steps (#1512).</summary>
     internal DoorFade DoorFade { get; }
@@ -387,7 +386,7 @@ internal sealed class SuperMetroidRuntime
     /// The sprite frame the most recent frame boundary made visible. The display draws it while the current update
     /// prepares <see cref="Sprites"/>.
     /// </summary>
-    public SpriteFrameBuffer DisplayedSprites { get; } = new();
+    private SpriteFrameBuffer DisplayedSprites { get; } = new();
 
     /// <summary>
     /// The enemy side of the game session: the enemy state that outlives each room, and what every room's enemies are
@@ -396,14 +395,14 @@ internal sealed class SuperMetroidRuntime
     public EnemySession EnemySession { get; }
 
     /// <summary>The installed boss artwork every room's bosses read.</summary>
-    public BossArtworkBinding BossArtwork { get; }
+    private BossArtworkBinding BossArtwork { get; }
 
 
     /// <summary>
     /// The game state whose phase the frontend is now running. Samus's control setups test it from
     /// inside the update; runtime-only hosts run main gameplay.
     /// </summary>
-    public SuperMetroid.Core.Progression.SuperMetroidGameState RunningGameState { get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
+    public SuperMetroid.Core.Progression.SuperMetroidGameState RunningGameState { private get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
 
     /// <summary>Whether a power-bomb explosion is under way; X-ray setup and the pause check reject one, and the sound queues turn every sound away during one.</summary>
     /// <remarks>Before the first room exists there is no explosion.</remarks>
@@ -422,13 +421,13 @@ internal sealed class SuperMetroidRuntime
     /// <summary>
     /// Shared post-message Varia/Gravity light-beam transformation.
     /// </summary>
-    public SamusSuitPickupState SuitPickup { get; } = new();
+    private SamusSuitPickupState SuitPickup { get; } = new();
 
     /// <summary>The gameplay HUD.</summary>
     public HudState Hud { get; } = new();
 
     /// <summary>The layers' positions and views, fed by the active camera; the frame boundary latches the views the screen shows.</summary>
-    public BackgroundScrollState BackgroundScroll { get; } = new();
+    private BackgroundScrollState BackgroundScroll { get; } = new();
 
     /// <summary>Runs one frame boundary and publishes an empty sprite frame without advancing gameplay owners.</summary>
     public void RunBlankGameplayFrame(ControllerButton controllerInput)
@@ -563,11 +562,8 @@ internal sealed class SuperMetroidRuntime
         // owner list; in particular, they must not scroll or animate while a message box
         // waits. Running this only once no message box waits keeps rain and fog
         // from advancing behind a station or item message.
-        if (room.Enemies.DisplaySources.Phantoon is { } waveBoss)
-        {
-            waveBoss.BodyWave.Step(waveBoss);
-            waveBoss.BodyVisibility.Step(waveBoss);
-        }
+        foreach (IStepWithRoomEffects effect in room.Enemies.DisplaySources.RoomEffectSteps)
+            effect.StepWithRoomEffects();
         room.FxOverlay.Step(room.ArtworkFrames, new RoomFxOverlayFrame { Camera = room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, FirefleaDarkness = room.Enemies.RoomStatus.FirefleaDarkness });
         // A lava or acid rise sustains the room's earthquake. Apply it before the ordinary earthquake step later in
         // this frame so its first displacement is visible immediately.
@@ -582,7 +578,7 @@ internal sealed class SuperMetroidRuntime
     {
         // Main gameplay begins by determining which enemies to process,
         // before colour effects and Samus. The grapple scan uses this list.
-        room.Enemies.ProcessingWindow.PrepareEnemyProcessingList(room.Camera.PixelPosition);
+        room.Enemies.PrepareEnemyProcessingList(room.Camera.PixelPosition);
     }
 
     /// <summary>Runs the room's colour effects and Hyper Beam's colour effect.</summary>
@@ -601,10 +597,10 @@ internal sealed class SuperMetroidRuntime
         {
             room.ColourEffects.Step(new ColourEffectInputs { SamusY = samus.Position.Y.Whole, EquippedItems = samus.EquippedItems, AreaMiniBossDefeated =
                     System.HasDefeatedAnyOf(room.Room.Area, DefeatedBosses.AreaMiniBoss), Samus = Player, FrameCounter = Clock.Counter });
-            // Her heat glow and her suit's loading show over her suit as the frames that wrote it (#1512).
+            // Her heat glow and her suit's loading show over her suit while the room's colour effects run (#1512).
             foreach ((ColourEffectColours colours, ColourEffectFrame frame) in room.ColourEffects.SuitShown)
                 Player.Colours.LayOverSuit(ColourEffectShades.Of(colours, frame));
-            // The escape's shutter flash shows on the room's destroyable shutters as the frames that wrote it (#1512).
+            // The escape's shutter flash shows on the room's destroyable shutters (#1512).
             foreach (ColourEffectFrame frame in room.ColourEffects.ShutterFlashShown)
                 room.Enemies.ShowEscapeShutterFlash(frame);
             // An effect an enemy shows shows on the enemy its start handed it, for as long as the room's colour effects run
@@ -642,7 +638,10 @@ internal sealed class SuperMetroidRuntime
             return null;
         bool lockedBeforeEnemyUpdate = samus.Control.InputLocked;
         EnemyFrameResult pass = EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared,
-            room.Camera.PreviousSamusPoint ?? context.SamusCameraPointAtFrameStart, room, samus);
+            // A camera placed since its last scroll takes the point Samus stood at as the frame began.
+            SamusScrollCheckpoint.At(room.Camera.PreviousSamusPoint is SamusScrolledCheckpoint { Point: var point }
+                ? point
+                : context.SamusCameraPointAtFrameStart), room, samus);
         frame.RecordEnemyUpdateReleasedInputLock(lockedBeforeEnemyUpdate && !samus.Control.InputLocked);
         return pass;
     }
@@ -654,7 +653,7 @@ internal sealed class SuperMetroidRuntime
         SamusControlFrame frame = context.Samus;
         SamusPhases.RunInputPhase(frame, RunningGameState, samus, context.SamusCameraPointAtFrameStart, room);
         EnemyFrameResult? pass = frame.MovementEnabled && !frame.EnemyUpdateRanFirst
-            ? EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared, frame.PreviousCameraPoint, room, samus)
+            ? EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared, SamusScrollCheckpoint.At(frame.PreviousCameraPoint), room, samus)
             : null;
         SamusPhases.RunPostEnemyUpdateResample(frame, samus, room);
         SamusPhases.RunMovementPhase(frame, samus, runsLowHealthCheck, room);
@@ -845,7 +844,7 @@ internal sealed class SuperMetroidRuntime
     {
         if (startsTimeUp)
             return new GameplayUpdateTransition.TimeUp();
-        if (room.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted))
+        if (room.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.EscapeTakeoffCompleted)))
             return new GameplayUpdateTransition.LeavesZebes();
         // The map station's completion message pauses on the map as it closes, independently of Start or the station's
         // lock on Samus's input.
@@ -901,8 +900,8 @@ internal sealed class SuperMetroidRuntime
             room.Enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
                 room.Projectiles, room.BombProjectiles);
             // Every gameplay update resolves the power bomb's hits after the enemy-
-            // projectile passes. It reads the explosion's whole-pixel radius; a zero
-            // radius is its own inactive/pre-explosion guard.
+            // projectile passes. It reads the explosion's whole-pixel radius, a real size: an explosion whose radius has not
+            // grown from zero, before the blast or between blasts, reaches nothing, as the game's zero test skips it.
             // Invincibility timers inside the enemy pass prevent the persistent
             // expansion/afterglow radius from damaging one actor every frame.
             SamusPowerBombExplosionState powerBomb =
@@ -1026,9 +1025,9 @@ internal sealed class SuperMetroidRuntime
         // Only Samus's normal movement mode runs the escape timer (#2504). Every other mode, held for the reserve refill,
         // the death, the Ceres elevator, an elevator ride, a station, the rainbow beam, a suit pickup or the gunship,
         // neither counts it down nor shows it, so a countdown cannot run out while she is held. The escape stays timed,
-        // and the update that restores her control counts on. The enemy phase can install the gunship's movement mode on
-        // this frame, which boarding hides the timer with; the mode is decided after the actor transition, before liftoff
-        // can repurpose the timer's sprite pictures as dust.
+        // and the update that restores her control counts on. The enemy phase can start the gunship's boarding this
+        // update, which hides the timer as Samus boards; the boarding is decided after the actor transition, before
+        // liftoff.
         bool escapeTimerRuns = tail.Mode.Movement == SamusMovementMode.Normal;
         bool startsTimeUp = false;
         if (escapeTimerRuns && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))
@@ -1147,13 +1146,13 @@ internal sealed class SuperMetroidRuntime
         Ensure.NotNull(loaded);
         RoomScope room = loaded;
         SamusState samus = Player.Samus;
-        MotherBrainEnemyState? motherBrain = room.Enemies.DisplaySources.MotherBrain;
+        IEnemyDisplaySources enemyDisplays = room.Enemies.DisplaySources;
         var frameEnd = new GameplayFrameEndDisplayInputs(
             Room.DoorTransitionShownLayers,
             room.Sky?.State.Publish(room.Camera.PixelPosition),
-            room.Enemies.DisplaySources.CrocomireMelt,
-            motherBrain is { RisingFloorClipActive: true },
-            motherBrain?.RainbowBeam.RenderSnapshot,
+            enemyDisplays.BackgroundDistortion,
+            enemyDisplays.ClipsRisingFloor,
+            enemyDisplays.RainbowBeam,
             CeresHazeRenderSnapshot.Capture(room.CeresHaze),
             Artwork.ScreenContent.CeresHaze,
             PowerBombRenderSnapshot.Capture(room.BombProjectiles.PowerBombExplosion),
@@ -1193,12 +1192,11 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Gameplay-frame state the remainder of a main-gameplay update reads after the room objects' step.
-    /// The message runs inside that step, so a room object that opens a box
-    /// suspends the frame; the model parks this state until the box closes.
+    /// Gameplay state the rest of a main-gameplay update reads after the room objects' step. A message box opens inside
+    /// that step, so a room object that opens one holds the update's rest until the box closes.
     /// </summary>
     /// <param name="Mode">The frame's installed input and movement modes.</param>
-    /// <param name="PreviousCameraPoint">Samus's camera point carried to the frame tail.</param>
+    /// <param name="PreviousCameraPoint">Samus's camera point carried to the rest of the update.</param>
     /// <param name="DeathStep">The frame's death-sequence step, which the tail draws, or null when death does not own Samus.</param>
     internal readonly record struct SuspendedGameplayFrameTail(
         SamusControlMode Mode,
@@ -1209,7 +1207,7 @@ internal sealed class SuperMetroidRuntime
     /// Samus's control in the most recent gameplay frame, which the display shows the X-ray beam's last step from: each
     /// gameplay frame replaces it whole as it begins, and a frame that runs no gameplay (a message box's) leaves it.
     /// </summary>
-    internal SamusControlFrame? LatestGameplayFrame { get; private set; }
+    private SamusControlFrame? LatestGameplayFrame { get; set; }
 
     /// <summary>The rest of a gameplay frame, held until a message box a room object opened during it closes.</summary>
     private SuspendedGameplayFrameTail? _suspendedFrameTail;

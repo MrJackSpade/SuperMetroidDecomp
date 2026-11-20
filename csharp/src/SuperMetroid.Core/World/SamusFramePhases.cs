@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Samus's phases of a gameplay frame: grounded movement, animation transitions, uninitialized-pose movement,
-/// the grapple beam, X-ray from the HUD, load appearance and beam picture loading.
+/// the grapple beam, X-ray from the HUD, load appearance and showing the equipped beams' colours.
 /// </summary>
 internal sealed class SamusFramePhases
 {
@@ -134,7 +134,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>Shows the grapple's firing beam shade and its flare's shade as Samus's colours (#1512).</summary>
-    internal void ShowGrappleShades()
+    private void ShowGrappleShades()
     {
         _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Colours.SamusShades.Beam(GrappleBeamDefinitions.BeamShades.FiringSelection));
         _player.Colours.ShowGrappleFlare(SuperMetroid.Core.Samus.Colours.SamusShades.GrappleFiringFlare);
@@ -271,7 +271,7 @@ internal sealed class SamusFramePhases
 
         // The input phase order is cooldown -> movement-type HUD projectile producer ->
         // projectile handling. The outer gameplay loop then runs overlap
-        // before movement. A newly placed bomb therefore counts 60 -> 59 and
+        // before movement. A newly placed bomb therefore counts its fuse down once and
         // shows its first frame in the placement frame itself.
         // The door fade's enemy and draw pass does not run the normal input phase.
         // In particular its draw-only zero input must not release a held charge.
@@ -299,7 +299,7 @@ internal sealed class SamusFramePhases
                 SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
             }
 
-            // The selected scope uses held Run, not Fire. Setup installs its
+            // The selected scope uses held Dash, not Shoot. Setup installs its
             // own pose and movement, superseding the input phase's ordinary pending pose.
             if (!frame.InputHandlingLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
                 samus.SelectedHudItem == HudItem.XRay &&
@@ -613,10 +613,9 @@ internal sealed class SamusFramePhases
             return SamusMovementOwner.BombJump;
         // Crystal Flash moves her through its three phases and locks her pose input. Mother
         // Brain's rainbow-beam setup keeps that hold, but temporarily replaces the movement phase
-        // with a lock that moves her not at all. Once restoring Samus's control reinstalls the normal
-        // movement mode, Flash resumes under the drained pose. The Super Metroid never installs that
-        // movement lock, so its interruption continues Flash immediately. Model the physical movement
-        // owner, not merely the fact that a cinematic pose exists.
+        // with a lock that moves her not at all. Once Samus's control is restored to normal movement, Flash resumes
+        // under the drained pose. The Super Metroid never locks her movement so, and its interruption continues Flash
+        // at once.
         if (samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && samus.Control.InputLocked))
             return SamusMovementOwner.CrystalFlash;
@@ -625,9 +624,9 @@ internal sealed class SamusFramePhases
         // motionless while enemy AI controls pose/timing. This is reached only when Crystal Flash
         // no longer holds her. Controller zero changes only the pose, so a crashing spark keeps
         // its hold and finishes below; the drained-fall cue ends the spark itself.
-        // The rainbow-beam lock is the movement lock itself: once restoring Samus's control reinstalls
-        // the normal movement mode during enemy AI, this same frame's movement phase runs the knockback
-        // pose's knockback movement, as the pose's own movement does.
+        // The rainbow-beam lock is the movement lock itself: once Samus's control is restored to normal movement during
+        // the enemies' update, this update's movement runs the knockback pose's knockback movement, as the pose's own
+        // movement does.
         // The controller-held standing/crouching phases last only while Samus keeps a
         // drained body: a pose the movement installs (a wall jump out of a drained
         // spin) returns her to the ordinary movement and input. So does the landing of a drained fall that an
@@ -691,47 +690,91 @@ internal sealed class SamusFramePhases
         SamusMovementType movement = SamusPoseMetadata.ReadMovementType(samus.Pose);
         // The special movement type returns before this, and grappling, a compact airborne pose and the unused movement
         // types are owned by their own movers; any other is corrupt pose state.
-        Action<PoseMove> step = PoseMovements.TryGetValue(movement, out Action<PoseMove>? found) ? found
+        SamusPoseMovement step = SamusMovementTypeDefinitions.Movements.TryGetValue(movement, out SamusMovementTypeDefinition? definition)
+            && definition.PoseMovement is { } owned
+            ? owned
             : throw new InvalidDataException(
                 $"Runtime movement step received pose {samus.Pose}, whose movement type {movement} has no movement its pose owns.");
-        step(new PoseMove(samus, room, frame));
+        step.Step(new PoseMoveSteps(this, new PoseMove(samus, room, frame)));
     }
 
-    /// <summary>
-    /// The movement each movement type runs for the pose that owns Samus's movement (#2291), built once; a movement type it
-    /// does not hold has no movement its pose owns.
-    /// </summary>
-    private Dictionary<SamusMovementType, Action<PoseMove>> PoseMovements => field ??= new()
+    /// <summary>The steps of one update's pose movement, against the room and frame it runs in (#2571).</summary>
+    /// <param name="phases">The update's Samus phases, whose clock and actions the steps read.</param>
+    /// <param name="move">What the movement runs against.</param>
+    [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
+    private sealed class PoseMoveSteps(SamusFramePhases phases, PoseMove move) : ISamusPoseMovementSteps
     {
-        [SamusMovementType.Standing] = StepStandingPose,
-        [SamusMovementType.Running] = move => move.Frame.Record(SamusGroundedMovement.StepRunning(move.Level, move.Samus, _clock.Counter, _playerActions.Current, move.RoomObjects)),
-        [SamusMovementType.Moonwalking] = move => move.Frame.Record(SamusGroundedMovement.StepMoonwalking(move.Level, move.Samus, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.RanIntoWall] = move => move.Frame.Record(SamusGroundedMovement.StepRanIntoWall(move.Level, move.Samus, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.TurningOnGround] = StepTurningOnGround,
-        [SamusMovementType.TurningWhileJumping] = StepTurningWhileJumpingPose,
-        [SamusMovementType.TurningWhileFalling] = StepTurningInAir,
-        [SamusMovementType.MorphBallGround] = StepMorphBallGrounded,
-        [SamusMovementType.SpringBallGround] = StepMorphBallGrounded,
-        [SamusMovementType.MorphBallFalling] = StepMorphBallFalling,
-        [SamusMovementType.SpringBallFalling] = StepMorphBallFalling,
-        [SamusMovementType.SpringBallInAir] = move => move.Frame.Record(SamusMorphBallMovement.StepSpringBallInAir(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.NormalJumping] = move => move.Frame.Record(SamusAerialMovement.StepNormalJump(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.SpinJumping] = move => move.Frame.Record(SamusAerialMovement.StepSpinJump(move.Level, move.Samus, _playerActions.Current, _clock.Counter, _playerActions.NewlyPressed, move.RoomObjects)),
-        [SamusMovementType.WallJumping] = move => move.Frame.Record(SamusAerialMovement.StepWallJump(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.DamageBoost] = move => move.Frame.Record(SamusAerialMovement.StepDamageBoost(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.Falling] = move => move.Frame.Record(SamusAerialMovement.StepFalling(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.Crouching] = move => move.Frame.Record(SamusPostureMovement.StepCrouching(move.Level, move.Samus, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.Knockback] = StepKnockbackEndingMovement,
-        [SamusMovementType.PostureTransition] = StepPostureTransitionPose,
-        [SamusMovementType.GlitchBall] = HoldWhereInstalled,
-        // This is the normal step, which only clears the vertical solid-collision result. The actual boss grab keeps Samus
-        // still instead (SamusMovementOwner.DraygonHold). The Draygon-held ball the Hyper Beam freeze installs (#1535) has no
-        // Draygon, so it stays put.
-        [SamusMovementType.DraygonHeld] = move => SamusDraygonGrabbedState.StepMovement(move.Samus),
-        // The glitch-ball knockback's movement type has no movement of its own: once its knockback ends, Samus holds still in
-        // it (#1535).
-        [SamusMovementType.GlitchBallKnockback] = static _ => { },
-    };
+        /// <summary>The update's Samus phases.</summary>
+        private readonly SamusFramePhases _phases = phases;
+
+        /// <summary>What the movement runs against.</summary>
+        private readonly PoseMove _move = move;
+
+        /// <inheritdoc/>
+        public void StepStanding() => _phases.StepStandingPose(_move);
+
+        /// <inheritdoc/>
+        public void StepRunning() => _move.Frame.Record(SamusGroundedMovement.StepRunning(_move.Level, _move.Samus, _phases._clock.Counter, _phases._playerActions.Current, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepMoonwalking() => _move.Frame.Record(SamusGroundedMovement.StepMoonwalking(_move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepRanIntoWall() => _move.Frame.Record(SamusGroundedMovement.StepRanIntoWall(_move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepTurningOnGround() => _phases.StepTurningOnGround(_move);
+
+        /// <inheritdoc/>
+        public void StepTurningWhileJumping() => _phases.StepTurningWhileJumpingPose(_move);
+
+        /// <inheritdoc/>
+        public void StepTurningInAir() => _phases.StepTurningInAir(_move);
+
+        /// <inheritdoc/>
+        public void StepMorphBallGrounded() => _phases.StepMorphBallGrounded(_move);
+
+        /// <inheritdoc/>
+        public void StepMorphBallFalling() => _phases.StepMorphBallFalling(_move);
+
+        /// <inheritdoc/>
+        public void StepSpringBallInAir() => _move.Frame.Record(SamusMorphBallMovement.StepSpringBallInAir(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepNormalJump() => _move.Frame.Record(SamusAerialMovement.StepNormalJump(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepSpinJump() => _move.Frame.Record(SamusAerialMovement.StepSpinJump(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _phases._playerActions.NewlyPressed, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepWallJump() => _move.Frame.Record(SamusAerialMovement.StepWallJump(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepDamageBoost() => _move.Frame.Record(SamusAerialMovement.StepDamageBoost(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepFalling() => _move.Frame.Record(SamusAerialMovement.StepFalling(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepCrouching() => _move.Frame.Record(SamusPostureMovement.StepCrouching(_move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepKnockbackEnding() => _phases.StepKnockbackEndingMovement(_move);
+
+        /// <inheritdoc/>
+        public void StepPostureTransition() => _phases.StepPostureTransitionPose(_move);
+
+        /// <inheritdoc/>
+        public void HoldWhereInstalled() => SamusFramePhases.HoldWhereInstalled(_move);
+
+        /// <inheritdoc/>
+        public void StepDraygonHeld() => SamusDraygonGrabbedState.StepMovement(_move.Samus);
+
+        /// <inheritdoc/>
+        public void HoldStill()
+        {
+        }
+    }
 
     /// <summary>The standing movement type's movement: the forward-facing poses' and the landings' own steps, otherwise standing's.</summary>
     private void StepStandingPose(PoseMove move)
@@ -810,10 +853,8 @@ internal sealed class SamusFramePhases
     /// <summary>Runs the forward-facing poses' movement, including the elevator's one-pixel downward block scan.</summary>
     private void StepForwardFacingMovement(SamusState samus, RoomScope room)
     {
-        // The two front-facing poses enter through the controller-locked demo and elevator setups.
-        // The actor-owned vertical-collision value remains an explicit producer, while
-        // this consumer now includes both the zero status, which moves nothing, and the nonzero
-        // one-pixel downward block scan.
+        // The two front-facing poses enter through the controller-locked demo and elevator setups: a forward-facing
+        // Samus moves nothing while the elevator is at rest and scans one pixel down while it moves.
         SamusGroundedMovement.StepFacingForward(
             room.LevelData,
             samus,
@@ -842,9 +883,7 @@ internal sealed class SamusFramePhases
             _clock.Counter,
             room.RoomObjects);
         frame.Record(new GroundedMovementResult(default, grounding));
-        // The normal knockback entry still publishes a landing when its
-        // downward probe hits the floor. Reuse the ordinary landing seam
-        // for presentation, pose selection and the landing's speed cleanup.
+        // When the knockback ending's downward probe hits the floor, Samus lands as on any landing.
         if (grounding.Collided && !groundingDisplacement.IsNegative)
             frame.Record(new AerialMovementResult(Landed: true, HitCeiling: false));
     }
@@ -867,9 +906,9 @@ internal sealed class SamusFramePhases
                 _playerActions.Current));
         }
 
-        // Preserve movement on either side of the frame boundary. A new camera uses
-        // the fallback sampled before enemy-owned motion and her movement.
-        frame.SampleCameraPoint(room.Camera.PreviousSamusPoint ?? cameraPointAtFrameStart);
+        // The camera point is the room camera's previous Samus point or, for a new camera, the point sampled at the
+        // frame's start, before enemy-owned motion and her movement.
+        frame.SampleCameraPoint(room.Camera.PreviousSamusPoint is SamusScrolledCheckpoint { Point: var point } ? point : cameraPointAtFrameStart);
 
         // Retain the frame-start pose because the turn-transition animation cue can replace Samus.Pose during
         // animation later in this same frame. Input/movement/transition phases all
@@ -935,16 +974,16 @@ internal sealed class SamusFramePhases
         // movement.
         if (_player.ProspectiveSamusPose is { } matchedBombCancel &&
             matchedBombCancel.ProspectivePose != samus.Pose)
-            samus.BombJumpRequest = SamusBombJumpRequest.None;
+            samus.BombJump = null;
         frame.SamplePoseLookup(poseLookup, samus);
         _player.ProspectiveSamusFallbackPose = null;
         _player.ProspectiveSamusWallCollisionPose = null;
 
-        // Zero input and a nonzero chord no input transition matches both reach the input fallback; a matched
-        // same-pose transition does not. The input phase chooses Samus's prospective pose, which takes effect
-        // after movement and animation, so the choice is captured here.
-        // A retained pose still chooses a pose transition whose change runs later.
-        if (_player.GroundedSamusMovementEnabled && frame.UsePoseDefinitionFallback)
+        // When no input transition matches, no buttons held or a combination none matches, her pose's no-transition
+        // pose is chosen; a match that keeps the pose is not. The pose her input chooses takes effect after movement
+        // and animation, so the choice is captured here, and a kept pose still chooses a pose transition whose change
+        // runs later.
+        if (_player.GroundedSamusMovementEnabled && frame.InputChoseNoPose)
         {
             _player.ProspectiveSamusFallbackPose = SamusNoTransitionPose.Resolve(
                 SamusPoseMetadata.ReadMovementType(samus),
@@ -962,7 +1001,7 @@ internal sealed class SamusFramePhases
     private void AnimateAndSettleSamus(SamusControlFrame frame, SamusState samus, bool runsLowHealthCheck, RoomScope room)
     {
         // Samus's normal movement phase updates the speed echo after her movement owner has moved her
-        // and before animation/pose transitions. Every fourth gameplay frame at the full boost stage, it alternates
+        // and before animation/pose transitions. At its capture cadence at the full boost stage, it alternates
         // between two of her places in the room, so the echoes drawn after it stand where she has moved to.
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup && frame.ShinesparkMovement is null)
         {
@@ -1069,7 +1108,7 @@ internal sealed class SamusFramePhases
         if (!_player.AdvanceLoadAppearance())
             return;
 
-        // The item fanfare publishes its same-pose history shift only on the
+        // The saved game's appearance fanfare publishes its same-pose history shift only on the
         // update it ends, before her ordinary input and movement modes regain control.
         samus.CommitPoseHistory();
         samus.Control.Unlock();

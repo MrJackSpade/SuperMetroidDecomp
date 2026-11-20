@@ -6,7 +6,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
-/// Botwoon's state beyond what his head shares with every enemy, including its thirteen body segments, which are not
+/// Botwoon's state beyond what his head shares with every enemy, including its body segments, which are not
 /// ordinary enemies and so are kept here rather than spawned as enemies.
 /// </summary>
 [ArchitectureReview("context-bag", "Botwoon's fight state: every member is a wait, stage, band, path or segment of his own fight that he owns for the room (his spit cooldown, pre-fall and explosion waits, speed stage and health band, #2266, #2267), not a service carried through.")]
@@ -30,7 +30,7 @@ public sealed class BotwoonEnemyState
     /// </summary>
     public BotwoonHeadAction HeadAction { get; internal set; } = BotwoonHeadAction.AnimateFromMovement;
 
-    /// <summary>The trail ring's next place, 0 through 255 (<see cref="BotwoonTrailRing"/>); each moving update writes the head's position there and moves on one place.</summary>
+    /// <summary>The trail ring's next place (<see cref="BotwoonTrailRing"/>); each moving update writes the head's position there and moves on one place.</summary>
     public int RingIndex { get; internal set; }
     /// <summary>
     /// His wait in his hole before his first traversal (#2538): his setup starts it for
@@ -48,8 +48,8 @@ public sealed class BotwoonEnemyState
     /// </summary>
     public BossCountdown PreFallWait { get; } = new();
     /// <summary>
-    /// Head-fall place along the quadratic speed curve: each still-airborne update moves it on three quarters of a mark,
-    /// and the whole marks choose the fall speed. The head reaches the floor before the curve ends, well below mark 95.
+    /// Head-fall place along the quadratic speed curve: each still-airborne update moves it on by the head's fall step,
+    /// and the whole marks choose the fall speed. The head reaches the floor well before the curve ends.
     /// </summary>
     public QuadraticSpeedCurvePlace FallPlace { get; internal set; }
     /// <summary>
@@ -58,12 +58,12 @@ public sealed class BotwoonEnemyState
     /// </summary>
     public UpdateCountdown WallSequence { get; internal set; } = UpdateCountdown.Ended();
     /// <summary>
-    /// The wait for the next large wall explosion (#2267): from the wall sequence's update 64 one bursts at once, then one
+    /// The wait for the next large wall explosion (#2267): from <see cref="BotwoonDeathDefinitions.WallExplosionsBegin"/> one bursts at once, then one
     /// every <see cref="BotwoonDeathDefinitions.LargeExplosionInterval"/>.
     /// </summary>
     public BossCountdown LargeExplosionWait { get; } = new();
     /// <summary>
-    /// The wait for the next pair of small wall explosions (#2267): from the wall sequence's update 64 a pair bursts at
+    /// The wait for the next pair of small wall explosions (#2267): from <see cref="BotwoonDeathDefinitions.WallExplosionsBegin"/> a pair bursts at
     /// once, then a pair every <see cref="BotwoonDeathDefinitions.SmallExplosionInterval"/>.
     /// </summary>
     public BossCountdown SmallExplosionWait { get; } = new();
@@ -112,7 +112,7 @@ public sealed class BotwoonEnemyState
     public bool FatallyHit { get; internal set; }
     /// <summary>Set when his tail crosses the place his head crossed at while the head is outside the wall, letting a fatal hit's death begin.</summary>
     public bool ExitTransitionComplete { get; internal set; }
-    /// <summary>Set as his death begins: each of his thirteen body segments then stops following his head and starts its own delay before it falls.</summary>
+    /// <summary>Set as his death begins: each of his body segments then stops following his head and starts its own delay before it falls.</summary>
     public bool BodyDeathStarted { get; internal set; }
     /// <summary>Landing signal from the tail segment, releasing the head's wait-for-body phase into wall crumbling and specialized drops.</summary>
     public bool LastBodySegmentLanded { get; internal set; }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
-/// The state of one Dragon body. The body's motion timer and its three-shot counter are separate countdowns here, since
+/// The state of one Dragon body. The body's motion timer and its shot counter are separate countdowns here, since
 /// every phase starts its own before reading it.
 /// </summary>
 public sealed class DragonEnemyState : DragonPartState
@@ -28,7 +28,7 @@ public sealed class DragonEnemyState : DragonPartState
     /// </summary>
     public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();
 
-    /// <summary>The body's shots left while attacking; initialized to three before the first volley.</summary>
+    /// <summary>The body's shots left while attacking; initialized to <see cref="DragonTimingDefinitions.ShotsPerAttack"/> before the first volley.</summary>
     public int AttackCounter { get; internal set; }
 
     /// <summary>

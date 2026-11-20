@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// An eye door's body or bottom (#1554). On its first update the part looks
-/// at its door: one opened for good leaves the room. Otherwise it looks for Samus every eight updates, standing still
+/// at its door: one opened for good leaves the room. Otherwise it looks for Samus each time its still image ends, standing still
 /// (<see cref="EyeDoorSequenceDefinitions.Still"/>); once she is near (<see cref="EyeDoorSequenceDefinitions.PulseReach"/>)
 /// it waits for its door to open and pulses while she stays near. Once it waits, the update its door has been opened for
 /// good it leaves the room, before its images count down. The body (<see cref="EyeDoorBodyObject"/>) stands in the door
@@ -27,7 +27,7 @@ internal abstract class EyeDoorPartObject
     }
 
     /// <summary>Which part this is and the way its door faces.</summary>
-    internal EyeDoorPart Part { get; }
+    private EyeDoorPart Part { get; }
 
     /// <summary>The eye door's facing.</summary>
     internal EyeDoorOrientation Orientation => Part.Orientation;
@@ -36,13 +36,13 @@ internal abstract class EyeDoorPartObject
     internal PlacedDoor Door { get; }
 
     /// <summary>What the part is doing (#2482).</summary>
-    internal EyeDoorPartPhase Phase { get; private set; } = EyeDoorPartPhase.Placed;
+    private EyeDoorPartPhase Phase { get; set; } = EyeDoorPartPhase.Placed;
 
     /// <summary>
     /// Whether the part waits for its door to be opened for good, which makes it leave the room. The wait starts the first
     /// time Samus comes near and stays when she leaves, so it is a fact of its own beside what the part shows.
     /// </summary>
-    internal bool WaitsForOpenedDoor { get; private set; }
+    private bool WaitsForOpenedDoor { get; set; }
 
     /// <summary>Leaves the room on the part's next update, as the body closing behind Samus does.</summary>
     private protected void LeaveOnNextUpdate()
@@ -59,7 +59,7 @@ internal abstract class EyeDoorPartObject
             base.Update(place, context);
     }
 
-    /// <inheritdoc/>
+    /// <summary>The part leaves once its door has been opened for good; returns whether it left.</summary>
     private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (!WaitsForOpenedDoor || !context.RoomObjects.DoorObjects.IsDoorOpened(Door))

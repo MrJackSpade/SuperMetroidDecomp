@@ -18,11 +18,11 @@ internal abstract class OrbitingParticleState(SpecialAttackParticle part, Trigon
     internal int Radius { get; set => field = Ensure.AtLeastZero(value); } = Ensure.AtLeastZero(radius);
 
     /// <summary>
-    /// The turn the particle makes round its circle each update: for an Ice or Plasma particle four steps on, or four
-    /// steps back (a full circle less four) when a left-facing Samus starts the attack; for a Spazer particle its steps
+    /// The turn the particle makes round its circle each update: for an Ice or Plasma particle its steps on, or as many
+    /// steps back (a full circle less them) when a left-facing Samus starts the attack; for a Spazer particle its steps
     /// on when it turns clockwise, a full circle less them when it turns counterclockwise.
     /// </summary>
-    internal TrigonometryAngle TurnPerUpdate { get; set; } = turnPerUpdate;
+    internal TrigonometryAngle TurnPerUpdate { private get; set; } = turnPerUpdate;
 
     /// <summary>Turns the particle on round its circle by its turn per update.</summary>
     internal void Turn() => Angle += TurnPerUpdate;

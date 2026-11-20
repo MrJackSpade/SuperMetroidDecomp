@@ -26,11 +26,11 @@ public sealed class FirefleaFxState
     /// <summary>Starts the flash on its first look, held for its updates, in a room no Fireflea death has darkened.</summary>
     public FirefleaFxState() => Tint = Shade(Flash, Darkness);
 
-    /// <summary>The flash's look the room shows: it brightens over its first six looks and dims over the last six.</summary>
-    public FirefleaFlashShade Flash => flash.Showing;
+    /// <summary>The flash's look the room shows: it brightens over its first looks and dims over its last.</summary>
+    private FirefleaFlashShade Flash => flash.Showing;
 
     /// <summary>The darkness published from the enemies' count of Firefleas killed.</summary>
-    public FirefleaDarkness Darkness { get; private set; }
+    private FirefleaDarkness Darkness { get; set; }
 
     /// <summary>
     /// The shade Fireflea darkness subtracts from the room, grey on the game's fade scale: the flash's look plus the

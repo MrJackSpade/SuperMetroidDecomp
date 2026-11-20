@@ -8,16 +8,16 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 public sealed class DraygonHealthBand
 {
     /// <summary>Defines a band.</summary>
-    /// <param name="minimumHealth">The least health in the band, or null for the lowest band.</param>
+    /// <param name="minimumHealth">The least health in the band: zero for the lowest band, which holds all the health below the others.</param>
     /// <param name="key">The band's name in its shade's name.</param>
-    internal DraygonHealthBand(int? minimumHealth, [InstalledKey] string key)
+    internal DraygonHealthBand(int minimumHealth, [InstalledKey] string key)
     {
         MinimumHealth = minimumHealth;
         Key = key;
     }
 
-    /// <summary>The least health in the band, or null for the lowest band, which holds all the health below the others.</summary>
-    public int? MinimumHealth { get; }
+    /// <summary>The least health in the band: zero for the lowest band, which holds all the health below the others.</summary>
+    private int MinimumHealth { get; }
 
     /// <summary>The band's name in its shade's name.</summary>
     public string Key { get; }
@@ -33,7 +33,7 @@ public sealed class DraygonHealthBand
             throw new InvalidDataException(
                 $"Draygon health {health} exceeds the authored maximum {DraygonHealthBandDefinitions.MaximumAuthoredHealth} for health-band selection.");
         }
-        return DraygonHealthBandDefinitions.HighestFirst.First(band => band.MinimumHealth is not { } least || health >= least);
+        return DraygonHealthBandDefinitions.HighestFirst.First(band => health >= band.MinimumHealth);
     }
 
     /// <inheritdoc/>

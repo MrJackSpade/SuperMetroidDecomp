@@ -11,7 +11,7 @@ public sealed class RoomObjectPopulation
 
     /// <summary>The population's name.</summary>
     public string Name { get; }
-    /// <summary>Validated placements in allocation order.</summary>
+    /// <summary>Validated placements in the order the room places them.</summary>
     public ReadOnlyMemory<RoomObjectPlacement> Placements => placements;
 
     /// <summary>Copies an ordered decoded population, rejecting an empty placement before any room object takes a place.</summary>
@@ -22,7 +22,7 @@ public sealed class RoomObjectPopulation
     /// </param>
     /// <exception cref="ArgumentNullException">The sequence or one of its placements is null.</exception>
     /// <exception cref="InvalidDataException">One is an empty placement.</exception>
-    public RoomObjectPopulation(string name, IEnumerable<RoomObjectPlacement> placements)
+    private RoomObjectPopulation(string name, IEnumerable<RoomObjectPlacement> placements)
     {
         Ensure.NotNull(placements);
         Name = Ensure.NotNull(name);
@@ -36,13 +36,6 @@ public sealed class RoomObjectPopulation
         new(name, Ensure.NotNull(placements).Select(placement => new RoomObjectPlacement(
             placement.Kind, placement.Block, placement.Setup) { Site = placement.Site }));
 
-    /// <summary>Rejects an empty placement.</summary>
-    /// <exception cref="InvalidDataException">The placement is malformed.</exception>
-    private static RoomObjectPlacement Validated(RoomObjectPlacement placement)
-    {
-        Ensure.NotNull(placement);
-        if (placement.Kind == RoomObjectKind.None)
-            throw new InvalidDataException("A decoded room-object placement cannot be an empty placement.");
-        return placement;
-    }
+    /// <summary>Requires a placement.</summary>
+    private static RoomObjectPlacement Validated(RoomObjectPlacement placement) => Ensure.NotNull(placement);
 }

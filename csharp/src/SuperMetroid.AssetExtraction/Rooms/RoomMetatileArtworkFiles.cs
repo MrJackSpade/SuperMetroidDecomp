@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomMetatileArtworkFiles
 {
     /// <summary>Import-data visual-block manifest filename recording cartridge provenance, metatile JSON hashes, and native transfer lengths.</summary>
-    public const string ManifestFileName = "room-blocks.json";
+    private const string ManifestFileName = "room-blocks.json";
     /// <summary>Schema revision required by the visual-block provenance manifest; 3 writes the compositions as import data, not installed (#1638).</summary>
     private const int FormatVersion = 3;
 
@@ -40,7 +40,7 @@ public static class RoomMetatileArtworkFiles
         var entries = new Dictionary<string, RoomMetatileFileEntry>();
         foreach ((string name, RoomBlockSource source) in ExpectedSources())
         {
-            SnesAddress address = source.Set is { } set ? tilesets.Blocks[set]
+            SnesAddress address = source is RoomBlockSource.OfSet(RoomBlockSet set) ? tilesets.Blocks[set]
                 : RoomTilesetSourceDefinitions.CreBlocks;
             byte[] json = files[name];
             int nativeLength = RomDataReader.Decompress(bus, address).Length;
@@ -108,19 +108,31 @@ public static class RoomMetatileArtworkFiles
     {
         var sources = new Dictionary<string, RoomBlockSource>
         {
-            [RoomMetatileFormat.CreFileName] = new(null),
+            [RoomMetatileFormat.CreFileName] = new RoomBlockSource.Common(),
         };
         foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
             RoomBlockSet set = tileset.Blocks;
-            sources[RoomMetatileFormat.FileName(set)] = new(set);
+            sources[RoomMetatileFormat.FileName(set)] = new RoomBlockSource.OfSet(set);
         }
         return sources;
     }
 
-    /// <summary>A block file's table: none for the common room elements.</summary>
-    /// <param name="Set">The table, or null for the common room elements.</param>
-    private readonly record struct RoomBlockSource(RoomBlockSet? Set);
+    /// <summary>A block file's table: the common room elements' or a block set's.</summary>
+    private abstract record RoomBlockSource
+    {
+        /// <summary>Only the nested cases derive.</summary>
+        private RoomBlockSource()
+        {
+        }
+
+        /// <summary>The common room elements' table.</summary>
+        internal sealed record Common : RoomBlockSource;
+
+        /// <summary>A block set's table.</summary>
+        /// <param name="Set">The set.</param>
+        internal sealed record OfSet(RoomBlockSet Set) : RoomBlockSource;
+    }
 
     /// <summary>Strict camel-case serialization settings for the metatile provenance manifest.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

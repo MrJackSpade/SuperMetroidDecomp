@@ -31,8 +31,8 @@ internal static class RoomFxRetailInventoryVerification
     private const int RetailRoomFxRoomCount = 261;
     /// <summary>Expected number of named retail room states selected by the source inventory.</summary>
     private const int RetailRoomFxStateCount = 322;
-    /// <summary>Expected number of physical bank-$83 entry doors exercised by the audit.</summary>
-    private const int RetailRoomFxDoorCount = 596;
+    /// <summary>Expected number of held retail entry doors exercised by the audit.</summary>
+    private const int RetailRoomFxDoorCount = 594;
 
     /// <summary>
     /// The animated tiles' characters as the import reads them from the shared installation's import data (#1527, #1680):
@@ -43,10 +43,10 @@ internal static class RoomFxRetailInventoryVerification
     private static RoomFxBlockAnimationAtlas AnimatedTiles => InstalledFixtures.ImportMaps.BlockAnimationAtlas;
 
     /// <summary>
-    /// Exhaustively compares every named retail room state and every physical entry door
-    /// with the FX record selected by the production owner. The named-state and physical-
-    /// door cardinalities are fixed cartridge facts, so silently omitting an alternate
-    /// boss/event state or an unlabelled door header fails the suite.
+    /// Exhaustively compares every named retail room state and every entry door the game holds
+    /// with the FX record selected by the production owner. The named-state and held-door
+    /// cardinalities are fixed cartridge facts, so silently omitting an alternate
+    /// boss/event state or a door header fails the suite.
     /// </summary>
     internal static void VerifyRetailRoomFxInventory()
     {
@@ -76,7 +76,7 @@ internal static class RoomFxRetailInventoryVerification
         AssertEqual(RetailRoomFxStateCount, states.Length,
             "retail room-FX inventory state count");
         AssertEqual(RetailRoomFxDoorCount, doors.Length,
-            "retail room-FX inventory physical door count");
+            "retail room-FX inventory held door count");
         Suite(nameof(VerifyRetailRoomFxBlockAnimationHeaders), () => VerifyRetailRoomFxBlockAnimationHeaders(bus));
         Suite(nameof(VerifyRetailLavaSurface), () => VerifyRetailLavaSurface(bus, states));
 
@@ -205,7 +205,7 @@ internal static class RoomFxRetailInventoryVerification
 
         Console.WriteLine(
             $"  Room FX inventory: audited {roomPointers.Length} rooms, {states.Length} states, " +
-            $"{doors.Length} physical doors, {auditedEntryPaths} state/entry paths, and " +
+            $"{doors.Length} held doors, {auditedEntryPaths} state/entry paths, and " +
             $"{doorSpecificRecords} door-specific FX records ({tidalEntryPaths} tidal paths); " +
             string.Join(", ", classifications.OrderBy(pair => pair.Key)
                 .Select(pair => $"{pair.Key}={pair.Value}")) +

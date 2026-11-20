@@ -56,15 +56,14 @@ internal sealed class DraygonCombat
         if (context.HitboxTouch != DraygonReactions.Touch)
         {
             throw new InvalidDataException(
-                $"Draygon has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+                $"Draygon has no response to touch reaction {context.HitboxTouch}.");
         }
         _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
         ResolveDraygonReaction(context.Place, state, context.Samus);
     }
 
     /// <summary>
-    /// Updates Draygon while he is hurt. The body is drawn partly as a background layer and partly
-    /// as sprites, so a valid flash must update the colours of both surfaces.
+    /// Updates Draygon while he is hurt: the hurt flash shows on his body and his sprites alike.
     /// </summary>
     internal void ApplyDraygonHurt(
         RoomEnemyPlace body,
@@ -78,11 +77,11 @@ internal sealed class DraygonCombat
             state.Colours.ShowBand(state.HealthBand);
         state.ShadeSprites();
 
-        // A grapple connected to the turrets is the game's electrocution channel. It is
-        // sampled only while he is hurt and subtracts its grapple-shock damage on every
-        // eighth body frame before running the same fatal/nonfatal reaction as a shot.
+        // A grapple connected to the turrets electrocutes him. It is sampled only while he
+        // is hurt and subtracts its grapple-shock damage at its shock cadence before
+        // running the same fatal/nonfatal reaction as a shot.
         if (!DraygonGrab.IsDraygonGrappleConnected(samus) ||
-            !DraygonCadenceDefinitions.GrappleShockEveryEighthUpdate.IsDue(body.FrameCounter))
+            !DraygonCadenceDefinitions.GrappleShock.IsDue(body.FrameCounter))
             return;
 
         body.Health = body.Health <= DraygonArenaDefinitions.GrappleShockDamage
@@ -93,9 +92,9 @@ internal sealed class DraygonCombat
 
     /// <summary>
     /// The vulnerable eye's shot reaction increases future swoop curvature before the shot's common damage; the
-    /// curvature never grows past 152.
+    /// curvature never grows past <see cref="DraygonSwoopDefinitions.AccelerationLimit"/>.
     /// </summary>
-    internal static void AdvanceDraygonShotAcceleration(DraygonEnemyState state)
+    private static void AdvanceDraygonShotAcceleration(DraygonEnemyState state)
     {
         SignedEightEight candidate = state.SwoopAcceleration + DraygonSwoopDefinitions.ShotAccelerationStep;
         if (candidate < DraygonSwoopDefinitions.AccelerationLimit)
@@ -103,7 +102,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Runs the common post-touch/shot/power-bomb reaction.</summary>
-    internal void ResolveDraygonReaction(RoomEnemyPlace body, DraygonEnemyState state, SamusState samus)
+    private void ResolveDraygonReaction(RoomEnemyPlace body, DraygonEnemyState state, SamusState samus)
     {
         if (body.Health != 0)
         {
@@ -139,7 +138,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Changes Draygon's health color band only when the health threshold changes.</summary>
-    internal static void UpdateDraygonHealthBand(DraygonEnemyState state)
+    private static void UpdateDraygonHealthBand(DraygonEnemyState state)
     {
         DraygonHealthBand band = DraygonHealthBand.Of(state.Body.Health);
 
@@ -150,7 +149,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Shows his selected health band's colours.</summary>
-    internal static void ShowDraygonHealthBand(DraygonEnemyState state) => state.Colours.ShowBand(state.HealthBand);
+    private static void ShowDraygonHealthBand(DraygonEnemyState state) => state.Colours.ShowBand(state.HealthBand);
 
     /// <summary>A bomb striking one of Draygon's body dud-shot hitboxes: the dud flash where the bomb lies and the dud sound.</summary>
     internal void CreateBombDudShot(EnemyBombContext context) => _projectiles.CreateBombDudShot(context.Bomb);
@@ -167,14 +166,14 @@ internal sealed class DraygonCombat
             {
                 // Body, claws, and shell use the shared common touch; only the first
                 // eye rectangle of the two eye-showing body frames reaches Draygon's damage reaction.
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                 _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                 return true;
             }
             if (c.HitboxShot != DraygonReactions.Shot)
             {
                 throw new InvalidDataException(
-                    $"Draygon has no response to shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+                    $"Draygon has no response to shot reaction {c.HitboxShot}.");
             }
             return false;
         },
@@ -189,10 +188,8 @@ internal sealed class DraygonCombat
     /// The reaction of the first hitbox the probe overlaps on <paramref name="enemy"/>'s frame, one of Draygon's parts,
     /// which its own entity asks for (#2301).
     /// </summary>
-    internal static bool FindDraygonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindDraygonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
-
         // Both sprite and body-layer art are replaceable presentation. Their
         // component offsets and hitboxes remain fixed gameplay data.
         foreach (EnemyCollisionComponent component in
@@ -207,10 +204,9 @@ internal sealed class DraygonCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 }

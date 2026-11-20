@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal static class RidleyBreakup
 {
-    /// <summary>Spawns every part in the breakup's allocation order.</summary>
+    /// <summary>Spawns every part in the order the breakup spawns them.</summary>
     internal static void SpawnInBreakupOrder(Action<RidleyExplosionPart> spawn)
     {
         Ensure.NotNull(spawn);

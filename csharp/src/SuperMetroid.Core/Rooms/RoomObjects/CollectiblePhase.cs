@@ -28,7 +28,7 @@ public enum CollectiblePhase
     ShotBlockReveal,
     /// <summary>A previously collected item's shot block crumbles away before showing its empty space (#2482).</summary>
     CollectedShotBlockReveal,
-    /// <summary>The revealed item accepts touch acquisition while it alternates its two looks twenty-two times.</summary>
+    /// <summary>The revealed item accepts touch acquisition while it alternates its two looks (<see cref="CollectibleTimingDefinitions.RevealedImagePairs"/>).</summary>
     ShotBlockVisible,
     /// <summary>Samus touched the revealed item; its next update collects it (#2545).</summary>
     ShotBlockVisibleTouched,
@@ -38,7 +38,7 @@ public enum CollectiblePhase
     CollectedShotBlock,
     /// <summary>A shot, bomb or grapple reached the collected item's restored block; its next update crumbles it away (#2545).</summary>
     CollectedShotBlockShot,
-    /// <summary>The collected shot block remains empty for twenty-two eight-frame intervals before respawning.</summary>
+    /// <summary>The collected shot block remains empty for <see cref="CollectibleTimingDefinitions.CollectedShotBlockEmptyUpdates"/> before respawning.</summary>
     CollectedShotBlockEmpty,
     /// <summary>The collected shot block grows back before restoring its saved block.</summary>
     CollectedShotBlockRespawn,

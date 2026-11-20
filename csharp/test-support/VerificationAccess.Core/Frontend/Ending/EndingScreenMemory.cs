@@ -23,7 +23,7 @@ internal static class EndingScreenMemory
         var vram = new SnesVram();
         // The transfers that read the ending's objects or font read them installed.
         EndingTransferArtwork Artwork() => new(objects ?? throw new InvalidOperationException("The ending's object transfers require installed object artwork."),
-            font ?? throw new InvalidOperationException("The ending's font transfer requires installed font artwork."), reward);
+            font ?? throw new InvalidOperationException("The ending's font transfer requires installed font artwork."));
         if (loads.FloorScene is { } loaded)
         {
             EndingFloorSceneArtwork scene = Required(floor)[loaded];
@@ -36,7 +36,10 @@ internal static class EndingScreenMemory
             for (int chunk = 0; chunk < FlyawayChunks; chunk++)
                 Flyaway(vram, chunk, flight);
         if (loads.PostCreditsArt)
-            EndingScreenImage.Execute(vram, new EndingTransfer.CreditsCharacterArt(), Artwork());
+        {
+            EndingScreenImage.Execute(vram, new EndingSheetTransfer.CreditsCharacterArt(), Artwork());
+            EndingScreenImage.Execute(vram, new EndingRewardCharactersTransfer(reward), artwork);
+        }
         if (loads.RewardIcon)
             for (int chunk = 0; chunk < EndingRewardGraphicsUploadDefinitions.ChunkCount; chunk++)
                 vram.LoadBytes(EndingVramDestinationsConstants.RewardChunkWordOf(chunk) * sizeof(ushort),
@@ -44,7 +47,7 @@ internal static class EndingScreenMemory
                         EndingRewardGraphicsUploads.ChunkOffset(chunk), EndingRewardGraphicsUploadDefinitions.ChunkBytes));
         if (loads.ExplosionMaps)
         {
-            EndingScreenImage.Execute(vram, new EndingTransfer.ExplosionObjects(), Artwork());
+            EndingScreenImage.Execute(vram, new EndingSheetTransfer.ExplosionObjects(), Artwork());
             foreach (EndingExplosionPicture map in Enum.GetValues<EndingExplosionPicture>())
                 EndingScreenImage.Execute(vram, new EndingTransfer.ExplosionMap(map), Artwork());
             EndingScreenImage.Execute(vram, new EndingTransfer.EndingFont(), Artwork());

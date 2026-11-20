@@ -13,7 +13,7 @@ internal sealed class RinkaSpawnReservations
     private readonly HashSet<RinkaSpawnPoint> _reserved = [];
 
     /// <summary>Whether a Rinka holds <paramref name="point"/>.</summary>
-    internal bool IsReserved(RinkaSpawnPoint point) => _reserved.Contains(point);
+    private bool IsReserved(RinkaSpawnPoint point) => _reserved.Contains(point);
 
     /// <summary>
     /// Reserves a point for a special Rinka whose spawn point is <paramref name="own"/>. It keeps that point when the

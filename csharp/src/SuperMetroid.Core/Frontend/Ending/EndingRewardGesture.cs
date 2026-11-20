@@ -13,10 +13,10 @@ internal sealed class EndingRewardGesture
     /// <summary>Whether the gesture has handed off to the jump, after which it takes no further step.</summary>
     private bool handedOff;
 
-    /// <summary>Spawns the suitless pair or the suited head, body, and arm in the reward's allocation order.</summary>
+    /// <summary>Spawns the suitless pair or the suited head, body, and arm, in the order they step and draw.</summary>
     public EndingRewardGesture(EndingReward reward)
     {
-        // The cast keeps the allocation order: a suited reward's head first, then body, then arm.
+        // The cast lists the actors in the order they step and draw: a suited reward's head first, then body, then arm.
         foreach (EndingRewardActor actor in EndingRewardCast.Gesture(reward))
             Spawn(actor);
     }
@@ -34,7 +34,7 @@ internal sealed class EndingRewardGesture
         return jumps;
     }
 
-    /// <summary>Places current actors as the supplied sprite entries.</summary>
+    /// <summary>Draws the gesture's actors among the screen's sprites.</summary>
     public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation installedArt)
     {
         Ensure.NotNull(destination);
@@ -42,7 +42,7 @@ internal sealed class EndingRewardGesture
             actor.Draw(destination, installedArt: installedArt);
     }
 
-    /// <summary>Converts the jump cue into a suited or suitless handoff: whether <paramref name="cue"/> starts the jump.</summary>
+    /// <summary>Whether <paramref name="cue"/> hands the gesture off to the jump.</summary>
     private static bool HandleCue(EndingRewardGestureCue cue)
     {
         switch (cue)

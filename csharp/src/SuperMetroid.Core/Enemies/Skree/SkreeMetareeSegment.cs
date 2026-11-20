@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>
-/// The Skree's and Metaree's idling, wind-up, diving and stop animations (#641): one segment per animation a spawn, branch
-/// or wake enters, and the spin each dive loops after its entry cue (#2276), in authored order. Their steps are
+/// The Skree's and Metaree's idling, wind-up, diving and stop animations (#641), and the spin each dive loops after its
+/// entry cue (#2276). Their steps are
 /// <see cref="SkreeMetareeAnimations"/>.
 /// </summary>
 internal enum SkreeMetareeSegment

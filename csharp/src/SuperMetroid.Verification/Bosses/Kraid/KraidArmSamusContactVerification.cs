@@ -30,7 +30,7 @@ internal static class KraidArmSamusContactVerification
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid);
         RoomEnemyPlace arm = runtime.Enemies.Places.InUpdateOrder[1];
-        AssertEqual(EnemyDefinitionId.KraidArm, arm.DefinitionId, "slot one is Kraid's arm");
+        AssertEqual(EnemyDefinitionId.KraidArm, arm.Occupant?.DefinitionId, "slot one is Kraid's arm");
 
         // Native update 35724: the arm and Samus as they stand when EnemyMain tests contact.
         arm.Position = arm.Position.WithWhole(new(0x00b0, 0x01df));
@@ -48,7 +48,7 @@ internal static class KraidArmSamusContactVerification
 
         // $A0:8EB6 builds this frame's interactive list from the native camera (0,$100).
         runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(new Position16<RoomPixels>(0, 0x100));
-        runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, runtime.Enemies.Places.InUpdateOrder[1], Position16<RoomPixels>.Zero);
+        runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, runtime.Enemies.Places.InUpdateOrder[1].HeldOccupant(), Position16<RoomPixels>.Zero);
 
         AssertEqual(4, samus.Kinematics.ExtraDisplacement.X.WholePixels, "$A7:94A4 pushes Samus four pixels right");
         AssertEqual(-8, samus.Kinematics.ExtraDisplacement.Y.WholePixels, "$A7:94AA pushes Samus eight pixels up");

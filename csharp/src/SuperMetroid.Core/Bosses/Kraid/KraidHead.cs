@@ -19,9 +19,14 @@ internal sealed class KraidHead
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;
 
+    /// <summary>The rocks he spits, his encounter's own (#2571).</summary>
+    private readonly KraidProjectiles.RockBehavior _spitRock;
+
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidHead(EnemyRoomBinding room, EnemyProjectileEngine projectiles, KraidEncounterAccess access, KraidBackground background)
+    internal KraidHead(EnemyRoomBinding room, EnemyProjectileEngine projectiles, KraidEncounterAccess access, KraidBackground background,
+        KraidProjectiles.RockBehavior spitRock)
     {
+        _spitRock = Ensure.NotNull(spitRock);
         _room = room;
         _projectiles = projectiles;
         _access = access;
@@ -48,7 +53,7 @@ internal sealed class KraidHead
     /// Shows Kraid in <paramref name="shown"/>, his hurt colours or his current health band's (#1512): his body and every
     /// sprite part take the shade, and his eyes its colours at once.
     /// </summary>
-    internal void UpdateKraidHealthColours(RoomEnemyPlace body, KraidEnemyState state, KraidHurtFlashShade shown)
+    private void UpdateKraidHealthColours(RoomEnemyPlace body, KraidEnemyState state, KraidHurtFlashShade shown)
     {
         switch (shown)
         {
@@ -90,7 +95,7 @@ internal sealed class KraidHead
     /// <summary>Advances the open-mouth attack and its head animation timing.</summary>
     internal void RunKraidMouthOpenAttack(RoomEnemyPlace body, KraidEnemyState state)
     {
-        if (AdvanceKraidHeadAnimation(state) == KraidHeadAnimationResult.AnimationEnded)
+        if (AdvanceKraidHeadAnimationToItsEnd(state))
         {
             SetupKraidFirstPhaseThinking(body, state);
             state.HoldClosedMouth();
@@ -111,10 +116,10 @@ internal sealed class KraidHead
             return;
         }
 
-        // Kraid spits a rock on every sixteenth update left of the open mouth's hold, including the update the open mouth
+        // Kraid spits a rock at his spit cadence's place in the open mouth's hold, including the update the open mouth
         // shows and starts it.
         if (state.DisplayedHeadFrame == KraidHeadFrame.Open &&
-            KraidCadenceDefinitions.SpitRockEverySixteenthMouthUpdate.IsDue(state.HeadHold.UpdatesLeft))
+            KraidCadenceDefinitions.MouthSpitRock.IsDue(state.HeadHold.UpdatesLeft))
         {
             SpawnKraidSpitRock(body);
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
@@ -122,38 +127,52 @@ internal sealed class KraidHead
     }
 
     /// <summary>
-    /// Steps the head's hold on its pose and plays the head animation on when the hold runs out on this update, giving the
-    /// animation's result; a hold still running, or one that has run out before, keeps the pose.
+    /// Steps the head's hold on its pose and plays the head animation on when the hold runs out on this update; a hold still
+    /// running, or one that has run out before, keeps the pose.
     /// </summary>
-    internal KraidHeadAnimationResult AdvanceKraidHeadAnimation(KraidEnemyState state) =>
-        state.HeadHold.StepRunsOut() ? RunKraidHeadAnimationStep(state) : KraidHeadAnimationResult.PoseHeld;
+    internal void AdvanceKraidHeadAnimation(KraidEnemyState state)
+    {
+        if (state.HeadHold.StepRunsOut() && PlayKraidHeadAnimation(state) is AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
+            state.ShowHeadPose(shown);
+    }
+
+    /// <summary>
+    /// Advances the head as <see cref="AdvanceKraidHeadAnimation"/> does, and whether its animation reached its segment's end
+    /// on this update, holding there.
+    /// </summary>
+    internal bool AdvanceKraidHeadAnimationToItsEnd(KraidEnemyState state) =>
+        state.HeadHold.StepRunsOut() && RunKraidHeadAnimationStep(state) == KraidHeadAnimationResult.AnimationEnded;
 
     /// <summary>
     /// Plays Kraid's head animation to its next pose: cries on the way are announced, and the head shows the pose and holds
     /// it for its duration; at its segment's end the animation holds there.
     /// </summary>
-    internal KraidHeadAnimationResult RunKraidHeadAnimationStep(KraidEnemyState state)
+    private KraidHeadAnimationResult RunKraidHeadAnimationStep(KraidEnemyState state)
+    {
+        if (PlayKraidHeadAnimation(state) is not AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
+            return KraidHeadAnimationResult.AnimationEnded;
+        state.ShowHeadPose(shown);
+        return KraidHeadAnimationResult.PoseShown;
+    }
+
+    /// <summary>
+    /// Plays the head animation to its next frame, announcing its cries on the way: the frame it shows, or the hold at its
+    /// segment's end. It shows nothing itself.
+    /// </summary>
+    private AnimationShown<KraidHeadSegment, KraidHeadFrame> PlayKraidHeadAnimation(KraidEnemyState state)
     {
         AnimationPlayback<KraidHeadSegment> playback = state.HeadPlayback;
         AnimationPlace place = playback.Place;
         AnimationShown<KraidHeadSegment, KraidHeadFrame> outcome = KraidHeadAnimations.Segments.PlayToNextFrame(
             playback.Animation, ref place, PublishKraidHeadCue);
         state.HeadPlayback = playback with { Place = place };
-        switch (outcome)
+        return outcome switch
         {
-            case AnimationShown<KraidHeadSegment, KraidHeadFrame>.Held:
-                return KraidHeadAnimationResult.AnimationEnded;
-
-            case AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown:
-                state.ShowHeadPose(shown);
-                return KraidHeadAnimationResult.PoseShown;
-
-            case AnimationShown<KraidHeadSegment, KraidHeadFrame>.Paused or AnimationShown<KraidHeadSegment, KraidHeadFrame>.Ended:
-                throw new InvalidOperationException($"Kraid's head animations never reach {outcome}.");
-
-            default:
-                throw new InvalidOperationException($"Undefined animation outcome {outcome}.");
-        }
+            AnimationShown<KraidHeadSegment, KraidHeadFrame>.Held or AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame => outcome,
+            AnimationShown<KraidHeadSegment, KraidHeadFrame>.Paused or AnimationShown<KraidHeadSegment, KraidHeadFrame>.Ended =>
+                throw new InvalidOperationException($"Kraid's head animations never reach {outcome}."),
+            _ => throw new InvalidOperationException($"Undefined animation outcome {outcome}."),
+        };
     }
 
     /// <summary>Plays a head animation's cry.</summary>
@@ -177,7 +196,7 @@ internal sealed class KraidHead
     /// <summary>Updates the mouth-open reaction after a damaging shot.</summary>
     internal void RunKraidMouthOpenReaction(KraidEnemyState state)
     {
-        if (AdvanceKraidHeadAnimation(state) != KraidHeadAnimationResult.AnimationEnded)
+        if (!AdvanceKraidHeadAnimationToItsEnd(state))
             return;
         state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
         state.HoldClosedMouth();
@@ -205,7 +224,7 @@ internal sealed class KraidHead
     /// <summary>Steps the eye highlight while the body reacts to a hit.</summary>
     internal void GlowKraidEye(KraidEnemyState state)
     {
-        _ = AdvanceKraidHeadAnimation(state);
+        AdvanceKraidHeadAnimation(state);
         // The glow's peak, read back from the eyes' colours, ends the glow (#1512).
         if (state.Colours.GlowEyes())
             state.BodyState.FightPhase = KraidFightPhase.UnglowEye;
@@ -224,25 +243,20 @@ internal sealed class KraidHead
     }
 
     /// <summary>Emits a mouth rock when a projectile place is free.</summary>
-    internal void SpawnKraidSpitRock(RoomEnemyPlace body)
+    private void SpawnKraidSpitRock(RoomEnemyPlace body)
     {
-        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidSpitRock, _spitRock, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         if (rock is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            rock,
-            RoomEnemyProjectileKind.KraidSpitRock,
-            KraidProjectiles.SpitRock,
-            graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
-        rock.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose, KraidProjectiles.SpitRock));
+        rock.StartAnimation(new KraidRockAnimation(_spitRock, KraidRockSegment.SharedPose, KraidProjectiles.SpitRock));
         int random = _access.ReadKraidRandomNumber();
         rock.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + KraidArenaDefinitions.SpitRockOffset);
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.SpitLaunch.Choose(random));
         rock.Velocity = rock.Velocity.WithY(KraidArenaDefinitions.SpitRockRise);
     }
 
-    /// <summary>Derives a thinking delay of one or more 64-update steps from the room RNG; a roll of none takes two.</summary>
+    /// <summary>Derives a thinking delay of one or more steps (<see cref="KraidArenaDefinitions.ThinkingDelayStepUpdates"/>) from the room RNG; a roll of none takes the fewest steps above one.</summary>
     internal int ChooseKraidThinkingUpdates() =>
         KraidRandomDefinitions.ThinkingDelaySteps.Choose(_room.Random.Read()) * KraidArenaDefinitions.ThinkingDelayStepUpdates;
 }

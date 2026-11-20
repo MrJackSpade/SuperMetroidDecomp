@@ -39,7 +39,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
     /// <summary>Binds the installed sprite sheets the scene's actors draw from.</summary>
     [MemberNotNull(nameof(spriteSheets))]
-    internal void BindSpriteSheets(InstalledSpriteSheets sheets)
+    private void BindSpriteSheets(InstalledSpriteSheets sheets)
     {
         spriteSheets = Ensure.NotNull(sheets);
     }
@@ -47,18 +47,18 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
     private readonly AudioQueues audio;
     /// <summary>What the scene shows behind and among its actors (#2541), which the scene moves on from one stage to the next.</summary>
-    internal CeresDestructionView View { get; private set; }
+    private CeresDestructionView View { get; set; }
     /// <summary>Whether the Zebes reveal's pictures and planet show in place of the station's (#1467).</summary>
-    internal bool ZebesRevealed => View is CeresDestructionView.ZebesReveal or CeresDestructionView.ZebesApproach or CeresDestructionView.ZebesClose;
+    private bool ZebesRevealed => View is CeresDestructionView.ZebesReveal or CeresDestructionView.ZebesApproach or CeresDestructionView.ZebesClose;
     /// <summary>
     /// The colour the scene shows behind every layer (#1512): black until the scene loads the flight's colours, then the
     /// installed flight's backdrop, which the engine flicker never recolours.
     /// </summary>
     internal RgbColor Backdrop { get; private set; }
-    /// <summary>The live actors' sprite entries, drawn from the scene's current sheet (#1358).</summary>
+    /// <summary>The live actors' sprites, drawn from the scene's current sheet (#1358).</summary>
     internal readonly ScreenSprites screenSprites;
     /// <summary>The installed backdrops and actor placements, bound when the game is bound to its installed content (#1616).</summary>
-    internal IntroCinematicArtwork Artwork { get; private set; }
+    private IntroCinematicArtwork Artwork { get; set; }
     /// <summary>The installed sprite sheets the Ceres and Zebes actors draw from; artwork, never saved.</summary>
     private InstalledSpriteSheets spriteSheets;
 
@@ -102,7 +102,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// The scene's colour effects (#1733): none before the station is set up; from its setup the station's navigation
     /// lights; once the Zebes reveal's setup clears them, the gunship engine's flicker and the PLANET ZEBES caption's fades.
     /// </summary>
-    internal ColourEffectSystem ColourEffects { get; private set; } = ColourEffectSystem.ForScreen();
+    private ColourEffectSystem ColourEffects { get; set; } = ColourEffectSystem.ForScreen();
     /// <summary>
     /// The Japanese subtitle the title's cue has just spawned, which runs on the same update, after the title, before it
     /// joins the reveal's actors.
@@ -112,7 +112,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private readonly bool japaneseText;
 
     /// <summary>The camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
-    internal FixedVector<FloorPixels> FloorScroll { get; private set; } = new(
+    private FixedVector<FloorPixels> FloorScroll { get; set; } = new(
         SignedSixteenSixteen.FromWholePixels(CeresDestructionSceneDefinitions.Places.CeresInitialFloorScrollX),
         SignedSixteenSixteen.FromWholePixels(CeresDestructionSceneDefinitions.Places.CeresAndFlightFloorScrollY));
     /// <summary>
@@ -120,17 +120,17 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <see cref="CeresDestructionSceneDefinitions.Motion.FarZebesZoomLimit"/> plus one fast step, and the only decrease
     /// is guarded by the minimum-zoom test, so it never falls below zero.
     /// </summary>
-    internal FloorZoom Zoom { get; private set; } = FloorZoom.OwnSize;
+    private FloorZoom Zoom { get; set; } = FloorZoom.OwnSize;
     /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle;
-    /// <summary>The screen's brightness, black at first, and its slow fades, one level on every second update.</summary>
+    /// <summary>The screen's brightness, black at first, and its slow fades, one level at each fade step.</summary>
     private readonly ScreenFade fade = new(0, stepDelay: CeresDestructionSceneDefinitions.Timing.FirstFadeWaitBeforeEachStep,
         firstWait: CeresDestructionSceneDefinitions.Timing.FirstFadeWaitBeforeEachStep);
     /// <summary>The hold of the phase holding: after the explosion, then on close Zebes.</summary>
     private UpdateCountdown phaseHold = UpdateCountdown.Ended();
     /// <summary>
     /// The width of the square blocks the Zebes reveal draws its planet picture in (#1774), which also counts the reveal
-    /// down: every fourth update of the reveal's fade-in and of the removal that follows, the blocks narrow by one pixel,
+    /// down: at each place of its cadence in the reveal's fade-in and in the removal that follows, the blocks narrow by one pixel,
     /// and the removal ends on the step that leaves them one pixel wide, the picture unpixelated. A step from one-pixel
     /// blocks starts again from the coarsest (<see cref="CeresDestructionSceneDefinitions.RevealPixelation.CoarsestBlockWidth"/>).
     /// That restart is load-bearing: the fade-in clears the picture once before the removal's first step, so the reveal
@@ -149,7 +149,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     private int cinematicFrameCounter;
     /// <summary>The route when the escape timer expires while Samus remains aboard Ceres.</summary>
-    internal bool WithSamus { get; }
+    private bool WithSamus { get; }
 
     /// <param name="audio">The shared music and sound queue, whose music the scene waits on.</param>
     /// <param name="glowColors">Installed Power Bomb glow colours for the station explosion.</param>
@@ -198,7 +198,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// before the later engine-flicker colour effect starts, as the scene reloads the
     /// flight's colours only until then (#1512).
     /// </summary>
-    internal void BindArtwork(IntroCinematicArtwork value)
+    private void BindArtwork(IntroCinematicArtwork value)
     {
         Artwork = Ensure.NotNull(value);
         if (CeresDestructionPhaseGroups.ThroughFlightToZebesStart.Contains(Phase))
@@ -206,7 +206,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>Current phase, including the alternate game-over route.</summary>
-    public CeresDestructionPhase Phase { get; private set; }
+    public CeresDestructionPhase Phase { get; private set; } = CeresDestructionPhase.WaitForMusicQueue;
 
     /// <summary>True after the completion star leaves the Zebes screen or the terminal route ends.</summary>
     public bool Finished => Phase == CeresDestructionPhase.Finished;
@@ -249,154 +249,178 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // The station blast steps before the cinematic's phase, so a blast the phase spawns does not advance until
         // the following update.
         stationExplosion.StepFrame(glowColors);
-        switch (Phase)
+        Phase.Run(this);
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.WaitForMusicQueue"/>.</summary>
+    internal void RunWaitForMusicQueue()
+    {
+        if (MusicQueueFinished())
+            Phase = CeresDestructionPhase.FadeInAndDrift;
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.FadeInAndDrift"/>.</summary>
+    internal void RunFadeInAndDrift()
+    {
+        StepInitialDrift();
+        Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.CeresZoomStep);
+        if (fade.Brighten())
+            Phase = CeresDestructionPhase.ApproachExplosion;
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.ApproachExplosion"/>.</summary>
+    internal void RunApproachExplosion()
+    {
+        StepInitialDrift();
+        if (Zoom < CeresDestructionSceneDefinitions.Motion.CeresZoomLimit)
         {
-            case CeresDestructionPhase.WaitForMusicQueue:
-                if (MusicQueueFinished())
-                    Phase = CeresDestructionPhase.FadeInAndDrift;
-                break;
-
-            case CeresDestructionPhase.FlyToZebesInitial:
-                // The Zebes scene is set up and the fade-in installed.
-                SetupZebesReveal();
-                Phase = CeresDestructionPhase.FadeInZebes;
-                break;
-
-            case CeresDestructionPhase.FadeInAndDrift:
-                StepInitialDrift();
-                Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.CeresZoomStep);
-                if (fade.Brighten())
-                    Phase = CeresDestructionPhase.ApproachExplosion;
-                break;
-
-            case CeresDestructionPhase.ApproachExplosion:
-                StepInitialDrift();
-                if (Zoom < CeresDestructionSceneDefinitions.Motion.CeresZoomLimit)
-                {
-                    Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.CeresZoomStep);
-                }
-                else
-                {
-                    // The final blast snaps the zoom to the explosion's, creates the final blast, and
-                    // enters the flying-away phase on this same update.
-                    Zoom = CeresDestructionSceneDefinitions.Motion.CeresExplosionZoom;
-                    SpawnFinalCeresExplosion();
-                    Phase = CeresDestructionPhase.FlyingAwayFromExplosion;
-                }
-                break;
-
-            case CeresDestructionPhase.FlyingAwayFromExplosion:
-                FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.FlyAwayScroll);
-                angle = angle.TurnedBySteps(CeresDestructionSceneDefinitions.Motion.FlyAwayTurnSteps);
-                if (Zoom < CeresDestructionSceneDefinitions.Motion.MinimumZoom)
-                {
-                    phaseHold = UpdateCountdown.Lasting(CeresDestructionSceneDefinitions.Timing.ExplosionHoldFrames);
-                    Phase = CeresDestructionPhase.HoldAfterExplosion;
-                }
-                else
-                {
-                    Zoom = Zoom.Narrowed(CeresDestructionSceneDefinitions.Motion.SlowZoomStep);
-                }
-                break;
-
-            case CeresDestructionPhase.HoldAfterExplosion:
-                if (phaseHold.Step())
-                {
-                    fade.StepEvery(CeresDestructionSceneDefinitions.Timing.FadeUpdatesPerStep);
-                    Phase = CeresDestructionPhase.FadeOutCeres;
-                }
-                break;
-
-            case CeresDestructionPhase.FadeOutCeres:
-                // Once the screen is black the next step is installed; it runs next update.
-                // The game-over route instead stops the music and ends at the death black-out.
-                if (fade.Darken())
-                {
-                    if (WithSamus)
-                    {
-                        audio.QueueMusic(MusicRequest.Stop);
-                        Phase = CeresDestructionPhase.Finished;
-                    }
-                    else
-                    {
-                        Phase = CeresDestructionPhase.FlyToZebesInitial;
-                    }
-                }
-                break;
-
-            case CeresDestructionPhase.FadeInZebes:
-                StepRevealPixelation();
-                if (fade.Brighten())
-                    Phase = CeresDestructionPhase.RemoveZebesPixelation;
-                break;
-
-            case CeresDestructionPhase.RemoveZebesPixelation:
-                if (StepRevealPixelation())
-                    SetupZebesFloorActors();
-                break;
-
-            case CeresDestructionPhase.PlanetZebesTitle:
-                StepZebesActors(motion: ZebesActorsMotion.Holding);
-                break;
-
-            case CeresDestructionPhase.FlyingTowardZebes:
-                FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
-                FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
-                if (Zoom < CeresDestructionSceneDefinitions.Motion.ZebesApproachZoomLimit)
-                    Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.NearZebesZoomStep);
-                else
-                    Phase = CeresDestructionPhase.TurningTowardZebes;
-                StepZebesActors(motion: ZebesActorsMotion.Holding);
-                break;
-
-            case CeresDestructionPhase.TurningTowardZebes:
-                FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
-                FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
-                if (FloorScroll.X.WholePixels < CeresDestructionSceneDefinitions.Places.TurnTowardZebesEndX)
-                {
-                    Phase = CeresDestructionPhase.ClosingInOnZebes;
-                }
-                else
-                {
-                    Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.SlowZoomStep);
-                    angle = angle.TurnedBySteps(CeresDestructionSceneDefinitions.Motion.TowardZebesTurnSteps);
-                }
-                StepZebesActors(motion: ZebesActorsMotion.Holding);
-                break;
-
-            case CeresDestructionPhase.ClosingInOnZebes:
-                FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
-                FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.EighthPixel);
-                if (Zoom < CeresDestructionSceneDefinitions.Motion.FarZebesZoomLimit)
-                {
-                    Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.FastZoomStep);
-                }
-                else
-                {
-                    // The game hides the ship's turning floor before the hold, not
-                    // when the later pan starts. The planet and star sprites stay shown.
-                    View = CeresDestructionView.ZebesClose;
-                    phaseHold = UpdateCountdown.Lasting(CeresDestructionSceneDefinitions.Timing.ZebesHoldFrames);
-                    Phase = CeresDestructionPhase.HoldCloseZebes;
-                }
-                StepZebesActors(motion: ZebesActorsMotion.Holding);
-                break;
-
-            case CeresDestructionPhase.HoldCloseZebes:
-                StepZebesActors(motion: ZebesActorsMotion.Holding);
-                if (phaseHold.Step())
-                    Phase = CeresDestructionPhase.SlideZebesSceneAway;
-                break;
-
-            case CeresDestructionPhase.SlideZebesSceneAway:
-                StepZebesActors(motion: ZebesActorsMotion.SlidingAway);
-                break;
-            // The cinematic has ended; its owner advances the game state.
-            case CeresDestructionPhase.Finished:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined CeresDestructionPhase {Phase}.");
+            Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.CeresZoomStep);
         }
+        else
+        {
+            // The final blast snaps the zoom to the explosion's, creates the final blast, and
+            // enters the flying-away phase on this same update.
+            Zoom = CeresDestructionSceneDefinitions.Motion.CeresExplosionZoom;
+            SpawnFinalCeresExplosion();
+            Phase = CeresDestructionPhase.FlyingAwayFromExplosion;
+        }
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.FlyingAwayFromExplosion"/>.</summary>
+    internal void RunFlyingAwayFromExplosion()
+    {
+        FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.FlyAwayScroll);
+        angle = angle.TurnedBySteps(CeresDestructionSceneDefinitions.Motion.FlyAwayTurnSteps);
+        if (Zoom < CeresDestructionSceneDefinitions.Motion.MinimumZoom)
+        {
+            phaseHold = UpdateCountdown.Lasting(CeresDestructionSceneDefinitions.Timing.ExplosionHoldFrames);
+            Phase = CeresDestructionPhase.HoldAfterExplosion;
+        }
+        else
+        {
+            Zoom = Zoom.Narrowed(CeresDestructionSceneDefinitions.Motion.SlowZoomStep);
+        }
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.HoldAfterExplosion"/>.</summary>
+    internal void RunHoldAfterExplosion()
+    {
+        if (phaseHold.Step())
+        {
+            fade.StepEvery(CeresDestructionSceneDefinitions.Timing.FadeUpdatesPerStep);
+            Phase = CeresDestructionPhase.FadeOutCeres;
+        }
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.FadeOutCeres"/>.</summary>
+    internal void RunFadeOutCeres()
+    {
+        // Once the screen is black the next step is installed; it runs next update.
+        // The game-over route instead stops the music and ends at the death black-out.
+        if (fade.Darken())
+        {
+            if (WithSamus)
+            {
+                audio.QueueMusic(MusicRequest.Stop);
+                Phase = CeresDestructionPhase.Finished;
+            }
+            else
+            {
+                Phase = CeresDestructionPhase.FlyToZebesInitial;
+            }
+        }
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.FlyToZebesInitial"/>.</summary>
+    internal void RunFlyToZebesInitial()
+    {
+        // The Zebes scene is set up and the fade-in installed.
+        SetupZebesReveal();
+        Phase = CeresDestructionPhase.FadeInZebes;
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.FadeInZebes"/>.</summary>
+    internal void RunFadeInZebes()
+    {
+        StepRevealPixelation();
+        if (fade.Brighten())
+            Phase = CeresDestructionPhase.RemoveZebesPixelation;
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.RemoveZebesPixelation"/>.</summary>
+    internal void RunRemoveZebesPixelation()
+    {
+        if (StepRevealPixelation())
+            SetupZebesFloorActors();
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.PlanetZebesTitle"/>.</summary>
+    internal void RunPlanetZebesTitle()
+    {
+        StepZebesActors(motion: ZebesActorsMotion.Holding);
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.FlyingTowardZebes"/>.</summary>
+    internal void RunFlyingTowardZebes()
+    {
+        FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
+        FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
+        if (Zoom < CeresDestructionSceneDefinitions.Motion.ZebesApproachZoomLimit)
+            Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.NearZebesZoomStep);
+        else
+            Phase = CeresDestructionPhase.TurningTowardZebes;
+        StepZebesActors(motion: ZebesActorsMotion.Holding);
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.TurningTowardZebes"/>.</summary>
+    internal void RunTurningTowardZebes()
+    {
+        FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
+        FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
+        if (FloorScroll.X.WholePixels < CeresDestructionSceneDefinitions.Places.TurnTowardZebesEndX)
+        {
+            Phase = CeresDestructionPhase.ClosingInOnZebes;
+        }
+        else
+        {
+            Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.SlowZoomStep);
+            angle = angle.TurnedBySteps(CeresDestructionSceneDefinitions.Motion.TowardZebesTurnSteps);
+        }
+        StepZebesActors(motion: ZebesActorsMotion.Holding);
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.ClosingInOnZebes"/>.</summary>
+    internal void RunClosingInOnZebes()
+    {
+        FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
+        FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.EighthPixel);
+        if (Zoom < CeresDestructionSceneDefinitions.Motion.FarZebesZoomLimit)
+        {
+            Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.FastZoomStep);
+        }
+        else
+        {
+            // The game hides the ship's turning floor before the hold, not
+            // when the later pan starts. The planet and star sprites stay shown.
+            View = CeresDestructionView.ZebesClose;
+            phaseHold = UpdateCountdown.Lasting(CeresDestructionSceneDefinitions.Timing.ZebesHoldFrames);
+            Phase = CeresDestructionPhase.HoldCloseZebes;
+        }
+        StepZebesActors(motion: ZebesActorsMotion.Holding);
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.HoldCloseZebes"/>.</summary>
+    internal void RunHoldCloseZebes()
+    {
+        StepZebesActors(motion: ZebesActorsMotion.Holding);
+        if (phaseHold.Step())
+            Phase = CeresDestructionPhase.SlideZebesSceneAway;
+    }
+
+    /// <summary>Runs one update of <see cref="CeresDestructionPhase.SlideZebesSceneAway"/>.</summary>
+    internal void RunSlideZebesSceneAway()
+    {
+        StepZebesActors(motion: ZebesActorsMotion.SlidingAway);
     }
 
     /// <summary>The cinematic state's work after the cinematic phase returns.</summary>
@@ -433,17 +457,16 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         {
             // Each actor starts at its role's installed placement (#1596).
             CeresDestructionActorDefinition definition = CeresDestructionActors.InitialActor(role);
-            ceresActors.Add(new CeresDestructionActor(role, definition,
+            ceresActors.Add(new CeresDestructionActor(definition,
                 CreateActor(definition, content.CeresDestruction.DestructionActors[role].Place)));
         }
         Phase = CeresDestructionPhase.WaitForMusicQueue;
     }
 
-    /// <summary>Stages the planet-reveal map and resets camera, angle, fade, and pixelation.</summary>
+    /// <summary>Shows the planet picture and resets the camera, turn, fade and pixelation.</summary>
     private void SetupZebesReveal()
     {
-        // The reveal starts on the planet-reveal page. It also stages the rear-gunship view, which becomes visible
-        // only when the gunship step later selects the floor again.
+        // The reveal shows the planet picture until the approach shows the gunship's floor again.
         View = CeresDestructionView.ZebesReveal;
         // The reveal clears the colour effects, ending the station's navigation lights, and starts the engine's flicker.
         ColourEffects = ColourEffectSystem.ForScreen();
@@ -490,13 +513,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
 
     /// <summary>
-    /// Narrows the Zebes reveal's pixelation blocks by one pixel every fourth cinematic frame, from one-pixel blocks
+    /// Narrows the Zebes reveal's pixelation blocks by one pixel at the reveal's cadence, from one-pixel blocks
     /// starting again from the coarsest (<see cref="revealBlockWidth"/>), and reports whether this step left the planet
     /// picture unpixelated.
     /// </summary>
     private bool StepRevealPixelation()
     {
-        if (!CeresCinematicCadenceDefinitions.RevealPixelationStepEveryFourthUpdate.IsDue(cinematicFrameCounter))
+        if (!CeresCinematicCadenceDefinitions.RevealPixelationStep.IsDue(cinematicFrameCounter))
             return false;
         revealBlockWidth = revealBlockWidth == 1
             ? CeresDestructionSceneDefinitions.RevealPixelation.CoarsestBlockWidth
@@ -574,14 +597,15 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// The final blast replaces the floor on the same update that creates the final explosion. With Samus gone
-    /// the upper half becomes the gunship viewed from the front over a cleared lower half; with Samus still aboard no
-    /// gunship leaves and both halves are cleared, so the floor shows nothing (#1513). No half keeps the station.
+    /// The final blast shows on the update that creates the final explosion. With Samus gone the gunship leaves the
+    /// explosion, seen from the front; with Samus still aboard no gunship leaves and the scene shows nothing (#1513).
+    /// The station is gone.
     /// </summary>
-    private void LoadFinalExplosionMaps() =>
+    private void ShowFinalExplosion() =>
         View = WithSamus ? CeresDestructionView.StationCleared : CeresDestructionView.GunshipLeavingExplosion;
 
-    /// <summary>Starts the station blast, queues its sound, adds its sprite, and replaces the station maps.</summary>
+    /// <summary>Starts the station blast, queues its sound, adds its sprite, and shows the explosion's view in place of
+    /// the station.</summary>
     private void SpawnFinalCeresExplosion()
     {
         // The final blast burns through the Power Bomb blast's stages before the station picture is replaced. It centres
@@ -597,10 +621,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             CeresAnimations.Scenes,
             CeresExplosionDefinitions.StationBlastActor.Animation)));
 
-        LoadFinalExplosionMaps();
+        ShowFinalExplosion();
     }
 
-    /// <summary>Creates a small blast at a camera-relative authored offset with its initial animation delay.</summary>
+    /// <summary>Creates a wave's blast, small or large, at a camera-relative authored offset with its initial animation delay.</summary>
     private void SpawnCeresExplosion(
         CinematicActorDefinition<CeresAnimation> definition,
         CeresExplosionPlacement placement)
@@ -761,7 +785,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// effects shows, the station's navigation lights over Ceres and the gunship engine's flicker on the approach to Zebes,
     /// or the floor's standard colours while no effect has shown one.
     /// </summary>
-    internal PictureShading FloorShading
+    private PictureShading FloorShading
     {
         get
         {
@@ -793,13 +817,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private ColourAddWindowLayer? CaptureStationExplosion() => stationExplosion.Capture();
 
     /// <summary>
-    /// Places live actors as sprite entries in the order they spawned, the Ceres scene's small asteroids and vortex after
+    /// Places live actors as sprites in the order they spawned, the Ceres scene's small asteroids and vortex after
     /// every other actor.
     /// </summary>
     private void PrepareRenderSprites()
     {
         screenSprites.BeginFrame();
-        // Same-priority sprite overlap is decided by drawing order.
+        // The small asteroids and the vortex are drawn after the other actors, so the others overlap them.
         IEnumerable<CeresSceneActor> overCeres = CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
             ? ceresActors.Where(actor => !actor.DrawnLast).Concat(ceresActors.Where(actor => actor.DrawnLast)) : ceresActors;
         foreach (CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> actor in overCeres.Select(actor => actor.Sprite)

@@ -13,7 +13,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Polyp];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new PolypEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.Of(new PolypEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared room RNG and enemy state used by all Polyp actors.</summary>
     private readonly EnemyRoomBinding _room;
@@ -42,7 +42,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the Polyp's main AI and its three actions.</summary>
     private void RunPolypMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         PolypEnemyState state,
         SamusState samus)
     {
@@ -59,7 +59,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case PolypAction.ShootingRock:
-                ShootPolypRock(place, state);
+                ShootPolypRock(occupant, place, state);
                 return;
 
             case PolypAction.Cooldown:
@@ -74,12 +74,12 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Launches a rock with three independent random choices: its horizontal speed, its rise and the cooldown after it.</summary>
-    private void ShootPolypRock(RoomEnemyPlace place, PolypEnemyState state)
+    private void ShootPolypRock(RoomEnemyOccupant occupant, RoomEnemyPlace place, PolypEnemyState state)
     {
         SignedEightEight xVelocity = PolypLaunchDefinitions.XVelocity.Choose(_room.Random.Generate());
 
         QuadraticSpeedCurvePlace launchPlace = PolypLaunches.LaunchPlace(_room.Random.Generate());
-        SpawnPolypRock(place, launchPlace, xVelocity);
+        SpawnPolypRock(occupant, place, launchPlace, xVelocity);
 
         state.Action = PolypAction.Cooldown;
         state.CooldownTimer = UpdateCountdown.For(PolypLaunchDefinitions.Cooldown.Choose(_room.Random.Generate()));
@@ -95,27 +95,27 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Polyp's typed animation.</summary>
-    internal static void AdvancePolypTypedAnimation(RoomEnemyPlace place, PolypEnemyState polypEnemyState, EnemyAnimationCueContext _) =>
+    internal static void AdvancePolypTypedAnimation(RoomEnemyPlace place, PolypEnemyState polypEnemyState) =>
         EnemyAnimationPlayback.Advance(place, polypEnemyState, PolypAnimations.Segments,
             static (PolypEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Polyp's cue-free animation raised {cue}."));
 
     /// <summary>Runs Polyp's main AI.</summary>
-    internal void RunPolypMainAi(RoomEnemyPlace place, PolypEnemyState state, IEnemyAiFrame frame)
+    internal void RunPolypMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, PolypEnemyState state, IEnemyAiFrame frame)
     {
-        RunPolypMain(place, state, frame.Samus);
+        RunPolypMain(occupant, place, state, frame.Samus);
     }
 
     /// <summary>
     /// Spawns a lava rock from the Polyp and initializes it.
     /// The rock draws from the Polyp's spawned-object sheet in its colours and starts at the Polyp's position, fractions included.
     /// </summary>
-    internal void SpawnPolypRock(
-        RoomEnemyPlace source,
+    private void SpawnPolypRock(
+        RoomEnemyOccupant occupant, RoomEnemyPlace source,
         QuadraticSpeedCurvePlace launchPlace,
         SignedEightEight xVelocity)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PolypRock, Rock, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 
@@ -135,7 +135,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         new SingleMotionProjectileBehavior(context => FlyPolypRock(context.Projectile, rock, context.Camera));
 
     /// <summary>Flies the rock for one update, rising or falling.</summary>
-    internal static void FlyPolypRock(
+    internal void FlyPolypRock(
         EnemyProjectile projectile,
         PolypRockState rock,
         Position16<RoomPixels> camera)
@@ -158,7 +158,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Integrates two upward quadratic samples unless the apex consumes this frame.</summary>
-    private static void StepRisingPolypRock(EnemyProjectile projectile, PolypRockState rock)
+    private void StepRisingPolypRock(EnemyProjectile projectile, PolypRockState rock)
     {
         rock.SpeedCurvePlace -= PolypLaunchDefinitions.RockFallStep;
         if (rock.SpeedCurvePlace.IsNegative)
@@ -179,7 +179,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Clamps downward speed and integrates two positive quadratic samples per frame.</summary>
-    private static void StepFallingPolypRock(EnemyProjectile projectile, PolypRockState rock)
+    private void StepFallingPolypRock(EnemyProjectile projectile, PolypRockState rock)
     {
         rock.SpeedCurvePlace += PolypLaunchDefinitions.RockFallStep;
         if (rock.SpeedCurvePlace >= PolypLaunchDefinitions.RockFastestFallPlace)
@@ -193,7 +193,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Adds one curve mark's speed toward <paramref name="direction"/>, the fraction first and then the whole pixels.
     /// </summary>
-    internal static void AddPolypRockQuadraticStep(
+    private static void AddPolypRockQuadraticStep(
         EnemyProjectile projectile,
         QuadraticSpeedCurvePlace place,
         VerticalDirection direction)

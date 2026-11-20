@@ -12,7 +12,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rio];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new RioEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.Of(new RioEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared enemy random number consumed on every Rio AI frame.</summary>
     private readonly EnemyRoomBinding _room;
@@ -145,7 +145,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case RioAction.HoveringTowardSamus:
                 // Once Rio reaches Samus's height from above, it takes back its saved sideways dive speed and starts
-                // its climb back to its perch at a 256th of a pixel an update.
+                // its climb back to its perch at its return speed.
                 if (place.Position.Y.Whole >= samus.Position.Y.Whole)
                 {
                     state.Velocity = new PixelVelocity<RoomPixels>(
@@ -206,7 +206,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The Rio's hover velocity along <paramref name="angle"/>'s sine: one pixel per update at its peak, the sine itself
     /// with no speed of its own, unlike Rinka's.
     /// </summary>
-    internal static SignedEightEight HoverVelocity(TrigonometryAngle angle) =>
+    private static SignedEightEight HoverVelocity(TrigonometryAngle angle) =>
         EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>Runs Rio's main AI.</summary>
@@ -221,7 +221,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Rio's typed animation.</summary>
-    internal static void AdvanceRioTypedAnimation(RoomEnemyPlace place, RioEnemyState rioEnemyState, EnemyAnimationCueContext _) =>
+    internal static void AdvanceRioTypedAnimation(RoomEnemyPlace place, RioEnemyState rioEnemyState) =>
         EnemyAnimationPlayback.Advance(place, rioEnemyState, RioAnimations.Segments,
             static (RioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>

@@ -66,7 +66,11 @@ public sealed class ManagedSpcAudioBackend
                     break;
                 case AudioEvent.SelectMusicTrack selection:
                     RequireBeforeTicks(ticks, audioEvent);
-                    Player.WriteMusicPort(checked((byte)(selection.Track is MusicTrack track ? MusicTrackNumbers.Number(loadedDataSet, track) : 0)));
+                    Player.WriteMusicPort(checked((byte)MusicTrackNumbers.Number(loadedDataSet, selection.Track)));
+                    break;
+                case AudioEvent.StopMusic:
+                    RequireBeforeTicks(ticks, audioEvent);
+                    Player.WriteMusicPort(MusicTrackNumbers.Silence);
                     break;
                 case AudioEvent.ClockStep step:
                     if (ticks == schedule.Length)

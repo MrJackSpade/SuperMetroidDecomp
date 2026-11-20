@@ -6,7 +6,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The ending's assembling logo, followed by sixteen colour loads: its two S halves move into place while its two
+/// The ending's assembling logo, followed by its colour loads (<see cref="EndingLogoDefinitions.CrossfadeSteps"/>): its two S halves move into place while its two
 /// circles draw in (#1979).
 /// </summary>
 internal sealed class EndingLogo
@@ -22,7 +22,7 @@ internal sealed class EndingLogo
     /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
     public bool CrossfadeStarted { get; private set; }
     /// <summary>The crossfade step the logo showed last, or null before its crossfade shows a step.</summary>
-    public EndingLogoCrossfadeStep? ShownCrossfade { get; private set; }
+    private EndingLogoCrossfadeStep? ShownCrossfade { get; set; }
 
     /// <summary>The crossfade step the crossfade's next update shows: its first, then each after the last shown.</summary>
     private EndingLogoCrossfadeStep nextCrossfade = EndingLogoCrossfadeStep.First;
@@ -51,8 +51,7 @@ internal sealed class EndingLogo
     public void Step(EndingColours colours)
     {
         if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
-        // The cinematic phase runs before sprite cues, so the first colour pair is copied on the update after the
-        // request, not on the update that requests it.
+        // The crossfade's first step shows on the update after the grey-out cue, not on the update that requests it.
         if (CrossfadeStarted)
         {
             EndingLogoCrossfadeStep step = nextCrossfade;
@@ -87,7 +86,7 @@ internal sealed class EndingLogo
         }
     }
 
-    /// <summary>Places active logo actors as the supplied sprite entries.</summary>
+    /// <summary>Draws the logo's actors among the screen's sprites until the logo completes.</summary>
     public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation installedArt)
     {
         Ensure.NotNull(destination);

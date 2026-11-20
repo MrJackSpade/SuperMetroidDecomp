@@ -85,12 +85,12 @@ internal static class GunshipGlowVerification
         runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
-        RoomEnemyPlace[] pieces = [.. runtime.Enemies.Places.InUpdateOrder.Where(place => place.DefinitionId is EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance)];
+        RoomEnemyPlace[] pieces = [.. runtime.Enemies.Places.InUpdateOrder.Where(place => place.Occupant?.DefinitionId is EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance)];
         AssertEqual(3, pieces.Length, "the Landing Site places the gunship's three pieces");
         // Samus stands beside the landed ship, so the camera shows it.
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
         var samus = runtime.Player.Samus;
-        RoomEnemyPlace top = pieces.Single(piece => piece.DefinitionId == EnemyDefinitionId.ShipTop);
+        RoomEnemyPlace top = pieces.Single(piece => piece.Holds(EnemyDefinitionId.ShipTop));
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));

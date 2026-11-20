@@ -33,7 +33,7 @@ $fixtures = Join-Path $PSScriptRoot 'prune-fixtures'
 $PruneCategories = 'unreachable-member,unreachable-type,unreferenced-field,unreferenced-enum-member,unreferenced-constant'
 
 # The files step 1 adds to a copy, which the comparison leaves out.
-$GeneratedFiles = @('csharp/Directory.Build.props', 'csharp/.editorconfig')
+$GeneratedFiles = @('csharp/Directory.Build.props', 'csharp/.editorconfig', 'csharp/test-support/VerificationAccess.Core/PrivateState.cs')
 
 # The repository analyzer the Release build of the reachability audit builds (csharp/Directory.Build.targets references it).
 $Analyzer = Join-Path $repository 'csharp/src/SuperMetroid.EnsureAnalyzer/bin/Release/netstandard2.0/SuperMetroid.EnsureAnalyzer.dll'
@@ -92,6 +92,11 @@ function Test-Fixture([string]$Fixture) {
 </Project>
 "@, [Text.UTF8Encoding]::new($false))
     Copy-Item -LiteralPath (Join-Path $repository 'csharp/.editorconfig') -Destination (Join-Path $copy 'csharp/.editorconfig')
+    # The prune reaches what moved checks need of a staying owner through generated private-access members, which reach it
+    # through the repository's PrivateState (#2570); a fixture's test-support holds it as the repository's does.
+    $privateState = Join-Path $copy 'csharp/test-support/VerificationAccess.Core'
+    $null = New-Item -ItemType Directory -Path $privateState -Force
+    Copy-Item -LiteralPath (Join-Path $repository 'csharp/test-support/VerificationAccess.Core/PrivateState.cs') -Destination $privateState
 
     & dotnet restore $solution -v:q | Out-Host
     if ($LASTEXITCODE -ne 0) { throw "Restoring fixture $Fixture failed (exit $LASTEXITCODE)." }

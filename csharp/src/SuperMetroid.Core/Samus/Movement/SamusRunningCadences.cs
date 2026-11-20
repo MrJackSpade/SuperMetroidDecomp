@@ -15,7 +15,9 @@ internal static class SamusRunningCadences
     /// <param name="restart">Samus's rule for how the boost restarts after its echo.</param>
     /// <param name="echo">What the echo's sound request found.</param>
     internal static SamusRunningCadence CadenceAfterEcho(BoostRestartAfterEcho restart, SoundQueueAdmission echo) =>
-        Ensure.NotNull(restart).StageAfterEcho(echo) is { } stage ? SpeedBoostCadence(stage) : SamusRunningCadence.UnauthoredBoost;
+        Ensure.NotNull(restart).PicksUnauthoredCadence(echo)
+            ? SamusRunningCadence.UnauthoredBoost
+            : SpeedBoostCadence(restart.AuthoredStageAfterEcho(echo));
 
     /// <summary>The cadence of authored boost stage <paramref name="stage"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The stage is not one of the authored stages.</exception>

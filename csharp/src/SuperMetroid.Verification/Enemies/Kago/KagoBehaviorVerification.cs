@@ -20,8 +20,8 @@ internal static class KagoBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Kago, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Kago, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(EnemyDefinitionId.Kago, 10);
         KagoBehavior.InitializeKago(place, place.SpawnSettings<KagoSpawnSettings>());
         KagoEnemyState state = enemies.KagoStates[0] ?? throw new InvalidDataException("Kago initializer did not publish typed state.");
@@ -30,7 +30,7 @@ internal static class KagoBehaviorVerification
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. slow, slow[0]], [10, 10, 10, 10, 10]),
             EnemyInstructionRunner.ShownFrames(place, 41), "Kago slow loop");
 
-        enemies.KagoBehavior.ResolveKagoShotAfterCommon(place, state);
+        enemies.KagoBehavior.ResolveKagoShotAfterCommon(place.HeldOccupant(), place, state);
         AssertEqual(1, state.HitsTaken, "Kago real shot handoff counts its first hit");
         AssertEqual(new AnimationPlayback<KagoSegment>(KagoAnimations.StartingWith(KagoSegment.Fast), AnimationPlace.StartOfAnimation), state.Playback, "Kago shot animation");
         AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.KagoBug),

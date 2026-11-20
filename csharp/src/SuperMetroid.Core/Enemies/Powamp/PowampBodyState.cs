@@ -29,14 +29,14 @@ public sealed class PowampBodyState
     public PowampWiggle Wiggle { get; internal set; } = PowampWiggle.First;
 
     /// <summary>
-    /// The updates until the body's next wiggle step, the one it steps on included: one when it is placed, so its first
-    /// wiggle update steps, and five after each step.
+    /// The updates until the body's next wiggle step, the one it steps on included: <see cref="PowampMotionDefinitions.FirstWiggleStepWait"/>
+    /// when it is placed, so its first wiggle update steps, and <see cref="PowampMotionDefinitions.WiggleStepDuration"/> after each step.
     /// </summary>
     public UpdateCountdown WiggleTimer { get; internal set; } = UpdateCountdown.Lasting(PowampMotionDefinitions.FirstWiggleStepWait);
 
     /// <summary>
-    /// The updates left of the body's rest, inflation, deflation or death, the one it ends on included: sixty for rest, ten
-    /// for inflation or deflation and thirty-two for death, counted down once per update of the action.
+    /// The updates left of the body's rest, inflation, deflation or death, the one it ends on included (<see cref="PowampMotionDefinitions.RestDuration"/>,
+    /// <see cref="PowampMotionDefinitions.InflationDuration"/>, <see cref="PowampMotionDefinitions.DeathDelay"/>), counted down once per update of the action.
     /// </summary>
     public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();
 

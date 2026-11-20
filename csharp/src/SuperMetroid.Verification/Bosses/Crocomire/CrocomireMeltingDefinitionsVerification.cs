@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -171,7 +172,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     {
         int sourceAddress = CrocomireMeltingSources.Tilemap(source);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1]);
+        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.Crocomire), enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1]);
         state.TongueState.BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset;
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));

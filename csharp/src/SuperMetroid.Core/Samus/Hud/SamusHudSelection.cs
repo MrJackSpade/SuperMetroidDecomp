@@ -39,9 +39,10 @@ internal static class SamusHudSelection
             }
             while (!IsHudItemAvailable(samus, samus.SelectedHudItem));
 
-            samus.AutoCancelledItem = (controllerInput & cancelMask) != GameplayAction.None
+            // Selecting the beams chooses nothing for auto-cancel, as no item chosen without Item Cancel held does.
+            samus.AutoCancelledItem = (controllerInput & cancelMask) != GameplayAction.None && samus.SelectedHudItem != HudItem.Beam
                 ? samus.SelectedHudItem
-                : HudItem.Beam;
+                : null;
         }
         return new HudSelectionOutcome(itemSelectionTookEffect);
     }
@@ -54,7 +55,7 @@ internal static class SamusHudSelection
     /// <param name="samus">Samus, whose selection and auto-cancel the use ends.</param>
     internal static void ReturnAutoCancelledItem(SamusState samus)
     {
-        if (samus.AutoCancelledItem == HudItem.Beam)
+        if (samus.AutoCancelledItem is null)
             return;
         samus.SelectBeam();
     }

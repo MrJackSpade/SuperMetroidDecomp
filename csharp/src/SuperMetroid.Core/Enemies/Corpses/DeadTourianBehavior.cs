@@ -14,7 +14,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySettingsFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DeadTourianCorpseSpeciesDefinitions.Species.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CorpseSpawnSettings settings) => new DeadTourianEntity(this, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CorpseSpawnSettings settings) => EnemyOccupant.Of(new DeadTourianEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies the room RNG used during decomposition.</summary>
     private readonly EnemyRoomBinding _room;
@@ -56,7 +56,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySettingsFactory
             throw new InvalidDataException(
                 $"Dead {species} placement names a corpse that is not one of its species'.");
         }
-        var state = new DeadTourianCorpseEnemyState(species, new CorpseRotSchedule(definition.RowCount), DeadTourianCorpsePhase.Waiting);
+        var state = new DeadTourianCorpseEnemyState(new CorpseRotSchedule(definition.RowCount), DeadTourianCorpsePhase.Waiting);
 
         place.Shading = TourianCorpseShades.InDrainedColours;
         state.Playback = DeadSidehopperBehavior.StartDeadTourianAnimation(place, definition.InitialAnimation);
@@ -86,7 +86,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySettingsFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Dead {state.Species} has no behaviour for phase {state.Phase}.");
+                    $"Dead Tourian enemy in place {place.Ordinal} has no behaviour for phase {state.Phase}.");
         }
     }
 
@@ -154,16 +154,15 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySettingsFactory
         ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy, state),
     };
 
-    /// <summary>Shot handling that applies the collision prelude and starts decomposition without health damage.</summary>
-    /// <remarks>The species reactions run after the ordinary projectile prelude, set process-offscreen plus
-    /// intangibility, and select their species rot reaction. No vulnerability, health damage, or projectile impact
-    /// follows.</remarks>
+    /// <summary>Shot handling that marks the shot's hit and starts decomposition without health damage.</summary>
+    /// <remarks>A shot makes the corpse keep updating off screen and lets Samus pass through it, and starts its rot; it
+    /// deals no damage and makes no impact.</remarks>
     /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
     internal static EnemyShotReaction DeadTourianShotReactionOf(DeadTourianCorpseEnemyState state) => new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             TriggerDeadTourianCorpseRotting(c.Enemy, state);
             return true;
         },

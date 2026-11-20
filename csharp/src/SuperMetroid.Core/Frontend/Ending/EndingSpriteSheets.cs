@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingSpriteSheets
 {
     /// <summary>The sheet of the escape's clouds.</summary>
-    internal const SpriteSheetId Clouds = SpriteSheetId.EndingCloudSprites;
+    private const SpriteSheetId Clouds = SpriteSheetId.EndingCloudSprites;
 
     /// <summary>The sheet of the planet explosion's actors, the result text, the clear time and the animals' escape pod.</summary>
-    internal const SpriteSheetId Explosion = SpriteSheetId.EndingExplosionSprites;
+    private const SpriteSheetId Explosion = SpriteSheetId.EndingExplosionSprites;
 
     /// <summary>The sheet of Samus falling back from above the screen, landing and shooting, and of the logo the shot reveals.</summary>
     internal const SpriteSheetId FallingSamusAndLogo = SpriteSheetId.EndingShootingSprites;

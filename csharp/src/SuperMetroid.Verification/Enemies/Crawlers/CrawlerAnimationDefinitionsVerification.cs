@@ -58,7 +58,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(orangeZoomer ? EnemyDefinitionId.OrangeZoomer : EnemyDefinitionId.Zoomer, place.Definition);
+            place.Bind(orangeZoomer ? EnemyDefinitionId.OrangeZoomer : EnemyDefinitionId.Zoomer, place.KeptDefinition);
             // The codec decodes the initialization word into the surface the crawler starts on, and the property word's
             // low bits into the side of its block.
             AssertEqual(new CrawlerSpawnSettings(orientations[orientation], orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))),
@@ -74,11 +74,11 @@ internal static class CrawlerAnimationDefinitionsVerification
             place.SetSpawnParameter1(family == CrawlerAnimationFamily.Viola ? EnemyDefinitionId.Viola : EnemyDefinitionId.Zoomer, 0);
             if (orangeZoomer)
             {
-                new Action<RoomEnemyPlace>(CrawlersBehavior.InitializeOrangeZoomer)(place);
+                new Action<RoomEnemyPlace>(fixturePlace => CrawlersBehavior.InitializeOrangeZoomer(fixturePlace.HeldOccupant(), fixturePlace))(place);
             }
             else
             {
-                new Action<RoomEnemyPlace, CrawlerAnimationFamily>(CrawlersBehavior.InitializeCrawler)(place, family);
+                new Action<RoomEnemyPlace, CrawlerAnimationFamily>((fixturePlace, fixtureArg1) => CrawlersBehavior.InitializeCrawler(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1))(place, family);
             }
 
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(

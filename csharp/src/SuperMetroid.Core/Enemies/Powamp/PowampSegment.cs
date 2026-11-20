@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
-/// Powamp's body pulses and balloon inflate and sink animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// Powamp's body pulses and balloon inflate and sink animations (#641).
 /// Their steps are <see cref="PowampAnimations"/>.
 /// </summary>
 internal enum PowampSegment

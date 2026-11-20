@@ -51,8 +51,8 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
 
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
-        var state = new MotherBrainEnemyState(body, enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+        body.Bind(EnemyDefinitionId.MotherBrainBody, body.KeptDefinition);
+        var state = new MotherBrainEnemyState(body.HeldOccupant(), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
         MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
         enemies.MotherBrainEncounter.BeginAsSetUp(state);
 
@@ -60,13 +60,14 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
 
         RoomEnemyPlace baby = lateFight.Baby.Arrived().Place ??
             throw new InvalidDataException("Mother Brain Baby allocator produced no physical slot.");
+        RoomEnemyPlace baby = madeBaby.Place;
         AssertEqual(1, baby.Ordinal, "Mother Brain Baby first free physical slot");
         AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,
-            baby.DefinitionId,
+            baby.HeldOccupant().DefinitionId,
             "Mother Brain Baby physical definition");
-        AssertEqual(population, baby.Spawn.Population,
+        AssertEqual(population, baby.HeldOccupant().Spawn,
             "Mother Brain Baby retained population snapshot");
-        AssertTrue(ReferenceEquals(lateFight.Baby, SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidCutsceneEntity>(baby).State),
+        AssertTrue(ReferenceEquals(madeBaby, SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidCutsceneEntity>(baby).State),
             "Mother Brain Baby's place holds the Baby its late fight made");
         AssertEqual(2, enemies.Places.EnemyCount,
             "Mother Brain Baby extended physical enemy high-water mark");

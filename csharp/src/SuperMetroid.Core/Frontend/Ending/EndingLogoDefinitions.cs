@@ -20,15 +20,15 @@ internal static class EndingLogoDefinitions
     /// <summary>The logo's actors in the order they spawn, step and draw.</summary>
     internal static IReadOnlyList<EndingLogoActorDefinition> Actors { get; } = [UpperS, LowerS, UpperCircle, LowerCircle];
 
-    /// <summary>The S halves start with a motion step of eight.</summary>
+    /// <summary>The motion step the S halves start with.</summary>
     public const int InitialSpeed = 8;
-    /// <summary>The approaching S halves accelerate by two pixels an update.</summary>
+    /// <summary>How much the approaching S halves accelerate each update, in pixels.</summary>
     public const int Acceleration = 2;
     /// <summary>Where the upper S half stops on the screen.</summary>
     public static Offset16<ScreenPixels> TopLanding => new(138, 111);
     /// <summary>Where the lower S half stops on the screen.</summary>
     public static Offset16<ScreenPixels> BottomLanding => new(126, 127);
-    /// <summary>The logo's colour cycle completes after sixteen colour pairs.</summary>
+    /// <summary>The colour pairs after which the logo's colour cycle completes.</summary>
     public const int CrossfadeSteps = 16;
     /// <summary>The upper S spawns the logo's glare colour effect at landing.</summary>
     public const ColourEffectId LandingColourEffect = ColourEffectId.PostCreditsSuperMetroidIcon;

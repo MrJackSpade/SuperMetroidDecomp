@@ -16,7 +16,7 @@ public sealed class SlopeShape
     /// <summary>The pixel columns of a block, each with its own surface height.</summary>
     public const int Columns = 16;
 
-    /// <summary>The largest height a column holds: a surface below the block, twenty pixels down from its top.</summary>
+    /// <summary>The largest height a column holds: a surface below the block.</summary>
     public const int BelowBlockHeight = 20;
 
     /// <summary>The surface's height under each column.</summary>
@@ -62,10 +62,11 @@ public sealed class SlopeShape
     public SpeedShare CrawlerTangentShare { get; }
 
     /// <summary>
-    /// The surface's height under <paramref name="column"/>: the pixels from the block's top down to the surface, sixteen for
-    /// a column with no surface in the block and <see cref="BelowBlockHeight"/> for a surface below it.
+    /// The surface's height under <paramref name="column"/>: the pixels from the block's top down to the surface, the
+    /// block's full height for a column whose surface is the block's bottom edge and <see cref="BelowBlockHeight"/> for a
+    /// surface below it. Each is a distance every reader computes with, so no height stands for a missing surface (#2558).
     /// </summary>
-    /// <param name="column">The column, 0 through 15, already mirrored for the slope's facing.</param>
+    /// <param name="column">The column, below <see cref="Columns"/>, already mirrored for the slope's facing.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="column"/> is not a column of the block.</exception>
     public int HeightAt(int column) => heights[Ensure.BetweenInclusive(0, Columns - 1, column)];
 

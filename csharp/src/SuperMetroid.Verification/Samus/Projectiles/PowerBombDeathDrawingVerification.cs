@@ -43,8 +43,8 @@ internal static class PowerBombDeathDrawingVerification
             FixtureGraphicsSetRows.Record(set, [PowerBombFixtureRow]);
             enemies.DrawUnder(set);
             var actor = enemies.Places.InUpdateOrder[0];
-            actor.Bind(header, actor.Definition);
-            actor.Bind(actor.DefinitionId, RoomEnemyDefinitionLookup.Get(header));
+            actor.Bind(header, actor.KeptDefinition);
+            actor.Bind(actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(header));
             actor.Shading = PictureShading.Standard;
             actor.Health = lethal ? (ushort)1 : (ushort)1000;
             actor.Position = actor.Position.WithWhole(new(128, 128));
@@ -61,13 +61,12 @@ internal static class PowerBombDeathDrawingVerification
             var before = new OamBuffer();
             enemies.Drawing.DrawAsOam(before, new(0, 0));
             AssertTrue(before.NextByteOffset != 0, "live enemy was queued and drawn before power-bomb damage");
-            AssertEqual(1, enemies.Collision.ResolveOrdinaryPowerBombHits(new(128, 128), 64, openRoom, new(0, 0), RoomEnemyFrameFixtures.StandaloneSamus()),
-                "power bomb reaches the queued enemy");
+            enemies.Collision.ResolveOrdinaryPowerBombHits(new(128, 128), 64, openRoom, new(0, 0), RoomEnemyFrameFixtures.StandaloneSamus());
             var after = new OamBuffer();
             enemies.Drawing.DrawAsOam(after, new(0, 0));
             if (lethal)
             {
-                AssertEqual(EnemyDefinitionId.None, actor.DefinitionId, "lethal power bomb clears the slot");
+                AssertTrue(actor.Occupant is null, "lethal power bomb clears the slot");
                 AssertEqual(respawns, actor.AwaitsRespawn, "a respawning enemy's slot awaits its respawn");
                 AssertEqual(0, after.NextByteOffset, "dead enemy emits no sprite records");
                 AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "death is counted once");

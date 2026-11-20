@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// Resolves what a room's background image shows (#1392, #1466): the image, and for each 16x16 cell whose appearance
+/// Resolves what a room's background image shows (#1392, #1466): the image, and for each block-sized cell whose appearance
 /// inputs no longer all show the room's load, that cell's picture in the block sheet for their values now.
 /// </summary>
 /// <param name="image">The background's image.</param>

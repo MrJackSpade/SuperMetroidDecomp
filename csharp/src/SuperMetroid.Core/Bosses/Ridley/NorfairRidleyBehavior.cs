@@ -77,7 +77,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
             RidleyFlight.TickWingAnimation(state.Flight);
             Body.Tail.TickRidleyTail(place, state, samus, samusProjectiles);
             Body.Tail.ResolveRidleyTailProjectileHits(place, state.Tail, samusProjectiles);
-            // Main places carried Samus after body/tail movement.
+            // The grabbed Samus is placed after his body and tail move this update.
             if (state.GrabState != RidleyGrabState.Released)
                 NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus(place, state, samus);
         }
@@ -92,7 +92,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
     /// <param name="controllerInput">The actions held this update.</param>
     /// <param name="level">The room's terrain.</param>
     /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which a missed lunge dodges.</param>
-    internal void RunNorfairRidleyPhase(
+    private void RunNorfairRidleyPhase(
         RoomEnemyPlace place,
         NorfairRidleyState state,
         SamusState samus,
@@ -143,7 +143,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
 
             case NorfairRidleyPhase.SwoopSetup:
                 state.Phase = NorfairRidleyPhase.SwoopMoveToStart;
-                state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
+                state.Flight.SwoopHeading = RotationAngle.Zero;
                 NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(place, state);
                 return;
 
@@ -325,7 +325,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
     /// <param name="controllerInput">The actions held this update.</param>
     /// <param name="level">The room's terrain.</param>
     /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which the chosen phase may read at once.</param>
-    internal void SelectNorfairRidleyAttack(
+    private void SelectNorfairRidleyAttack(
         RoomEnemyPlace place,
         NorfairRidleyState state,
         SamusState samus,
@@ -380,7 +380,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
         SamusState samus = frame.Samus;
         SamusProjectileSystem samusProjectiles = frame.SamusProjectiles;
         SamusBombProjectileSystem samusBombs = frame.SamusBombs;
-        if (RidleyCadenceDefinitions.NorfairRidleyActsEverySecondUpdate.IsDue(body.FrameCounter))
+        if (RidleyCadenceDefinitions.NorfairRidleyActs.IsDue(body.FrameCounter))
         {
             RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, frame.Camera);
             NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame(state, samusBombs);

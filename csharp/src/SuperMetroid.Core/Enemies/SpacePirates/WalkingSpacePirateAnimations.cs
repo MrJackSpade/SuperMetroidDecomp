@@ -114,7 +114,7 @@ internal static class WalkingSpacePirateAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>> StartingAt { get; } = new Dictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>>
+    private static Dictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>> StartingAt { get; } = new Dictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>>
     {
         [P.FlinchFacingLeft] = Walk([P.FlinchFacingLeft], P.WalkingLeft, P.WalkingLeftStride),
         [P.FlinchFacingRight] = Walk([P.FlinchFacingRight], P.WalkingRight, P.WalkingRightStride),

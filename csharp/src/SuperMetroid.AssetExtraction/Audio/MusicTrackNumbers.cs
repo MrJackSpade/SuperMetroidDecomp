@@ -15,11 +15,14 @@ namespace SuperMetroid.AssetExtraction.Audio;
 [EncodingOwner("track numbers of the sound driver's music data sets")]
 internal static class MusicTrackNumbers
 {
+    /// <summary>The track number the sound driver stops the music for: zero, which names no song.</summary>
+    internal const byte Silence = 0;
+
     /// <summary>The number of each data set's first own song, which a room that keeps the loaded set plays as its area theme.</summary>
-    internal const int AreaThemeTrack = 5;
+    private const int AreaThemeTrack = 5;
 
     /// <summary>Each shared song's track number, the same in every data set.</summary>
-    internal static readonly FrozenDictionary<MusicTrack, int> SharedNumbers = new Dictionary<MusicTrack, int>
+    private static readonly FrozenDictionary<MusicTrack, int> SharedNumbers = new Dictionary<MusicTrack, int>
     {
         [MusicTrack.SamusFanfare] = 1,
         [MusicTrack.ItemFanfare] = 2,
@@ -85,9 +88,8 @@ internal static class MusicTrackNumbers
     {
         if (SharedNumbers.TryGetValue(track, out int shared))
             return shared;
-        int index = dataSet is MusicDataSet set ? OwnSongs[set].IndexOf(track) : -1;
-        return index >= 0
-            ? AreaThemeTrack + index
-            : throw new ArgumentOutOfRangeException(nameof(track), track, $"The loaded music ({dataSet?.ToString() ?? "only the shared songs"}) holds no such song.");
+        if (dataSet is MusicDataSet set && OwnSongs[set].IndexOf(track) is int index and >= 0)
+            return AreaThemeTrack + index;
+        throw new ArgumentOutOfRangeException(nameof(track), track, $"The loaded music ({dataSet?.ToString() ?? "only the shared songs"}) holds no such song.");
     }
 }

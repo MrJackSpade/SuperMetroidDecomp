@@ -10,8 +10,9 @@ internal sealed class GunshipState
     internal GunshipState(GunshipPhase phase) => Phase = phase;
 
     /// <summary>
-    /// The updates left of a waiting phase, the one it ends on included: each pad movement starts it at 144 and the wait
-    /// for the engines at five, and the update that takes it to zero ends the phase (#2340, #2469).
+    /// The updates left of a waiting phase, the one it ends on included: each pad movement starts it at
+    /// <see cref="GunshipBoardingDefinitions.PadMovementDuration"/> and the wait for the engines at
+    /// <see cref="GunshipTakeoffDefinitions.EngineStartUpdates"/>, and the update that takes it to zero ends the phase (#2340, #2469).
     /// </summary>
     public UpdateCountdown PhaseTimer { get; internal set; } = UpdateCountdown.Ended();
 
@@ -35,15 +36,15 @@ internal sealed class GunshipState
     /// counted once each: its age chooses each update's shake, and the rumble strengthens at
     /// <see cref="GunshipTakeoffDefinitions.RumbleStrengthensFrame"/>.
     /// </summary>
-    public UpdateCountdown Rumble { get; internal set; } = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineRumbleFrames);
+    public UpdateCountdown Rumble { get; } = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineRumbleFrames);
 
     /// <summary>The phase the ship runs.</summary>
     public GunshipPhase Phase { get; internal set; }
 
     /// <summary>
     /// The ship's upward escape speed, raised each update up to its cap (<see cref="AccelerateEscape"/>). It
-    /// starts at two pixels an update and grows by a quarter pixel each update; reaching ten pixels sets it back to nine,
-    /// so it never passes nine pixels and three quarters.
+    /// starts slow and grows each update; reaching its trigger speed sets it back to its cap, so it never passes the cap by
+    /// a whole pixel.
     /// </summary>
     public SignedEightEight EscapeVelocity { get; internal set; }
 

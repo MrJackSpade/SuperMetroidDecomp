@@ -2,12 +2,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>Immutable mechanics for Crateria's paired late-escape palette loops.</summary>
-/// <remarks>
-/// The two definitions share an eleven-record duration schedule.
-/// Their 176 BGR555 words remain live presentation data; this catalog owns palette
-/// placement, timing, waits, and loop control.
-/// </remarks>
+/// <summary>The records of Crateria's two escape lightning effects and the colours each writes, for the import.</summary>
 public static class CrateriaEscapeLightningPaletteFxColorDefinitions
 {
 
@@ -15,16 +10,12 @@ public static class CrateriaEscapeLightningPaletteFxColorDefinitions
     private static readonly CrateriaEscapeLightningPaletteFxColorDefinition YellowLightning = new()
     {
         Owner = CrateriaEscapeLightningPaletteOwner.YellowLightning,
-        Object = ColourEffectId.CrateriaEscapeYellowLightning,
-        ColorsPerFrame = 11,
         ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.CrateriaEscapeYellowLightning, 11),
     };
     /// <summary>The Parlor's sky program targets the lightning's five-color dark tail from colour byte $AE.</summary>
     private static readonly CrateriaEscapeLightningPaletteFxColorDefinition ParlorSky = new()
     {
         Owner = CrateriaEscapeLightningPaletteOwner.ParlorSky,
-        Object = ColourEffectId.ParlorEscapeSkyFlicker,
-        ColorsPerFrame = 5,
         ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.ParlorEscapeSkyFlicker, 5),
     };
     /// <summary>The yellow-lightning and Parlor sky programs in definition order.</summary>

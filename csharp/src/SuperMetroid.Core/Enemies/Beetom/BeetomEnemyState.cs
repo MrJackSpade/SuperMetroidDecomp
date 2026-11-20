@@ -37,7 +37,7 @@ public sealed class BeetomEnemyState
     /// crawl, and one at zero ends it on its next step (#2281).
     /// </summary>
     public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();
-    /// <summary>Remaining controller changes needed to escape attachment, restarted at 64 by the initial touch.</summary>
+    /// <summary>Remaining controller changes needed to escape attachment, restarted at <see cref="BeetomMotionDefinitions.MashCount"/> by the initial touch.</summary>
     public int ButtonCounter { get; internal set; }
     /// <summary>The player's actions last observed by initialization or the attached counter; any differing actions, including releases, decrement <see cref="ButtonCounter"/>.</summary>
     public GameplayAction LastSeenPlayerActions { get; internal set; }
@@ -52,7 +52,7 @@ public sealed class BeetomEnemyState
     /// The way the current action goes, for an action that goes one way (#2277): the crawl's, hop's or lunge's direction, or
     /// the side of Samus a drain holds. It is chosen as the action is, and need not be <see cref="Facing"/>.
     /// </summary>
-    public HorizontalDirection Heading { get; internal set; }
+    public HorizontalDirection Heading { get; private set; }
 
     /// <summary>Starts <paramref name="action"/> going toward <paramref name="heading"/>.</summary>
     internal void Begin(BeetomAction action, HorizontalDirection heading)

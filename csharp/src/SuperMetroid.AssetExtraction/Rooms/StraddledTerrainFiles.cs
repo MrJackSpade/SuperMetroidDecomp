@@ -88,7 +88,8 @@ public static class StraddledTerrainFiles
     internal static StraddledTerrainDocument Decode()
     {
         var leadOf = new Dictionary<RoomTerrainBlock, int>();
-        int[] tailOf = Enumerable.Repeat(-1, BlockCount).ToArray();
+        // Each block's tail, null until a level word stores it.
+        var storedTail = new int?[BlockCount];
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             RoomTerrainBlock terrain = RoomLevelWordCodec.Decode((ushort)value);
@@ -96,12 +97,13 @@ public static class StraddledTerrainFiles
                 throw new InvalidOperationException($"Two level words decode to {terrain}.");
             int block = RoomLevelWordCodec.BlockNumberOf(terrain.Appearance);
             int tail = RoomLevelWordCodec.FirstStoredHalf((ushort)value);
-            if (tailOf[block] >= 0 && tailOf[block] != tail)
+            if (storedTail[block] is int known && known != tail)
                 throw new InvalidOperationException($"The start of block {block} depends on more than its number.");
-            tailOf[block] = tail;
+            storedTail[block] = tail;
         }
-        if (leadOf.Count != Kinds.Count * Mirrorings.Count * BlockCount || tailOf.Contains(-1))
+        if (leadOf.Count != Kinds.Count * Mirrorings.Count * BlockCount)
             throw new InvalidOperationException("A terrain block is stored as no level word.");
+        int[] tailOf = [.. storedTail.Select(tail => tail ?? throw new InvalidOperationException("A terrain block is stored as no level word."))];
 
         // Each class is listed by what it holds, in the order of the first block it holds.
         int[][] tailClasses = [.. Enumerable.Range(0, BlockCount)
@@ -148,18 +150,18 @@ public static class StraddledTerrainFiles
         if (document.Version != StraddledTerrainFormat.Version)
             throw new InvalidDataException("Straddled-terrain file has an unsupported version.");
         IReadOnlyList<StraddledTerrainDocument.Tail> tailClasses = document.Tails;
-        int[] tailOf = Enumerable.Repeat(-1, BlockCount).ToArray();
+        // Each block's tail class, null until a class claims it.
+        var claimedBy = new int?[BlockCount];
         for (int tail = 0; tail < tailClasses.Count; tail++)
         {
             foreach (int block in Blocks(tailClasses[tail].Blocks, $"tail class {tail}"))
             {
-                if (tailOf[block] >= 0)
+                if (claimedBy[block] is not null)
                     throw new InvalidDataException($"Straddled-terrain block {block} lies in two tail classes.");
-                tailOf[block] = tail;
+                claimedBy[block] = tail;
             }
         }
-        if (tailOf.Contains(-1))
-            throw new InvalidDataException("Straddled-terrain tail classes must hold every block number.");
+        int[] tailOf = [.. claimedBy.Select(tail => tail ?? throw new InvalidDataException("Straddled-terrain tail classes must hold every block number."))];
 
         IReadOnlyList<StraddledTerrainDocument.Lead> leadClasses = document.Leads;
         var leads = new Dictionary<RoomTerrainBlock, int>();

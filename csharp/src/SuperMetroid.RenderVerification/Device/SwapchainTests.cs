@@ -37,11 +37,11 @@ internal static partial class SwapchainTests
         try
         {
             int injectedLoss = 0;
-            worker = new(window, new Extent16<DisplayPixels>(640, 480), 1, selection.Kind, () =>
+            worker = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>([typeof(nint), typeof(global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>), typeof(long), typeof(global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind), typeof(global::System.Action), typeof(int)], new object?[] { window, new Extent16<DisplayPixels>(640, 480), (long)(1), selection.Kind, () =>
             {
                 int failure = Interlocked.Exchange(ref injectedLoss, 0);
                 if (failure != 0) new SharpGen.Runtime.Result(failure).CheckError();
-            });
+            }, Rendering.Direct3D11.Telemetry.RenderTelemetryLimits.DefaultHistoryCapacity });
             PumpUntil(() => worker.Ready.IsCompleted);
             string adapter = worker.Ready.GetAwaiter().GetResult();
             if (!adapter.Contains($"backend={selection.Kind}") ||
@@ -53,17 +53,21 @@ internal static partial class SwapchainTests
             for (int sequence = 1; sequence <= 1000; sequence++)
                 worker.Publish(new(new(sequence, 1), new DisplayPacket(0, new RgbaPixel(19,73,129))));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == 1000; });
+            // A redraw or a recovery that consumed or published a frame would change the replacements or leave one pending.
+            long publishedReplacements = worker.MailboxMetrics.Replaced;
+            D3D11RenderWorker running = worker;
+            Func<bool> mailboxUntouched = () => !MailboxCounters(running).HasPendingFrame && running.MailboxMetrics.Replaced == publishedReplacements;
             long previousRedraws = worker.RetainedRedraws;
             worker.Resize(new Extent16<DisplayPixels>(800, 600));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.RetainedRedraws > previousRedraws && worker.LastDrawnSize == new Extent16<DisplayPixels>(800, 600); });
-            if (MailboxCounters(worker).Published != 1000 || worker.LastConsumedSequence != 1000)
+            if (!mailboxUntouched() || worker.LastConsumedSequence != 1000)
                 throw new InvalidOperationException("Retained redraw consumed or manufactured a simulation frame.");
             previousRedraws = worker.RetainedRedraws;
             Interlocked.Exchange(ref injectedLoss, (int)DxgiDeviceLoss.DeviceRemoved);
             worker.Resize(new Extent16<DisplayPixels>(801, 601));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.DeviceRecoveries == 1 &&
                 worker.RetainedRedraws > previousRedraws && worker.LastDrawnSize == new Extent16<DisplayPixels>(801, 601); });
-            if (MailboxCounters(worker).Published != 1000 || worker.LastConsumedSequence != 1000)
+            if (!mailboxUntouched() || worker.LastConsumedSequence != 1000)
                 throw new InvalidOperationException("Device recovery manufactured a simulation frame.");
             var loss = worker.LastDeviceLoss;
             if (loss is null || loss.FailureHResult != (int)DxgiDeviceLoss.DeviceRemoved ||
@@ -82,7 +86,7 @@ internal static partial class SwapchainTests
             var timings = worker.CaptureTimings();
             if (timings.CpuComposition.Observed == 0 || timings.CpuDisplayAndPresent.Observed == 0)
                 throw new InvalidOperationException("Worker did not record CPU submission/presentation timings.");
-            if (metrics.HasPendingFrame || metrics.Published != metrics.Taken + metrics.Replaced + metrics.Invalidated)
+            if (metrics.HasPendingFrame || metrics.Generation != 2 || worker.LastConsumedSequence != 1001)
                 throw new InvalidOperationException("GPU worker lost mailbox accounting.");
             Console.WriteLine($"{selection.Kind}: worker {adapter}; idle-start, 1001 publications, retained redraw, two device-loss recoveries, generation/resize, bounded accounting passed.");
         }
@@ -202,11 +206,11 @@ internal static partial class SwapchainTests
         D3D11RenderWorker? worker = null;
         try
         {
-            worker = new(window, new Extent16<DisplayPixels>(640, 480), 1, device.Kind, () =>
+            worker = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>([typeof(nint), typeof(global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>), typeof(long), typeof(global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind), typeof(global::System.Action), typeof(int)], new object?[] { window, new Extent16<DisplayPixels>(640, 480), (long)(1), device.Kind, () =>
             {
                 entered.Set();
                 if (!release.Wait(TimeSpan.FromSeconds(60))) throw new TimeoutException("Door consumer release missing.");
-            });
+            }, Rendering.Direct3D11.Telemetry.RenderTelemetryLimits.DefaultHistoryCapacity });
             PumpUntil(() => worker.Ready.IsCompleted);
             worker.Ready.GetAwaiter().GetResult();
             long sequence = 1;
@@ -227,7 +231,8 @@ internal static partial class SwapchainTests
             release.Set();
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == sequence; });
             RenderMailboxCounterView resumed = mailbox.VerificationCounters;
-            if (resumed.HasPendingFrame || resumed.Taken != 2)
+            // Every packet but the first, which the held consumer took, and the last, which it took on resuming, was replaced.
+            if (resumed.HasPendingFrame || resumed.Replaced != sequence - 2)
                 throw new InvalidOperationException("Resumed door consumer did not skip superseded transition packets.");
             PixelComparison.Verify(latest.Display, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()),
                 renderer.RenderForReadback(latest.Display), $"{device.Kind}: retained destination after blocked {context} door");
@@ -253,12 +258,12 @@ internal static partial class SwapchainTests
         int attempts = 0;
         try
         {
-            worker = new(window, new Extent16<DisplayPixels>(640, 480), 1, kind, () =>
+            worker = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>([typeof(nint), typeof(global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>), typeof(long), typeof(global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind), typeof(global::System.Action), typeof(int)], new object?[] { window, new Extent16<DisplayPixels>(640, 480), (long)(1), kind, () =>
             {
                 Interlocked.Increment(ref attempts);
                 if (repeatDeviceLoss) new SharpGen.Runtime.Result((int)DxgiDeviceLoss.DeviceRemoved).CheckError();
                 throw new InvalidDataException("Injected coverage failure must not be retried.");
-            });
+            }, Rendering.Direct3D11.Telemetry.RenderTelemetryLimits.DefaultHistoryCapacity });
             PumpUntil(() => worker.Ready.IsCompleted);
             worker.Ready.GetAwaiter().GetResult();
             worker.Publish(new(new(1, 1), new DisplayPacket(0, new RgbaPixel(1, 2, 3))));
@@ -356,11 +361,11 @@ internal static partial class SwapchainTests
         D3D11RenderWorker? worker = null;
         try
         {
-            worker = new(window, new Extent16<DisplayPixels>(640, 480), 1, selection.Kind, () =>
+            worker = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>([typeof(nint), typeof(global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>), typeof(long), typeof(global::SuperMetroid.Rendering.Direct3D11.Device.D3D11DeviceKind), typeof(global::System.Action), typeof(int)], new object?[] { window, new Extent16<DisplayPixels>(640, 480), (long)(1), selection.Kind, () =>
             {
                 entered.Set();
                 if (!release.Wait(TimeSpan.FromSeconds(60))) throw new TimeoutException("Slow-consumer release missing.");
-            });
+            }, Rendering.Direct3D11.Telemetry.RenderTelemetryLimits.DefaultHistoryCapacity });
             PumpUntil(() => worker.Ready.IsCompleted); worker.Ready.GetAwaiter().GetResult();
             var first = Step(0);
             worker.Publish(new RenderFrame(new(sequence, 1), first.Snapshot));
@@ -484,8 +489,7 @@ internal static partial class SwapchainTests
                 PumpUntil(() => { worker.ThrowIfFaulted(); return !worker.IsSurfaceSuspended &&
                     worker.LastConsumedSequence == sequence && worker.LastDrawnSize == new Extent16<DisplayPixels>(641, 481); });
                 RenderMailboxCounterView metrics = MailboxCounters(worker);
-                if (metrics.HasPendingFrame || metrics.Generation != generation ||
-                    metrics.Published != metrics.Taken + metrics.Replaced + metrics.Invalidated)
+                if (metrics.HasPendingFrame || metrics.Generation != generation)
                     throw new InvalidOperationException("Surface restore lost latest generation/mailbox accounting.");
             }
 

@@ -19,37 +19,23 @@ public static class BlockReactionFamilies
         _ => throw new InvalidOperationException($"Undefined collision kind {kind}."),
     };
 
-    /// <summary>The installed key of <paramref name="reaction"/>, a reaction of one of the families (#2520).</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The value is no family's reaction.</exception>
-    [InstalledKey]
-    public static string KeyOf(Enum reaction) => reaction switch
-    {
-        ShootableReaction shootable => ShootableReactionKeys.Installed.Of(shootable),
-        BombableReaction bombable => BombableReactionKeys.Installed.Of(bombable),
-        SpecialBlockReaction special => SpecialBlockReactionKeys.Installed.Of(special),
-        SpecialAirReaction specialAir => SpecialAirReactionKeys.Installed.Of(specialAir),
-        SpikeReaction spike => SpikeReactionKeys.Installed.Of(spike),
-        GrappleReaction grapple => GrappleReactionKeys.Installed.Of(grapple),
-        _ => throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "The value is no block reaction."),
-    };
-
     /// <summary>Every reaction of <paramref name="family"/>, in the family's written-out order (its keys' listed order, #2567).</summary>
     /// <exception cref="InvalidOperationException"><paramref name="family"/> is undefined.</exception>
-    public static IReadOnlyList<Enum> Reactions(BlockReactionFamily family) => family switch
+    public static IReadOnlyList<BlockReaction> Reactions(BlockReactionFamily family) => family switch
     {
-        BlockReactionFamily.Shootable => [.. Ensure.EveryMemberOnce(ShootableReactionKeys.ListedOrder).Cast<Enum>()],
-        BlockReactionFamily.Bombable => [.. Ensure.EveryMemberOnce(BombableReactionKeys.ListedOrder).Cast<Enum>()],
-        BlockReactionFamily.Special => [.. Ensure.EveryMemberOnce(SpecialBlockReactionKeys.ListedOrder).Cast<Enum>()],
-        BlockReactionFamily.SpecialAir => [.. Ensure.EveryMemberOnce(SpecialAirReactionKeys.ListedOrder).Cast<Enum>()],
-        BlockReactionFamily.Spike => [.. Ensure.EveryMemberOnce(SpikeReactionKeys.ListedOrder).Cast<Enum>()],
-        BlockReactionFamily.Grapple => [.. Ensure.EveryMemberOnce(GrappleReactionKeys.ListedOrder).Cast<Enum>()],
+        BlockReactionFamily.Shootable => [.. Ensure.EveryMemberOnce(ShootableReactionKeys.ListedOrder).Select(reaction => BlockReaction.Of(reaction))],
+        BlockReactionFamily.Bombable => [.. Ensure.EveryMemberOnce(BombableReactionKeys.ListedOrder).Select(reaction => BlockReaction.Of(reaction))],
+        BlockReactionFamily.Special => [.. Ensure.EveryMemberOnce(SpecialBlockReactionKeys.ListedOrder).Select(reaction => BlockReaction.Of(reaction))],
+        BlockReactionFamily.SpecialAir => [.. Ensure.EveryMemberOnce(SpecialAirReactionKeys.ListedOrder).Select(reaction => BlockReaction.Of(reaction))],
+        BlockReactionFamily.Spike => [.. Ensure.EveryMemberOnce(SpikeReactionKeys.ListedOrder).Select(reaction => BlockReaction.Of(reaction))],
+        BlockReactionFamily.Grapple => [.. Ensure.EveryMemberOnce(GrappleReactionKeys.ListedOrder).Select(reaction => BlockReaction.Of(reaction))],
         _ => throw new InvalidOperationException($"Undefined reaction family {family}."),
     };
 
     /// <summary>
-    /// The reactions <paramref name="kind"/> distinguishes: every reaction of its family, or a single null for a kind that
-    /// reads no reaction.
+    /// The reactions <paramref name="kind"/> distinguishes: every reaction of its family, or none for a kind that reads no
+    /// reaction (#2558), a case those reading it state themselves.
     /// </summary>
-    public static IReadOnlyList<Enum?> ReadingsOf(RoomCollisionType kind) =>
-        Of(kind) is { } family ? [.. Reactions(family)] : [null];
+    public static IReadOnlyList<BlockReaction> ReadingsOf(RoomCollisionType kind) =>
+        Of(kind) is { } family ? [.. Reactions(family)] : [];
 }

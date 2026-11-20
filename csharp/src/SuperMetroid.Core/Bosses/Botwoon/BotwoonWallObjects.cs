@@ -15,12 +15,10 @@ internal sealed class BotwoonWallObjects(RoomObjectPlaceList places)
     /// </summary>
     /// <remarks>
     /// The clear has an empty setup and clears an already-defeated room on the next update. The crumble's setup holds
-    /// it for its setup hold (<see cref="BotwoonWallMutationDefinitions.CrumbleSetupHold"/>); it then crumbles nine rows of four four-update images, moving one block down between rows.
+    /// it for its setup hold (<see cref="BotwoonWallMutationDefinitions.CrumbleSetupHold"/>); it then crumbles the wall's rows
+    /// through their images, moving one block down between rows.
     /// </remarks>
-    /// <returns>
-    /// False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).
-    /// </returns>
-    public bool TrySpawn(RoomLevelData level, BotwoonWallMutation mutation)
+    public void Spawn(RoomLevelData level, BotwoonWallMutation mutation)
     {
         Ensure.NotNull(level);
         RoomObjectBehaviour wall = mutation switch
@@ -34,10 +32,9 @@ internal sealed class BotwoonWallObjects(RoomObjectPlaceList places)
         // fall outside the room.
         Position16<RoomBlocks> block = level.GridBlock(Block);
         if (places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = block;
         place.Become(wall);
-        return true;
     }
 }

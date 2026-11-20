@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// One whole 16x16 block the X-ray reveal shows (#1431): the block or collectible picture it draws (#1764) and how it lays
+/// One whole block the X-ray reveal shows (#1431): the block or collectible picture it draws (#1764) and how it lays
 /// the picture out.
 /// </summary>
 /// <param name="Picture">The block or collectible picture drawn.</param>

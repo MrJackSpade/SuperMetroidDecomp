@@ -22,27 +22,19 @@ public sealed class CrocomireSkeletonArtwork
             : throw new InvalidDataException($"Crocomire skeleton holds {characters.Characters.Length} bytes; expected {CrocomireSkeletonCharacterDefinitions.TotalByteCount}.");
 
     /// <summary>
-    /// Whether <paramref name="index"/> names one of the skeleton's chunks: false only for the entry after the last,
-    /// which ends the sequence.
+    /// Requires <paramref name="index"/> to name one of the skeleton's chunks, counted from zero; the sequence ends after
+    /// its last chunk, and that end is no chunk.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="index"/> is outside the sequence and its end entry.</exception>
-    internal static bool IsChunk(int index)
-    {
-        if ((uint)index < CrocomireSkeletonCharacterDefinitions.ChunkCount)
-            return true;
-        if (index != CrocomireSkeletonCharacterDefinitions.ChunkCount)
-            throw new InvalidDataException(
-                $"Crocomire skeleton upload index {index} is outside its sequence.");
-        return false;
-    }
+    /// <exception cref="InvalidDataException"><paramref name="index"/> names no chunk of the sequence.</exception>
+    private static int RequireChunk(int index) =>
+        (uint)index < CrocomireSkeletonCharacterDefinitions.ChunkCount ? index
+            : throw new InvalidDataException($"Crocomire skeleton upload index {index} names no chunk of its sequence.");
 
-    /// <summary>Gets one 512-byte upload chunk; rejects the terminal entry because it has no character transfer.</summary>
+    /// <summary>Gets one 512-byte upload chunk.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="index"/> names no chunk of the sequence.</exception>
     internal ReadOnlyMemory<byte> Chunk(int index)
     {
-        if (!IsChunk(index))
-            throw new InvalidDataException(
-                "Crocomire skeleton's terminal entry has no character upload.");
-        return atlas.Characters.Slice(index *
+        return atlas.Characters.Slice(RequireChunk(index) *
             CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
             CrocomireSkeletonCharacterDefinitions.ChunkByteCount);
     }

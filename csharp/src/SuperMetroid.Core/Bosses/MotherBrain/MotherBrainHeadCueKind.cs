@@ -3,7 +3,7 @@
 /// <summary>What a cue every Mother Brain brain animation raises to the same effect on her encounter does (#2554).</summary>
 internal enum MotherBrainHeadCueKind
 {
-    /// <summary>Shakes the brain for fifty updates.</summary>
+    /// <summary>Shakes the brain for <see cref="MotherBrainFightDefinitions.BrainShakeUpdates"/>.</summary>
     ShakeBrain,
     /// <summary>Spawns a drool drop.</summary>
     SpawnDrool,

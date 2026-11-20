@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using System.Buffers.Binary;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Progression;
@@ -77,7 +78,7 @@ internal static class RoomLevelStreamDecoder
         return new InstalledRoomLevel(
             new Extent16<RoomBlocks>(checked((ushort)widthInBlocks), checked((ushort)(blockCount / widthInBlocks))),
             foreground.MoveToImmutable(), behaviors.MoveToImmutable(), background.MoveToImmutable(),
-            following.ToImmutable(), space.Length - blockCount);
+            new LevelDataPastGrid<RoomTerrainBlock>(following.ToImmutable(), space.Length - blockCount));
     }
 
     /// <summary>
@@ -163,10 +164,10 @@ internal static class RoomLevelStreamDecoder
         RoomBlockBehavior InstalledIn(AreaId area)
         {
             RoomBlockBehavior resolved = RoomBlockBehaviorCodec.Decode(area, value);
-            if (!resolved.TryReactionIn(family, out Enum? reaction))
+            if (!resolved.TryReactionIn(family, out BlockReaction? reaction))
                 throw new InvalidDataException(
                     $"Room level {level} block {index} is {kind} with behaviour {resolved}, which gives its kind no reaction in {area}.");
-            RoomBlockBehavior first = RoomBlockBehavior.ReactingAs(reaction);
+            RoomBlockBehavior first = reaction.Behavior;
             if (!GiveSameReactions(first.In(area), resolved))
                 throw new InvalidDataException(
                     $"Room level {level} block {index} is {kind} with behaviour {resolved}, whose reaction's first behaviour {first} reacts otherwise.");

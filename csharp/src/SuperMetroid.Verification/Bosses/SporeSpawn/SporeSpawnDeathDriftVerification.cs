@@ -31,12 +31,12 @@ internal static class SporeSpawnDeathDriftVerification
                 services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 1;
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
+            body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
             body.Position = body.Position.WithWhole(start);
             var state = body.SetUpPlaced<SporeSpawnEnemyState>();
             state.Movement = SporeSpawnMovement.SetupDeath;
             state.MovementCenter = new(128, 624);
-            state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body, segment)).OfType<EnemyProjectile>()];
+            state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body.HeldOccupant(), body, segment)).OfType<EnemyProjectile>()];
 
             enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, state);
             FixedVector<RoomPixels> velocity = state.DeathVelocity;

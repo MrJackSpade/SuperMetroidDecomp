@@ -27,10 +27,10 @@ public sealed class CeresDepartureState
     /// <summary>The blackout fade: fully lit until the fade, then one level darker on every update until black.</summary>
     private readonly ScreenFade fade = new(DisplayBrightness.Full);
 
-    /// <summary>Master brightness during the blackout fade, from full down to black.</summary>
+    /// <summary>The screen's brightness during the blackout, from full down to black.</summary>
     public int Brightness => fade.Level;
 
-    /// <summary>Starts the elevator hold from the room main's one-frame request.</summary>
+    /// <summary>Begins the departure when Samus reaches the elevator, as the Ceres room asks.</summary>
     /// <exception cref="InvalidOperationException">The departure has already begun or completed; a state instance admits the sequence only once.</exception>
     public void Begin()
     {
@@ -63,7 +63,7 @@ public sealed class CeresDepartureState
     /// <summary>
     /// Takes one step of the fade to black after ordinary gameplay.
     /// </summary>
-    /// <returns>Whether brightness one went black and completed this timing owner; the departure then saves the checkpoint and starts the next cinematic.</returns>
+    /// <returns>Whether this step reached black and completed the departure; the departure then saves the checkpoint and starts the next cinematic.</returns>
     /// <exception cref="InvalidOperationException">The blackout-fade phase is not active.</exception>
     public bool StepFadeAfterGameplay()
     {

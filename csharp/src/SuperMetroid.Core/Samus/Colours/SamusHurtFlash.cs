@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// game's suit colouring does. Runtime satisfies that contract by allowing the drained or rainbow
 /// colouring to return before this step. All remaining special colourings run earlier and
 /// this step therefore has final priority over charge, Speed Booster, shinespark,
-/// Crystal Flash, and X-ray colors during its first six updates.
+/// Crystal Flash, and X-ray colors during its coloured updates (<see cref="SamusHurtFlashDefinitions.ColouredUpdates"/>).
 /// </remarks>
 public static class SamusHurtFlash
 {
@@ -36,11 +36,11 @@ public static class SamusHurtFlash
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
 
-        int counterBefore = samus.HurtFlash.Count;
-        if (counterBefore == 0)
+        if (samus.HurtFlash.IsIdle)
         {
             return;
         }
+        int counterBefore = samus.HurtFlash.Count;
 
 // The hurt flash plays the impact sound on its impact update. Cinematics and the
         // Mother-Brain drained knockback are the two exceptions; the latter is
@@ -71,8 +71,8 @@ public static class SamusHurtFlash
             }
         }
 
-        // The count advances before either comparison reads it. It starts at one or eight and clears at
-        // sixty, so it never leaves 0 through 60.
+        // The count advances before either comparison reads it. It starts low and clears at its end, so it
+        // never leaves the flash's range.
         int counterAfter = samus.HurtFlash.Advance();
 
         if (counterAfter == SamusHurtFlashDefinitions.SoundRecoveryCount)
@@ -106,7 +106,7 @@ public static class SamusHurtFlash
     }
 
     /// <summary>
-    /// At hurt counter forty, restores the movement sound selected by Samus's current
+    /// At the hurt counter's sound recovery (<see cref="SamusHurtFlashDefinitions.SoundRecoveryCount"/>), restores the movement sound selected by Samus's current
     /// spin or active grapple state; a charged flare instead defers beam audio.
     /// </summary>
     private static void RecoverInterruptedSound(
@@ -130,9 +130,8 @@ public static class SamusHurtFlash
             return;
         }
 
-        // The grapple-phase comparison accepts firing, swinging, locked,
-        // wall-grab, and wall-grab-release phases. Cancel and all later teardown/drop
-        // phases intentionally leave grapple audio silent.
+        // The grapple keeps its sound while it fires, swings, holds locked, grabs a wall and lets go of one; it is
+        // silent once it is cancelled and through everything after.
         bool grappleSoundActive = samus.Grapple.Phase is
             GrapplePhase.Firing or
             GrapplePhase.ConnectedSwinging or

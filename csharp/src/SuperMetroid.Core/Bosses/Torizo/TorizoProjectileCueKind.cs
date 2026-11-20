@@ -7,7 +7,7 @@ internal enum TorizoProjectileCueKind
     StopMoving,
     /// <summary>Deletes the projectile.</summary>
     Delete,
-    /// <summary>Raises a landing dust cloud four pixels.</summary>
+    /// <summary>Raises a landing dust cloud by <see cref="TorizoProjectilePlacementDefinitions.DustRise"/>.</summary>
     RaiseDust,
     /// <summary>Stops blocking Samus's projectiles.</summary>
     StopBlockingShots,

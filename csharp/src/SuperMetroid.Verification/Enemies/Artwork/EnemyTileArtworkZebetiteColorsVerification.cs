@@ -79,7 +79,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             "the Zebetite pulse steps again once the door fade completes");
         counterBeforeGate = Counter(selected);
         // The place now holds a linked half, which the pulse skips.
-        selected.Places.InUpdateOrder[0].SetSpawnSettings(new ZebetiteSpawnSettings(ZebetiteHalf.Linked));
+        selected.Places.InUpdateOrder[0].SetSpawnSettings(new ZebetiteSpawnSettings(ZebetiteHalf.Linked, destroyed: 0));
         selected.Places.InUpdateOrder[0].SetUpPlacedAs<ZebetiteEnemyState>(EnemyDefinitionId.Zebetite);
         Cycle(selected);
         AssertEqual(counterBeforeGate, Counter(selected),

@@ -22,7 +22,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
-        var population = new RoomEnemyPopulationDefinition("Crystal Flash contact Ripper",
+        var population = new PlacedRoomEnemyPopulationDefinition("Crystal Flash contact Ripper",
         [
             SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(CrystalFlashContactDefinitions.RipperHeader,
                 position.X, position.Y, 0, CrystalFlashContactDefinitions.Properties, 0, 0, 0),

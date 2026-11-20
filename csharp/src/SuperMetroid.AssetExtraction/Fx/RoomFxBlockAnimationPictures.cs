@@ -5,7 +5,7 @@ using SuperMetroid.Core.Fx.Artwork;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// The characters of each picture the installed room-FX atlas holds (#1415): the import pipeline composes room sheets and
+/// The characters of each picture the import's room-FX atlas holds (#1415): the import pipeline composes room sheets and
 /// the Tourian statues' OBJ pictures from them. Pictures are found by their place in the atlas's segment order, and the
 /// statues' pictures as windows of the shared statue strip (<see cref="TourianStatueTileStripDefinitions"/>).
 /// </summary>
@@ -31,7 +31,7 @@ internal static class RoomFxBlockAnimationPictures
 
     /// <summary>The strip character <paramref name="picture"/> of <paramref name="statue"/> starts at.</summary>
     /// <exception cref="InvalidDataException"><paramref name="statue"/> is not a statue, or the picture is undefined.</exception>
-    internal static int TourianStatueFirstTile(TourianStatue statue, TourianStatueBlockPicture picture)
+    private static int TourianStatueFirstTile(TourianStatue statue, TourianStatueBlockPicture picture)
     {
         TourianStatueTileWindow window = TourianStatueWindow(statue);
         return picture switch
@@ -46,10 +46,10 @@ internal static class RoomFxBlockAnimationPictures
 
     /// <summary>The bytes of characters one picture of <paramref name="statue"/> holds.</summary>
     /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
-    internal static int TourianStatuePictureByteCount(TourianStatue statue) =>
+    private static int TourianStatuePictureByteCount(TourianStatue statue) =>
         TourianStatueWindow(statue).Tiles * TourianStatueTileStripDefinitions.CharacterByteCount;
 
-    /// <summary>The pictures of one installed atlas.</summary>
+    /// <summary>The pictures of one import's room-FX atlas.</summary>
     extension(RoomFxBlockAnimationAtlas atlas)
     {
         /// <summary>Returns the characters of one complete picture, rejecting altered picture geometry.</summary>
@@ -77,7 +77,7 @@ internal static class RoomFxBlockAnimationPictures
         /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
         internal ReadOnlyMemory<byte> TourianStatuePicture(TourianStatue statue, TourianStatueBlockPicture picture)
         {
-            int offset = (RoomFxBlockAnimationAtlasFormat.PreStatueTileCount + TourianStatueFirstTile(statue, picture)) *
+            int offset = (RoomFxBlockAnimationAtlasFormat.StatueFirstTile + TourianStatueFirstTile(statue, picture)) *
                 TourianStatueTileStripDefinitions.CharacterByteCount;
             return atlas.characters.AsMemory(offset, TourianStatuePictureByteCount(statue));
         }

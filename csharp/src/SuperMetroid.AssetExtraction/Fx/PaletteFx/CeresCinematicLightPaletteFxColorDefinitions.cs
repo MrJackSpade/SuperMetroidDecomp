@@ -3,21 +3,18 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>
-/// Immutable mechanics for the cutscene gunship-engine and shared Ceres navigation-light
-/// palette programs.
+/// The records of the cutscene gunship engine's and the Ceres navigation lights' effects and the colours each writes,
+/// for the import.
 /// </summary>
 /// <remarks>
-/// The two navigation-light definitions retain their distinct entry points but
-/// converge on a single shared fourteen-record loop.
-/// Their BGR555 colors remain live presentation data; this catalog owns palette placement,
-/// timing, waits, and loop control.
+/// The two navigation-light effects start at their own records but share one loop of records.
 /// </remarks>
 public static class CeresCinematicLightPaletteFxColorDefinitions
 {
     /// <summary>Each gunship-engine record writes one live BGR555 color.</summary>
-    public const int GunshipEngineColorsPerFrame = 1;
+    private const int GunshipEngineColorsPerFrame = 1;
     /// <summary>Each Ceres navigation-light record writes two live BGR555 colors.</summary>
-    public const int NavigationLightsColorsPerFrame = 2;
+    private const int NavigationLightsColorsPerFrame = 2;
 
     /// <summary>The gunship engine's records and the colour each writes.</summary>
     public static PaletteFxColorFrames GunshipEngineFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.CutsceneGunshipEngineFlicker, GunshipEngineColorsPerFrame);

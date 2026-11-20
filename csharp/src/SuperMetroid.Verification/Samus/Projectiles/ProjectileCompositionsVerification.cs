@@ -160,11 +160,11 @@ internal static class ProjectileCompositionsVerification
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             var shot = shots.Shots[0];
             shot.Animation = ProjectileFixturePlaybacks.Active(); shot.SpritemapPointer = id;
-            shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); shot.PicturedBeams = pictured; shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));
-            shot.Damage = 123; shot.Radius = shot.Radius.WithX(7).WithY(9);
+            shot.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), 123); shot.PicturedBeams = pictured; shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));
+            shot.Radius = shot.Radius.WithX(7).WithY(9);
             var bomb = bombs.Bombs[0];
             bomb.Animation = ProjectileFixturePlaybacks.Active(); bomb.SpritemapPointer = id;
-            bomb.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); bomb.PicturedBeams = pictured; bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
+            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type)); bomb.PicturedBeams = pictured; bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
             bomb.Fuse = UpdateCountdown.For(1);
             {
                 var native = new SpriteFrameBuffer(); var extracted = new SpriteFrameBuffer();
@@ -178,7 +178,7 @@ internal static class ProjectileCompositionsVerification
                 AssertTrue(native.FinalizeAsOam().ImageEquals(extracted.FinalizeAsOam()),
                     "Production projectile composition preserves admission and OAM");
                 AssertEqual(native.Draws.Length, extracted.Draws.Length, "Composition owner publishes the same draws");
-                AssertEqual(123, shot.Damage, "Composition does not mutate damage");
+                AssertEqual(123, shot.HeldShot().Damage, "Composition does not mutate damage");
                 AssertEqual((ushort)7, shot.Radius.X, "Composition does not mutate X radius");
                 AssertEqual((ushort)9, shot.Radius.Y, "Composition does not mutate Y radius");
                 comparisons++;
@@ -246,13 +246,13 @@ internal static class ProjectileCompositionsVerification
             if (family == 0x500)
             {
                 var slot = runtime.BombProjectiles.Bombs[0];
-                slot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family); slot.Animation = ProjectileFixturePlaybacks.Active(); slot.SpritemapPointer = sprite;
+                slot.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family)); slot.Animation = ProjectileFixturePlaybacks.Active(); slot.SpritemapPointer = sprite;
                 slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             }
             else
             {
                 var slot = runtime.Projectiles.Shots[0];
-                slot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family); slot.Animation = ProjectileFixturePlaybacks.Active(); slot.SpritemapPointer = sprite;
+                slot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family)); slot.Animation = ProjectileFixturePlaybacks.Active(); slot.SpritemapPointer = sprite;
                 slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             }
             SpriteSheet power = sheets.Get(SpriteSheetId.ProjectilesPower);

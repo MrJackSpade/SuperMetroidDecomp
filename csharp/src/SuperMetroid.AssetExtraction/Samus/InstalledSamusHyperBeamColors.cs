@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public sealed class InstalledSamusHyperBeamColors
 {
     /// <summary>Every installed cycle frame's sixteen colours, in cycle order.</summary>
-    internal readonly RgbColor[][] frames;
+    private readonly RgbColor[][] frames;
 
     /// <summary>Keeps copies of the complete installed cycle.</summary>
     /// <param name="frames">All <see cref="SamusHyperBeamColorFormat.FrameCount"/> frames of <see cref="SamusHyperBeamColorFormat.ColorsPerFrame"/> colours, in cycle order.</param>

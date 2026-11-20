@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Animation;
@@ -83,7 +82,7 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     /// Where he stands in his course (<see cref="CrocomireDeathStageDefinitions.Stages"/>, #2540): the fight, from his setup
     /// until the bridge gives way under him, then each stage of his death in turn to his inert corpse.
     /// </summary>
-    internal ListStep<CrocomireDeathStage> DeathStage { get; set; } = ListStep<CrocomireDeathStage>.FirstOf(CrocomireDeathStageDefinitions.Stages);
+    internal ListStep<CrocomireDeathStage> DeathStage { get; private set; } = ListStep<CrocomireDeathStage>.FirstOf(CrocomireDeathStageDefinitions.Stages);
 
     /// <summary>
     /// Hands his death over to the stage after the one he is at. His course ends at his inert corpse, which rests there:
@@ -105,9 +104,8 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     public CrocomirePhase Phase { get; internal set; } = CrocomirePhase.Dormant;
 
     /// <summary>
-    /// During combat: queued backward steps. Producers store an authored count of at most three or add at most three per
-    /// mouth hit while stepping back consumes them, so the count stays a few steps from none and never nears a wrap
-    /// (#1940).
+    /// During combat: his queued backward steps (#1940). A setup queues an authored count, each mouth hit adds to it
+    /// and stepping back consumes it.
     /// </summary>
     public int StepCounter
     {
@@ -125,13 +123,9 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
 
     /// <summary>
     /// While the hidden wall rumbles: the oscillation under way in <see cref="CrocomireRumbleDefinitions.Oscillations"/>,
-    /// up to their count once the last has finished.
+    /// or none once the last has finished.
     /// </summary>
-    public int RumbleOscillation
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, CrocomireRumbleDefinitions.Oscillations.Length, value);
-    }
+    internal ListStep<CrocomireRumbleOscillation>? RumbleOscillation { get; set; }
 
     /// <summary>Whether the rumbling wall is heading for its oscillation's extreme rather than back to its return offset.</summary>
     public bool RumbleTowardExtreme { get; internal set; }
@@ -147,7 +141,7 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
 
     /// <summary>
     /// While the body sinks or rises: the vertical speed per frame, down while sinking and up while rising. The sink clamps
-    /// its whole part at three pixels and the rise stops it at zero, so it stays below four pixels per frame.
+    /// its whole part at <see cref="CrocomireBridgeCollapseDefinitions.MaximumSinkSpeed"/> and the rise stops it at zero.
     /// </summary>
     public SignedEightEight VerticalSpeed { get; internal set; }
 

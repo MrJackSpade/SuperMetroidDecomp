@@ -26,8 +26,8 @@ public sealed class SporeSpawnEnemyState
     /// </summary>
     internal IReadOnlyList<EnemyProjectile> StalkLinks { get; set; } = [];
     /// <summary>
-    /// Fixed stalk interpolation anchor in room pixels: the spawn body's X and a Y 72 pixels
-    /// above it.
+    /// Fixed stalk interpolation anchor in room pixels: the spawn body's X and a Y above it by
+    /// <see cref="SporeSpawnArenaDefinitions.StalkAnchorAboveBody"/>.
     /// </summary>
     public Position16<RoomPixels> StalkAnchor { get; internal set; }
     /// <summary>
@@ -44,7 +44,7 @@ public sealed class SporeSpawnEnemyState
     internal SporeSpawnSwayRadius SwayRadius { get; set; }
     /// <summary>
     /// How far and which way his sway's phase turns each movement update: a step from his descent and his fight's start,
-    /// quickened to two low on health, and reversed by the first damaging hit of each opening.
+    /// quickened low on health (<see cref="SporeSpawnArenaDefinitions.FastSwayStep"/>), and reversed by the first damaging hit of each opening.
     /// </summary>
     internal TurnStep SwayStep { get; set; } = TurnStep.None;
     /// <summary>Whether the ceiling spore emitters are stopped: the animation sets it during protected phases and clears it, and death clears it.</summary>

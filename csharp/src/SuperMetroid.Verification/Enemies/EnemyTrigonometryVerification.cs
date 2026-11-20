@@ -754,7 +754,7 @@ internal static class EnemyTrigonometryVerification
         }
         Console.WriteLine("Compiled signed sine: all 320 native words match, including +/-256 peaks.");
         if (definitionsOnly) return;
-        var tide = new RoomFxOverlayState(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var tide = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.RoomFxOverlayState>([typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         Action step = tide.StepTideForCheck;
         // The import decides the small tide's precedence over the large one (#1695); each liquid holds one tide.
         foreach (LiquidTide option in Enum.GetValues<LiquidTide>())

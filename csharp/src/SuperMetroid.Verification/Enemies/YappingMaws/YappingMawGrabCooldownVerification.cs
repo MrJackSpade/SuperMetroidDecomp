@@ -35,13 +35,13 @@ internal static class YappingMawGrabCooldownVerification
         SamusState samus = NewSamus();
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 
         samus.Position = samus.Position.WithWhole(OutOfReach);
         CountRounds(enemies, place, state, frame, startedAt: 0, "a newly placed Maw");
 
         samus.Position = samus.Position.WithWhole(Root);
-        enemies.YappingMawBehavior.RunYappingMawMainAi(place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
+        enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant(), place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
         AssertEqual(YappingMawAction.WaitingForSamus, state.Action, "Samus at the Maw's root starts no bite");
         AssertTrue(!state.GrabCooldown.AllowsGrab, "Samus at the Maw's root starts its cooldown");
         samus.Position = samus.Position.WithWhole(OutOfReach);
@@ -51,7 +51,7 @@ internal static class YappingMawGrabCooldownVerification
         AssertTrue(!state.GrabCooldown.AllowsGrab, "the cooldown refuses at the end of its second round");
         YappingMawBehavior.ReactToYappingMawTouch(Touch(place, samus));
         AssertTrue(!state.HasGrabbedSamus, "a touch while the cooldown refuses leaves Samus free");
-        enemies.YappingMawBehavior.RunYappingMawMainAi(place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
+        enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant(), place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
         AssertTrue(state.GrabCooldown.AllowsGrab, "the next update lets the Maw grab again");
         YappingMawBehavior.ReactToYappingMawTouch(Touch(place, samus));
         AssertTrue(state.HasGrabbedSamus, "a touch while the cooldown allows grabs Samus");
@@ -69,7 +69,7 @@ internal static class YappingMawGrabCooldownVerification
     {
         for (int update = 1; update <= 2 * CooldownWordSpan + startedAt; update++)
         {
-            enemies.YappingMawBehavior.RunYappingMawMainAi(place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant(), place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
             int word = ((startedAt - update) % CooldownWordSpan + CooldownWordSpan) % CooldownWordSpan;
             bool negative = word >= CooldownWordSpan / 2;
             if (state.GrabCooldown.AllowsGrab != negative)
@@ -81,8 +81,8 @@ internal static class YappingMawGrabCooldownVerification
 
     /// <summary>Samus touching the Maw's mouth.</summary>
     private static EnemyTouchContext Touch(RoomEnemyPlace place, SamusState samus) =>
-        new(place, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), default, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)),
-            UsesFrameHitboxes: false, HitboxTouch: null, Position16<RoomPixels>.Zero);
+        new(place.HeldOccupant(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), default, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)),
+            UsesFrameHitboxes: false, HitboxTouch: place.Definition.Touch, Position16<RoomPixels>.Zero);
 
     /// <summary>A standing Samus.</summary>
     private static SamusState NewSamus() =>
@@ -94,8 +94,8 @@ internal static class YappingMawGrabCooldownVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.YappingMaw, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.YappingMaw, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.Position = place.Position.WithWhole(Root);
         place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 48);
         place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, 0);

@@ -39,7 +39,7 @@ internal static class KraidSuperMissileDamageVerification
         var state= runtime.Enemies.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.Kraid.");
         state.BodyState.FightPhase = KraidFightPhase.MainAttackWithMouthOpen;
         state.HeadPlayback=RoarPastOpenPose;state.HeadHold.LastFor(64);
-        state.DisplayedHeadFrame = FullyOpenRoarFrame();
+        global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(FullyOpenRoarFrame()));
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
         var level = KraidFloorLevel(scope.LevelData);
         runtime.Room.Adopt(scope with { LevelData = level });
@@ -60,7 +60,7 @@ internal static class KraidSuperMissileDamageVerification
             if(body.Health!=oldHealth || frame%8==0)
             {
                 Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} samusHp={samus.Health} pose={samus.Pose} mouth={state.DisplayedHeadFrame?.InvulnerableShape}");
-                foreach(var shot in runtime.Projectiles.Shots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.Place} type={shot.Type} damage={shot.Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.Behavior}");
+                foreach(var shot in runtime.Projectiles.Shots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.Place} type={shot.HeldShot().Type} damage={shot.HeldShot().Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.Behavior}");
             }
             if (frame is 8 or 32)
             {
@@ -149,13 +149,15 @@ internal static class KraidSuperMissileDamageVerification
             body.Health = 1000;
             state.BodyState.FightPhase = KraidFightPhase.MainAttackWithMouthOpen;
             state.HeadPlayback = RoarPastOpenPose;
-            state.DisplayedHeadFrame = FullyOpenRoarFrame();
+            global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(FullyOpenRoarFrame()));
         }
-        void Place(int index)
+        void Place(int index) => PlaceShot(index, SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300);
+        // Each case fires a new shot into the place, ending the one an earlier case left there.
+        void PlaceShot(int index, SamusProjectileType type, int damage)
         {
             var shot = projectiles.Shots[index];
-            shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
-            shot.Damage = 300;
+            shot.End();
+            shot.Occupy(type, damage);
             shot.Position = shot.Position.WithWhole(new(176, 486));
             shot.Radius = new(8, 8);
             // Intentionally inactive: this native private pass has no sentinel check.
@@ -181,13 +183,8 @@ internal static class KraidSuperMissileDamageVerification
             "The inclusive count slot, not only count minus one, receives the collision");
 
         Prepare(1);
-        Place(1);
-        Place(0);
-        foreach (var shot in projectiles.Shots.Take(2))
-        {
-            shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true);
-            shot.Damage = 60;
-        }
+        PlaceShot(1, SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true), 60);
+        PlaceShot(0, SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true), 60);
         runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
         // A charged beam's hit lets later shots reach the mouth only from a row far below the room (#1470, #2507).
         AssertEqual(940, body.Health,
@@ -199,11 +196,7 @@ internal static class KraidSuperMissileDamageVerification
         {
             Prepare(1);
             foreach (int place in places)
-            {
-                Place(place);
-                projectiles.Shots[place].Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
-                projectiles.Shots[place].Damage = 100;
-            }
+                PlaceShot(place, SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);
             runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
             return body.Health;
         }
@@ -214,8 +207,7 @@ internal static class KraidSuperMissileDamageVerification
 
         Prepare(5);
         var bomb = runtime.BombProjectiles.Bombs[0];
-        bomb.Type = SamusBombProjectileSystem.NormalBombType;
-        bomb.Damage = 30;
+        bomb.Occupy(SamusBombProjectileSystem.NormalBombType, 30);
         bomb.Position = bomb.Position.WithWhole(new(176, 486));
         bomb.Radius = new(8, 8);
         runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);

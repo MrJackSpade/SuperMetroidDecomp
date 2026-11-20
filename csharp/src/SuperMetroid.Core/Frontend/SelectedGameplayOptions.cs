@@ -12,4 +12,11 @@ internal sealed record SelectedGameplayOptions(
     bool JapaneseText,
     ControllerBindings ControllerBindings,
     bool MoonwalkEnabled,
-    bool IconCancelEnabled);
+    bool IconCancelEnabled)
+{
+    /// <summary>
+    /// The options a game starts with before the options menu first closes: English text, the default bindings, and
+    /// moonwalking and icon cancelling off.
+    /// </summary>
+    internal static SelectedGameplayOptions Default { get; } = new(false, ControllerBindings.Default, false, false);
+}

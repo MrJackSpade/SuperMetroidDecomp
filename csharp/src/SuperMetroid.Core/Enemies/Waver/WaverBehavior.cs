@@ -12,7 +12,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemySettingsFactory<Waver
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Waver];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WaverSpawnSettings settings) => new WaverEntity(this, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WaverSpawnSettings settings) => EnemyOccupant.Of(new WaverEntity(this, occupant, place, common, settings));
 
     /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;
@@ -41,7 +41,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemySettingsFactory<Waver
     }
 
     /// <summary>Initializes the Waver.</summary>
-    internal static WaverEnemyState InitializeWaver(RoomEnemyPlace place, WaverSpawnSettings settings)
+    internal static WaverEnemyState InitializeWaver(RoomEnemyOccupant occupant, RoomEnemyPlace place, WaverSpawnSettings settings)
     {
         HorizontalDirection facing = settings.Facing;
         var state = new WaverEnemyState(settings)
@@ -51,8 +51,8 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemySettingsFactory<Waver
             Action = WaverAction.Gliding,
         };
 
-        // The setup first shows the left steady animation and then asks for the spawn's facing. Only right-facing
-        // spawns therefore change it; left-facing spawns ask for the one playing and keep it.
+        // A Waver starts with the left steady animation; a right-facing Waver then turns it to face right, while a
+        // left-facing one keeps the animation already playing and its clock.
         state.Playback = new(WaverAnimations.StartingWith(WaverSegment.SteadyFacingLeft), AnimationPlace.StartOfAnimation);
         SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));
         return state;
@@ -72,7 +72,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemySettingsFactory<Waver
                 place,
                 horizontalDisplacement))
         {
-            // A wall turns Waver around, reversing its speed exactly, fraction included (±1.5 pixels a frame), and ends any spin.
+            // A wall turns Waver around, reversing its speed exactly, fraction included, and ends any spin.
             state.Facing = state.Facing == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;
             SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));
         }
@@ -98,7 +98,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemySettingsFactory<Waver
             SetWaverAnimation(place, state, WaverAnimationChoices.Spinning(state.Facing));
         }
 
-        // The spin animation finishes after 32 animation frames. Main AI owns
+        // The spin animation finishes after its own frames. Main AI owns
         // the return to steady art, matching the cue/AI seam rather than timing it here.
         if (spinFinished)
             SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));
@@ -108,7 +108,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemySettingsFactory<Waver
     /// Starts a changed facing or spin animation and restarts its frame timer (#2145); the Waver spins while a spin plays
     /// and glides while a steady pose shows (#2450).
     /// </summary>
-    internal static void SetWaverAnimation(RoomEnemyPlace place, WaverEnemyState state, WaverSegment segment)
+    private static void SetWaverAnimation(RoomEnemyPlace place, WaverEnemyState state, WaverSegment segment)
     {
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, WaverAnimations.StartingWith(segment));
         state.Action = WaverAnimationChoices.IsSpin(segment) ? WaverAction.Spinning : WaverAction.Gliding;
@@ -121,7 +121,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemySettingsFactory<Waver
     }
 
     /// <summary>Advances Waver's typed animation.</summary>
-    internal static void AdvanceWaverTypedAnimation(RoomEnemyPlace place, WaverEnemyState waverEnemyState, EnemyAnimationCueContext _) =>
+    internal static void AdvanceWaverTypedAnimation(RoomEnemyPlace place, WaverEnemyState waverEnemyState) =>
         EnemyAnimationPlayback.Advance(place, waverEnemyState, WaverAnimations.Segments,
             static (WaverEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>

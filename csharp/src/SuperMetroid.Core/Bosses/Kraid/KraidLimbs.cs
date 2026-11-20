@@ -86,7 +86,7 @@ internal sealed class KraidLimbs
                 return null;
             case KraidPartCue.LowerBodyAndShake:
                 body.Position = body.Position.WithWholeY(body.Position.Y.Whole + 1);
-                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.StepShakeUpdates);
+                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), KraidArenaDefinitions.StepShakeUpdates);
                 return null;
             case KraidPartCue.StepSound:
                 _access.RequestKraidSound(KraidSoundDefinitions.Footstep);
@@ -136,7 +136,7 @@ internal sealed class KraidLimbs
         state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.GrowthHeadAnimationUpdates);
 
         state.ResumeHeadRoar(KraidHeadAnimations.ReadsAt(state.HeadPlayback).Growth);
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.GrowthShakeUpdates);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), KraidArenaDefinitions.GrowthShakeUpdates);
         state.FootState.StartAnimation(KraidPartSegment.FootInitial);
         state.FootState.Phase = KraidFootPhase.Resting;
         RoomEnemyPlace arm = state.Parts.Arm;
@@ -148,8 +148,7 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>
-    /// Below half health the arm switches to its slow swing, unless its stored animation is
-    /// already the slow one or a later animation.
+    /// Below half health the arm switches to its slow swing, but only while it swings normally.
     /// </summary>
     private static KraidPartSegment? SelectKraidArmSpeedAnimation(KraidEnemyState state) =>
         state.Parts.Body.Health < state.HalfHealth && state.ArmState.SwingsNormally
@@ -323,7 +322,7 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>Chooses the grown foot's next walking target and direction on the last update of its thinking.</summary>
-    internal void RunKraidSecondPhaseThinking(
+    private void RunKraidSecondPhaseThinking(
         RoomEnemyPlace body,
         KraidFootState part)
     {

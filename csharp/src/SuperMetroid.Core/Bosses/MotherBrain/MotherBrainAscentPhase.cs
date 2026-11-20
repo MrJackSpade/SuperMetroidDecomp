@@ -15,7 +15,7 @@ public enum MotherBrainAscentPhase
     /// <summary>Readies her brain and neck to be drawn, makes her body and brain tangible, gives her brain her second phase's health, and starts the suspense wait at once.</summary>
     SetupPhase2Brain,
 
-    /// <summary>Waits out the suspense, then starts the wait before rising and falls into it.</summary>
+    /// <summary>Waits out the suspense, then starts the wait before rising on the same update.</summary>
     PauseForSuspense,
 
     /// <summary>Starts the floor-clipping effect, starts the hidden head animation, and starts the wait before her pause.</summary>
@@ -30,7 +30,7 @@ public enum MotherBrainAscentPhase
     /// <summary>Reveals the crouched body, starts boss music and earthquake, and enables the rising neck motion.</summary>
     StartMusicAndEarthquake,
 
-    /// <summary>Every fourth frame raises her body two pixels with dust until she has risen, then ends the floor-clipping effect and starts her uncrouching.</summary>
+    /// <summary>Raises her body a step with dust at the ascent's cadence until she has risen, then ends the floor-clipping effect and starts her uncrouching.</summary>
     RaiseMotherBrain,
 
     /// <summary>Waits for the body animation to publish the standing pose before initializing grey-colour restoration.</summary>

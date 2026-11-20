@@ -106,8 +106,9 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
             $"${(differ.Length == 0 ? 0 : differ[0]):X5} to ${(differ.Length == 0 ? 0 : differ[^1]):X5}; first: " +
             string.Join(" ", differ.Take(24).Select(index => $"${index:X5} native {nativeVram[index]:X2} installed {stockVram[index]:X2}")) +
             $"; native nonzero bytes {nativeVram.Count(value => value != 0)}, installed nonzero bytes {stockVram.Count(value => value != 0)}");
-        AssertTrue(DrawPhantoonBg2(stock, firstPointer, newInstructionFrame: false).All(value => value == 0),
-            "Phantoon BG2 drawing keeps the native new-frame producer gate");
+        // His body shows his current frame on every update it is drawn (#2573), also one whose cue selected no new frame.
+        AssertTrue(DrawPhantoonBg2(stock, firstPointer, newInstructionFrame: false).SequenceEqual(stockVram),
+            "Phantoon's body shows his current frame on an update that selects no new frame");
         Suite(nameof(VerifyPhantoonCollisionDefinitions), () => VerifyPhantoonCollisionDefinitions(rom, stock));
 
         document.Frames[frameName][0] = first with { X = 32 };
@@ -206,8 +207,8 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     {
         var enemies = EnemySystemFixtures.New((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art?.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.PhantoonBody, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.PhantoonBody, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SpritemapPointer = pointer;
         place.Position = place.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
@@ -227,8 +228,8 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Phantoon);
         enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.PhantoonBody, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.PhantoonBody, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.CollidesByFrameHitboxes = true;
         if (newInstructionFrame)
             SuperMetroid.Core.PrivateState.Set(place.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);

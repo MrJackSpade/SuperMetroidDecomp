@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// The Mother Brain bomb's Y acceleration while it falls and bounces, and the sideways speed each bounce restores. Before its first bounce it falls at the ordinary
-/// gravity of 7; each later bounce's gravity grows by sixteen times the bounce number, capped at 64 per bounce. The bomb
+/// gravity (<see cref="FallAcceleration"/>); each later bounce's gravity grows with the bounce number, up to a cap. The bomb
 /// expires once it lands from its last bounce.
 /// </summary>
 internal static class MotherBrainBombBounceDefinitions
@@ -31,7 +31,7 @@ internal static class MotherBrainBombBounceDefinitions
     /// <summary>The sideways speed a Mother Brain bomb's floor bounce restores, without its direction.</summary>
     internal static readonly SignedEightEight BounceSpeed = SignedEightEight.FromPixelFraction(7, 16);
 
-    /// <summary>The gravity after each bounce, from the first to the eighth and last, in 256ths of a pixel an update.</summary>
+    /// <summary>The gravity after each bounce, from the first to the last, each update.</summary>
     internal static readonly SignedEightEight[] BounceAccelerations =
     [
         SignedEightEight.FromPixelFraction(1, 16),

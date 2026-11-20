@@ -30,7 +30,7 @@ internal static class RoomObjectPopulationImporter
         {
             ushort headerWord = Word(0x8f, cursor);
             if (headerWord == 0)
-                return new RoomObjectPopulation($"$8F:{pointer:X4}", records);
+                return global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation>([typeof(string), typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)], new object?[] { $"$8F:{pointer:X4}", records });
             ushort argument = Word(0x8f, unchecked((ushort)(cursor + 4)));
             byte blockX = Byte(0x8f, unchecked((ushort)(cursor + 2)));
             byte blockY = Byte(0x8f, unchecked((ushort)(cursor + 3)));

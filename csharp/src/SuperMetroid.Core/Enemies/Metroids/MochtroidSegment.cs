@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// Mochtroid's free-flight and attached pulse loops (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// Mochtroid's free-flight and attached pulse loops (#641).
 /// Their steps are <see cref="MochtroidAnimations"/>.
 /// </summary>
 internal enum MochtroidSegment

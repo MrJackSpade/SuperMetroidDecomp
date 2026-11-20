@@ -46,12 +46,10 @@ internal sealed class EnemyRoomEffects
     /// they asked for them; the pass's other events are the runtime's (<see cref="EnemyFramePhase"/>).
     /// </summary>
     /// <remarks>
-    /// Actors spawn their fixed room objects and make their other room writes
-    /// inside the enemy pass, and each room object's setup edits the level at once. Applying them right
-    /// after the enemy pass lets Samus's movement later in the frame meet the edited
-    /// terrain; Baby Metroid clears its invisible wall this way just before Samus runs
-    /// through it. A fixed room-object spawn into a room whose places are all held is lost (RoomObjectPlaces); a room
-    /// loads with every place free.
+    /// The enemies make these room changes during their pass, and each room object's setup changes the terrain at once,
+    /// so Samus's movement later in the update meets the changed terrain; the Baby Metroid clears its invisible wall
+    /// this way just before Samus runs through it. A room object spawned into a room whose places are all held is lost
+    /// (RoomObjectPlaces); a room loads with every place free.
     /// </remarks>
     internal void ApplyEnemyRequestedRoomEffects(EnemyFrameResult pass, EnemyRoomEffectSite site)
     {
@@ -65,13 +63,13 @@ internal sealed class EnemyRoomEffects
                 case SporeSpawnCeilingChange ceiling:
                     // Its setup in a defeated room asks for the clear ceiling; the live death the animated crumble, on
                     // the exact collision update.
-                    site.RoomObjects.BossRoomMutations.SporeSpawnCeiling.TrySpawn(site.Level, ceiling.Mutation);
+                    site.RoomObjects.BossRoomMutations.SporeSpawnCeiling.Spawn(site.Level, ceiling.Mutation);
                     break;
                 case CrocomireArenaChange arena:
-                    site.RoomObjects.BossRoomMutations.CrocomireArena.TrySpawn(site.Level, arena.Request);
+                    site.RoomObjects.BossRoomMutations.CrocomireArena.Spawn(site.Level, arena.Request);
                     break;
                 case KraidRoomChange kraid:
-                    site.RoomObjects.BossRoomMutations.KraidRoom.TrySpawn(site.Level, kraid.Request);
+                    site.RoomObjects.BossRoomMutations.KraidRoom.Spawn(site.Level, kraid.Request);
                     break;
                 case MotherBrainDeathStepTaken death:
                     ApplyMotherBrainDeathStep(death.Step, site);
@@ -80,17 +78,17 @@ internal sealed class EnemyRoomEffects
                     site.FxOverlay.ApplyEntry(acid.Change);
                     break;
                 case MotherBrainRoomChangeRequest change:
-                    site.RoomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(site.Level, change);
+                    site.RoomObjects.BossRoomMutations.MotherBrainRoom.Spawn(site.Level, change);
                     break;
                 case BabyMetroidWallChange babyMetroidWall:
-                    site.RoomObjects.BossRoomMutations.BabyMetroidWall.TrySpawn(site.Level, babyMetroidWall.Request);
+                    site.RoomObjects.BossRoomMutations.BabyMetroidWall.Spawn(site.Level, babyMetroidWall.Request);
                     break;
                 case PhantoonDoorChanged door:
                     // The door's setup holds its top block solid until its first update draws the door.
-                    site.RoomObjects.BossRoomMutations.PhantoonDoor.TrySpawn(site.Level, door.Change);
+                    site.RoomObjects.BossRoomMutations.PhantoonDoor.Spawn(site.Level, door.Change);
                     break;
                 case ChozoStatueObjectAsked chozo:
-                    site.RoomObjects.ChozoStatue.TrySpawnChozoStatueObject(site.Level, chozo.Request);
+                    site.RoomObjects.ChozoStatue.SpawnChozoStatueObject(site.Level, chozo.Request);
                     break;
                 case ChozoStatueHandAsked hand:
                     site.RoomObjects.ChozoStatue.TrySpawnChozoStatueHand(site.Level, hand.Request, hand.Hand);
@@ -122,7 +120,7 @@ internal sealed class EnemyRoomEffects
     /// </summary>
     private static void ApplyBotwoonWallChange(BotwoonWallMutation mutation, EnemyRoomEffectSite site)
     {
-        site.RoomObjects.BossRoomMutations.BotwoonWall.TrySpawn(site.Level, mutation);
+        site.RoomObjects.BossRoomMutations.BotwoonWall.Spawn(site.Level, mutation);
 
         if (mutation == BotwoonWallMutation.Clear)
         {
@@ -138,7 +136,7 @@ internal sealed class EnemyRoomEffects
     /// Carries out the room-level effects one step of Mother Brain's death asked for: the escape's colour effects, the end
     /// of Samus's drained get-up, the escape countdown, her defeat's record and the Zebes time bomb's story event.
     /// </summary>
-    internal void ApplyMotherBrainDeathStep(MotherBrainRainbowBeamAttackStepResult death, EnemyRoomEffectSite site)
+    private void ApplyMotherBrainDeathStep(MotherBrainRainbowBeamAttackStepResult death, EnemyRoomEffectSite site)
     {
         foreach (ColourEffectId definition in death.EscapeColourEffectRequests)
             site.ColourEffects.Start(definition, site.Samus.EquippedItems);

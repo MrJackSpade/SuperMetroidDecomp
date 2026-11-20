@@ -16,8 +16,8 @@ internal static class DownwardGateObjectDraws
 
     /// <summary>The gate's column and trigger frames (#2034), pictured by the installed downward gate frames.</summary>
     internal static RoomObjectDrawFamily<DownwardGateDraw> Family { get; } =
-        RoomObjectDrawFamily<DownwardGateDraw>.Pictured<InstalledRoomObjectDownwardGateVisuals>("downward gate",
-            gate => Describe(gate).Blocks, (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<DownwardGateDraw>("downward gate",
+            gate => Describe(gate).Blocks);
 
     /// <summary>The part of the gate <paramref name="gate"/> writes.</summary>
     /// <exception cref="InvalidOperationException">The draw is undefined.</exception>
@@ -58,10 +58,10 @@ internal static class DownwardGateObjectDraws
     private static readonly RoomBlockShape LeftTrigger = new(
         [new(new(0, 0), RoomCollisionType.SolidBlock), new(new(-1, 0), RoomCollisionType.ShootableBlock)]);
 
-    /// <summary>The column filling each count of rows, by the count: five blocks down from its top block, the filled rows shootable and the rest air.</summary>
+    /// <summary>The column filling each count of rows, by the count: <see cref="ColumnHeight"/> down from its top block, the filled rows shootable and the rest air.</summary>
     private static readonly RoomBlockShape[] Columns = [.. Enumerable.Range(0, ColumnHeight + 1).Select(Column)];
 
-    /// <summary>The column filling <paramref name="rows"/> rows: five blocks down from its top block, the filled rows shootable and the rest air.</summary>
+    /// <summary>The column filling <paramref name="rows"/> rows: <see cref="ColumnHeight"/> down from its top block, the filled rows shootable and the rest air.</summary>
     private static RoomBlockShape Column(int rows) => new(
         [.. Enumerable.Range(0, ColumnHeight).Select(row => new RoomBlockShapeCell(new(0, row),
             row < rows ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air))]);

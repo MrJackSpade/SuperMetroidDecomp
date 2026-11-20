@@ -23,7 +23,7 @@ internal static class TorizoProjectileAnimations
     internal static AnimationSegments<TorizoProjectileSegment, EnemyProjectileFrameId, TorizoFamilyCue<TorizoFallCueKind>> Segments { get; } = new(
         new Dictionary<TorizoProjectileSegment, AnimationBeat<EnemyProjectileFrameId, TorizoFamilyCue<TorizoFallCueKind>>[]>
     {
-        [P.DroolForming] = [Show(EnemyProjectileFrameId.Blank, 2)],
+        [P.DroolForming] = [Hide(2)],
         [P.DroolNoDelay] =
         [
             Own(O.StartDroolFall),
@@ -103,11 +103,11 @@ internal static class TorizoProjectileAnimations
     /// A low-health drool that forms unseen for two updates before it is released and falls, holding its falling pose: one of
     /// the drools <see cref="TorizoRandomDefinitions.LowHealthDroolForm"/> chooses among.
     /// </summary>
-    internal static Animation<TorizoProjectileSegment> DroolFormingForTwoUpdates { get; } =
+    internal static Animation<TorizoProjectileSegment> DroolFormingShort { get; } =
         new([Segments.Whole(P.DroolForming), Segments.Whole(P.DroolNoDelay), Segments.Whole(P.DroolFalling)], AnimationEnd.Holds);
 
     /// <summary>A low-health drool that forms unseen for four updates, its forming played twice, before it is released and falls.</summary>
-    internal static Animation<TorizoProjectileSegment> DroolFormingForFourUpdates { get; } =
+    internal static Animation<TorizoProjectileSegment> DroolFormingLong { get; } =
         new([Segments.Repeated(P.DroolForming, 2), Segments.Whole(P.DroolNoDelay), Segments.Whole(P.DroolFalling)], AnimationEnd.Holds);
 
     /// <summary>A sonic boom thrown toward <paramref name="side"/>: its sound and its two growing poses.</summary>
@@ -159,6 +159,10 @@ internal static class TorizoProjectileAnimations
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TorizoFamilyCue<TorizoFallCueKind>> Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, TorizoFamilyCue<TorizoFallCueKind>>.Frame(frame, duration);
+
+    /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue> Hide(int duration) =>
+        new AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>.Hidden(duration);
 
     /// <summary>Publishes <paramref name="cue"/>, which every Torizo projectile's behaviour runs alike.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TorizoFamilyCue<TorizoFallCueKind>> Cue(TorizoProjectileCue cue) =>

@@ -11,13 +11,13 @@ internal static class VramRegionAccess
         public ushort ReadWord(int wordOffset)
         {
             self.CheckWords(wordOffset, 1);
-            return self.vram.ReadWord(self.first + wordOffset);
+            return self.Vram.ReadWord(self.First + wordOffset);
         }
         /// <summary>A sub-region of <paramref name="wordCount"/> words starting <paramref name="wordOffset"/> words in.</summary>
         public VramRegion Slice(int wordOffset, int wordCount)
         {
             self.CheckWords(wordOffset, wordCount);
-            return new(self.vram, self.first + wordOffset, wordCount);
+            return new(self.Vram, new PpuLayoutCell("VRAM slice", PpuLayoutRegion.Vram, self.First + wordOffset, wordCount, "VRAM words"));
         }
     }
 }

@@ -58,7 +58,7 @@ internal sealed class KraidParts
     internal RoomEnemyPlace SecondNail { get; }
 
     /// <summary>His lint part <paramref name="part"/>.</summary>
-    internal RoomEnemyPlace Lint(KraidLintPart part) => part switch
+    private RoomEnemyPlace Lint(KraidLintPart part) => part switch
     {
         KraidLintPart.Top => TopLint,
         KraidLintPart.Middle => MiddleLint,
@@ -91,6 +91,27 @@ internal sealed class KraidParts
         {
             yield return FirstNail;
             yield return SecondNail;
+        }
+    }
+
+    /// <summary>The fingernails last spawned in their places, which Kraid's death kills.</summary>
+    internal IEnumerable<RoomEnemyOccupant> LatestNails
+    {
+        get
+        {
+            yield return FirstNailReference.LatestOccupant;
+            yield return SecondNailReference.LatestOccupant;
+        }
+    }
+
+    /// <summary>The lints last spawned in their places, which Kraid's death kills.</summary>
+    internal IEnumerable<RoomEnemyOccupant> LatestLints
+    {
+        get
+        {
+            yield return TopLintReference.LatestOccupant;
+            yield return MiddleLintReference.LatestOccupant;
+            yield return BottomLintReference.LatestOccupant;
         }
     }
 

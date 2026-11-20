@@ -22,7 +22,7 @@ internal static class EscapeSourceDefinitions
     /// <summary>$B7:DA00: the escape warning text's characters, which the Ceres and Zebes warnings both copy.</summary>
     internal static readonly SnesAddress TextCharacters = new(0xb7, 0xda00);
     /// <summary>$B0:BA00: the Ceres escape doors' characters.</summary>
-    internal static readonly SnesAddress CeresEscapeDoorCharacters = new(0xb0, 0xba00);
+    private static readonly SnesAddress CeresEscapeDoorCharacters = new(0xb0, 0xba00);
     /// <summary>$B0:C000: the escape timer's characters, its two pages one after the other.</summary>
     internal static readonly SnesAddress TimerCharacters = new(0xb0, 0xc000);
     /// <summary>Where each Ceres escape character page starts, in <c>CeresEscapeTileArtworkDefinitions.All</c> order.</summary>

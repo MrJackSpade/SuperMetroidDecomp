@@ -213,7 +213,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemySettingsFactory<Enem
         follower.Position = follower.Position.WithWhole(parent.Position.Whole + new Offset16<RoomPixels>(0, parentState.FollowerYOffset));
     }
 
-    /// <summary>Reverses vertical travel, installs the ascent animation, and enters the return state.</summary>
+    /// <summary>Turns the Rio back upward and starts the climb's animation.</summary>
     private static void BeginGerutaReturn(
         RoomEnemyPlace place,
         GerutaEnemyState state)
@@ -301,7 +301,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemySettingsFactory<Enem
             static (_, cue) => throw new InvalidOperationException($"A Norfair Rio flame follower's cue-free animation raised {cue}."));
 
     /// <summary>Advances a Geruta parent's typed animation, whose cues it carries out.</summary>
-    internal static void AdvanceGerutaTypedAnimation(RoomEnemyPlace place, GerutaEnemyState gerutaEnemyState, EnemyAnimationCueContext _) =>
+    internal static void AdvanceGerutaTypedAnimation(RoomEnemyPlace place, GerutaEnemyState gerutaEnemyState) =>
         EnemyAnimationPlayback.Advance(place, gerutaEnemyState, GerutaAnimations.Segments,
             static (GerutaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>

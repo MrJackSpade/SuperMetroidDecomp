@@ -63,7 +63,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemySettingsFactory<Enemy
 
     /// <summary>
     /// Runs the Holtz's main AI and each action it runs.
-    /// The shared RNG advances before every parent and follower acts, exactly as the game does.
+    /// The shared random number advances before every parent and follower acts.
     /// </summary>
     private void RunHoltzMain(
         RoomEnemyPlace place,
@@ -296,7 +296,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemySettingsFactory<Enemy
             static (_, cue) => throw new InvalidOperationException($"A Lower Norfair Rio flame follower's cue-free animation raised {cue}."));
 
     /// <summary>Advances a Holtz parent's typed animation, whose cues it carries out.</summary>
-    internal static void AdvanceHoltzTypedAnimation(RoomEnemyPlace place, HoltzEnemyState holtzEnemyState, EnemyAnimationCueContext _) =>
+    internal static void AdvanceHoltzTypedAnimation(RoomEnemyPlace place, HoltzEnemyState holtzEnemyState) =>
         EnemyAnimationPlayback.Advance(place, holtzEnemyState, HoltzAnimations.Segments,
             static (HoltzEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>

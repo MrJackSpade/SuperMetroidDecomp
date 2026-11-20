@@ -52,9 +52,8 @@ internal sealed class RoomEarthquake
         : _remaining.RemainingFrames;
 
     /// <summary>
-    /// Displacement produced by the most recent <see cref="Advance"/>. It is deliberately a delta rather than
-    /// mutated camera state: the game adjusts its layer scroll copies after camera logic, without
-    /// moving the world viewport.
+    /// Displacement produced by the most recent <see cref="Advance"/>: the shake moves the shown layers without moving
+    /// the camera.
     /// </summary>
     public RoomShakeFrameResult LastRoomShake { get; private set; }
 

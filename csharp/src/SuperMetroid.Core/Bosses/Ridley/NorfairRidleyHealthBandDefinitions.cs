@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class NorfairRidleyHealthBandDefinitions
 {
     /// <summary>Ridley from full health down to 9000: his slowest seek and lunge, low bounces, and his own colours.</summary>
-    internal static NorfairRidleyHealthBand Unhurt { get; } = new(healthBelow: null, hoverDivisor: 12, grabDivisor: 15,
+    internal static NorfairRidleyHealthBand Unhurt { get; } = new(hoverDivisor: 12, grabDivisor: 15,
     [
         Pogo(SignedEightEight.FromPixelFraction(5, 8), SignedEightEight.FromPixelFraction(25, 8), SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.FromPixelFraction(1, 4)),
         Pogo(SignedEightEight.FromPixelFraction(3, 4), SignedEightEight.FromPixelFraction(7, 2), SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.FromPixelFraction(1, 4)),
@@ -16,7 +16,7 @@ internal static class NorfairRidleyHealthBandDefinitions
     ], healthShade: null);
 
     /// <summary>Ridley below 9000 health, showing the wounded colouring.</summary>
-    internal static NorfairRidleyHealthBand Wounded { get; } = new(healthBelow: 9000, hoverDivisor: 8, grabDivisor: 13,
+    private static NorfairRidleyHealthBand Wounded { get; } = new(hoverDivisor: 8, grabDivisor: 13,
     [
         Pogo(SignedEightEight.FromPixelFraction(21, 32), SignedEightEight.FromPixelFraction(31, 8), SignedEightEight.FromPixelFraction(3, 16), SignedEightEight.FromPixelFraction(1, 2)),
         Pogo(SignedEightEight.FromPixelFraction(25, 32), SignedEightEight.FromPixelFraction(17, 4), SignedEightEight.FromPixelFraction(3, 16), SignedEightEight.FromPixelFraction(1, 2)),
@@ -25,7 +25,7 @@ internal static class NorfairRidleyHealthBandDefinitions
     ], RidleyHealthShadeDefinitions.Wounded);
 
     /// <summary>Ridley below 5400 health, showing the badly wounded colouring.</summary>
-    internal static NorfairRidleyHealthBand BadlyWounded { get; } = new(healthBelow: 5400, hoverDivisor: 6, grabDivisor: 9,
+    private static NorfairRidleyHealthBand BadlyWounded { get; } = new(hoverDivisor: 6, grabDivisor: 9,
     [
         Pogo(SignedEightEight.FromPixelFraction(11, 16), SignedEightEight.FromPixelFraction(11, 2), SignedEightEight.FromPixelFraction(1, 4), SignedEightEight.FromPixels(4)),
         Pogo(SignedEightEight.FromPixelFraction(13, 16), SignedEightEight.FromPixelFraction(45, 8), SignedEightEight.FromPixelFraction(1, 4), SignedEightEight.FromPixels(4)),
@@ -34,7 +34,7 @@ internal static class NorfairRidleyHealthBandDefinitions
     ], RidleyHealthShadeDefinitions.BadlyWounded);
 
     /// <summary>Ridley below 1800 health: his fastest seek and lunge, his highest bounces, and the nearly-dead colouring.</summary>
-    internal static NorfairRidleyHealthBand NearlyDead { get; } = new(healthBelow: 1800, hoverDivisor: 4, grabDivisor: 6,
+    private static NorfairRidleyHealthBand NearlyDead { get; } = new(hoverDivisor: 4, grabDivisor: 6,
     [
         Pogo(SignedEightEight.FromPixelFraction(23, 32), SignedEightEight.FromPixelFraction(13, 2), SignedEightEight.FromPixelFraction(5, 16), SignedEightEight.FromPixels(5)),
         Pogo(SignedEightEight.FromPixelFraction(27, 32), SignedEightEight.FromPixelFraction(53, 8), SignedEightEight.FromPixelFraction(5, 16), SignedEightEight.FromPixels(5)),
@@ -42,12 +42,15 @@ internal static class NorfairRidleyHealthBandDefinitions
         Pogo(SignedEightEight.FromPixelFraction(35, 32), SignedEightEight.FromPixelFraction(55, 8), SignedEightEight.FromPixelFraction(5, 16), SignedEightEight.FromPixels(5)),
     ], RidleyHealthShadeDefinitions.NearlyDead);
 
-    /// <summary>The bands below full health, lowest first, the order Ridley's health is tested against them.</summary>
-    internal static IReadOnlyList<NorfairRidleyHealthBand> LowestFirst { get; } = [NearlyDead, BadlyWounded, Wounded];
+    /// <summary>
+    /// The bands below full health, each with the health below which Ridley is in it, lowest first, the order Ridley's
+    /// health is tested against them.
+    /// </summary>
+    internal static IReadOnlyList<NorfairRidleyWoundBand> WoundedLowestFirst { get; } =
+        [new(1800, NearlyDead), new(5400, BadlyWounded), new(9000, Wounded)];
 
     /// <summary>
-    /// One launch, each a speed an update: its rightward speed and upward speed, then its upward and downward
-    /// accelerations.
+    /// One launch: its rightward speed and upward speed, then its upward and downward accelerations.
     /// </summary>
     private static RidleyPogoDefinition Pogo(SignedEightEight rightward, SignedEightEight upwardSpeed, SignedEightEight upward, SignedEightEight downward) =>
         new(new PixelVelocity<RoomPixels>(rightward, -upwardSpeed), upward, downward);

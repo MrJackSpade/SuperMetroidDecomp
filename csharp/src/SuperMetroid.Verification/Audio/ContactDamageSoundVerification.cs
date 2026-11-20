@@ -31,11 +31,11 @@ internal static class ContactDamageSoundVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MtEverest);
         SamusState samus = runtime.Player.Samus;
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.SpeedBooster;
-        RoomEnemyPlace sciser = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Sciser);
+        RoomEnemyPlace sciser = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Sciser));
         int healthBefore = sciser.Health;
 
         runtime.AudioRequests.BeginRecordedUpdate();
-        runtime.Enemies.Collision.ResolveOrdinaryTouch(sciser, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), TouchDeathAnimation.Play);
+        runtime.Enemies.Collision.ResolveOrdinaryTouch(sciser.HeldOccupant(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), TouchDeathAnimation.Play);
 
         AssertTrue(sciser.Health < healthBefore, "the speed booster damages the Sciser");
         SoundRequest request = runtime.Enemies.Audio.SoundRequests.Single();

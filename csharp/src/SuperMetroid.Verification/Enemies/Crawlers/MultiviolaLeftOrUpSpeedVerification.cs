@@ -43,15 +43,15 @@ internal static class MultiviolaLeftOrUpSpeedVerification
         place.Radius = definition.Radius;
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         foreach (int speed in placements.Select(placement => placement.Speed).Distinct().Order())
         for (int heading = 0; heading < HeadingCount; heading++)
         {
             var angle = new TrigonometryAngle(heading);
             place.SetSpawnSettings(new MultiviolaSpawnSettings(angle, speed));
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(Centre, Centre));
-            MultiviolaBehavior.InitializeMultiviola(place);
-            enemies.MultiviolaBehavior.RunMultiviolaMainAi(place, place.RequireSpeciesState<MultiviolaEnemyState>(), frame);
+            MultiviolaBehavior.InitializeMultiviola(place.HeldOccupant(), place);
+            enemies.MultiviolaBehavior.RunMultiviolaMainAi(place.HeldOccupant(), place, place.RequireSpeciesState<MultiviolaEnemyState>(), frame);
 
             // The original turns an axis left when the heading a quarter turn on lies in the turn's first half, and up
             // when the heading lies in its second half.

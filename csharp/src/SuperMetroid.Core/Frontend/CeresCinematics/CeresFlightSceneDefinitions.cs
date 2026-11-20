@@ -29,10 +29,10 @@ internal static class CeresFlightSceneDefinitions
 
     /// <summary>The song that starts with the flight.</summary>
     internal const MusicTrack FlightSong = MusicTrack.CeresFlight;
-    /// <summary>How long the flight's track waits on the music queue: fourteen passes.</summary>
+    /// <summary>How long the flight's track waits on the music queue, in passes.</summary>
     internal static MusicQueueDelay MusicDelay { get; } = new(14);
 
-    /// <summary>Updates each step of the flight's closing fade-out takes: one level every second update.</summary>
+    /// <summary>Updates each step of the flight's closing fade-out takes.</summary>
     internal const int FadeOutUpdatesPerStep = 2;
 
     /// <summary>
@@ -41,15 +41,15 @@ internal static class CeresFlightSceneDefinitions
     /// </summary>
     internal const ColourEffectId GunshipEngineFlicker = CeresDestructionSceneDefinitions.GunshipEngineFlicker;
 
-    /// <summary>The colour group the rear view's floor shows the engine flicker's records of (#1733).</summary>
+    /// <summary>The engine flicker whose current frame the rear view's floor shows (#1733).</summary>
     internal const ColourEffectColours EngineColours = ColourEffectColours.CutsceneGunshipEngine;
 
     /// <summary>The station's blinking navigation lights on its sprites, started as the rear view is set up (#1733).</summary>
     internal const ColourEffectId NavigationLights = ColourEffectId.CutsceneCeresNavigationLightsSprite;
 
     /// <summary>
-    /// The colour group of each actor colouring a colour effect animates (#1733): an actor drawn in the colouring shows the
-    /// record the effect last showed over its drawn colours.
+    /// The colour effect each actor colouring animates (#1733): an actor drawn in the colouring shows the frame the
+    /// effect last showed over its drawn colours.
     /// </summary>
     internal static IReadOnlyDictionary<CeresSpriteColouring, ColourEffectColours> LitColours { get; } =
         new Dictionary<CeresSpriteColouring, ColourEffectColours>

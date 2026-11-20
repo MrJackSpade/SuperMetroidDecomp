@@ -156,10 +156,10 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 jumpingRight ? WallSpacePirateSegment.FireAndJumpRight : WallSpacePirateSegment.FireAndJumpLeft), AnimationPlace.StartOfAnimation);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
-                new FrameCounters(0));
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
             for (int update = 1; update <= 32; update++)
             {
-                WallSpacePirateBehavior.RunWallSpacePirateMainAi(place, place.RequireSpeciesState<WallSpacePirateEnemyState>(), frame);
+                WallSpacePirateBehavior.RunWallSpacePirateMainAi(place.HeldOccupant(), place, place.RequireSpeciesState<WallSpacePirateEnemyState>(), frame);
                 RotationAngle expected = start.TurnedBySteps(jumpingRight ? -4 * update : 4 * update);
                 AssertEqual(expected, state.WallJumpArcAngle,
                     $"wall Pirate {(jumpingRight ? "right" : "left")} jump angle after update {update} wraps around the turn");
@@ -175,8 +175,8 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.PirateGreyWall, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition) with
+            place.Bind(EnemyDefinitionId.PirateGreyWall, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
             {
                 Damage = 20,
             });

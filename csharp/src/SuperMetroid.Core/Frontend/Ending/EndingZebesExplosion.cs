@@ -38,7 +38,7 @@ internal sealed class EndingZebesExplosion
     }
 
     /// <summary>
-    /// The explosion's colour crossfade (#2488): a step every second update from its second, its last ending the crossfade.
+    /// The explosion's colour crossfade (#2488): a step at the end of each run of <see cref="EndingCadenceDefinitions.ExplosionCrossfadeUpdatesPerStep"/>, its last ending the crossfade.
     /// The explosion's setup shows its start; only the explosion's crossfading phases take its steps.
     /// </summary>
     private readonly PacedFadeSteps crossfade = new(EndingExplosionFadeDefinitions.Steps,
@@ -56,13 +56,13 @@ internal sealed class EndingZebesExplosion
     }
 
     /// <summary>
-    /// Crossfades the explosion's colours on alternating updates while zooming the floor out.
+    /// Crossfades the explosion's colours at the crossfade's pace while zooming the floor out.
     /// </summary>
     /// <returns>Whether the crossfade has taken its last step, which ends it.</returns>
     internal bool StepExplosionCrossfade()
     {
         _stage.Floor.Widen(EndingExplosionFadeDefinitions.ZoomStep);
-        if (crossfade.Advance())
+        if (crossfade.AdvanceTakingStep())
         {
             screen.Colours.Fade(EndingFade.ExplosionBackground, crossfade.Left);
             screen.Colours.Fade(EndingFade.ExplosionLava, crossfade.Taken);

@@ -9,13 +9,21 @@ namespace SuperMetroid.Verification.Frontend.FileSelect;
 /// <summary>Checks file-select helmet spritemap and timing definitions against the native bank-$81 animation.</summary>
 internal static class FileSelectHelmetAnimationVerification
 {
-    /// <summary>Compares all nine native selectors, duration and terminal clamp instructions, and rejects invalid frame indices.</summary>
+    /// <summary>
+    /// Compares the turn's native selectors, the repeated terminal selector the clamp never draws, the duration and the
+    /// terminal clamp instructions, and rejects a picture outside the turn.
+    /// </summary>
     internal static void VerifyFileSelectHelmetAnimation(ISnesAddressSpace rom)
     {
-        AssertEqual(9, FileSelectHelmetSpritemaps.EntryCount, "complete native helmet mapping");
-        for (int frame = 0; frame < 9; frame++)
-            AssertEqual(ReadVerificationWord(rom, 0x819e2c + 2 * frame),
+        int place = 0;
+        foreach (FileSelectHelmetFrame frame in FileSelectHelmetAnimation.Turn)
+        {
+            AssertEqual(ReadVerificationWord(rom, 0x819e2c + 2 * place),
                 FileSelectHelmetSpritemaps.SpritemapId(frame), $"original helmet sprite {frame}");
+            place++;
+        }
+        AssertEqual(ReadVerificationWord(rom, 0x819e2c + 2 * place),
+            FileSelectHelmetSpritemaps.SpritemapId(FileSelectHelmetAnimation.Turn[^1]), "native repeated terminal helmet sprite");
         AssertEqual((byte)0xa9, FileSelectHelmetAnimationRomByte(rom, 0x819df3), "native helmet timer LDA");
         AssertEqual(ReadVerificationWord(rom, 0x819df4), MenuAnimationTimings.HelmetFrameDuration(rom),
             "the import installs the native helmet frame duration");
@@ -25,9 +33,8 @@ internal static class FileSelectHelmetAnimationVerification
         AssertEqual((byte)0xa9, FileSelectHelmetAnimationRomByte(rom, 0x819e08), "native helmet terminal LDA");
         AssertEqual(ReadVerificationWord(rom, 0x819e09), FileSelectHelmetAnimation.Turn.Count - 1,
             "native helmet terminal frame clamp");
-        foreach (int invalid in new[] { int.MinValue, -1, 9, 65536, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => FileSelectHelmetSpritemaps.SpritemapId(invalid),
-                "unsupported helmet sample");
+        AssertThrows<ArgumentOutOfRangeException>(() => FileSelectHelmetSpritemaps.SpritemapId((FileSelectHelmetFrame)int.MaxValue),
+            "unsupported helmet picture");
     }
 
     /// <summary>Reads a native helmet-animation instruction byte solely for the cartridge-oracle comparison.</summary>

@@ -12,7 +12,7 @@ internal sealed class DachoraEchoEntity(DachoraBehavior species, RoomEnemyPlace 
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal DachoraEchoState State { get; } = species.InitializeDachoraEcho(place, settings);
+    internal DachoraEchoState State { get; } = species.InitializeDachoraEcho(Occupant, place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => DachoraBehavior.RunDachoraEchoMainAi(Place, State, frame);

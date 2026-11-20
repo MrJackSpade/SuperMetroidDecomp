@@ -28,7 +28,7 @@ internal static class BabyMetroidScrollPairVerification
         runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+            place.Holds(EnemyDefinitionId.BabyMetroid));
         BabyMetroidEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidEntity>(babyMetroid).State;
         RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;
         AssertEqual(new Extent16<RoomScreens>(4, 1), scrolls.Size, "the Big Boy room is one row of four screens");

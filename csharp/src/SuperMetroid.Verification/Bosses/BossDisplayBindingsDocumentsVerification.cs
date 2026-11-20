@@ -41,7 +41,7 @@ internal static class BossDisplayBindingsDocumentsVerification
                 Oam.Frames[frame.Name] = EnemyExtendedFrameBounds.IsBg2Only(frame) ? [] :
                 [ new() { OffsetX = 0, OffsetY = 0,
                     Parts = [new() { OffsetX = 2, OffsetY = 3, Size = index % 2 == 0 ? 16 : 8,
-                        TileColumn = index % 16, TileRow = index / 16, Palette = 1, Priority = 2,
+                        TileColumn = index % 16, TileRow = index / 16, Palette = 1, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts,
                         FlipX = false, FlipY = false }] } ];
             }
             Crocomire = Bg2(CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version);
@@ -54,8 +54,8 @@ internal static class BossDisplayBindingsDocumentsVerification
         {
             // Bosses draw from sheets composed over the installed enemy artwork, so the fixture starts from it and
             // replaces only the extended frames it authors (#1446).
-            EnemyTileSourceArtwork tiles = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.FreshEnemyArtwork().Enemies;
-            tiles.ExtendedFrames = extended ? EnemyExtendedFrameDocuments.Load(json.Json(Oam)) : null;
+            EnemyTileSourceArtwork stock = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.FreshEnemyArtwork().Enemies;
+            EnemyTileSourceArtwork tiles = stock.WithFrames(stock.Spritemaps, extended ? EnemyExtendedFrameDocuments.Load(json.Json(Oam)) : null);
             return new(tiles,
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitionsConstants.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitionsConstants.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameToolingDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AreaArtwork);

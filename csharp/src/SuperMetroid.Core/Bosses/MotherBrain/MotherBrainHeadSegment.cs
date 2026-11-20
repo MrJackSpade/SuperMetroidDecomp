@@ -27,7 +27,7 @@ public enum MotherBrainHeadSegment
     DecapitatedHeld,
     /// <summary>Her dying head shakes and opens its mouth with a roar.</summary>
     DyingDrool,
-    /// <summary>Her dying head drools once from its widest mouth; a burst of drool plays it four times.</summary>
+    /// <summary>Her dying head drools once from its widest mouth; a burst of drool plays it over and over.</summary>
     DyingDroolBurst,
     /// <summary>Her dying head holds its widest mouth, and on a chance bursts into more drool.</summary>
     DyingDroolLoop,

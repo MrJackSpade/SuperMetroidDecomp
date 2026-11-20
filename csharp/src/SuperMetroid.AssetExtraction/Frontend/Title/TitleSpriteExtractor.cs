@@ -45,7 +45,7 @@ internal static class TitleSpriteExtractor
     /// logo pointer and the copyright from its fixed spritemap.
     /// </summary>
     /// <exception cref="InvalidDataException">A native list disagrees with its typed card, or two compositions share a spritemap.</exception>
-    internal static TitleSpritemaps MapSprites(ISnesAddressSpace bus)
+    private static TitleSpritemaps MapSprites(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
         IImportCartridgeSource cartridge = bus;
@@ -120,7 +120,7 @@ internal static class TitleSpriteExtractor
                 TileColumn = attributes.TileNumber % TitleGraphicsFormat.ObjectTileColumns,
                 TileRow = attributes.TileNumber / TitleGraphicsFormat.ObjectTileColumns,
                 Size = x.IsLarge ? 16 : 8,
-                Priority = attributes.Priority,
+                Depth = attributes.Depth,
                 Palette = null,
                 FlipX = attributes.FlipHorizontally,
                 FlipY = attributes.FlipVertically,

@@ -3,12 +3,13 @@ using SuperMetroid.ResourceAudit.Reports;
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 
 /// <summary>
-/// The installed pictures of the room objects' frames, keyed by the frame's draw (#1557, #1732). Each provider's
-/// <c>Image</c> returns the family's installed picture of the frame; the family's loader builds the provider from
-/// <c>RoomObjectFrameImageFiles.Load</c>, which requires a picture of every frame the family's descriptor enumerates and
-/// rejects any other, so no frame its family draws is absent. Each draw is drawn by its own family
-/// (<c>RoomObjectDrawFamily</c>, #2034), whose pictures are that one provider. A construction outside the reviewed loader
-/// revokes the proof.
+/// The installed pictures of the room objects' frames, keyed by the frame's draw (#1557, #1732). Each family's provider
+/// publishes its pictures by draw (<c>IRoomObjectFamilyPictures.Pictures</c>, #2571); the family's loader builds the
+/// provider from <c>RoomObjectFrameImageFiles.Load</c>, which requires a picture of every frame the family's descriptor
+/// enumerates and rejects any other, so no frame its family draws is absent. The room reads a frame's picture through
+/// <c>RoomObjectVisuals.Image</c>, which composes every family's pictures, and a setup block's through
+/// <c>RoomObjectVisuals.SetupBlock</c>; that read's proof is every family's and the setup blocks', so a construction of any
+/// of their providers outside its reviewed loader revokes it, as it revokes that provider's own proof.
 /// </summary>
 internal static class RoomObjectFrameClosedContractDefinitions
 {
@@ -31,14 +32,34 @@ internal static class RoomObjectFrameClosedContractDefinitions
 
     /// <summary>
     /// One family's proof: its provider, its loader (which enumerates the family's frames through the descriptor), the
-    /// descriptor sources the provider's guard and the loader's enumeration share, and <see cref="Shared"/>.
+    /// descriptor sources the provider's guard and the loader's enumeration share, and <see cref="Shared"/>. The provider
+    /// publishes its pictures only to the composed read (<see cref="Composed"/>), so its proof names no read of its own.
     /// </summary>
     private static ClosedPresentationContract Family(string type, string rule, string provider, string loader, params string[] descriptors) =>
-        new(type, rule, ["Image"],
+        Family([], type, rule, provider, loader, descriptors);
+
+    /// <summary>
+    /// One family's proof whose provider also reads its own installed frames: every listed read is guarded by the same
+    /// descriptor sources.
+    /// </summary>
+    private static ClosedPresentationContract Family(string[] methods, string type, string rule, string provider, string loader, params string[] descriptors) =>
+        new(type, rule, methods,
             [new(provider), new(loader), .. descriptors.Select(path => new ReviewedSource(path)), .. Shared]);
 
-    /// <summary>Every room-object frame-picture provider the drawing reads, with its reviewed sources.</summary>
-    internal static readonly ClosedPresentationContract[] All =
+    /// <summary>
+    /// The setup blocks' proof: their loader requires a picture of every <c>RoomObjectSetupBlock</c> once and rejects any
+    /// other, so <c>Shown</c> finds every block a setup or reaction writes.
+    /// </summary>
+    internal static readonly ClosedPresentationContract SetupBlocks = new(
+        "SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectSetupBlocks", "room-object-setup-blocks-complete", ["Shown"],
+        [
+            new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectSetupBlocks.cs"),
+            new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectSetupBlock.cs"),
+            new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectSetupBlockFiles.cs"),
+        ]);
+
+    /// <summary>Every room-object frame-picture provider, with its reviewed sources.</summary>
+    internal static readonly ClosedPresentationContract[] Families =
     [
         Family("SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectRevealAndWallVisuals", "room-object-reveal-and-wall-complete-frames",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectRevealAndWallVisuals.cs",
@@ -87,12 +108,14 @@ internal static class RoomObjectFrameClosedContractDefinitions
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectBotwoonWallVisuals.cs",
             "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectBotwoonWallVisualFiles.cs",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/BotwoonWallObjectDraws.cs",
-            "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/BotwoonWallObjectDrawDefinitions.cs"),
+            "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/BotwoonWallObjectDrawDefinitions.cs",
+            "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/BotwoonWallDraw.cs"),
         Family("SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectLinkedRestoreVisuals", "room-object-linked-restore-complete-frames",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectLinkedRestoreVisuals.cs",
             "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectLinkedRestoreVisualFiles.cs",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/LinkedRestoreObjectFamily.cs"),
-        Family("SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectBlueDoorVisuals", "room-object-blue-door-complete-frames",
+        // The closed cap drawn solid shows its facing's closed cap, which the provider reads for each facing.
+        Family(["ClosedSolid"], "SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectBlueDoorVisuals", "room-object-blue-door-complete-frames",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectBlueDoorVisuals.cs",
             "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectBlueDoorVisualFiles.cs",
             "csharp/src/SuperMetroid.Core/Rooms/Doors/BlueDoorCaps.cs",
@@ -144,4 +167,20 @@ internal static class RoomObjectFrameClosedContractDefinitions
             "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectGrappleBlockVisualFiles.cs",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/GrappleBlockObjectDraws.cs"),
     ];
+
+    /// <summary>
+    /// The room's read of its room-object pictures (#2571): every family's pictures composed by draw, and the setup blocks.
+    /// Its proof is every family's and the setup blocks', with the composition's own sources.
+    /// </summary>
+    internal static readonly ClosedPresentationContract Composed = new(
+        "SuperMetroid.Core.World.RoomObjectVisuals", "room-object-frames-composed-complete", ["Image", "SetupBlock"],
+        [
+            new("csharp/src/SuperMetroid.Core/World/RoomObjectVisuals.cs"),
+            new("csharp/src/SuperMetroid.Core/World/RoomObjectArtwork.cs"),
+            new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/IRoomObjectFamilyPictures.cs"),
+            .. Families.Append(SetupBlocks).SelectMany(contract => contract.Sources).DistinctBy(source => source.Path),
+        ]);
+
+    /// <summary>Every room-object picture proof: each family's, the setup blocks' and the composed read's.</summary>
+    internal static readonly ClosedPresentationContract[] All = [.. Families, SetupBlocks, Composed];
 }

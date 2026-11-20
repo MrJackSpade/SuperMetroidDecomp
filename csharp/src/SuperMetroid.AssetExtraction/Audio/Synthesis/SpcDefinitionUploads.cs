@@ -22,7 +22,7 @@ internal sealed class SpcDefinitionUploads
     }
 
     /// <summary>Stores an instrument record at <paramref name="address"/> in the native byte order.</summary>
-    internal void WriteInstrument(int address, SpcInstrumentRecord record)
+    private void WriteInstrument(int address, SpcInstrumentRecord record)
     {
         int pitchBase = checked((ushort)record.PitchBase);
         ram[address] = checked((byte)record.SourceOrNoiseRate);
@@ -121,11 +121,12 @@ internal sealed class SpcDefinitionUploads
             int pointerAddress = SpcDriverDefinitions.Ram.DefaultMusicPointer + track * 2;
             int uploadedPointer = _voices.ReadWord(pointerAddress);
             AudioMusicTrackMetadata definition = bank.MusicTracks[track];
-            if (uploadedPointer != definition.Address || bank.TrackPointers[track] != definition.Address)
+            if (uploadedPointer != SpcMusicDefinitionCodec.DriverPointer(definition) ||
+                bank.TrackPointers[track] != SpcMusicDefinitionCodec.DriverPointer(definition))
             {
                 throw new InvalidDataException(
                     $"Music track '{definition.Id}' routes to uploaded ${uploadedPointer:X4}, " +
-                    $"not decoded address ${definition.Address:X4}.");
+                    $"not decoded address ${SpcMusicDefinitionCodec.DriverPointer(definition):X4}.");
             }
         }
         foreach (KeyValuePair<int, byte> write in compiled)

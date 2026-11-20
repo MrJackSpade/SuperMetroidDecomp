@@ -300,7 +300,7 @@ internal static class RidleyNativeProgramOracle
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case NativeEnemyProjectileInstruction.FrameBehaviorInY:
-                    VerificationAssertions.AssertEqual<Enum?>(RidleyFireballMotion.FireballFlying, EnemyProjectileMotionAccess.FromWord(operand), $"{at}: the fireball's moving pre-instruction");
+                    VerificationAssertions.AssertTrue(EnemyProjectileMotionAccess.StandsFor(operand, RidleyFireballMotion.FireballFlying), $"{at}: the fireball's moving pre-instruction");
                     VerificationAssertions.AssertEqual(RidleyFireballCue.BeginFlight, Raised(beat, at), $"{at}: begin flight");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));

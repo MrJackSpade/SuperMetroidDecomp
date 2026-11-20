@@ -8,7 +8,7 @@ public sealed record XrayBeginConditions
     /// <summary>Live game state; setup rejects every state but main gameplay.</summary>
     public required SuperMetroidGameState GameState { get; init; }
 
-    /// <summary>Whether a power bomb explosion's status is set; any set status rejects X-ray activation.</summary>
+    /// <summary>Whether a power bomb is exploding; X-ray cannot start while one does.</summary>
     public required bool PowerBombExplosionActive { get; init; }
 
     /// <summary>The shared projectile cooldown, which X-ray reads to tell whether Samus reads as drained (<see cref="XrayRefusedAsDrained"/>).</summary>

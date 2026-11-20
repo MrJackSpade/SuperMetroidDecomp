@@ -22,10 +22,7 @@ public sealed class MotherBrainFadeProgress
     }
 
     /// <summary>The fade playing.</summary>
-    public MotherBrainFade Fade { get; }
-
-    /// <summary>The image the fade shows, or null before its first.</summary>
-    public MotherBrainFadeImage? Shown => player.Shown;
+    private MotherBrainFade Fade { get; }
 
     /// <summary>Whether the fade is over: its last image has shown its hold out.</summary>
     public bool IsOver => player.HasStopped;

@@ -2,12 +2,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>Immutable mechanics for the first two Tourian escape palette loops.</summary>
-/// <remarks>
-/// The shutter and background programs contain fourteen uniform records apiece. Their
-/// 140 BGR555 words remain live presentation data; this catalog owns palette placement,
-/// record timing, waits, and loop control.
-/// </remarks>
+/// <summary>The records of the Tourian escape's shutter and background red flashes and the colours each writes, for the import.</summary>
 public static class TourianEscapeRedFlashPaletteFxColorDefinitions
 {
 
@@ -17,17 +12,11 @@ public static class TourianEscapeRedFlashPaletteFxColorDefinitions
         new()
         {
             Owner = TourianEscapeRedFlashPaletteOwner.Shutter,
-            Object = ColourEffectId.TourianShutterRedFlashing,
-            Duration = 2,
-            ColorsPerFrame = 6,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TourianShutterRedFlashing, 6),
         },
         new()
         {
             Owner = TourianEscapeRedFlashPaletteOwner.Background,
-            Object = ColourEffectId.TourianBackgroundRedFlashing,
-            Duration = 4,
-            ColorsPerFrame = 4,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TourianBackgroundRedFlashing, 4),
         },
     ];

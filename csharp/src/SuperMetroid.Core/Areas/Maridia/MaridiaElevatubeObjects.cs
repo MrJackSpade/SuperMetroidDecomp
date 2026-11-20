@@ -13,7 +13,7 @@ internal sealed class MaridiaElevatubeObjects
     internal MaridiaElevatubeObjects(RoomObjectPlaceList places) => _places = Ensure.NotNull(places);
 
     /// <summary>
-    /// Spawns the effectively invisible elevatube object at (1,0): it waits out its scripted wait
+    /// Spawns the effectively invisible elevatube object at <see cref="MaridiaElevatubeDefinitions.RoomObjectBlock"/>: it waits out its scripted wait
     /// (<see cref="ScriptedTerrainChangeDefinitions.MaridiaElevatube"/>), plays the elevatube sound and leaves the room.
     /// </summary>
     /// <returns>False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>

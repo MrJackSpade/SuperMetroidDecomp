@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 
@@ -23,10 +22,35 @@ internal static class EndingScreenImage
     }
 
     /// <summary>Writes one transfer into <paramref name="vram"/>.</summary>
-    internal static void Execute(SnesVram vram, EndingTransfer transfer, EndingTransferArtwork artwork)
+    private static void Execute(SnesVram vram, EndingTransfer transfer, EndingTransferArtwork artwork)
     {
         var ending = new EndingVram(vram);
         switch (transfer)
+        {
+            case EndingSheetTransfer sheet:
+                ExecuteSheet(ending, sheet, artwork);
+                break;
+            case EndingExplosionMapTransfer map:
+                ending.ObjectFragment(map.Fragment).Load(MapBytes(Objects(artwork).Fragment(map.Fragment)).AsSpan(0, EndingTransferExtentDefinitions.ObjectFragmentBytes));
+                break;
+            case EndingPostShotPartTransfer part:
+                ExecutePostShotPart(vram, part.Part, artwork);
+                break;
+            case EndingRewardCharactersTransfer reward:
+                ReadOnlySpan<byte> rewardCharacters = reward.Reward == EndingReward.Suitless
+                    ? Objects(artwork).SuitlessSamus.Characters.Span
+                    : Objects(artwork).WaitingSamus.Characters.Span;
+                ending.RewardCharacters.Load(rewardCharacters[..EndingArtworkExtentDefinitions.FloorBytes]);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(transfer), transfer, "Undefined ending transfer.");
+        }
+    }
+
+    /// <summary>Writes one fixed sheet transfer into <paramref name="ending"/>.</summary>
+    private static void ExecuteSheet(EndingVram ending, EndingTransferKind kind, EndingTransferArtwork artwork)
+    {
+        switch (kind)
         {
             case EndingTransfer.EscapeClouds:
                 ending.PostCreditsObjects.Load(artwork.Objects.Clouds.Characters.Span[..EndingArtworkExtentDefinitions.FloorBytes]);
@@ -51,7 +75,7 @@ internal static class EndingScreenImage
         }
     }
 
-    /// <summary>The waiting, shooting and reward characters with the post-credits map fragments.</summary>
+    /// <summary>The waiting and shooting characters with the post-credits map fragments; a reward page loads its reward's after.</summary>
     private static void ExecuteCreditsCharacterArt(EndingVram ending, EndingTransferArtwork artwork)
     {
         ImportEndingObjectArtwork objects = artwork.Objects;
@@ -59,17 +83,13 @@ internal static class EndingScreenImage
         ending.WaitingCharacters.Load(waiting[..EndingTransferExtentDefinitions.WaitingCharacterBytes]);
         ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingTransferExtentDefinitions.ShootingCharacterBytes]);
         ending.WaitingTilemap.Load(MapBytes(objects.WaitingTilemap).AsSpan(0, EndingTransferExtentDefinitions.WaitingTilemapBytes));
-        // Function 126 selects suitless (<3h) or suited (>=3h) art; the latter reuses the waiting-scene sheet.
-        ReadOnlySpan<byte> reward = artwork.Reward == EndingReward.Suitless ? objects.SuitlessSamus.Characters.Span : waiting;
-        ending.RewardCharacters.Load(reward[..EndingArtworkExtentDefinitions.FloorBytes]);
         ending.PostCreditsFragmentA.Load(objects.PostCreditsFragmentA.Characters.Span[..EndingTransferExtentDefinitions.PostCreditsFragmentABytes]);
         ending.PostCreditsFragmentB.Load(MapBytes(objects.PostCreditsFragmentB).AsSpan(0, EndingTransferExtentDefinitions.ObjectFragmentBytes));
     }
 
     /// <summary>One post-shot subtitle, logo-tile or logo-map part at its native word.</summary>
-    private static void ExecutePostShotPart(SnesVram vram, int index, EndingTransferArtwork artwork)
+    private static void ExecutePostShotPart(SnesVram vram, EndingPostShotUploadDefinition transfer, EndingTransferArtwork artwork)
     {
-        EndingPostShotUploadDefinition transfer = EndingPostShotUploads.Get(index);
         int length = transfer.Length;
         ReadOnlySpan<byte> bytes = transfer.Source switch
         {

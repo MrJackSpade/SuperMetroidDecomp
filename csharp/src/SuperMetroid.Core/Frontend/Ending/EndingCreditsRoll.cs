@@ -81,8 +81,8 @@ internal sealed class EndingCreditsRoll
         screen.Colours.Fade(EndingFade.SuitlessSamus, step);
         if (_stage.EndingReward == EndingReward.Helmetless)
             screen.Colours.Fade(EndingFade.SuitedSamus, step);
-        // The fade brightens toward the post-credits colours in 32 steps: step S shows each colour at S 32nds of its
-        // brightness, rounded down, the level the import pre-colours (#1512).
+        // The fade brightens toward the post-credits colours in its steps: each step shows each colour at that step's share
+        // of its brightness, rounded down, the level the import pre-colours (#1512).
     }
 
     /// <summary>Starts the reward colour fade from its start and shows it there.</summary>
@@ -98,7 +98,7 @@ internal sealed class EndingCreditsRoll
     /// <summary>One update of the reward's colour fade <paramref name="fade"/>: on its due updates it takes its next step and shows it.</summary>
     internal void StepRewardFade(PacedFadeSteps fade)
     {
-        if (Ensure.NotNull(fade).Advance())
+        if (Ensure.NotNull(fade).AdvanceTakingStep())
             ShowRewardFade(fade);
     }
 
@@ -112,7 +112,7 @@ internal sealed class EndingCreditsRoll
         return WhiteWash.FullWhite(EndingCadenceDefinitions.PostCreditsFlashUpdatesPerStep, EndingCadenceDefinitions.PostCreditsFlashFirstStepUpdate);
     }
 
-    /// <summary>Clears the landed Samus and installs the final logo actor.</summary>
+    /// <summary>Clears the landed Samus and adds the final logo actor.</summary>
     /// <returns>The logo's actor.</returns>
     internal EndingLogo FinishPostCreditsWhiteFlash()
     {

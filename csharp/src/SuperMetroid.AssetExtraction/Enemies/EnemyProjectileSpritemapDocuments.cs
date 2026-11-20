@@ -104,7 +104,7 @@ public static class EnemyProjectileSpritemapDocuments
                 part.OffsetY is < -128 or > 127 || part.Size is not (8 or 16) ||
                 // A part's palette is absent in the shared sprite schema when it inherits its frame's row; a projectile's
                 // parts each name their own row, so an inheriting part is invalid input here, rejected with the range.
-                part.Priority is < 0 or > 3 || part.Palette is null or < 0 or > 7 ||
+                part.Palette is null or < 0 or > 7 ||
                 part.TileColumn is < 0 or >= TileColumns ||
                 part.TileRow is < 0 or >= TileRows)
                 throw new InvalidDataException(
@@ -114,7 +114,7 @@ public static class EnemyProjectileSpritemapDocuments
                 (part.FlipY ? PictureFlip.Vertical : 0);
             parts[index] = SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16,
                 part.TileRow * TileColumns +
-                        part.TileColumn, part.Palette.Value, part.Priority, flips);
+                        part.TileColumn, part.Palette.Value, part.Depth, flips);
         }
         return parts;
     }

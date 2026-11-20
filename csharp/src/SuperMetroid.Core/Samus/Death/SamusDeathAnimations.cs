@@ -6,8 +6,8 @@ using E = SuperMetroid.Core.Samus.Artwork.SamusDeathExplosionFrame;
 namespace SuperMetroid.Core.Samus.Death;
 
 /// <summary>
-/// The shade sequences Samus's death plays (#2387): the flash alternates her second death shade for one update with her
-/// first for three, after an opening wait, until the suit explodes; the suit's explosion shows its nine pictures for
+/// The shade sequences Samus's death plays (#2387): the flash alternates her second death shade (<see cref="SamusDeathSequenceDefinitions.SecondFlashShadeUpdates"/>) with her
+/// first (<see cref="SamusDeathSequenceDefinitions.FirstFlashShadeUpdates"/>), after an opening wait, until the suit explodes; the suit's explosion shows its pictures for
 /// their authored dwell times (#2388), the first holding the room as it was before the whiteout and the last holding the
 /// white before the room fades; the explosion's whiteout brightens through its shades one update each and rests on its
 /// brightest.
@@ -30,7 +30,7 @@ internal static class SamusDeathAnimations
         Animation<SamusDeathFlashSegment>.Looping([FlashSegments.Whole(SamusDeathFlashSegment.Flash)]);
 
     /// <summary>The suit explosion's pictures, each with the updates it shows for.</summary>
-    internal static AnimationSegments<SamusDeathExplosionSegment, E, NoAnimationCue> ExplosionSegments { get; } = new(
+    private static AnimationSegments<SamusDeathExplosionSegment, E, NoAnimationCue> ExplosionSegments { get; } = new(
         new Dictionary<SamusDeathExplosionSegment, AnimationBeat<E, NoAnimationCue>[]>
         {
             [SamusDeathExplosionSegment.Explosion] =

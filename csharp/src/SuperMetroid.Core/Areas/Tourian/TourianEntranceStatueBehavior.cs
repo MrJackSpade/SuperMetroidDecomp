@@ -20,9 +20,9 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySetti
 
     /// <inheritdoc/>
     /// <remarks>The placement joins the scene's occupants and spawns its decorations as it is built (#2554).</remarks>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, TourianEntranceStatueSpawnSettings settings)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, TourianEntranceStatueSpawnSettings settings)
     {
-        var occupant = new TourianEntranceStatueEntity(this, place, common);
+        var occupant = EnemyOccupant.WithoutMainAi(new TourianEntranceStatueEntity(this, occupant, place, common));
         InitializeTourianEntranceStatue(occupant, settings);
         return occupant;
     }
@@ -66,7 +66,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySetti
     /// the last eye glow a released boss lit, and each released statue's blacked-out eyes and grey. The scene's
     /// placements and every projectile of the scene show it alike.
     /// </summary>
-    internal PictureShading SceneShading { get; private set; } = PictureShading.Standard;
+    private PictureShading SceneShading { get; set; } = PictureShading.Standard;
 
     /// <summary>The graphics a statue scene projectile spawns with: the shared sheet in the scene's look.</summary>
     internal SpriteGraphics SceneGraphics => SpriteGraphics.SharedIn(SceneShading);
@@ -191,14 +191,14 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySetti
         Position16<RoomPixels> position,
         Func<Position16<RoomPixels>, DecorationBehavior> decorations)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, decorations, graphics: SceneGraphics);
         if (projectile is null)
             return;
 
         DecorationBehavior decoration = decorations(position);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, decoration, graphics: SceneGraphics);
         HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueDecorationAnimation(start, decoration));
+        projectile.StartAnimation(new TourianStatueDecorationAnimation(decorations, start, decoration));
         projectile.Position = projectile.Position.WithWhole(position);
     }
 
@@ -236,7 +236,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySetti
         }
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, TourianStatueDecorationMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, TourianStatueDecorationMotion motion)
         {
             switch (motion)
             {

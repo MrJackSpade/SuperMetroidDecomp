@@ -35,9 +35,10 @@ public sealed class YappingMawEnemyState
     public required IReadOnlyList<YappingMawLink> Links { get; init; }
 
     /// <summary>
-    /// Approximate distance from the root to Samus in room pixels: a single axis's magnitude when Samus is 255 or more
-    /// pixels away on it, otherwise the sum of two short trigonometric products. An attack
-    /// caps it at <see cref="YappingMawAttackGeometry.MaximumTargetDistance"/>, so the extension sees 32 through 64.
+    /// Approximate distance from the root to Samus in room pixels: when Samus is far away on an axis, her distance on
+    /// that axis alone, and otherwise her offsets on the two axes measured along her bearing from the root and added
+    /// together. An attack caps it at <see cref="YappingMawAttackGeometry.MaximumTargetDistance"/>, so the extension
+    /// never reaches further.
     /// </summary>
     public int DistanceToSamus { get; internal set; }
 

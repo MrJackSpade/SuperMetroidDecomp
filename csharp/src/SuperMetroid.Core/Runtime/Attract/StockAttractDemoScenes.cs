@@ -319,7 +319,7 @@ public static class StockAttractDemoScenes
     ]);
 
     /// <summary>The advanced techniques the title plays after <see cref="ThirdSet"/> once a save records a completed game.</summary>
-    public static AttractDemoSet CompletionSet { get; } = new(nameof(CompletionSet),
+    private static AttractDemoSet CompletionSet { get; } = new(nameof(CompletionSet),
     [
         new(
             Room: RoomDefinitions.LandingSite,
@@ -399,10 +399,10 @@ public static class StockAttractDemoScenes
     ]);
 
     /// <summary>The sets the title cycles through, in order, while no save records a completed game.</summary>
-    public static IReadOnlyList<AttractDemoSet> OrdinaryPlaylist { get; } = [FirstSet, SecondSet, ThirdSet];
+    private static IReadOnlyList<AttractDemoSet> OrdinaryPlaylist { get; } = [FirstSet, SecondSet, ThirdSet];
 
     /// <summary>The sets the title cycles through, in order, once a save records a completed game.</summary>
-    public static IReadOnlyList<AttractDemoSet> CompletedGamePlaylist { get; } = [FirstSet, SecondSet, ThirdSet, CompletionSet];
+    private static IReadOnlyList<AttractDemoSet> CompletedGamePlaylist { get; } = [FirstSet, SecondSet, ThirdSet, CompletionSet];
 
     /// <summary>The playlist the title cycles through: the completion set joins it only when the game was completed.</summary>
     public static IReadOnlyList<AttractDemoSet> Playlist(bool completionSetUnlocked) =>

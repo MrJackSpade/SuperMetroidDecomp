@@ -39,10 +39,10 @@ internal static class FuneNamiheCooldownVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Fune, place.Definition);
+        place.Bind(EnemyDefinitionId.Fune, place.KeptDefinition);
         place.SetSpawnSettings(new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: CooldownTime, LaunchSpeed: SignedEightEight.Zero));
         var state = new FuneEnemyState(FuneAction.WaitForCooldown, place.SpawnSettings<FuneSpawnSettings>()) { Cooldown = UpdateCountdownAccess.AtAge(CooldownTime, count) };
-        FuneNamiheBehavior.RunFuneMain(place, state);
+        FuneNamiheBehavior.RunFuneMain(place.HeldOccupant(), place, state);
         return state;
     }
 

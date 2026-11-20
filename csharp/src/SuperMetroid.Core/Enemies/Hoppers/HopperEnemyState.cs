@@ -22,7 +22,7 @@ public sealed class HopperEnemyState
     /// <summary>
     /// The whole-mark place along the quadratic speed curve of the current vertical step. It moves back by
     /// <see cref="YSpeedCurvePlaceStep"/> while moving away from the surface, where a place before the curve's start
-    /// is stored as the curve's start at the apex, and on by them up to mark 64 while returning, so it stays within the
+    /// is stored as the curve's start at the apex, and on by them up to its return cap while returning, so it stays within the
     /// curve's marks; a place outside them is rejected.
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlace
@@ -49,7 +49,7 @@ public sealed class HopperEnemyState
     public int XVelocity => HopperHopDefinitions.HorizontalSpeed.Toward(Heading);
 
     /// <summary>
-    /// The step along the speed curve, three marks for small hops or four for big hops, taken back while moving away from
+    /// The step along the speed curve, larger for big hops than small ones, taken back while moving away from
     /// the attachment surface and on while returning.
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlaceStep { get; internal set; }
@@ -59,10 +59,9 @@ public sealed class HopperEnemyState
     /// <summary>
     /// Whether the landing animation has readied the next hop: set by its ready cue and cleared by
     /// <see cref="HopperAction.WaitToHop"/> as it hops again, so authored animation cadence, not a separate jump timer,
-    /// controls the next hop. It stays a mark beside the action rather than a phase of it (#2439): a hopper plays its
-    /// landing animation from its placement while its first updates prepare its first hop, and a hurt state that holds those
-    /// updates back lets the animation ready a hop before the hopper waits for one; that hop then follows the hopper's first
-    /// landing at once.
+    /// controls the next hop (#2439): a hopper plays its landing animation from its placement while its first updates
+    /// prepare its first hop, and a hurt state that holds those updates back lets the animation ready a hop before the
+    /// hopper waits for one; that hop then follows the hopper's first landing at once.
     /// </summary>
     public bool ReadyToHop { get; internal set; }
 

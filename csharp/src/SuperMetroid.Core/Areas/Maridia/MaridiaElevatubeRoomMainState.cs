@@ -24,7 +24,7 @@ public sealed class MaridiaElevatubeRoomMainState : IElevatubeRide
     private readonly ElevatubeInheritedFraction _fraction;
 
     /// <summary>The tube's vertical velocity in room pixels per update, negative upward.</summary>
-    public SignedEightEight Velocity { get; private set; }
+    private SignedEightEight Velocity { get; set; }
 
     /// <summary>The tube's vertical acceleration in room pixels per update per update, negative upward.</summary>
     public SignedEightEight Acceleration { get; private set; }
@@ -54,7 +54,7 @@ public sealed class MaridiaElevatubeRoomMainState : IElevatubeRide
     }
 
     /// <summary>
-    /// Runs the elevatube once: hold Samus at X 128, move both the tracked height and Samus by the velocity, Samus
+    /// Runs the elevatube once: hold Samus at the tube's centre (<see cref="MaridiaElevatubeDefinitions.SamusCenterX"/>), move both the tracked height and Samus by the velocity, Samus
     /// through her ordinary vertical collision check, then add the acceleration to the velocity unless that passes the
     /// maximum speed.
     /// </summary>

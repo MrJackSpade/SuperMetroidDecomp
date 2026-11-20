@@ -108,11 +108,11 @@ internal static class SamusAnimationDelayDefinitionsVerification
         int reads = 0;
         foreach ((string animationName, IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast> frames) in SamusAnimationLayout.Read(cartridge).ReadsPast())
         {
-            SamusAnimationName name = Enum.Parse<SamusAnimationName>(animationName);
+            SamusAnimationName name = InstalledAnimation(animationName);
             SamusPoseAnimation animation = SamusAnimationDelays.AnimationNamed(name);
             foreach ((string frameName, SamusOverreadDocument.ReadPast read) in frames)
             {
-                SamusAnimationName reached = Enum.Parse<SamusAnimationName>(read.Animation);
+                SamusAnimationName reached = InstalledAnimation(read.Animation);
                 SamusPoseAnimation readAnimation = SamusAnimationDelays.AnimationNamed(reached);
                 int shift = starts[reached] - starts[name];
                 AssertTrue(shift > 0, $"the {name} animation at {frameName} reads a program laid out after its own");
@@ -124,13 +124,13 @@ internal static class SamusAnimationDelayDefinitionsVerification
         }
         AssertTrue(reads > 0, "the import decodes reads past Samus's animations");
         // A place named for one animation lands, on any other, on the frame its native number names there.
-        Dictionary<string, SamusAnimationPlace> places = SamusAnimationPlaces.All.ToDictionary(place => place.Name.ToString());
+        Dictionary<string, SamusAnimationPlace> places = SamusAnimationPlaces.All.ToDictionary(place => SamusAnimationPlaceNameKeys.Installed.Of(place.Name));
         foreach ((string placeName, IReadOnlyDictionary<string, string> landings) in SamusAnimationLayout.Read(cartridge).PlaceLandings())
         {
             SamusAnimationPlace place = places[placeName];
             foreach ((string animationName, string frameName) in landings)
             {
-                SamusPoseAnimation animation = SamusAnimationDelays.AnimationNamed(Enum.Parse<SamusAnimationName>(animationName));
+                SamusPoseAnimation animation = SamusAnimationDelays.AnimationNamed(InstalledAnimation(animationName));
                 AssertEqual(SamusAnimationNumbers.Number(place.Animation, place.Frame), SamusAnimationNumbers.Number(animation, animation.FrameNamed(frameName)),
                     $"place {placeName} lands in the {animationName} animation on the frame its native number names");
             }
@@ -169,6 +169,15 @@ internal static class SamusAnimationDelayDefinitionsVerification
             SamusAnimationDelayDefinitions.KnockbackAnimation.Next(new SamusAnimationFrame(SamusAnimationSegmentName.Recoil, 10), InstalledFixtures.FramesBeyondAnimation),
             "the knockback's recoil hold follows its slow recoil, which no segment names");
     }
+
+    /// <summary>
+    /// The animation the import's document names by <paramref name="key"/>: documents name animations by their installed
+    /// keys, which stay fixed when a member is renamed (#2550), so the key is read through the keys table, never as a member name.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The key is no animation's installed key.</exception>
+    private static SamusAnimationName InstalledAnimation(string key) =>
+        SamusAnimationNameKeys.Installed.TryParse(key, out SamusAnimationName name) ? name
+            : throw new InvalidDataException($"The import names an animation by '{key}', which is no animation's installed key.");
 
     /// <summary>Runs pose-program and running-cadence checks against the retail ROM.</summary>
     [VerificationCommand("--mutable-animation-aliases")]

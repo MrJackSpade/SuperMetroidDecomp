@@ -14,7 +14,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Oum];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new OumEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.Of(new OumEntity(this, occupant, place, common));
 
     /// <summary>Resolves floor, ledge, and wall contact during bounce and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
@@ -131,7 +131,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         else if (!_terrain.MoveEnemyVertically(level, place, OumMotionDefinitions.FloorProbe))
         {
             // No floor one pixel below means Oum walked off a ledge. Oum restarts the
-            // complete three-impact settling sequence without skipping horizontal work.
+            // complete settling sequence without skipping horizontal work.
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
             state.BouncePhase = OumBouncePhase.Falling;
             state.RemainingBounces = OumMotionDefinitions.SettlingBounces;
@@ -180,7 +180,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.BouncePhase)
         {
             case OumBouncePhase.Falling:
-                // Falling holds the place at mark 64.
+                // Falling holds the place at its fastest fall place.
                 state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
                     state.YSpeedCurvePlace + OumMotionDefinitions.BounceAcceleration,
                     OumMotionDefinitions.FastestFallPlace);
@@ -237,8 +237,8 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         if (temporarilyReachTowardSamus)
         {
             // Temporarily extends the whole-pixel move toward Samus by the push's reach,
-            // performs collision, then retracts the center. Net velocity remains one
-            // pixel per frame while wall clipping naturally passes the lost distance to Samus.
+            // performs collision, then retracts the center. Net velocity remains its
+            // roll speed while wall clipping naturally passes the lost distance to Samus.
             speed += OumMotionDefinitions.PushReach.Toward(state.Heading);
         }
 
@@ -262,7 +262,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The side of Oum Samus is on while she is within its strict 24-by-32 pushing range, or none while she is not (#2473).
+    /// The side of Oum Samus is on while she is within its strict pushing range, or none while she is not (#2473).
     /// </summary>
     private static HorizontalDirection? OumPushSide(RoomEnemyPlace place, SamusState samus) =>
         Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >= OumMotionDefinitions.PushingReachY ||
@@ -372,7 +372,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     /// still shows its spawn idle it counts as playing the right-facing idle, and its first start of another animation, the
     /// left-facing idle included, starts it afresh (<see cref="OumEnemyState.ShowsSpawnIdle"/>).
     /// </summary>
-    internal static void StartOumAnimation(
+    private static void StartOumAnimation(
         RoomEnemyPlace place,
         OumEnemyState state,
         OumSegment segment)
@@ -429,7 +429,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances the Oum's typed animation.</summary>
-    internal void AdvanceOumTypedAnimation(RoomEnemyPlace place, OumEnemyState oumEnemyState, EnemyAnimationCueContext _) =>
+    internal void AdvanceOumTypedAnimation(RoomEnemyPlace place, OumEnemyState oumEnemyState) =>
         EnemyAnimationPlayback.Advance(place, oumEnemyState, OumAnimations.Segments,
             static (OumEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
@@ -449,14 +449,14 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // Frame-hitbox collision marks the projectile, and nothing more happens: the protected shell
                 // takes no shot damage, makes no impact, plays no shot sound and has no vulnerability.
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                 return true;
             }
             if (c.HitboxShot != OumReactions.Shot)
             {
                 throw new InvalidDataException(
                     $"Maridia Large Snail has no response to shot reaction " +
-                    $"{c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+                    $"{c.HitboxShot}.");
             }
             return false;
         },
@@ -472,11 +472,11 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             throw new InvalidDataException(
                 $"Maridia Large Snail has no response to touch reaction " +
-                $"{context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+                $"{context.HitboxTouch}.");
         }
 
         // The damaging touch hurts Samus as any enemy does and then shoves her as the harmless touch does. A harmless
-        // touch only shoves, which is how the closed shell carries and pushes Samus without its 100 damage.
+        // touch only shoves, which is how the closed shell carries and pushes Samus without its damage.
         if (context.HitboxTouch == OumReactions.DamagingTouch)
             _collision.ResolveOrdinaryTouch(context);
         ResolveOumTouchAfterCommon(context.Place, context.Samus);
@@ -484,10 +484,8 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps on the frame it shows.</summary>
     /// <exception cref="InvalidDataException">The frame shown has no Oum collision.</exception>
-    internal static bool? FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
-
         // The frame's hitboxes are read in order, and the first the probe overlaps gives the reaction.
         foreach (EnemyCollisionHitbox hitbox in
                  OumCollisionDefinitions.Frames.Of(enemy.Frame))
@@ -498,9 +496,8 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
             int bottom = enemy.Position.Y.Whole + hitbox.Bottom;
             if (!probe.Overlaps(left, top, right, bottom))
                 continue;
-            reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-            return true;
+            return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 }

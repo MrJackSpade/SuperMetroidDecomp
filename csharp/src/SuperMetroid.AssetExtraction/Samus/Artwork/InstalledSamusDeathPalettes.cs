@@ -28,12 +28,12 @@ public sealed class InstalledSamusDeathPalettes
     private readonly ushort[] explosionPaletteIndices;
 
     /// <summary>Keeps copies of the complete installed death artwork; no caller arrays are retained or modified.</summary>
-    /// <param name="suited">Three suit families, each with ten death-flash steps of sixteen RGB5 words, in pointer-table order.</param>
-    /// <param name="suitless">Ten death-flash steps of sixteen RGB5 words in pointer-table order, separate from suited artwork.</param>
-    /// <param name="whiteout">Twenty-two RGB5 shades corresponding to ShadesOfWhite, indexed by whiteout counter rather than explosion frame.</param>
-    /// <param name="explosionPaletteIndices">Nine death-flash step selectors 0..9 corresponding to the odd bytes; animation durations are not part of this input.</param>
+    /// <param name="suited">Each suit family's death-flash steps of RGB5 words, in pointer-table order; <see cref="SuitCount"/>, <see cref="SamusShadeDefinitions.Death.ExplosionShadeCount"/> and <see cref="ColorCount"/> give the dimensions.</param>
+    /// <param name="suitless">The suitless death-flash steps of RGB5 words in pointer-table order, separate from suited artwork.</param>
+    /// <param name="whiteout">The whiteout's RGB5 shades corresponding to ShadesOfWhite, indexed by whiteout counter rather than explosion frame.</param>
+    /// <param name="explosionPaletteIndices">One death-flash step selector per explosion record, corresponding to the odd bytes; animation durations are not part of this input.</param>
     /// <exception cref="ArgumentNullException">A top-level input array is null.</exception>
-    /// <exception cref="InvalidDataException">An input has the wrong dimensions, a nested family or step is null, or an explosion selector exceeds 9.</exception>
+    /// <exception cref="InvalidDataException">An input has the wrong dimensions, a nested family or step is null, or an explosion selector names no death-flash step.</exception>
     public InstalledSamusDeathPalettes(RgbColor[][][] suited, RgbColor[][] suitless,
         RgbColor[] whiteout, ushort[] explosionPaletteIndices)
     {
@@ -57,7 +57,7 @@ public sealed class InstalledSamusDeathPalettes
 
     /// <summary>Returns one installed suited death colour.</summary>
     /// <param name="suit">Family index 0=Power, 1=Varia, 2=Gravity; not the byte offsets 0, 2, and 4.</param>
-    /// <param name="palette">Death-flash step 0..9: base, flash, seven whitening steps, then the final foreground step.</param>
+    /// <param name="palette">Death-flash step, below <see cref="SamusShadeDefinitions.Death.ExplosionShadeCount"/>: base, flash, the whitening steps, then the final foreground step.</param>
     /// <param name="color">Ink index 0..15, copied by the consumer to colours 192..207; index-zero pixels remain transparent.</param>
     /// <returns>The installed colour; no palette is written.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Any index is outside its documented range.</exception>
@@ -76,9 +76,9 @@ public sealed class InstalledSamusDeathPalettes
     public RgbColor SuitlessColor(int palette, int color) => Step(suitless, palette, color);
 
     /// <summary>Returns one installed ShadesOfWhite entry.</summary>
-    /// <param name="index">Whiteout shade 0..21, not an explosion frame; the terminal call selects 21 explicitly.</param>
+    /// <param name="index">Whiteout shade, not an explosion frame; the terminal call selects the last shade explicitly.</param>
     /// <returns>The RGB5 word used by the consumer to fill colours 0..191 and 208..239, excluding suited and suitless Samus palettes.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside 0..21.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> names no whiteout shade.</exception>
     public RgbColor WhiteoutColor(int index)
     {
         if ((uint)index >= whiteout.Length)
@@ -87,10 +87,10 @@ public sealed class InstalledSamusDeathPalettes
     }
 
     /// <summary>Returns the installed death-flash step an explosion frame selects.</summary>
-    /// <param name="frame">Explosion drawing index 0..8, selecting one of the nine timing/selector records.</param>
-    /// <returns>A death-flash step 0..9 for both foreground palette families, not a RGB5 word or countdown duration.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside 0..8.</exception>
-    public int ExplosionPaletteIndex(int frame)
+    /// <param name="frame">Explosion drawing index, selecting one of the explosion's timing/selector records.</param>
+    /// <returns>A death-flash step for both foreground palette families, not a RGB5 word or countdown duration.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> names no explosion record.</exception>
+    private int ExplosionPaletteIndex(int frame)
     {
         if ((uint)frame >= explosionPaletteIndices.Length)
             throw new ArgumentOutOfRangeException(nameof(frame));

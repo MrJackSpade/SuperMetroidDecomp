@@ -53,7 +53,7 @@ public readonly record struct FloorView
     public Offset16<FloorPixels> Scroll { get; init; }
 
     /// <summary>What shows beyond the floor's edges.</summary>
-    public FloorOverflowMode Outside { get; init; }
+    public FloorOverflowMode Outside { get; private init; }
 
     /// <summary>The view of a scene's floor turned by <paramref name="angle"/> and shown at <paramref name="zoom"/>.</summary>
     /// <param name="angle">How far the scene has turned the floor clockwise.</param>

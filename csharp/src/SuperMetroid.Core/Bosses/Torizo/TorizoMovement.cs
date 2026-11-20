@@ -20,8 +20,8 @@ internal sealed class TorizoMovement
     private readonly RoomEarthquake _earthquake;
     /// <summary>The medium up-and-down foreground shake a landing statue starts.</summary>
     private static readonly EarthquakeShake LandingShake =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
-    /// <summary>Bomb and Golden Torizo's body: its behaviour flags, colours, animation start and the low-health drool it triggers.</summary>
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks);
+    /// <summary>Bomb and Golden Torizo's body, which shows the Torizo's colouring and drips its low-health drool.</summary>
     private readonly TorizoBody _body;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -63,7 +63,7 @@ internal sealed class TorizoMovement
         torizo.Shading = state.Colours.Shading;
         torizo.Frame = definition.InitialFrame;
 
-        state.Motion = null;
+        state.Motion = TorizoBodyMotion.HoldingStill;
         state.Velocity = PixelVelocity<RoomPixels>.Zero;
         state.FallAtRestingSpeed();
 
@@ -77,14 +77,14 @@ internal sealed class TorizoMovement
 
     /// <summary>Interrupts Bomb Torizo's fight at its gut and face health thresholds; otherwise its body moves by its motion.</summary>
     internal void RunBombTorizoActiveState(
-        RoomEnemyPlace torizo,
+        RoomEnemyOccupant occupant, RoomEnemyPlace torizo,
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        _body.MaybeSpawnLowHealthDrool(torizo, state);
+        _body.MaybeSpawnLowHealthDrool(occupant, torizo, state);
 
         // Until its gut and face are blown up, which its death also does, health thresholds interrupt the current
-        // authored animation with the core/head bursts.
+        // authored animation with the gut's and the face's blow-ups.
         if (!state.GutBlownUp &&
             torizo.Health < TorizoDecisionDefinitions.GutBlowUpHealth)
         {
@@ -112,7 +112,7 @@ internal sealed class TorizoMovement
     {
         switch (state.Motion)
         {
-            case null:
+            case TorizoBodyMotion.HoldingStill:
                 return;
             case TorizoBodyMotion.Walking:
                 Walk(torizo, state, level);

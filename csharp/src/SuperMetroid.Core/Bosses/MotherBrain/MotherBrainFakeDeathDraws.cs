@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -12,20 +11,18 @@ internal static class MotherBrainFakeDeathDraws
 {
     /// <summary>The fake-death room's frames other than the mural's rows, pictured by the installed fake-death room frames.</summary>
     internal static RoomObjectDrawFamily<MotherBrainFakeDeathDraw> Family { get; } =
-        RoomObjectDrawFamily<MotherBrainFakeDeathDraw>.Pictured<InstalledMotherBrainFakeDeathFrames>("Mother Brain fake-death room",
-            frame => RoomObjectDrawFamily<MotherBrainFakeDeathDraw>.Defined(MotherBrainFakeDeathObjectDrawDefinitions.Shapes, frame),
-            (frames, draw) => frames.Images.Image(draw));
+        new RoomObjectDrawFamily<MotherBrainFakeDeathDraw>("Mother Brain fake-death room",
+            frame => RoomObjectDrawFamily<MotherBrainFakeDeathDraw>.Defined(MotherBrainFakeDeathObjectDrawDefinitions.Shapes, frame));
 
     /// <summary>
     /// The rows of the mural behind her tank, pictured by the installed fake-death room frames: its top and bottom rows are
     /// its slope border, every row between is open.
     /// </summary>
     internal static RoomObjectDrawFamily<MuralRowDraw> MuralRowFamily { get; } =
-        RoomObjectDrawFamily<MuralRowDraw>.Pictured<InstalledMotherBrainFakeDeathFrames>("Mother Brain mural",
+        new RoomObjectDrawFamily<MuralRowDraw>("Mother Brain mural",
             frame => frame.Row is 0 or MotherBrainMuralDefinitions.RowCount - 1
                 ? MotherBrainFakeDeathObjectDrawDefinitions.MuralBorderRow
-                : MotherBrainFakeDeathObjectDrawDefinitions.MuralInteriorRow,
-            (frames, draw) => frames.Images.Image(draw));
+                : MotherBrainFakeDeathObjectDrawDefinitions.MuralInteriorRow);
 
     /// <summary>The draw of the mural's row <paramref name="row"/>, counted from its top row.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The mural has no such row.</exception>

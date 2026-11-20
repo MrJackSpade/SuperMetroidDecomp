@@ -1,13 +1,24 @@
-using SuperMetroid.Core.Rooms;
-
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// An occupant being placed (#2554): its place, already holding its identity and entry, how it comes to be set up, and
-/// the places the room's population lists right after it, from which a group's head takes its parts' places.
+/// Where a population entry places its enemy as the room spawns it (#2558): at a room position, or by its species'
+/// setup, as a Zebetite's setup places it where its generation stands. No position stands for an entry its setup places.
 /// </summary>
-/// <param name="Place">The occupant's place.</param>
-/// <param name="Setup">How the occupant comes to be set up.</param>
-/// <param name="ListedAfter">The places the room's population lists right after the occupant; empty for a spawn.</param>
-[RoomScopeBoundary("A per-call input, built for one placement and never kept.")]
-internal sealed record EnemyPlacing(RoomEnemyPlace Place, EnemySetup Setup, IReadOnlyList<RoomEnemyPlace> ListedAfter);
+public abstract record EnemyPlacing
+{
+    /// <summary>Only the placings below exist.</summary>
+    private protected EnemyPlacing()
+    {
+    }
+
+    /// <summary>An entry that places its enemy at <paramref name="position"/>, in whole pixels, each coordinate wrapping around the room.</summary>
+    /// <param name="position">The enemy's initial room position.</param>
+    public static EnemyPlacing At(Position16<RoomPixels> position) => new EnemyPlacedAt(position);
+
+    /// <summary>An entry whose enemy its species' setup places.</summary>
+    public static EnemyPlacing BySetup { get; } = new EnemyPlacedBySetup();
+
+    /// <summary>The position a spawn gives an enemy whose place stands at <paramref name="current"/>.</summary>
+    /// <param name="current">Where the place stands before the spawn, fraction of a pixel included.</param>
+    internal abstract FixedPosition<RoomPixels> Place(FixedPosition<RoomPixels> current);
+}

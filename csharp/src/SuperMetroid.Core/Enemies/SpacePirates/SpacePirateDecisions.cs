@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class SpacePirateDecisions
 {
     /// <summary>
-    /// Whether a ninja Space Pirate about to divekick draws again (#2510): taken by a sample divisible by four, one draw in
-    /// four, so it draws until one is not. Every accepted draw starts the same divekick.
+    /// Whether a ninja Space Pirate about to divekick draws again (#2510): one draw in four is drawn again, so it draws
+    /// until one is kept. Every kept draw starts the same divekick.
     /// </summary>
     internal static readonly RandomChance DivekickDrawnAgain = RandomChance.Lowest(1, new RandomSampleField(0, 2));
 

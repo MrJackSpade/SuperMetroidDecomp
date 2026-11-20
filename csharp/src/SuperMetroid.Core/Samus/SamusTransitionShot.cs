@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus;
 public readonly record struct SamusTransitionShot
 {
     /// <summary>Hands over the shot of a pose aiming in <paramref name="aim"/>.</summary>
-    public SamusTransitionShot(SamusProjectileDirection aim) => Aim = aim;
+    private SamusTransitionShot(SamusProjectileDirection aim) => Aim = aim;
 
     /// <summary>The direction the shot leaves in.</summary>
     public SamusProjectileDirection Aim { get; }

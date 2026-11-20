@@ -69,8 +69,8 @@ internal static class LookupChozoLayoutsVerification
             var guarded = NewChozoProgramAndDrawReadGuard(rom);
             if (field == 0)
             {
-                AssertTrue(roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level,
-                    new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.SlopeAccessOpening)), "Chozo layout fixture spawn");
+                roomObjects.ChozoStatue.SpawnChozoStatueObject(level,
+                    new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.SlopeAccessOpening));
                 roomObjects.DrawSoleObjectFrameForVerification(level, NativeObjectDraws.At<ChozoStatueDraw>(pointer));
                 AssertEqual(0, guarded.ForbiddenReadAttempts, "Chozo calculated draw avoids ROM reads");
             }

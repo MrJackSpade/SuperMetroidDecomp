@@ -23,7 +23,7 @@ internal static class ProjectileSheetComposer
     /// and Wave, has none; its projectiles show the sheet of the shot its uncharged beam fires
     /// (<see cref="ProjectileSheetDefinitions.Sheets"/>, #1586).
     /// </summary>
-    internal static IReadOnlyList<SamusBeamCombination> Combinations { get; } =
+    private static IReadOnlyList<SamusBeamCombination> Combinations { get; } =
     [
         SamusBeamCombination.Power, SamusBeamCombination.Wave, SamusBeamCombination.Ice, SamusBeamCombination.IceWave,
         SamusBeamCombination.Spazer, SamusBeamCombination.SpazerWave, SamusBeamCombination.SpazerIce, SamusBeamCombination.SpazerIceWave,
@@ -59,13 +59,13 @@ internal static class ProjectileSheetComposer
 
     /// <summary>
     /// The compositions <paramref name="beams"/>'s projectiles show, in storage order: those of every record the
-    /// combination's programs reach, as <paramref name="bindings"/> bind them, the empty composition excepted.
+    /// combination's programs reach, as <paramref name="bindings"/> bind them; an unpictured record draws none.
     /// </summary>
     private static IEnumerable<ProjectileSpriteId> Compositions(SamusBeamCombination beams, InstalledProjectileFrameBindings bindings)
     {
         Ensure.NotNull(bindings);
-        HashSet<ProjectileSpriteId> shown = [.. EquippedBeamProjectilePrograms.Records(beams).Select(bindings.Resolve)];
-        return ProjectileSpriteDefinitions.All.Where(composition => !composition.DrawsNothing && shown.Contains(composition));
+        HashSet<ProjectileSpriteId> shown = [.. EquippedBeamProjectilePrograms.Records(beams).Select(bindings.Resolve).OfType<ProjectileSpriteId>()];
+        return ProjectileSpriteDefinitions.All.Where(shown.Contains);
     }
 
     /// <summary>What one projectile sheet composes: its named frames over the context's OBJ page, and the sprite rows' colours.</summary>

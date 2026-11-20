@@ -52,7 +52,7 @@ internal static class EnemyEffectsFixtureVerification
         {
             if (art is not null)
                 Enemies.BossArtwork = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { CrocomireMelting = art };
-            Actor = new CrocomireEnemyState(Enemies.Places.InUpdateOrder[0], Enemies.Places.InUpdateOrder[1]);
+            Actor = new CrocomireEnemyState(Enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.Crocomire), Enemies.Places.InUpdateOrder[0], Enemies.Places.InUpdateOrder[1]);
             Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
             // The fight's initialization attaches the cleared body canvases the melting body is drawn on (#1466).
@@ -101,6 +101,7 @@ internal static class EnemyEffectsFixtureVerification
         AssertTrue(expected.Enemies.Audio.SoundRequests.SequenceEqual(actual.Enemies.Audio.SoundRequests), context + " audio");
         AssertTrue(expected.Enemies.Audio.MusicRequests.SequenceEqual(actual.Enemies.Audio.MusicRequests), context + " music");
         AssertTrue(expected.Enemies.LastEnemyFrame.All<CrocomireArenaChange>().SequenceEqual(actual.Enemies.LastEnemyFrame.All<CrocomireArenaChange>()), context + " room changes");
+        AssertTrue(expected.Enemies.LastEnemyFrame.Events.SequenceEqual(actual.Enemies.LastEnemyFrame.Events), context + " enemy pass events");
     }
 
     /// <summary>Encodes patterned planar tiles as a real indexed PNG for the production asset compiler.</summary>

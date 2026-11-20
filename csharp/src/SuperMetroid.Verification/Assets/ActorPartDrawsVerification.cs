@@ -57,7 +57,7 @@ internal static class ActorPartDrawsVerification
         EnemyFrameId frame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.PirateGreenWalking]
             .First(shown => compositions.TryGetDisplay(shown, out ReadOnlyMemory<EnemyExtendedDrawComponent> pieces) && pieces.Length > 1);
         RoomEnemyPlace pirate = enemies.Places.InUpdateOrder[0];
-        pirate.Bind(EnemyDefinitionId.PirateGreenWalking, default(RoomEnemyDefinition));
+        pirate.Bind(EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionFixtures.Blank);
         pirate.CollidesByFrameHitboxes = true;
         pirate.Frame = frame;
         pirate.Position = pirate.Position.WithWhole(new(120, 110));

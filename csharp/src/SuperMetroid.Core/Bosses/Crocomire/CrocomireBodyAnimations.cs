@@ -10,9 +10,10 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <summary>
 /// Crocomire's typed body animations (#641, #1600): each body, melting and skeleton segment's beats, and each animation his
 /// fight and death start, which plays its segments whole or repeated (#2296, #2399): a run several animations show is one
-/// segment each plays, and a run shown again and again is one segment played that often. Where he shows one picture twice in a row (his damage
-/// wait's open mouth) the showings stay two beats: an uncharged beam on his mouth holds the frame shown for a fixed count,
-/// after which the second showing still plays its own duration, and his body shows the picture as each showing begins.
+/// segment each plays, and a run shown again and again is one segment played that often. Where he shows one picture
+/// twice in a row (his damage wait's open mouth) the showings stay two beats: an uncharged beam on his mouth holds the
+/// frame shown for a fixed count, after which the next beat still plays its own duration, and his body shows the
+/// picture as each beat begins.
 /// </summary>
 internal static class CrocomireBodyAnimations
 {
@@ -409,7 +410,7 @@ internal static class CrocomireBodyAnimations
     /// Each animation his fight and death can start or restart, each listing only its own segments (#1938, #2399). The step
     /// back and the damage wait lead into his roar, which plays again and again until he is hit.
     /// </summary>
-    internal static IReadOnlyDictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>>
+    private static Dictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>>
     {
         [A.IdleSway] = Animation<CrocomireBodySegment>.Looping([Segments.Whole(P.IdleSway)]),
         [A.ProjectileAttack] = Animation<CrocomireBodySegment>.LeadingInto(

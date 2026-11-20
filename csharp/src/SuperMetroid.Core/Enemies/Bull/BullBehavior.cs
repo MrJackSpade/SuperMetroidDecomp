@@ -11,7 +11,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySettingsFactory<BullSp
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Bull];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, BullSpawnSettings settings) => new BullEntity(this, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, BullSpawnSettings settings) => EnemyOccupant.Of(new BullEntity(this, occupant, place, common, settings));
 
     /// <summary>Hands each new Bull the previous Bull in its place, whose shot-reaction guard it inherits.</summary>
     private readonly PlaceInheritance<BullEnemyState> _inheritance;
@@ -21,7 +21,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySettingsFactory<BullSp
     internal BullBehavior(PlaceInheritance<BullEnemyState> inheritance) => _inheritance = inheritance;
 
     /// <summary>Initializes the Bull.</summary>
-    internal BullEnemyState InitializeBull(RoomEnemyPlace place, BullSpawnSettings settings)
+    internal BullEnemyState InitializeBull(RoomEnemyOccupant occupant, RoomEnemyPlace place, BullSpawnSettings settings)
     {
         BullEnemyState state = _inheritance.Inherit(place.Ordinal, previous => new BullEnemyState(previous, BullAction.MovementDelay, settings));
 
@@ -33,7 +33,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySettingsFactory<BullSp
     }
 
     /// <summary>Runs a Bull for one update through all four of its actions.</summary>
-    internal static void RunBullMain(RoomEnemyPlace place, BullEnemyState state, SamusState samus)
+    internal static void RunBullMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, BullEnemyState state, SamusState samus)
     {
         // A kick's guard runs out on the update its countdown reaches zero.
         state.ShotReactionDisableTimer.Step();
@@ -130,7 +130,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySettingsFactory<BullSp
     }
 
     /// <summary>Moves the Bull along both axes by its speed in the direction of its committed angle.</summary>
-    internal static void MoveBull(RoomEnemyPlace place, BullEnemyState state)
+    private static void MoveBull(RoomEnemyPlace place, BullEnemyState state)
     {
         place.Position = place.Position.WithX(AddBullComponent(
             place.Position.X,
@@ -159,7 +159,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySettingsFactory<BullSp
     /// <param name="share">The axis's share of the Bull's heading.</param>
     /// <param name="speed">The Bull's speed, never below zero (<see cref="BullEnemyState.Speed"/>).</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="speed"/> is negative.</exception>
-    internal static SignedSixteenSixteen BullStep(UnitComponent share, SignedEightEight speed)
+    private static SignedSixteenSixteen BullStep(UnitComponent share, SignedEightEight speed)
     {
         // The share is under one and the speed at most eleven and a quarter pixels, so the step is under six pixels. The
         // step's size is halved before its direction is restored, and a step up or left reverses as BullBackwardStep does.
@@ -172,7 +172,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySettingsFactory<BullSp
     /// <summary>
     /// Finishes the Bull's shot and bomb reactions when they deal no damage: the hit kicks it away at <paramref name="kickAngle"/>.
     /// </summary>
-    internal static void ResolveBullImmuneShot(
+    private static void ResolveBullImmuneShot(
         RoomEnemyPlace bull,
         BullEnemyState state,
         TrigonometryAngle kickAngle)
@@ -189,7 +189,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySettingsFactory<BullSp
     }
 
     /// <summary>Runs Bull's idle and immune-shot animations (#641).</summary>
-    internal static void AdvanceBullAnimation(RoomEnemyPlace place, BullEnemyState bullEnemyState, EnemyAnimationCueContext _) =>
+    internal static void AdvanceBullAnimation(RoomEnemyPlace place, BullEnemyState bullEnemyState) =>
         EnemyAnimationPlayback.Advance(place, bullEnemyState, BullAnimations.Segments,
             static (BullEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Bull animation raised {cue}."));
@@ -220,7 +220,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySettingsFactory<BullSp
             AfterCommon = c =>
             {
                 if (c.Froze || c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, state, BullMotion.ShotAngle(c.ProjectileDirection));
+                    ResolveBullImmuneShot(c.Enemy, state, BullMovementDefinitions.ShotAngles.For(c.ProjectileDirection));
             },
         };
 }

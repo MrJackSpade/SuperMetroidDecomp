@@ -31,8 +31,8 @@ public sealed class SamusGrappleState
     /// </summary>
     public Position16<RoomPixels> FlareOrigin { get; set; }
     /// <summary>
-    /// Rope length in pixels. Connected motion clamps it below 64, while firing grows it by twelve per frame
-    /// and cancels once it reaches 128, so it never leaves 0 through
+    /// Rope length in pixels. Connected motion clamps it below the swing's longest rope, while firing grows it each frame
+    /// and cancels once it reaches its longest, so it never leaves 0 through
     /// <see cref="GrappleBeamDefinitions.Physics.LongestRopeLength"/>; other writes are rejected, which keeps every
     /// signed length test an ordinary comparison.
     /// </summary>
@@ -44,8 +44,8 @@ public sealed class SamusGrappleState
     }
 
     /// <summary>
-    /// The signed per-update change in rope length: the connection's retraction, the Up or Down adjustment of two
-    /// pixels, firing's extension or none.
+    /// The signed per-update change in rope length: the connection's retraction, the Up or Down adjustment
+    /// (<see cref="GrappleBeamDefinitions.Swing.RopeLengthStep"/>), firing's extension or none.
     /// </summary>
     public int RopeLengthDelta
     {
@@ -194,7 +194,7 @@ public sealed class SamusGrappleState
     internal ChargeFlareComponentState Flare { get; } = new(ChargeFlareComponent.MainFlare);
 
     /// <summary>
-    /// The endpoint's animation (#1627, #2388): its four pictures, six beam draws each, over and over; a fresh beam starts
+    /// The endpoint's animation (#1627, #2388): its pictures, over and over; a fresh beam starts
     /// it on its first.
     /// </summary>
     internal ShowingAnimationPlayer<GrappleEndpointSegment, GrappleEndpointFrame, NoAnimationCue> Endpoint { get; } =

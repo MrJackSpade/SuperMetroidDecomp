@@ -16,7 +16,7 @@ internal sealed class EndingPostCreditsText
     /// The typed texts the screen shows, in the order they started (#2541): none until the logo's end, then the item
     /// percentage, then, from the end of the move down on, the final message below which the item percentage stays shown.
     /// </summary>
-    internal readonly List<EndingTypewriter> typed = [];
+    private readonly List<EndingTypewriter> typed = [];
 
     /// <summary>Pixels the text is moved down the screen, zero until the item percentage's move down.</summary>
     internal int Drop { get; set; }

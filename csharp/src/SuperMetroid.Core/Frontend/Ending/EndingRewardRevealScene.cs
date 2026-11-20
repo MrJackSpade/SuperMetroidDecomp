@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
@@ -9,4 +12,18 @@ internal sealed class EndingRewardRevealScene(PacedFadeSteps fade) : EndingScene
 {
     /// <summary>The reward's colour fade.</summary>
     internal PacedFadeSteps Fade { get; } = Ensure.NotNull(fade);
+
+    /// <inheritdoc/>
+    internal override bool Step(EndingCreditsState ending)
+    {
+        ending.StepRewardReveal(this);
+        return true;
+    }
+
+    /// <inheritdoc/>
+    internal override void DrawActors(EndingCreditsState ending, ScreenSprites sprites, Func<EndingSpriteLayer, bool> shows) =>
+        EndingCreditsPresentation.DrawCast(ending, sprites, shows);
+    /// <inheritdoc/>
+    internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
+        EndingCreditsPresentation.CaptureSharedScreen(ending, paint);
 }

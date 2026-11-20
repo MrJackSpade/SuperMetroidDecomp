@@ -52,7 +52,7 @@ internal static class BoostFloorAuditVerification
         // Exercise the native latch boundaries separately from the full runtime sequence.
         var kinematics = samus.Kinematics;
         kinematics.Position = kinematics.Position.WithWholeX(375).WithWholeY(451).WithFractionY(0);
-        kinematics.PositionAdjustedBySlope = false;
+        global::SuperMetroid.Core.PrivateState.Set(kinematics, "PositionAdjustedBySlope", false);
         var floor = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true, IncludeSolidEnemies = false });
         AssertTrue(floor.Collided && kinematics.PositionAdjustedBySlope, "downward square-floor contact sets native support latch");
         SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(7) });

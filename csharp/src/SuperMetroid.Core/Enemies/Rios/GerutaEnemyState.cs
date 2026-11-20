@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Rios;
 
@@ -18,16 +17,15 @@ public sealed class GerutaEnemyState
     internal bool Idles => Playback.PlayingSegment == GerutaSegment.Idle;
 
     /// <summary>
-    /// Whether the Rio's swoop's start has finished, as its animation's cue says, and its main AI has not yet acted on it.
-    /// It stays a mark beside the action rather than a phase of it (#2450): the ascent's start can finish on the update
-    /// before the Rio lands on its perch, or after it has landed, while its landing's update and its wait for Samus run.
-    /// The finish then carries into that wait, where it rests the Rio idle the next time it does not attack, or ends at
-    /// once the takeoff of an attack it starts first.
+    /// Whether the Rio's swoop's start has finished and its next step has not yet acted on it (#2450). A swoop start
+    /// that ends early carries into the next wait: it can finish on the update before the Rio lands on its perch, or
+    /// after it has landed, while its landing's update and its wait for Samus run. The finish then rests the Rio idle
+    /// the next time it does not attack, or ends at once the takeoff of an attack it starts first.
     /// </summary>
     public RioAnimationFinish Finish { get; } = new();
 
     /// <summary>
-    /// The flame follower's vertical placement relative to its parent, -16 through 12 pixels, negative above it. Private
+    /// The flame follower's vertical placement relative to its parent, as its cues publish it, negative above it. Private
     /// animation cues publish it with <see cref="Flames"/>.
     /// </summary>
     public int FollowerYOffset { get; internal set; }

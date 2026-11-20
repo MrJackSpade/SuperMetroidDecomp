@@ -90,8 +90,8 @@ public static class MapPresentationExtractor
             RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount),
             4, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> atlasSize);
         using var atlas = new MemoryStream();
-        // Palette indexes are tile content; runtime CGRAM supplies the selected map
-        // palette. This neutral preview palette is not an imported gameplay palette.
+        // The atlas's colour numbers are import data: the import pre-colours the map sheets from them under each
+        // screen's colours. This neutral preview palette is not an imported gameplay palette.
         IndexedPng.Write(atlas, atlasSize, tilePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
         byte[] atlasBytes = atlas.ToArray();
         using (var file = new FileStream(PathOf(MapTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))

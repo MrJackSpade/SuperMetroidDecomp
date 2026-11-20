@@ -77,7 +77,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// Whether a block of the state's terrain collides as <paramref name="collision"/> and selects <paramref name="reaction"/>,
     /// the reaction that kind reads; null for a kind that reads none, which any block of the kind holds.
     /// </summary>
-    internal bool Holds(RoomCollisionType collision, Enum? reaction) =>
+    internal bool Holds(RoomCollisionType collision, BlockReaction? reaction) =>
         Terrain.Any(block => block.Collision == collision && Equals(block.Behavior.ReactionUnder(collision), reaction));
 
     /// <summary>Whether the state's terrain holds a shot block that any weapon breaks and that grows back, or a Wave shot's straddled read sets one off.</summary>
@@ -113,9 +113,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
                 (block.Behavior.Special is { } special &&
                     BombSpecialBlockReactions.ChangeFor(special) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
         (IsReactingSpecialAir(block) && block.Behavior.SpecialAir is { } air &&
-            SpecialAirReactions.CollisionOf(air) is SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock
-                or SpecialAirCollisionReaction.BrinstarSlowPermanentSpeedBlock or SpecialAirCollisionReaction.DachoraRespawningSpeedBlock
-                or SpecialAirCollisionReaction.PermanentSpeedBlock));
+            SpecialAirReactions.CollisionOf(air).IsSpeedBlock));
 
     /// <summary>Whether the state's terrain holds a Grapple block that breaks under the beam.</summary>
     internal bool HoldsBreakableGrappleBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.GrappleBlock &&
@@ -143,8 +141,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
 
     /// <summary>Whether the state's terrain holds a special-air block whose inside reaction is a Brinstar plant that bites Samus.</summary>
     internal bool HoldsSamusEaterPlants => Terrain.Any(block => IsReactingSpecialAir(block) && block.Behavior.SpecialAir is { } air &&
-        SpecialAirReactions.InsideOf(air) is SpecialAirInsideReaction.BrinstarFloorPlant
-            or SpecialAirInsideReaction.BrinstarCeilingPlant);
+        SpecialAirReactions.InsideOf(air).Plant is not null);
 
     /// <summary>
     /// Whether <paramref name="block"/> is a special-air block with a reaction: a reaction that is the same in every area

@@ -70,7 +70,7 @@ internal static class RidleyAnimations
     /// The animation that starts at each segment: its segment played once, then a rest on its last frame; a fireballing segment
     /// runs on into its end, authored next, which rests.
     /// </summary>
-    internal static IReadOnlyDictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
+    private static Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
     {
         [P.StandingFacingLeft] = PlaysOnceAndHolds(P.StandingFacingLeft),
         [P.StandingFacingRight] = PlaysOnceAndHolds(P.StandingFacingRight),
@@ -177,8 +177,8 @@ internal static class RidleyAnimations
     ];
 
     /// <summary>
-    /// One roar and four fireballs (#2331): the first with its afterburn, each shot with the mouth open for its five
-    /// updates, the last for the burst's tail, before the mouth half closes.
+    /// One roar and its fireballs (#2331): the first with its afterburn, each shot with the mouth open for its shot's
+    /// hold, the last for the burst's tail, before the mouth half closes.
     /// </summary>
     private static AnimationBeat<F, RidleyBodyCue>[] Burst(Side side) =>
     [

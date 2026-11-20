@@ -7,11 +7,21 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 public sealed class PhantoonWaveState
 {
-    /// <summary>
-    /// The wave's length, which the wave reads every update; null ends the wave.
-    /// The wave's setup sets it.
-    /// </summary>
-    public PhantoonWaveLength? Length { get; internal set; }
+    /// <summary>The wave's length, which the wave reads every update. The wave's setup sets it.</summary>
+    public PhantoonWaveLength Length { get; private set; }
+
+    /// <summary>Whether the wave has been ended: its next active update stops it, keeping its last shape.</summary>
+    public bool HasEnded { get; private set; }
+
+    /// <summary>Sets up a wave of <paramref name="length"/>, which runs until it is ended.</summary>
+    internal void SetUp(PhantoonWaveLength length)
+    {
+        Length = length;
+        HasEnded = false;
+    }
+
+    /// <summary>Ends the wave on its next active update.</summary>
+    internal void End() => HasEnded = true;
 
     /// <summary>The wave's peak displacement, never negative (#1936).</summary>
     public SignedSixteenSixteen Amplitude

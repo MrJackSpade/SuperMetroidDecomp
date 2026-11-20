@@ -34,13 +34,13 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         {
             Inner = new EnemyAnimationFixture(artwork);
             EnemyDefinitionId bodyId = EnemyDefinitionId.MotherBrainBody;
-            Body.Bind(bodyId, Body.Definition);
-            Body.Bind(Body.DefinitionId, RoomEnemyDefinitionLookup.Get(bodyId));
+            Body.Bind(bodyId, Body.KeptDefinition);
+            Body.Bind(Body.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(bodyId));
             Body.Position = Body.Position.WithWhole(new(128, 128));
             // She draws under the retail graphics set her room loads, whose sheets hold her frames, at the tile base and
             // palette row it gives her (#1459).
             SpawnedObjectFixtures.LoadSetDrawing(Inner.Enemies, bodyId, Body);
-            State = new MotherBrainEnemyState(Body, Inner.Enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { Form = MotherBrainForm.DrainedByBabyMetroid };
+            State = new MotherBrainEnemyState(Body.HeldOccupant(), Inner.Enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { Form = MotherBrainForm.DrainedByBabyMetroid };
             Inner.Enemies.MotherBrainEncounter.BeginAsSetUp(State);
             // Her phase-two transition attaches the body layer her body draws on (#1356, #1466), showing her blank. Her
             // body draws from sheets composed from the fixture's own frames, as an installation of them would hold.

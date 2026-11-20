@@ -33,19 +33,19 @@ internal sealed class KraidCombat
     internal void ReactToArmBomb(EnemyBombContext c)
     {
         if (c.SelectedShot != EnemyReaction.Ignore && c.SelectedShot != KraidReactions.ArmShot)
-            throw new InvalidDataException($"Kraid's arm selected the bomb reaction {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
+            throw new InvalidDataException($"Kraid's arm selected the bomb reaction {c.SelectedShot}.");
 
         // The arm's shot reaction raises dust where the shot struck; the hit's direction is already recorded.
         // Protected arm frames ignore the shot.
         if (c.SelectedShot == KraidReactions.ArmShot)
-            SpawnKraidArmShotExplosion(c.Bomb.Type, c.Bomb.Position.Whole);
+            SpawnKraidArmShotExplosion(c.PlacedBomb.Type, c.Bomb.Position.Whole);
     }
 
     /// <summary>Runs the foot's reaction to a bomb its hitboxes select: every foot rectangle ignores it.</summary>
     internal static void ReactToFootBomb(EnemyBombContext c)
     {
         if (c.SelectedShot != EnemyReaction.Ignore)
-            throw new InvalidDataException($"Kraid's foot selected the bomb reaction {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
+            throw new InvalidDataException($"Kraid's foot selected the bomb reaction {c.SelectedShot}.");
     }
 
     /// <summary>The arm's shot reaction, which its hitboxes decide behind its definition's ignoring one.</summary>
@@ -56,9 +56,9 @@ internal sealed class KraidCombat
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
             if (!c.UsesFrameHitboxes || (c.HitboxShot != EnemyReaction.Ignore && c.HitboxShot != KraidReactions.ArmShot))
-                throw new InvalidDataException($"Kraid's arm selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+                throw new InvalidDataException($"Kraid's arm selected the shot reaction {c.HitboxShot}.");
 
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             if (c.HitboxShot == KraidReactions.ArmShot)
                 SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
             return true;
@@ -71,9 +71,9 @@ internal sealed class KraidCombat
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
             if (!c.UsesFrameHitboxes || c.HitboxShot != EnemyReaction.Ignore)
-                throw new InvalidDataException($"Kraid's foot selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+                throw new InvalidDataException($"Kraid's foot selected the shot reaction {c.HitboxShot}.");
 
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             return true;
         },
     };
@@ -110,19 +110,17 @@ internal sealed class KraidCombat
         _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>
-    /// Both passes return immediately once Kraid has begun sinking.
-    /// </summary>
-    private static bool KraidSinkingSkipsProjectileCollision(KraidEnemyState state) => !state.BodyState.ShotsCollide;
+
 
     /// <summary>
     /// Resolves projectile hits on Kraid's mouth. Projectile
     /// removal is deferred to the projectile's own update.
     /// </summary>
-    internal int ResolveKraidMouthProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
+    internal void ResolveKraidMouthProjectileHits(RoomEnemyOccupant kraid, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
-        if (KraidSinkingSkipsProjectileCollision(state))
-            return 0;
+        RoomEnemyPlace body = Ensure.NotNull(kraid).Place;
+        if (!state.BodyState.ShotsCollide)
+            return;
 
         int mouthHits = 0;
         KraidMouthHitbox? innerMouth = tested.Count == 0 ? null : KraidHeadAnimations.InnerMouthAt(state.HeadPlayback);
@@ -131,7 +129,8 @@ internal sealed class KraidCombat
             KraidPassBounds bounds = PlaceKraidPassBounds(body, inner);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
-                KraidBehavior.KraidCollisionShot shot = projectile.Read();
+                if (projectile.Held is not { } shot)
+                    continue;
                 SamusProjectileType type = shot.Type;
                 if (!OverlapsKraidMouth(bounds, shot) ||
                     (type.Family == SamusProjectileFamily.Beam && !type.IsChargedBeam))
@@ -143,10 +142,10 @@ internal sealed class KraidCombat
                 // Every beam takes Kraid's charged-beam response; the other families take their own.
                 EnemyWeaponVulnerability vulnerability = type.Family switch
                 {
-                    SamusProjectileFamily.Beam => EnemyVulnerabilities.Of(body.Definition).ChargedBeam,
+                    SamusProjectileFamily.Beam => EnemyVulnerabilities.Of(kraid.Definition).ChargedBeam,
                     SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile or
                     SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb =>
-                        EnemyCollision.ReadProjectileVulnerability(body, type),
+                        EnemyCollision.ReadProjectileVulnerability(kraid, type),
                     SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion => EnemyWeaponVulnerability.NoDamage,
                     _ => throw new InvalidOperationException($"Undefined SamusProjectileFamily {type.Family}."),
                 };
@@ -167,7 +166,7 @@ internal sealed class KraidCombat
                 else
                 {
                     RoomEffectActor dud = _effectActors.SpawnRoomEffectActor(
-                        shot.Position, RoomEffectActorKind.DudShot, graphics: default);
+                        shot.Position, RoomEffectActorKind.DudShot, graphics: SpriteGraphics.SharedStandard);
                     bounds.LeaveAfterDud(_effectActors.PlaceOf(dud), shot.Position);
                     _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Low);
                 }
@@ -184,18 +183,16 @@ internal sealed class KraidCombat
             if (body.Health < 1 && state.BodyState.Fights)
                 BeginKraidDeath(state);
         }
-
-        return mouthHits;
     }
 
     /// <summary>
     /// Resolves projectile hits on Kraid's body, the independent
     /// outer mouth/body pass.
     /// </summary>
-    internal int ResolveKraidBodyProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
+    internal void ResolveKraidBodyProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
-        if (KraidSinkingSkipsProjectileCollision(state))
-            return 0;
+        if (!state.BodyState.ShotsCollide)
+            return;
 
         bool chargedHit = false;
         int bodyHits = 0;
@@ -205,7 +202,8 @@ internal sealed class KraidCombat
             KraidPassBounds bounds = PlaceKraidPassBounds(body, outerMouth);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
-                KraidBehavior.KraidCollisionShot shot = projectile.Read();
+                if (projectile.Held is not { } shot)
+                    continue;
                 if (!OverlapsKraidBody(ref bounds, body, shot))
                     continue;
                 SpawnKraidArmShotExplosion(shot.Type, shot.Position);
@@ -227,22 +225,21 @@ internal sealed class KraidCombat
                 state.ArmMouthReopens();
             }
         }
-        return bodyHits;
     }
 
     /// <summary>Places a mouth shape at Kraid's body position as the bounds a collision pass starts from.</summary>
-    internal static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthHitbox shape) =>
+    private static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthHitbox shape) =>
         PlaceKraidPassBounds(body, KraidMouthHitboxes.ResolveCollision(shape));
 
     /// <summary>Places a mouth shape's left, top and bottom edges at Kraid's body position.</summary>
-    internal static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthCollisionEdges shape) =>
+    private static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthCollisionEdges shape) =>
         KraidPassBounds.Placed(
             body.Position.X.Whole + shape.Left,
             body.Position.Y.Whole + shape.Top,
             body.Position.Y.Whole + shape.Bottom);
 
     /// <summary>Whether a projectile overlaps the pass's bounds as the mouth pass tests them.</summary>
-    internal static bool OverlapsKraidMouth(KraidPassBounds bounds, KraidBehavior.KraidCollisionShot shot) =>
+    private static bool OverlapsKraidMouth(KraidPassBounds bounds, KraidBehavior.KraidCollisionShot shot) =>
         bounds.Overlaps(
             shot.Position.Y - shot.Radius.Y,
             shot.Position.Y + shot.Radius.Y,
@@ -252,7 +249,7 @@ internal sealed class KraidCombat
     /// Whether a projectile overlaps Kraid's body: inside the pass's bounds when it reaches above their bottom, and
     /// otherwise left of the body's contour at its height, which leaves the projectile's right edge as the bottom.
     /// </summary>
-    internal static bool OverlapsKraidBody(ref KraidPassBounds bounds, RoomEnemyPlace body, KraidBehavior.KraidCollisionShot shot)
+    private static bool OverlapsKraidBody(ref KraidPassBounds bounds, RoomEnemyPlace body, KraidBehavior.KraidCollisionShot shot)
     {
         if (bounds.IsAboveBottom(shot.Position.Y - shot.Radius.Y))
             return bounds.ReachesTopAndLeft(shot.Position.Y + shot.Radius.Y, shot.Position.X + shot.Radius.X);
@@ -275,8 +272,9 @@ internal sealed class KraidCombat
     /// <summary>Checks the body hitbox and applies contact damage to Samus.</summary>
     /// <remarks>These collision checks belong to actor AI rather than generic interactive hitboxes. The body's
     /// permanent intangible flag and lint's ignoring touch reaction do not suppress these private paths.</remarks>
-    internal void ResolveKraidBodyContact(RoomEnemyPlace body, KraidEnemyState state, SamusState samus, PseudoScrewCharge pseudoScrew)
+    internal void ResolveKraidBodyContact(RoomEnemyOccupant kraid, KraidEnemyState state, SamusState samus, PseudoScrewCharge pseudoScrew)
     {
+        RoomEnemyPlace body = kraid.Place;
         if (!state.BodyState.Fights)
             return;
         int relativeY = samus.Position.Y.Whole - body.Position.Y.Whole;
@@ -291,18 +289,18 @@ internal sealed class KraidCombat
             ? state.EjectionLimitY : ejected.Y);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(KraidContactDefinitions.PushBack);
         if (samus.InvincibilityTimer.IsZero)
-            _collision.ResolveOrdinaryTouch(body, samus, pseudoScrew);
+            _collision.ResolveOrdinaryTouch(kraid, samus, pseudoScrew);
     }
 
     /// <summary>
-    /// The reaction of the first hitbox the probe overlaps on his foot's pose, or null when the pose has none; the foot's
-    /// own entity asks with its own pose (#2301).
+    /// The first hitbox the probe overlaps on his foot's pose, whose reaction runs, or none; the foot's own entity asks with
+    /// its own pose (#2301).
     /// </summary>
-    internal static bool? FindKraidFootHitboxReaction(RoomEnemyPlace enemy, KraidPartPose? pose, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <exception cref="InvalidDataException">The pose has no hitboxes.</exception>
+    internal static EnemyHitboxContact FindKraidFootHitboxReaction(RoomEnemyPlace enemy, KraidPartPose? pose, EnemyHitboxProbe probe)
     {
-        reaction = null;
         if (!KraidFootCollision.TryGetComponents(pose, out var footComponents))
-            return null;
+            throw EnemyCollision.UncoveredFrame(enemy);
 
         // Kraid's foot art is replaceable, but each pose still places two physical components against one shared hitbox
         // list, moved with the pose's step.
@@ -317,22 +315,21 @@ internal sealed class KraidCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 
     /// <summary>
-    /// The reaction of the first hitbox the probe overlaps on his arm's frame, or null when the frame has none; the arm's
-    /// own entity asks (#2301).
+    /// The first hitbox the probe overlaps on his arm's frame, whose reaction runs, or none; the arm's own entity asks
+    /// (#2301).
     /// </summary>
-    internal static bool? FindKraidArmHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <exception cref="InvalidDataException">The frame has no hitboxes.</exception>
+    internal static EnemyHitboxContact FindKraidArmHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
         if (!KraidArmCollision.TryGetComponents(enemy.Frame, out var kraidComponents))
-            return null;
+            throw EnemyCollision.UncoveredFrame(enemy);
 
         // Kraid's arm art is editable, but the frame
         // also carries a separate, ordered list of physical components.
@@ -349,11 +346,10 @@ internal sealed class KraidCombat
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
 
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 
     /// <summary>

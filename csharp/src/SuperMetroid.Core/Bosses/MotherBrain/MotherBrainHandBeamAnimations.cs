@@ -14,8 +14,8 @@ internal static class MotherBrainHandBeamAnimations
     private const int Stages = 3;
 
     /// <summary>
-    /// The beam's stage, spawning the next beam after its first frame and fading over seven frames held 3, 3, 2, 2, 1, 1
-    /// and 1 updates, and its deletion.
+    /// The beam's stage, spawning the next beam after its first frame and fading over its frames, each held shorter than
+    /// the last, and its deletion.
     /// </summary>
     internal static AnimationSegments<MotherBrainHandBeamSegment, EnemyProjectileFrameId, MotherBrainHandBeamCue> Segments { get; } = new(
         new Dictionary<MotherBrainHandBeamSegment, Beat[]>
@@ -35,7 +35,7 @@ internal static class MotherBrainHandBeamAnimations
         });
 
     /// <summary>
-    /// The beam's animation: its three stages and its deletion, played once; the deleted beam then rests. The charging beam
+    /// The beam's animation: its stages (<see cref="Stages"/>) and its deletion, played once; the deleted beam then rests. The charging beam
     /// and every fired beam play it.
     /// </summary>
     internal static IReadOnlyDictionary<MotherBrainHandBeamSegment, Animation<MotherBrainHandBeamSegment>> StartingAt { get; } =

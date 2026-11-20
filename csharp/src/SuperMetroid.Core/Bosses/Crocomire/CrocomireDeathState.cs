@@ -67,7 +67,7 @@ public sealed class CrocomireDeathState
     /// <summary>Lowest background source row the melt distortion stretches back to, from the active pass.</summary>
     public int LowestDistortionSourceRow { get; internal set; }
 
-    /// <summary>Background source row the distortion starts at; it climbs three rows per frame and stops at sixteen.</summary>
+    /// <summary>Background source row the distortion starts at; it climbs by <see cref="CrocomireMeltingDefinitions.DistortionSourceClimb"/> each frame and stops at <see cref="CrocomireMeltingDefinitions.DistortionSourceTop"/>.</summary>
     public int DistortionSourceRow { get; internal set; }
 
     /// <summary>
@@ -84,7 +84,7 @@ public sealed class CrocomireDeathState
     /// <summary>
     /// Melt shake counter: zero before the first melt, decremented once per dissolve frame and wrapping below zero; the
     /// shake alternates between its two looks every <see cref="CrocomireMeltingDefinitions.ShakeHalfPeriod"/> counts, the
-    /// second of them jittered four pixels on X.
+    /// second of them jittered on X by <see cref="CrocomireMeltingDefinitions.ShakeOffset"/>.
     /// The wrap is load-bearing: the first dissolve frame steps the counter down from zero to its largest count, which
     /// lies in a jittered half, so the shake starts on the jittered side.
     /// </summary>

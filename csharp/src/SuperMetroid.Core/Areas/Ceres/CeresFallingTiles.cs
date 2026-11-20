@@ -28,22 +28,21 @@ internal sealed class CeresFallingTiles
     /// The Ceres falling tiles, light and dark (#1760): each falls under gravity until it strikes the room, where it
     /// raises dust and sounds its fall.
     /// </summary>
-    internal SingleMotionProjectileBehavior Behavior => field ??= new(
+    private SingleMotionProjectileBehavior Behavior => field ??= new(
         context => Drop(context.Projectile, context.Level));
 
     /// <summary>
-    /// Spawns the falling tile the falling-debris room main requests at <paramref name="xPosition"/>. The X coordinate and
-    /// the tile's look, light or dark, come directly from the room's current random number; this setup owns only
-    /// projectile fields. The room main supplies the tile's animation, which shows its look, and the graphics it draws in.
-    /// A spawn that finds every place held spawns nothing.
+    /// Spawns the falling tile the falling-debris room main requests: the tile starts falling at
+    /// <paramref name="xPosition"/>, light or dark as the room's current random number chooses. The room main supplies
+    /// the tile's animation, which shows its look, and the graphics it draws in. A spawn that finds every place held
+    /// spawns nothing.
     /// </summary>
     internal void Spawn(int xPosition, EnemyProjectileAnimation animation, SpriteGraphics graphics)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CeresFallingDebris, Behavior, graphics);
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.CeresFallingDebris, Behavior, graphics);
         projectile.Position = projectile.Position.WithWhole(new(xPosition, CeresFallingDebrisDefinitions.StartingY));
         projectile.Velocity = new(SignedEightEight.Zero, CeresFallingDebrisDefinitions.StartingFallSpeed);
         projectile.StartAnimation(animation);

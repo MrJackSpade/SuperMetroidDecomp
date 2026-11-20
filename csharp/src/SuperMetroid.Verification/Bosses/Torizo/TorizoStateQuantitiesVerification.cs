@@ -22,7 +22,7 @@ internal static class TorizoStateQuantitiesVerification
         var state = new TorizoEnemyState(TorizoVariant.Golden);
         var inputs = new TorizoCueInputs { Torizo = LivingTorizo.Instance, Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 };
         void ApplyCue(TorizoCue cue) =>
-            AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(place, state, inputs, cue,
+            AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(place.HeldOccupant(), place, state, inputs, cue,
                     TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening)) is null,
                 $"{cue} runs on");
         void Apply(TorizoCueKind kind) => ApplyCue(new TorizoCue.Signal(kind));
@@ -45,10 +45,10 @@ internal static class TorizoStateQuantitiesVerification
 
         state.Posture = TorizoPosture.Initial.TurningAround;
         ApplyCue(new TorizoCue.Stepped(HorizontalDirection.Right, Foot: HorizontalDirection.Left));
-        AssertEqual(new TorizoPosture(HorizontalDirection.Right, LeadingFoot: HorizontalDirection.Left), state.Posture,
+        AssertEqual(TorizoPosture.AfterStep(HorizontalDirection.Right, HorizontalDirection.Left), state.Posture,
             "a stepping cue replaces the whole posture: its facing, its leading foot and the turn");
         Apply(TorizoCueKind.SetTurningAround);
-        AssertEqual(new TorizoPosture(HorizontalDirection.Right, LeadingFoot: HorizontalDirection.Left).TurningAround,
+        AssertEqual(TorizoPosture.AfterStep(HorizontalDirection.Right, HorizontalDirection.Left).TurningAround,
             state.Posture, "the turning cue sets the turn alone");
 
         state.Stunned = true;

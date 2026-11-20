@@ -151,7 +151,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// <summary>Reads <paramref name="family"/>'s segments, animations, table and the programs Core names outside them.</summary>
     private FamilyProgramSet Read(INamedTypeSymbol family)
     {
-        INamedTypeSymbol animation = TypedAnimationOf(family);
+        INamedTypeSymbol animation = TimelineAnimationOf(family);
         var segmentType = (INamedTypeSymbol)animation.TypeArguments[0];
         var frameType = (INamedTypeSymbol)animation.TypeArguments[1];
         // A family whose beats name projectile frames, outright or as a frame record naming them, shows them as they are; any
@@ -707,15 +707,15 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         }
     }
 
-    /// <summary>The <c>EnemyProjectileTypedAnimation</c> base <paramref name="family"/> derives from, with its type arguments.</summary>
-    private INamedTypeSymbol TypedAnimationOf(INamedTypeSymbol family)
+    /// <summary>The <c>EnemyProjectileTimelineAnimation</c> base <paramref name="family"/> derives from, with its type arguments.</summary>
+    private INamedTypeSymbol TimelineAnimationOf(INamedTypeSymbol family)
     {
         for (INamedTypeSymbol? type = family; type is not null; type = type.BaseType)
         {
-            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, model.TypedAnimation))
+            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, model.TimelineAnimation))
                 return type;
         }
-        throw new InvalidDataException($"{family.ToDisplayString()} does not derive from {model.TypedAnimation.Name}.");
+        throw new InvalidDataException($"{family.ToDisplayString()} does not derive from {model.TimelineAnimation.Name}.");
     }
 
     /// <summary>
@@ -861,7 +861,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         var values = new HashSet<SyntaxNode>();
         foreach (IMethodSymbol constructor in family.OriginalDefinition.InstanceConstructors)
         {
-            if (constructor.Parameters is not [var program, ..])
+            if (model.ProgramParameterOf(constructor, family) is not { } program)
                 continue;
             foreach (CallSite site in model.CallSites(constructor))
             {

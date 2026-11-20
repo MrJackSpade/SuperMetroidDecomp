@@ -11,7 +11,7 @@ internal static class SamusAnimationDelays
 
     /// <summary>The animation <paramref name="pose"/> animates by.</summary>
     /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
-    internal static SamusPoseAnimation AnimationForPose(SamusPoseId pose) => AnimationOf(pose);
+    internal static SamusPoseAnimation AnimationForPose(SamusPoseId pose) => SamusPoseTraits.Of(pose).Animation;
 
     /// <summary>The animation named <paramref name="name"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The name names no animation.</exception>
@@ -49,7 +49,7 @@ internal static class SamusAnimationDelays
         [NotNullWhen(true)] out SamusPoseAnimationStep? step)
     {
         Ensure.NotNull(framesBeyondAnimation);
-        SamusPoseAnimation animation = AnimationOf(pose);
+        SamusPoseAnimation animation = AnimationForPose(pose);
         if (TryOwnStep(animation, frame, framesBeyondAnimation, out step))
             return true;
         if (!framesBeyondAnimation.TryReadPast(animation.Name, frame, out SamusFramesBeyondAnimation.Read? read))
@@ -65,7 +65,7 @@ internal static class SamusAnimationDelays
     /// included (<see cref="SamusPoseAnimation.Next"/>).
     /// </summary>
     internal static SamusAnimationFrame Next(SamusPoseId pose, SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation) =>
-        AnimationOf(pose).Next(frame, framesBeyondAnimation);
+        AnimationForPose(pose).Next(frame, framesBeyondAnimation);
 
     /// <summary>
     /// The frame of <paramref name="pose"/>'s animation a cue read at <paramref name="at"/> moves it to when it names
@@ -80,7 +80,7 @@ internal static class SamusAnimationDelays
         SamusFramesBeyondAnimation framesBeyondAnimation)
     {
         Ensure.NotNull(framesBeyondAnimation);
-        SamusPoseAnimation animation = AnimationOf(pose);
+        SamusPoseAnimation animation = AnimationForPose(pose);
         if (TryOwnStep(animation, at, framesBeyondAnimation, out _))
             return animation.Require(target);
         if (!framesBeyondAnimation.TryReadPast(animation.Name, at, out SamusFramesBeyondAnimation.Read? read))
@@ -100,7 +100,7 @@ internal static class SamusAnimationDelays
     {
         Ensure.NotNull(place.Animation);
         Ensure.NotNull(framesBeyondAnimation);
-        SamusPoseAnimation animation = AnimationOf(pose);
+        SamusPoseAnimation animation = AnimationForPose(pose);
         return ReferenceEquals(animation, place.Animation) ? place.Frame : framesBeyondAnimation.Landing(place.Name, animation.Name);
     }
 
@@ -113,7 +113,7 @@ internal static class SamusAnimationDelays
         SamusAnimationFrame frame,
         SamusAnimationPlace place,
         SamusFramesBeyondAnimation framesBeyondAnimation) =>
-        AnimationOf(pose).Compare(frame, Land(pose, place, framesBeyondAnimation)) >= 0;
+        AnimationForPose(pose).Compare(frame, Land(pose, place, framesBeyondAnimation)) >= 0;
 
     /// <summary>Whether <paramref name="frame"/> of <paramref name="pose"/>'s animation lies past <paramref name="place"/>.</summary>
     internal static bool HasPassed(
@@ -121,7 +121,7 @@ internal static class SamusAnimationDelays
         SamusAnimationFrame frame,
         SamusAnimationPlace place,
         SamusFramesBeyondAnimation framesBeyondAnimation) =>
-        AnimationOf(pose).Compare(frame, Land(pose, place, framesBeyondAnimation)) > 0;
+        AnimationForPose(pose).Compare(frame, Land(pose, place, framesBeyondAnimation)) > 0;
 
     /// <summary>
     /// The step <paramref name="frame"/> of <paramref name="animation"/> names itself: one of its delays or cues, or a value
@@ -143,8 +143,4 @@ internal static class SamusAnimationDelays
             ? byName
             : throw new InvalidOperationException("A Samus animation name has no animation.");
     }
-
-    /// <summary>The animation of <paramref name="pose"/>.</summary>
-    /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
-    private static SamusPoseAnimation AnimationOf(SamusPoseId pose) => SamusPoseTraits.Of(pose).Animation;
 }

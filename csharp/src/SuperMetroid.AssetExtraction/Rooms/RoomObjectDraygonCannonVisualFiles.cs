@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectDraygonCannonVisualFiles
 {
     /// <summary>The installed file holding the right- and left-facing cannon frames' pictures.</summary>
-    public const string VisualFileName = "draygon-cannons.json";
+    private const string VisualFileName = "draygon-cannons.json";
 
     /// <summary>The cannon frames in the installed file's order (#2567): the right-facing frames, then the left-facing.</summary>
     private static readonly IReadOnlyList<DraygonCannonDraw> FrameOrder = Ensure.EveryMemberOnce<DraygonCannonDraw>(

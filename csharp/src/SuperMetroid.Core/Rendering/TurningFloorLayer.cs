@@ -11,9 +11,5 @@ namespace SuperMetroid.Core.Rendering;
 public sealed record TurningFloorLayer(FloorView Transform, AffineFloor Floor, FloorColorBlend Blend = FloorColorBlend.None) : DisplayLayer
 {
     /// <summary>The floor's map and pictures.</summary>
-    public AffineFloor Floor
-    {
-        get;
-        init => field = Ensure.NotNull(value);
-    } = Ensure.NotNull(Floor);
+    public AffineFloor Floor { get; } = Ensure.NotNull(Floor);
 }

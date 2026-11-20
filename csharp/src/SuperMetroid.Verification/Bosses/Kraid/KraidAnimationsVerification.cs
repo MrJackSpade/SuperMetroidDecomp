@@ -164,10 +164,9 @@ internal static class KraidAnimationsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         RoomEnemyPlace arm = enemies.Places.InUpdateOrder[1];
-        arm.Bind(EnemyDefinitionId.KraidArm, arm.Definition);
         // The parts bind before the encounter begins, so each holds it as its setup would.
+        enemies.Places.BindKraidPartsInRoomOrder();
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         state.InitialHealth = 104;
         return new NewKraidResult(enemies, state, body, arm);
@@ -235,7 +234,7 @@ internal static class KraidAnimationsVerification
         }
 
         RoomEnemyPlace foot = enemies.Places.InUpdateOrder[5];
-        foot.Bind(EnemyDefinitionId.KraidFoot, foot.Definition);
+        foot.Bind(EnemyDefinitionId.KraidFoot, foot.KeptDefinition);
         // The foot binds after the encounter began, and joins it as its setup would.
         KraidEncounterAccess.AttachKraidPart(state.FootState);
         // The walks' cues raise, lower and step the body: it stands clear of the room's edges while they do.
@@ -266,7 +265,7 @@ internal static class KraidAnimationsVerification
     {
         (RoomEnemySystem enemies, KraidEnemyState state, _, RoomEnemyPlace arm) = NewKraid();
         RoomEnemyPlace foot = enemies.Places.InUpdateOrder[5];
-        foot.Bind(EnemyDefinitionId.KraidFoot, foot.Definition);
+        foot.Bind(EnemyDefinitionId.KraidFoot, foot.KeptDefinition);
         // The foot binds after the encounter began, and joins it as its setup would.
         KraidEncounterAccess.AttachKraidPart(state.FootState);
         state.FootState.Playback = Started(KraidPartSegment.FootNeutral);
@@ -301,7 +300,7 @@ internal static class KraidAnimationsVerification
         // #2213: a lint's stopped clock never steps its animation, through any number of updates and a lengthened hold,
         // until its owner steps it again.
         RoomEnemyPlace lint = enemies.Places.InUpdateOrder[2];
-        lint.Bind(EnemyDefinitionId.KraidLintTop, lint.Definition);
+        lint.Bind(EnemyDefinitionId.KraidLintTop, lint.KeptDefinition);
         // The lint binds after the encounter began, and joins it as its setup would.
         KraidEncounterAccess.AttachKraidPart(state.TopLintState);
         state.TopLintState.Playback = Started(KraidPartSegment.LintInitial);
@@ -367,7 +366,7 @@ internal static class KraidAnimationsVerification
         (RoomEnemySystem enemies, KraidEnemyState state, _, _) = NewKraid();
         KraidNailState part = state.Nail(KraidNailPart.First);
         RoomEnemyPlace nail = part.Place;
-        nail.Bind(EnemyDefinitionId.KraidFirstNail, nail.Definition);
+        nail.Bind(EnemyDefinitionId.KraidFirstNail, nail.KeptDefinition);
         KraidProjectiles.InitializeKraidNail(nail, nail.RequireSpeciesState<KraidEnemyState>(), KraidNailPart.First);
         AssertEqual((EnemyFrameId?)EnemyFrameId.KraidNailTurned0, nail.Frame, "a fingernail set up shows its spin's first pose");
         AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.NailLoop), part.Playback.Animation, "the pose is its spin's");
@@ -415,13 +414,13 @@ internal static class KraidAnimationsVerification
         {
             (RoomEnemySystem enemies, _, _, _) = NewKraid();
             enemies.VerificationServices().ReadRandom = () => 32;
-            enemies.KraidBehavior.Head.SpawnKraidSpitRock(NewRockSource());
+            enemies.KraidBehavior.Head.SpawnKraidSpitRock(NewRockSource(enemies));
             EnemyProjectile rock = enemies.Projectiles.EnemyProjectiles.Single(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidSpitRock);
-            rock.StartAnimation(new KraidRockAnimation(program));
+            rock.StartAnimation(new KraidRockAnimation(enemies.KraidBehavior.Projectiles.SpitRock, program));
             var native = new NativeEnemyProjectileListReader(entry, rock.FrameHold.RawValue);
             for (int update = 0; update < 40 && !native.Deleted; update++)
             {
-                enemies.Projectiles.AdvanceEnemyProjectileAnimations(rock, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(rock, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
                 native.Step(cartridge);
                 string at = $"Kraid rock {program} update {update}";
                 AssertEqual(!native.Deleted, rock.IsActive, $"{at}: deletion");
@@ -432,7 +431,7 @@ internal static class KraidAnimationsVerification
                 SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, rock, at);
                 AssertEqual(native.Operand, rock.PresentationOperandAddress, $"{at}: frame");
                 if (native.FrameBehavior is { } frameBehavior)
-                    AssertEqual(EnemyProjectileMotionAccess.FromWord(frameBehavior), rock.Motion, $"{at}: pre-instruction");
+                    AssertEqual(rock.MotionOfWord(frameBehavior), rock.Motion, $"{at}: pre-instruction");
             }
             AssertEqual(program == KraidRockSegment.SpitRockShot, native.Deleted, $"Kraid rock {program}: only the burst deletes its rock");
         }
@@ -443,9 +442,11 @@ internal static class KraidAnimationsVerification
     /// <summary>A Kraid body position and art for the real rock producers.</summary>
     private static RoomEnemyPlace NewRockSource() => new(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers())
     {
-        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 224)),
-        Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
-    };
+        RoomEnemyPlace source = enemies.Places.InUpdateOrder[8];
+        source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 224));
+        source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
+        return source;
+    }
 
     /// <summary>Every real rock producer, and Kago's bug, starts the typed pose its native list starts.</summary>
     private static void VerifyRockProducers()
@@ -453,7 +454,7 @@ internal static class KraidAnimationsVerification
         (RoomEnemySystem enemies, _, _, _) = NewKraid();
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = () => random;
-        RoomEnemyPlace source = NewRockSource();
+        RoomEnemyPlace source = NewRockSource(enemies);
         random = 32;
         enemies.KraidBehavior.Head.SpawnKraidSpitRock(source);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidSpitRock),
@@ -468,7 +469,7 @@ internal static class KraidAnimationsVerification
         random = 16;
         enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);
         random = 2;
-        enemies.KagoBehavior.SpawnKagoBug(source);
+        enemies.KagoBehavior.SpawnKagoBug(source.BoundFor(EnemyDefinitionId.Kago), source);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KagoBug),
             "the real Kago producer allocates its bug");
         foreach ((RoomEnemyProjectileKind kind, KraidRockSegment program) in new[]

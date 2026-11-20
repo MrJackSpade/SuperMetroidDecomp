@@ -257,7 +257,7 @@ internal static class SamusPoseMetadata
         SamusPoseId.DraygonGrabbedMovingRightPose;
 
     /// <summary>
-    /// Applies one ordinary Draygon-held transition. Every admitted pose stays within one facing, retains radius 21, and restarts the
+    /// Applies one ordinary Draygon-held transition. Every admitted pose stays within one facing, retains the standing radius, and restarts the
     /// target's animation at its start through the normal pose setup.
     /// </summary>
     public static void ApplyDraygonGrabbedPoseChange(SamusState samus, SamusPoseId targetPose)
@@ -293,18 +293,18 @@ internal static class SamusPoseMetadata
     /// True for the moonwalk turn jumps, the six grounded turn frames selected only when Jump begins a
     /// direction reversal from moonwalking. The predicates below group them by the facing they turn to.
     /// </summary>
-    public static bool IsMoonwalkTurnJumpPose(SamusPoseId pose) => pose is
-        SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpRightPose or
-        SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
-        SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or SamusPoseId.MoonwalkTurnJumpAimDownRightPose;
+    public static bool IsMoonwalkTurnToSpinJumpPose(SamusPoseId pose) => pose is
+        SamusPoseId.MoonwalkTurnToSpinJumpLeftPose or SamusPoseId.MoonwalkTurnToSpinJumpRightPose or
+        SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose or SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose or
+        SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose or SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose;
 
     /// <summary>True for the moonwalk turn-jump family whose input transitions lead to left.</summary>
-    public static bool IsMoonwalkTurnJumpLeftPose(SamusPoseId pose) => IsMoonwalkTurnJumpRightPose(SamusPoseMirror.Of(pose));
+    public static bool IsMoonwalkTurnToSpinJumpLeftPose(SamusPoseId pose) => IsMoonwalkTurnToSpinJumpRightPose(SamusPoseMirror.Of(pose));
 
     /// <summary>True for the moonwalk turn-jump family whose input transitions lead to right.</summary>
-    public static bool IsMoonwalkTurnJumpRightPose(SamusPoseId pose) => pose is
-        SamusPoseId.MoonwalkTurnJumpRightPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
-        SamusPoseId.MoonwalkTurnJumpAimDownRightPose;
+    public static bool IsMoonwalkTurnToSpinJumpRightPose(SamusPoseId pose) => pose is
+        SamusPoseId.MoonwalkTurnToSpinJumpRightPose or SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose or
+        SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose;
 
     /// <summary>True for the right-facing poses that move as <see cref="SamusMovementType.RanIntoWall"/>.</summary>
     public static bool IsRightFacingRanIntoWallPose(SamusPoseId pose) =>
@@ -357,16 +357,16 @@ internal static class SamusPoseMetadata
     public static bool IsLandingPose(SamusPoseId pose) => IsRightFacingLandingPose(pose) || IsLeftFacingLandingPose(pose);
 
     /// <summary>
-    /// True for the complete right-facing <see cref="SamusMovementType.Crouching"/> family. All four
-    /// poses use radius 16 and the shared input transitions.
+    /// True for the complete right-facing <see cref="SamusMovementType.Crouching"/> family. All its
+    /// poses use the crouching radius and the shared input transitions.
     /// </summary>
     public static bool IsRightFacingCrouchingPose(SamusPoseId pose) => pose is
         SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingAimUpRightPose or
         SamusPoseId.CrouchingAimDiagonalUpRightPose or SamusPoseId.CrouchingAimDiagonalDownRightPose;
 
     /// <summary>
-    /// True for the complete left-facing <see cref="SamusMovementType.Crouching"/> family. All four
-    /// poses use radius 16 and the mirrored input transitions.
+    /// True for the complete left-facing <see cref="SamusMovementType.Crouching"/> family. All its
+    /// poses use the crouching radius and the mirrored input transitions.
     /// </summary>
     public static bool IsLeftFacingCrouchingPose(SamusPoseId pose) => IsRightFacingCrouchingPose(SamusPoseMirror.Of(pose));
 
@@ -542,7 +542,7 @@ internal static class SamusPoseMetadata
         SamusPoseId.SpringBallFallingRightPose or SamusPoseId.SpringBallFallingLeftPose or
         SamusPoseId.SpringBallJumpRightPose or SamusPoseId.SpringBallJumpLeftPose;
 
-    /// <summary>True for every stable ordinary or Spring Ball pose using radius seven.</summary>
+    /// <summary>True for every stable ordinary or Spring Ball pose using the ball's radius.</summary>
     public static bool IsStableBallPose(SamusPoseId pose) =>
         IsGroundedMorphBallPose(pose) || IsAirborneMorphBallPose(pose) ||
         IsGroundedSpringBallPose(pose) || IsAirborneSpringBallPose(pose);
@@ -558,7 +558,7 @@ internal static class SamusPoseMetadata
     /// </summary>
     public static void PublishBombJumpDirection(SamusState samus, SamusBombJumpDirection direction) =>
         // Publishing replaces the whole request, so a blast during an accepted jump publishes a fresh, unaccepted one.
-        samus.BombJumpRequest = SamusBombJumpRequest.Published(direction);
+        samus.BombJump = SamusBombJump.FromBlast(direction);
 
     /// <summary>
     /// Sets up a published bomb jump as Samus's movement does (<see cref="SamusMovementTypeDefinitions"/>) before pose
@@ -574,12 +574,12 @@ internal static class SamusPoseMetadata
     /// <returns>True when the pending request was rejected and dropped.</returns>
     public static bool RejectUnsupportedPublishedBombJump(SamusState samus, bool timeIsFrozen)
     {
-        if (!samus.BombJumpRequest.AwaitsPoseHandling)
+        if (samus.BombJump is not { AwaitsPoseHandling: true })
             return false;
         SamusBombJumpSetup setup = BombJumpSetupOf(samus);
         bool reject = setup == SamusBombJumpSetup.TurnedDown ||
             timeIsFrozen && setup == SamusBombJumpSetup.ForwardJumpUnlessTimeFrozen;
-        if (reject) samus.BombJumpRequest = SamusBombJumpRequest.None;
+        if (reject) samus.BombJump = null;
         return reject;
     }
 
@@ -594,7 +594,7 @@ internal static class SamusPoseMetadata
         ISamusRoomObjects roomObjects)
     {
         Ensure.NotNull(level);
-        if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) || !samus.BombJumpRequest.AwaitsPoseHandling)
+        if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) || samus.BombJump is not { AwaitsPoseHandling: true })
             return false;
 
         // The rejection above has dropped every turned-down request, and a frozen-time one where frozen time turns it down.
@@ -611,7 +611,7 @@ internal static class SamusPoseMetadata
 
                 // The pose update routes the special target through the same larger-radius
                 // expansion collision used by controller-selected pose changes. This is
-                // observable for a crouching bomb jump: radius 16 grows to 21 and may be
+                // observable for a crouching bomb jump: the crouching radius grows to the standing one and may be
                 // rejected by a low ceiling instead of clipping Samus into terrain.
                 LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
                     level,
@@ -674,7 +674,7 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>Arms the published bomb jump.</summary>
-    internal static void ArmPublishedBombJump(SamusState samus)
+    private static void ArmPublishedBombJump(SamusState samus)
     {
         // Arming the bomb jump takes, rather than suspends, Samus's movement.
         // A suit-interrupted spark may still hold it despite the ordinary body pose.
@@ -685,7 +685,7 @@ internal static class SamusPoseMetadata
         SamusMovementHandOver.To(samus, SamusMovementOwner.BombJump);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
-        samus.BombJumpRequest = samus.BombJumpRequest.Accept();
+        samus.BombJump = (samus.BombJump ?? throw new InvalidOperationException("Only a published bomb jump can be armed.")).Arm();
         samus.BombJumpStarting = true;
         samus.BombJumpActive = false;
         samus.BombJumpPoseInputLocked = true;
@@ -758,7 +758,7 @@ internal static class SamusPoseMetadata
             (IsLeftFacingFallingPose(source) && IsLeftFacingFallingPose(target));
     }
 
-    /// <summary>True only for the four radius-ten straight-down aerial bodies.</summary>
+    /// <summary>True only for the compact straight-down aerial bodies.</summary>
     public static bool IsCompactAerialPose(SamusPoseId pose) => pose is
         SamusPoseId.NormalJumpAimDownRightPose or SamusPoseId.NormalJumpAimDownLeftPose or
         SamusPoseId.FallingAimDownRightPose or SamusPoseId.FallingAimDownLeftPose;

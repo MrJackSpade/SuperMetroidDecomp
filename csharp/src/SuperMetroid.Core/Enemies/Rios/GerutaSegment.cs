@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// The Geruta's idle and swoop animations and its flames' animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Geruta's idle and swoop animations and its flames' animations (#641).
 /// Their steps are <see cref="GerutaAnimations"/>.
 /// </summary>
 internal enum GerutaSegment
 {
-    /// <summary>Hovering, its wings spread, level and drooping, with its flames behind it, repeating.</summary>
+    /// <summary>Hovering, its wings spread, level and drooping, its flames hidden, repeating.</summary>
     Idle,
     /// <summary>
     /// Its wings flattening, lifting and sweeping up as it starts to swoop down, its flames moving with them.

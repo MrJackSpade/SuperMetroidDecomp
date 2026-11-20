@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public sealed class InstalledProjectileSprites
 {
     /// <summary>Compiled OAM compositions keyed by composition.</summary>
-    internal readonly Dictionary<ProjectileSpriteId, SpriteComposition> frames;
+    private readonly Dictionary<ProjectileSpriteId, SpriteComposition> frames;
     /// <summary>Accepts the complete validated set of compositions.</summary>
     private InstalledProjectileSprites(Dictionary<ProjectileSpriteId, SpriteComposition> frames) => this.frames = frames;
 
@@ -73,14 +73,14 @@ public sealed class InstalledProjectileSprites
             {
                 var p = parts[i];
                 if (p is null || p.OffsetX is < -256 or > 255 || p.OffsetY is < -128 or > 127 ||
-                    p.Size is not (8 or 16) || p.Priority is < 0 or > 3 || p.Palette is null or < 0 or > 7 ||
+                    p.Size is not (8 or 16) || p.Palette is null or < 0 or > 7 ||
                     p.TileColumn is < 0 or >= ProjectileSpriteDefinitions.TileColumns || p.TileRow is < 0 or >= ProjectileSpriteDefinitions.TileRows)
                     throw new InvalidDataException($"Projectile sprite {name} part {i} has invalid visual fields.");
                 // Hardware wraps a large part's adjacent tile at row/sheet boundaries.
                 // Do not impose the menu atlas's contiguous-rectangle restriction here.
                 compiled[i] = new(SpritePart.Create(Offset16<ScreenPixels>.Of(p.OffsetX, p.OffsetY), p.Size == 16,
                     p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
-                    p.Palette.Value, p.Priority, (p.FlipX ? PictureFlip.Horizontal : 0) | (p.FlipY ? PictureFlip.Vertical : 0)), false);
+                    p.Palette.Value, p.Depth, (p.FlipX ? PictureFlip.Horizontal : 0) | (p.FlipY ? PictureFlip.Vertical : 0)), false);
             }
             frames.Add(id, new SpriteComposition(compiled));
         }

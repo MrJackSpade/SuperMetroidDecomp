@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>
 /// The shared menu screen loaded for file select, options, game over and the
-/// file-select maps (#1358): its backdrop and its sprite entries; its pages are installed
+/// file-select maps (#1358): its backdrop and its sprites; its pages are installed
 /// pictures it places (#1467), each in the colours the import pre-coloured it in (#1512). It publishes these; the capture
 /// composes them, so no menu composes a screen of its own.
 /// </summary>
@@ -65,7 +65,7 @@ internal sealed class MenuScreen
         PlacedPlanePicture.WithOriginAt(picture, origin, PictureShading.Standard);
 
     /// <summary>The solid colour the screen shows where nothing is drawn (#1512): file select's, or the world map's selected area's.</summary>
-    public RgbColor Backdrop { get; set; }
+    public RgbColor Backdrop { private get; set; }
 
     /// <summary>The sprites the menu shows over its pages this frame: its cursors, arrows and icons.</summary>
     public ScreenSprites Sprites { get; }

@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireMeltingDefinitions
 {
     /// <summary>
-    /// Steps each dissolve pass takes: one column of the melt image is erased per step, in a fixed order over its
-    /// forty-nine columns, and the step count is the picture each band shows.
+    /// Steps each dissolve pass takes: one column of the melt image is erased per step, in a fixed order over all its
+    /// columns, and the step count is the picture each band shows.
     /// </summary>
     public const int ColumnCount = 49;
 
@@ -27,10 +27,10 @@ internal static class CrocomireMeltingDefinitions
     /// <summary>The slope each pass's distortion starts at: a 256th of a row further behind each line.</summary>
     public static readonly UnsignedSixteenSixteen FirstDistortionSlope = UnsignedSixteenSixteen.FromPixelFraction(1, 256);
 
-    /// <summary>How much steeper the distortion's slope grows each update it stretches: one and a half 256ths of a row a line.</summary>
+    /// <summary>How much steeper the distortion's slope grows each update it stretches, in rows a line.</summary>
     public static readonly UnsignedSixteenSixteen DistortionSlopeGrowth = UnsignedSixteenSixteen.FromPixelFraction(3, 512);
 
-    /// <summary>The steepest the distortion's slope grows: five sixteenths of a row a line, which ends the dissolve once its band is stretched.</summary>
+    /// <summary>The steepest the distortion's slope grows, in rows a line, which ends the dissolve once its band is stretched.</summary>
     public static readonly UnsignedSixteenSixteen SteepestDistortionSlope = UnsignedSixteenSixteen.FromPixelFraction(5, 16);
 
     /// <summary>Lowest background source row the distortion stretches back to, in both passes.</summary>

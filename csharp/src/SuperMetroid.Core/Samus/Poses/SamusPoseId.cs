@@ -65,26 +65,25 @@ public enum SamusPoseId
     MoonwalkAimDownRightPose,
 
     /// <summary>
-    /// Right-facing moonwalk art turning/jumping toward the left. Despite its traditional
-    /// name, this is still grounded turning movement until its input transitions or its
-    /// animation's final step installs the actual spin jump.
+    /// Right-facing moonwalk art turning toward the left: a grounded turn that ends in a spin jump when its input
+    /// transitions or its animation's last step start the jump.
     /// </summary>
-    MoonwalkTurnJumpLeftPose,
+    MoonwalkTurnToSpinJumpLeftPose,
 
-    /// <summary>Left-facing mirror of <see cref="MoonwalkTurnJumpLeftPose"/>.</summary>
-    MoonwalkTurnJumpRightPose,
+    /// <summary>Left-facing mirror of <see cref="MoonwalkTurnToSpinJumpLeftPose"/>.</summary>
+    MoonwalkTurnToSpinJumpRightPose,
 
     /// <summary>Aimed-up moonwalk turn whose terminal jump faces left.</summary>
-    MoonwalkTurnJumpAimUpLeftPose,
+    MoonwalkTurnToSpinJumpAimUpLeftPose,
 
     /// <summary>Aimed-up moonwalk turn whose terminal jump faces right.</summary>
-    MoonwalkTurnJumpAimUpRightPose,
+    MoonwalkTurnToSpinJumpAimUpRightPose,
 
     /// <summary>Aimed-down moonwalk turn whose terminal jump faces left.</summary>
-    MoonwalkTurnJumpAimDownLeftPose,
+    MoonwalkTurnToSpinJumpAimDownLeftPose,
 
     /// <summary>Aimed-down moonwalk turn whose terminal jump faces right.</summary>
-    MoonwalkTurnJumpAimDownRightPose,
+    MoonwalkTurnToSpinJumpAimDownRightPose,
 
     /// <summary>Right-facing stored-shine windup body.</summary>
     ShinesparkWindupRightPose,
@@ -438,9 +437,8 @@ public enum SamusPoseId
     RunningAimDiagonalDownLeftPose,
 
     /// <summary>
-    /// This pose is a stationary right-facing normal jump with the cannon extended. Unlike
-    /// <see cref="NeutralJumpRightPose"/>, it deliberately has no no-input fallback, so the firing body can
-    /// remain active until another input transition or landing replaces it.
+    /// This pose is a stationary right-facing normal jump with the cannon extended. With no input it keeps the current
+    /// pose, so the firing body stays until another input transition or landing replaces it.
     /// </summary>
     NormalJumpGunExtendedRightPose,
 

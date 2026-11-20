@@ -26,5 +26,12 @@ internal static class AnimationPlayerAccess
             PrivateState.Set(self, nameof(self.Shown), (TFrame?)shown);
             PrivateState.Set(self, nameof(self.UpdatesLeft), updatesLeft);
         }
+
+        /// <summary>The frames one play of the player's animation shows, in the order it shows them, from its start.</summary>
+        internal IReadOnlyList<TFrame> PlayedFrames =>
+        [
+            .. PrivateState.Field<AnimationPlayer<TSegment, TFrame, TEvent>, AnimationSegments<TSegment, TFrame, TEvent>>(self, "segments")
+                .PlayedBeats(self.Playback.Animation).Select(beat => beat.ShownFrame).OfType<TFrame>(),
+        ];
     }
 }

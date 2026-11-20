@@ -15,7 +15,7 @@ internal static class BotwoonVisualDefinitions
     /// </summary>
     internal static EnemyFrameTable<BotwoonHeadFrame> HeadFrames { get; } = new()
     {
-        { BotwoonHeadFrame.Hidden, EnemyFrameId.Empty },
+        { BotwoonHeadFrame.Hidden, EnemyFrameId.PointAtOrigin },
         { BotwoonHeadFrame.Closed(CompassDirection.UpLeft), EnemyFrameId.BotwoonHeadClosedUpLeft },
         { BotwoonHeadFrame.Closed(CompassDirection.Left), EnemyFrameId.BotwoonHeadClosedLeft },
         { BotwoonHeadFrame.Closed(CompassDirection.DownLeft), EnemyFrameId.BotwoonHeadClosedDownLeft },

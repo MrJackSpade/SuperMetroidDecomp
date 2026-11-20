@@ -14,11 +14,17 @@ internal static class Zebetites
             ? Generations[destroyed]
             : throw new InvalidDataException($"Zebetite generation {destroyed} exceeds its four active generations.");
 
-    /// <summary>The placement the primary or linked half spawns from.</summary>
-    internal static RoomEnemyPlacement SpawnPopulation(ZebetiteHalf half) =>
-        SpawnPopulations.TryGetValue(half, out RoomEnemyPlacement placement)
-            ? placement
-            : throw new InvalidOperationException($"Undefined {nameof(ZebetiteHalf)} {half}.");
+    /// <summary>
+    /// The placement the primary or linked half of the barrier generation that stands once <paramref name="destroyed"/>
+    /// Zebetites have been destroyed spawns from: at the place that half of that generation stands.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Every barrier has been destroyed, or the count is negative.</exception>
+    internal static RoomEnemyPlacement SpawnPopulation(ZebetiteHalf half, int destroyed)
+    {
+        ZebetiteGenerationDefinition generation = Generation(destroyed);
+        return new(EnemyDefinitionId.Zebetite, EnemyPlacing.At(new(generation.X, YPosition(generation, half))), EnemyContact.None, EnemyProcessing.Animates,
+            EnemyPresence.None, CollidesByFrameHitboxes: false, new ZebetiteSpawnSettings(half));
+    }
 
     /// <summary>
     /// The room pixel row a generation's <paramref name="half"/> stands on: a single barrier on the centre line, a split

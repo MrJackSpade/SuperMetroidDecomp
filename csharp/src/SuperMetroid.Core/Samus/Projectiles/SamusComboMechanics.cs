@@ -33,14 +33,12 @@ internal static class SamusComboMechanics
         ComboKind(beam) is null ? 0 : 1;
 
     /// <summary>
-    /// Scales the sine and cosine of an angle by an amplitude, as the combos place their
-    /// particles. The game negates the truncated positive magnitude, so this deliberately
-    /// truncates toward zero in all quadrants (<see cref="UnitComponent.ReachOf"/>).
+    /// Scales the sine and cosine of an angle by an amplitude, as the combos place their particles, rounding toward
+    /// zero in every quadrant (<see cref="UnitComponent.ReachOf"/>).
     /// </summary>
     /// <remarks>
-    /// The Ice, Plasma and Spazer attacks give angles in 256ths of a turn; Y turns back a quarter turn
-    /// with the same wrap. The amplitude is 0 through 255. It reads the game's signed sine and keeps no
-    /// values of its own.</remarks>
+    /// The Ice, Plasma and Spazer attacks give the angles; Y turns back a quarter turn. The amplitude is at most
+    /// <see cref="Compatibility.ComboRingCollapse.LargestRadius"/>.</remarks>
     internal static Offset16<RoomPixels> GetSineOffset(TrigonometryAngle angle, int amplitude)
     {
         Ensure.BetweenInclusive(0, ComboRingCollapse.LargestRadius, amplitude);

@@ -3,12 +3,12 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>The three stages of the two crash echoes' orbit around Samus after a shinespark crash.</summary>
 public enum ShinesparkCrashOrbitStage
 {
-    /// <summary>The echoes move outward four pixels an update until their radius reaches sixteen.</summary>
+    /// <summary>The echoes move outward by <see cref="ShinesparkDefinitions.CrashRadiusStep"/> each update until their radius passes <see cref="ShinesparkDefinitions.CrashOrbitStartRadius"/>.</summary>
     Expanding,
 
-    /// <summary>The echoes circle Samus at full radius until their angular travel reaches 128.</summary>
+    /// <summary>The echoes circle Samus at full radius until their angular travel has run its course (<see cref="Compatibility.CrashOrbitTravelCarryover"/>).</summary>
     Orbiting,
 
-    /// <summary>The echoes move inward four pixels an update; reaching radius zero starts the centre hold.</summary>
+    /// <summary>The echoes move inward by the same step each update; reaching radius zero starts the centre hold.</summary>
     Contracting,
 }

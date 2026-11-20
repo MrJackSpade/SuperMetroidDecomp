@@ -100,7 +100,7 @@ internal static class MochtroidBotwoonClipVerification
 
         RoomEnemyPlace mochtroid = runtime.Enemies.Places.InUpdateOrder.Single(
             place => place.Ordinal == SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.SlotOf(expected.EnemyNativeIndex));
-        AssertEqual(EnemyDefinitionId.Mochtroid, mochtroid.DefinitionId,
+        AssertEqual(EnemyDefinitionId.Mochtroid, mochtroid.Occupant?.DefinitionId,
             $"{expected.Case} fixture selects retail Mochtroid slot");
         foreach (RoomEnemyPlace place in runtime.Enemies.Places.InUpdateOrder.Where(
                      place => place != mochtroid))

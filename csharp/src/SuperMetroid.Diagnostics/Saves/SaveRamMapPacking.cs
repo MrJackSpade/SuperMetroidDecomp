@@ -16,7 +16,7 @@ namespace SuperMetroid.Diagnostics.Saves;
 public static class SaveRamMapPacking
 {
     /// <summary>The Zebes areas whose explored maps the field packs, in packing order.</summary>
-    public const int PackedAreaCount = 6;
+    private const int PackedAreaCount = 6;
 
     /// <summary>Map cells one plane byte holds.</summary>
     private const int CellsPerByte = 8;
@@ -31,7 +31,7 @@ public static class SaveRamMapPacking
     /// <param name="area">The packed area's index, 0 through 5.</param>
     /// <param name="maps">Installed stock map rules.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a packed area.</exception>
-    public static SaveRamPackedArea Area(int area, IAreaMapSource maps)
+    private static SaveRamPackedArea Area(int area, IAreaMapSource maps)
     {
         if ((uint)area >= PackedAreaCount)
             throw new ArgumentOutOfRangeException(nameof(area), area, "Only the six Zebes areas' explored maps are packed.");

@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 public sealed class EndingExplosionSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated OAM compositions keyed by the poses that show them.</summary>
-    internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Retains every installed composition, compiled as installed.</summary>
     private EndingExplosionSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>

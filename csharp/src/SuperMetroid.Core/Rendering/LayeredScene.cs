@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// A frame's scene: what it paints with, and its layers drawn from back to front over the 256-by-224 screen (#1514).
+/// A frame's scene: what it paints with, and its layers drawn from back to front over the screen (#1514).
 /// Each layer is named for what it shows (a plane of pictures, the HUD, a layer of sprites, a glow, a tint, an inset
 /// scene); what a layer shows, and so which of the screen's pictures and sprites lie in front of which, is the producer's
 /// decision, made by the order of its layers. The frame's brightness applies last.
@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rendering;
 public sealed class LayeredScene : DisplayScene
 {
     /// <summary>The scene's own copy of the layer order, unchanged by later edits to the order it was given.</summary>
-    internal readonly DisplayLayer[] layers;
+    private readonly DisplayLayer[] layers;
     /// <summary>The frame's backdrop, shading and the sprite draws its gameplay layer composes, retained by reference, not copied again.</summary>
     public FramePaint Paint { get; }
     /// <summary>The layers, drawn in this order from back to front.</summary>

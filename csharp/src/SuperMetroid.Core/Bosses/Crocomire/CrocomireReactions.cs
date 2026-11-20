@@ -18,11 +18,16 @@ internal static class CrocomireReactions
     internal static EnemyReaction AbsorbedShot { get; } = EnemyReaction.OfSpecies("Crocomire.AbsorbedShot");
 
     /// <summary>
-    /// The shot reaction of his body and his corpse, which raises dust where the shot strikes (#1939: the two dust
-    /// reactions his frames named are one).
+    /// The shot reaction of his body and his corpse, which raises dust where the shot strikes.
     /// </summary>
     internal static EnemyReaction DustShot { get; } = EnemyReaction.OfSpecies("Crocomire.DustShot");
 
     /// <summary>The open mouth's shot reaction.</summary>
     internal static EnemyReaction MouthShot { get; } = EnemyReaction.OfSpecies("Crocomire.MouthShot");
+
+    /// <summary>
+    /// The shot reaction his definition names (#2558): his parts collide by their frames' hitboxes, whose reactions
+    /// run, so a shot or bomb that meets him by his radius has no response of his.
+    /// </summary>
+    internal static EnemyReaction Shot => SpeciesOwnReactions.CrocomireShot;
 }

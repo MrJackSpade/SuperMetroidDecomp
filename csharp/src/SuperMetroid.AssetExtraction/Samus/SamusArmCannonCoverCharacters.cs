@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -32,7 +33,7 @@ public sealed class SamusArmCannonCoverCharacters
 
     /// <summary>The characters of cover tile <paramref name="index"/>, 0 through 11.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The index names no cover tile.</exception>
-    public ReadOnlyMemory<byte> TileCharacters(int index) => (uint)index < SamusArmCannonArtworkFormat.CoverTileCount
+    private ReadOnlyMemory<byte> TileCharacters(int index) => (uint)index < SamusArmCannonArtworkFormat.CoverTileCount
         ? tiles.Characters.Slice(index * SamusArmCannonArtworkFormat.CoverTileByteCount, SamusArmCannonArtworkFormat.CoverTileByteCount)
         : throw new ArgumentOutOfRangeException(nameof(index));
 

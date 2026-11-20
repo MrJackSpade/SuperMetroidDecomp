@@ -57,7 +57,7 @@ internal sealed class ChainsawFuse
                 samusBombs.PowerBombExplosion.Position,
                 samusBombs.PowerBombExplosion.Blast.ExplosionRadius,
                 roomObjects,
-                shot.Type);
+                shot.StrikingType);
         }
     }
 }

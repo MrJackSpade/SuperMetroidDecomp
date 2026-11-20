@@ -25,10 +25,10 @@ internal sealed class EndingFlyaway
     }
 
     /// <summary>Where the gunship's shake stands in the current planet-escape leg's authored sequence (#1902).</summary>
-    internal EndingShipShakeCursor ShipShake { get; private set; }
+    private EndingShipShakeCursor ShipShake { get; set; }
 
     /// <summary>Planet-escape velocity: a displacement that grows more negative every accelerating update.</summary>
-    internal SignedSixteenSixteen PlanetVelocity { get; private set; }
+    private SignedSixteenSixteen PlanetVelocity { get; set; }
 
     /// <summary>
     /// The white wash over the planet escape (<see cref="WhiteWash"/>), from full white fading to none, where it stays. The
@@ -109,7 +109,8 @@ internal sealed class EndingFlyaway
         ShipShake = ShipShake.Advanced();
     }
 
-    /// <summary>Accumulates split planet velocity and turns toward the final gunship text at the exit scale.</summary>
+    /// <summary>Speeds the planet up and moves it by its velocity, turning it toward the final gunship text at the exit
+    /// scale.</summary>
     /// <param name="cinematicFrame">The ending's updates so far, whose quarter phase paces the planet's turn.</param>
     /// <returns>Whether the planet has reached its exit scale, where the completion text shows.</returns>
     internal bool StepPlanetEscapeAccelerating(int cinematicFrame)
@@ -118,7 +119,7 @@ internal sealed class EndingFlyaway
         PlanetVelocity -= EndingMotionDefinitions.PlanetAcceleration;
         _stage.Floor.MoveAcross(PlanetVelocity);
         if (_stage.Floor.Zoom < EndingMotionDefinitions.PlanetTurnStartZoom &&
-            EndingCadenceDefinitions.PlanetTurnEveryFourthUpdate.IsDue(cinematicFrame) &&
+            EndingCadenceDefinitions.PlanetTurn.IsDue(cinematicFrame) &&
             _stage.Floor.Angle != EndingMotionDefinitions.PlanetExitTargetAngle)
         {
             _stage.Floor.Turn(EndingMotionDefinitions.PlanetExitTurnSteps);

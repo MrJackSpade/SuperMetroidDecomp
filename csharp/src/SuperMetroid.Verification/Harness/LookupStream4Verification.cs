@@ -116,7 +116,7 @@ internal static class LookupStream4Verification
         AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.DeleteInstructionPointer, "Derived foreground terminal address");
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new ColourEffectSessionState();
-        var fx = new ColourEffectSystem(fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var fx = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         var cgram = new SnesCgram();
         fx.StartScreen(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer);
         int ticks = 0;
@@ -139,6 +139,7 @@ internal static class LookupStream4Verification
         {
             AnimationBeat<CinematicSpritePose, EndingSceneCue>.Frame frame => frame.Duration,
             AnimationBeat<CinematicSpritePose, EndingSceneCue>.Pause pause => pause.Duration,
+            AnimationBeat<CinematicSpritePose, EndingSceneCue>.Hidden hidden => hidden.Duration,
             var other => throw new InvalidOperationException($"The stars' first beat {other} lasts no updates."),
         }, "Actual actor program retains the shared native handoff");
         AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");
@@ -209,7 +210,7 @@ internal static class LookupStream4Verification
             AssertEqual(cursor, (int)definition.LoopInstructionPointer, "Calculated terminal layout");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
             var fxSession = new ColourEffectSessionState();
-            var fx = new ColourEffectSystem(fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+            var fx = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             var cgram = new SnesCgram();
             fx.StartScreen(definition.DefinitionPointer);
             for (int cycle = 0; cycle < 2; cycle++)
@@ -244,7 +245,7 @@ internal static class LookupStream4Verification
         var selected = TitlePaletteFile.Read(new MemoryStream(json));
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new ColourEffectSessionState();
-        var fx = new ColourEffectSystem(fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var fx = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
         foreach (var program in TitleScreenAmbientPaletteOwners.All)
             fx.StartScreen(program.DefinitionPointer);
         for (int tick = 0; tick <= 80; tick++)
@@ -310,8 +311,8 @@ internal static class LookupStream4Verification
         {
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var nativeSession = new ColourEffectSessionState();
-            var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()); var installedSession = new ColourEffectSessionState();
-                                                                 var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+            var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() }); var installedSession = new ColourEffectSessionState();
+                                                                 var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.Start(definition.DefinitionPointer, 0);
             installed.Start(definition.DefinitionPointer, 0);
@@ -354,8 +355,8 @@ internal static class LookupStream4Verification
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
             var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
             var nativeSession = new ColourEffectSessionState();
-            var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()); var installedSession = new ColourEffectSessionState();
-                                                                 var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+            var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() }); var installedSession = new ColourEffectSessionState();
+                                                                 var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.StartScreen(definition.DefinitionPointer);
             installed.StartScreen(definition.DefinitionPointer);
@@ -534,8 +535,8 @@ internal static class LookupStream4Verification
             EndingTurningFloor floor = state.Stage.Floor;
             PrivateState.Set(floor, nameof(EndingTurningFloor.Position), floor.Position.WithX(SignedSixteenSixteen.FromParts(100, 0xC000)));
             PrivateState.Set(floor, nameof(EndingTurningFloor.Zoom), FloorZoom.FromFloorPixelsPerScreenPixel(12));
-            PrivateState.Set(state, nameof(EndingCreditsState.Phase), fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow);
-            PrivateState.Set(state.Flyaway, nameof(EndingFlyaway.ShipShake), EndingShipShakeCursor.StartOf(sequence));
+            state.ShowCastPhase(fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow);
+            PrivateState.Set(state.Flyaway, "ShipShake", EndingShipShakeCursor.StartOf(sequence));
             // The ending's own update runs the leg and makes its handoff.
             Action step = state.Step;
             uint expected = 100u << 16 | 0xC000;
@@ -556,7 +557,7 @@ internal static class LookupStream4Verification
             for (int place = 0; place < count - 1; place++)
                 last = last.Advanced();
             PrivateState.Set(floor, nameof(EndingTurningFloor.Zoom), fast ? EndingMotionDefinitions.PlanetFastEndZoom : EndingMotionDefinitions.PlanetSlowEndZoom);
-            PrivateState.Set(state.Flyaway, nameof(EndingFlyaway.ShipShake), last);
+            PrivateState.Set(state.Flyaway, "ShipShake", last);
             PrivateState.Set(floor, nameof(EndingTurningFloor.Position), floor.Position.WithX(SignedSixteenSixteen.FromParts(0, 0x4000)));
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
@@ -792,7 +793,7 @@ internal static class LookupStream4Verification
             AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(copied.AsSpan(0, expected.Length))), "Subtitle direct copy preserves every cell");
             AssertEqual((ushort)0x5678, copied[^1].PackedWord, "Subtitle copy leaves the destination suffix untouched");
             // The game shows the subtitle as its installed picture at its corner (#1467, #1555); the import pictures these words.
-            var state = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = true, Text = presentation.Typewriter() }, EndingTextSequence.ItemPercentage);
+            var state = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = true, Text = EndingTextPresentation.TypewriterOf(source) }, EndingTextSequence.ItemPercentage);
             var subtitle = new EndingShownText(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCorner);
             // The text types in full, then shows the percentage with its subtitle for the percentage's hold (#2488).
             const int TypewriterUpdateLimit = 4000;
@@ -1535,13 +1536,13 @@ internal static class LookupStream4Verification
         for (int frame = 0; frame < 160; frame++)
         {
             electricity.FrameHold = WrappingCountdown.Start(1);
-            electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+            electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             AssertTrue(electricity.IsActive, "stream4 electricity active throughout twenty cycles");
             AssertEqual((ushort)1, electricity.FrameHold.RawValue, "stream4 electricity one-frame timing");
             AssertEqual((ushort)(0xe689 + 4 * (frame % 8)), electricity.PresentationOperandAddress, "stream4 electricity installed presentation operand identity");
         }
         electricity.FrameHold = WrappingCountdown.Start(1);
-        electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+        electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
         AssertTrue(!electricity.IsActive, "stream4 electricity deletes after twenty complete cycles");
         AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
     }
@@ -1634,11 +1635,12 @@ internal static class LookupStream4Verification
         // The fourth choice names the bottom cannon's word, $880A, which no room places and Draygon's setup disables: it fires
         // from none (#1686).
         AssertEqual(4, DraygonCannonData.FiringCannon.Field.Outcomes, "Draygon firing choices");
-        AssertTrue(DraygonCannonData.FiringCannon.Choose(3) is null, "Draygon's fourth firing choice fires from no cannon");
+        AssertTrue(DraygonCannonData.FiringCannon.Choose(3) == DraygonTurretTurn.HoldsFire, "Draygon's fourth firing choice holds fire");
         AssertEqual(3, DraygonCannonData.FiringOrigins.Count, "Draygon fires from three cannons");
         for (int index = 0; index < 3; index++)
         {
-            DraygonWallCannon cannon = DraygonCannonData.FiringCannon.Choose(index) ?? throw new InvalidOperationException("Verification requires a firing cannon.");
+            DraygonWallCannon cannon = DraygonCannonData.FiringCannon.Choose(index) is DraygonTurretTurn.FiresFrom { Cannon: var firing } ? firing
+                : throw new InvalidOperationException("Verification requires a firing cannon.");
             Position16<RoomPixels> origin = DraygonCannonData.FiringOrigins[cannon];
             AssertEqual(DraygonWallCannonAddresses.Decode((ushort)(0x8804 + 2 * index)), cannon, "Draygon original control-word selection");
             AssertEqual(rom.ReadCartridgeWord((0xa587e4 + 4 * index)), origin.X, "Draygon original cannon X");
@@ -1696,7 +1698,7 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var actual=new SnesCgram(); var vram=new SnesVram();
-                new Action<RoomEnemyPlace>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.Places.InUpdateOrder[0]);
+                new Action<RoomEnemyOccupant>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.DraygonBody));
                 // The initializer shows his opening's colours: the shading he publishes, laid in the import's shades (#1512).
                 DraygonEnemyState initialized = enemies.Draygon ?? throw new InvalidOperationException("Verification requires enemies.Draygon.");
                 LayDraygonShading(actual, selected, initialized.Colours);
@@ -1747,7 +1749,7 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var cgram=new SnesCgram();
-                                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { HealthBand=DraygonHealthBandDefinitions.HighestFirst[5]};
+                                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body.BoundFor(EnemyDefinitionId.DraygonBody), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { HealthBand=DraygonHealthBandDefinitions.HighestFirst[5]};
                 Action<RoomEnemyPlace,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
@@ -1799,7 +1801,7 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var cgram=new SnesCgram();
-                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { HealthBand=DraygonHealthBandDefinitions.HighestFirst[3]};
+                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body.BoundFor(EnemyDefinitionId.DraygonBody), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { HealthBand=DraygonHealthBandDefinitions.HighestFirst[3]};
                 Action<RoomEnemyPlace,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
@@ -1844,7 +1846,7 @@ internal static class LookupStream4Verification
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses);
                 var cgram = new SnesCgram();
                 RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-                var state = new DraygonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]){};
+                var state = new DraygonEnemyState(body.BoundFor(EnemyDefinitionId.DraygonBody), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]){};
                 Action<DraygonEnemyState> update = DraygonCombat.UpdateDraygonHealthBand;
                 Action<RoomEnemyPlace,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 for (int band = 0; band < 8; band++)
@@ -1946,7 +1948,7 @@ internal static class LookupStream4Verification
                 var artworkBosses = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { NorfairRidleyColors = selected };
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artworkBosses);
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
-                RoomEnemyPlace place = enemies.Places.InUpdateOrder[0]; place.Bind(EnemyDefinitionId.Ridley, place.Definition);
+                RoomEnemyPlace place = enemies.Places.InUpdateOrder[0]; place.Bind(EnemyDefinitionId.Ridley, place.KeptDefinition);
                 new Action<RoomEnemyPlace>(enemies.NorfairRidleyBehavior.Combat.InitializeNorfairRidley)(place);
                 NorfairRidleyState state = enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.");
                 state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; enemies.NorfairRidleyBehavior.BeginRoarHold(state);
@@ -2020,7 +2022,7 @@ internal static class LookupStream4Verification
                 var guard = NewProjectileCompositionForbiddenBus();
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-                place.Bind(EnemyDefinitionId.Ridley, place.Definition);
+                place.Bind(EnemyDefinitionId.Ridley, place.KeptDefinition);
                 new Action<RoomEnemyPlace>(enemies.NorfairRidleyBehavior.Combat.InitializeNorfairRidley)(place);
                 ushort[] shown = RidleyLaidColours.Of(enemies.Ridley() ?? throw new InvalidOperationException("Verification requires the initialized Ridley."),
                     RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
@@ -2152,7 +2154,7 @@ internal static class LookupStream4Verification
         foreach (int freeSlots in new[] { 12, 2, 0 })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder) place.Bind(EnemyPlaceFixtures.StandIn, place.Definition);
+            foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder) place.Bind(EnemyPlaceFixtures.StandIn, place.KeptDefinition);
             for (int index = 1; index <= freeSlots; index++) enemies.Places.InUpdateOrder[index].Clear();
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = () => (ushort)(0x100 + 0x10 * randomCalls++);
@@ -2169,7 +2171,7 @@ internal static class LookupStream4Verification
             for (int index = 0; index < freeSlots; index++)
             {
                 RoomEnemyPlace fragment = enemies.Places.InUpdateOrder[index + 1];
-                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.RidleyBreakupPiece, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(expected[index], 0)), fragment.Spawn.Population.SpawnSettings, "Actual breakup slot order follows original native spawn calls");
+                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.RidleyBreakupPiece, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(expected[index], 0)), fragment.HeldOccupant().Spawn.SpawnSettings, "Actual breakup slot order follows original native spawn calls");
                 RidleyExplosionFragmentState fragmentState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<RidleyBreakupPieceEntity>(fragment).State;
                 AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
                 AssertEqual(rom.ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.CartridgeCount, "Actual breakup preserves each unresolved native lifetime");

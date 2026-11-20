@@ -9,7 +9,7 @@ internal static class SporeSpawnCeilingMutationDefinitions
     internal static readonly Position16<RoomBlocks> Block = new(7, 30);
 
     /// <summary>The sound the crumble starts with.</summary>
-    internal static readonly SoundEffectId CrumbleSoundId = EnemySound.BlockCrumble;
+    private static readonly SoundEffectId CrumbleSoundId = EnemySound.BlockCrumble;
 
     /// <summary>How long each image of the ceiling shows.</summary>
     internal const int FrameDuration = 4;

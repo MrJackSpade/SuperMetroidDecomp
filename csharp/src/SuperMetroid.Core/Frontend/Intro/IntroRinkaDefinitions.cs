@@ -5,22 +5,22 @@ internal static class IntroRinkaDefinitions
 {
     /// <summary>The intro Rinka's actor: the Rinka animation. The Rinka holds still until the animation starts it moving.</summary>
     /// <remarks>
-    /// The animation shows the Rinka's three pictures for ten updates each, then starts it moving, then loops the second,
-    /// first, second and third pictures for ten updates each. Its movement begins on the update after it starts moving,
+    /// The animation shows the Rinka's pictures in turn, then starts it moving, then loops the second, first, second and
+    /// third pictures. Its movement begins on the update after it starts moving,
     /// since the Rinka moves before its animation steps.
     /// </remarks>
     public static CinematicActorDefinition<IntroRinkaAnimation> RinkaActor =>
         new(IntroRinkaAnimation.Rinka);
 
     /// <summary>The first pair launched, in launch order: the Rinka that strikes Samus, then one that flies past her.</summary>
-    internal static IReadOnlyList<IntroRinkaLaunch> StrikingPair { get; } =
+    private static IReadOnlyList<IntroRinkaLaunch> StrikingPair { get; } =
     [
         new(new(112, 72), SignedSixteenSixteen.FromPixelFraction(1, 2), IntroRinkaFlight.StrikesSamus),
         new(new(192, 56), SignedSixteenSixteen.FromPixelFraction(-1, 2), IntroRinkaFlight.MissesSamus),
     ];
 
     /// <summary>The second pair launched, in launch order: both fly past Samus.</summary>
-    internal static IReadOnlyList<IntroRinkaLaunch> MissingPair { get; } =
+    private static IReadOnlyList<IntroRinkaLaunch> MissingPair { get; } =
     [
         new(new(128, 48), SignedSixteenSixteen.FromPixelFraction(1, 2), IntroRinkaFlight.MissesSamus),
         new(new(232, 80), SignedSixteenSixteen.FromPixelFraction(-1, 2), IntroRinkaFlight.MissesSamus),

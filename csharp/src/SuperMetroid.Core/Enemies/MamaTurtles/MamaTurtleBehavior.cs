@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
@@ -104,7 +103,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
 
         // Mama animates: leaving the shell needs her animation to run.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.Restart();
         place.Radius = place.Radius.WithY(0);
         state.Playback = new(MamaTurtleAnimations.StartingWith(MamaTurtleSegment.Asleep), AnimationPlace.StartOfAnimation);
@@ -114,7 +113,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
     /// <summary>Initializes the Baby Turtle, one of the four its Mama heads.</summary>
     /// <param name="place">The baby's place.</param>
     /// <param name="start">The Mama that heads it, which it holds from here, and the way it first crawls.</param>
-    internal static BabyTurtleEnemyState InitializeBabyTurtle(RoomEnemyPlace place, BabyTurtleStart start)
+    internal static BabyTurtleEnemyState InitializeBabyTurtle(RoomEnemyOccupant occupant, RoomEnemyPlace place, BabyTurtleStart start)
     {
         var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus, Ensure.NotNull(start).Mama, start.MamaPlace)
         {
@@ -129,13 +128,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
 
     /// <summary>Runs the Mama Turtle's main behaviour and its actions.</summary>
     private void RunMamaTurtleMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         RoomLevelData level,
         int frameCycle)
     {
+        RoomEnemyPlace place = turtle.Place;
         switch (state.Action)
         {
             case MamaTurtleAction.Placed:
@@ -155,25 +155,25 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
                 return;
             case MamaTurtleAction.LeavingShell:
                 RunMamaTurtleLeavingShell(
-                    place, state, samus, pseudoScrew, level, frameCycle);
+                    turtle, state, samus, pseudoScrew, level, frameCycle);
                 return;
             case MamaTurtleAction.EnteringShell:
                 RunMamaTurtleEnteringShell(place, state, samus);
                 return;
             case MamaTurtleAction.RisingToHover:
-                RunMamaTurtleRisingToHover(place, state, samus, pseudoScrew, level);
+                RunMamaTurtleRisingToHover(turtle, state, samus, pseudoScrew, level);
                 return;
             case MamaTurtleAction.Hovering:
-                RunMamaTurtleHovering(place, state, samus, pseudoScrew, level);
+                RunMamaTurtleHovering(turtle, state, samus, pseudoScrew, level);
                 return;
             case MamaTurtleAction.RisingToPeak:
-                RunMamaTurtleRisingToPeak(place, state, samus, pseudoScrew);
+                RunMamaTurtleRisingToPeak(turtle, state, samus, pseudoScrew);
                 return;
             case MamaTurtleAction.HoveringAtPeak:
-                RunMamaTurtleHoveringAtPeak(place, state, samus, pseudoScrew);
+                RunMamaTurtleHoveringAtPeak(turtle, state, samus, pseudoScrew);
                 return;
             case MamaTurtleAction.Falling:
-                RunMamaTurtleFalling(place, state, samus, pseudoScrew, level);
+                RunMamaTurtleFalling(turtle, state, samus, pseudoScrew, level);
                 return;
             default:
                 throw new InvalidDataException(
@@ -182,7 +182,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
     }
 
     /// <summary>Runs the dormant shell's height and carry step.</summary>
-    internal static void RunMamaTurtleAsleep(
+    private static void RunMamaTurtleAsleep(
         RoomEnemyPlace mama,
         SamusState samus)
     {
@@ -211,15 +211,16 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
 
     /// <summary>Runs the deliberately jittery shell-opening step.</summary>
     private void RunMamaTurtleLeavingShell(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         RoomLevelData level,
         int frameCycle)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
-        if (!MamaTurtleCadenceDefinitions.LeavingShellStepEverySecondUpdate.IsDue(frameCycle))
+        RoomEnemyPlace mama = turtle.Place;
+        ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
+        if (!MamaTurtleCadenceDefinitions.LeavingShellStep.IsDue(frameCycle))
             return;
 
         if (EnemyCollision.IsSamusStandingOn(mama, samus))
@@ -260,15 +261,16 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
         state.Action = MamaTurtleAction.Idle;
     }
 
-    /// <summary>Runs the 16-frame upward transition.</summary>
+    /// <summary>Runs the upward transition (<see cref="MamaTurtleMotionDefinitions.RiseToHoverDuration"/>).</summary>
     private void RunMamaTurtleRisingToHover(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         RoomLevelData level)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
+        RoomEnemyPlace mama = turtle.Place;
+        ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
         if (_terrain.MoveEnemyVertically(level, mama, SignedSixteenSixteen.FromWholePixels(-MamaTurtleMotionDefinitions.RiseToHoverSpeed)))
             return;
 
@@ -280,7 +282,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
         if (!state.ActionTimer.StepEnds())
             return;
 
-        // She hovers off from rest toward Samus's side, speeding up a sixteenth of a pixel each update.
+        // She hovers off from rest toward Samus's side, speeding up by her hover acceleration each update.
         state.XAcceleration = MamaTurtleMotionDefinitions.HoverAcceleration.Toward(
             mama.Position.X.Whole < samus.Position.X.Whole ? HorizontalDirection.Right : HorizontalDirection.Left);
         state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.Zero);
@@ -289,13 +291,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
 
     /// <summary>Runs the accelerating horizontal hover, which a wall reverses with a quake and a sound.</summary>
     private void RunMamaTurtleHovering(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         RoomLevelData level)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
+        RoomEnemyPlace mama = turtle.Place;
+        ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, state.Velocity.X))
         {
             ReverseMamaTurtleAtWall(state);
@@ -326,7 +329,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
     /// Adds the hover acceleration to the horizontal speed, a fraction past a whole pixel carrying into the whole pixels, and
     /// caps the whole speed using the old velocity's sign.
     /// </summary>
-    internal static void AddAndClampMamaTurtleHorizontalAcceleration(
+    private static void AddAndClampMamaTurtleHorizontalAcceleration(
         MamaTurtleEnemyState state)
     {
         SignedSixteenSixteen velocity = state.Velocity.X;
@@ -347,21 +350,22 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
     private static SignedSixteenSixteen WholePixelFall(SignedSixteenSixteen fall) => fall.WithoutFraction();
 
     /// <summary>Reverses the hovering turtle's horizontal velocity and acceleration at a wall (<see cref="MamaTurtleWallReversal"/>).</summary>
-    internal static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
+    private static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
     {
         SignedSixteenSixteen velocity = state.Velocity.X;
         state.Velocity = state.Velocity.WithX(MamaTurtleWallReversal.ReversedVelocity(velocity));
         state.XAcceleration = MamaTurtleWallReversal.ReversedAcceleration(state.XAcceleration, velocity);
     }
 
-    /// <summary>Runs the rider-powered seven-pixel ascent.</summary>
+    /// <summary>Runs the rider-powered ascent (<see cref="MamaTurtleMotionDefinitions.RiddenAscentSpeed"/>).</summary>
     private void RunMamaTurtleRisingToPeak(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
+        RoomEnemyPlace mama = turtle.Place;
+        ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
         if (mama.Position.Y.Whole < MamaTurtleMotionDefinitions.RiddenAscentPeak)
         {
             state.ActionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.PeakPause);
@@ -383,30 +387,32 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
 
     /// <summary>Runs the peak pause (<see cref="MamaTurtleMotionDefinitions.PeakPause"/>).</summary>
     private void RunMamaTurtleHoveringAtPeak(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
+        _ = turtle.Place;
+        ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
         if (state.ActionTimer.StepEnds())
             state.Action = MamaTurtleAction.Falling;
     }
 
     /// <summary>Runs gravity, collision, and landing-animation selection.</summary>
     private void RunMamaTurtleFalling(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         RoomLevelData level)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
+        RoomEnemyPlace mama = turtle.Place;
+        ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
 
         // The cap compares Mama's own fall speed.
         if (state.Velocity.Y < MamaTurtleMotionDefinitions.FastestFall)
         {
-            // The one-eighth-pixel fraction step carries into the whole pixels.
+            // The fall acceleration's fraction step carries into the whole pixels.
             state.Velocity = state.Velocity.WithY(
                 state.Velocity.Y + MamaTurtleMotionDefinitions.FallAcceleration);
         }
@@ -558,7 +564,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
         }
     }
 
-    /// <summary>Animation cue: turn around at 48 pixels from spawn.</summary>
+    /// <summary>Animation cue: turn around at the baby's travel distance from spawn.</summary>
     private static BabyTurtleSegment SelectBabyTurtleCrawlLoop(
         RoomEnemyPlace baby,
         BabyTurtleEnemyState state)
@@ -609,14 +615,15 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
 
     /// <summary>Runs Mama's custom ordinary-touch reaction.</summary>
     private void ResolveMamaTurtleTouch(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
+        RoomEnemyPlace mama = turtle.Place;
         if (mama.Contact.HasAny(EnemyContact.SolidToSamus))
             return;
-        _collision.ResolveOrdinaryTouch(mama, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(turtle, samus, pseudoScrew);
         state.Action = MamaTurtleAction.Falling;
         state.Velocity = state.Velocity.WithY(state.Velocity.Y.WithWholePixelsOf(MamaTurtleMotionDefinitions.KnockedDownFallSpeed));
     }
@@ -654,14 +661,15 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
 
     /// <summary>Runs Mama's expanded private damage box: Samus, while not invincible, touching it is hurt as by any enemy.</summary>
     private void ResolveMamaTurtleExpandedContact(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
+        RoomEnemyPlace mama = turtle.Place;
         if (!MamaTurtleDamageBox.Touches(mama, samus) || !samus.InvincibilityTimer.IsZero)
             return;
 
-        _collision.ResolveOrdinaryTouch(mama, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(turtle, samus, pseudoScrew);
     }
 
     /// <summary>Starts the crawl animation of the way the child heads.</summary>
@@ -674,14 +682,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
     private static BabyTurtleSegment BabyCrawl(HorizontalDirection heading) =>
         heading == HorizontalDirection.Left ? BabyTurtleSegment.CrawlingLeft : BabyTurtleSegment.CrawlingRight;
 
-    /// <summary>Starts a Mama Turtle animation with its frame timer set to one.</summary>
+    /// <summary>Starts a Mama Turtle animation, which shows its first frame on the next update.</summary>
     private static void StartTurtleAnimation(RoomEnemyPlace place, MamaTurtleEnemyState state, MamaTurtleSegment segment)
     {
         state.Playback = new(MamaTurtleAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Starts a baby turtle animation with its frame timer set to one.</summary>
+    /// <summary>Starts a baby turtle animation, which shows its first frame on the next update.</summary>
     private static void StartTurtleAnimation(RoomEnemyPlace place, BabyTurtleEnemyState state, BabyTurtleSegment segment)
     {
         state.Playback = new(BabyTurtleAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
@@ -696,10 +704,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
     };
 
     /// <summary>Runs MamaTurtle's main AI.</summary>
-    internal void RunMamaTurtleMainAi(RoomEnemyPlace place, MamaTurtleEnemyState state, IEnemyAiFrame frame)
+    internal void RunMamaTurtleMainAi(RoomEnemyOccupant turtle, MamaTurtleEnemyState state, IEnemyAiFrame frame)
     {
+        RoomEnemyPlace place = turtle.Place;
         RunMamaTurtleMain(
-            place,
+            turtle,
             state,
             frame.Samus,
             frame.PseudoScrew,
@@ -750,7 +759,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
     /// <param name="context">The touch.</param>
     /// <param name="state">The enemy's own state, which the touch acts on.</param>
     internal void ReactToMamaTurtleTouch(EnemyTouchContext context, MamaTurtleEnemyState state) =>
-        ResolveMamaTurtleTouch(context.Place, state, context.Samus, context.PseudoScrew);
+        ResolveMamaTurtleTouch(context.Occupant, state, context.Samus, context.PseudoScrew);
 
     /// <summary>Routes baby contact to separation and wake behavior.</summary>
     /// <param name="context">The touch.</param>

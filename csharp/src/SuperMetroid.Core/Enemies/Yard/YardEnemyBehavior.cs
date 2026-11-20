@@ -20,7 +20,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Yard];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, YardSpawnSettings settings) => new YardEntity(this, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, YardSpawnSettings settings) => EnemyOccupant.Of(new YardEntity(this, occupant, place, common, settings));
 
     /// <summary>Provides active room context for Yard initialization and main AI.</summary>
     private readonly EnemyRoomBinding _room;
@@ -103,7 +103,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
         new(playing.Animation, AnimationPlace.StartOf(playing.Place.Phase));
 
     /// <summary>Initializes the Yard.</summary>
-    internal static YardEnemyState InitializeYard(RoomEnemyPlace place, YardSpawnSettings settings)
+    internal static YardEnemyState InitializeYard(RoomEnemyOccupant occupant, RoomEnemyPlace place, YardSpawnSettings settings)
     {
         YardDirection direction = settings.Direction;
 
@@ -117,7 +117,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
             CrawlSpeed = settings.CrawlSpeed,
         };
 
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.StepOnNextUpdate();
 
         YardDirectionDefinition definition = YardDirections.ForDirection(direction);
@@ -133,7 +133,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
     /// Sets the Yard's crawl velocity for <paramref name="direction"/>: each axis takes its current crawl speed, or that
     /// speed reversed.
     /// </summary>
-    internal static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction) =>
+    private static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction) =>
         state.CrawlingVelocity = YardCrawlVelocity.Apply(state.CrawlSpeed, direction);
 
     /// <summary>Runs the Yard's main AI.</summary>
@@ -193,7 +193,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
             if (state.HidingAnimation is { } hiding)
             {
                 state.Playback = new(YardAnimations.StartingWith(hiding), AnimationPlace.StartOfAnimation);
-                place.Frame = EnemyFrameId.Empty;
+                place.Frame = EnemyFrameId.PointAtOrigin;
                 place.AnimationClock.Restart();
                 state.Behavior = YardBehavior.Hiding;
                 return;
@@ -253,7 +253,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
     }
 
     /// <summary>Moves Yard along its wall or floor, probes the turn lookahead, and detaches if the supporting surface ends.</summary>
-    internal void RunYardCrawlingMovement(
+    private void RunYardCrawlingMovement(
         RoomEnemyPlace place,
         YardEnemyState state,
         RoomLevelData level)
@@ -358,7 +358,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
     }
 
     /// <summary>Runs the common detach path.</summary>
-    internal static void DropYard(RoomEnemyPlace place, YardEnemyState state)
+    private static void DropYard(RoomEnemyPlace place, YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Dropped)
             return;
@@ -433,7 +433,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
         // the new floor-facing block side for its downward probe and horizontal sign.
         var landing = new PixelVelocity<RoomPixels>(state.CrawlSpeed, state.CrawlSpeed);
         state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.OnLeftWall ? landing.ReversedX() : landing;
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         state.Movement = YardMovement.HoldingStill;
         // It resumes the hiding animation of the way it faced in the air, which its airborne lists selected.
         state.Playback = EnemyAnimationPlayback.Start(place, YardAnimations.StartingWith(
@@ -466,7 +466,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
     }
 
     /// <summary>Reverses Yard's crawl direction and associated graphics, properties, and velocities unless it is hidden or holding still.</summary>
-    internal static void TurnYardAround(YardEnemyState state)
+    private static void TurnYardAround(YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Hiding ||
             state.Movement == YardMovement.HoldingStill)
@@ -490,7 +490,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
     /// Runs the running/airborne kick setup: the shell flies sideways at the camera's last measure of Samus's movement,
     /// reversed when she faces left, and upward at the speed that measure's whole pixels select.
     /// </summary>
-    internal static void KickYardIntoAir(
+    private static void KickYardIntoAir(
         RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus,
@@ -511,7 +511,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
     }
 
     /// <summary>Runs ordinary-beam launch setup.</summary>
-    internal static void ShootYardIntoAir(
+    private static void ShootYardIntoAir(
         RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus)
@@ -527,7 +527,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
 
     /// <summary>Runs Yard's custom touch entry.</summary>
     private void ResolveYardTouch(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
@@ -625,8 +625,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
     /// <summary>Runs Yard's touch reaction, including its facing-dependent shell response.</summary>
     /// <param name="context">The touch.</param>
     /// <param name="state">The enemy's own state, which the touch acts on.</param>
-    internal void ReactToYardTouch(EnemyTouchContext context, YardEnemyState state) =>
-        ResolveYardTouch(context.Place, state, context.Samus, context.PseudoScrew, context.ControllerInput);
+    internal void ReactToYardTouch(RoomEnemyOccupant occupant, EnemyTouchContext context, YardEnemyState state) =>
+        ResolveYardTouch(occupant, context.Place, state, context.Samus, context.PseudoScrew, context.ControllerInput);
 
     /// <summary>The enemy-library sound queued by a Yard shell kick, launch or wall bounce.</summary>
     private static readonly SoundEffectId YardBounceSound =

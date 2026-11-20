@@ -37,7 +37,7 @@ internal sealed class GameOverBabyPaint
 
     /// <summary>The installed colour <paramref name="color"/> of phase <paramref name="palette"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The phase or colour is outside the Baby's colours.</exception>
-    internal RgbColor Read(GameOverBabyColouring palette, int color)
+    private RgbColor Read(GameOverBabyColouring palette, int color)
     {
         if (!palettes.TryGetValue(palette, out RgbColor[]? colours)) throw new ArgumentOutOfRangeException(nameof(palette));
         if ((uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(color));

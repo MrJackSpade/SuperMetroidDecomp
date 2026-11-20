@@ -25,7 +25,7 @@ public sealed class EnemyAuxiliaryColorCatalog
 
     /// <summary>The installed frames of <paramref name="palette"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The palette is not one of the four installed families.</exception>
-    internal InstalledColourRows Family(EnemyAuxiliaryPalette palette) => families.TryGetValue(palette, out InstalledColourRows? family)
+    private InstalledColourRows Family(EnemyAuxiliaryPalette palette) => families.TryGetValue(palette, out InstalledColourRows? family)
         ? family
         : throw new ArgumentOutOfRangeException(nameof(palette));
 }

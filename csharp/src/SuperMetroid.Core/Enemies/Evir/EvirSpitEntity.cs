@@ -6,10 +6,11 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// hitboxes, so none falls to the Evir's own.
 /// </summary>
 /// <param name="species">The Evir species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the spit occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class EvirSpitEntity(EvirBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
+internal sealed class EvirSpitEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal EvirSpitState State { get; } = species.InitializeEvirProjectile(place);

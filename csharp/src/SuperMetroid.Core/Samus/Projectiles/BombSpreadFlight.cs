@@ -25,7 +25,7 @@ public sealed class BombSpreadFlight
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 
     /// <summary>The vertical velocity the bomb was launched with, its held-Down bonus included, which a floor bounce restores.</summary>
-    public SignedSixteenSixteen LaunchVelocity { get; }
+    private SignedSixteenSixteen LaunchVelocity { get; }
 
     /// <summary>Accelerates the bomb's fall by <paramref name="gravity"/>, the fraction carrying into the whole pixels.</summary>
     internal void Accelerate(SignedSixteenSixteen gravity) => VerticalVelocity += gravity;
@@ -37,9 +37,9 @@ public sealed class BombSpreadFlight
     internal void BounceOffFloor() => VerticalVelocity = LaunchVelocity;
 
     /// <summary>
-    /// Stops the bomb's rise at a ceiling, keeping the fraction of a pixel its velocity holds above its whole pixels, which
-    /// now falls (#2459): the game clears only the velocity's whole pixels. A rise of 1.25 pixels per update, -2 whole
-    /// pixels and 0.75 above them, leaves a fall of 0.75 pixels per update; a rise of whole pixels leaves the bomb at rest.
+    /// Stops the bomb's rise at a ceiling, keeping the fraction of a pixel its speed holds as a slow fall (#2459): a
+    /// rise of a pixel and a quarter an update leaves a fall of three quarters of a pixel an update; a rise of whole
+    /// pixels leaves the bomb at rest.
     /// </summary>
     internal void StopRiseAtCeiling() => VerticalVelocity = VerticalVelocity.WithoutWholePixels();
 }

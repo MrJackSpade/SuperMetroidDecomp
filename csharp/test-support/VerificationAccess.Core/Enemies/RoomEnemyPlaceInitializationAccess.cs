@@ -26,7 +26,7 @@ internal static class RoomEnemyPlaceInitializationAccess
         internal void InitializeAsPlaced(SamusState samus, IReadOnlyList<RoomEnemyPlace> parts)
         {
             var surroundings = new EnemyPopulationSurroundings(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), samus, GameplayAction.None, default);
-            self.Bind(self.DefinitionId, self.Definition);
+            self.Bind(self.HeldOccupant().Spawn, self.KeptDefinition);
             IReadOnlyList<EnemyPartBuild> builds = EnemyLifecycle.SetUpEnemy(self, surroundings, parts);
             for (int part = 0; part < builds.Count; part++)
             {

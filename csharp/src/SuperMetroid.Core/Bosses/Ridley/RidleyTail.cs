@@ -88,7 +88,7 @@ internal sealed class RidleyTail
     /// disables random/proximity flings only during the swoop, then sets a one-shot request
     /// at its lowest point so the tail snaps toward Samus as Ridley charges back upward.
     /// </summary>
-    internal void HandleRidleyNeutralTailControl(
+    private void HandleRidleyNeutralTailControl(
         RoomEnemyPlace place,
         RidleyEncounterState state,
         SamusState samus,
@@ -138,7 +138,7 @@ internal sealed class RidleyTail
     /// <param name="samus">Samus, whom the whip aims at.</param>
     /// <param name="samusProjectiles">Samus's beams and missiles; a missile near the tail tip draws the whip instead.</param>
     /// <param name="turnsBeyond">The whole turns the target lies past the whip's swing, or short of it when negative.</param>
-    internal static void AimRidleyTailWhip(
+    private static void AimRidleyTailWhip(
         RidleyEncounterState state,
         SamusState samus,
         SamusProjectileSystem samusProjectiles,
@@ -155,7 +155,8 @@ internal sealed class RidleyTail
         SamusProjectile? missile = RidleyTailMissileTarget.Target(
             samusProjectiles.Pool.ShotCount.Count,
             samusProjectiles.Shots,
-            projectile => projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile &&
+            projectile => projectile.Occupant is { } held &&
+                held.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile &&
                 Math.Abs((projectile.Position.Whole - tip.Position).X) - projectile.Radius.X < RidleyTailDefinitions.MissileWhipReach &&
                 Math.Abs((projectile.Position.Whole - tip.Position).Y) - projectile.Radius.Y < RidleyTailDefinitions.MissileWhipReach);
         if (missile is not null)
@@ -196,7 +197,7 @@ internal sealed class RidleyTail
     /// Advances one link's stagger and swing toward the shared target. In both directions a step that lands exactly on
     /// the limit or target counts as reaching it. A link that has swung its spacing starts the next link swinging its way.
     /// </summary>
-    internal static void TickRidleyTailLink(RidleyTailState tail, RidleyTailLink link)
+    private static void TickRidleyTailLink(RidleyTailState tail, RidleyTailLink link)
     {
         if (link.Active)
         {
@@ -283,7 +284,7 @@ internal sealed class RidleyTail
     /// Extends each shaft link and the tip toward its target distance, up to its longest, or shrinks one longer than its
     /// rest length back toward it. The base holds its length and takes no part.
     /// </summary>
-    internal static void UpdateRidleyTailDistances(RidleyTailState tail)
+    private static void UpdateRidleyTailDistances(RidleyTailState tail)
     {
         foreach (RidleyTailLink link in tail.Links.Skip(1))
         {
@@ -291,7 +292,7 @@ internal sealed class RidleyTail
             {
                 if (target < link.Distance)
                     link.TargetDistance = null;
-                // Every link's longest is under 25 pixels, so the extended length stays far inside its range.
+                // The link stops at its longest distance.
                 link.Distance = SignedEightEight.Min(link.LongestDistance, link.Distance + tail.ExtensionSpeed);
             }
             else if (link.Distance > link.RestDistance)
@@ -304,7 +305,7 @@ internal sealed class RidleyTail
 
     /// <summary>
     /// Randomly updates the tail's curliness: when the live random number falls in its roll's top outcome (sampled, not
-    /// advanced), the ideal link spacing becomes the least curly spacing plus the curliness roll, so eight through 23 steps.
+    /// advanced), the ideal link spacing becomes the least curly spacing plus the curliness roll.
     /// </summary>
     internal void RandomlyUpdateCeresRidleyTailCurliness(RidleyTailState tail)
     {
@@ -318,23 +319,22 @@ internal sealed class RidleyTail
     /// <param name="body">Ridley's body, whose contact decides whether the tail meets Samus.</param>
     /// <param name="state">Ridley's encounter.</param>
     /// <param name="samus">Samus.</param>
-    internal static bool ResolveRidleyTailSamusContact(RoomEnemyPlace body, RidleyEncounterState state, SamusState samus)
+    private static void ResolveRidleyTailSamusContact(RoomEnemyPlace body, RidleyEncounterState state, SamusState samus)
     {
         // The tail composition checks the newly solved tail, independently of the earlier
         // extended-body contact pass, and never damages Samus while carrying her.
         if (state.CarriesSamus || !samus.InvincibilityTimer.IsZero ||
             body.Contact.HasAny(EnemyContact.IgnoresSamus) ||
             !state.MovementAnimationEnabled)
-            return false;
+            return;
         RidleyTailLink tip = state.Tail.Tip;
         // Ceres Ridley's retreat carries his tail above his chamber, so the tip is measured by its displacement from Samus.
         Offset16<RoomPixels> fromTip = samus.Position.Whole - tip.Position;
         int dx = Math.Abs(fromTip.X);
         int dy = Math.Abs(fromTip.Y);
         if (dx >= samus.Kinematics.Radius.X + RidleyTailDefinitions.TipTouchReach || dy >= samus.Kinematics.Radius.Y + RidleyTailDefinitions.TipTouchReach)
-            return false;
+            return;
         EnemyCollision.ApplyOrdinaryTouchDamage(samus, state.Tail.Damage, tip.Position.X);
-        return true;
     }
 
     /// <summary>
@@ -345,7 +345,7 @@ internal sealed class RidleyTail
         RidleyTailState tail,
         RoomLevelData level)
     {
-        // The tail's floor check samples the tip 16 pixels below it and each shaft link 18 pixels below it.
+        // The tail's floor check samples below the tip and below each shaft link, by their floor probes.
         if (ProbeTouchesTerrain(tail.Tip.Position + RidleyTailDefinitions.TipFloorProbe, level))
             return true;
         foreach (RidleyTailLink link in tail.Shaft.Reverse().Take(RidleyTailDefinitions.FloorProbingShaftLinks))
@@ -376,8 +376,8 @@ internal sealed class RidleyTail
     }
 
     /// <summary>
-    /// Resolves shots against the tail. Only the tip and the inner joint block shots: a radius-14 tip followed by a
-    /// radius-10 inner joint. A hit is snapped to the joint,
+    /// Resolves shots against the tail. Only the tip and the inner joint block shots, each within its armour's reach
+    /// (<see cref="RidleyTailDefinitions.TipArmourReach"/>, <see cref="RidleyTailDefinitions.InnerJointArmourReach"/>). A hit is snapped to the joint,
     /// marked consumed, and replaced by the game's dust/dud actor; Ridley's health is
     /// never consulted because the tail is armor rather than another body hitbox.
     /// </summary>
@@ -413,7 +413,7 @@ internal sealed class RidleyTail
         // and shots already exploding do not.
         foreach (SamusProjectile projectile in projectiles.Shots)
         {
-            if (!projectile.HasEnemyCollisionPayload)
+            if (projectile.Occupant is not { HasEnemyCollisionPayload: true } held)
             {
                 continue;
             }
@@ -432,7 +432,7 @@ internal sealed class RidleyTail
 
             // A missile gets the tiny dud and the dud-shot sound. Beams and supers
             // use the larger smoke variant, exactly as the tail's shot reaction selects it.
-            bool missile = projectile.Type.Family == SamusProjectileFamily.Missile;
+            bool missile = held.Type.Family == SamusProjectileFamily.Missile;
             DustExplosionAnimation dustVariant = missile ? DustExplosionAnimation.DudShotTinyExplosion : DustExplosionAnimation.Smoke;
             _projectiles.SpawnDustOrExplosion(joint.Position, dustVariant);
             if (missile)

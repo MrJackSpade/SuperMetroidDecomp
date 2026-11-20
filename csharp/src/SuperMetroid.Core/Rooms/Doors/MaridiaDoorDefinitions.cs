@@ -19,13 +19,13 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition GlassTunnelToGlassTunnelSave { get; } = new("GlassTunnelToGlassTunnelSave", RoomDefinitions.GlassTunnelSave, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the West Tunnel room to the Glass Tunnel room.</summary>
-    public static DoorDefinition WestTunnelToGlassTunnel { get; } = new("WestTunnelToGlassTunnel", RoomDefinitions.GlassTunnel, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.GlassTunnelClosesScreens0x0And0x2OpensScreen0x1TopAligned);
+    public static DoorDefinition WestTunnelToGlassTunnel { get; } = new("WestTunnelToGlassTunnel", RoomDefinitions.GlassTunnel, new(DoorDirection.Right, DoorClosingBehavior.None), null, new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.GlassTunnelClosesScreens0x0And0x2OpensScreen0x1TopAligned);
 
     /// <summary>The door from the West Tunnel room to the Below Spazer room.</summary>
     public static DoorDefinition WestTunnelToBelowSpazer { get; } = new("WestTunnelToBelowSpazer", RoomDefinitions.BelowSpazer, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(30, 22), new(1, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the East Tunnel room to the Glass Tunnel room.</summary>
-    public static DoorDefinition EastTunnelToGlassTunnel { get; } = new("EastTunnelToGlassTunnel", RoomDefinitions.GlassTunnel, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.GlassTunnelClosesScreens0x0And0x2OpensScreen0x1TopAligned);
+    public static DoorDefinition EastTunnelToGlassTunnel { get; } = new("EastTunnelToGlassTunnel", RoomDefinitions.GlassTunnel, new(DoorDirection.Left, DoorClosingBehavior.None), null, new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.GlassTunnelClosesScreens0x0And0x2OpensScreen0x1TopAligned);
 
     /// <summary>The door from the East Tunnel room to the Warehouse Entrance room.</summary>
     public static DoorDefinition EastTunnelToWarehouseEntrance { get; } = new("EastTunnelToWarehouseEntrance", RoomDefinitions.WarehouseEntrance, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -46,7 +46,7 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition MainStreetToMtEverestUpper { get; } = new("MainStreetToMtEverestUpper", RoomDefinitions.MtEverest, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Main Street room to the Mt Everest room, arriving at its lower doorway.</summary>
-    public static DoorDefinition MainStreetToMtEverestLower { get; } = new("MainStreetToMtEverestLower", RoomDefinitions.MtEverest, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(1, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition MainStreetToMtEverestLower { get; } = new("MainStreetToMtEverestLower", RoomDefinitions.MtEverest, new(DoorDirection.Right, DoorClosingBehavior.None), null, new(1, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Fish Tank room to the Main Street room.</summary>
     public static DoorDefinition FishTankToMainStreet { get; } = new("FishTankToMainStreet", RoomDefinitions.MainStreet, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(46, 102), new(2, 6), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -67,7 +67,7 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition CrabTunnelToMainStreet { get; } = new("CrabTunnelToMainStreet", RoomDefinitions.MainStreet, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(30, 118), new(1, 7), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Crab Tunnel room to the Crab Hole room.</summary>
-    public static DoorDefinition CrabTunnelToCrabHole { get; } = new("CrabTunnelToCrabHole", RoomDefinitions.CrabHole, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition CrabTunnelToCrabHole { get; } = new("CrabTunnelToCrabHole", RoomDefinitions.CrabHole, new(DoorDirection.Right, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Mt Everest room to the Red Fish room.</summary>
     public static DoorDefinition MtEverestToRedFish { get; } = new("MtEverestToRedFish", RoomDefinitions.RedFish, new(DoorDirection.Up, DoorClosingBehavior.BlueDoorCloses), new(38, 29), new(2, 1), DoorSamusSpeed.PixelsPerStep(1, 3, 4), DoorSetupDefinitions.None);
@@ -82,7 +82,7 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition MtEverestToFishTankRight { get; } = new("MtEverestToFishTankRight", RoomDefinitions.FishTank, new(DoorDirection.Down, DoorClosingBehavior.BlueDoorCloses), new(54, 2), new(3, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Mt Everest room to the Main Street room, arriving at its lower doorway.</summary>
-    public static DoorDefinition MtEverestToMainStreetLower { get; } = new("MtEverestToMainStreetLower", RoomDefinitions.MainStreet, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(2, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition MtEverestToMainStreetLower { get; } = new("MtEverestToMainStreetLower", RoomDefinitions.MainStreet, new(DoorDirection.Left, DoorClosingBehavior.None), null, new(2, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Mt Everest room to the Crab Shaft room.</summary>
     public static DoorDefinition MtEverestToCrabShaft { get; } = new("MtEverestToCrabShaft", RoomDefinitions.CrabShaft, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 38), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -118,7 +118,7 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition PseudoPlasmaSparkToCrabShaft { get; } = new("PseudoPlasmaSparkToCrabShaft", RoomDefinitions.CrabShaft, new(DoorDirection.Down, DoorClosingBehavior.BlueDoorCloses), new(6, 2), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Pseudo Plasma Spark room to the Plasma Spark room.</summary>
-    public static DoorDefinition PseudoPlasmaSparkToPlasmaSpark { get; } = new("PseudoPlasmaSparkToPlasmaSpark", RoomDefinitions.PlasmaSpark, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition PseudoPlasmaSparkToPlasmaSpark { get; } = new("PseudoPlasmaSparkToPlasmaSpark", RoomDefinitions.PlasmaSpark, new(DoorDirection.Right, DoorClosingBehavior.None), null, new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Crab Hole room to the Crab Tunnel room.</summary>
     public static DoorDefinition CrabHoleToCrabTunnel { get; } = new("CrabHoleToCrabTunnel", RoomDefinitions.CrabTunnel, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(62, 6), new(3, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -133,7 +133,7 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition CrabHoleToMaridiaMap { get; } = new("CrabHoleToMaridiaMap", RoomDefinitions.MaridiaMap, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the West Sand Hall Tunnel room to the Crab Hole room.</summary>
-    public static DoorDefinition WestSandHallTunnelToCrabHole { get; } = new("WestSandHallTunnelToCrabHole", RoomDefinitions.CrabHole, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition WestSandHallTunnelToCrabHole { get; } = new("WestSandHallTunnelToCrabHole", RoomDefinitions.CrabHole, new(DoorDirection.Left, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the West Sand Hall Tunnel room to the West Sand Hall room.</summary>
     public static DoorDefinition WestSandHallTunnelToWestSandHall { get; } = new("WestSandHallTunnelToWestSandHall", RoomDefinitions.WestSandHall, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -160,13 +160,13 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition MaridiaElevatorToForgottenHighwaySave { get; } = new("MaridiaElevatorToForgottenHighwaySave", RoomDefinitions.ForgottenHighwaySave, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Maridia Elevator room to the Forgotten Highway Elevator room.</summary>
-    public static DoorDefinition MaridiaElevatorToForgottenHighwayElevator { get; } = new("MaridiaElevatorToForgottenHighwayElevator", RoomDefinitions.ForgottenHighwayElevator, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition MaridiaElevatorToForgottenHighwayElevator { get; } = new("MaridiaElevatorToForgottenHighwayElevator", RoomDefinitions.ForgottenHighwayElevator, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Plasma Spark room to the Butterfly room.</summary>
     public static DoorDefinition PlasmaSparkToButterfly { get; } = new("PlasmaSparkToButterfly", RoomDefinitions.Butterfly, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Plasma Spark room to the Toilet room.</summary>
-    public static DoorDefinition PlasmaSparkToToilet { get; } = new("PlasmaSparkToToilet", RoomDefinitions.Toilet, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.ToiletStartsElevatubeRideFromNorth);
+    public static DoorDefinition PlasmaSparkToToilet { get; } = new("PlasmaSparkToToilet", RoomDefinitions.Toilet, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.ToiletStartsElevatubeRideFromNorth);
 
     /// <summary>The door from the Plasma Spark room to the Kassiuz room.</summary>
     public static DoorDefinition PlasmaSparkToKassiuz { get; } = new("PlasmaSparkToKassiuz", RoomDefinitions.Kassiuz, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 54), new(0, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -196,7 +196,7 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition BugSandHoleToThreadTheNeedle { get; } = new("BugSandHoleToThreadTheNeedle", RoomDefinitions.ThreadTheNeedle, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Bug Sand Hole room to the Plasma Beach Quicksand room.</summary>
-    public static DoorDefinition BugSandHoleToPlasmaBeachQuicksand { get; } = new("BugSandHoleToPlasmaBeachQuicksand", RoomDefinitions.PlasmaBeachQuicksand, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition BugSandHoleToPlasmaBeachQuicksand { get; } = new("BugSandHoleToPlasmaBeachQuicksand", RoomDefinitions.PlasmaBeachQuicksand, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Bug Sand Hole room to the Plasma Spark room.</summary>
     public static DoorDefinition BugSandHoleToPlasmaSpark { get; } = new("BugSandHoleToPlasmaSpark", RoomDefinitions.PlasmaSpark, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(62, 54), new(3, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -208,7 +208,7 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition WestSandHallToOasis { get; } = new("WestSandHallToOasis", RoomDefinitions.Oasis, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the West Sand Hall room up into the West Sand Hole room.</summary>
-    public static DoorDefinition WestSandHallToWestSandHole { get; } = new("WestSandHallToWestSandHole", RoomDefinitions.WestSandHole, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition WestSandHallToWestSandHole { get; } = new("WestSandHallToWestSandHole", RoomDefinitions.WestSandHole, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Oasis room to the West Sand Hall room.</summary>
     public static DoorDefinition OasisToWestSandHall { get; } = new("OasisToWestSandHall", RoomDefinitions.WestSandHall, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(62, 6), new(3, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -217,7 +217,7 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition OasisToEastSandHall { get; } = new("OasisToEastSandHall", RoomDefinitions.EastSandHall, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Oasis room to the Toilet room.</summary>
-    public static DoorDefinition OasisToToilet { get; } = new("OasisToToilet", RoomDefinitions.Toilet, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 9), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.ToiletStartsElevatubeRideFromSouth);
+    public static DoorDefinition OasisToToilet { get; } = new("OasisToToilet", RoomDefinitions.Toilet, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 9), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.ToiletStartsElevatubeRideFromSouth);
 
     /// <summary>The door from the East Sand Hall room to the Oasis room.</summary>
     public static DoorDefinition EastSandHallToOasis { get; } = new("EastSandHallToOasis", RoomDefinitions.Oasis, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -226,40 +226,40 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition EastSandHallToPants { get; } = new("EastSandHallToPants", RoomDefinitions.Pants, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 54), new(0, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.PantsClosesScreen0x2);
 
     /// <summary>The door from the East Sand Hall room up into the East Sand Hole room.</summary>
-    public static DoorDefinition EastSandHallToEastSandHole { get; } = new("EastSandHallToEastSandHole", RoomDefinitions.EastSandHole, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(1, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition EastSandHallToEastSandHole { get; } = new("EastSandHallToEastSandHole", RoomDefinitions.EastSandHole, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(1, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the West Sand Hole room to the West Aqueduct Quicksand room.</summary>
-    public static DoorDefinition WestSandHoleToWestAqueductQuicksand { get; } = new("WestSandHoleToWestAqueductQuicksand", RoomDefinitions.WestAqueductQuicksand, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition WestSandHoleToWestAqueductQuicksand { get; } = new("WestSandHoleToWestAqueductQuicksand", RoomDefinitions.WestAqueductQuicksand, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the West Sand Hole room to the West Sand Hall room.</summary>
-    public static DoorDefinition WestSandHoleToWestSandHall { get; } = new("WestSandHoleToWestSandHall", RoomDefinitions.WestSandHall, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition WestSandHoleToWestSandHall { get; } = new("WestSandHoleToWestSandHall", RoomDefinitions.WestSandHall, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the East Sand Hole room to the East Aqueduct Quicksand room.</summary>
-    public static DoorDefinition EastSandHoleToEastAqueductQuicksand { get; } = new("EastSandHoleToEastAqueductQuicksand", RoomDefinitions.EastAqueductQuicksand, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition EastSandHoleToEastAqueductQuicksand { get; } = new("EastSandHoleToEastAqueductQuicksand", RoomDefinitions.EastAqueductQuicksand, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the East Sand Hole room to the East Sand Hall room.</summary>
-    public static DoorDefinition EastSandHoleToEastSandHall { get; } = new("EastSandHoleToEastSandHall", RoomDefinitions.EastSandHall, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition EastSandHoleToEastSandHall { get; } = new("EastSandHoleToEastSandHall", RoomDefinitions.EastSandHall, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the West Aqueduct Quicksand room to the Aqueduct room.</summary>
-    public static DoorDefinition WestAqueductQuicksandToAqueduct { get; } = new("WestAqueductQuicksandToAqueduct", RoomDefinitions.Aqueduct, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(1, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition WestAqueductQuicksandToAqueduct { get; } = new("WestAqueductQuicksandToAqueduct", RoomDefinitions.Aqueduct, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(1, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the West Aqueduct Quicksand room to the West Sand Hole room.</summary>
-    public static DoorDefinition WestAqueductQuicksandToWestSandHole { get; } = new("WestAqueductQuicksandToWestSandHole", RoomDefinitions.WestSandHole, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition WestAqueductQuicksandToWestSandHole { get; } = new("WestAqueductQuicksandToWestSandHole", RoomDefinitions.WestSandHole, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the East Aqueduct Quicksand room to the Aqueduct room.</summary>
-    public static DoorDefinition EastAqueductQuicksandToAqueduct { get; } = new("EastAqueductQuicksandToAqueduct", RoomDefinitions.Aqueduct, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(3, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition EastAqueductQuicksandToAqueduct { get; } = new("EastAqueductQuicksandToAqueduct", RoomDefinitions.Aqueduct, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(3, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the East Aqueduct Quicksand room to the East Sand Hole room.</summary>
-    public static DoorDefinition EastAqueductQuicksandToEastSandHole { get; } = new("EastAqueductQuicksandToEastSandHole", RoomDefinitions.EastSandHole, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition EastAqueductQuicksandToEastSandHole { get; } = new("EastAqueductQuicksandToEastSandHole", RoomDefinitions.EastSandHole, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Aqueduct room to the Crab Shaft room.</summary>
     public static DoorDefinition AqueductToCrabShaft { get; } = new("AqueductToCrabShaft", RoomDefinitions.CrabShaft, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(30, 54), new(1, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.CrabShaftOpensScreen0x3TopAligned);
 
     /// <summary>The door from the Aqueduct room to the West Aqueduct Quicksand room.</summary>
-    public static DoorDefinition AqueductToWestAqueductQuicksand { get; } = new("AqueductToWestAqueductQuicksand", RoomDefinitions.WestAqueductQuicksand, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition AqueductToWestAqueductQuicksand { get; } = new("AqueductToWestAqueductQuicksand", RoomDefinitions.WestAqueductQuicksand, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Aqueduct room to the East Aqueduct Quicksand room.</summary>
-    public static DoorDefinition AqueductToEastAqueductQuicksand { get; } = new("AqueductToEastAqueductQuicksand", RoomDefinitions.EastAqueductQuicksand, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition AqueductToEastAqueductQuicksand { get; } = new("AqueductToEastAqueductQuicksand", RoomDefinitions.EastAqueductQuicksand, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Aqueduct room to the Botwoon Hallway room.</summary>
     public static DoorDefinition AqueductToBotwoonHallway { get; } = new("AqueductToBotwoonHallway", RoomDefinitions.BotwoonHallway, new(DoorDirection.Up, DoorClosingBehavior.BlueDoorCloses), new(6, 13), new(0, 0), DoorSamusSpeed.PixelsPerStep(1, 3, 4), DoorSetupDefinitions.None);
@@ -307,12 +307,12 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition BelowBotwoonEnergyTankToAqueduct { get; } = new("BelowBotwoonEnergyTankToAqueduct", RoomDefinitions.Aqueduct, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(94, 22), new(5, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Colosseum room to the Halfie Climb room.</summary>
-    public static DoorDefinition ColosseumToHalfieClimb { get; } = new("ColosseumToHalfieClimb", RoomDefinitions.HalfieClimb, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition ColosseumToHalfieClimb { get; } = new("ColosseumToHalfieClimb", RoomDefinitions.HalfieClimb, new(DoorDirection.Left, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Colosseum room to the Draygon Save room.</summary>
     public static DoorDefinition ColosseumToDraygonSave { get; } = new("ColosseumToDraygonSave", RoomDefinitions.DraygonSave, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
-    /// <summary>The door from the Colosseum room to the The Precious room.</summary>
+    /// <summary>The door from the Colosseum room to the Precious room.</summary>
     public static DoorDefinition ColosseumToThePrecious { get; } = new("ColosseumToThePrecious", RoomDefinitions.ThePrecious, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door into the Precious room a Maridia load station enters through.</summary>
@@ -321,20 +321,20 @@ public static class MaridiaDoorDefinitions
     /// <summary>The door from the Aqueduct Save room to the Aqueduct room.</summary>
     public static DoorDefinition AqueductSaveToAqueduct { get; } = new("AqueductSaveToAqueduct", RoomDefinitions.Aqueduct, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 38), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
-    /// <summary>The door from the The Precious room to the Colosseum room.</summary>
+    /// <summary>The door from the Precious room to the Colosseum room.</summary>
     public static DoorDefinition ThePreciousToColosseum { get; } = new("ThePreciousToColosseum", RoomDefinitions.Colosseum, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(110, 22), new(6, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
-    /// <summary>The door from the The Precious room to the Draygon room.</summary>
+    /// <summary>The door from the Precious room to the Draygon room.</summary>
     public static DoorDefinition ThePreciousToDraygon { get; } = new("ThePreciousToDraygon", RoomDefinitions.Draygon, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(30, 6), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Botwoon Energy Tank room to the Botwoon room.</summary>
     public static DoorDefinition BotwoonEnergyTankToBotwoon { get; } = new("BotwoonEnergyTankToBotwoon", RoomDefinitions.Botwoon, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(30, 6), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.BotwoonOpensScreen1x0TopAligned);
 
     /// <summary>The door from the Botwoon Energy Tank room to the Botwoon Quicksand room, arriving at its right half.</summary>
-    public static DoorDefinition BotwoonEnergyTankToBotwoonQuicksandRight { get; } = new("BotwoonEnergyTankToBotwoonQuicksandRight", RoomDefinitions.BotwoonQuicksand, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition BotwoonEnergyTankToBotwoonQuicksandRight { get; } = new("BotwoonEnergyTankToBotwoonQuicksandRight", RoomDefinitions.BotwoonQuicksand, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Botwoon Energy Tank room to the Botwoon Quicksand room, arriving at its left half.</summary>
-    public static DoorDefinition BotwoonEnergyTankToBotwoonQuicksandLeft { get; } = new("BotwoonEnergyTankToBotwoonQuicksandLeft", RoomDefinitions.BotwoonQuicksand, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition BotwoonEnergyTankToBotwoonQuicksandLeft { get; } = new("BotwoonEnergyTankToBotwoonQuicksandLeft", RoomDefinitions.BotwoonQuicksand, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Botwoon Energy Tank room to the Halfie Climb room.</summary>
     public static DoorDefinition BotwoonEnergyTankToHalfieClimb { get; } = new("BotwoonEnergyTankToHalfieClimb", RoomDefinitions.HalfieClimb, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 38), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -349,13 +349,13 @@ public static class MaridiaDoorDefinitions
     public static DoorDefinition MaridiaMissileRefillToHalfieClimb { get; } = new("MaridiaMissileRefillToHalfieClimb", RoomDefinitions.HalfieClimb, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(78, 38), new(4, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.HalfieClimbClosesScreen0x2OpensScreen1x2TopAligned);
 
     /// <summary>The door from the Plasma Beach Quicksand room to the Butterfly room.</summary>
-    public static DoorDefinition PlasmaBeachQuicksandToButterfly { get; } = new("PlasmaBeachQuicksandToButterfly", RoomDefinitions.Butterfly, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition PlasmaBeachQuicksandToButterfly { get; } = new("PlasmaBeachQuicksandToButterfly", RoomDefinitions.Butterfly, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Botwoon Quicksand room to the Below Botwoon Energy Tank room, arriving at its left half.</summary>
-    public static DoorDefinition BotwoonQuicksandToBelowBotwoonEnergyTankLeft { get; } = new("BotwoonQuicksandToBelowBotwoonEnergyTankLeft", RoomDefinitions.BelowBotwoonEnergyTank, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition BotwoonQuicksandToBelowBotwoonEnergyTankLeft { get; } = new("BotwoonQuicksandToBelowBotwoonEnergyTankLeft", RoomDefinitions.BelowBotwoonEnergyTank, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Botwoon Quicksand room to the Below Botwoon Energy Tank room, arriving at its right half.</summary>
-    public static DoorDefinition BotwoonQuicksandToBelowBotwoonEnergyTankRight { get; } = new("BotwoonQuicksandToBelowBotwoonEnergyTankRight", RoomDefinitions.BelowBotwoonEnergyTank, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(3, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition BotwoonQuicksandToBelowBotwoonEnergyTankRight { get; } = new("BotwoonQuicksandToBelowBotwoonEnergyTankRight", RoomDefinitions.BelowBotwoonEnergyTank, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(3, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Shaktool room to the East Pants room.</summary>
     public static DoorDefinition ShaktoolToEastPants { get; } = new("ShaktoolToEastPants", RoomDefinitions.EastPants, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.EastPantsClosesScreen0x2OpensScreen0x1TopAligned);
@@ -399,7 +399,7 @@ public static class MaridiaDoorDefinitions
     /// <summary>The door from the East Cactus Alley room to the Halfie Climb room.</summary>
     public static DoorDefinition EastCactusAlleyToHalfieClimb { get; } = new("EastCactusAlleyToHalfieClimb", RoomDefinitions.HalfieClimb, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
-    /// <summary>The door from the Draygon room to the The Precious room.</summary>
+    /// <summary>The door from the Draygon room to the Precious room.</summary>
     public static DoorDefinition DraygonToThePrecious { get; } = new("DraygonToThePrecious", RoomDefinitions.ThePrecious, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 38), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.ThePreciousOpensScreens0x0And0x1);
 
     /// <summary>The door from the Draygon room to the Space Jump room.</summary>

@@ -136,7 +136,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
 
         enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo, torizo.RequireSpeciesState<TorizoEnemyState>());
 
-        EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
+        EnemyProjectile projectile = enemies.Projectiles.SpawnedInPlace(17);
         Offset16<RoomPixels> muzzle = facingRight ? TorizoProjectilePlacementDefinitions.EyeBeamMuzzle : TorizoProjectilePlacementDefinitions.EyeBeamMuzzle.MirroredX();
         AssertTrue(projectile.IsActive, $"eye beam facing right {facingRight} allocation");
         AssertEqual<GoldenTorizoWeaponSegment?>(GoldenTorizoWeaponSegment.EyeBeam, (projectile.Animation as GoldenTorizoWeaponAnimation)?.PlayingSegment,
@@ -163,7 +163,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
 
         spawn(enemies, torizo);
 
-        EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
+        EnemyProjectile projectile = enemies.Projectiles.SpawnedInPlace(17);
         AssertTrue(projectile.IsActive, $"{methodName} facing {facingRight} allocation");
         AssertEqual<TSegment?>(expected.Animation, playing(projectile),
             $"{methodName} facing {facingRight} program");

@@ -17,7 +17,7 @@ internal sealed class EnemyAudioQueue
     internal EnemyAudioQueue(GameplayAudioRequests requests) => Requests = Ensure.NotNull(requests);
 
     /// <summary>The update's audio requests the enemies' requests join: the runtime's.</summary>
-    internal GameplayAudioRequests Requests { get; }
+    private GameplayAudioRequests Requests { get; }
 
     /// <summary>The music the room's enemies start as it loads, in request order (#2562).</summary>
     private readonly List<MusicRequest> _roomStartMusic = [];

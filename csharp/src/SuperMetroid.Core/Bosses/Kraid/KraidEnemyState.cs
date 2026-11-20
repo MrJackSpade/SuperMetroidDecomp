@@ -38,10 +38,10 @@ public sealed class KraidEnemyState
     internal KraidArmState ArmState { get; }
 
     /// <summary>His top lint's own state.</summary>
-    internal KraidLintState TopLintState { get; }
+    private KraidLintState TopLintState { get; }
 
     /// <summary>His middle lint's own state.</summary>
-    internal KraidLintState MiddleLintState { get; }
+    private KraidLintState MiddleLintState { get; }
 
     /// <summary>His bottom lint's own state.</summary>
     internal KraidLintState BottomLintState { get; }
@@ -50,10 +50,10 @@ public sealed class KraidEnemyState
     internal KraidFootState FootState { get; }
 
     /// <summary>His first fingernail's own state.</summary>
-    internal KraidNailState FirstNailState { get; }
+    private KraidNailState FirstNailState { get; }
 
     /// <summary>His second fingernail's own state.</summary>
-    internal KraidNailState SecondNailState { get; }
+    private KraidNailState SecondNailState { get; }
 
     /// <summary>His lint <paramref name="part"/>'s own state.</summary>
     internal KraidLintState Lint(KraidLintPart part) => part switch
@@ -86,8 +86,8 @@ public sealed class KraidEnemyState
     /// </summary>
     public HeldBossCountdown ThinkingWait { get; } = new();
     /// <summary>
-    /// Gets the highest room Y Samus may be pushed to when Kraid's body ejects her: 324 for the small form and 164 once
-    /// growth raises the clamp.
+    /// Gets the highest room Y Samus may be pushed to when Kraid's body ejects her: <see cref="KraidArenaDefinitions.FirstPhaseEjectionLimitY"/>
+    /// for the small form and <see cref="KraidArenaDefinitions.GrownEjectionLimitY"/> once growth raises the clamp.
     /// </summary>
     public int EjectionLimitY { get; internal set; }
     /// <summary>
@@ -103,16 +103,16 @@ public sealed class KraidEnemyState
     internal bool MouthReopenMarked { get; set; }
 
     /// <summary>
-    /// Gets the number of mouth reopens still pending, from zero to three. A charged body hit arms three; each reopen
+    /// Gets the number of mouth reopens still pending, from zero to <see cref="ArmedMouthReopens"/>. A charged body hit arms them all; each reopen
     /// continuation removes one, and the last removal clears the mouth with the count (#1627).
     /// </summary>
-    public int PendingMouthReopens { get; internal set; }
+    public int PendingMouthReopens { get; private set; }
     /// <summary>Health captured by the living setup before combat can change it.</summary>
     public int InitialHealth { get; internal set; }
     /// <summary><paramref name="eighths"/> eighths of the health Kraid initialized with, one eighth truncated first (#1890).</summary>
     /// <param name="eighths">How many eighths, one through eight.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="eighths"/> is not one through eight.</exception>
-    public int HealthEighths(int eighths) => KraidHealthThresholds.Eighths(InitialHealth, eighths);
+    private int HealthEighths(int eighths) => KraidHealthThresholds.Eighths(InitialHealth, eighths);
 
     /// <summary>Seven eighths of Kraid's initial health: below it, the small Kraid grows (#1890).</summary>
     internal int SevenEighthsHealth => HealthEighths(7);
@@ -137,7 +137,7 @@ public sealed class KraidEnemyState
     internal void SettleHurtFlash() => HurtFlash = KraidHurtFlashAnimations.Resting();
 
     /// <summary>The head pose Kraid is showing, which selects the head image; null until the head animation shows its first pose.</summary>
-    internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
+    internal KraidHeadFrame? DisplayedHeadFrame { get; private set; }
 
     /// <summary>
     /// Kraid's playing head animation and where it stands; <see cref="HeadHold"/> paces it. He rises with his roar selected,
@@ -195,14 +195,13 @@ public sealed class KraidEnemyState
     /// </summary>
     internal void HoldClosedMouth() => HeadHold.LastFor(KraidArenaDefinitions.MouthClosedHeadDelayUpdates);
 
-    /// <summary>Arms three mouth reopens, whatever number of them was still pending (#1890).</summary>
+    /// <summary>Arms <see cref="ArmedMouthReopens"/> mouth reopens, whatever number of them was still pending (#1890).</summary>
     internal void ArmMouthReopens() => PendingMouthReopens = ArmedMouthReopens;
 
     /// <summary>
     /// Removes one pending mouth reopen (#1627). Kraid removes one only while the mouth's reopen is pending, which a
-    /// mouth hit marks only after arming three, and the removal that leaves none clears the mouth, so a reopen is always
-    /// pending here: the game's wrap of its count from zero is never reached, and removing from none breaks that
-    /// order.
+    /// mouth hit marks only after arming them, and the removal that leaves none clears the mouth, so a reopen is
+    /// always pending when one is removed.
     /// </summary>
     /// <exception cref="InvalidOperationException">No reopen is pending.</exception>
     internal void RemoveOneMouthReopen() => PendingMouthReopens = PendingMouthReopens > 0

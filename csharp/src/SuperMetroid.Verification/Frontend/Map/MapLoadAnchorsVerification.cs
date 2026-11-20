@@ -185,9 +185,9 @@ internal static class MapLoadAnchorsVerification
             AssertTrue(before.SequenceEqual(ReadSram()), "map entry leaves entire SRAM and progression unchanged");
         }
         byte[] ReadSram() => SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(stationSaves, RetailPresentationFixture());
-        static MapScroll Scroll(FileSelectMapMenuState menu) => menu.Scroll;
+        static MapScroll Scroll(FileSelectMapMenuState menu) => menu.RoomMapScroll;
         static ScrollStateResult ScrollState(MapScroll value) =>
-            new ScrollStateResult(value.Scroll, value.Limits, value.Direction);
+            new ScrollStateResult(value.Scroll, value.Limits, value.StepUnderWay?.Direction);
     }
 
     /// <summary>Derives a saved station's map pixel anchor directly from its native load record and room header.</summary>

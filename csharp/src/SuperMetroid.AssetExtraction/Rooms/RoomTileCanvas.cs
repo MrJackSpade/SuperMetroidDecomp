@@ -155,7 +155,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
 
     /// <summary>
     /// The painted planes as a gameplay background sheet, as <see cref="ToRoomSheet"/> gives it, with each of
-    /// <paramref name="frames"/> that <paramref name="split"/> names, or every frame without it, installed as its two parts
+    /// <paramref name="frames"/> that <paramref name="split"/> names installed as its two parts
     /// (#1634, <see cref="PictureParts"/>): the pixels painted from back tiles under the frame's own name and those painted
     /// from front tiles under <see cref="PictureParts.InFront"/>'s. A part that inks no pixel is not installed at all (#1636),
     /// neither as a frame nor by name; a frame neither part of which inks a pixel is named once, by its own name, as one that
@@ -165,15 +165,19 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <param name="colours">The colours the planes were painted from.</param>
     /// <param name="frames">The frames cut from the planes.</param>
     /// <param name="kind">How the sheet is coloured.</param>
-    /// <param name="split">The frames installed as two parts, or null for every frame.</param>
+    /// <param name="split">The frames installed as two parts; <see cref="EveryFrame"/> names them all.</param>
     /// <param name="keepsEmpty">
     /// Whether a frame that inks no opaque pixel is installed whole rather than named as one that shows nothing, as a picture
     /// written over a room's layer is, which covers the layer wherever it lies.
     /// </param>
     /// <exception cref="InvalidDataException">A frame leaves the painted planes, or the in-front parts need more rows than a sheet holds.</exception>
     internal ComposedSpriteSheet ToSplitRoomSheet(RgbColor[] colours, Dictionary<string, SpriteSheetFrameDocument> frames,
-        SpriteImageColours kind = SpriteImageColours.Background, IReadOnlySet<string>? split = null, bool keepsEmpty = false) =>
+        IReadOnlySet<string> split, SpriteImageColours kind = SpriteImageColours.Background, bool keepsEmpty = false) =>
         SplitSheet(colours, frames, kind, [.. InstalledPictureColours.CartridgeOrderSets], split, keepsEmpty);
+
+    /// <summary>Every one of <paramref name="frames"/>, to install each as its two parts.</summary>
+    internal static IReadOnlySet<string> EveryFrame(Dictionary<string, SpriteSheetFrameDocument> frames) =>
+        new HashSet<string>(Ensure.NotNull(frames).Keys, StringComparer.Ordinal);
 
     /// <summary>The painted planes as a sheet whose colour groups draw in <paramref name="backgroundSets"/>, or in none named.</summary>
     private ComposedSpriteSheet Sheet(RgbColor[] colours, Dictionary<string, SpriteSheetFrameDocument> frames,
@@ -192,7 +196,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
         };
 
     /// <summary>
-    /// The painted planes with each of <paramref name="frames"/> that <paramref name="split"/> names, or every frame, installed
+    /// The painted planes with each of <paramref name="frames"/> that <paramref name="split"/> names installed
     /// as its two parts, as <see cref="ToSplitRoomSheet"/> describes, on a sheet coloured as <paramref name="kind"/> whose
     /// colour groups draw in <paramref name="backgroundSets"/>; a frame that inks no opaque pixel is installed whole when
     /// <paramref name="keepsEmpty"/> says so.
@@ -206,7 +210,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// </remarks>
     /// <exception cref="InvalidDataException">A frame leaves the painted planes, or the in-front parts need more rows than a sheet holds.</exception>
     private ComposedSpriteSheet SplitSheet(RgbColor[] colours, Dictionary<string, SpriteSheetFrameDocument> frames,
-        SpriteImageColours kind, InstalledBackgroundSet[]? backgroundSets, IReadOnlySet<string>? split, bool keepsEmpty)
+        SpriteImageColours kind, InstalledBackgroundSet[]? backgroundSets, IReadOnlySet<string> split, bool keepsEmpty)
     {
         Ensure.NotNull(frames);
         bool twoBit = kind == SpriteImageColours.TwoBppBackground;
@@ -218,7 +222,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
         {
             if (frame.Corner.X + frame.Size.X > Size.X || frame.Corner.Y + frame.Size.Y > Size.Y)
                 throw new InvalidDataException($"Frame {name} at ({frame.Corner.X}, {frame.Corner.Y}) leaves its {Size.X}x{Size.Y} sheet.");
-            if (split is not null && !split.Contains(name))
+            if (!split.Contains(name))
             {
                 parts.Add(new FramePart(name, frame, PartInstallation.Whole));
                 continue;

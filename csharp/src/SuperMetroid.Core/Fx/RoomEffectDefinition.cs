@@ -44,7 +44,7 @@ public sealed record RoomEffectDefinition(
     /// <see cref="RoomLavaOrAcid"/> for lava and acid, and null for every other effect (#1695).
     /// </summary>
     /// <exception cref="ArgumentException">The liquid is not the kind the effect has.</exception>
-    public RoomLiquid? Liquid { get; init; } = RoomLiquid.OfEffect(Type, Liquid);
+    public RoomLiquid? Liquid { get; } = RoomLiquid.OfEffect(Type, Liquid);
 
     /// <summary>
     /// What the effect shows on the effect overlay: its liquid's or its atmosphere's look for an effect that shows there, and

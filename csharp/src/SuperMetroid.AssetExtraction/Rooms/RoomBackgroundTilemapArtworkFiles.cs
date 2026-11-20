@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomBackgroundTilemapArtworkFiles
 {
     /// <summary>Import-data manifest filename recording every background tilemap, its length, and its JSON hash.</summary>
-    public const string ManifestFileName = "room-backgrounds.json";
+    private const string ManifestFileName = "room-backgrounds.json";
     /// <summary>
     /// Manifest revision; 2 names each tilemap for its background rather than its cartridge address (#1414), and 3 writes the
     /// tilemaps as import data, not installed (#1638).

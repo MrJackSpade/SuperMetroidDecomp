@@ -8,10 +8,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Every part answers her hitboxes; each runs its own AI and animation.
 /// </summary>
 /// <param name="species">The MotherBrain species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class MotherBrainEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
+internal abstract class MotherBrainEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <summary>The MotherBrain species owner.</summary>
     protected MotherBrainBehavior Species => species;
@@ -33,16 +34,9 @@ internal abstract class MotherBrainEntity(MotherBrainBehavior species, RoomEnemy
     /// <inheritdoc/>
     public abstract void AdvanceTypedAnimation(EnemyAnimationCueContext context);
 
-    /// <summary>None: the body and tubes name shared touch reactions.</summary>
-    public virtual EnemyReaction? SpeciesTouch => null;
-
-    /// <summary>None: the tubes name a shared shot reaction.</summary>
-    public virtual EnemyReaction? SpeciesShot => null;
-
     /// <summary>None: only her body and her head have hitboxes of their own, which their entities find (#2301).</summary>
-    public virtual bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    public virtual EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)
     {
-        reaction = null;
-        return null;
+        throw EnemyCollision.UncoveredFrame(Place);
     }
 }

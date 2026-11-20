@@ -81,7 +81,7 @@ internal sealed class MotherBrainHead
         place.AnimationClock.ShowForGood();
     }
 
-    /// <summary>Runs the head main/hurt entry and its brain action's choice of whether her brain and neck are drawn.</summary>
+    /// <summary>Chooses whether her brain and neck are drawn and places her head on her neck.</summary>
     internal static void RunMotherBrainHeadMain(RoomEnemyPlace head, MotherBrainEnemyState state, SamusState samus)
     {
         // Her brain's action decides whether her own draw shows her neck with her brain.
@@ -144,8 +144,7 @@ internal sealed class MotherBrainHead
         if (!state.DrawNeck || state.Body.Presence.HasAny(EnemyPresence.Hidden))
             return;
 
-        // The neck draw emits the joint nearest the brain first and the body-side joint
-        // last. Equal-priority overlap therefore follows the same drawing precedence.
+        // The joints are drawn from the brain down to her body, so the joints nearer her brain lie over the others.
         int shakeIndex = MotherBrainCadenceDefinitions.NeckShakeStep.Of(head.HurtFlash.UpdatesLeft);
         Offset16<RoomPixels> neckShake = MotherBrainShakeDefinitions.Offsets[shakeIndex];
         foreach (MotherBrainNeckJoint joint in state.Neck.Joints.Reverse())
@@ -173,7 +172,7 @@ internal sealed class MotherBrainHead
     /// <param name="frame">The frame, where it lies and its shading.</param>
     /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="corpseRows">The rows her rotting corpse shows, or none while she shows no rotting corpse.</param>
-    internal void DrawMotherBrainWorldFrame(
+    private void DrawMotherBrainWorldFrame(
         SpriteFrameBuffer sprites,
         SpriteSource source,
         MotherBrainWorldFrame frame,
@@ -402,10 +401,13 @@ internal sealed class MotherBrainHead
         RoomEnemyPlace head = state.Head;
         state.NeckMovementEnabled = false;
 
-        // The laser leaves her mouth, right of and below her head, travelling right. It is the head's
-        // shot, so it deals Mother Brain's contact damage at her laser's speed.
+        // The laser leaves her mouth, right of and below her head, travelling right, at her laser's speed. Her brain fires
+        // it while it is drawn, after every enemy of the room has been drawn, and the laser takes the damage of the enemy
+        // drawn last. Only her phase-two fight fires it, when her body is the one enemy the room draws: her brain is drawn
+        // apart from the room's enemies, and her Rinkas are gone. So it deals her body's definition's damage, whatever an
+        // installation gives it.
         EnemyProjectile? laser = _roomActors.SpawnPirateLaser(
-            head,
+            state.BodyOccupant,
             head.Position.Whole + MotherBrainFightDefinitions.BeamOffset,
             direction: HorizontalDirection.Right);
         if (laser is not null)
@@ -413,9 +415,9 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Aims the onion rings at a target. Both target selectors subtract the same mouth offsets,
-    /// take the angle from those offsets, rotate by a half turn, and clamp the launch arc to
-    /// <see cref="MotherBrainOnionRingDefinitions.LowestAim"/> through <see cref="MotherBrainOnionRingDefinitions.HighestAim"/>; only the source coordinate differs.
+    /// Aims the onion rings from her mouth at a target: the angle from her mouth to the target, a quarter turn on,
+    /// clamped to <see cref="MotherBrainOnionRingDefinitions.LowestAim"/> through
+    /// <see cref="MotherBrainOnionRingDefinitions.HighestAim"/>.
     /// </summary>
     private static void AimMotherBrainOnionRingsAt(
         MotherBrainEnemyState state,
@@ -439,7 +441,7 @@ internal sealed class MotherBrainHead
         MotherBrainEnemyState state,
         int afterburnCount)
     {
-        EnemyProjectile? bomb = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? bomb = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainBomb, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         if (bomb is null)
             return;
 
@@ -458,14 +460,14 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Runs the head's onion-ring step and the ring's setup. The ring takes its enemy-projectile place after the twelve
+    /// Runs the head's onion-ring step and the ring's setup. The ring takes its enemy-projectile place after the
     /// room turrets and all lingering drool have theirs, so no ring appears when every place is held.
     /// </summary>
-    internal void SpawnMotherBrainOnionRing(
+    private void SpawnMotherBrainOnionRing(
         MotherBrainEnemyState state,
         TrigonometryAngle angle)
     {
-        EnemyProjectile? ring = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? ring = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainOnionRing, _projectileAttacks.OnionRing, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         if (ring is null)
             return;
 
@@ -481,23 +483,19 @@ internal sealed class MotherBrainHead
             MotherBrainOnionRingDefinitions.Speed,
             angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
-        // The ring's setup pins it to the mouth in the same update, before the first of its eight delayed attachment
-        // frames.
+        // The ring's setup pins it to the mouth in the same update, before the first of its delayed attachment
+        // frames (MotherBrainOnionRingDefinitions.MouthWaitUpdates).
         MotherBrainProjectiles.PinMotherBrainOnionRingToMouth(ring, state);
     }
 
     /// <summary>Runs the head's drool step and the drool's setup.</summary>
-    internal void SpawnMotherBrainDrool(MotherBrainEnemyState state)
+    private void SpawnMotherBrainDrool(MotherBrainEnemyState state)
     {
         if (!state.DroolGenerationEnabled)
             return;
 
         Offset16<RoomPixels> mouth = state.NextDroolMouthPoint.Entry;
         state.NextDroolMouthPoint = state.NextDroolMouthPoint.NextInCycle;
-
-        EnemyProjectile? drool = _projectiles.AllocateEnemyProjectile();
-        if (drool is null)
-            return;
 
         // The game itself picks the drool by how fast her neck turns (#2471), and no phase stands behind that choice: her
         // phase-two laser's quick aim and steady fire, her fake death's landing, her third phase's bob and her late fight's
@@ -513,13 +511,13 @@ internal sealed class MotherBrainHead
 
         // Spawning the drool attaches it to the head at once, so its position is already
         // right before the later projectile pass repeats the same attachment.
-        MotherBrainProjectiles.MotherBrainProjectileBehavior.HoldMotherBrainDroolAtMouth(drool, droolState);
+        _projectileAttacks.Projectile.HoldMotherBrainDroolAtMouth(drool, droolState);
     }
 
     /// <summary>Runs the head's big purple breath step and the breath's setup.</summary>
     private void SpawnMotherBrainPurpleBreathBig(MotherBrainEnemyState state)
     {
-        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         if (breath is null)
             return;
 
@@ -537,7 +535,7 @@ internal sealed class MotherBrainHead
     /// <summary>Runs the small-breath spawn and the breath's setup.</summary>
     private void SpawnMotherBrainPurpleBreathSmall(MotherBrainEnemyState state)
     {
-        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         if (breath is null)
             return;
 
@@ -554,9 +552,9 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Spawns the rainbow beam's charge glow, pinned to her head in the update it spawns.</summary>
-    internal void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
+    private void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
 
@@ -570,6 +568,6 @@ internal sealed class MotherBrainHead
         projectile.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.RainbowBeamCharging, behavior));
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
         projectile.Position = projectile.Position.WithoutFractions();
-        MotherBrainProjectiles.MotherBrainProjectileBehavior.PinMotherBrainRainbowCharge(projectile, encounter);
+        _projectileAttacks.Projectile.PinMotherBrainRainbowCharge(projectile, encounter);
     }
 }

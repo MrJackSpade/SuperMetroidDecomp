@@ -21,7 +21,7 @@ internal sealed record RoomObjectArtwork
     public required InstalledRoomObjectShotBlockVisuals RoomObjectShotBlockVisuals { get; init; }
 
     /// <summary>Grapple-block art; the terrain owns collision.</summary>
-    public required InstalledRoomObjectGrappleBlockVisuals RoomObjectGrappleBlockVisuals { get; init; }
+    public required InstalledRoomObjectGrappleBlockVisuals RoomObjectGrappleBlockVisuals { private get; init; }
 
     /// <summary>Station appearance; the terrain retains collision.</summary>
     public required InstalledRoomObjectStationVisuals RoomObjectStationVisuals { get; init; }
@@ -104,8 +104,8 @@ internal sealed record RoomObjectArtwork
     /// <summary>The installed pictures of the blocks room-object setups and block reactions write of their own accord (#1580).</summary>
     public required InstalledRoomObjectSetupBlocks RoomObjectSetupBlocks { get; init; }
 
-    /// <summary>Every catalog, each under its own type, which names the one family it pictures.</summary>
-    internal IReadOnlyList<object> Catalogs =>
+    /// <summary>Every family's catalog, each listing its pictures under the draws that show them (#2571).</summary>
+    internal IReadOnlyList<IRoomObjectFamilyPictures> FamilyPictures =>
     [
         RoomObjectShotBlockVisuals,
         RoomObjectGrappleBlockVisuals,
@@ -135,6 +135,5 @@ internal sealed record RoomObjectArtwork
         RoomObjectMotherBrainFakeDeathVisuals,
         RoomObjectCollectibleVisuals,
         RoomObjectRevealAndWallVisuals,
-        RoomObjectSetupBlocks,
     ];
 }

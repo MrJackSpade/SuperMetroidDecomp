@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public sealed class PhantoonFigureEightState
 {
     /// <summary>
-    /// His place on the figure-eight path (<see cref="PhantoonPath.Places"/>): he steps on to the next place running it
+    /// His place on the figure-eight path (<c>Places</c>): he steps on to the next place running it
     /// forwards and back to the one before running it backwards, past either end to the other.
     /// </summary>
     public ListStep<Offset16<RoomPixels>> PathPlace { get; internal set; } = PhantoonPath.At(0);
@@ -17,7 +17,7 @@ public sealed class PhantoonFigureEightState
 
     /// <summary>
     /// His speed in path places per update: zero or more forward, zero or less while he runs the path backwards, and
-    /// never more than seven places from rest.
+    /// never further from rest than <see cref="PhantoonMotionDefinitions.ForwardFastCap"/>.
     /// </summary>
     public PhantoonPathSpeed Speed { get; internal set; }
 

@@ -24,24 +24,33 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <inheritdoc />
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => DeathHidesBodyLayer;
 
+    /// <inheritdoc/>
+    bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.HidesBackgroundLayer => DeathHidesBodyLayer;
+
     /// <summary>Starts the shared encounter state with her body and her head (#2298).</summary>
-    /// <param name="body">Her body's place.</param>
+    /// <param name="body">The enemy holding her body's place, which begins the encounter as it sets up.</param>
     /// <param name="head">Her head's place, which her room lists right after her body.</param>
     /// <param name="walk">The walk credit the encounter's setup creates for it.</param>
     /// <param name="bursts">The burst cycle the encounter's setup creates for it (#1872).</param>
     /// <param name="brain">The brain animation the encounter's setup creates for it (#2317).</param>
-    internal MotherBrainEnemyState(RoomEnemyPlace body, RoomEnemyPlace head, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts,
+    internal MotherBrainEnemyState(RoomEnemyOccupant body, RoomEnemyPlace head, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts,
         MotherBrainBrainAnimation brain)
     {
-        Body = body;
+        BodyOccupant = Ensure.NotNull(body);
         Head = Ensure.NotNull(head);
         Walk = Ensure.NotNull(walk);
         Bursts = Ensure.NotNull(bursts);
         Brain = Ensure.NotNull(brain);
     }
 
+    /// <summary>
+    /// The enemy holding her body's place (#2558), which owns the encounter: its definition's damage is her contact damage,
+    /// which her body's, brain's and neck's touches and her laser deal.
+    /// </summary>
+    public RoomEnemyOccupant BodyOccupant { get; }
+
     /// <summary>Her body, which owns the encounter and runs first.</summary>
-    public RoomEnemyPlace Body { get; }
+    public RoomEnemyPlace Body => BodyOccupant.Place;
 
     /// <summary>Her head, the brain, which her room lists right after her body: her body's setup begins the encounter with it (#2298).</summary>
     public RoomEnemyPlace Head { get; }
@@ -203,7 +212,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public ListStep<Position16<RoomPixels>> NextFakeDeathExplosion { get; internal set; } = ListStep<Position16<RoomPixels>>.FirstOf(MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions);
 
     /// <summary>
-    /// Her room's flash playing (#641, #2259, #2404): the shared animation player looping its fourteen images, or null while
+    /// Her room's flash playing (#641, #2259, #2404): the shared animation player looping its images, or null while
     /// no flash runs.
     /// </summary>
     internal ShowingAnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>? RoomFlash { get; set; }
@@ -232,7 +241,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <summary>
     /// Her brain's own shake (#2469), counted down at each draw that shows her brain, as her brain's animation plays there:
     /// the glass event's earthquake starts it for the earthquake's length, and the brain's shake cue, the Hyper Beam recoil
-    /// and the drained beam's refresh for fifty.
+    /// and the drained beam's refresh for <see cref="MotherBrainFightDefinitions.BrainShakeUpdates"/>.
     /// </summary>
     internal MotherBrainShake BrainShake { get; } = new(MotherBrainCadenceDefinitions.BrainShakeStep);
 
@@ -255,7 +264,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     public ListStep<MotherBrainRainbowImage> NextRainbowImage { get; internal set; } = MotherBrainRainbowImage.CycleStart;
 
-    /// <summary>Whether her brain's draw appends five articulated neck joints: while her head's last main drew her neck.</summary>
+    /// <summary>Whether her brain's draw appends her articulated neck joints: while her head's last main drew her neck.</summary>
     public bool DrawNeck => BrainActionDrawn == MotherBrainBrainAction.ShowsBrainOnNeck;
 
     /// <summary>
@@ -291,7 +300,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// follows her, so each of her body's pictures lies where its installed frame places it against her; the room's
     /// top-left corner once she is gone, where the escape warning written over the background lies.
     /// </summary>
-    public Position16<RoomPixels>? BodyPlacedAt => BodyPlacement switch
+    private Position16<RoomPixels>? BodyPlacedAt => BodyPlacement switch
     {
         MotherBrainBodyPlacement.FollowsBody => Body.Position.Whole,
         MotherBrainBodyPlacement.AtRoomCorner => Position16<RoomPixels>.Zero,
@@ -355,7 +364,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
     /// <summary>
     /// The step of the current attack. Head animation runs independently while this advances from selection, through
-    /// 64 cooldown frames, and back to the ordinary thinking phase.
+    /// the attack's cooldown, and back to the ordinary thinking phase.
     /// </summary>
     public MotherBrainAttackPhase AttackPhase { get; internal set; }
 
@@ -366,7 +375,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// Number of live Mother Brain bombs. Phase two refuses another bomb when this is at
     /// least one; <see cref="RecordBombSpawned"/> and <see cref="RecordBombRemoved"/> keep it.
     /// </summary>
-    public int BombCounter { get; internal set; }
+    public int BombCounter { get; private set; }
 
     /// <summary>Counts a bomb the shared bomb setup has just spawned.</summary>
     internal void RecordBombSpawned() => BombCounter++;
@@ -381,7 +390,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
     /// <summary>
     /// The body's target X, used while the bomb decision walks the body toward
-    /// X=64 or 96 before entering its posture sequence.
+    /// one of its bomb positions before entering its posture sequence.
     /// </summary>
     public int BodyTargetXPosition { get; internal set; }
 
@@ -396,7 +405,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// starts from this exact position, fraction of a pixel included, moves this position on by the aimed velocity,
     /// then receives its own randomized secondary velocity.
     /// </summary>
-    /// <remarks>Charging starts it at the beam position with no fraction of a pixel (body Y minus 48).</remarks>
+    /// <remarks>Charging starts it at the beam position, above her body, with no fraction of a pixel.</remarks>
     public FixedPosition<RoomPixels> HandBeamNextPosition { get; internal set; }
     /// <summary>The aimed velocity; moves the shared start position on before each child receives its independent randomized scatter velocity.</summary>
     public PixelVelocity<RoomPixels> HandBeamNextVelocity { get; internal set; }
@@ -425,7 +434,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     internal int PendingBabyCryCount { get; set; }
 
-    /// <summary>The rainbow beam's colour and cone, advanced by the simulation rather than by painting a frame.</summary>
+    /// <summary>The rainbow beam's colour and cone as she fires it.</summary>
     public MotherBrainRainbowBeamEffect RainbowBeam { get; } = new();
 
     /// <summary>
@@ -443,7 +452,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
 
     /// <summary>
-    /// Clamped aim angle, a sixteenth through nine thirty-seconds of a turn, written by the head's aim step
+    /// Clamped aim angle, between the aim's lowest and highest angles, written by the head's aim step
     /// and consumed by the next onion-ring spawn.
     /// </summary>
     public TrigonometryAngle OnionRingsTargetAngle { get; internal set; }

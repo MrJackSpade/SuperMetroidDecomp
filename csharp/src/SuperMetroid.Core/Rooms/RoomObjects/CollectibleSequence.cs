@@ -7,7 +7,7 @@ internal enum CollectibleSequence
     OrbPulsing,
     /// <summary>A shot Chozo orb bursting open around its item.</summary>
     OrbBurst,
-    /// <summary>The item's two looks, one after the other, four updates each.</summary>
+    /// <summary>The item's two looks, one after the other, each for <see cref="CollectibleTimingDefinitions.VisibleImageUpdates"/>.</summary>
     Looks,
     /// <summary>A revealed item's primary look, the first half of its last pair.</summary>
     RevealedLastPrimary,

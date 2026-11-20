@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Areas.Tourian;
@@ -11,15 +10,13 @@ internal static class TourianAccessDraws
 {
     /// <summary>The floor's frames, pictured by the installed Tourian access frames.</summary>
     internal static RoomObjectDrawFamily<TourianAccessDraw> Family { get; } =
-        RoomObjectDrawFamily<TourianAccessDraw>.Pictured<RoomObjectTourianAccessVisuals>("Tourian access",
-            frame => RoomObjectDrawFamily<TourianAccessDraw>.Defined(TourianAccessObjectDrawDefinitions.Shapes, frame),
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<TourianAccessDraw>("Tourian access",
+            frame => RoomObjectDrawFamily<TourianAccessDraw>.Defined(TourianAccessObjectDrawDefinitions.Shapes, frame));
 
     /// <summary>A crumbling row's breakup stages (#2291), pictured by the installed Tourian access frames.</summary>
     internal static RoomObjectDrawFamily<CrumbleDraw> CrumbleFamily { get; } =
-        RoomObjectDrawFamily<CrumbleDraw>.Pictured<RoomObjectTourianAccessVisuals>("Tourian access crumble",
-            frame => RoomObjectDrawFamily<BlockBreakupStage>.Defined(TourianAccessObjectDrawDefinitions.CrumbleShapes, frame.Stage),
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<CrumbleDraw>("Tourian access crumble",
+            frame => RoomObjectDrawFamily<BlockBreakupStage>.Defined(TourianAccessObjectDrawDefinitions.CrumbleShapes, frame.Stage));
 
     /// <summary>A crumbling row showing <paramref name="stage"/> of its breakup.</summary>
     internal static RoomObjectFrameDraw<CrumbleDraw> Crumble(BlockBreakupStage stage) => CrumbleFamily.Of(new CrumbleDraw(stage));

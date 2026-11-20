@@ -19,21 +19,21 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// The stage of her stagger she walks (#2315): the stages walk forward and back in turn, the first forward, and the last
     /// stays once she has walked it.
     /// </summary>
-    internal ListStep<MotherBrainStaggerStage> PainfulWalkingStage { get; set; } =
+    internal ListStep<MotherBrainStaggerStage> PainfulWalkingStage { get; private set; } =
         ListStep<MotherBrainStaggerStage>.FirstOf(MotherBrainPainfulWalkingDefinitions.Stages);
 
     /// <summary>How fast she staggers in the current stage, slowing as the stages pass.</summary>
-    public MotherBrainWalkSpeed PainfulWalkingSpeed { get; internal set; }
+    public MotherBrainWalkSpeed PainfulWalkingSpeed { get; private set; }
 
     /// <summary>Her pause at the end of the current stage's walk (#2469), or null while she walks it.</summary>
-    internal BossCountdown? PainfulWalkingPause { get; private set; }
+    private BossCountdown? PainfulWalkingPause { get; set; }
 
     /// <summary>
     /// Steps her stagger one update: each stage walks her to one end of her stagger and pauses her there, and the pause's
     /// end turns her round into the next stage, whose first update walks her the other way.
     /// </summary>
     /// <returns>Whether this update ended the pause of her last stage, so that she has walked every stage.</returns>
-    internal bool StepPainfulWalking()
+    private bool StepPainfulWalking()
     {
         if (PainfulWalkingPause is { } pause)
         {
@@ -65,9 +65,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool RecoilFromBaby()
     {
-        // The taken-aback step is not executed by the Baby. It runs on Mother Brain's next
-        // actor turn, changes form/neck geometry, starts the regain-balance wait, and falls through so
-        // that this update is the wait's first.
+        // Her recoil from the Baby runs on her own turn: it changes her form and neck and starts the regain-balance
+        // wait on the same update.
         Encounter.Form = MotherBrainForm.DrainedByBabyMetroid;
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The room's enemies as the services resident room objects call (#633): the room's shake and the enemy pool. The room's
+/// The room's enemies as the services resident objects call (#633): the room's shake and the enemy pool. The room's
 /// enemies are built before its room objects (#2554), so every room object reaches the room's own enemies.
 /// </summary>
 /// <param name="enemies">The room's enemies.</param>

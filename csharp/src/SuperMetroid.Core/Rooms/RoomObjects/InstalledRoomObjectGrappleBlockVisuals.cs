@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The installed pictures of the breakable Grapple block's five frames (#1557). Their Grapple and air collision and the
 /// respawn timing stay the game's.
 /// </summary>
-public sealed class InstalledRoomObjectGrappleBlockVisuals
+public sealed class InstalledRoomObjectGrappleBlockVisuals : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every Grapple-block frame.</summary>
     /// <param name="images">Every Grapple-block frame's picture, keyed by its draw.</param>
@@ -13,7 +13,7 @@ public sealed class InstalledRoomObjectGrappleBlockVisuals
     /// <summary>Every Grapple-block frame's picture, keyed by its draw.</summary>
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
-    /// <summary>The picture <paramref name="draw"/> shows.</summary>
-    /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw) => Images.Image(draw);
+    /// <inheritdoc/>
+    IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
+        Images.All;
 }

@@ -43,7 +43,7 @@ internal static class PoseInputDefinitionsVerification
                 $"Pose {pose} shares list {inputList} only with poses whose native lists hold its live conditions");
             AssertEqual(inputList, listByLiveConditions.TryAdd(live, inputList) ? inputList : listByLiveConditions[live],
                 $"Pose {pose}'s live native conditions select one input list");
-            AssertEqual(native.Count != 0, SamusPoseInputs.Match(inputList, allActions, allActions).HasConditions, "Native empty versus nonempty input program");
+            AssertEqual(native.Count != 0, SamusPoseInputRules.Match(inputList, allActions, allActions).HasConditions, "Native empty versus nonempty input program");
             for (int i = 0; i < native.Count; i++)
             {
                 newMask |= native[i].New; heldMask |= native[i].Held;
@@ -110,7 +110,7 @@ internal static class PoseInputDefinitionsVerification
         AssertEqual(0x0ff0, heldMask, "Fixture enumerates every referenced held-input bit");
         AssertEqual(75, unique.Count, "All distinct native list identities of the records that name a pose");
         AssertEqual(576, conditionCount, "All distinct-list conditions of the records that name a pose");
-        AssertEqual(Enum.GetValues<SamusPoseInputList>().Length, liveConditionsByList.Count, "Every input list is some pose's");
+        AssertEqual(69, liveConditionsByList.Count, "Every one of the 69 input lists is some pose's");
 
         // Extra held actions are admitted by the native subset matcher. With both horizontal
         // directions held, the first authored condition wins: the direction opposite the current

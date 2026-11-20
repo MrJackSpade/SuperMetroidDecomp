@@ -17,7 +17,7 @@ internal sealed class EndingPostShot
     /// <summary>Rotation of the shot graphic, turned backward on each active rotation step and wrapping around the full turn.</summary>
     public RotationAngle Angle { get; private set; } = RotationAngle.Zero;
     /// <summary>Indicates that the shot graphic has reached its minimum zoom.</summary>
-    public bool RotationFinished { get; private set; }
+    private bool RotationFinished { get; set; }
     /// <summary>Signals that the ending hands over to the white-flash phase now that the hold has expired.</summary>
     public bool ReadyForWhiteFlash { get; private set; }
 
@@ -26,8 +26,8 @@ internal sealed class EndingPostShot
     {
         Ensure.NotNull(screen);
         if (ReadyForWhiteFlash) throw new InvalidOperationException("Post-shot white-flash handoff must be consumed.");
-        _ = shotFade.Advance();
-        _ = samusFade.Advance();
+        shotFade.Advance();
+        samusFade.Advance();
         ApplyFade(screen.Colours, EndingFade.Shot, shotFade);
         ApplyFade(screen.Colours, EndingFade.ShootingSamus, samusFade);
         if (!RotationFinished)
@@ -47,14 +47,14 @@ internal sealed class EndingPostShot
     }
 
     /// <summary>
-    /// Shows <paramref name="group"/> at the step <paramref name="fade"/> has reached, in 32 steps from the colours it showed
+    /// Shows <paramref name="group"/> at the step <paramref name="fade"/> has reached, over the fade's steps from the colours it showed
     /// when the shot began (#1512): those are the post-credits colours, which nothing recolours between their restoration
     /// and the shot, so the import pre-colours each level from them.
     /// </summary>
     private static void ApplyFade(EndingColours colours, EndingFade group, PacedFadeSteps fade)
     {
-        // Each step dims every colour by a 32nd of its full brightness: the level left is its brightness times the steps
-        // remaining over 32, rounded down.
+        // Each step dims every colour by an equal share of its full brightness: the level left is its brightness times the
+        // share of steps remaining, rounded down.
         colours.Fade(group, fade.Left);
     }
 

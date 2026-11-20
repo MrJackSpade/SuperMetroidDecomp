@@ -2,8 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The state of an Etecoon. The route it takes after its first landing is its spawn settings', which it reads where it
-/// takes it (#2531).
+/// The state of an Etecoon, which keeps the route its placement names (#2531) for when it takes it after its first landing.
 /// </summary>
 public sealed class EtecoonEnemyState
 {
@@ -15,8 +14,12 @@ public sealed class EtecoonEnemyState
     {
         Settings = Ensure.NotNull(settings);
         Action = action;
+        Route = route;
         Heading = HorizontalDirection.Left;
     }
+
+    /// <summary>The route the Etecoon takes after its first landing, as its placement names it.</summary>
+    internal EtecoonRoute Route { get; }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<EtecoonSegment> Playback { get; set; }

@@ -26,14 +26,14 @@ internal static class FirefleaDoubleDeathVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LowerNorfairFireflea);
         var samus = runtime.Player.Samus;
         RoomEnemyPlace fireflea = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.Fireflea);
+            place.Holds(EnemyDefinitionId.Fireflea));
         ushort x = fireflea.Position.X.Whole, y = fireflea.Position.Y.Whole;
         // Screw attack contact ($0A6E = 3) kills through CommonA3_OrdinaryTouchAI.
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
         samus.EquippedItems = SamusEquipmentFlags.ScrewAttack;
         int killsBefore = runtime.Enemies.RoomStatus.EnemiesKilled;
 
-        runtime.Enemies.FirefleaBehavior.ResolveFirefleaTouch(fireflea, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
+        runtime.Enemies.FirefleaBehavior.ResolveFirefleaTouch(fireflea.HeldOccupant(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
 
         var explosions = runtime.Enemies.Projectiles.EnemyProjectiles
             .Where(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion).ToArray();
@@ -42,7 +42,7 @@ internal static class FirefleaDoubleDeathVerification
         var cleared = explosions.Single(p => p != real);
         AssertEqual((ushort)0, cleared.Position.X.Whole, "the second explosion reads the cleared X position");
         AssertEqual((ushort)0, cleared.Position.Y.Whole, "the second explosion reads the cleared Y position");
-        AssertEqual(EnemyDefinitionId.None, cleared.StateOf<EnemyDeathExplosionState>().DropDefinitionId, "the second explosion carries header zero");
+        AssertTrue(runtime.Enemies.DeathsAndDrops.Explosions.Of(cleared).Dropper is null, "the second explosion carries header zero");
         AssertEqual(EnemyDeathExplosionSegment.SmallExplosion, ExplosionProgramOf(cleared),
             "EnemyDeath's returned A selects the small explosion");
         AssertEqual(killsBefore + 2, runtime.Enemies.RoomStatus.EnemiesKilled, "both deaths count a kill");

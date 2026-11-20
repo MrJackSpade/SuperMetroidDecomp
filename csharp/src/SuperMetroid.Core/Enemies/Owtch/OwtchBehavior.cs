@@ -10,7 +10,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<Owtch
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, OwtchSpawnSettings settings) => new OwtchEntity(this, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, OwtchSpawnSettings settings) => EnemyOccupant.Of(new OwtchEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies the shared room random sequence used for burial and emergence.</summary>
     private readonly EnemyRoomBinding _room;
@@ -26,7 +26,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<Owtch
         SetOwtchMoving(state, cue.Direction == HorizontalDirection.Left ? OwtchBehaviorState.MovingLeft : OwtchBehaviorState.MovingRight);
 
     /// <summary>Initializes the Owtch.</summary>
-    internal static OwtchEnemyState InitializeOwtch(RoomEnemyPlace place, OwtchSpawnSettings settings)
+    internal static OwtchEnemyState InitializeOwtch(RoomEnemyOccupant occupant, RoomEnemyPlace place, OwtchSpawnSettings settings)
     {
         var state = new OwtchEnemyState(settings)
         {
@@ -37,7 +37,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<Owtch
         };
         SetOwtchAnimation(place, state, InitialAnimation(settings.InitialBehavior));
 
-        // An Owtch placed underground starts buried: it moves down by whole pixels only, to the same sixteen-pixel depth
+        // An Owtch placed underground starts buried: it moves down by whole pixels only, to the same burial depth
         // sinking reaches.
         if (state.Behavior == OwtchBehaviorState.Underground)
             place.Position = place.Position.WithWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.MaximumBurialDepth);
@@ -45,17 +45,17 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<Owtch
     }
 
     /// <summary>Runs the Owtch's current behaviour.</summary>
-    internal void RunOwtchMain(RoomEnemyPlace place, OwtchEnemyState state)
+    internal void RunOwtchMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, OwtchEnemyState state)
     {
         switch (state.Behavior)
         {
             case OwtchBehaviorState.MovingLeft:
-                MoveOwtch(place, state, direction: HorizontalDirection.Left);
+                MoveOwtch(occupant, place, state, direction: HorizontalDirection.Left);
                 MaybeMakeOwtchSink(place, state);
                 return;
 
             case OwtchBehaviorState.MovingRight:
-                MoveOwtch(place, state, direction: HorizontalDirection.Right);
+                MoveOwtch(occupant, place, state, direction: HorizontalDirection.Right);
                 MaybeMakeOwtchSink(place, state);
                 return;
 
@@ -120,7 +120,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<Owtch
     /// the patrol turns it.
     /// </summary>
     private static void MoveOwtch(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         OwtchEnemyState state,
         HorizontalDirection direction)
     {
@@ -142,7 +142,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<Owtch
             state.Behavior = OwtchBehaviorState.MovingLeft;
     }
 
-    /// <summary>Runs Owtch's six-in-256 per-frame burial gate.</summary>
+    /// <summary>Runs Owtch's burial chance (<see cref="OwtchMovementDefinitions.Sinks"/>) each update.</summary>
     private void MaybeMakeOwtchSink(RoomEnemyPlace place, OwtchEnemyState state)
     {
         if (OwtchMovementDefinitions.Sinks.IsTakenBy(_room.Random.Generate(), advancedBy: place.FrameCounter))
@@ -177,7 +177,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<Owtch
     };
 
     /// <summary>Advances Owtch's typed animation.</summary>
-    internal static void AdvanceOwtchTypedAnimation(RoomEnemyPlace place, OwtchEnemyState owtchEnemyState, EnemyAnimationCueContext _) =>
+    internal static void AdvanceOwtchTypedAnimation(RoomEnemyPlace place, OwtchEnemyState owtchEnemyState) =>
         EnemyAnimationPlayback.Advance(place, owtchEnemyState, OwtchAnimations.Segments,
             static (OwtchEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>

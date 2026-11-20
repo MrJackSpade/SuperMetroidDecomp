@@ -38,7 +38,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// Emits the death-phase explosions at the timer cadence, consuming one global
     /// random value per projectile so later enemy AI sees the same RNG sequence.
     /// </summary>
-    internal void GenerateDeathExplosions(
+    private void GenerateDeathExplosions(
         MotherBrainDeathExplosionStyle style,
         Func<int> nextRandomNumber,
         List<MotherBrainDeathExplosionRequest> requests)
@@ -399,9 +399,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (!Encounter.PhaseTimer.StepRunsOut())
             return false;
 
-        // The wait's last update starts the escape: the escape music, the quake held indefinitely, four colour
-        // effects and the escape text. The door's
-        // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
+        // The wait's last update starts the escape: the escape music, the quake held indefinitely, four colour effects
+        // and the escape text. The door's fragments show the exploded door's colours (#1544).
         requests.Start(MotherBrainStepEffect.EscapeMusicTrack);
         requests.StartIndefiniteEarthquake(MotherBrainDeathDefinitions.EscapeEarthquake);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianShutterRedFlashing);

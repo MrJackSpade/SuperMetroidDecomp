@@ -25,7 +25,7 @@ internal static class SignedLineScrollRowsVerification
 
         // The vertical heat haze moves about the row the screen's top shows: a camera above the origin gives it a negative
         // base, and every line shows the sixteen bits the camera's wrapped row gave it.
-        var heat = new RoomFxOverlayRenderSnapshot(RoomFxType.Lava, RoomEffectOverlayLook.Liquid(RoomEffectBlendDefinitions.OverlayDarkens),
+        var heat = new RoomFxOverlayRenderSnapshot(RoomFxType.Lava, RoomEffectOverlayLook.Of(RoomFxType.Lava, RoomEffectBlendDefinitions.OverlayDarkens)!,
             new Position16<OverlayPixels>(0, 0), Surface: 100, Liquid: new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical))
             { LavaAcidBackgroundWavePhase = 5 };
         SampledScrollWave signed = GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(heat, -3)

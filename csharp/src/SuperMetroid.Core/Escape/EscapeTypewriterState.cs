@@ -21,7 +21,7 @@ public sealed class EscapeTypewriterState
     /// The pixel of the layer the next character's top-left corner is typed at: reset to each line's start at its first
     /// character and advanced right by a glyph's width for both written glyphs and spaces (#1406, #1514, #1601).
     /// </summary>
-    public Position16<PlanePixels> Corner { get; private set; }
+    private Position16<PlanePixels> Corner { get; set; }
     /// <summary>
     /// The wait before the typewriter types again (#2368): none after its opening character, then
     /// <see cref="EscapeTypewriterDefinitions.CharacterDelayFrames"/> after each later character.
@@ -58,8 +58,8 @@ public sealed class EscapeTypewriterState
     /// complete. The update that types the final character is a typing update, not the completed one.
     /// </returns>
     /// <remarks>
-    /// The first two characters are typed on consecutive updates; each later character follows its predecessor after two
-    /// updates that type nothing (<see cref="EscapeTypewriterDefinitions.UndelayedOpeningCharacters"/>,
+    /// The opening characters are typed on consecutive updates; each later character follows its predecessor after its
+    /// delay's updates that type nothing (<see cref="EscapeTypewriterDefinitions.UndelayedOpeningCharacters"/>,
     /// <see cref="EscapeTypewriterDefinitions.CharacterDelayFrames"/>).
     /// </remarks>
     public EscapeTypewriterStep Step()
@@ -104,7 +104,7 @@ public sealed class EscapeTypewriterState
         {
             var glyph = new EscapeTypewriterGlyph(Corner, EscapeTypewriterGlyph.PictureOf(MessageId, character));
             _glyphsWritten++;
-            step = EscapeTypewriterDefinitions.ClickEverySecondGlyph.IsDue(_glyphsWritten)
+            step = EscapeTypewriterDefinitions.GlyphClick.IsDue(_glyphsWritten)
                 ? new EscapeTypewriterStep.TypedWithClick(glyph)
                 : new EscapeTypewriterStep.Typed(glyph);
         }

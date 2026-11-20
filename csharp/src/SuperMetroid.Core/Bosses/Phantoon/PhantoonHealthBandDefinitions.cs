@@ -22,13 +22,13 @@ public static class PhantoonHealthBandDefinitions
     public static PhantoonHealthBand BelowHalf { get; } = new(937, "below-half");
 
     /// <summary>Phantoon from 625 through 936 health: below three eighths of his health.</summary>
-    public static PhantoonHealthBand BelowThreeEighths { get; } = new(625, "below-three-eighths");
+    private static PhantoonHealthBand BelowThreeEighths { get; } = new(625, "below-three-eighths");
 
     /// <summary>Phantoon from 313 through 624 health: below a quarter of his health.</summary>
     public static PhantoonHealthBand BelowQuarter { get; } = new(313, "below-quarter");
 
     /// <summary>Phantoon at 312 health or less: below an eighth of his health, his reddest.</summary>
-    public static PhantoonHealthBand BelowEighth { get; } = new(null, "below-eighth");
+    private static PhantoonHealthBand BelowEighth { get; } = new(0, "below-eighth");
 
     /// <summary>The bands, highest first, the order his health is tested against them.</summary>
     public static IReadOnlyList<PhantoonHealthBand> HighestFirst { get; } =

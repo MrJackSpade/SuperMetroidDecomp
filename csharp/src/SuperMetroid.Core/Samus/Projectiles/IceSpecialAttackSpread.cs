@@ -13,7 +13,7 @@ internal sealed class IceSpecialAttackSpread(IceParticleState state) : SpecialAt
     /// <inheritdoc/>
     private protected override SoundEffectId? Step(SamusShotUpdate update)
     {
-        update.Shots.Combos.StepIceSpread(update.Samus, update.Shot, state, update.SamusBombs, update.Camera);
+        update.Shots.Combos.StepIceSpread(update.Samus, update.Held, state, update.SamusBombs, update.Camera);
         return null;
     }
 }

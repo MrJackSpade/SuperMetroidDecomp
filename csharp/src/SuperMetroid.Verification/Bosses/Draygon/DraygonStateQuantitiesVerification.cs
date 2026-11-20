@@ -45,10 +45,10 @@ internal static class DraygonStateQuantitiesVerification
         AssertEqual(256, DraygonArenaDefinitions.GoopAttachedLifetime, "the goop stays the 256 updates the game counted");
         for (int update = 1; update < DraygonArenaDefinitions.GoopAttachedLifetime; update++)
         {
-            DraygonShots.DraygonShotBehavior.RunAttachedDraygonGoop(goop, samus, powerBomb);
+            enemies.DraygonBehavior.Shots.Goop.RunAttachedDraygonGoop(goop, samus, powerBomb);
             AssertTrue(goop.IsActive, $"the attached goop stays on update {update} of its lifetime");
         }
-        DraygonShots.DraygonShotBehavior.RunAttachedDraygonGoop(goop, samus, powerBomb);
+        enemies.DraygonBehavior.Shots.Goop.RunAttachedDraygonGoop(goop, samus, powerBomb);
         AssertTrue(!goop.IsActive, "the goop falls off on its lifetime's last update");
         AssertEqual(0, samus.SlowdownLevel, "the goop that falls off restores one X-speed divisor step");
     }
@@ -203,7 +203,7 @@ internal static class DraygonStateQuantitiesVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
+        body.Bind(EnemyDefinitionId.DraygonBody, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(256, 384));
         // Draygon is set up through his group's factory, his eye, tail and arms built as its parts in the places after him.
         RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1], tail = enemies.Places.InUpdateOrder[2], arms = enemies.Places.InUpdateOrder[3];

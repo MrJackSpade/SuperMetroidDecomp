@@ -11,7 +11,6 @@ namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Checks signed 16.16 statue descent and the exact Tourian unlock threshold.</summary>
 internal static class TourianStatueDescentRoundingVerification
@@ -40,7 +39,7 @@ internal static class TourianStatueDescentRoundingVerification
         // on the update the descent moves (#2033).
         EnemyProjectile baseDecoration = runtime.Enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.TourianStatueBaseDecoration);
-        int decorationAnchor = baseDecoration.StateOf<AnchoredProjectileState>().Anchor.Y;
+        int decorationAnchor = baseDecoration.Anchor.Y;
         void AssertDecorationFollows(string context) => AssertEqual(decorationAnchor - runtime.TourianStatues.VerticalOffset,
             baseDecoration.Position.Y.Whole, $"the base decoration follows the statue: {context}");
 

@@ -19,7 +19,7 @@ internal sealed class MessageBoxFlow
 {
     /// <summary>Provides gameplay freeze state for HUD counter refresh after a box closes.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Refreshes counters when message completion lacks a suspended frame tail.</summary>
+    /// <summary>Refreshes the HUD counters after the box closes, unless the resumed update shows them itself.</summary>
     private readonly HudState _hud;
     /// <summary>Starts Varia or Gravity transformation after its suspended room object resumes.</summary>
     private readonly SamusSuitPickupState _suitPickup;
@@ -124,14 +124,12 @@ internal sealed class MessageBoxFlow
         }
 
         room.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(room.LevelData);
-        // The resumed frame reaches the HUD update, which shows the new inventory. A
-        // suspended frame tail does that itself; a capture without one updates it here.
+        // The resumed update shows the new inventory itself; otherwise the close refreshes the HUD here.
         if (!frameSuspended)
             _hud.UpdateGameplayCounters(samus, _audioRequests, _freeze.TimeIsFrozen);
 
         // Closing the message resumes the item pickup that opened it.
-        // Varia/Gravity immediately call their shared setup; for other items the
-        // rest of the pickup already ran when the box opened.
+        // Closing a suit's message starts its transformation; other items finished their pickup when the box opened.
         if (outcome is MessageBoxOutcome.SuitTransformation suit)
         {
             room.Enemies.Elevator.ResetStatus();

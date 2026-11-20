@@ -29,7 +29,7 @@ internal sealed class DraygonDeath
     }
 
     /// <summary>The direction a dying Draygon at <paramref name="body"/> drifts along, aimed across the burial drift's coarse grid.</summary>
-    internal static TrigonometryAngle BurialDriftAngle(Position16<RoomPixels> body) =>
+    private static TrigonometryAngle BurialDriftAngle(Position16<RoomPixels> body) =>
         EnemyMath.CalculateAimAngle(new(
             DraygonArenaDefinitions.DeathTargetX / DraygonArenaDefinitions.BurialAimCellPixels - body.X / DraygonArenaDefinitions.BurialAimCellPixels,
             DraygonArenaDefinitions.DeathTargetY / DraygonArenaDefinitions.BurialAimCellPixels - body.Y / DraygonArenaDefinitions.BurialAimCellPixels));
@@ -38,12 +38,12 @@ internal sealed class DraygonDeath
     internal void DriftDyingDraygonToBurialPoint(DraygonEnemyState state)
     {
         RoomEnemyPlace body = state.Body;
-        if (DraygonCadenceDefinitions.DyingFoamEverySixteenthUpdate.IsDue(body.FrameCounter))
+        if (DraygonCadenceDefinitions.DyingFoam.IsDue(body.FrameCounter))
         {
             _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + DraygonParts.TowardFacing(DraygonArenaDefinitions.MouthFacingRight, state.Facing),
                 RoomEffectActorKind.DraygonFoam,
-                graphics: default);
+                graphics: SpriteGraphics.SharedStandard);
         }
 
         DraygonMovement.MoveDraygonAtAngle(body, BurialDriftAngle(body.Position.Whole), DraygonArenaDefinitions.BurialDriftSpeed);
@@ -107,7 +107,7 @@ internal sealed class DraygonDeath
 
         state.BodyPart.StartAnimation(DraygonSegment.Delete);
 
-        // The death drops use Draygon's body definition for sixteen independent drops over the
+        // The death drops use Draygon's body definition for his independent death drops over the
         // lower half of the arena. The drops spawn before the body is deleted.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.DraygonBody,
@@ -128,15 +128,15 @@ internal sealed class DraygonDeath
         _effectActors.EndAll();
     }
 
-    /// <summary>Consumes room RNG and spawns smoke at the dying body every eighth frame.</summary>
+    /// <summary>Consumes room RNG and spawns smoke at the dying body at its smoke cadence.</summary>
     private void SpawnDyingDraygonSmoke(int frameCounter)
     {
-        if (!DraygonCadenceDefinitions.DyingSmokeEveryEighthUpdate.IsDue(frameCounter))
+        if (!DraygonCadenceDefinitions.DyingSmoke.IsDue(frameCounter))
             return;
 
         int random = _room.Random.Generate();
         Position16<RoomPixels> smoke = DraygonArenaDefinitions.DeathSmokeOrigin + new Offset16<RoomPixels>(DraygonRandomDefinitions.DeathSmokeX.Of(random), DraygonRandomDefinitions.DeathSmokeY.Of(random));
-        _effectActors.SpawnRoomEffectActor(smoke, RoomEffectActorKind.BigDustCloud, graphics: default);
+        _effectActors.SpawnRoomEffectActor(smoke, RoomEffectActorKind.BigDustCloud, graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>Ends every room effect actor and spawns six burial Evirs, each carrying the definition that moves it.</summary>
@@ -153,7 +153,7 @@ internal sealed class DraygonDeath
     /// Allocates one burial Evir where its definition places it, drawn as its definition's kind in the Evirs' own colours
     /// (#1544).
     /// </summary>
-    internal void SpawnDraygonDeathEvir(DraygonEnemyState state, DraygonBurialEvirDefinition definition)
+    private void SpawnDraygonDeathEvir(DraygonEnemyState state, DraygonBurialEvirDefinition definition)
     {
         Ensure.NotNull(state);
         RoomEffectActor sprite = _effectActors.SpawnRoomEffectActor(
@@ -168,11 +168,11 @@ internal sealed class DraygonDeath
     /// reverse of a pixel an update along the heading (<see cref="EnemyMath.VelocityAlong"/>). An Evir left of the centre
     /// drifts right, and every one drifts down.
     /// </summary>
-    internal static FixedVector<RoomPixels> BurialDrift(DraygonBurialEvirDefinition evir) =>
+    private static FixedVector<RoomPixels> BurialDrift(DraygonBurialEvirDefinition evir) =>
         -EnemyMath.VelocityAlong(evir.Heading, 1);
 
     /// <summary>Drifts the six burial Evirs, in the order they spawned, by their definitions' headings.</summary>
-    internal static void MoveDraygonDeathEvirs(DraygonEnemyState state)
+    private static void MoveDraygonDeathEvirs(DraygonEnemyState state)
     {
         foreach (DraygonBurialEvir evir in Ensure.NotNull(state).BurialEvirs)
         {

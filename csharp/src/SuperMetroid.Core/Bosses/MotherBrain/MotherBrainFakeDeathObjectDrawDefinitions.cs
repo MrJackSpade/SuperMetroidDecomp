@@ -4,8 +4,8 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The block shape of each of the twenty frames Mother Brain's fight and fake death draw into her room (#1608): the
-/// wall fill, the escape door, the twelve rows of the mural behind her tank and the six tube clears, and how each cell
+/// The block shape of each frame Mother Brain's fight and fake death draw into her room (#1608): the
+/// wall fill, the escape door, the rows of the mural behind her tank and the tube clears, and how each cell
 /// collides. What each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class MotherBrainFakeDeathObjectDrawDefinitions

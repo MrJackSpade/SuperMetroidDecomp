@@ -5,7 +5,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
 /// Editable reserve labels, digits and arrow appearance (#1467), kept as installed (#1615): the import lays the equipment
-/// page's reserve pictures out from the labels, digits and arrow cells, and the game binds only the arrow's colours.
+/// page's reserve pictures out from the labels, digits and arrow cells and pre-colours the arrow's shades from the arrow's
+/// colours; the game binds none of the document.
 /// Energy and mode behavior stay compiled.
 /// </summary>
 public sealed class PauseReserveUiPresentation
@@ -32,7 +33,7 @@ public sealed class PauseReserveUiPresentation
         ArrowColours = parts.ArrowColours;
     }
 
-    /// <summary>The arrow's solid and pulse colours, which the game binds to the pause screen (#1467).</summary>
+    /// <summary>The arrow's solid and pulse colours, which the import pre-colours the arrow's pictures from (#1467).</summary>
     public PauseReserveArrowColours ArrowColours { get; }
 
     /// <summary>The equipment-page cells <paramref name="name"/> covers, first to last (#1467).</summary>

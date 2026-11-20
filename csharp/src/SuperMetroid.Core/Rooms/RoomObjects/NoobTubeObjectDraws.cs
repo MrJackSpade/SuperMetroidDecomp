@@ -3,8 +3,8 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The block shape each of the five noob tube draws draws (#1862). The glass's own frames are one block at the object's
-/// block; the opened frames are rows twelve blocks wide down from it, the rim row's and the floor row's pipe edges solid
+/// The block shape each noob tube draw draws (#1862). The glass's own frames are one block at the object's
+/// block; the opened frames are rows <see cref="RowWidth"/> wide down from it, the rim row's and the floor row's pipe edges solid
 /// around air, the floor with a second solid edge block, and the panel rows between air. What each frame shows is its
 /// installed picture (#1557).
 /// </summary>
@@ -32,17 +32,17 @@ internal static class NoobTubeObjectDraws
 
     /// <summary>The tube's five frames (#2034), pictured by the installed n00b tube frames.</summary>
     internal static RoomObjectDrawFamily<NoobTubeDraw> Family { get; } =
-        RoomObjectDrawFamily<NoobTubeDraw>.Pictured<InstalledRoomObjectNoobTubeVisuals>("n00b tube",
-            frame => RoomObjectDrawFamily<NoobTubeDraw>.Defined(Shapes, frame), (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<NoobTubeDraw>("n00b tube",
+            frame => RoomObjectDrawFamily<NoobTubeDraw>.Defined(Shapes, frame));
 
-    /// <summary>The tube's <paramref name="rows"/>, each twelve blocks wide from the object's column.</summary>
+    /// <summary>The tube's <paramref name="rows"/>, each <see cref="RowWidth"/> wide from the object's column.</summary>
     private static RoomBlockShape Rows(params int[] rows) => new([.. RowCells(rows)]);
 
     /// <summary>The object's own block opened, and the tube's <paramref name="rows"/> below it.</summary>
     private static RoomBlockShape BrokenRows(params int[] rows) =>
         new([new(Offset16<RoomBlocks>.Zero, RoomCollisionType.Air), .. RowCells(rows)]);
 
-    /// <summary>The cells of the tube's <paramref name="rows"/>, each twelve blocks wide from the object's column.</summary>
+    /// <summary>The cells of the tube's <paramref name="rows"/>, each <see cref="RowWidth"/> wide from the object's column.</summary>
     private static List<RoomBlockShapeCell> RowCells(int[] rows)
     {
         var cells = new List<RoomBlockShapeCell>();

@@ -71,7 +71,8 @@ public sealed class SharedGameState
     /// <summary>The current shared RNG state as a sample, 0 through 65535, without advancing it.</summary>
     public int RandomNumber => Random.Read();
 
-    /// <summary>Stores the shared RNG state with its two halves exchanged, as the lava and acid FX does.</summary>
+    /// <summary>Stirs the shared random number, as the lava and acid waves do
+    /// (<see cref="SharedRandom.SwapHalves"/>).</summary>
     internal void SwapRandomHalves() => Random.SwapHalves();
 
     /// <summary>

@@ -68,21 +68,18 @@ internal static class EnemySoundOrderVerification
             definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
-        EnemyProjectile link = enemies.Projectiles.ProjectileInPlace(17);
-        FamilyProjectileStarts.Initialize(enemies, link, RoomEnemyProjectileKind.NuclearWaffleBody, SpriteGraphics.SharedStandard);
+        EnemyProjectile link = FamilyProjectileStarts.Spawn(enemies, 17, RoomEnemyProjectileKind.NuclearWaffleBody, SpriteGraphics.SharedStandard);
         link.Position = link.Position.WithWhole(new(0x0100, 0x0100));
         link.BlocksSamusProjectiles = true;
         link.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         SamusProjectile shot = shots.Shots[0];
-        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
-        shot.Damage = 1;
+        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), 1);
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
 
         enemies.Audio.BeginFrame();
-        AssertEqual(1, enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())),
-            "the indestructible link rejects the shot");
+        enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
         AssertSequenceEqual(new[] { new SoundRequest(SamusSound.DudShot, SoundRequestPriority.Normal) }, enemies.Audio.SoundRequests,
             "the rejected shot queues the dud sound at once, at normal priority");
 
@@ -97,8 +94,8 @@ internal static class EnemySoundOrderVerification
     private static RoomEnemyPlace MetroidAtItsCry(RoomEnemySystem enemies, int place)
     {
         RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[place];
-        enemy.Bind(EnemyDefinitionId.Metroid, enemy.Definition);
-        enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition));
+        enemy.Bind(EnemyDefinitionId.Metroid, enemy.KeptDefinition);
+        enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemy.AnimationClock.StepOnNextUpdate();
         enemy.SetSpawnSettings(new MetroidSpawnSettings(IceDamageToFreeze: 0));
         var metroidEnemyState = enemy.SetUpPlaced<MetroidEnemyState>();
@@ -116,16 +113,16 @@ internal static class EnemySoundOrderVerification
     private static RoomEnemyPlace BoyonStartingItsBounce(RoomEnemySystem enemies, int place)
     {
         RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[place];
-        enemy.Bind(EnemyDefinitionId.Boyon, enemy.Definition);
-        enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition));
+        enemy.Bind(EnemyDefinitionId.Boyon, enemy.KeptDefinition);
+        enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemy.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
         enemy.Position = enemy.Position.WithWhole(new(256, 512));
         BoyonBehavior.InitializeBoyon(enemy, enemy.SpawnSettings<BoyonSpawnSettings>());
         BoyonEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BoyonEntity>(enemy).State;
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         samus.Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole);
-        BoyonBehavior.RunBoyonMain(enemy, state, samus);
-        BoyonBehavior.RunBoyonMain(enemy, state, samus);
+        BoyonBehavior.RunBoyonMain(enemy.HeldOccupant(), enemy, state, samus);
+        BoyonBehavior.RunBoyonMain(enemy.HeldOccupant(), enemy, state, samus);
         AssertEqual(new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Bouncing), AnimationPlace.StartOfAnimation),
             state.Playback, "Samus on the Boyon starts its bouncing animation");
         enemy.AnimationClock.StepOnNextUpdate();

@@ -55,7 +55,7 @@ internal static class NativeSnapshotMotherBrainImport
         if (MotherBrainNativeListAddresses.DecodeTubeCollapse(W(MotherBrainMemory.BrainSubFunction)) is { } collapse)
             state.TubeCollapse = collapse;
         state.TubeCollapseTimer.SetCartridgeCount(CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
-        PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
+        PrivateState.Set(state.Bursts, "Place", CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
         state.FakeDeathExplosionTimer.SetCartridgeCount(CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer)));
         // The recorded place is the position the last explosion took, counted in the order the game stepped back through
         // them; the positions are listed in the order they burst, so the next is the one after it there.
@@ -90,7 +90,7 @@ internal static class NativeSnapshotMotherBrainImport
             ? null
             : BodyPlaybackAt(state.Body);
         Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
-        foreach (RoomEnemyPlace tube in runtime.Enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
+        foreach (RoomEnemyPlace tube in runtime.Enemies.Places.InUpdateOrder.Where(place => place.Holds(EnemyDefinitionId.MotherBrainTubes)))
         {
             SuperMetroid.Core.Enemies.EnemyPartners.Listed<MotherBrainTubesEntity>(tube).State.Playback = NativeEnemyAnimationOracle.PlaybackAt(
                 tubes, MotherBrainNativeListAddresses.TubeEntries, MotherBrainTubeAnimations.StartingAt, AnimationScript(tube));
@@ -135,7 +135,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.AttackPhase = MotherBrainNativeWords.AttackPhases.Decode(W(MotherBrainMemory.AttackPhase), "Mother Brain attack phase");
         // The cooldown's word holds the updates it lasts.
         state.AttackCooldown.SetCartridgeCount(W(MotherBrainMemory.BodyAttackCooldown) - 1);
-        state.BombCounter = W(MotherBrainMemory.BombCounter);
+        global::SuperMetroid.Core.PrivateState.Set(state, "BombCounter", (int)(W(MotherBrainMemory.BombCounter)));
         state.BodyTargetXPosition = W(MotherBrainMemory.BodyFunctionTimer);
         state.HandBeamPhase = MotherBrainNativeWords.HandBeamPhases.Decode(W(MotherBrainMemory.DeathBeamAttackPhase), "Mother Brain hand-beam phase");
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromStoredParts(
@@ -213,7 +213,7 @@ internal static class NativeSnapshotMotherBrainImport
         switch (MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat])
         {
             case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame frame:
-                brain.Playback = playback with { Place = playback.Place with { Beat = playback.Place.Beat + 1 } };
+                brain.Playback = playback with { Place = new AnimationPlace(playback.Place.Phase, playback.Place.Beat + 1).WithPlaysLeft(playback.Place.PlaysLeft) };
                 brain.Shown = new SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Picture(frame.Shown);
                 // The frame moves on at the draw its count passes its list's duration: its updates less the draws shown.
                 brain.Clock.HoldFor(frame.Duration - drawsShown + 1);
@@ -239,7 +239,7 @@ internal static class NativeSnapshotMotherBrainImport
     {
         AnimationPlayback<MotherBrainHeadSegment> playback = NativeEnemyAnimationOracle.PlaybackAt(head,
             MotherBrainNativeListAddresses.HeadEntries, MotherBrainAnimations.HeadStartingAt, pointer);
-        return playback.Place.Beat == AnimationPlace.NotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
+        return playback.Place.HasNotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
     }
 
     /// <summary>The stages the late fight's sequence runs, which a recorded body function in one of them resumes (#2208).</summary>
@@ -262,9 +262,9 @@ internal static class NativeSnapshotMotherBrainImport
         MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
         // The cartridge keeps the brain's fall speed in the body's phase timer.
         sequence.State.BrainFallSpeed = new SignedEightEight(W(MotherBrainMemory.BodyFunctionTimer));
-        sequence.RainbowAttack.AngularWidth = RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
+        global::SuperMetroid.Core.PrivateState.Set(sequence.RainbowAttack, "AngularWidth", RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth)));
         // The cartridge counts the attempts left less one, by sign: six at the start, minus one once they are spent.
-        sequence.RainbowAttack.SoundAttempts = UpdateCountdown.For(CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount)) + 1);
+        global::SuperMetroid.Core.PrivateState.Set(sequence.RainbowAttack, "SoundAttempts", UpdateCountdown.For(CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount)) + 1));
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
         sequence.State.HealthColoursEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
@@ -372,7 +372,7 @@ internal static class NativeSnapshotMotherBrainImport
         var screen = new ushort[BossBodySourceDefinitions.ScreenRows * BossBodySourceDefinitions.LayerColumns];
         for (int word = 0; word < screen.Length; word++)
             screen[word] = W(EnemyBg2StagingWram + word * sizeof(ushort));
-        BossBodySheets sheets = runtime.BossArtwork.BodySheets;
+        BossBodySheets sheets = global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Artwork.BossArtworkBinding, global::SuperMetroid.Core.Enemies.BossBodies.BossBodySheets>(runtime.BossArtwork, "BodySheets");
         // The installation's frames, which the runtime's installed Mother Brain body sheet is composed from.
         BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         BossBodySheet sheet = sheets.Of(BossBodyOwner.MotherBrain);
@@ -380,7 +380,7 @@ internal static class NativeSnapshotMotherBrainImport
         BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
             frame.Cells.All(entry => entry.Key < screen.Length && screen[entry.Key] == entry.Value.PackedWord));
         if (staged is not null)
-            image.Show(state.Body.DefinitionId, sheet.Frame(staged.Name));
+            image.Show(state.Body.HeldOccupant().DefinitionId, sheet.Frame(staged.Name));
         if (!BossBodyWords.Of(image.Publish(), BossBodyOwner.MotherBrain, bosses).AsSpan(0, screen.Length).SequenceEqual(screen))
             throw new InvalidDataException("The snapshot's staged Mother Brain body is not one installed body frame over her blank.");
         runtime.Enemies.Presentation.AttachBossBody(image);

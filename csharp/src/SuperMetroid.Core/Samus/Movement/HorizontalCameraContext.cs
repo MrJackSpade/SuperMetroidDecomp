@@ -7,23 +7,45 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// against her facing (knockback, moonwalking, or a turn that keeps the old momentum), whether she faces
 /// left, and how far ahead of her the camera sits.
 /// </summary>
-/// <param name="KnockedBack">Whether a knockback is carrying Samus, which reverses the facing target.</param>
-/// <param name="MovementType">Samus's movement type; moonwalking reverses the facing target.</param>
-/// <param name="TurningAgainstMomentum">
-/// Whether a turn is still carrying Samus opposite her new facing, which reverses the facing target.
-/// </param>
-/// <param name="FacesLeft">
-/// Whether Samus's pose faces left. Every other pose facing, front-view included, selects the right-facing target.
-/// </param>
-/// <param name="CameraDistance">How far ahead of Samus the camera target sits.</param>
 [IndependentFlag("independent facts about Samus the camera target reads")]
-public readonly record struct HorizontalCameraContext(
-    bool KnockedBack,
-    SamusMovementType MovementType,
-    bool TurningAgainstMomentum,
-    bool FacesLeft,
-    CameraDistanceMode CameraDistance)
+public readonly record struct HorizontalCameraContext
 {
+    /// <summary>A value of its parts; only its own operations make one.</summary>
+    /// <param name="knockedBack">Whether a knockback is carrying Samus, which reverses the facing target.</param>
+    /// <param name="movementType">Samus's movement type; moonwalking reverses the facing target.</param>
+    /// <param name="turningAgainstMomentum">Whether a turn is still carrying Samus opposite her new facing, which reverses the facing target.</param>
+    /// <param name="facesLeft">Whether Samus's pose faces left. Every other pose facing, front-view included, selects the right-facing target.</param>
+    /// <param name="cameraDistance">How far ahead of Samus the camera target sits.</param>
+    [IndependentFlag("independent facts about Samus the camera target reads")]
+    private HorizontalCameraContext(
+        bool knockedBack,
+        SamusMovementType movementType,
+        bool turningAgainstMomentum,
+        bool facesLeft,
+        CameraDistanceMode cameraDistance)
+    {
+        KnockedBack = knockedBack;
+        MovementType = movementType;
+        TurningAgainstMomentum = turningAgainstMomentum;
+        FacesLeft = facesLeft;
+        CameraDistance = cameraDistance;
+    }
+
+    /// <summary>Whether a knockback is carrying Samus, which reverses the facing target.</summary>
+    public bool KnockedBack { get; init; }
+
+    /// <summary>Samus's movement type; moonwalking reverses the facing target.</summary>
+    public SamusMovementType MovementType { get; init; }
+
+    /// <summary>Whether a turn is still carrying Samus opposite her new facing, which reverses the facing target.</summary>
+    public bool TurningAgainstMomentum { get; init; }
+
+    /// <summary>Whether Samus's pose faces left. Every other pose facing, front-view included, selects the right-facing target.</summary>
+    public bool FacesLeft { get; init; }
+
+    /// <summary>How far ahead of Samus the camera target sits.</summary>
+    public CameraDistanceMode CameraDistance { get; init; }
+
     /// <summary>
     /// Builds the camera context from Samus's knockback, acceleration mode and facing: the turning acceleration mode is
     /// the turn that keeps the old momentum.
@@ -42,8 +64,8 @@ public readonly record struct HorizontalCameraContext(
         : this(
             KnockedBack,
             MovementType,
-            TurningAgainstMomentum: XAccelerationMode == SamusAccelerationMode.Turning,
-            FacesLeft: Facing == SamusFacingDirection.Left,
+            turningAgainstMomentum: XAccelerationMode == SamusAccelerationMode.Turning,
+            facesLeft: Facing == SamusFacingDirection.Left,
             CameraDistance)
     {
     }

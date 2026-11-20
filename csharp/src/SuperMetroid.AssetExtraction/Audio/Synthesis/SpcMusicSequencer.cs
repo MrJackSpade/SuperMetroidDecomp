@@ -87,7 +87,7 @@ internal sealed class SpcMusicSequencer
     }
 
     /// <summary>Decodes one music effect and its native operand length, updating channel or global driver state.</summary>
-    internal void HandleEffect(ManagedSpcMusicChannel channel, int rawEffect)
+    private void HandleEffect(ManagedSpcMusicChannel channel, int rawEffect)
     {
         int tableIndex = rawEffect - SpcDriverDefinitions.Music.FirstEffect;
         if ((uint)tableIndex >= SpcMusicDefinitionCodec.EffectCount)
@@ -540,7 +540,7 @@ internal sealed class SpcMusicSequencer
         {
             ManagedSpcMusicChannel channel = channels[index];
             _voices.currentChannelBit = unchecked((byte)bit);
-            if (channel.PatternOrderPointer > byte.MaxValue && channel.InstrumentId == 0)
+            if (channel.IsPlaying && channel.InstrumentId == 0)
                 SetInstrument(channel, 0);
             channel.SubroutineLoops = 0;
             channel.VolumeFadeTicks = 0;
@@ -555,7 +555,7 @@ internal sealed class SpcMusicSequencer
         {
             ManagedSpcMusicChannel channel = channels[index];
             _voices.currentChannelBit = unchecked((byte)bit);
-            if (channel.PatternOrderPointer <= byte.MaxValue)
+            if (!channel.IsPlaying)
                 continue;
             channel.NoteTicksLeft = SpcDriverWrap.Byte(channel.NoteTicksLeft - 1);
             if (channel.NoteTicksLeft == 0)
@@ -636,7 +636,7 @@ internal sealed class SpcMusicSequencer
         for (int index = 0, bit = 1; index < channels.Length; index++, bit <<= 1)
         {
             _voices.currentChannelBit = unchecked((byte)bit);
-            if (channels[index].PatternOrderPointer > byte.MaxValue)
+            if (channels[index].IsPlaying)
                 HandleChannelTick(channels[index]);
         }
         _voices.currentChannelBit = 0;
@@ -684,7 +684,7 @@ internal sealed class SpcMusicSequencer
     }
 
     /// <summary>The next byte of a music sequence stream at <paramref name="cursor"/>, advancing it with 16-bit wrap.</summary>
-    internal byte NextSequenceByte(ref int cursor)
+    private byte NextSequenceByte(ref int cursor)
     {
         int position = cursor;
         cursor = SpcDriverWrap.Word(cursor + 1);
@@ -692,10 +692,10 @@ internal sealed class SpcMusicSequencer
     }
 
     /// <summary>The music sequence byte at <paramref name="cursor"/>, without advancing.</summary>
-    internal byte PeekSequenceByte(int cursor) => ram[cursor];
+    private byte PeekSequenceByte(int cursor) => ram[cursor];
 
     /// <summary>Byte <paramref name="index"/> of the echo FIR coefficient preset table.</summary>
-    internal sbyte ReadFirCoefficient(int index) => unchecked((sbyte)ram[SpcDriverDefinitions.Echo.FirCoefficientTableAddress + index]);
+    private sbyte ReadFirCoefficient(int index) => unchecked((sbyte)ram[SpcDriverDefinitions.Echo.FirCoefficientTableAddress + index]);
 
     /// <summary>
     /// <c>$F4</c> as the sequencer reads it: the CPU's latest music command, or

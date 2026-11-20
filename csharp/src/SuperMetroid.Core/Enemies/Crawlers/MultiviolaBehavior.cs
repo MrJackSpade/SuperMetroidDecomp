@@ -12,7 +12,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySettingsFactory<
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Multiviola];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MultiviolaSpawnSettings settings) => new MultiviolaEntity(this, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MultiviolaSpawnSettings settings) => EnemyOccupant.Of(new MultiviolaEntity(this, occupant, place, common, settings));
 
     /// <summary>Room collision mover used after each attempted Multiviola velocity component.</summary>
     private readonly EnemyTerrain _terrain;
@@ -24,7 +24,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySettingsFactory<
     }
 
     /// <summary>Initializes the Multiviola.</summary>
-    internal static MultiviolaEnemyState InitializeMultiviola(MultiviolaSpawnSettings settings)
+    internal static MultiviolaEnemyState InitializeMultiviola(RoomEnemyOccupant occupant, MultiviolaSpawnSettings settings)
     {
         var state = new MultiviolaEnemyState(settings)
         {
@@ -36,7 +36,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySettingsFactory<
 
     /// <summary>Runs the Multiviola's main AI.</summary>
     private void RunMultiviolaMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         MultiviolaEnemyState state,
         RoomLevelData level)
     {
@@ -62,14 +62,14 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySettingsFactory<
     }
 
     /// <summary>Advances Multiviola's typed animation.</summary>
-    internal static void AdvanceMultiviolaTypedAnimation(RoomEnemyPlace place, MultiviolaEnemyState multiviolaEnemyState, EnemyAnimationCueContext _) =>
+    internal static void AdvanceMultiviolaTypedAnimation(RoomEnemyPlace place, MultiviolaEnemyState multiviolaEnemyState) =>
         EnemyAnimationPlayback.Advance(place, multiviolaEnemyState, MultiviolaAnimations.Segments,
             static (MultiviolaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Multiviola animation raised {cue}."));
 
     /// <summary>Runs Multiviola's main AI.</summary>
-    internal void RunMultiviolaMainAi(RoomEnemyPlace place, MultiviolaEnemyState state, IEnemyAiFrame frame)
+    internal void RunMultiviolaMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, MultiviolaEnemyState state, IEnemyAiFrame frame)
     {
-        RunMultiviolaMain(place, state, frame.Level);
+        RunMultiviolaMain(occupant, place, state, frame.Level);
     }
 }

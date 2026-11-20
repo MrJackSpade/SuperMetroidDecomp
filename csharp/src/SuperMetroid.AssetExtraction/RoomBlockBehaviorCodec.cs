@@ -102,7 +102,7 @@ public static class RoomBlockBehaviorCodec
     /// <summary>The slope shape a slope's shape bits number.</summary>
     /// <param name="number">The shape bits, 0 through 31.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> numbers no slope shape.</exception>
-    public static SlopeShape SlopeShapeOf(int number) => SlopeShapes[Ensure.BetweenInclusive(0, SlopeShapeMask, number)];
+    private static SlopeShape SlopeShapeOf(int number) => SlopeShapes[Ensure.BetweenInclusive(0, SlopeShapeMask, number)];
 
     /// <summary>Encodes a behaviour as its byte.</summary>
     /// <param name="behavior">A decoded behaviour, or one a room object wrote.</param>
@@ -118,14 +118,14 @@ public static class RoomBlockBehaviorCodec
 
     /// <summary>
     /// Decodes a behaviour byte into every reading the block's collision kinds take of it in any area: when the areas make
-    /// different things of it to special blocks and special air, it holds neither of those readings.
+    /// different things of it to special blocks and special air, it is resolved by its area and holds neither of those readings.
     /// </summary>
     /// <param name="value">The byte, 0 through 255.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte.</exception>
     public static RoomBlockReadings ReadingsOf(int value)
     {
         List<RoomBlockReadings> inAreas = [.. AreaIds.All.Select(area => ReadingsOf(area, value)).Distinct()];
-        return inAreas.Count == 1 ? inAreas[0] : inAreas[0] with { Special = null, SpecialAir = null };
+        return inAreas.Count == 1 ? inAreas[0] : inAreas[0] with { Special = null, SpecialAir = null, ResolvedByArea = true };
     }
 
     /// <summary>Decodes a behaviour byte into every reading the block's collision kinds take of it in <paramref name="area"/>.</summary>

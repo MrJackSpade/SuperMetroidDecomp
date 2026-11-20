@@ -27,7 +27,7 @@ internal static class SamusBodySheetComposer
     /// <c>$90:868D</c>: the chest cover is standard sprite character $21 in Samus's palette row, in front of every
     /// background.
     /// </summary>
-    private static readonly SpritePart ChestCoverAppearance = SpritePart.Single(character: 33, palette: 4, priority: 3);
+    private static readonly SpritePart ChestCoverAppearance = SpritePart.Single(character: 33, palette: 4, depth: ActorDepth.InFront);
 
     /// <summary>
     /// What the body sheet composes: the picture of every body the game can show that shows anything, and as frames that
@@ -51,7 +51,7 @@ internal static class SamusBodySheetComposer
             SpriteFrame frame = picture.Frame;
             SpriteArtwork read = characters.BodyArtwork(picture.Key.TopPicture, picture.Key.BottomPicture);
             // A part naming characters past the body's, the chest cover among them, reads the standard OBJ sheet there.
-            if (frame.LastCharacter >= read.CharacterCount)
+            if (frame.LastCharacter is int last && last >= read.CharacterCount)
             {
                 if (!overlaid.TryGetValue(read, out SpriteArtwork? onStandardObjects))
                 {

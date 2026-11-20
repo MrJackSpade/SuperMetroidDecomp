@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>Fixed walking/wall/ninja-Pirate collision data, separate from editable sprite art.</summary>
 /// <remarks>
-/// Each of the Pirates' 132 frames lists its own hitboxes, placed from the Pirate's origin and drawn per frame: no frame's
+/// Each of the Pirates' frames lists its own hitboxes, placed from the Pirate's origin and drawn per frame: no frame's
 /// hitboxes mirror another's facing, and frames whose hitboxes repeat another's keep their own. A Pirate's touch and shots
 /// take the reaction of the first hitbox they overlap, in each frame's listed order.
 /// </remarks>
@@ -25,7 +25,7 @@ internal static class SpacePirateCollisionDefinitions
     /// <summary>The walking, wall and ninja frames' hitboxes, and the common empty frame's point hitbox.</summary>
     internal static EnemyFrameCollision<EnemyCollisionHitbox> Frames { get; } = new()
     {
-        { EnemyFrameId.Empty, [new(0, 0, 0, 0, EnemyReaction.OrdinaryTouch, EnemyReaction.OrdinaryShot)] },
+        { EnemyFrameId.PointAtOrigin, [new(0, 0, 0, 0, EnemyReaction.OrdinaryTouch, EnemyReaction.OrdinaryShot)] },
         { EnemyFrameId.WallPirateOnLeftWallLegsHanging, [new(-17, -8, 0, 30, Touch, Shot), new(-18, -19, 6, 0, Touch, Shot)] },
         { EnemyFrameId.WallPirateOnLeftWallKneesBending, [new(-16, -5, -1, 25, Touch, Shot), new(-18, -19, 6, 0, Touch, Shot)] },
         { EnemyFrameId.WallPirateOnLeftWallKneesTucked, [new(-15, -6, 0, 23, Touch, Shot), new(-18, -19, 6, 0, Touch, Shot)] },

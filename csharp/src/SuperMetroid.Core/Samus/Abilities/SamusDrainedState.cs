@@ -55,7 +55,7 @@ public sealed class SamusDrainedState
     /// first colouring moves it on at once, and each shade it moves on to shows for <see cref="RainbowGlowHold"/> as it
     /// stands then, not for its own beat.
     /// </summary>
-    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Rainbow { get; } =
+    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Rainbow { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.HyperBeamRainbow);
 
     /// <summary>The rainbow's shade shown, from the update the rainbow colouring starts on its first shade.</summary>
@@ -102,7 +102,7 @@ public sealed class SamusDrainedState
 
     /// <summary>
     /// Runs one drained get-up check. The game runs
-    /// it after movement and immediately before animation, so a written timer of one is
+    /// it after movement and immediately before animation, so a timer set to expire at once is
     /// decremented and the selected art begins advancing in that same movement phase.
     /// </summary>
     public bool RunGetUpCheck(SamusState samus, GameplayAction newlyPressedInput)
@@ -157,10 +157,10 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Holds each shade of the rainbow one update longer, as the Baby slows it each time its 768ths of a step add up to a
-    /// whole one; the hold stops at <paramref name="longestHold"/>.
+    /// Holds each shade of the rainbow one update longer, each time the Baby's slowing of it completes a step
+    /// (RainbowFramePart); the hold stops at <paramref name="longestHold"/>.
     /// </summary>
-    /// <param name="longestHold">The longest hold the glow may reach; the Baby passes ten.</param>
+    /// <param name="longestHold">The longest hold the glow may reach, which the Baby passes.</param>
     public void HoldRainbowGlowLonger(int longestHold) => RainbowGlowHold = RainbowGlowHold.Lengthened(longestHold);
 
     /// <summary>
@@ -184,7 +184,7 @@ public sealed class SamusDrainedState
     /// While the rainbow colouring is enabled, this colouring has absolute priority over
     /// charge, Speed Booster, shinespark, Crystal Flash, and X-ray colourings. It shows its shade of the Hyper Beam's
     /// full-body glow on every update before counting down its hold; the import pre-colours Samus in each of its frames
-    /// (#1512). The Baby independently lengthens <see cref="RainbowGlowHold"/> from one update to ten; that hold becomes
+    /// (#1512). The Baby independently lengthens <see cref="RainbowGlowHold"/> from one update up to its longest; that hold becomes
     /// the delay before the rainbow moves on to its next shade (#2387).
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus colours.</returns>
@@ -225,7 +225,7 @@ public sealed class SamusDrainedState
 
         // The game raises her center by the drained pose's radius less her previous one before changing the
         // pose. This preserves the previous bottom boundary even when the source body did
-        // not already have the drained pose's radius of 21 pixels.
+        // not already have the drained pose's radius.
         int sourceRadius = samus.Kinematics.Radius.Y;
         samus.Position = samus.Position.WithWholeY(
             samus.Position.Y.Whole - (SamusDrainedAnimationDefinitions.CrouchingYRadius - sourceRadius));
@@ -378,7 +378,7 @@ public sealed class SamusDrainedState
     internal void CompleteRelease() => Phase = DrainedSamusPhase.Inactive;
 
     /// <summary>Starts the shared left-knockback rainbow setup and locks Samus input.</summary>
-    internal void SetupForRainbowBeam(SamusState samus)
+    private void SetupForRainbowBeam(SamusState samus)
     {
         Ensure.NotNull(samus);
 

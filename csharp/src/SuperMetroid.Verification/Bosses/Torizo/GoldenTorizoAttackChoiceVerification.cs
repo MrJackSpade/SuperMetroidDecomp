@@ -26,7 +26,7 @@ internal static class GoldenTorizoAttackChoiceVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.GoldenTorizo);
         var samus = runtime.Player.Samus;
         RoomEnemyPlace torizo = runtime.Enemies.Places.InUpdateOrder.Single(place =>
-            place.DefinitionId == EnemyDefinitionId.GoldenTorizo);
+            place.Holds(EnemyDefinitionId.GoldenTorizo));
 
         samus.Position = samus.Position.WithWholeX(0x01b8);
         samus.Missiles = 187;
@@ -34,7 +34,7 @@ internal static class GoldenTorizoAttackChoiceVerification
         state.BodyPlayback = TorizoAnimations.Start(TorizoNativeListAddresses.AnimationAt(landedFacingLeft)
             ?? throw new InvalidOperationException("No Torizo animation starts at the landing list."));
         torizo.AnimationClock.StepOnNextUpdate();
-        runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, ShortCounter = 0x2d, FrameCounter = 0xefd8 });
+        runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, ShortCounter = new SuperMetroid.Core.Compatibility.ShortFrameCount(0x2d), FrameCounter = 0xefd8 });
         TorizoAnimation runningAnimation = TorizoAnimations.Playing(state.BodyPlayback);
         ushort running = TorizoNativeListAddresses.Entry(runningAnimation);
         AssertTrue(running is >= sonicBoomsFacingLeft and < 0xcc57,

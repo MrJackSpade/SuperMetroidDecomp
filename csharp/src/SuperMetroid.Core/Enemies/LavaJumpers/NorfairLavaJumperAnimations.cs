@@ -33,14 +33,14 @@ internal static class NorfairLavaJumperAnimations
         [P.Follower] =
         [
             Show(EnemyFrameId.NorfairLavaJumperFlameFlare, 1),
-            Show(EnemyFrameId.Empty, 1),
+            Show(EnemyFrameId.PointAtOrigin, 1),
         ],
         [P.FollowerFlickering] =
         [
             Show(EnemyFrameId.NorfairLavaJumperFlameSmall, 1),
-            Show(EnemyFrameId.Empty, 1),
+            Show(EnemyFrameId.PointAtOrigin, 1),
             Show(EnemyFrameId.NorfairLavaJumperFlameTall, 1),
-            Show(EnemyFrameId.Empty, 1),
+            Show(EnemyFrameId.PointAtOrigin, 1),
         ],
     });
 
@@ -48,7 +48,7 @@ internal static class NorfairLavaJumperAnimations
     /// The animation that starts at each segment an owner can start or restart at: the hidden claws are a still picture,
     /// and the trailing flame flares and flickers once, a cycle it repeats from the flare (#2337).
     /// </summary>
-    internal static IReadOnlyDictionary<NorfairLavaJumperSegment, Animation<NorfairLavaJumperSegment>> StartingAt { get; } = new Dictionary<NorfairLavaJumperSegment, Animation<NorfairLavaJumperSegment>>
+    private static Dictionary<NorfairLavaJumperSegment, Animation<NorfairLavaJumperSegment>> StartingAt { get; } = new Dictionary<NorfairLavaJumperSegment, Animation<NorfairLavaJumperSegment>>
     {
         [P.Hidden] = new([Segments.Whole(P.Hidden)], AnimationEnd.Holds),
         [P.Jump] = new([Segments.Whole(P.Jump)], AnimationEnd.Holds),

@@ -12,7 +12,7 @@ internal readonly record struct TextureDrift
     /// The pixels across and down after which every effect overlay picture shows the same again: each picture's width and
     /// height divides it.
     /// </summary>
-    internal const int RepeatPixels = 256;
+    private const int RepeatPixels = 256;
 
     /// <summary>The drift across, its whole pixels 0 through one repeat less one.</summary>
     private readonly FixedCoordinate across;
@@ -26,9 +26,6 @@ internal readonly record struct TextureDrift
         this.across = WithinRepeat(across);
         this.down = WithinRepeat(down);
     }
-
-    /// <summary>No drift: the texture where the room's load placed it.</summary>
-    internal static TextureDrift None => default;
 
     /// <summary>The whole pixels the texture has moved across and down, each 0 through <see cref="RepeatPixels"/> less one.</summary>
     internal Offset16<OverlayPixels> Whole => new(across.Whole, down.Whole);

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 public static class TourianStatueSequenceDefinitions
 {
     /// <summary>
-    /// The updates the statue holds, after the last release ends, before it starts to lower: 301, the last the one that
+    /// The updates the statue holds, after the last release ends, before it starts to lower, the last the one that
     /// raises the descent's dust (#2281).
     /// </summary>
     public const int DescentDelay = 301;
@@ -37,9 +37,9 @@ public static class TourianStatueSequenceDefinitions
     /// (<see cref="SuperMetroid.Core.Fx.RoomEarthquake.Sustain"/>), so the shake lasts past its end.
     /// </summary>
     public static readonly EarthquakeShake DescentEarthquake =
-        new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundAndBackground);
+        new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocksAndScenery);
 
     /// <summary>The light up-and-down foreground earthquake a release sustains.</summary>
     public static readonly EarthquakeShake ReleaseEarthquake =
-        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
+        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks);
 }

@@ -21,13 +21,13 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
     internal StationAccessRule Rule { get; } = Ensure.NotNull(rule);
 
     /// <summary>Which station it is.</summary>
-    public StationKind Kind => Rule.Kind;
+    private StationKind Kind => Rule.Kind;
 
     /// <summary>Area whose map a map station acquires.</summary>
     public AreaId Area { get; } = area;
 
     /// <summary>Animation the station currently shows.</summary>
-    internal StationAnimation ShownAnimation { get; private set; } = animation;
+    private StationAnimation ShownAnimation { get; set; } = animation;
 
     /// <summary>Animation shown once the station has given its reward: the map station's acquired one, or its ordinary one.</summary>
     internal StationAnimation CompletedAnimation => Rule.AcquiredAnimation ?? Rule.Animation;
@@ -46,7 +46,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
     /// Whether the access arm is idle, about to start at a touch accepted since its last update, in use at the access Samus
     /// used, or waiting for the map screen to close.
     /// </summary>
-    public StationOperationPhase OperationPhase { get; private set; } = StationOperationPhase.Idle;
+    private StationOperationPhase OperationPhase { get; set; } = StationOperationPhase.Idle;
 
     /// <summary>Whether the station accepts Samus's touch: while idle, or before its next update takes a touch it accepted.</summary>
     internal bool AcceptsTouch => OperationPhase == StationOperationPhase.Idle || OperationPhase is StationOperationPhase.TouchAccepted;
@@ -78,7 +78,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         bool operationStartedThisUpdate = false;
         if (OperationPhase is StationOperationPhase.TouchAccepted { Use: var pending })
         {
-            if (Rule.Refill is { } refill && refill.IsFull(samus))
+            if (Rule.Reward is StationReward.Refills { Refill: var refill } && refill.IsFull(samus))
             {
                 // The full-resource branch releases Samus before the access ends. A refill between the touch and this
                 // update must release her too.
@@ -87,7 +87,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
             }
             else
             {
-                // The arm draws its first extension image for six updates, holds fully inserted for 96, then activates
+                // The arm draws its first extension image, holds fully inserted (StationAccessTimingDefinitions), then activates
                 // the station. The touch locked Samus; this update does not lock her again, so one an intervening
                 // unpause freed stays free. A map station's access never reads the map: a station whose map is held
                 // has no access blocks (#2508), and the arm's draws leave a used station's access cells solid.
@@ -122,7 +122,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         }
         if (!_arm.HasStopped)
             return;
-        OperationPhase = Rule.Refill is null && samus.Control.InputLocked
+        OperationPhase = !Rule.Reward.ReleasesAtActivation && samus.Control.InputLocked
             ? StationOperationPhase.AwaitingMapUnpause
             : StationOperationPhase.Idle;
         // The access only ends here. Recharges released Samus at activation; leaving the map screen releases her after
@@ -138,7 +138,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
                 Activate(stations, samus, context.Outcome);
                 // The recharges release Samus right after their message, before the arm retracts. The map leaves her
                 // locked for leaving the map screen to release.
-                if (Rule.Refill is not null)
+                if (Rule.Reward.ReleasesAtActivation)
                     samus.Control.Unlock();
                 return;
             case StationAccessCue.Disengages:
@@ -155,7 +155,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
     /// </summary>
     private void Activate(StationObjects stations, IRoomSamus samus, RoomObjectStepOutcome outcome)
     {
-        if (Rule.Refill is { } refill)
+        if (Rule.Reward is StationReward.Refills { Refill: var refill })
             refill.Fill(samus);
         else
             stations.System.SetAreaMapAcquired(Area);

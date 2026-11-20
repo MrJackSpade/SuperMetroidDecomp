@@ -65,8 +65,8 @@ internal static class HopperAnimationDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => 0;
 
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(definitions[variant], place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(definitions[variant], place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.Sidehopper, onCeiling ? (ushort)1 : (ushort)0);
             enemies.HoppersBehavior.InitializeHopper(place, place.SpawnSettings<HopperSpawnSettings>());
             HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
@@ -76,7 +76,7 @@ internal static class HopperAnimationDefinitionsVerification
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper initial landed program {context}");
 
             state.Heading = HorizontalDirection.Right;
-            HoppersBehavior.StartHopperJump(place, state);
+            HoppersBehavior.StartHopperJump(place.HeldOccupant(), place, state);
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(jumping), AnimationPlace.StartOfAnimation), state.Playback, $"hopper jumping program {context}");
             ushort airborne = HopperAnimationsConstants.Spritemaps(jumping).Single();
             // The airborne pose is a still picture (#2337): it shows once and rests there.
@@ -87,7 +87,7 @@ internal static class HopperAnimationDefinitionsVerification
             AssertEqual(variant is 0 or 1 ? EnemySound.SidehopperJump : null, enemies.Audio.LatestSound,
                 $"hopper jumping sound {context}");
 
-            HoppersBehavior.LandHopper(place, state);
+            HoppersBehavior.LandHopper(place.HeldOccupant(), place, state);
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper landed handoff {context}");
             int[] holds = [2, 5, 2, 3];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(HopperAnimationsConstants.Spritemaps(landed), holds),
@@ -120,8 +120,8 @@ internal static class HopperAnimationDefinitionsVerification
         enemies.VerificationServices().NextRandom = () => 0;
 
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.SidehopperTourian, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.SidehopperTourian, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
         enemies.HoppersBehavior.InitializeHopper(place, place.SpawnSettings<HopperSpawnSettings>());
         EnemyInstructionRunner.ShownFrames(place, 1);

@@ -13,7 +13,7 @@ public static class MotherBrainHealthBandDefinitions
     public static MotherBrainHealthBand BadlyWounded { get; } = new(1800, "badly-wounded");
 
     /// <summary>Mother Brain below 1800 health, her most damaged colours.</summary>
-    public static MotherBrainHealthBand NearlyDead { get; } = new(null, "nearly-dead");
+    public static MotherBrainHealthBand NearlyDead { get; } = new(0, "nearly-dead");
 
     /// <summary>The bands, highest first: the order her health is tested against them and her installed health colours hold them.</summary>
     public static IReadOnlyList<MotherBrainHealthBand> HighestFirst { get; } = [Unhurt, Wounded, BadlyWounded, NearlyDead];

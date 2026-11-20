@@ -28,7 +28,7 @@ internal static class SamusProjectileDirectionCodec
     ];
 
     /// <summary>The turning placements in the order the flare origin tables keep them after the ten directions.</summary>
-    internal static IReadOnlyList<SamusTurningAim> TurningPlacementOrder { get; } =
+    private static IReadOnlyList<SamusTurningAim> TurningPlacementOrder { get; } =
         [SamusTurningAim.Up, SamusTurningAim.Neutral, SamusTurningAim.Down];
 
     /// <summary>The direction's aim index.</summary>

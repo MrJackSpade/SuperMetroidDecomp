@@ -136,8 +136,8 @@ internal static class IntroBabyActorDefinitionsVerification
         for (ushort frame = 0; frame < 1024 &&
             (!delivery.NextPageRequested || !examination.NextPageRequested); frame++)
         {
-            delivery.Step(IntoLaboratory(frame));
-            examination.Step(IntoLaboratory(frame));
+            delivery.Step(IntoLaboratory(frame + 1));
+            examination.Step(IntoLaboratory(frame + 1));
         }
         AssertTrue(delivery.NextPageRequested,
             "delivered-baby production actor reaches page-four instruction");
@@ -154,12 +154,12 @@ internal static class IntroBabyActorDefinitionsVerification
             "  Intro baby actors: definition, 138 discovery, 142 scientist and 768 collision bytes match; full guarded scenes pass.");
     }
 
-    /// <summary>The crossfade into the laboratory with <paramref name="updatesLeft"/> updates left, as a scene's update sees it (#1980).</summary>
+    /// <summary>The crossfade into the laboratory with <paramref name="updatesLeft"/> updates left after this one, as a scene's update sees it (#1980).</summary>
     private static IntroCrossfadeTick IntoLaboratory(int updatesLeft) =>
         new(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory, updatesLeft);
 
     /// <summary>The crossfade back out of the laboratory on the update it finishes (#1980).</summary>
-    private static IntroCrossfadeTick OutOfLaboratoryFinishing => new(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration, 0);
+    private static IntroCrossfadeTick OutOfLaboratoryFinishing => new(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration, 1);
 
     /// <summary>Reads a single retail byte only for the comparison oracle, outside the guarded production playback.</summary>
     private static byte IntroBabyActorDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);

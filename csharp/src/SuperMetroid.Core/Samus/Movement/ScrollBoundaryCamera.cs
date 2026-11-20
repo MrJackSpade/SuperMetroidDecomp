@@ -8,9 +8,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// The camera position constrained by Super Metroid's directional scroll-zone checks.
 /// </summary>
 /// <remarks>
-/// The four directional checks are the game's four scroll-boundary checks. Samus's horizontal and vertical
-/// tracking, run by the gameplay update's scrolling, supply the proposed position, ideal position and camera speed
-/// they read.
+/// Each direction's travel stops at a closed screen or the room's edge; Samus's horizontal and vertical tracking supply
+/// the proposed position, ideal position and camera speed they read.
 /// </remarks>
 [RoomLifetime]
 public sealed class ScrollBoundaryCamera
@@ -25,7 +24,7 @@ public sealed class ScrollBoundaryCamera
     /// <summary>
     /// Gets the camera's position: whole pixels and fraction.
     /// </summary>
-    public FixedPosition<RoomPixels> Position { get; internal set; }
+    public FixedPosition<RoomPixels> Position { get; private set; }
 
     /// <summary>Gets the camera's integer position (its top-left room pixel).</summary>
     public Position16<RoomPixels> PixelPosition => Position.Whole;
@@ -34,23 +33,30 @@ public sealed class ScrollBoundaryCamera
     /// Gets the camera target calculated from Samus's position: horizontally from her facing
     /// context, vertically from the room's falling and rising camera offsets.
     /// </summary>
-    public Position16<RoomPixels> IdealPosition { get; private set; }
+    private Position16<RoomPixels> IdealPosition { get; set; }
 
     /// <summary>
     /// Gets the most recently calculated camera speed on each axis:
     /// the distance Samus moved, either way, plus one pixel.
     /// </summary>
-    public FixedVector<RoomPixels> Speed { get; internal set; }
+    public FixedVector<RoomPixels> Speed { get; private set; }
 
     /// <summary>
-    /// Samus's previous position written at the end of scrolling.
-    /// Room-main movement occurs later and must remain visible to the next scroll update.
-    /// Null represents a newly constructed camera without an accepted scrolling pass.
+    /// Samus's previous position written at the end of scrolling, or that the camera has been placed since its last
+    /// scrolling pass (<see cref="SamusScrollCheckpoint.SincePlacement"/>). Room-main movement occurs later and must
+    /// remain visible to the next scroll update.
     /// </summary>
-    public FixedPosition<RoomPixels>? PreviousSamusPoint { get; private set; }
+    public SamusScrollCheckpoint PreviousSamusPoint { get; private set; } = SamusScrollCheckpoint.SincePlacement;
 
     /// <summary>Publishes the previous-position checkpoint after both axes and the room's camera floor.</summary>
-    public void FinishSamusScrolling(FixedPosition<RoomPixels> current) => PreviousSamusPoint = current;
+    public void FinishSamusScrolling(FixedPosition<RoomPixels> current) => PreviousSamusPoint = SamusScrollCheckpoint.At(current);
+
+    /// <summary>
+    /// The point a door's write starts from: the checkpoint's, or, for a camera placed since its last scroll, the room
+    /// origin with no fraction of a pixel.
+    /// </summary>
+    private FixedPosition<RoomPixels> PointBeforeDoorWrite =>
+        PreviousSamusPoint is SamusScrolledCheckpoint { Point: var point } ? point : FixedPosition<RoomPixels>.Zero;
 
     /// <summary>Door room replacement retains the global scrolling history and targets.</summary>
     internal void InheritTrackingState(ScrollBoundaryCamera previous)
@@ -62,7 +68,7 @@ public sealed class ScrollBoundaryCamera
 
     /// <summary>Door placement writes both whole previous-position coordinates, retaining fractions.</summary>
     internal void PublishDoorSamusPosition(Position16<RoomPixels> samus) =>
-        PreviousSamusPoint = (PreviousSamusPoint ?? default).WithWhole(samus);
+        PreviousSamusPoint = SamusScrollCheckpoint.At(PointBeforeDoorWrite.WithWhole(samus));
 
     /// <summary>
     /// The door-transition scroll writes only the travel axis's whole previous position, retaining the
@@ -70,10 +76,10 @@ public sealed class ScrollBoundaryCamera
     /// </summary>
     internal void PublishDoorSamusTravelAxis(bool vertical, Position16<RoomPixels> samus)
     {
-        FixedPosition<RoomPixels> previous = PreviousSamusPoint ?? default;
-        PreviousSamusPoint = vertical
+        FixedPosition<RoomPixels> previous = PointBeforeDoorWrite;
+        PreviousSamusPoint = SamusScrollCheckpoint.At(vertical
             ? previous.WithY(previous.Y.WithWhole(samus.Y))
-            : previous.WithX(previous.X.WithWhole(samus.X));
+            : previous.WithX(previous.X.WithWhole(samus.X)));
     }
 
     /// <summary>The room's scroll grid this camera consults.</summary>
@@ -85,11 +91,11 @@ public sealed class ScrollBoundaryCamera
     /// </summary>
     public void SetPosition(Position16<RoomPixels> requested)
     {
-        PreviousSamusPoint = null;
+        PreviousSamusPoint = SamusScrollCheckpoint.SincePlacement;
         int maxX = RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1);
 
         // The vertical maximum depends on whether the screen aligns the camera to its top. Starting with the
-        // room-wide conservative 31-pixel allowance matches the boundary check's largest legal result;
+        // room-wide conservative lower-alignment allowance matches the boundary check's largest legal result;
         // the first vertical movement applies the screen-specific exact maximum.
         int maxY = (RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + SamusCameraDefinitions.LowerAlignment;
         var clamped = new Position16<RoomPixels>(
@@ -118,11 +124,9 @@ public sealed class ScrollBoundaryCamera
     /// Publishes the camera position the door-transition scroll owns, which may lie outside the room.
     /// </summary>
     /// <remarks>
-    /// The vertical transitions deliberately begin outside the destination room:
-    /// down starts at destination Y minus 224 (often 65312) and up starts at
-    /// destination Y plus 251. These are valid wrapped coordinates, not entry
-    /// positions to clamp. Every other placement of the camera is <see cref="SetPosition"/>'s, which keeps it within
-    /// the room's edges.
+    /// The vertical transitions begin a screen beyond the destination, outside the room: down starts a screen's height
+    /// above the destination, wrapping as <see cref="CoordinateAxis"/> states, and up starts just below it. Every other
+    /// placement of the camera is <see cref="SetPosition"/>'s, which keeps it within the room's edges.
     /// </remarks>
     public void SetDoorTransitionPosition(Position16<RoomPixels> position) =>
         // The door-transition setup and scroll write whole camera positions, leaving both fractions intact.
@@ -166,9 +170,8 @@ public sealed class ScrollBoundaryCamera
 
     /// <summary>
     /// Runs horizontal Samus tracking plus camera-speed calculation.
-    /// Integer movement follows the facing-dependent camera target;
-    /// an unchanged integer position goes on to autoscrolling exactly
-    /// as the game does (Samus moving within her pixel still affects speed).
+    /// Integer movement follows the facing-dependent camera target; an unchanged integer position goes on to
+    /// autoscrolling (Samus moving within her pixel still affects speed).
     /// </summary>
     public void TrackMovedSamusHorizontally(
         FixedPosition<RoomPixels> previous,
@@ -216,7 +219,7 @@ public sealed class ScrollBoundaryCamera
 
     /// <summary>
     /// The camera's scrolling during a fast grapple swing: the camera
-    /// steps three pixels toward a dead zone around Samus, then both autoscrollers run.
+    /// steps toward a dead zone around Samus by its slow-scroll step, then both autoscrollers run.
     /// The camera's scroll speeds are not recalculated. A negative Samus X skips both axes.
     /// </summary>
     public void TrackGrappleSlowScrolling(Position16<RoomPixels> samus, bool timeIsFrozen)
@@ -293,7 +296,7 @@ public sealed class ScrollBoundaryCamera
     /// <remarks>
     /// This step does not chase Samus. It gently pushes a camera that is sitting inside
     /// a closed scroll screen toward an open adjacent screen, or back from a closed screen on its
-    /// right. The extra two pixels are the game's, not an invented smoothing rule.
+    /// right, by the camera's speed plus the closed screen's drift (<see cref="SamusCameraDefinitions.ClosedScreenDrift"/>).
     /// </remarks>
     private void HandleHorizontalAutoscrolling(bool timeIsFrozen)
     {
@@ -317,7 +320,7 @@ public sealed class ScrollBoundaryCamera
 
         if (Scrolls.ReadCameraState(current) == RoomScrollState.Closed)
         {
-            // In a closed current screen, drift right by camera speed + 2 toward its right edge.
+            // In a closed current screen, drift right by the camera's speed plus the closed screen's drift toward its right edge.
             // If the screen right of the candidate is also closed, discard the fractional screen position and stay
             // on the candidate screen's left edge instead of allowing the viewport to enter it.
             int rightBoundary = NextScreenStart(Position.X.Whole);
@@ -339,9 +342,9 @@ public sealed class ScrollBoundaryCamera
         if (Scrolls.ReadCameraState(RightOf(current)) != RoomScrollState.Closed)
             return;
 
-        // An open current screen with a closed screen to its right is the mirror case: drift left
-        // toward the current screen's left edge. If the candidate itself lands in a closed screen, round
-        // up to the next screen boundary. The comparison is signed.
+        // An open current screen with a closed screen to its right is the mirror case: drift left toward the current
+        // screen's left edge. If the candidate itself lands in a closed screen, round up to the next screen boundary;
+        // which way the distance lies (CoordinateAxis.Difference) decides the drift.
         int leftBoundary = ScreenStart(Position.X.Whole);
         int leftCandidate = CameraPastRoomEdge.At(proposed - Speed.X.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
         if (CameraPastRoomEdge.LiesBefore(leftCandidate, leftBoundary))
@@ -366,8 +369,8 @@ public sealed class ScrollBoundaryCamera
 
         Position16<RoomScreens> preClamp = VerticalCheckScreen();
 
-        // Screens open with the camera aligned to the top align the 224-line gameplay viewport to
-        // the top of the screen; closed and open ones permit the game's 31-pixel lower alignment. Crucially, the
+        // Screens open with the camera aligned to the top align the gameplay viewport to
+        // the top of the screen; closed and open ones permit the game's lower alignment. Crucially, the
         // alignment is selected before Y is clamped and remains fixed for this update.
         int verticalAlignment = Scrolls.ReadCameraState(preClamp) == RoomScrollState.OpenAlignedToTop
             ? 0
@@ -427,7 +430,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>Stops rightward travel at the ideal point, room edge, or closed screen to the right.</summary>
-    internal void HandleScrollingRight()
+    private void HandleScrollingRight()
     {
         int proposed = Position.X.Whole;
 
@@ -458,7 +461,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>Stops leftward travel at the ideal point, room edge, or current closed screen.</summary>
-    internal void HandleScrollingLeft()
+    private void HandleScrollingLeft()
     {
         int proposed = Position.X.Whole;
         if (CameraPastRoomEdge.LiesBefore(Position.X.Whole, IdealPosition.X))
@@ -484,12 +487,12 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>Applies the top-aligned versus closed/open vertical alignment and blocks downward travel at room or scroll limits.</summary>
-    internal void HandleScrollingDown()
+    private void HandleScrollingDown()
     {
         int proposed = Position.Y.Whole;
         Position16<RoomScreens> current = VerticalCheckScreen();
 
-        // Top-aligned screens align the 224-line playfield with no allowance; closed and open ones allow 31 pixels lower.
+        // Top-aligned screens align the playfield with no allowance; closed and open ones allow the lower alignment.
         int verticalAlignment = Scrolls.ReadCameraState(current) == RoomScrollState.OpenAlignedToTop
             ? 0
             : SamusCameraDefinitions.LowerAlignment;
@@ -525,7 +528,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>Stops upward travel at the ideal point, room top, or current closed screen.</summary>
-    internal void HandleScrollingUp()
+    private void HandleScrollingUp()
     {
         int proposed = Position.Y.Whole;
         if (CameraPastRoomEdge.LiesBefore(Position.Y.Whole, IdealPosition.Y))
@@ -578,7 +581,8 @@ public sealed class ScrollBoundaryCamera
     /// <summary>The first pixel of the 256-pixel scroll screen holding <paramref name="pixel"/> (the 256-pixel alignment).</summary>
     private static int ScreenStart(int pixel) => RoomGridConversions.ScreenStart(pixel);
 
-    /// <summary>The first pixel of the following scroll screen, wrapping at 65536.</summary>
+    /// <summary>The first pixel of the following scroll screen, wrapping as <see cref="CoordinateAxis"/>
+    /// states.</summary>
     private static int NextScreenStart(int pixel) => CameraPastRoomEdge.At(ScreenStart(pixel) + 2 * SamusCameraDefinitions.HalfScreen);
 
     /// <summary>

@@ -23,15 +23,15 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Rainbow-beam angular width: two steps of a 256-step turn when the beam starts, widening by one and a half steps up
-    /// to twelve and narrowing back to two as it shuts down.
+    /// Rainbow-beam angular width: its narrowest when the beam starts, widening a step at a time up to its widest and
+    /// narrowing back to its narrowest as it shuts down.
     /// </summary>
-    public RotationAngle AngularWidth { get; internal set; }
+    public RotationAngle AngularWidth { get; private set; }
 
     /// <summary>
     /// The beam's sound attempts (#2253): each continuing beam step makes one and counts it, until none are left.
     /// </summary>
-    public UpdateCountdown SoundAttempts { get; internal set; } = UpdateCountdown.Ended();
+    public UpdateCountdown SoundAttempts { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>Rainbow-beam explosion timer.</summary>
     public BossCountdown ExplosionTimer { get; } = new();
@@ -52,7 +52,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>
     /// Starts the beam proper once its charge has run out with no Power Bomb going off: the beam takes hold of Samus.
     /// </summary>
-    public void StartActiveBeam(SamusState samus)
+    private void StartActiveBeam(SamusState samus)
     {
         Ensure.NotNull(samus);
 
@@ -91,7 +91,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.NeckExtendUpdates);
     }
 
-    /// <summary>Widens the beam by one and a half steps up to twelve and refreshes its angle toward Samus.</summary>
+    /// <summary>Widens the beam by its width step up to its widest and refreshes its angle toward Samus.</summary>
     private void IncreaseWidthAndAim(SamusState samus)
     {
         RotationAngle widened = AngularWidth + MotherBrainBeamDefinitions.RainbowWidthStep;
@@ -128,7 +128,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Converts the angle from the offset brain origin to Samus into the rainbow beam's orientation.</summary>
     private void AimBeamAtSamus(SamusState samus)
     {
-        // The beam aims from 16 pixels right of and 4 below the brain to Samus. Her bearing is measured clockwise
+        // The beam aims from its offset from the brain to Samus. Her bearing is measured clockwise
         // from up; the beam's angle turns anti-clockwise from down, a half turn less the bearing.
         RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(
             samus.Position.Whole - (_state.BrainPosition + MotherBrainFightDefinitions.BeamOffset));
@@ -147,25 +147,25 @@ internal sealed class MotherBrainRainbowAttackPhases
         return new MotherBrainRainbowExplosionRequest(offset);
     }
 
-    /// <summary>Drains one health with Varia or two without, clamping health below zero to zero.</summary>
+    /// <summary>Drains the beam's health with Varia or more without, clamping health below zero to zero.</summary>
     private static void DamageSamusDueToRainbowBeam(SamusState samus)
     {
-        // The beam takes one energy with Varia and two without; energy that would fall below one becomes zero.
+        // The beam takes less energy with Varia than without; energy that would fall below one becomes zero.
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? MotherBrainLateFightDefinitions.BeamDrainWithVaria : MotherBrainLateFightDefinitions.BeamDrainWithoutVaria;
         int candidate = samus.Health - damage;
         samus.Health = candidate >= 1 ? candidate : 0;
     }
 
     /// <summary>
-    /// Drains missiles and supers every fourth enemy pass and power bombs every pass while
+    /// Drains missiles and supers at their drain cadence and power bombs every pass while
     /// the rainbow beam holds Samus.
     /// </summary>
     private static void DecrementAmmoDueToRainbowBeam(
         SamusState samus,
         int enemyPassCount)
     {
-        // Missiles and Super Missiles drain on every fourth enemy pass, Power Bombs on every update.
-        if (MotherBrainCadenceDefinitions.RainbowMissileDrainEveryFourthEnemyPass.IsDue(enemyPassCount))
+        // Missiles and Super Missiles drain at their cadence, Power Bombs on every update.
+        if (MotherBrainCadenceDefinitions.RainbowMissileDrain.IsDue(enemyPassCount))
         {
             samus.Missiles = DecrementOneAmmoType(samus, samus.Missiles, selectedItem: HudItem.Missile);
             samus.SuperMissiles = DecrementOneAmmoType(samus, samus.SuperMissiles, selectedItem: HudItem.SuperMissile);
@@ -192,7 +192,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         if (samus.SelectedHudItem == selectedItem)
             samus.SelectedHudItem = HudItem.Beam;
 
-        samus.AutoCancelledItem = HudItem.Beam;
+        samus.AutoCancelledItem = null;
         return 0;
     }
 

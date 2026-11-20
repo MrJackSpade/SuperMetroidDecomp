@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -123,7 +122,7 @@ internal sealed class KraidRise
     /// Shows the fixed room backdrop over the room's blocks (#1352, #1406, #1466): the blocks and cells it shows over show
     /// their pictures with it from here.
     /// </summary>
-    internal void ShowKraidRoomBackdrop() => _presentation.Appearance.ShowKraidBackdrop();
+    private void ShowKraidRoomBackdrop() => _presentation.Appearance.ShowKraidBackdrop();
 
     /// <summary>
     /// Brings Kraid's grown body in front of the room's sprites before his second phase. Only a risen
@@ -155,12 +154,12 @@ internal sealed class KraidRise
                 return;
 
             case KraidGrowthPhase.BreakCeilingPlatforms:
-                if (KraidCadenceDefinitions.CeilingBreakRockEveryEighthUpdate.IsDue(body.FrameCounter))
+                if (KraidCadenceDefinitions.CeilingBreakRock.IsDue(body.FrameCounter))
                     RequestKraidRisingRock(body);
                 body.Position = body.Position.WithWholeX(body.Position.X.Whole +
                     1.Toward(KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? HorizontalDirection.Left : HorizontalDirection.Right));
                 body.Position = body.Position.WithWholeY(body.Position.Y.Whole - 1);
-                if (KraidCadenceDefinitions.CeilingRockEveryFourthRow.IsDue(body.Position.Y.Whole) &&
+                if (KraidCadenceDefinitions.CeilingRockRow.IsDue(body.Position.Y.Whole) &&
                     state.BodyState.NextCeilingRock is { } rock)
                 {
                     _background.SpawnKraidCeilingRock(rock.Entry.X);
@@ -207,7 +206,7 @@ internal sealed class KraidRise
     }
 
     /// <summary>Installs the grown body pose, room scrolls, and second-phase behavior.</summary>
-    internal void FinishKraidGrowth(RoomEnemyPlace body, KraidEnemyState state)
+    private void FinishKraidGrowth(RoomEnemyPlace body, KraidEnemyState state)
     {
         SetupKraidSecondPhaseThinking(body, state);
 
@@ -233,17 +232,17 @@ internal sealed class KraidRise
     }
 
     /// <summary>Requests a rock from the floor during the growth sequence.</summary>
-    internal void RequestKraidRisingRock(RoomEnemyPlace body)
+    private void RequestKraidRisingRock(RoomEnemyPlace body)
     {
         int random = _access.ReadKraidRandomNumber();
-        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidRisingRock, _background.Rocks, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         if (rock is null)
             return;
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(rock, RoomEnemyProjectileKind.KraidRisingRock, KraidProjectiles.RisingRocks,
             graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         // The random sample's side chooses the rock's pose (#2278).
-        rock.StartAnimation(new KraidRockAnimation(KraidRandomDefinitions.RisingRockFliesRight.IsTakenBy(random)
+        rock.StartAnimation(new KraidRockAnimation(_background.Rocks, KraidRandomDefinitions.RisingRockFliesRight.IsTakenBy(random)
             ? KraidRockSegment.RisingRightPose
             : KraidRockSegment.SharedPose, KraidProjectiles.RisingRocks));
         // A rock on the left starts one pixel further from the body than its mirror on the right.
@@ -278,32 +277,32 @@ internal sealed class KraidRise
 
             case KraidRisePhase.StartQuakeAndMusic:
                 RestrictSamusToKraidFirstScreen(samus);
-                state.BodyState.RisePhase = KraidRisePhase.RocksEvery16Frames;
+                state.BodyState.RisePhase = KraidRisePhase.SlowRocks;
                 state.BodyState.RisingRocksWait.LastFor(KraidArenaDefinitions.RiseSlowRocksUpdates);
                 _earthquake.RunFor(KraidArenaDefinitions.RiseShakeUpdates);
                 _access.RequestKraidMusic(MusicRequest.SelectTrack(MusicTrack.KraidAndPhantoonBattle));
                 return;
 
-            case KraidRisePhase.RocksEvery16Frames:
+            case KraidRisePhase.SlowRocks:
                 RestrictSamusToKraidFirstScreen(samus);
                 if (state.BodyState.RisingRocksWait.StepRunsOut())
                 {
-                    state.BodyState.RisePhase = KraidRisePhase.RocksEvery8Frames;
+                    state.BodyState.RisePhase = KraidRisePhase.FastRocks;
                     state.BodyState.RisingRocksWait.LastFor(KraidArenaDefinitions.RiseFastRocksUpdates);
                 }
-                else if (KraidCadenceDefinitions.FirstRiseRockEverySixteenthUpdate.IsDue(state.BodyState.RisingRocksWait.UpdatesLeft))
+                else if (KraidCadenceDefinitions.FirstRiseRock.IsDue(state.BodyState.RisingRocksWait.UpdatesLeft))
                 {
                     RequestKraidRisingRock(body);
                 }
                 return;
 
-            case KraidRisePhase.RocksEvery8Frames:
+            case KraidRisePhase.FastRocks:
                 RestrictSamusToKraidFirstScreen(samus);
                 if (state.BodyState.RisingRocksWait.StepRunsOut())
                 {
                     state.BodyState.RisePhase = KraidRisePhase.RaiseBody;
                 }
-                else if (KraidCadenceDefinitions.FasterRiseRockEveryEighthUpdate.IsDue(state.BodyState.RisingRocksWait.UpdatesLeft))
+                else if (KraidCadenceDefinitions.FasterRiseRock.IsDue(state.BodyState.RisingRocksWait.UpdatesLeft))
                 {
                     RequestKraidRisingRock(body);
                 }

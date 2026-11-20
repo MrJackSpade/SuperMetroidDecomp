@@ -33,7 +33,7 @@ internal sealed class CrocomireCombat
         _access = access;
     }
 
-    /// <summary>Runs Crocomire's eight-color body hurt flash.</summary>
+    /// <summary>Shows Crocomire's white hurt flash on his body.</summary>
     internal void ApplyCrocomireHurtFlash(RoomEnemyPlace body, CrocomireEnemyState state)
     {
         bool white = body.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount);
@@ -49,8 +49,8 @@ internal sealed class CrocomireCombat
     /// <param name="state">The encounter the bombed part is part of.</param>
     internal void ReactToCrocomireBomb(EnemyBombContext c, CrocomireEnemyState state) =>
         // Crocomire's species definition names no shot reaction; every live component supplies its own. Normal bombs
-        // therefore reach the same hit counter, dust, or mouth reaction selected by the map.
-        ResolveCrocomireHitboxShot(state, c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
+        // therefore reach the same hit counter, dust, or mouth reaction his frame's hitbox selects.
+        ResolveCrocomireHitboxShot(state, c.PlacedBomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
 
     /// <summary>
     /// The mouth's shot (#1760): it aims along its volley's gradient from its spawn, then flies; its spawner starts its
@@ -82,11 +82,21 @@ internal sealed class CrocomireCombat
         : EnemyProjectileMotionBehavior<TMotion>(initial), IEnemyProjectileCues<CrocomireProjectileCue>
         where TMotion : struct, Enum
     {
+        /// <summary>The gradient each mouth shot flies along, given as Crocomire spits it.</summary>
+        internal EnemyProjectileStates<CrocomireProjectileState> Gradients { get; } = new();
+
+        /// <summary>Which piece of the spike wall each falling piece is, given as the wall breaks.</summary>
+        internal EnemyProjectileStates<CrocomireSpikeWallPieceState> SpikeWallPieces { get; } = new();
+
+        /// <inheritdoc/>
+        internal override EnemyProjectileAnimation ShotAnimation() =>
+            shot is { } segment ? new CrocomireProjectileAnimation(this, segment) : base.ShotAnimation();
+
         /// <summary>The enemy projectiles, which raise the dust a landing spike-wall piece leaves.</summary>
         private protected EnemyProjectileEngine Projectiles => projectiles;
 
         /// <summary>Crocomire's last shot's gradient and his sounds.</summary>
-        private protected CrocomireEncounterAccess Access => access;
+        internal CrocomireEncounterAccess Access => access;
 
         /// <summary>Carries out a cue of the shot's animation: the drop, allocated before the deletion frees the actor, or the deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, CrocomireProjectileCue cue)
@@ -185,7 +195,7 @@ internal sealed class CrocomireCombat
             // pixel stays exactly as it was.
             projectile.Position = projectile.Position.WithX(projectile.Position.X.MovedBy(xVelocity));
 
-            // The piece falls by its speed, which gains three sixteenths of a pixel of gravity per update.
+            // The piece falls by its speed, which gains the piece's gravity each update.
             piece.FallSpeed += CrocomireSpikeMotionDefinitions.PieceGravity;
             projectile.Position = projectile.Position.AdvanceY(piece.FallSpeed);
 
@@ -237,8 +247,8 @@ internal sealed class CrocomireCombat
                     return false;
                 if (!c.UsesFrameHitboxes)
                     throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-                ResolveCrocomireHitboxShot(part.Encounter, c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+                ResolveCrocomireHitboxShot(part.Encounter, c.Shot.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
                 return true;
             },
         };
@@ -254,7 +264,7 @@ internal sealed class CrocomireCombat
         if ((context.HitboxTouch != CrocomireReactions.ClawTouch && context.HitboxTouch != EnemyReaction.OrdinaryTouch))
         {
             throw new InvalidDataException(
-                $"Crocomire has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(none)"}.");
+                $"Crocomire has no response to touch reaction {context.HitboxTouch}.");
         }
 
         _collision.ResolveOrdinaryTouch(context);
@@ -271,7 +281,7 @@ internal sealed class CrocomireCombat
         CrocomireEnemyState state,
         SamusProjectileType projectileType,
         Position16<RoomPixels> projectile,
-        EnemyReaction? reaction,
+        EnemyReaction reaction,
         Position16<RoomPixels> camera)
     {
         RoomEnemyPlace body = state.Body;
@@ -297,14 +307,14 @@ internal sealed class CrocomireCombat
             return;
         }
 
-        throw new InvalidOperationException($"Crocomire has no response to shot reaction {reaction?.ToString() ?? "(none)"}.");
+        throw new InvalidOperationException($"Crocomire has no response to shot reaction {reaction}.");
     }
 
     /// <summary>
     /// Resolves Crocomire's mouth reaction. Whether his body's left edge is on screen reads <paramref name="camera"/>, the
     /// camera as the shot or bomb pass runs, as the game reads the live camera there (#1875).
     /// </summary>
-    internal void ResolveCrocomireMouthShot(
+    private void ResolveCrocomireMouthShot(
         CrocomireEnemyState state,
         RoomEnemyPlace body,
         SamusProjectileType projectileType,
@@ -314,36 +324,29 @@ internal sealed class CrocomireCombat
         body.Invincibility.End();
 
         // A hit while Crocomire's body is off screen skips choosing the projectile's family and still records the
-        // pending hit. The body is on screen while its left edge lies left of the camera's right edge, 256 pixels past
+        // pending hit. The body is on screen while its left edge lies left of the camera's right edge, its screen reach past
         // the camera.
         bool bodyLeftEdgeIsOnScreen = body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.MouthShotScreenReach < camera.X;
-        int stepCount = 0;
+        // The steps the hit pushes him back by, a hit off screen none, or null for a weapon on screen that pushes nothing.
+        int? pushedSteps = 0;
         SamusProjectileFamily family = projectileType.Family;
         if (bodyLeftEdgeIsOnScreen)
         {
-            if (family == SamusProjectileFamily.Beam)
+            if (family == SamusProjectileFamily.Beam && !projectileType.IsChargedBeam)
             {
-                if (!projectileType.IsChargedBeam)
-                {
-                    body.AnimationClock.HoldFor(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
-                    SpawnCrocomireShotDust(projectileType, projectile);
-                    return;
-                }
-                stepCount = CrocomireFightDefinitions.ChargedBeamSteps;
+                body.AnimationClock.HoldFor(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
+                SpawnCrocomireShotDust(projectileType, projectile);
+                return;
             }
-            else if (family == SamusProjectileFamily.Missile)
-            {
-                stepCount = CrocomireFightDefinitions.MissileSteps;
-            }
-            else if (family == SamusProjectileFamily.SuperMissile)
-            {
-                stepCount = CrocomireFightDefinitions.SuperMissileSteps;
-            }
+            pushedSteps = family == SamusProjectileFamily.Beam ? CrocomireFightDefinitions.ChargedBeamSteps
+                : family == SamusProjectileFamily.Missile ? CrocomireFightDefinitions.MissileSteps
+                : family == SamusProjectileFamily.SuperMissile ? CrocomireFightDefinitions.SuperMissileSteps
+                : null;
         }
 
-        if (!bodyLeftEdgeIsOnScreen || stepCount != 0)
+        if (pushedSteps is int steps)
         {
-            state.StepCounter += stepCount;
+            state.StepCounter += steps;
             if (state.StepBack.Ask())
                 body.AnimationClock.Extend(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
         }
@@ -402,7 +405,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Projects a projectile's direction into its sideways and vertical speeds: its cosine and negative sine at the volley's speed.</summary>
-    internal static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(TrigonometryAngle aim) => new(
+    private static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(TrigonometryAngle aim) => new(
         EnemyMath.SineVelocity(aim + TrigonometryAngle.QuarterTurn, CrocomireProjectileDefinitions.VolleySpeed),
         EnemyMath.SineVelocity(aim + TrigonometryAngle.HalfTurn, CrocomireProjectileDefinitions.VolleySpeed));
 
@@ -421,14 +424,14 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>
-    /// The reaction of the first hitbox the probe overlaps on the body's frame, or null when the frame has no body hitboxes;
-    /// only his body's entity asks (#2179).
+    /// The first hitbox the probe overlaps on the body's frame, whose reaction runs, or none; only his body's entity asks
+    /// (#2179).
     /// </summary>
-    internal static bool? FindCrocomireBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <exception cref="InvalidDataException">The frame has no body hitboxes.</exception>
+    internal static EnemyHitboxContact FindCrocomireBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
         if (!CrocomireBodyCollision.HasFrame(enemy.Frame))
-            return null;
+            throw EnemyCollision.UncoveredFrame(enemy);
 
         // His body's hitboxes are the game's, whatever his installed pictures show; the first overlap wins, in the
         // order of his components and their hitboxes.
@@ -444,11 +447,10 @@ internal sealed class CrocomireCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 
 }

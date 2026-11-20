@@ -21,7 +21,7 @@ internal static class ProjectileHostBindingVerification
         {
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, projectiles.FrameBindings);
             CheckGrapple(session.Game.Artwork, projectiles.Grapple);
-            CheckFlare(session.Game.Artwork.ChargeFlarePlacement, projectiles.FlarePlacement, ChargeFlareSource.Beam);
+            CheckFlare(global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Frontend.GameArtwork, global::SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements>(session.Game.Artwork, "ChargeFlarePlacement"), projectiles.FlarePlacement, ChargeFlareSource.Beam);
         }
         Console.WriteLine("PASS installed projectile binding: the host binds the installed frame choices, flare placement and Grapple presentation at startup.");
         return 0;
@@ -50,10 +50,10 @@ internal static class ProjectileHostBindingVerification
     /// <summary>Checks the Grapple flare placement and swing choices the host bound.</summary>
     private static void CheckGrapple(GameArtwork actual, InstalledGrapplePresentation expected)
     {
-        CheckFlare((actual.GrappleFlarePlacement ?? throw new InvalidOperationException("Verification requires actual.GrappleFlarePlacement.")), expected.FlarePlacement, ChargeFlareSource.Grapple);
-        if (actual.GrappleSwingFrames is null) throw new InvalidDataException("Host did not bind Grapple swing frames.");
+        CheckFlare((global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Frontend.GameArtwork, global::SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements>(actual, "GrappleFlarePlacement") ?? throw new InvalidOperationException("Verification requires actual.GrappleFlarePlacement.")), expected.FlarePlacement, ChargeFlareSource.Grapple);
+        if (global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Frontend.GameArtwork, global::SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames>(actual, "GrappleSwingFrames") is null) throw new InvalidDataException("Host did not bind Grapple swing frames.");
         foreach (SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection direction in SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection.All)
-            if (actual.GrappleSwingFrames.Resolve(direction) != expected.SwingFrames.Resolve(direction))
+            if (global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Frontend.GameArtwork, global::SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames>(actual, "GrappleSwingFrames").Resolve(direction) != expected.SwingFrames.Resolve(direction))
                 throw new InvalidDataException("Host restored stale Grapple swing frames.");
     }
 

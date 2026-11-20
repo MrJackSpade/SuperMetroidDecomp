@@ -144,10 +144,8 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
     /// <summary>Restores gameplay on a blank display.</summary>
     private void RestoreGameplay(ControllerButton controllerInput, LoadedGameplay live)
     {
-        // Unpausing restores gameplay's layers, colours,
-        // hooks, room effects and block animations on a blank display. Pause graphics live in a
-        // separate display image here, so discarding it restores the untouched runtime
-        // image without rebuilding it.
+        // Unpausing restores gameplay's layers, colours, room effects and block animations on a blank screen, as they
+        // were before the pause.
         // The pause is entered only from main gameplay, whose updates all run with Samus (#2503).
         SamusState resumedSamus = live.Runtime.Player.Samus;
         // The equipment screen's category button response changes the equipped beams. Unpausing shows the newly

@@ -20,8 +20,8 @@ internal sealed class WreckedShipTreadmillObjects
         _drawing = Ensure.NotNull(drawing);
     }
     /// <summary>
-    /// Spawns one of the two treadmills at room block (4,9), then runs its shared setup at once by replacing the following
-    /// 56 blocks with blank air. The treadmill's first update runs the belt when Phantoon is dead, and it then leaves the
+    /// Spawns one of the two treadmills at its room block (<see cref="WreckedShipTreadmillBlockDefinitions"/>), then runs its
+    /// shared setup at once by replacing the belt's following blocks with blank air. The treadmill's first update runs the belt when Phantoon is dead, and it then leaves the
     /// room either way.
     /// </summary>
     /// <returns>False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>

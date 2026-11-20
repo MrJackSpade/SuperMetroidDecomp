@@ -16,18 +16,14 @@ internal sealed class NorfairEnvironmentalPalettePrograms : IReadOnlyList<Norfai
         get
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-            NorfairEnvironmentalPaletteOwner owner = Owners[index];
-            bool heat = owner == NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase;
             return new()
             {
-                Owner = owner,
-                Object = Objects[index],
-                PublishesHeatPhase = heat,
+                Owner = Owners[index],
                 ColorFrames = PaletteFxColorFrames.Of(NorfairEnvironmentalPaletteFxColorDefinitions.Objects[index], NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame),
             };
         }
     }
-    /// <summary>Visits the heat-phase program followed by palette-four, five, and six programs.</summary>
+    /// <summary>Visits the heat-phase program, then the green, purple and dark foreground glows.</summary>
     public IEnumerator<NorfairEnvironmentalPaletteFxColorDefinition> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

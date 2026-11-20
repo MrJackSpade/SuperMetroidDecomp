@@ -97,11 +97,10 @@ internal static class MotherBrainAnimations
 
     /// <summary>
     /// Each body animation, by the segment it starts at: every segment but the hand beam's charge and firing is played once,
-    /// then held. The red hand beam raises her arm, charges four times and fires; the arm drawn back shows twice running
-    /// before the beam fires: her body shows each new frame of its own on her body layer, so the second showing is a frame
-    /// of its own (#2318).
+    /// then held. The red hand beam raises her arm, charges (<see cref="HandBeamCharges"/>) and fires; the arm drawn
+    /// back shows twice running before the beam fires, each a frame of its own on her body (#2318).
     /// </summary>
-    internal static IReadOnlyDictionary<B, Animation<B>> BodyStartingAt { get; } = new Dictionary<B, Animation<B>>(
+    private static Dictionary<B, Animation<B>> BodyStartingAt { get; } = new Dictionary<B, Animation<B>>(
         Enum.GetValues<B>().Except([B.HandBeam, B.HandBeamCharge, B.HandBeamFire])
             .Select(segment => KeyValuePair.Create(segment, new Animation<B>([BodySegments.Whole(segment)], AnimationEnd.Holds))))
     {
@@ -292,12 +291,12 @@ internal static class MotherBrainAnimations
 
     /// <summary>
     /// Her head's own brain animations, by the segment each starts at (#1948): each lists its own segments, played once in
-    /// turn but for the dying drool's four bursts and the onion rings each volley fires after its first (#2470), and the one
+    /// turn but for the dying drool's bursts and the onion rings each volley fires after its first (#2470), and the one
     /// it loops from, or rests on the still picture it ends at (#2353). Only the segments she starts an animation at, or a
     /// random hold or drool continues at, start one; the segments an animation only runs on into are listed in it and start
     /// none.
     /// </summary>
-    internal static IReadOnlyDictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>
+    private static Dictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>
     {
         [H.StretchingPhase2] = Resting(HeadSegments, H.StretchingPhase2, H.StretchingPhase2Held),
         [H.StretchingPhase3] = Resting(HeadSegments, H.StretchingPhase3, H.StretchingPhase3Held),
@@ -384,7 +383,7 @@ internal static class MotherBrainAnimations
     /// <summary>How many times her dying head drools from its widest mouth in one burst.</summary>
     private const int DroolsPerBurst = 4;
 
-    /// <summary>Her dying head's burst of drool: the widest mouth and a drool, four times.</summary>
+    /// <summary>Her dying head's burst of drool: the widest mouth and a drool, <see cref="DroolsPerBurst"/> times over.</summary>
     private static AnimationPhase<H> DroolBursts => HeadSegments.Repeated(H.DyingDroolBurst, DroolsPerBurst);
 
     /// <summary>The onion rings each of her four-ring volleys fires.</summary>

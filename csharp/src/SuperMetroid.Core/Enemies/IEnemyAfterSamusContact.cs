@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>An enemy with contact work of its own that the shared pass runs after the ordinary Samus contact pass.</summary>
-internal interface IEnemyAfterSamusContact : IEnemyEntity
+internal interface IEnemyAfterSamusContact
 {
     /// <summary>Runs after the ordinary Samus contact pass.</summary>
     /// <param name="samus">Samus.</param>

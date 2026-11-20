@@ -23,13 +23,21 @@ internal static class RoomEnemyDefinitionImporterAccess
         /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
         /// <param name="pointer">The enemy definition, whose header the import's header table locates.</param>
         internal static RoomEnemyDefinition Load(ISnesAddressSpace bus, EnemyDefinitionId pointer) =>
-            RoomEnemyDefinitionImporter.LoadAt(bus, EnemyDefinitionIds.HeaderPointer(pointer));
+            RoomEnemyDefinitionImporter.LoadAt(bus, EnemyDefinitionIds.HeaderPointer(pointer), pointer);
 
         /// <summary>Decodes the fixed 64-byte bank-$A0 enemy header at <paramref name="headerPointer"/>.</summary>
         /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
         /// <param name="headerPointer">The header's bank-$A0 pointer; a verification fixture may seed one for an identity no member has.</param>
-        internal static RoomEnemyDefinition LoadAt(ISnesAddressSpace bus, int headerPointer)
+        /// <param name="definition">
+        /// The definition the header belongs to, whose compiled touch and shot are the species' own a word naming none of the
+        /// engine's reactions leaves to it; a fixture-only identity takes the blank definition's.
+        /// </param>
+        internal static RoomEnemyDefinition LoadAt(ISnesAddressSpace bus, int headerPointer, EnemyDefinitionId definition)
         {
+            RoomEnemyDefinition speciesOwn = RoomEnemyDefinitionCatalog.ById.TryGetValue(definition, out RoomEnemyDefinition compiled) ||
+                RoomEnemyAuxiliaryDefinitionCatalog.TryGet(definition, out compiled)
+                ? compiled
+                : EnemyDefinitionFixtures.Blank;
             Ensure.NotNull(bus);
             IImportCartridgeSource cartridge = bus;
             ushort Word(int offset) => RoomEnemyDefinitionImporter.ReadWord(cartridge, headerPointer, offset);
@@ -46,11 +54,11 @@ internal static class RoomEnemyDefinitionImporterAccess
                 HurtResponse: EnemyInteractionCallbacks.HurtResponse(Word(28)),
                 DeathExplosion: EnemyDeathExplosionWords.Selectors.Decode(Word(34), "enemy death explosion"),
                 PowerBombReaction: EnemyInteractionCallbacks.DecodePowerBomb(bank, Word(40)),
-                Touch: EnemyInteractionCallbacks.DecodeTouch(bank, Word(48)),
-                Shot: EnemyInteractionCallbacks.DecodeShot(bank, Word(50)),
+                Touch: EnemyInteractionCallbacks.DecodeTouch(bank, Word(48), speciesOwn.Touch),
+                Shot: EnemyInteractionCallbacks.DecodeShot(bank, Word(50), speciesOwn.Shot),
                 TouchHitboxScan: EnemyInteractionCallbacks.HitboxScan(Word(48)),
                 ShotHitboxScan: EnemyInteractionCallbacks.HitboxScan(Word(50)),
-                DropChances: EnemyHeaderTables.DropChances(cartridge, Word(58)),
+                Drops: EnemyHeaderTables.Drops(cartridge, Word(58)),
                 Vulnerability: EnemyHeaderTables.Vulnerability(cartridge, Word(60)));
         }
     }

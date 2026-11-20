@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// The grapple's swing is not the grappling movement type's own movement: the grapple beam's step swings the
 /// pendulum before the normal movement phase, and the swing's block collision advances its angle as it tests the room's
 /// blocks. Firing, persistent and breakable
-/// grapple blocks, enemy anchors, per-pixel rope adjustment, and the six-point angular terrain sweep are
+/// grapple blocks, enemy anchors, per-pixel rope adjustment, and the angular terrain sweep over the body's points are
 /// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and asks the next enemy
 /// pass to shake the enemy launched from. The firing-only Draygon-turret damage and the swing's spike damage, which
 /// depends on the kind of spike block, are applied through the shared periodic damage.
@@ -114,7 +114,7 @@ public static class SamusGrappleMovement
         SamusState samus,
         GameplayAction controllerInput,
         ISamusRoomObjects roomObjects,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
@@ -140,10 +140,9 @@ public static class SamusGrappleMovement
 
         // Firing tests the current endpoint against ordinary enemies before moving the
         // beam through its four block-collision substeps. The collision reports the
-        // enemy's grapple reaction; firing acts only on the definition's
-        // seven common reactions. Kill and no interaction deliberately go on to the room's blocks, exactly like an
-        // enemy with no grapple reaction.
-        GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
+        // enemy's grapple reaction: the reactions that stop the beam or connect it act here, while Kill and no
+        // interaction let it go on to the room's blocks, exactly like an endpoint that catches no enemy.
+        if (enemyCollision(grapple.Anchor) is { } enemy)
         switch (enemy.Reaction)
         {
             case GrappleEnemyReaction.Attach:
@@ -245,7 +244,7 @@ public static class SamusGrappleMovement
     /// a fresh press of Up or Down adjusts the rope's length.
     /// A release or drop leaves its pose for the frame's pose update to commit.
     /// </summary>
-    internal static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction newlyPressedInput, Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+    internal static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction newlyPressedInput, Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
@@ -351,7 +350,7 @@ public static class SamusGrappleMovement
         SamusTerrain terrain,
         SamusState samus,
         GameplayAction controllerInput,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
 
@@ -366,9 +365,9 @@ public static class SamusGrappleMovement
                 grapple.Phase);
         }
 
-        // Both release and block disconnection install the cancel. Mark the origin because
-        // firing cancellation coexists with ordinary movement, whereas a locked grappling
-        // body must own this movement phase until its pose-definition fallback is committed.
+        // Both release and block disconnection cancel the grapple. Mark the origin, because a firing cancel goes on
+        // beside ordinary movement, while a locked grapple holds this movement phase until her pose's no-input fallback
+        // takes effect.
         grapple.CancelFromConnectedPose = !samus.DraygonGrabbed.IsActive;
         grapple.Phase = GrapplePhase.CancelPending;
         return new GrappleMovementResult(
@@ -396,10 +395,9 @@ public static class SamusGrappleMovement
     /// </summary>
     private static bool TryRetainEnemyAnchor(
         SamusGrappleState grapple,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
-        GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
-        if (enemy.Reaction == GrappleEnemyReaction.None)
+        if (enemyCollision(grapple.Anchor) is not { Reaction: not GrappleEnemyReaction.None } enemy)
             return false;
 
         if (enemy.Attaches)
@@ -438,7 +436,7 @@ public static class SamusGrappleMovement
         SamusTerrain terrain,
         SamusState samus,
         GameplayAction controllerInput,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
         bool shootHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
@@ -458,7 +456,7 @@ public static class SamusGrappleMovement
             grapple.Phase);
     }
 
-    /// <summary>During the release window, accepts a fresh Jump only when a 16-pixel probe finds a wall or solid enemy.</summary>
+    /// <summary>During the release window, accepts a fresh Jump only when the wall-jump probe finds a wall or solid enemy.</summary>
     private static GrappleMovementResult StepWallGrabRelease(
         SamusTerrain terrain,
         SamusState samus,
@@ -466,7 +464,7 @@ public static class SamusGrappleMovement
     {
         SamusGrappleState grapple = samus.Grapple;
 
-        // The window gives thirty eligible checks. The update that finds none left queues dropped and deliberately
+        // The window gives its eligible checks. The update that finds none left queues dropped and deliberately
         // performs no wall probe.
         if (grapple.WallJumpTimer.IsOver)
         {
@@ -480,7 +478,7 @@ public static class SamusGrappleMovement
         // Each eligible check first withdraws an earlier launch's enemy shake.
         samus.Kinematics.WallJumpLaunch.Withdraw();
 
-        // The wall-jump probe tests solid/frozen enemies first, then 16 pixels of room blocks toward
+        // The wall-jump probe tests solid/frozen enemies first, then its reach of room blocks toward
         // the wall named by the contact pose's facing. The shared probe preserves
         // square slopes, block behaviour, available distance, and enemy identity.
         SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromWholePixels(GrappleBeamDefinitions.WallGrab.WallJumpProbePixels.Toward(
@@ -548,7 +546,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Chooses the fall pose from shot direction and body radius, with standing exceptions for both swinging poses.</summary>
-    internal static SamusPoseId SelectDroppedPose(SamusState samus)
+    private static SamusPoseId SelectDroppedPose(SamusState samus)
     {
         // The swinging poses ignore the shot direction and always fall to ordinary
         // standing, even though their live collision radius is compact.
@@ -571,7 +569,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Applies an exact special-angle connection, including its pose and bounded camera displacement.</summary>
-    internal static bool TryHandleSpecialAngle(
+    private static bool TryHandleSpecialAngle(
         SamusState samus,
         SamusGrappleState grapple,
         Position16<RoomPixels> previousPosition,
@@ -615,13 +613,13 @@ public static class SamusGrappleMovement
         return false;
     }
 
-    /// <summary>Bounds the prior camera position to twelve pixels per axis after a special-angle snap.</summary>
+    /// <summary>Bounds the prior camera position on each axis after a special-angle snap (<see cref="GrappleBeamDefinitions.Connection.MostSnapPreviousLag"/>).</summary>
     private static Position16<RoomPixels> ClampPreviousPosition(
         Position16<RoomPixels> current, Position16<RoomPixels> previous) =>
         new(ClampPreviousAxis(current.X, previous.X), ClampPreviousAxis(current.Y, previous.Y));
 
     /// <summary>
-    /// Limits one axis of the previous position to twelve pixels from the current one. Both are Samus's positions in the
+    /// Limits one axis of the previous position to the snap's largest lag from the current one. Both are Samus's positions in the
     /// room, before and after the snap, so a limited previous position lies between them.
     /// </summary>
     private static int ClampPreviousAxis(int current, int previous)
@@ -645,14 +643,15 @@ public static class SamusGrappleMovement
             OwnsMovement: false);
     }
 
-    /// <summary>Publishes rope, physical endpoint, and flare origins with the fraction's overflow from the firing offset.</summary>
+    /// <summary>Publishes the rope, the endpoint, which carries its fraction of a pixel, and the flare's
+    /// origins.</summary>
     private static void PublishFiringGeometry(SamusState samus, SamusGrappleState grapple)
     {
         // The rope start and the flare sit at whole-pixel offsets from Samus's whole position. The endpoint offsets are
         // displacements either way, so a left or upward beam keeps its direction as its fraction accumulates.
         grapple.RopeStart = samus.Position.Whole + grapple.OriginOffset;
-        // The endpoint adds the offset to Samus's position, its fraction of a pixel included, so the
-        // fraction's overflow reaches the endpoint before the whole origin offset is added.
+        // The endpoint adds the offset to Samus's position, its fraction of a pixel included, so the fraction is
+        // carried before the hand's offset is added.
         grapple.Anchor = samus.Position.Advance(grapple.EndpointOffset).Whole + grapple.OriginOffset;
         grapple.FlareOrigin = samus.Position.Whole + grapple.FlareOffset;
     }
@@ -754,19 +753,19 @@ public static class SamusGrappleMovement
                 // blue door setup's power-bomb rejection; the ordinary opening owner
                 // supplies all four cap blocks, timing, collision changes, and sound.
                 if (block.Behavior.TryGetDownwardGateTrigger(out _))
-                    roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
+                    roomObjects.Gates.SpawnDownwardGateTrigger(level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
                 else if (block.Behavior.TryGetBlueDoorOrientation(out _))
-                    roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
+                    roomObjects.DoorObjects.SpawnBlueDoorOpening(level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
                 else if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
                 {
                     // A shot-triggered block also reacts to the grapple: its resident actor hears of a hit with no
                     // weapon, and decides itself whether to refuse the hit or wake up.
-                    if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType: SamusProjectileType.None))
+                    if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.GrappleTouch.Instance))
                         throw new InvalidOperationException(
                             $"Grapple trigger block {block.At} has no resident room-object owner.");
                 }
                 else if (block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
-                    roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
+                    roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
                 else
                 {
                     try
@@ -775,12 +774,12 @@ public static class SamusGrappleMovement
                             level,
                             block.At,
                             block.Behavior,
-                            projectileType: SamusProjectileType.None,
+                            BlockStrike.GrappleTouch.Instance,
                             solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
                     }
                     catch (UnsupportedShotBlockReactionException error)
                     {
-                        throw new UnmodeledBehaviorException(
+                        throw new UnsupportedGameStateException(
                             $"grapple-shootable/type-{block.CollisionType}/behaviour-{block.Behavior.Shootable}",
                             $"Grapple shootable reaction type {block.CollisionType}/behaviour ({block.Behavior}) " +
                             $"at block {block.At} has no grapple reaction.",
@@ -816,7 +815,7 @@ public static class SamusGrappleMovement
     /// Commits attachment, selecting the movement-specific pose and either locked or swinging handling; the pose itself
     /// is left pending for the frame's pose update (<see cref="ApplyPendingConnectionPose"/>).
     /// </summary>
-    internal static GrappleMovementResult ConnectAcceptedFiringCore(
+    private static GrappleMovementResult ConnectAcceptedFiringCore(
         SamusState samus,
         SamusGrappleState grapple,
         Position16<RoomPixels> previousPosition,
@@ -831,7 +830,7 @@ public static class SamusGrappleMovement
             grapple.Phase = GrapplePhase.ConnectedLocked;
             grapple.ValidatedAnchor = anchor;
             grapple.CancelFromConnectedPose = false;
-            // Connecting clears the delta, then the firing immediately sets it to -8.
+            // Connecting clears the delta, then the firing immediately sets it to the connection's retraction.
             grapple.RopeLengthDelta = GrappleBeamDefinitions.Physics.InitialConnectionRetraction;
             return new GrappleMovementResult(grapple.Phase, OwnsMovement: false);
         }
@@ -878,10 +877,8 @@ public static class SamusGrappleMovement
         grapple.WallJumpTimer = UpdateCountdown.Ended();
         grapple.CancelFromConnectedPose = false;
 
-        // Connecting clears the delta while choosing the new pose, but the firing
-        // immediately starts automatic retraction. Omitting that retraction leaves Samus
-        // dangling unless the player explicitly supplies a fresh Up edge. Apply it for
-        // both block and enemy connections, never for an arbitrary restored swing state.
+        // Connecting clears the rope's change while choosing the new pose, and the rope then starts retracting, for
+        // block and enemy connections alike.
         grapple.RopeLengthDelta = GrappleBeamDefinitions.Physics.InitialConnectionRetraction;
 
         // A swinging or locked connection publishes the pending connection pose. It does not
@@ -958,7 +955,7 @@ public static class SamusGrappleMovement
     /// Recomputes a firing beam's rope start and flare from Samus's final pose and position, the rope start at her
     /// projectile height and the flare at her picture's art origin.
     /// </summary>
-    internal static void RefreshFiringOrigins(
+    private static void RefreshFiringOrigins(
         SamusState samus,
         SamusGrappleState grapple)
     {
@@ -978,8 +975,8 @@ public static class SamusGrappleMovement
 
     /// <summary>
     /// The direction of <paramref name="delta"/> as an angle, worked out in whole numbers one octant at a time.
-    /// The returned angle is measured clockwise from negative Y: zero up, 64 right, 128 down,
-    /// and 192 left. Each octant's steps are truncated toward zero, as the game's are.
+    /// The returned angle is measured clockwise from negative Y: zero up, a quarter turn right, a half turn down and three
+    /// quarters left. Each octant's steps are truncated toward zero, as the game's are.
     /// </summary>
     internal static RotationAngle CalculateAngleFromXY(Offset16<RoomPixels> delta)
     {
@@ -1024,10 +1021,9 @@ public static class SamusGrappleMovement
     private const int EighthTurnSteps = RotationAngle.StepsPerTurn / 8;
 
     /// <summary>
-    /// The angle steps, 0 through 32, that an offset of <paramref name="minor"/> across and <paramref name="major"/> along
-    /// its octant's axis turns from that axis: the tangent, the minor part over the major, read linearly across the
-    /// eighth of a turn and truncated. Truncating the tangent to 256ths before scaling it to the eighth of a turn's 32
-    /// steps truncates the same as this one division.
+    /// The angle steps, up to an eighth of a turn, that an offset of <paramref name="minor"/> across and
+    /// <paramref name="major"/> along its octant's axis turns from that axis: the tangent, the minor part over the
+    /// major, read linearly across the eighth of a turn and rounded down.
     /// </summary>
     /// <param name="minor">The offset across the axis, 0 through <paramref name="major"/>.</param>
     /// <param name="major">The offset along the axis, at least one.</param>
@@ -1108,7 +1104,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Changes Samus's pose as she fires the grapple beam, before the grapple's phase runs.</summary>
-    internal static GrappleMovementResult? HandleFiringPoseChange(
+    private static GrappleMovementResult? HandleFiringPoseChange(
         RoomLevelData level, SamusState samus, GameplayAction controllerInput)
     {
         var grapple = samus.Grapple;
@@ -1179,9 +1175,9 @@ public static class SamusGrappleMovement
     /// <summary>Resets grapple-owned movement and rendering state so a later shot cannot inherit connection state.</summary>
     private static void ClearConnectedGrapple(SamusGrappleState grapple)
     {
-        // The drop and wall-jump teardowns end with the same long cleanup. Every owned movement/rendering value is
-        // reset here so a later firing edge cannot inherit wall-grace or collision state; both teardowns end an
-        // auto-cancelled selection, and the frame's grapple phase shows the equipped beams' colours again.
+        // The drop and the wall jump clear the whole grapple: its movement, its drawing, its wall grace and its
+        // collision, so a later firing starts afresh; both end an automatically cancelled selection, and the update's
+        // grapple phase shows the equipped beams' colours again.
         grapple.Phase = GrapplePhase.Inactive;
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;

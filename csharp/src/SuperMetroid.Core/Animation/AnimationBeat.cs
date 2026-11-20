@@ -30,6 +30,13 @@ internal abstract record AnimationBeat<TFrame, TEvent>
     /// <param name="Duration">The updates it lasts.</param>
     internal sealed record Pause(int Duration) : AnimationBeat<TFrame, TEvent>;
 
+    /// <summary>
+    /// Shows nothing for <paramref name="Duration"/> updates (#2558): the owner is hidden, holding no shown frame, until the
+    /// play shows its next frame.
+    /// </summary>
+    /// <param name="Duration">The updates the owner stays hidden.</param>
+    internal sealed record Hidden(int Duration) : AnimationBeat<TFrame, TEvent>;
+
     /// <summary>An event the owner reacts to as the animation reaches it, before the next frame shows.</summary>
     /// <param name="Raised">The event.</param>
     internal sealed record Event(TEvent Raised) : AnimationBeat<TFrame, TEvent>;

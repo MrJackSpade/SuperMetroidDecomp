@@ -46,10 +46,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyGroupFactory
     internal DraygonParts Parts { get; }
 
     /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
-    internal DraygonTurrets Turrets { get; }
+    private DraygonTurrets Turrets { get; }
 
     /// <summary>Draygon's entrance: the opening delay and its dance.</summary>
-    internal DraygonIntro Intro { get; }
+    private DraygonIntro Intro { get; }
 
     /// <summary>Draygon's swoops across the room and its climb straight up.</summary>
     internal DraygonSwoops Swoops { get; }
@@ -58,16 +58,16 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyGroupFactory
     internal DraygonMovement Movement { get; }
 
     /// <summary>Draygon's goop passes.</summary>
-    internal DraygonGoop Goop { get; }
+    private DraygonGoop Goop { get; }
 
     /// <summary>The goop and turret shots as projectiles.</summary>
-    internal DraygonShots Shots { get; }
+    private DraygonShots Shots { get; }
 
     /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
-    internal DraygonGrab Grab { get; }
+    private DraygonGrab Grab { get; }
 
     /// <summary>Draygon's death: drifting to its burial point, the Evirs and sinking below the room.</summary>
-    internal DraygonDeath Death { get; }
+    private DraygonDeath Death { get; }
 
     /// <summary>Draygon's hitboxes, touch and hurt, and what Samus's weapons do to it.</summary>
     internal DraygonCombat Combat { get; }
@@ -186,9 +186,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyGroupFactory
                     $"Draygon body has no behaviour for phase {state.Phase}.");
         }
 
-        // These are four separate enemies, but Draygon's main behaviour makes the body coordinate
-        // authoritative after its phase runs. Copying here preserves that ordering for
-        // the eye AI and each part's later animation step in the same enemy frame.
+        // His arms, tail and eye are placed at his body once his phase has moved it, before the eye and each part's
+        // animation run this update.
         state.Arms.Position = state.Arms.Position.WithWholeX(body.Position.X.Whole);
         state.Tail.Position = state.Tail.Position.WithWholeX(body.Position.X.Whole);
         state.Eye.Position = state.Eye.Position.WithWholeX(body.Position.X.Whole);
@@ -215,7 +214,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyGroupFactory
     private static DraygonSwoopSide SwoopSideOf(DraygonEnemyState state) =>
         state.PassDirection == HorizontalDirection.Right ? RightSwoop : LeftSwoop;
 
-    /// <summary>Advances the typed animation of <paramref name="place"/>, one of the parts of <paramref name="draygon"/>.</summary>
+    /// <summary>Advances the typed animation of <paramref name="part"/>, one of Draygon's parts, in <paramref name="context"/>.</summary>
     internal void AdvanceDraygonTypedAnimation(DraygonPart part, EnemyAnimationCueContext context)
     {
         Parts.AdvanceDraygonPartAnimation(part, context.Samus);

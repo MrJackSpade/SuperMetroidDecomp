@@ -77,7 +77,7 @@ internal static class PhantoonAnimations
     /// the closing eye closes and holds closed, the tentacles sway for good, and the flame-spitting mouth runs on into its
     /// initial pose and holds it.
     /// </summary>
-    internal static IReadOnlyDictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>> StartingAt { get; } = new Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>>
+    private static Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>> StartingAt { get; } = new Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>>
     {
         [P.InvulnerableBody] = Held(P.InvulnerableBody),
         [P.FullHitboxBody] = Held(P.FullHitboxBody),

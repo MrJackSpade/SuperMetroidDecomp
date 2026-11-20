@@ -14,7 +14,7 @@ using SuperMetroid.Core.Enemies.Deaths;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The enemy-projectile engine: the room's eighteen enemy-projectile places, spawning a fresh projectile into a free
+/// The enemy-projectile engine: the room's enemy-projectile places (<see cref="PlaceCount"/>), spawning a fresh projectile into a free
 /// place and its definition setup, the per-frame pass (motions, then each animation), the animation runner,
 /// both draw-priority passes and the Samus collision passes. Each projectile runs through the behaviour its spawner bound
 /// to it (<see cref="EnemyProjectileBehavior"/>, #1760); the engine names no species.
@@ -39,9 +39,7 @@ internal sealed class EnemyProjectileEngine
                 Scatter(projectile, scatter.Spread);
                 break;
             case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.ReturnToOrigin }:
-                projectile.Position = projectile.Position.WithWhole(projectile.Behavior is IAnchoredProjectileBehavior anchored
-                    ? anchored.Anchor
-                    : throw new InvalidDataException($"Enemy projectile {projectile.Kind} returned to an origin its behaviour does not keep."));
+                projectile.Position = projectile.Position.WithWhole(projectile.Anchor);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue}.");
@@ -119,14 +117,13 @@ internal sealed class EnemyProjectileEngine
     /// Nuclear Waffle link, makes the dud sound and stays; a projectile that plays its shot animation, such as Kago's
     /// bug, switches to it.
     /// </summary>
-    public int ResolveEnemyProjectileSamusProjectileHits(
+    public void ResolveEnemyProjectileSamusProjectileHits(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(samusBombs);
 
-        int hitCount = 0;
         for (int enemyProjectileIndex = _places.Length - 1;
              enemyProjectileIndex >= 0;
              enemyProjectileIndex--)
@@ -138,10 +135,10 @@ internal sealed class EnemyProjectileEngine
 
             foreach (SamusProjectile shot in projectiles.Shots)
             {
-                if (!shot.HasEnemyCollisionPayload)
+                if (shot.Occupant is not { HasEnemyCollisionPayload: true } held)
                     continue;
 
-                SamusProjectileType shotType = shot.Type;
+                SamusProjectileType shotType = held.Type;
                 if (shotType.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
                     SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                     continue;
@@ -152,7 +149,7 @@ internal sealed class EnemyProjectileEngine
                 // A shot that meets the projectile is only marked spent, a plasma shot not even that: it strikes no
                 // enemy, so a freshly fired Super Missile (or its invisible link) does not explode on the update it was
                 // fired. The shot acts on the mark as it moves on the next projectile pass.
-                if (!shot.Type.HasAnyBeam(SamusBeamFlags.Plasma))
+                if (!held.Type.HasAnyBeam(SamusBeamFlags.Plasma))
                     shot.Spend();
 
                 if (enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.IndestructibleDud)
@@ -172,25 +169,22 @@ internal sealed class EnemyProjectileEngine
                     enemyProjectile.PersistsOnSamusContact = false;
                     enemyProjectile.CanDamageSamus = true;
                 }
-                hitCount++;
             }
         }
-
-        return hitCount;
     }
 
     /// <summary>One projectile pass: every live projectile's motion, then its animation.</summary>
     /// <param name="level">The room's blocks, which moving projectiles collide with.</param>
     /// <param name="samus">Samus, for behaviours and cues that act on her.</param>
     /// <param name="camera">The camera, for behaviours and cues that test the screen.</param>
-    /// <param name="shortCounter">The game's short frame counter for this pass, 0 through 255, which cadences sample.</param>
+    /// <param name="shortCounter">The enemies' short update count for this pass, which cadences sample.</param>
     /// <param name="samusBombs">Samus's bombs, for behaviours that react to them.</param>
-    /// <param name="frameCounter">The game's long frame counter for this pass, 0 through 65535, which cadences sample.</param>
+    /// <param name="frameCounter">The game's update count for this pass, which cadences sample.</param>
     internal void RunPass(
         RoomLevelData level,
         SamusState samus,
         Position16<RoomPixels> camera,
-        int shortCounter,
+        Compatibility.ShortFrameCount shortCounter,
         SamusBombProjectileSystem samusBombs,
         int frameCounter)
     {
@@ -205,7 +199,7 @@ internal sealed class EnemyProjectileEngine
             if (_places[place].Occupant is not { } projectile)
                 continue;
 
-            projectile.Motion?.Run(
+            projectile.Motion?.Move(
                 new EnemyProjectileMotionContext(projectile, level, samus, camera, shortCounter, frameCounter, samusBombs));
             // The animation that runs next is that of the live projectile the place holds after the motion, or the
             // one that ran when the place is free. A projectile that ended and spawned its replacement into its own place
@@ -219,11 +213,10 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Publishes projectile hurt requests after room objects; the next Samus phase consumes them.</summary>
     public void ResolveEnemyProjectileSamusHits(SamusState samus)
     {
-        // Gameplay runs every projectile's update first, then enters the
-        // separate Samus-collision pass. That pass samples invincibility and
-        // contact-damage state once at entry; damage from one overlapping projectile does
-        // not abort the remaining descending scan of the places. This distinction is observable for
-        // Puromi/Nuclear Waffle, whose four persistent body links begin co-located.
+        // Gameplay runs every projectile's update first, then the Samus-collision pass. That pass reads Samus's
+        // invincibility and contact damage once as it starts, and damage from one overlapping projectile does not stop
+        // the others from meeting her; this shows on the Nuclear Waffle, whose four lasting body links begin in one
+        // place.
         Ensure.NotNull(samus);
         if (!samus.InvincibilityTimer.IsZero ||
             samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
@@ -240,7 +233,7 @@ internal sealed class EnemyProjectileEngine
             }
         }
 
-        // The contact only publishes the five-frame request and overwrites its horizontal
+        // The contact only publishes the knockback request and overwrites its horizontal
         // direction for every hit. Samus's update has already run this frame: do not initialize
         // a hurt pose or move Samus here. The next frame consumes the final request.
         if (finalKnockbackXDirection.HasValue)
@@ -296,7 +289,7 @@ internal sealed class EnemyProjectileEngine
     /// Draws the projectiles at <paramref name="depth"/>, the last place first: among projectiles at one depth, one in a
     /// later place is drawn over one in an earlier place.
     /// </summary>
-    internal void DrawEnemyProjectilesAt(
+    private void DrawEnemyProjectilesAt(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
         EnemyProjectileDepth depth,
@@ -314,34 +307,30 @@ internal sealed class EnemyProjectileEngine
             // Every placement is published wherever it lies; the display clips it to the view (#1520).
             Offset16<ScreenPixels> screen = (projectile.Position.Whole + shake).RelativeToCamera(camera);
 
-            // The blank frame draws nothing (#1513, #2431).
-            if (frame != EnemyProjectileFrameId.Blank)
-                _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile),
-                    EnemySheetDefinitions.ProjectileFrameName(frame), screen, projectile.ShownGraphics);
+            _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile),
+                EnemySheetDefinitions.ProjectileFrameName(frame), screen, projectile.ShownGraphics);
         }
     }
 
     /// <summary>
-    /// Spawns a fresh projectile into the first free place searched from the last down, starting from what the place's
-    /// previous projectile left there (<see cref="EnemyProjectilePlaceLeftovers"/>), or returns null when every place is held.
-    /// The new projectile is gone until its spawner gives it a kind.
+    /// Spawns a fresh projectile of <paramref name="kind"/> into the first free place searched from the last down, starting
+    /// from what the place's previous projectile left there (<see cref="EnemyProjectilePlaceLeftovers"/>) and copying its
+    /// kind's definition (<see cref="InitializeEnemyProjectileFromDefinition"/>), or returns null when every place is held.
     /// </summary>
-    internal EnemyProjectile? AllocateEnemyProjectile() =>
-        TryAllocateEnemyProjectile(out EnemyProjectile? projectile) ? projectile : null;
-
-    /// <summary>Spawns a fresh projectile into the first free place searched from the last down; false when every place is held.</summary>
-    private bool TryAllocateEnemyProjectile([NotNullWhen(true)] out EnemyProjectile? projectile)
+    /// <param name="kind">What the projectile is, which names its definition.</param>
+    /// <param name="behavior">What the projectile's kind does, bound to it for its life (#1760), which starts its motion (#1843).</param>
+    /// <param name="graphics">The sheet and shading the projectile draws with.</param>
+    internal EnemyProjectile? AllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics)
     {
         for (int place = _places.Length - 1; place >= 0; place--)
         {
-            if (_places[place].Occupant is null)
-            {
-                projectile = _places[place].Take();
-                return true;
-            }
+            if (_places[place].Occupant is not null)
+                continue;
+            EnemyProjectile projectile = _places[place].Take(kind, behavior);
+            InitializeEnemyProjectileFromDefinition(projectile, kind, behavior, graphics);
+            return projectile;
         }
-        projectile = null;
-        return false;
+        return null;
     }
 
     /// <summary>
@@ -352,7 +341,7 @@ internal sealed class EnemyProjectileEngine
     /// <param name="kind">What the projectile is, which names its definition.</param>
     /// <param name="behavior">What the projectile's kind does, bound to it for its life (#1760), which starts its motion (#1843).</param>
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
-    internal static void InitializeEnemyProjectileFromDefinition(
+    private static void InitializeEnemyProjectileFromDefinition(
         EnemyProjectile projectile,
         RoomEnemyProjectileKind kind,
         EnemyProjectileBehavior behavior,
@@ -364,9 +353,9 @@ internal sealed class EnemyProjectileEngine
         // the animation it chooses.
         projectile.FrameHold = WrappingCountdown.OneFrame;
 
-        // The spawn shows the blank frame before the first animation tick. It is intentionally not the animation's first
-        // frame; advances to that on its own pass.
-        projectile.Frame = EnemyProjectileFrameId.Blank;
+        // The spawn shows no frame before the first animation tick: it is hidden until its animation shows the first frame
+        // on its own pass.
+        projectile.Frame = null;
         projectile.Radius = definition.Radius;
         projectile.Damage = definition.Damage;
         projectile.Depth = definition.Depth;
@@ -435,10 +424,9 @@ internal sealed class EnemyProjectileEngine
             ? projectile.Radius.Y
             : projectile.Radius.X;
 
-        // The block scan checks every room block crossed by the projectile's perpendicular
-        // diameter (EnemyProjectileBlockScan). The positive edge is inclusive, hence radius - 1; using +radius made
-        // right/down projectiles collide one pixel earlier than their counterparts.
-        // The edge wraps past the room coordinates' 65535, as the probe's block bounds check expects.
+        // The block scan checks every room block crossed by the projectile's perpendicular diameter
+        // (EnemyProjectileBlockScan). The positive edge is the radius's last pixel, hence radius - 1. The edge wraps as
+        // CoordinateAxis states.
         int movementEdge = TerrainScanEdges.Edge(nextPosition +
             (movingNegative ? -movementRadius : movementRadius - 1));
         var scan = EnemyProjectileBlockScan.Across(
@@ -446,17 +434,17 @@ internal sealed class EnemyProjectileEngine
             TerrainScanEdges.Edge(perpendicularPosition - perpendicularRadius),
             TerrainScanEdges.Edge(perpendicularPosition + perpendicularRadius - 1),
             axis);
-        if (collision.Stops(level, new EnemyProjectileScannedMove(projectile, scan, movingNegative, movementEdge), out int? alignedPosition))
+        EnemyProjectileBlockReaction reaction = collision.Reaction(level, new EnemyProjectileScannedMove(projectile, scan, movingNegative, movementEdge));
+        if (reaction != EnemyProjectileBlockReaction.Passes)
         {
-            // The horizontal and vertical block scans do not merely reject the
-            // attempted movement. They clear the fraction of a pixel and place the
-            // projectile flush against the 16-pixel block boundary it reached.
-            // Without this correction a fast downward projectile retains its last
-            // pre-collision coordinate and visibly hovers above the floor.
-            int snappedPosition = alignedPosition ?? (movingNegative
-                ? TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(movementEdge) + movementRadius + 1)
-                : TerrainScanEdges.Edge(RoomGridConversions.BlockStart(movementEdge) - movementRadius));
-            bool snapDoesNotMoveBackwards = alignedPosition.HasValue || (movingNegative
+            // The horizontal and vertical block scans stop the projectile flush against the block boundary it reached
+            // and clear its fraction of a pixel, so a fast downward projectile lands on the floor rather than above it.
+            int snappedPosition = reaction is EnemyProjectileBlockReaction.StopsAligned aligned
+                ? aligned.Position
+                : movingNegative
+                    ? TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(movementEdge) + movementRadius + 1)
+                    : TerrainScanEdges.Edge(RoomGridConversions.BlockStart(movementEdge) - movementRadius);
+            bool snapDoesNotMoveBackwards = reaction is EnemyProjectileBlockReaction.StopsAligned || (movingNegative
                 ? snappedPosition <= position
                 : snappedPosition >= position);
 
@@ -494,17 +482,15 @@ internal sealed class EnemyProjectileEngine
         level.GetCollisionBlock(pixel.ToRoomBlock()).CollisionType != RoomCollisionType.Air;
 
     /// <summary>Checks radius overlap and publishes touch-animation or damage behavior for a projectile that reaches Samus.</summary>
-    internal static KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
+    private static KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
         EnemyProjectile projectile,
         SamusState samus)
     {
         // The Samus-collision pass already made the pass-level invincibility/contact-damage decision.
         // Do not re-read the timer here: the first hit writes it, but the game's loop
         // deliberately continues testing the other projectiles in this same pass.
-        // The pass skips either zero radius before overlap testing. A zero
-        // radius is not a point-shaped hazard: decorative wall shards use it to
-        // remain harmless even while passing straight through Samus's body.
-        if (!projectile.CanDamageSamus || projectile.Radius.X == 0 || projectile.Radius.Y == 0)
+        // The pass skips a projectile with no hitbox before overlap testing.
+        if (!projectile.CanDamageSamus || !projectile.HasHitbox)
             return null;
 
         // Samus keeps a block of wall or door between her body and the room's left and top edges, and no projectile that
@@ -548,18 +534,18 @@ internal sealed class EnemyProjectileEngine
     /// <param name="projectile">The projectile whose animation advances.</param>
     /// <param name="samus">Samus, for cues that act on her.</param>
     /// <param name="camera">The camera of the pass, for cues that test the screen.</param>
-    /// <param name="shortCounter">The game's short frame counter for the pass, 0 through 255, which cue cadences sample.</param>
+    /// <param name="shortCounter">The enemies' short update count for the pass, which cue cadences sample.</param>
     /// <param name="samusBombs">Samus's bombs, whose power bomb explosion a cue may test.</param>
-    internal void AdvanceEnemyProjectileAnimations(
+    private void AdvanceEnemyProjectileAnimations(
         EnemyProjectile projectile,
         SamusState samus,
         Position16<RoomPixels> camera,
-        int shortCounter,
+        Compatibility.ShortFrameCount shortCounter,
         SamusBombProjectileSystem samusBombs)
     {
         if (projectile.Animation is { } animation)
         {
-            animation.Advance(new(projectile, samus, camera, shortCounter, Ensure.NotNull(samusBombs)), this);
+            animation.Advance(new(projectile, samus, camera, shortCounter, Ensure.NotNull(samusBombs), this));
             return;
         }
 
@@ -573,7 +559,7 @@ internal sealed class EnemyProjectileEngine
     /// Runs the death actor's explosion-sprite cue: it spawns the effect actor of <paramref name="kind"/> the cue names and
     /// draws one random sample; <paramref name="spread"/>'s scatter fields read that sample's fields that offset X and Y
     /// around the death actor, before both are centred back by its radius. Effect actors are separate from enemy
-    /// projectiles, so these decorations never consume one of the eighteen enemy-projectile places.
+    /// projectiles, so these decorations never consume one of the enemy-projectile places.
     /// </summary>
     internal void SpawnRandomEnemyDeathSprite(EnemyProjectile projectile, RoomEffectActorKind kind, EnemyDeathSpriteSpread spread)
     {
@@ -584,14 +570,15 @@ internal sealed class EnemyProjectileEngine
         _ = _effectActors.SpawnRoomEffectActor(new(
             OffRoomPlaces.Place(projectile.Position.X.Whole + spread.HorizontalScatter.Of(random) - spread.Radius),
             OffRoomPlaces.Place(projectile.Position.Y.Whole + spread.VerticalScatter.Of(random) - spread.Radius)),
-            kind, graphics: default);
+            kind, graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>
-    /// Uses RNG rejection and random signs to reposition a projectile within <paramref name="scatter"/>'s fields.
-    /// Each axis rejects negative candidate offsets, while two independent bits from the first random sample choose
-    /// the eventual signs. This peculiar rejection loop is observable in Bomb Torizo's sonic-boom wall impact, so a
-    /// random-draw approximation would produce a visibly different debris cloud and desynchronize later randomness.
+    /// Moves a projectile to a random place within <paramref name="scatter"/>'s fields: each axis draws again until its
+    /// offset lands at or past the field's centre, and one chance in two for each sign
+    /// (<see cref="EnemyProjectileScatterDefinitions.XOffsetTurnsLeft"/>,
+    /// <see cref="EnemyProjectileScatterDefinitions.YOffsetTurnsUp"/>) turns it left or up. Bomb Torizo's sonic boom
+    /// striking a wall scatters its debris this way.
     /// </summary>
     internal void Scatter(EnemyProjectile projectile, EnemyProjectileScatter scatter)
     {
@@ -628,8 +615,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// <paramref name="field"/>, checked to read only within the sample's lowest 256-value field, the only range the
-    /// scatter authors.
+    /// <paramref name="field"/>, checked to read only the range of the random choice the scatter authors.
     /// </summary>
     private static RandomSampleField RequireLowHalfField(RandomSampleField field)
     {
@@ -637,7 +623,7 @@ internal sealed class EnemyProjectileEngine
         return field;
     }
 
-    /// <summary>The width of the sample's lowest 256-value field, the only part of the sample a scatter's range reads.</summary>
+    /// <summary>The width of the part of the sample a scatter's range reads.</summary>
     private const int LowHalfBits = 8;
 
     /// <summary>
@@ -650,15 +636,10 @@ internal sealed class EnemyProjectileEngine
     {
         // The animation is chosen before a place is taken, so an undefined one fails without taking a place.
         var playing = new DustExplosionProjectileAnimation(animation);
-        EnemyProjectile? projectile = AllocateEnemyProjectile();
+        EnemyProjectile? projectile = AllocateEnemyProjectile(RoomEnemyProjectileKind.DustOrExplosion, DustExplosionProjectileBehavior.Instance, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
 
-        InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.DustOrExplosion,
-            DustExplosionProjectileBehavior.Instance,
-            graphics: default);
         projectile.Position = projectile.Position.WithWhole(position);
 
         // The spawner chooses the animation: the Rinka's is the small explosion, and the Boulder's its impact cloud.
@@ -671,7 +652,7 @@ internal sealed class EnemyProjectileEngine
         _ = _effectActors.SpawnRoomEffectActor(
             projectile.Position.Whole,
             RoomEffectActorKind.DudShot,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         QueueDudSound(SoundRequestPriority.Low);
         projectile.Spend();
     }
@@ -685,7 +666,7 @@ internal sealed class EnemyProjectileEngine
         _ = _effectActors.SpawnRoomEffectActor(
             Ensure.NotNull(bomb).Position.Whole,
             RoomEffectActorKind.DudShot,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         QueueDudSound(SoundRequestPriority.Low);
     }
 

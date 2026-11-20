@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Frontend.Intro;
-using static SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightSpriteDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
@@ -11,8 +10,8 @@ internal static class CeresFlightSpritePoses
     /// <summary>The cinematic pose of a purple vortex drawing.</summary>
     internal static CinematicSpritePose VortexPose(CeresVortexFrame frame) => frame switch
     {
-        CeresVortexFrame.First => Frames[4].Pose,
-        CeresVortexFrame.Second => Frames[5].Pose,
+        CeresVortexFrame.First => CeresFlightSpriteDefinitions.Frames[4].Pose,
+        CeresVortexFrame.Second => CeresFlightSpriteDefinitions.Frames[5].Pose,
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 }

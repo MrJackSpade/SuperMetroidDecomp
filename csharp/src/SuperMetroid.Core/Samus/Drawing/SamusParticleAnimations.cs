@@ -9,12 +9,11 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// through the shared animation player, after which the particle is gone.
 /// </summary>
 /// <remarks>
-/// Each picture shows for as long as the step before it was authored to last, the first for its own: a step that ends
-/// hands its own length to the step it moves to, so the last step's authored length is never shown. The beats hold the
-/// lengths that rule gives, so a particle's play and the waits its breath bubbles and lava spray hold are both read from
-/// them. The footstep splash's steps were authored at three updates, the lava spray's at two, the bubbles' at five and
-/// the dust's at three, four, five and six; the diving splash's at two, two, three, three, three, five, five, six and
-/// seven. A particle shown at once shows its first picture for its start's own updates instead.
+/// Each picture shows for as long as the step before it lasts, the first for its own: a step that ends hands its own
+/// length to the step it moves to, so the last step's length is never shown. The beats hold the lengths that rule gives,
+/// so a particle's play and the waits its breath bubbles and lava spray hold are both read from them, each particle's
+/// step lengths among them. A particle shown at once shows its first picture for its
+/// start's own updates instead.
 /// </remarks>
 internal static class SamusParticleAnimations
 {

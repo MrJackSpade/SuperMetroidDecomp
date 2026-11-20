@@ -16,7 +16,7 @@ internal static class GunshipMotionDefinitions
     /// </summary>
     internal static readonly GunshipIdleBobDefinition[] IdleBobs = [new(16, 1), new(16, -1), new(16, -1), new(16, 1)];
 
-    /// <summary>Above this Y the descending ship moves 4.5 pixels an update; below it, 2.5.</summary>
+    /// <summary>Above this Y the descending ship moves at <see cref="FastDescentSpeed"/>; below it, at <see cref="SlowDescentSpeed"/>.</summary>
     internal const int SlowDescentY = 768;
 
     /// <summary>The descending ship's speed above <see cref="SlowDescentY"/>: four and a half pixels an update.</summary>

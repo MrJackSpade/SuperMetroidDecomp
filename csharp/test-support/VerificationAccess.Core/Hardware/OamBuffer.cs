@@ -155,7 +155,7 @@ public sealed class OamBuffer
                 LowTableBytes[lowOffset + 1]),
             TileNumber: attributes.TileNumber,
             Palette: attributes.PaletteIndex,
-            Priority: attributes.Priority,
+            Priority: (attributes.Raw >> 12) & 3,
             FlipX: attributes.FlipHorizontally,
             FlipY: attributes.FlipVertically,
             IsLarge: highPair.IsLarge);

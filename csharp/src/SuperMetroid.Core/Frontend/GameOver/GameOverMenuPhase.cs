@@ -7,7 +7,7 @@ public enum GameOverMenuPhase
     Initialize,
     /// <summary>Music gate: continues Baby animation while waiting for the shared music queue to empty, then queues the game-over track.</summary>
     WaitForInitialMusic,
-    /// <summary>Fade-in: advances the Baby and raises brightness by one per update until full intensity fifteen enables interaction.</summary>
+    /// <summary>Fade-in: advances the Baby and raises brightness a level per update until full brightness enables interaction.</summary>
     FadeIn,
     /// <summary>Interaction: advances the Baby, toggles Yes/No on navigation edges, and accepts the selected answer on an A edge.</summary>
     Main,

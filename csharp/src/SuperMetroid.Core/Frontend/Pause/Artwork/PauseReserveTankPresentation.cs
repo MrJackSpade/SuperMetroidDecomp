@@ -27,14 +27,14 @@ public sealed class PauseReserveTankPresentation
     /// <param name="index">Zero-based tank or trailing-cap position from 0 through 5.</param>
     /// <returns>The installed screen-pixel anchor for that strip position.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The position is not one of the strip's six.</exception>
-    public Offset16<ScreenPixels> Anchor(int index) =>
+    private Offset16<ScreenPixels> Anchor(int index) =>
         (uint)index < (uint)anchors.Length ? anchors[index] : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>
     /// Draws one full, empty, partially filled, or end-cap reserve frame of the pause sheet at a strip position, in the
     /// strip's own colours (#1544).
     /// </summary>
-    /// <param name="entries">The screen's sprite entries.</param>
+    /// <param name="entries">The screen's sprites.</param>
     /// <param name="sheet">The pause sheet.</param>
     /// <param name="visual">The one of the ten reserve visuals to draw.</param>
     /// <param name="index">Zero-based tank or trailing-cap anchor index.</param>

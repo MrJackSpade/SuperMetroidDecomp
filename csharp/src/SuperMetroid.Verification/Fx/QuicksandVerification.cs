@@ -165,9 +165,9 @@ internal static class QuicksandVerification
         // Original non-clone sand PLM headers, independent of the replacement's named cases.
         ushort[] headers = [0xb713, 0xb71f, 0xb723, 0xb727, 0xb72b, 0xb737, 0xb73b, 0xb73f];
         var sand = new List<(ushort Header, ushort Setup)>();
-        foreach (SpecialAirInsideReaction reaction in QuicksandDefinitions.ObjectPlacingInsideReactions)
+        foreach (SpecialAirInsideReaction reaction in SpecialAirReactionNativeWords.InsideHeaders.Keys.Where(QuicksandReactions.PlacesObject))
             sand.Add((SpecialAirReactionNativeWords.InsideHeaders[reaction], SpecialAirReactionNativeWords.InsideSetups[reaction]));
-        foreach (SpecialAirCollisionReaction reaction in QuicksandDefinitions.ObjectPlacingCollisionReactions)
+        foreach (SpecialAirCollisionReaction reaction in SpecialAirReactionNativeWords.CollisionHeaders.Keys.Where(QuicksandReactions.PlacesObject))
             sand.Add((SpecialAirReactionNativeWords.CollisionHeaders[reaction], SpecialAirReactionNativeWords.CollisionSetups[reaction]));
         AssertTrue(sand.Select(entry => entry.Header).Order().SequenceEqual(headers), "the eight sand reactions are the cartridge's sand headers");
         foreach ((ushort header, ushort setup) in sand)
@@ -290,7 +290,7 @@ internal static class QuicksandVerification
     private static void VerifySpecialAirField<TReaction>(CartridgeImportAddressSpace rom,
         Func<SpecialAirReaction?, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
         IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing, int nativePointers, bool setup)
-        where TReaction : struct, Enum
+        where TReaction : notnull
     {
         for (int rawArea = 0; rawArea <= byte.MaxValue; rawArea++)
         {
@@ -324,7 +324,7 @@ internal static class QuicksandVerification
     private static void VerifySpecialAirEntry<TReaction>(CartridgeImportAddressSpace rom, TReaction actual,
         IReadOnlyDictionary<TReaction, ushort> headers, IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing,
         int nativePointers, bool setup, int rawArea, int index)
-        where TReaction : struct, Enum
+        where TReaction : notnull
     {        // Follow the original area pointer and header, independently of the production cases.
         ushort table = ReadRomWord(rom, nativePointers + rawArea * 2);
         ushort header = ReadRomWord(rom, 0x940000 | (table + index * 2));

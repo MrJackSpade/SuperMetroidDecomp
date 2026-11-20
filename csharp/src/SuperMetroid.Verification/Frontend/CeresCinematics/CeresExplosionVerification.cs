@@ -50,7 +50,7 @@ internal static class CeresExplosionVerification
             var glow = GameplayEffectCapture.CapturePowerBombGlow(
                 PowerBombRenderSnapshot.Capture(reference), new Position16<RoomPixels>(0, 0));
             var expected = glow is null || glow.Window == ScreenWindow.Closed ? glow
-                : glow with { Window = new ScreenWindow(glow.Window.Shapes) };
+                : new ColourAddWindowLayer(new ScreenWindow(glow.Window.Shapes), glow.Colour, glow.Steps);
             AssertEqual(expected is null, actual is null, "Ceres blast window lifetime");
             if (expected is not null && actual is not null)
             {

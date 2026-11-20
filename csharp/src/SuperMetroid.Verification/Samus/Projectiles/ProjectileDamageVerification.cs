@@ -43,7 +43,7 @@ internal static class ProjectileDamageVerification
         void Check(SamusProjectile slot, int table, int index, int direction)
         {
             int data = 0x930000 | Word(table + index * 2);
-            AssertEqual(Word(data), slot.Damage, "Production initializer uses compiled damage");
+            AssertEqual(Word(data), slot.HeldShot().Damage, "Production initializer uses compiled damage");
             AssertEqual(Word(data + 2 + direction * 2), slot.InstructionPointer, "Animation list selection unchanged");
             AssertEqual(rom.ReadCartridgeByte(0x930000 | (slot.InstructionPointer + 4)), slot.Radius.X, "Physical X radius unchanged");
             AssertEqual(rom.ReadCartridgeByte(0x930000 | (slot.InstructionPointer + 5)), slot.Radius.Y, "Physical Y radius unchanged");
@@ -58,7 +58,7 @@ internal static class ProjectileDamageVerification
             var slot = system.Shots[0];
             int table = charged ? SamusProjectileBeamTables.ChargedDataPointers : SamusProjectileBeamTables.UnchargedDataPointers;
             Check(slot, table, beam, slot.Direction.ToAimIndex());
-            system.EnemyImpacts.ReflectFromEnemy(samus, slot);
+            system.EnemyImpacts.ReflectFromEnemy(samus, slot.HeldShot());
             Check(slot, table, beam, slot.Direction.ToAimIndex());
         }
         foreach (ushort item in new ushort[] { 1, 2 })
@@ -67,31 +67,31 @@ internal static class ProjectileDamageVerification
             var result = system.Firing.TryFireMissile(samus, GameplayAction.Shoot, 0, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
             AssertTrue(result is not null && system.Shots[0].IsOccupied, "Missile allocation succeeds, in the first place");
             Check(system.Shots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Shots[0].Direction.ToAimIndex());
-            system.EnemyImpacts.ReflectFromEnemy(samus, system.Shots[0]);
+            system.EnemyImpacts.ReflectFromEnemy(samus, system.Shots[0].HeldShot());
             Check(system.Shots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Shots[0].Direction.ToAimIndex());
             if (item == 2)
             {
                 system.Motion.SpawnSuperMissileLink(samus, system.Shots[0], system.Shots[0].KindStateAs<SuperMissileShotState>());
-                AssertEqual(300, system.Shots[1].Damage, "Invisible link remains occupied/nonzero damage");
-                AssertEqual(300, system.Shots[0].Damage, "Link allocation does not replace its owner");
+                AssertEqual(300, system.Shots[1].HeldShot().Damage, "Invisible link remains occupied/nonzero damage");
+                AssertEqual(300, system.Shots[0].HeldShot().Damage, "Link allocation does not replace its owner");
             }
         }
         var hyper = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         hyper.Firing.TryFireHyperBeam(room, Samus(), new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), SamusRoomObjectFixtures.Uninstalled);
-        AssertEqual(1000, hyper.Shots[0].Damage, "Hyper retains its post-initialization damage override");
+        AssertEqual(1000, hyper.Shots[0].HeldShot().Damage, "Hyper retains its post-initialization damage override");
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake()); var samus = Samus();
             samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam); samus.SelectedHudItem = HudItem.PowerBomb; samus.PowerBombs = 10;
             AssertTrue(system.Combos.TryActivateCombo(samus, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), out _), "Combo initializes with damage ROM reads forbidden");
             foreach (var slot in system.Shots.Take(4))
-                AssertEqual((ushort)(beam == 2 ? 90 : 300), slot.Damage, "special attack/ordinary Ice/Spazer trail damage");
+                AssertEqual((ushort)(beam == 2 ? 90 : 300), slot.HeldShot().Damage, "special attack/ordinary Ice/Spazer trail damage");
         }
         foreach (ushort type in new ushort[] { 0x0300, 0x0500, 0x8500 })
         {
-            var slot = new SamusBomb(0) { Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type) };
-            SamusBombProjectileSystem.InitializeBomb(slot);
-            AssertEqual((ushort)(type == 0x0300 ? 200 : 30), slot.Damage, "Power/ordinary/spread bomb damage");
+            var slot = new SamusBomb(0);
+            SamusBombOccupant placed = SamusBombProjectileSystem.Place(slot, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
+            AssertEqual((ushort)(type == 0x0300 ? 200 : 30), placed.Damage, "Power/ordinary/spread bomb damage");
         }
         // The echo table's unused negative-damage entry sits at Spazer+Wave, a combination no echo is: the typed identity
         // cannot name it, so the import refuses the word that would select it (#1470).
@@ -210,11 +210,11 @@ internal static class ProjectileDamageVerification
             OrbitingParticleState orbit = first.KindStateAs<OrbitingParticleState>();
             Offset16<RoomPixels> offset = SamusComboMechanics.GetSineOffset(orbit.Angle, orbit.Radius);
             if (beam == 2)
-                projectiles.Combos.StepIceOrbit(samus, first, shared);
+                projectiles.Combos.StepIceOrbit(samus, first.HeldShot(), shared);
             else if (beam == 4)
-                projectiles.Combos.StepSpazerCombo(samus, first, shared, 0);
+                projectiles.Combos.StepSpazerCombo(samus, first.HeldShot(), shared, 0);
             else
-                projectiles.Combos.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);
+                projectiles.Combos.StepPlasmaCombo(samus, first.HeldShot(), shared, Position16<RoomPixels>.Zero);
             AssertEqual(unchecked((ushort)(samus.Position.X.Whole + offset.X)), first.Position.X.Whole,
                 $"beam {beam:X} production X consumes compiled sine offset");
             AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + offset.Y)), first.Position.Y.Whole,
@@ -253,13 +253,13 @@ internal static class ProjectileDamageVerification
             PlasmaParticleState ring = first.KindStateAs<PlasmaParticleState>();
             // The cartridge stores the signed step; the typed turn is the same step taken round the circle.
             for (int place = 0; place < 4; place++)
-                AssertEqual(TrigonometryAngle.Wrapped(step), projectiles.Shots[place].KindStateAs<PlasmaParticleState>().TurnPerUpdate,
+                AssertEqual(TrigonometryAngle.Wrapped(step), global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(projectiles.Shots[place].KindStateAs<PlasmaParticleState>(), "TurnPerUpdate"),
                     $"{pose} Plasma special attack particle {place} orbit turn");
             for (int angle = 0; angle < 256; angle++)
-                AssertEqual(TrigonometryAngle.Wrapped(angle + step), new TrigonometryAngle(angle) + ring.TurnPerUpdate,
+                AssertEqual(TrigonometryAngle.Wrapped(angle + step), new TrigonometryAngle(angle) + global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(ring, "TurnPerUpdate"),
                     $"{pose} orbit turn from angle {angle} matches the signed step {step}");
             ring.Angle = new TrigonometryAngle(checked((byte)from));
-            projectiles.Combos.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);
+            projectiles.Combos.StepPlasmaCombo(samus, first.HeldShot(), shared, Position16<RoomPixels>.Zero);
             AssertEqual(new TrigonometryAngle(checked((byte)to)), ring.Angle, $"{pose} angle {from} steps by {step} to {to} on the 256-step circle");
         }
         Console.WriteLine("Special beam angle step: right- and left-facing Plasma attacks wrap the slot angle at the byte boundary.");
@@ -298,11 +298,11 @@ internal static class ProjectileDamageVerification
         ringState.Radius = 254;
         // The camera centres the particle's place at radius 254, so the final expansion's screen test keeps it.
         Offset16<RoomPixels> outer = SamusComboMechanics.GetSineOffset(ringState.Angle, 254);
-        projectiles.Combos.StepPlasmaCombo(samus, ring, shared, new Position16<RoomPixels>(1024 + outer.X - 128, 1024 + outer.Y - 112));
+        projectiles.Combos.StepPlasmaCombo(samus, ring.HeldShot(), shared, new Position16<RoomPixels>(1024 + outer.X - 128, 1024 + outer.Y - 112));
         AssertEqual(2, ringState.Radius, "an on-screen ring grown from 254 past 255 collapses onto Samus at radius 2");
         TrigonometryAngle angle = ringState.Angle;
         var centredOnSamus = new Position16<RoomPixels>(1024 - 128, 1024 - 112);
-        projectiles.Combos.StepPlasmaCombo(samus, ring, shared, centredOnSamus);
+        projectiles.Combos.StepPlasmaCombo(samus, ring.HeldShot(), shared, centredOnSamus);
         AssertEqual(new Position16<RoomPixels>(1024, 1024) + SamusComboMechanics.GetSineOffset(angle, 2), ring.Position.Whole,
             "the collapsed ring orbits Samus two pixels away");
         AssertEqual(2 + BeamComboDefinitions.PlasmaRadiusStep, ringState.Radius, "the collapsed ring grows outward again");

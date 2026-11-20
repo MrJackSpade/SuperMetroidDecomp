@@ -21,7 +21,7 @@ internal static class NinjaSpacePiratePostsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace slot = enemies.Places.InUpdateOrder[0];
-        slot.Bind(EnemyDefinitionId.PirateSilverNinja, slot.Definition);
+        slot.Bind(EnemyDefinitionId.PirateSilverNinja, slot.KeptDefinition);
         int cases = 0;
         foreach (int x in new[] { 512, 300 })
         foreach (NinjaSpacePirateStartPost start in new[] { NinjaSpacePirateStartPost.Left, NinjaSpacePirateStartPost.Right })
@@ -29,7 +29,7 @@ internal static class NinjaSpacePiratePostsVerification
         {
             slot.Position = slot.Position.WithWhole(new(x, 128));
             slot.SetSpawnSettings(new NinjaSpacePirateSpawnSettings(start, distance));
-            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot, slot.SpawnSettings<NinjaSpacePirateSpawnSettings>());
+            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot.HeldOccupant(), slot, slot.SpawnSettings<NinjaSpacePirateSpawnSettings>());
             NinjaSpacePirateEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<NinjaSpacePirateEntity>(slot).State;
 
             bool startsAtLeft = start == NinjaSpacePirateStartPost.Left;

@@ -5,8 +5,12 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// in a row: its head, its rising body, then its tracking overlay.
 /// </summary>
 /// <param name="Composite">The three places of the part's own Magdollite.</param>
-/// <param name="FollowUpRecipients">
-/// The two enemies the part's follow-up to a hit reaches (<see cref="FollowUpAfterStruckPart"/>), nearest first; an
-/// entry is null where the room has no place that far after the part.
+/// <param name="Head">
+/// The part's head (#2558), which hands itself to its body and overlay as it is placed first: the arm rises at the speed
+/// its spawn settings name.
 /// </param>
-internal sealed record MagdollitePartners(MagdolliteComposite Composite, IReadOnlyList<RoomEnemyPlace?> FollowUpRecipients);
+/// <param name="FollowUpRecipients">
+/// The enemies, up to two, the part's follow-up to a hit reaches (<see cref="FollowUpAfterStruckPart"/>), nearest first: as
+/// many as the room places after the part (#2558).
+/// </param>
+internal sealed record MagdollitePartners(MagdolliteComposite Composite, RoomEnemyOccupant Head, IReadOnlyList<RoomEnemyPlace> FollowUpRecipients);

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -7,13 +6,13 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>
 /// An eye door's eye (#1554). On its first update
 /// the eye looks at its door: one opened for good moves up a block and turns into its closed blue cap
-/// (<see cref="BlueDoorCapObject"/>). Otherwise it stays closed, looking for Samus every four updates; once she is near
+/// (<see cref="BlueDoorCapObject"/>). Otherwise it stays closed, looking for Samus each time its closed image ends; once she is near
 /// (<see cref="EyeDoorSequenceDefinitions.WakeReach"/>) it opens, takes missiles from then on, and watches her, firing its
 /// shots, blinking while she stands right in front of it and closing again once she has left. A pending shot is
 /// consumed before the eye's images count down: a missile counts a hit (a Super Missile reaches the threshold at once),
 /// and any other shot makes the dud sound. A hit short of the threshold sounds, smokes and makes the eye flinch; the hit
 /// that reaches it records the door opened for good, stops the shots, smokes, moves the eye up a block onto its blue cap,
-/// flashes it ten times and turns it into the cap.
+/// flashes it (<see cref="EyeDoorSequenceDefinitions.OpeningFlashes"/>) and turns it into the cap.
 /// </summary>
 /// <param name="orientation">The eye door's facing.</param>
 /// <param name="door">The door the eye's placement named, which its attacks keep to burst once it opens.</param>
@@ -23,7 +22,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     internal EyeDoorOrientation Orientation { get; } = orientation;
 
     /// <summary>The door the eye stands in, as its placement named it.</summary>
-    internal PlacedDoor Door { get; } = Ensure.NotNull(door);
+    private PlacedDoor Door { get; } = Ensure.NotNull(door);
 
     /// <summary>What the eye is doing.</summary>
     internal EyeDoorEyePhase Phase { get; private set; } = EyeDoorEyePhase.Placed;
@@ -32,19 +31,16 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     /// The hits counted toward the threshold. It only counts up, by one a hit or straight to the threshold on a Super
     /// Missile, and the eye is destroyed once it reaches the threshold.
     /// </summary>
-    internal int HitCounter { get; private set; }
+    private int HitCounter { get; set; }
 
     /// <summary>Whether a shot at the eye's block reaches it: from its opening until the hit that destroys it.</summary>
-    internal bool TakesShots { get; private set; }
+    private bool TakesShots { get; set; }
 
     /// <summary>
     /// The shot at the eye's block it has yet to take (#2484, #2562). A shot that arrives before the eye takes shots waits for
     /// it; a later shot before the eye takes it replaces it.
     /// </summary>
     private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> _strike = new();
-
-    /// <summary>The shot at the eye's block it has yet to take, or null for none.</summary>
-    internal ResidentObjectProjectileHit? AwaitingStrike => _strike.Awaiting;
 
     /// <inheritdoc/>
     public void Strike(ResidentObjectProjectileHit hit) => _strike.Land(hit);
@@ -60,7 +56,10 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
             base.Update(place, context);
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// What a pending shot does to the eye while it takes shots: a missile or Super Missile hits it, a Super Missile
+    /// destroying it at once, and any other shot is rejected with its sound. Returns whether the eye was hit.
+    /// </summary>
     private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (!TakesShots || _strike.Take() is not { Family: var family })

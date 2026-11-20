@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class MotherBrainCorpseRottingState
 {
     /// <summary>The corpse's visible pixel rows, each of which the rot schedule drops.</summary>
-    public const int RowCount = MotherBrainCorpseArtworkDefinitions.PixelRowCount;
+    private const int RowCount = MotherBrainCorpseArtworkDefinitions.PixelRowCount;
 
     /// <summary>The corpse's own rot schedule, from before its first rot update.</summary>
-    internal CorpseRotSchedule Schedule { get; } = new(RowCount);
+    private CorpseRotSchedule Schedule { get; } = new(RowCount);
 
     /// <summary>The corpse's rows as its rot has left them.</summary>
     private readonly RottingCorpseRows rows = new(RowCount);
@@ -40,7 +40,7 @@ public sealed class MotherBrainCorpseRottingState
                     Position: brainPosition + MotherBrainLateFightDefinitions.CorpseDustFromBrain +
                         new Offset16<RoomPixels>(randomNumberSeed.Read(MotherBrainRandomDefinitions.CorpseDustOffset), 0),
                     Animation: DustExplosionAnimation.CorpseDustCloud,
-                    SoundEffectQueued: MotherBrainCadenceDefinitions.CorpseDustSoundEveryEighthEnemyPass.IsDue(enemyPassCount),
+                    SoundEffectQueued: MotherBrainCadenceDefinitions.CorpseDustSound.IsDue(enemyPassCount),
                     SoundEffect: EnemySound.LiquidDamage));
             });
 

@@ -50,7 +50,7 @@ internal static class InstalledPictureColoursConstants
             SpriteImageColours.Sprite => GameplayColourPositionDefinitions.SpriteSetsFirst
                 + ((index / GameplayColourPositionDefinitions.SetColours) | sources.PaletteBits | drawRow) * GameplayColourPositionDefinitions.SetColours
                 + index % GameplayColourPositionDefinitions.SetColours,
-            SpriteImageColours.FullPalette => GameplayColourPositionDefinitions.BackgroundSetsFirst + index,
+            SpriteImageColours.FullPalette => GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + index,
             SpriteImageColours.Background or SpriteImageColours.TwoBppBackground => BackgroundColourOf(sources, index),
             _ => throw new InvalidDataException($"Image {picture.Name} names an unknown colouring {sources.Palette}."),
         };
@@ -62,7 +62,7 @@ internal static class InstalledPictureColoursConstants
         ImmutableArray<InstalledBackgroundSet> sets = sources.Sets;
         int group = index / GameplayColourPositionDefinitions.SetColours;
         int set = sets.IsEmpty ? group : Array.IndexOf(InstalledBackgroundSetPositionDefinitions.InCartridgeOrder, sets[group]);
-        return GameplayColourPositionDefinitions.BackgroundSetsFirst + set * GameplayColourPositionDefinitions.SetColours
+        return GameplayColourPositionDefinitionsConstants.BackgroundSetsFirst + set * GameplayColourPositionDefinitions.SetColours
             + index % GameplayColourPositionDefinitions.SetColours;
     }
 

@@ -54,7 +54,7 @@ internal static class PhantoonShotDamageVerification
         body.Frame = EnemyFrameId.PhantoonEyeHitboxBody;
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         body.Health = 2500;
-        PhantoonEnemyState state = enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1],
+        PhantoonEnemyState state = enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1],
             enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.Swooping });
         state.PhaseWait.LastFor(60);
 
@@ -63,17 +63,17 @@ internal static class PhantoonShotDamageVerification
             new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(),
             InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         SamusProjectile shot = shots.Shots[0];
-        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged);
-        shot.Damage = damage;
+        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged), damage);
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(eye);
         shot.Radius = new(4, 4);
         shot.Animation = ProjectileFixturePlaybacks.Active();
         shot.Behavior = SamusShotBehaviors.Beam;
 
-        int hits = enemies.PhantoonBehavior.Combat.ResolvePhantoonProjectileHits(state, shots,
+        enemies.PhantoonBehavior.Combat.ResolvePhantoonProjectileHits(state, shots,
             new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), InstalledFixtures.SamusArtwork()));
-        return (enemies, body, shot, hits);
+        // A Power Beam shot that meets one of his hitboxes is spent: the one projectile the pass resolves.
+        return (enemies, body, shot, shot.IsSpent ? 1 : 0);
     }
 
     /// <summary>The centre of the hitbox on his body's frame whose shot reaction is his own: his eye.</summary>

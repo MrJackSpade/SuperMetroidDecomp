@@ -10,7 +10,7 @@ public sealed class PhantoonSwoopState
     public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// The X the swoop chases, which sweeps out by two pixels an update to its turn at
+    /// The X the swoop chases, which sweeps out by <see cref="PhantoonArenaDefinitions.SwoopTargetStep"/> each update to its turn at
     /// <see cref="PhantoonMotionDefinitions.SwoopTargetTurnX"/> and back to zero.
     /// </summary>
     public int TargetX { get; internal set => field = Ensure.AtLeastZero(value); }

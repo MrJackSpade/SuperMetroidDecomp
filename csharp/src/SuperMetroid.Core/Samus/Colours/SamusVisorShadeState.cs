@@ -10,14 +10,14 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// </summary>
 /// <remarks>
 /// This is intentionally not a generic color tween. In rooms that animate the visor (<see cref="RoomVisorAnimation"/>),
-/// the animation rotates only Samus's visor through the steady visor cycle's shades (#2285), each for five updates. Every
+/// the animation rotates only Samus's visor through the steady visor cycle's shades (#2285), each for its hold. Every
 /// other room starts the cycle again on every update, so the first update in an animating room shows its first shade at
 /// once.
 /// </remarks>
 public sealed class SamusVisorShadeState
 {
     /// <summary>The steady visor cycle as the room plays it: its first shade shows on the update after it starts.</summary>
-    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Cycle { get; } =
+    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Cycle { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.VisorCycle);
 
     /// <summary>

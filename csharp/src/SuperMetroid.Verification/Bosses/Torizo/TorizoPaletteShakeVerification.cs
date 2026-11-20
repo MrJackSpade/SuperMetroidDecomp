@@ -24,14 +24,14 @@ internal static class TorizoPaletteShakeVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var actor = enemies.Places.InUpdateOrder[0];
-        actor.Bind(EnemyDefinitionId.BombTorizo, actor.Definition);
-        actor.Bind(actor.DefinitionId, RoomEnemyDefinitionLookup.Get(actor.DefinitionId));
+        actor.Bind(EnemyDefinitionId.BombTorizo, actor.KeptDefinition);
+        actor.Bind(actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(actor.HeldOccupant().DefinitionId));
         // The initializer's function words; the build-pinned debugger state below rejects the undefined zero defaults.
         var state = actor.SetUpPlaced<TorizoEnemyState>();
         state.Phase = TorizoPhase.Falling;
         void Execute(TorizoCueKind kind) =>
             AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(
-                    actor, state, new TorizoCueInputs { Torizo = LivingTorizo.Instance, Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 },
+                    actor.HeldOccupant(), actor, state, new TorizoCueInputs { Torizo = LivingTorizo.Instance, Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 },
                     new TorizoCue.Signal(kind), TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening)) is null,
                 "Torizo palette cue runs on");
         enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(4), 32);

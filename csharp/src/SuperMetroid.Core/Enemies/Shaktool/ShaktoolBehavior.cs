@@ -12,7 +12,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Shaktool];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ShaktoolSpawnSettings settings) => new ShaktoolEntity(this, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ShaktoolSpawnSettings settings) => EnemyOccupant.Of(new ShaktoolEntity(this, occupant, place, common, settings));
 
     /// <summary>Checks terrain collisions along each segment's orbit and attack path.</summary>
     private readonly EnemyTerrain _terrain;
@@ -36,7 +36,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
         (angle + RotationAngle.HalfTurn).WholeStep;
 
     /// <summary>Initializes the Shaktool, establishing the segment's orbit and its place in its chain.</summary>
-    internal ShaktoolSegmentState InitializeShaktool(RoomEnemyPlace place, ShaktoolSpawnSettings settings)
+    internal ShaktoolSegmentState InitializeShaktool(RoomEnemyOccupant occupant, RoomEnemyPlace place, ShaktoolSpawnSettings settings)
     {
         ShaktoolSegmentDefinition definition = settings.Segment;
         var state = new ShaktoolSegmentState();
@@ -101,7 +101,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
     }
 
     /// <summary>The chain a segment found when it was placed: its segments and their shared motion and target (#2452).</summary>
-    internal ShaktoolChain ChainOf(RoomEnemyPlace segment) => _chains.Of(segment).Chain;
+    private ShaktoolChain ChainOf(RoomEnemyPlace segment) => _chains.Of(segment).Chain;
 
     /// <summary>Runs Shaktool's hurt and main behaviours.</summary>
     private void RunShaktoolMain(
@@ -133,7 +133,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
     }
 
     /// <summary>Places the segment on its orbit around the segment before it in the chain.</summary>
-    internal void PositionShaktoolAroundPreviousSegment(
+    private void PositionShaktoolAroundPreviousSegment(
         RoomEnemyPlace place,
         ShaktoolSegmentState state)
     {
@@ -148,7 +148,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
     /// A segment's place from the one before it at <paramref name="angle"/>: the orbit's sine
     /// (<see cref="ShaktoolOrbitDefinitions.OrbitSine"/>) at the angle across, and at the angle a quarter turn behind down.
     /// </summary>
-    internal static FixedVector<RoomPixels> OrbitDisplacement(TrigonometryAngle angle) => new(
+    private static FixedVector<RoomPixels> OrbitDisplacement(TrigonometryAngle angle) => new(
         ShaktoolOrbitDefinitions.OrbitSine.At(angle), ShaktoolOrbitDefinitions.OrbitSine.At(angle - TrigonometryAngle.QuarterTurn));
 
     /// <summary>
@@ -169,7 +169,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
     /// Orbits the chain's centre segment and turns it to face halfway between the segments either side of it, showing the
     /// head's picture for that facing (#2284, #2452).
     /// </summary>
-    internal void AdvanceAndOrientShaktoolCenter(
+    private void AdvanceAndOrientShaktoolCenter(
         RoomEnemyPlace place,
         ShaktoolSegmentState state)
     {
@@ -233,7 +233,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
         if (chain.TargetAngle.WholeStep == state.OrbitAngle.WholeStep)
         {
             SynchronizeShaktoolOrbitTargets(place, chain.TargetAngle);
-            // The game keeps only the whole part of the restarted progress, which is already whole.
             state.CurlProgress = ShaktoolOrbitDefinitions.StraighteningStart;
             chain.Motion = chain.Motion with { NextWall = ShaktoolWallResponse.TurnEndForEnd };
         }
@@ -248,7 +247,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
     /// Reverses the chain at terrain contact as its next wall response says: it turns end for end, or its orbit turns the
     /// other way round; either way it curls again and turns toward a new target.
     /// </summary>
-    internal void ReverseShaktoolAfterCollision(
+    private void ReverseShaktoolAfterCollision(
         RoomEnemyPlace place,
         ShaktoolSegmentState state,
         Position16<RoomPixels> previous)
@@ -336,8 +335,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
     }
 
     /// <summary>
-    /// Sets the speed the segment turns toward its chain's target at: a sixty-fourth of the whole steps left to the target
-    /// its chain's way round, a sixty-fourth of a step an update for each.
+    /// Sets the speed the segment turns toward its chain's target at: a share of the whole steps left to the target its
+    /// chain's way round (<see cref="ShaktoolOrbitDefinitions.ConvergenceShares"/>).
     /// </summary>
     private static void CalculateShaktoolAngularVelocity(ShaktoolChain chain, ShaktoolSegmentState state)
     {
@@ -358,10 +357,12 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
         }
     }
 
-    /// <summary>The seven segments of the chain a segment found when it was placed, each validated as initialized.</summary>
+    /// <summary>
+    /// The seven segments of the chain a segment found when it was placed, <paramref name="anySegment"/> among them, each
+    /// validated as initialized.
+    /// </summary>
     private IReadOnlyList<ShaktoolChainSegment> GetShaktoolGroup(RoomEnemyPlace anySegment)
     {
-        _ = RequireShaktoolState(anySegment);
         IReadOnlyList<ShaktoolChainSegment> group = ChainOf(anySegment).Segments;
         foreach (ShaktoolChainSegment segment in group)
         {
@@ -393,7 +394,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
         };
 
     /// <summary>Carries out one cue of a Shaktool segment's animation.</summary>
-    internal void ApplyShaktoolCue(RoomEnemyPlace place, ShaktoolCue cue)
+    private void ApplyShaktoolCue(RoomEnemyPlace place, ShaktoolCue cue)
     {
         switch (cue.Kind)
         {
@@ -431,7 +432,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
     }
 
     /// <summary>The shared enemy sine velocity at <paramref name="angle"/>: one pixel per update at its peak.</summary>
-    internal static SignedEightEight SineVelocity(TrigonometryAngle angle) =>
+    private static SignedEightEight SineVelocity(TrigonometryAngle angle) =>
         EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>
@@ -466,7 +467,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
     /// Advances Shaktool's typed animation. The head's clock stays stopped while its chain orients it, so its animation
     /// takes no step and the picture its facing chose stays shown.
     /// </summary>
-    internal void AdvanceShaktoolTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal void AdvanceShaktoolTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;

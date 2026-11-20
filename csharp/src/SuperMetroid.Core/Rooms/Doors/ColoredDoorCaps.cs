@@ -27,6 +27,5 @@ internal static class ColoredDoorCaps
 
     /// <summary>The coloured caps (#2034), pictured by the installed coloured-door frames.</summary>
     internal static RoomObjectDrawFamily<Draw> Family { get; } =
-        RoomObjectDrawFamily<Draw>.Pictured<InstalledRoomObjectColoredDoorVisuals>("colored-door", cap => cap.Blocks,
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<Draw>("colored-door", cap => cap.Blocks);
 }

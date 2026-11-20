@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain's fake-death room flash (#641, #2259) as a shade sequence played through the shared animation player
-/// (#2404): its fourteen images, each shown <see cref="MotherBrainRoomFlashDefinitions.FlashImageTicks"/> updates, looping
+/// (#2404): its images (<see cref="MotherBrainRoomFlashDefinitions.FlashFrameCount"/>), each shown <see cref="MotherBrainRoomFlashDefinitions.FlashImageTicks"/> updates, looping
 /// for as long as the flash runs.
 /// </summary>
 internal static class MotherBrainRoomFlashAnimations
@@ -18,11 +18,11 @@ internal static class MotherBrainRoomFlashAnimations
         });
 
     /// <summary>The flash, looping its images for good.</summary>
-    internal static Animation<MotherBrainRoomFlashSegment> Flash { get; } = Animation<MotherBrainRoomFlashSegment>.Looping([Segments.Whole(MotherBrainRoomFlashSegment.Flash)]);
+    private static Animation<MotherBrainRoomFlashSegment> Flash { get; } = Animation<MotherBrainRoomFlashSegment>.Looping([Segments.Whole(MotherBrainRoomFlashSegment.Flash)]);
 
     /// <summary>
-    /// The flash started on its first image for its two updates, the update that starts it counting as the first: her room
-    /// shows the first image on the flash's first run alone, then each image for two runs.
+    /// The flash started on its first image for its whole hold, the update that starts it counting as the first: her room
+    /// shows the first image on the flash's first run alone, then each image for its hold.
     /// </summary>
     internal static ShowingAnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue> Starting() =>
         ShowingAnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>.StartShowing(

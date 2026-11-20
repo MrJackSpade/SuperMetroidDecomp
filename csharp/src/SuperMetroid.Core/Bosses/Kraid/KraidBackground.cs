@@ -20,8 +20,10 @@ internal sealed class KraidBackground
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidBackground(EnemyProjectileEngine projectiles, EnemyPresentation presentation, KraidEncounterAccess access, BossArtworkBinding bossArtwork)
+    internal KraidBackground(EnemyProjectileEngine projectiles, EnemyPresentation presentation, KraidEncounterAccess access, BossArtworkBinding bossArtwork,
+        KraidProjectiles.RockBehavior rocks)
     {
+        Rocks = Ensure.NotNull(rocks);
         _bossArtwork = bossArtwork;
         _projectiles = projectiles;
         _presentation = presentation;
@@ -31,9 +33,12 @@ internal sealed class KraidBackground
     /// <summary>Kraid's installed eye colours, which his eye glow shows and times his roar from.</summary>
     internal KraidEyeColours EyeColours => _bossArtwork.KraidEyes;
 
+    /// <summary>The rocks his rise throws up and his roar shakes down from the ceiling, his encounter's own (#2571).</summary>
+    internal KraidProjectiles.RockBehavior Rocks { get; }
+
     /// <summary>
     /// Takes one step of the room backdrop's fade toward <paramref name="fade"/>'s colours on the shared gradual colour
-    /// change (#1512): while the shared counter stands at zero through thirteen the backdrop takes a step, and once it has
+    /// change (#1512): while the shared counter stands at or below <see cref="KraidBackgroundDefinitions.BackdropFadeLastStep"/> the backdrop takes a step, and once it has
     /// passed them the fade completes and resets the counter. When the fade completes is what gameplay sees: his growth
     /// and death wait on it, and a door's fade sharing the counter brings it sooner. The backdrop shows a typed fade of its
     /// colours (#2215) as far as its own steps have taken it (#2302).
@@ -57,7 +62,7 @@ internal sealed class KraidBackground
     /// <summary>Emits a ceiling rock at the scripted horizontal position when a projectile place is free.</summary>
     internal void SpawnKraidCeilingRock(int xPosition)
     {
-        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidCeilingRock, Rocks, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         if (rock is null)
             return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(

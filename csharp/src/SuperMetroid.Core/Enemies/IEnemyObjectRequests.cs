@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies;

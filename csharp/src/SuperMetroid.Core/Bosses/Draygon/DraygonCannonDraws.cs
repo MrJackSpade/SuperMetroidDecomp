@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -11,7 +10,6 @@ internal static class DraygonCannonDraws
 {
     /// <summary>The cannon's frames, pictured by the installed cannon frames.</summary>
     internal static RoomObjectDrawFamily<DraygonCannonDraw> Family { get; } =
-        RoomObjectDrawFamily<DraygonCannonDraw>.Pictured<InstalledDraygonCannonFrames>("Draygon cannon",
-            frame => RoomObjectDrawFamily<DraygonCannonDraw>.Defined(DraygonCannonObjectDrawDefinitions.Shapes, frame),
-            (frames, draw) => frames.Images.Image(draw.Frame));
+        new RoomObjectDrawFamily<DraygonCannonDraw>("Draygon cannon",
+            frame => RoomObjectDrawFamily<DraygonCannonDraw>.Defined(DraygonCannonObjectDrawDefinitions.Shapes, frame));
 }

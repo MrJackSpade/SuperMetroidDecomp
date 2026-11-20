@@ -20,7 +20,7 @@ internal static class PauseEquipmentPageLayout
     internal const int Columns = PauseEquipmentBaseDefinitions.Columns;
 
     /// <summary>The equipment page's tiles, row by row, as the cartridge writes them for <paramref name="page"/>.</summary>
-    internal static BackgroundTile[] LayOut(ImportAreaMapPresentation maps, ShownEquipmentPage page)
+    private static BackgroundTile[] LayOut(ImportAreaMapPresentation maps, ShownEquipmentPage page)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(page);
@@ -75,7 +75,7 @@ internal static class PauseEquipmentPageLayout
     /// every beam label it blanks.
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// The installed artwork places two parts over each other, or a part within another's bounds, in a way the pictures
+    /// The import's equipment artwork places two parts over each other, or a part within another's bounds, in a way the pictures
     /// cannot keep apart.
     /// </exception>
     internal static IEnumerable<ScreenPictureSubject> Subjects(ImportAreaMapPresentation maps)

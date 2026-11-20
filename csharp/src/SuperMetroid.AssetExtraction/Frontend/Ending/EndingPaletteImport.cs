@@ -29,7 +29,7 @@ internal static class EndingPaletteImport
 
     /// <summary>The colour count of resource <paramref name="id"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not a defined resource.</exception>
-    internal static int ColorCount(EndingPaletteId id) => Ensure.Listed(EndingPaletteDefinitions.ColorCounts, id);
+    private static int ColorCount(EndingPaletteId id) => Ensure.Listed(EndingPaletteDefinitions.ColorCounts, id);
 
     /// <summary>Decodes resource <paramref name="id"/>: a whole screen's, a run's or the logo crossfade's colours.</summary>
     /// <exception cref="InvalidDataException">A colour has an unrepresentable high bit.</exception>
@@ -57,7 +57,7 @@ internal static class EndingPaletteImport
     /// Flatten the native destination order as [step][BG or OBJ palette][color], keeping the
     /// pointer table and copy direction in code.
     /// </summary>
-    internal static byte[] ReadNativePalette(ISnesAddressSpace bus, EndingPaletteId id,
+    private static byte[] ReadNativePalette(ISnesAddressSpace bus, EndingPaletteId id,
         int count)
     {
         if (id != EndingPaletteId.LogoCrossfade)

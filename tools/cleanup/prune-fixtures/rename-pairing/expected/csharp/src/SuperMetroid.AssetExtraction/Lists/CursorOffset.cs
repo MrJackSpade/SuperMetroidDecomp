@@ -20,7 +20,4 @@ internal sealed class CursorOffset
 
     /// <summary>The columns and rows together, which production reads.</summary>
     internal int Total => _xOffset + yOffset;
-
-    /// <summary>The columns alone, which only checks read.</summary>
-    internal int Columns => this._xOffset;
 }

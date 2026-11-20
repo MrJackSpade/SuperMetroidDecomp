@@ -80,9 +80,9 @@ internal static class ShotCallbackDefinitionsVerification
         // A word naming one of the engine's two shared returns ignores the contact in every enemy bank; every other
         // ignoring reaction is one of the inventoried literal returns.
         var classifyShot = new Func<byte, ushort, bool>((bank, pointer) =>
-            EnemyInteractionCallbacks.DecodeShot(bank, pointer) == EnemyReaction.Ignore);
+            EnemyInteractionCallbacks.NamesIgnoringShot(bank, pointer));
         var classifyTouch = new Func<byte, ushort, bool>((bank, pointer) =>
-            EnemyInteractionCallbacks.DecodeTouch(bank, pointer) == EnemyReaction.Ignore);
+            EnemyInteractionCallbacks.NamesIgnoringTouch(bank, pointer));
         foreach (int address in shotCallbacks)
             AssertEqual(expectedShotNoOps.Contains(address) || IsEngineReturn((ushort)address),
                 classifyShot(SnesLittleEndianConstants.BankByte(address), (ushort)address), "real shot classifier native parity");
@@ -127,10 +127,11 @@ internal static class ShotCallbackDefinitionsVerification
                 CreateLiteralNoOpCombatSystem();
             byte touchBank = SnesLittleEndianConstants.BankByte(callback);
             ushort touchWord = unchecked((ushort)callback);
-            enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
+            enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
             {
-                Touch = EnemyInteractionCallbacks.DecodeTouch(touchBank, touchWord),
+                Touch = EnemyInteractionCallbacks.DecodeTouch(touchBank, touchWord, EnemyDefinitionFixtures.Blank.Touch),
             });
+            ((List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies).Add(enemy.HeldOccupant());
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
@@ -138,8 +139,7 @@ internal static class ShotCallbackDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole),
             };
 
-            AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemy, Position16<RoomPixels>.Zero),
-                $"literal touch no-op ${callback:X6} is admitted by production collision");
+            enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemy.HeldOccupant(), Position16<RoomPixels>.Zero);
             AssertEqual(99, samus.Health,
                 $"literal touch no-op ${callback:X6} does not damage Samus");
             AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -153,23 +153,23 @@ internal static class ShotCallbackDefinitionsVerification
                 CreateLiteralNoOpCombatSystem();
             byte shotBank = SnesLittleEndianConstants.BankByte(callback);
             ushort shotWord = unchecked((ushort)callback);
-            enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
+            enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
             {
-                Shot = EnemyInteractionCallbacks.DecodeShot(shotBank, shotWord),
+                Shot = EnemyInteractionCallbacks.DecodeShot(shotBank, shotWord, EnemyDefinitionFixtures.Blank.Shot),
             });
+            ((List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies).Add(enemy.HeldOccupant());
             var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             SamusProjectile projectile = projectiles.Shots[0];
-            projectile.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
-            projectile.Damage = 20;
+            projectile.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), 20);
             projectile.Direction = SamusProjectileDirection.Right;
             projectile.Position = projectile.Position.WithWhole(enemy.Position.Whole);
             projectile.Radius = new(4, 4);
             projectile.Animation = ProjectileFixturePlaybacks.Active();
 
-            AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(
+            enemies.ResolveShotsOnInteractiveEnemies(
                     projectiles,
-                    new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
-                $"literal shot no-op ${callback:X6} is admitted by production collision");
+                    new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
+            AssertTrue(projectile.IsSpent, $"literal shot no-op ${callback:X6} is admitted by production collision: the shot is spent");
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"literal shot no-op ${callback:X6} requires no executable read");
         }
@@ -177,10 +177,8 @@ internal static class ShotCallbackDefinitionsVerification
         static CreateLiteralNoOpCombatSystemResult CreateLiteralNoOpCombatSystem()
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var interactive = (List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies;
             RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[0];
-            interactive.Add(enemy);
-            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
+            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
             enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight;
             enemy.Position = enemy.Position.WithWhole(new(0x0100, 0x0100));
             enemy.Radius = new(8, 8);

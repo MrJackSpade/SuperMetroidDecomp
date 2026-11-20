@@ -25,8 +25,8 @@ internal static class PowampBehaviorVerification
         // The balloon and its body are placed as their room places them, whose settings name the part each is (#2163).
         RoomEnemyPlace balloon = enemies.Places.InUpdateOrder[0];
         balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
-        balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
-        balloon.Bind(balloon.DefinitionId, default(RoomEnemyDefinition));
+        balloon.Bind(EnemyDefinitionId.Powamp, balloon.KeptDefinition);
+        balloon.Bind(balloon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         PowampBehavior.InitializePowampBalloon(balloon, balloon.SpawnSettings<PowampSpawnSettings>());
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
         body.SetSpawnSettings(new PowampSpawnSettings(GrappleTravelDistance: 0));

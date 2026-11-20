@@ -27,7 +27,7 @@ public sealed class GitHubErrorReporter : IDisposable
     /// <summary>Remote lookup, comment, and creation operations used by the single worker.</summary>
     private readonly IGitHubIssueClient issueClient;
     /// <summary>Nonblocking multiwriter queue processed in report order by one remote worker.</summary>
-    internal readonly Channel<QueuedWork> queue = Channel.CreateUnbounded<QueuedWork>(
+    private readonly Channel<QueuedWork> queue = Channel.CreateUnbounded<QueuedWork>(
         new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
     /// <summary>Counts repeated failures per fingerprint and context after excluding frame/input changes.</summary>
     private readonly Dictionary<string, int> sessionOccurrences = new(StringComparer.Ordinal);
@@ -46,7 +46,7 @@ public sealed class GitHubErrorReporter : IDisposable
     }
 
     /// <summary>Starts the same reporting worker with an injected issue client for focused host checks.</summary>
-    internal GitHubErrorReporter(string repository, IGitHubIssueClient issueClient)
+    private GitHubErrorReporter(string repository, IGitHubIssueClient issueClient)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(repository);
         this.repository = repository;
@@ -126,7 +126,7 @@ public sealed class GitHubErrorReporter : IDisposable
         AppendExceptionIdentity(identity, exception);
         // Unknown failures are conservatively room-scoped. An unmodeled behavior's identity names
         // the behavior, so room/block location does not change the bug.
-        if (exception is not UnmodeledBehaviorException && context is not null)
+        if (exception is not UnsupportedGameStateException && context is not null)
             identity.Append($"\nroom:{context.Room}/state:{context.RoomState}");
         byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(identity.ToString()));
         return $"SMERR-{Convert.ToHexString(digest.AsSpan(0, 8))}";
@@ -135,7 +135,7 @@ public sealed class GitHubErrorReporter : IDisposable
     /// <summary>Uses a typed dispatch key or recursively records exception type, message, managed stack methods, and inner errors without source locations.</summary>
     private static void AppendExceptionIdentity(StringBuilder identity, Exception exception)
     {
-        if (exception is UnmodeledBehaviorException unmodeled)
+        if (exception is UnsupportedGameStateException unmodeled)
         {
             identity.Append(unmodeled.GetType().FullName).Append('\n').Append(unmodeled.BehaviorIdentity);
             return;
@@ -227,7 +227,7 @@ public sealed class GitHubErrorReporter : IDisposable
         GitHubErrorContext context)
     {
         var body = new StringBuilder();
-        body.AppendLine($"Core build ID: {typeof(UnmodeledBehaviorException).Module.ModuleVersionId}");
+        body.AppendLine($"Core build ID: {typeof(UnsupportedGameStateException).Module.ModuleVersionId}");
         body.AppendLine($"Host build ID: {typeof(GitHubErrorReporter).Module.ModuleVersionId}");
         body.Append("<!-- supermetroid-error-id:")
             .Append(fingerprint)

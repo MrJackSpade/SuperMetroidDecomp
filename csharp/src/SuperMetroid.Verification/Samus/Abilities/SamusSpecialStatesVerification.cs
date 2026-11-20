@@ -414,7 +414,8 @@ internal static void VerifySamusXray()
     AssertTrue(standing.Xray.TimeIsFrozen, "X-ray freezes time");
     AssertEqual(1, standing.AudioRequests.CountOf(SamusSound.XrayStart), "X-ray startup queues its sound once");
 
-    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Level, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
+    standing.Xray.StepMovement(standing);
+    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Level, standing.AnimationFrame,
         "angle 40 selects forward X-ray frame");
     AssertEqual(15, standing.AnimationFrameTimer.RawValue, "X-ray movement forces timer fifteen");
     standing.LiquidPhysics.BeginFrameSoundRequests();
@@ -489,7 +490,8 @@ internal static void VerifySamusXray()
     for (int frame = 0; frame < 80; frame++)
         standing.Xray.StepBeam(standing, (GameplayAction.Dash | GameplayAction.Up));
     AssertEqual(10, standing.Xray.Angle.ToTrigonometryAngle().RawValue, "right X-ray upper clamp includes width");
-    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Up, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
+    standing.Xray.StepMovement(standing);
+    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Up, standing.AnimationFrame,
         "upper-clamped angle selects looking-up art");
 
     // Start a turn while the dedicated handler owns input. `$0100-angle` mirrors ten to
@@ -506,8 +508,11 @@ internal static void VerifySamusXray()
     AssertEqual(SamusMovementType.TurningOnGround, standing.PoseHistory.PreviousMovement, "X-ray turn publishes turning metadata");
     AssertEqual(SamusPoseId.TurningRightToLeftPose, standing.Pose, "X-ray right-to-left standing turn pose");
     AssertEqual(0xf6, standing.Xray.Angle.ToTrigonometryAngle().RawValue, "X-ray turn mirrors angle");
-    AssertTrue(standing.Xray.StepMovement(standing) is null,
-        "X-ray movement is RTS during type-E turn");
+    SamusAnimationFrame frameDuringTurn = standing.AnimationFrame;
+    int timerDuringTurn = standing.AnimationFrameTimer.RawValue;
+    standing.Xray.StepMovement(standing);
+    AssertEqual(frameDuringTurn, standing.AnimationFrame, "X-ray movement is RTS during type-E turn: the frame stays");
+    AssertEqual(timerDuringTurn, standing.AnimationFrameTimer.RawValue, "X-ray movement is RTS during type-E turn: the timer stays");
     for (int tick = 0; tick < 5; tick++)
     {
         standing.LiquidPhysics.BeginFrameSoundRequests();
@@ -521,7 +526,8 @@ internal static void VerifySamusXray()
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray completion publishes stable pose");
     AssertEqual(SamusMovementType.Standing, standing.PoseHistory.PreviousMovement, "X-ray completion publishes stable metadata");
     AssertEqual(SamusPoseId.XrayingStandingLeftPose, standing.Pose, "X-ray turn installs left standing body");
-    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Up, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
+    standing.Xray.StepMovement(standing);
+    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Up, standing.AnimationFrame,
         "left near-up angle selects looking-up art");
 
     // Releasing Dash starts the beam's two-update closing; its last step then restores ordinary left
@@ -802,8 +808,8 @@ internal static void VerifySamusDeathSequence()
         "terminal death call completes without drawing");
     AssertEqual(true, samus.DeathSequence.Explosion?.HasStopped,
         "the explosion has played its last picture");
-    AssertEqual(SuperMetroid.Core.Samus.Death.SamusWhiteoutShade.Final, samus.DeathSequence.WhiteoutShade,
-        "death terminal whiteout shade");
+    AssertEqual(SamusShades.DeathWhiteout(SuperMetroid.Core.Samus.Death.SamusWhiteoutShade.Final), samusColours.Beams,
+        "the beams show the death's terminal whiteout shade");
     AssertEqual(RgbColor.White, samus.DeathSequence.Whiteout, "death whiteout the display shows reaches the cartridge's full white");
     AssertEqual(0x7fff, samusColours.ShownBeams(deathSources)[15], "death whiteout includes the beams' last colour");
     AssertEqual(0x0220, samusColours.ShownSuit(deathSources)[0],

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.World;
@@ -30,7 +29,7 @@ internal interface IEnemyObjectSpawns
     void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request);
 
     /// <summary>Spawns a fragment of Bomb Torizo's breaking statue.</summary>
-    EnemyProjectile? SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request);
+    void SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request);
 
     /// <summary>Spawns one escape explosion, of the kind its place gives it when its draw names none.</summary>
     void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, RoomEffectActorKind kindLeftOpen);

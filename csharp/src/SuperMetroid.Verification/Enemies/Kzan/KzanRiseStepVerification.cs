@@ -23,22 +23,22 @@ internal static class KzanRiseStepVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.KzanTop, place.Definition);
+        place.Bind(EnemyDefinitionId.KzanTop, place.KeptDefinition);
         place.SetSpawnParameter1(EnemyDefinitionId.KzanTop, 0);
         place.SetSpawnParameter2(EnemyDefinitionId.KzanTop, 32 * 256);
         // The rising target lies on the room's top edge, so every height checked keeps rising.
         place.Position = place.Position.WithWhole(new(128, 0));
-        KzanBehavior.InitializeKzanTop(place, place.SpawnSettings<KzanSpawnSettings>());
+        KzanBehavior.InitializeKzanTop(place.HeldOccupant(), place, place.SpawnSettings<KzanSpawnSettings>());
         KzanEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<KzanTopEntity>(place).State;
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         foreach (int whole in new[] { 1, 16, 96, 300, 1368, 1500 })
         for (int fraction = 0; fraction < WordRange; fraction++)
         {
             state.Action = KzanAction.Rising;
             place.Position = place.Position.WithY(new FixedCoordinate(whole, fraction));
-            enemies.KzanBehavior.RunKzanTopMainAi(place, place.RequireSpeciesState<KzanEnemyState>(), frame);
+            enemies.KzanBehavior.RunKzanTopMainAi(place.HeldOccupant(), place, place.RequireSpeciesState<KzanEnemyState>(), frame);
             int lowered = fraction - 0x8000;
             int borrow = lowered < 0 ? 1 : 0;
             var expected = new FixedCoordinate(whole - borrow, lowered & ushort.MaxValue);

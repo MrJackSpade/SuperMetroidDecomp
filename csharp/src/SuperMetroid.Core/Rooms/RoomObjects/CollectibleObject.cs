@@ -32,7 +32,7 @@ internal sealed class CollectibleObject(
     /// The block the item's setup left at its place, its collision made the item's own (#2484): a concealing shot block
     /// draws it back as it hides the item again, and a collected item's shot block as it respawns.
     /// </summary>
-    internal RoomTerrainBlock SavedTerrain { get; } = savedTerrain;
+    private RoomTerrainBlock SavedTerrain { get; } = savedTerrain;
 
     /// <summary>Where the item lies in the game's item record, which its collection marks collected.</summary>
     internal ItemLocation Location { get; } = Ensure.NotNull(location);
@@ -45,8 +45,8 @@ internal sealed class CollectibleObject(
     internal CollectiblePictured Pictured { get; } = Ensure.NotNull(pictured);
 
     /// <summary>
-    /// The terrain block pair an item that shows its own picture writes its frames into (<see cref="CollectibleBlockPairs"/>);
-    /// null for a tank, whose frames are its kind's own blocks.
+    /// The terrain the item writes its looks into (#2558): a tank's own blocks, or the block pair an item that shows its own
+    /// picture took (<see cref="CollectibleBlockPairs"/>).
     /// </summary>
     public CollectibleBlockPairs.Pair? BlockPair => Pictured is CollectiblePictured.OwnPicture own ? own.Pair : null;
     /// <summary>Current reveal, visible, message, empty, or respawn phase.</summary>
@@ -200,7 +200,7 @@ internal sealed class CollectibleObject(
 
     /// <summary>
     /// The pickup message has closed: the item shows its empty block for one update and then leaves, or a shot block's
-    /// item leaves its block empty for twenty-two eight-update intervals before it respawns.
+    /// item leaves its block empty for <see cref="CollectibleTimingDefinitions.CollectedShotBlockEmptyUpdates"/> before it respawns.
     /// </summary>
     private void FinishPickup(IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
     {

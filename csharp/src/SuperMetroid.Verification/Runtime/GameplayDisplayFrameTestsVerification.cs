@@ -114,7 +114,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         before = Registers(runtime);
-        var motherBrain = new MotherBrainEnemyState(runtime.Enemies.Places.InUpdateOrder[0], runtime.Enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { BodyPlacement = MotherBrainBodyPlacement.FollowsBody, DeathHidesBodyLayer = true };
+        var motherBrain = new MotherBrainEnemyState(runtime.Enemies.Places.InUpdateOrder[0].HeldOccupant(), runtime.Enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { BodyPlacement = MotherBrainBodyPlacement.FollowsBody, DeathHidesBodyLayer = true };
         runtime.Enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
         // The room's display reads the body the encounter attached as it set up (#2194): this one's.
         runtime.Enemies.Presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, motherBrain));
@@ -157,17 +157,17 @@ internal static class GameplayDisplayFrameTestsVerification
         // offset six shades level eighteen and one at offset two level six.
         RoomFxType originalFx = runtime.RoomFxOverlay.Type;
         FirefleaFxState fireflea = runtime.RoomFxOverlay.StartFirefleaDarknessForCheck();
-        fireflea.Step(frozen: false, new FirefleaDarkness(3));
+        fireflea.Step(frozen: false, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { 3 }));
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Fireflea darkness waits for the accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(18, darkness.Blend.Colour.FadeLevels.Red, "Fireflea's shade publishes with its blend");
-        fireflea.Step(frozen: false, new FirefleaDarkness(1));
-        AssertEqual(18, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.FadeLevels.Red,
+        AssertEqual(18, ((FirefleaDarknessBlend)darkness.Blend).Shade.FadeLevels.Red, "Fireflea's shade publishes with its blend");
+        fireflea.Step(frozen: false, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { 1 }));
+        AssertEqual(18, ((FirefleaDarknessBlend)((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend).Shade.FadeLevels.Red,
             "a shade chosen in the main loop waits for the next accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(6, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.FadeLevels.Red,
+        AssertEqual(6, ((FirefleaDarknessBlend)((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend).Shade.FadeLevels.Red,
             "the next accepted frame publishes the chosen shade");
         runtime.RoomFxOverlay.EndFirefleaDarknessForCheck(originalFx);
         runtime.FrameBoundary.BeginAcceptedFrame(0);

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>
 /// The installed pictures of the coloured door caps' frames (#1557). The caps' terrain, hits and timing stay the game's.
 /// </summary>
-public sealed class InstalledRoomObjectColoredDoorVisuals
+public sealed class InstalledRoomObjectColoredDoorVisuals : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every coloured-cap frame.</summary>
     /// <param name="images">Every coloured-cap frame's picture, keyed by its draw.</param>
@@ -12,7 +12,7 @@ public sealed class InstalledRoomObjectColoredDoorVisuals
     /// <summary>Every coloured-cap frame's picture, keyed by its draw.</summary>
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
-    /// <summary>The picture <paramref name="draw"/> shows.</summary>
-    /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw) => Images.Image(draw);
+    /// <inheritdoc/>
+    IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
+        Images.All;
 }

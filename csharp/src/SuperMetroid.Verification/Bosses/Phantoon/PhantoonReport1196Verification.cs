@@ -62,7 +62,7 @@ internal static class PhantoonReport1196Verification
         wave.Step(boss);
         wave.Step(boss);
         AssertTrue(wave.CurrentWave?.Amplitude == new UnsignedSixteenSixteen(12, 0), "fixture retains a used introductory wave");
-        boss.Wave.Length = null;
+        boss.Wave.End();
         wave.Step(boss);
         boss.Body.Health = 0;
         enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(boss.Body, boss, SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);

@@ -34,7 +34,7 @@ public sealed class NorfairPipeBugState
     /// and waited. It starts again only when the member departs, so a member reset off screen keeps its count into the
     /// next rise (#1846).
     /// </summary>
-    public UpdateCountdown Departure { get; private set; } = UpdateCountdown.Ended();
+    private UpdateCountdown Departure { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>Counts one formation update.</summary>
     internal void CountFormationTick() => Departure.Step();

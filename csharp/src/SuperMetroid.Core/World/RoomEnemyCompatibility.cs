@@ -30,7 +30,7 @@ internal sealed class RoomEnemyCompatibility
     public required PuyoCeilingTurnFromLastDraw PuyoCeilingTurn { get; init; }
 
     /// <summary>
-    /// The room's thirty-two effect-actor places, whose place a dud flash on Kraid's mouth takes bounds the rest of that
+    /// The room's effect-actor places, whose place a dud flash on Kraid's mouth takes bounds the rest of that
     /// collision pass; a new room starts with every place free.
     /// </summary>
     public required EffectActorPlaces EffectActorPlaces { get; init; }

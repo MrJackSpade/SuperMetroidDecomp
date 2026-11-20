@@ -93,7 +93,7 @@ internal static class IntroCinematicArtworkVerification
                 int source = IntroCinematicSourceDefinitions.FinalTextLine + index * sizeof(ushort);
                 ushort nativeWord = LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, source), CpuBusRegionRead.Read(bus, source + 1));
                 AssertEqual(nativeWord, stock.FinalLine.Tiles.Span[index].PackedWord,
-                    $"opening divider tile {index} matches cartridge source");
+                    $"final-line map tile {index} matches cartridge source");
             }
             Suite(nameof(VerifyIntroEyeInstructions), () => VerifyIntroEyeInstructions(bus));
             for (int frame = 0; frame < IntroEyeTilemapFormat.FrameCount; frame++)
@@ -187,28 +187,28 @@ internal static class IntroCinematicArtworkVerification
                 "the restored stock shows exact cartridge opening palette colors");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening palette never rereads its cartridge source");
-            // The divider is a layout only the import reads (#1638): its document is the cartridge-derived extraction's.
-            string dividerStockPath = Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
+            // The final-line map is a layout only the import reads (#1638): its document is the cartridge-derived extraction's.
+            string finalLineStockPath = Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
                 SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), IntroFinalLineTilemapFormat.FileName);
-            IntroFinalLineTilemapDocument dividerDocument =
+            IntroFinalLineTilemapDocument finalLineDocument =
                 JsonSerializer.Deserialize<IntroFinalLineTilemapDocument>(
-                    File.ReadAllBytes(dividerStockPath),
+                    File.ReadAllBytes(finalLineStockPath),
                     CaseInsensitiveJson)
-                ?? throw new InvalidDataException("Extracted opening divider is empty.");
-            var nativeDividerState = CreateRetailIntroFixture();
-            var stockDividerState = CreateRetailIntroFixture(characterArtwork: stock);
-            foreach (IntroCinematicState scene in new[] { nativeDividerState, stockDividerState })
+                ?? throw new InvalidDataException("Extracted final-line map is empty.");
+            var nativeFinalLineState = CreateRetailIntroFixture();
+            var stockFinalLineState = CreateRetailIntroFixture(characterArtwork: stock);
+            foreach (IntroCinematicState scene in new[] { nativeFinalLineState, stockFinalLineState })
                 scene.SetupFirstIllustratedPage();
-            AssertTrue(stockDividerState.ShownVram().SequenceEqual(
-                    nativeDividerState.ShownVram()),
-                "installed opening divider produces exact native illustrated-page VRAM");
+            AssertTrue(stockFinalLineState.ShownVram().SequenceEqual(
+                    nativeFinalLineState.ShownVram()),
+                "installed final-line map produces exact native illustrated-page VRAM");
             AssertThrows<InvalidDataException>(() => IntroFinalLineTilemap.Load(
-                new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(dividerDocument with
+                new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(finalLineDocument with
                 {
-                    Cells = dividerDocument.Cells.Take(127).ToArray(),
-                }))), "opening divider rejects a truncated tilemap");
+                    Cells = finalLineDocument.Cells.Take(127).ToArray(),
+                }))), "final-line map rejects a truncated tilemap");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                "installed opening divider never rereads its cartridge source");
+                "installed final-line map never rereads its cartridge source");
 
             Console.WriteLine(
                 "Intro art: three extracted character pages, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka/egg-effect/discovery/scientist compositions and full RGB5 palette; native parity and strict failures pass.");
@@ -482,7 +482,7 @@ internal static class IntroCinematicArtworkVerification
             < (IntroCinematicSourceDefinitions.FinalTextLine +
                 IntroFinalLineTilemapFormat.CellCount * sizeof(ushort)))
         {
-            return $"Cinematic reread opening divider ${address:X6}.";
+            return $"Cinematic reread final-line map ${address:X6}.";
         }
         if (address is >= IntroCinematicCheckSources.MotherBrainLevelData
             and < IntroCinematicCheckSources.MotherBrainLevelData + IntroMotherBrainFlashbackConstants.MotherBrainLevelByteCount)

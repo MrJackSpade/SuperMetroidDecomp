@@ -29,7 +29,7 @@ internal static class WorkRobotResourceChecks
                 .Single(frame => frame.Frame == laser).Name;
             programs[name] = [new SpriteVisualPart
             {
-                OffsetX = index, OffsetY = 0, Size = 8, Priority = 2, Palette = 0,
+                OffsetX = index, OffsetY = 0, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts, Palette = 0,
                 TileColumn = 0, TileRow = 0, FlipX = false, FlipY = false,
             }];
         }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The installed picture of the Botwoon wall's nine-block clear (#1557). The clear's air terrain and the crumble sequence
 /// stay the game's; the crumble frames are shot-block frames.
 /// </summary>
-public sealed class InstalledRoomObjectBotwoonWallVisuals
+public sealed class InstalledRoomObjectBotwoonWallVisuals : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every Botwoon wall frame.</summary>
     /// <param name="images">Every Botwoon wall frame's picture, keyed by its draw.</param>
@@ -13,7 +13,7 @@ public sealed class InstalledRoomObjectBotwoonWallVisuals
     /// <summary>Every Botwoon wall frame's picture, keyed by its draw.</summary>
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
-    /// <summary>The picture <paramref name="draw"/> shows.</summary>
-    /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw) => Images.Image(draw);
+    /// <inheritdoc/>
+    IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
+        Images.All;
 }

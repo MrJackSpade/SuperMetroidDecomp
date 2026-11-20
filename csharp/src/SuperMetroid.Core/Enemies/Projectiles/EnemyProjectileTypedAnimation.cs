@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <typeparam name="TSegment">The family's segment identity.</typeparam>
 /// <typeparam name="TFrame">The family's frame identity.</typeparam>
 /// <typeparam name="TEvent">The family's events.</typeparam>
-internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> : EnemyProjectileAnimation
+internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> : EnemyProjectileTimelineAnimation<TSegment, TFrame, TEvent>
     where TSegment : struct
     where TFrame : struct
     where TEvent : notnull
@@ -97,8 +97,9 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
     private static CueRunner Branching(IEnemyProjectileBranchingCues<TSegment, TEvent> cues) =>
         (context, _, cue, pastCue) => cues.RunCue(context, cue, pastCue);
 
-    /// <summary>The animation playing and where it stands.</summary>
-    internal AnimationPlayback<TSegment> Playback { get; set; }
+    /// <summary>Starts <paramref name="animation"/> before its first play, its events carried out by <paramref name="cues"/>.</summary>
+    private protected EnemyProjectileTypedAnimation(Animation<TSegment> animation, EnemyProjectileCueRunner<TSegment, TEvent> cues)
+        : base(animation) => _cues = Ensure.NotNull(cues);
 
     /// <summary>
     /// The segment the animation stands in: before its first play, or in an animation of no phase, the segment it starts

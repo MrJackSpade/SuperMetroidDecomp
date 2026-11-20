@@ -22,7 +22,7 @@ internal static class FakeKraidAnimationsVerification
             },
             // #2214: the choice always continues at the step or spit it picks, so the step loop each choice list runs on
             // into never plays.
-            EndsList: cue => cue is FakeKraidCue.Signal { Kind: FakeKraidCueKind.ChooseAction }),
+            EndsList: cue => cue is FakeKraidCue.ChooseAction),
             onlyRunOnInto: new HashSet<FakeKraidSegment> { FakeKraidSegment.ChooseAction });
         Console.WriteLine($"  Fake Kraid animations: {Entries.Length} native lists ({beats} beats) match bank $A6.");
     }

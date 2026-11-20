@@ -89,8 +89,8 @@ public static class KiHunterMotionDefinitions
     public const int DetachedWingRadius = 48;
 
     /// <summary>
-    /// The whole pixels per update, none or one, the random sample takes off a grounded Ki-Hunter's upward jump speed
-    /// (#2479): its lowest bit, added to the jump's eight pixels upward.
+    /// Whether a grounded Ki-Hunter's hop starts a pixel an update slower than its jump speed (#2479): one hop in two
+    /// does.
     /// </summary>
     internal static readonly RandomSampleField GroundJumpSpeedTakenOff = new(0, 1);
 

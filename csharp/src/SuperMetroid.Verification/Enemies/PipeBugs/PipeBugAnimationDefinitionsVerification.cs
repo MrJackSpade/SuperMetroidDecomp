@@ -25,7 +25,7 @@ internal static class PipeBugAnimationDefinitionsVerification
             RoomEnemyPlace initializedPlace = initializedEnemies.Places.InUpdateOrder[0];
             initializedPlace.Bind(strong
                 ? EnemyDefinitionId.Zebbo
-                : EnemyDefinitionId.Zeb, initializedPlace.Definition);
+                : EnemyDefinitionId.Zeb, initializedPlace.KeptDefinition);
             initializedPlace.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? (ushort)1 : (ushort)0);
             initializedPlace.Position = initializedPlace.Position.WithWhole(new(0x0100, 0x0080));
             PipeBugsBehavior.InitializeBrinstarPipeBug(initializedPlace, initializedPlace.SpawnSettings<BrinstarPipeBugSpawnSettings>());
@@ -43,7 +43,6 @@ internal static class PipeBugAnimationDefinitionsVerification
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
                 var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()).WithAnimationClock(hold: 0x2222);
-                place.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
                 PipeBugSegment playing = selector == PipeBugAnimationChoices.Rising(kind, HorizontalDirection.Left)
                     ? PipeBugAnimationChoices.Shooting(kind, HorizontalDirection.Left)
                     : PipeBugAnimationChoices.Rising(kind, HorizontalDirection.Left);

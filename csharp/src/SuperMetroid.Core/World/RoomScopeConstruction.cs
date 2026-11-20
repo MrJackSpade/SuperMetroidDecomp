@@ -46,7 +46,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The destination's asset graph.</summary>
     public LoadedRoomAssets Assets { get; } = Ensure.NotNull(assets);
 
-    /// <summary>The load-station record whose load establishes this room; null for a room entered otherwise.</summary>
+    /// <summary>The load station whose load establishes this room; null for a room entered otherwise.</summary>
     public LoadStation? LoadStation { get; } = loadStation;
 
     /// <summary>The frame each of the room's animations shows (#1406), which the animations the load builds select into.</summary>
@@ -72,7 +72,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
 
 
     /// <summary>The scrolling-sky updater, once the definition step has composed a sky room's main.</summary>
-    public ScrollingSkyState? ScrollingSky { get; private set; }
+    private ScrollingSkyState? ScrollingSky { get; set; }
 
     /// <summary>The turning floor the room shows, or null when it shows none (#1649).</summary>
     public RoomFloor? Floor { get; set; }
@@ -225,7 +225,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         BlockPictures = new RoomBlockPictureResolver(Assets.BlockSheet),
         // Only a library background the player sees as its own picture has one installed (#1649).
         BackgroundImage = RoomLibraryBackgroundPicture.Of(Room.State.Background, background => new RoomBackgroundImageResolver(
-            Assets.Pictures.Background(background, background.PictureDoor(Door), Assets.Tileset), Assets.BlockSheet)),
+            Assets.Pictures.Background(background, background.PictureFor(Door), Assets.Tileset), Assets.BlockSheet)),
         WrittenPictures = WrittenPicturesOfRoom(),
         FxOverlayPictures = new WrittenPictureResolver(Assets.Pictures.FxOverlay(Assets.Tileset)),
         HudPictures = Assets.Pictures.Hud(Assets.Tileset),
@@ -242,8 +242,6 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         BlockAnimations = Ensure.NotNull(blockAnimations),
         TourianStatues = tourianStatues,
         Main = Main,
-        MaridiaElevatube = MaridiaElevatube,
-        CeresElevatorShaft = CeresElevatorShaft,
         Enemies = Ensure.NotNull(enemies),
         RoomObjects = Ensure.NotNull(roomObjects),
     };

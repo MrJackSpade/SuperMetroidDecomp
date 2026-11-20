@@ -35,7 +35,7 @@ public sealed class FileSelectMapWindow
         : this(area, FileSelectMapWindowMotions.Get(area), labels) { }
 
     /// <summary>Starts the area-to-room reveal of <paramref name="area"/> with <paramref name="motion"/>; the game uses the authored motions.</summary>
-    internal FileSelectMapWindow(AreaId area, FileSelectMapWindowMotion motion, WorldMapLabelPositions labels)
+    private FileSelectMapWindow(AreaId area, FileSelectMapWindowMotion motion, WorldMapLabelPositions labels)
     {
         if (!AreaIds.IsZebes(area))
             throw new ArgumentOutOfRangeException(nameof(area), area, "Only the six Zebes areas have world-map transitions.");

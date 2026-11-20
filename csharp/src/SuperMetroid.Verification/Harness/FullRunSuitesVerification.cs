@@ -266,6 +266,7 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainMissileWalk
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainRainbowVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainRaiseCounterVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainRingBabyHealthVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainMouthLaserDamageVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainRinkaDoorSpawnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainSmallPurpleBreathVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTubeHdmaDeletionVerification;
@@ -1276,6 +1277,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBabyMetroidPresence), () => VerifyBabyMetroidPresence()),
         new(nameof(VerifyMotherBrainWalkBackwardsPose), () => VerifyMotherBrainWalkBackwardsPose()),
         new(nameof(VerifyMotherBrainRingBabyHealth), () => VerifyMotherBrainRingBabyHealth()),
+        new(nameof(VerifyMotherBrainMouthLaserDamage), () => VerifyMotherBrainMouthLaserDamage()),
         new(nameof(VerifyBabyMetroidWrongWaySpeed), () => VerifyBabyMetroidWrongWaySpeed()),
         new(nameof(VerifyMotherBrainGlitchMechanics), () => VerifyMotherBrainGlitchMechanics()),
         new(nameof(VerifyXrayWarmUp), () => VerifyXrayWarmUp()),

@@ -522,7 +522,7 @@ public static class IntroCinematicArtworkFiles
                 .Select(page => Page(IntroCinematicArtworkFormat.BackgroundPageFileName(page), IntroCinematicArtworkFormat.BackgroundPageByteCount))],
             Page(IntroCinematicArtworkFormat.PortraitTilemapFileName, IntroCinematicArtworkFormat.BackgroundPageByteCount),
             Page(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName, IntroCinematicArtworkFormat.BackgroundPageByteCount),
-            Layout(IntroFinalLineTilemapFormat.FileName, "opening divider", IntroFinalLineTilemap.Load),
+            Layout(IntroFinalLineTilemapFormat.FileName, "final-line map", IntroFinalLineTilemap.Load),
             Layout(IntroEyeTilemapFormat.FileName, "opening eye art", IntroEyeTilemapPresentation.Load),
             Page(ZebesRevealArtworkFormat.MapFileName, ZebesRevealArtworkFormat.MapByteCount),
             Layout(CeresDestructionMapFormat.FileName, "destruction maps", CeresDestructionMaps.Load));

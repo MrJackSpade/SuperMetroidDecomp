@@ -37,8 +37,8 @@ internal static class AtomicMovementDefinitionsVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Atomic, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Atomic, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
 
         for (ushort selector = 0; selector < 4; selector++)
         {
@@ -50,7 +50,7 @@ internal static class AtomicMovementDefinitionsVerification
             AssertEqual(new AnimationPlayback<AtomicSegment>(AtomicAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Atomic initializer animation {selector}");
 
-            AssertEqual(EnemyLinearSpeedTable.Speed(selector * 7), place.SpawnSettings<AtomicSpawnSettings>().Speed, $"Atomic speed {selector}");
+            AssertEqual(EnemyLinearSpeedTable.Speed(selector * 7), place.HeldOccupant().SpawnSettings<AtomicSpawnSettings>().Speed, $"Atomic speed {selector}");
 
             place.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Segments, program, AtomicFrameToolingDefinitions.Spritemap),

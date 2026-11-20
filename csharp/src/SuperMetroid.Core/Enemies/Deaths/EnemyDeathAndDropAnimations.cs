@@ -17,7 +17,7 @@ internal static class EnemyDeathAndDropAnimations
     {
         [P.RespawnPause] =
         [
-            Show(EnemyProjectileFrameId.Blank, 64),
+            Hide(64),
             Cue(new EnemyDeathAndDropCue.Signal(K.RespawnEnemy)),
             Cue(new EnemyDeathAndDropCue.Signal(K.Delete)),
         ],
@@ -70,6 +70,10 @@ internal static class EnemyDeathAndDropAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Frame(frame, duration);
+
+    /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue> Hide(int duration) =>
+        new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Hidden(duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue> Cue(EnemyDeathAndDropCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Event(cue);

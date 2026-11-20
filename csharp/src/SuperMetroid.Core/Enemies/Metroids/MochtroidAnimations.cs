@@ -31,7 +31,7 @@ internal static class MochtroidAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MochtroidSegment, Animation<MochtroidSegment>> StartingAt { get; } = new Dictionary<MochtroidSegment, Animation<MochtroidSegment>>
+    private static Dictionary<MochtroidSegment, Animation<MochtroidSegment>> StartingAt { get; } = new Dictionary<MochtroidSegment, Animation<MochtroidSegment>>
     {
         [P.FreeFlight] = Animation<MochtroidSegment>.Looping([Segments.Whole(P.FreeFlight)]),
         [P.Attached] = Animation<MochtroidSegment>.Looping([Segments.Whole(P.Attached)]),

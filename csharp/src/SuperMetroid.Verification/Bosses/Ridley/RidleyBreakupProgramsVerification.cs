@@ -56,7 +56,7 @@ internal static class RidleyBreakupProgramsVerification
         Action<RoomEnemyPlace, NorfairRidleyState, SamusState> death = enemies.NorfairRidleyBehavior.Death.TickNorfairRidleyDeathExplosions;
         var process = new Action<RoomEnemyPlace, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
         var body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Ridley, body.Definition);
+        body.Bind(EnemyDefinitionId.Ridley, body.KeptDefinition);
         var state = body.SetUpPlaced<NorfairRidleyState>();
         state.GrabState = RidleyGrabState.CarryingSamus;
         state.PhaseTimer.LastFor(1);
@@ -66,7 +66,7 @@ internal static class RidleyBreakupProgramsVerification
         state.Tail.Tip.Angle = RidleyTailAngle.FromStepsFromStraightDown(16);
         death(body, state, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
         AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
-        var fragments = enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece).ToArray();
+        var fragments = enemies.Places.InUpdateOrder.Where(place => place.Holds(EnemyDefinitionId.RidleyBreakupPiece)).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
         AssertEqual(EnemyFrameId.RidleyTailTipPointingToward157, SuperMetroid.Core.Enemies.EnemyPartners.Listed<RidleyBreakupPieceEntity>(fragments[0]).State.Picture,
             "reported tail orientation selects the second tip pose ($A6:CA9B)");
@@ -115,7 +115,7 @@ internal static class RidleyBreakupProgramsVerification
         var explosion = enemies.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         AssertEqual(deathX, explosion.Position.X.Whole, "fragment death effect retains final X");
         AssertEqual(deathY, explosion.Position.Y.Whole, "fragment death effect retains final Y");
-        AssertEqual(EnemyDefinitionId.RidleyBreakupPiece, explosion.StateOf<EnemyDeathExplosionState>().DropDefinitionId, "fragment drop retains native header");
+        AssertEqual(EnemyDefinitionId.RidleyBreakupPiece, enemies.DeathsAndDrops.Explosions.Of(explosion).Dropper?.DefinitionId, "fragment drop retains native header");
         AssertEqual(EnemyDeathExplosionSegment.SmallExplosion,
             ExplosionProgramOf(explosion), "fragment expiry selects native small death animation");
         AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "fragment death updates shared kill count");

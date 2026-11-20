@@ -1,735 +1,436 @@
-# Godot migration architecture
+# Godot architecture
 
-**Scope.** This document describes the shape the simulation is converging on and
-guides the eventual Godot project with editable scenes, while retaining the
-original game logic expressed by the C# port. The shape is the design reference for
-every change in the C# product, under [the manifesto](manifesto.md): work in the
-existing implementation moves code toward this shape, never away from it. What is
-not started is the Godot host, scene authoring and engine integration; reading this
-plan does not start that work or authorize switching away from the active ticket.
-The source examples below are evidence of constraints at the time of inspection,
-not a cleanup queue; recheck them when working on a slice.
+This is the design guide for the v1.0.0 Godot game. [The v1.0.0 manifesto](v1.0.0-manifesto.md) states the goal and
+the rules; this document says how the project is built. Where they disagree, the manifesto wins.
 
-Its audience is the developer or implementing AI making decisions as dependencies
-are uncovered. It describes which approaches to prefer under particular constraints,
-the reasons for those preferences, and the behavior that each choice must preserve.
+The game is written new in Godot. The old C# code is reference material for what the game does. Nothing in its
+structure is a constraint unless the player could see the difference.
 
-The architectural direction is phase dispatch through entities into domain
-services. The dispatcher preserves execution semantics; entities and services
-preserve operation semantics. Shared state becomes an explicit relationship
-between objects with appropriate lifetimes. Editable Godot scenes are the intended
-authoring environment; a host that only displays the existing framebuffer is a
-possible intermediate milestone.
+This guide is not complete and is not meant to be. Each section ends with a note, **Why, and extending it**, that
+says what the section is protecting and how to decide a case it does not cover. [The type system](godot-types.md)'s
+section 0 gives the reasoning behind the whole design. When the work meets something not covered, extend the
+section by its note, build it, and write the addition here in the same change.
 
-This is design guidance, not a completed phase inventory or an implementation.
-Architecture alone does not prove frame parity. Preserving the selected C# baseline
-and correcting a discrepancy from the cartridge are separate changes. Follow
-[AGENTS.md](../AGENTS.md) for ticket ownership, confirmation scope, original-source
-references, error handling, publication, and the bounded-emulation scope. This
-document does not authorize starting another ticket while one is in progress.
+## Using the old code
 
-## How to use this plan
+Use it to answer questions like:
 
-For each proposed extraction or integration, identify the applicable constraints
-below from current source and its callers. Use the preferred approach when it
-preserves the described contract. Where it cannot, record the concrete mismatch
-and an alternative that preserves the contract. An unexplained preference for
-engine conventions is insufficient reason to change game behavior.
+- How fast does this move, how long does this last, how much damage does this do?
+- What does this enemy do, in what situations, with what timing?
+- What is in this room, and what happens when you enter or leave it?
+- What odd thing does the game do here that a player would notice?
 
-Names such as `IWeaponCooldown`, `RunAlpha`, and `RunBeta` illustrate possible
-contracts. Establish the actual interfaces and phase boundaries from the code
-being moved. Movement, attack, damage, and death are behavior domains; they do not
-automatically correspond to separate global phases.
+Do not use it to answer:
 
-The source examples were inspected during this design discussion, including the
-checkout at `a3820e4daba563da0714fea7f9f543e3cae66c7e`. They are navigation aids and
-concrete evidence of constraints, not an exhaustive audit or a required future
-migration baseline. Recheck the relevant implementation when working on a slice.
+- What classes, files or folders should exist?
+- How many objects is this thing made of?
+- What state should an object hold, and in what fields?
+- What should things be called?
 
-## Execution and ownership model
+The disassembly and bank references in AGENTS.md remain available for the same purpose.
+
+## Things that are not carried over
+
+These are the 1994 program's design, or the old code's echo of it. The list is for recognising them, not complete:
+
+- Fixed slot arrays and behaviour that depends on slot position.
+- One thing built from several entities because the original needed several slots for it.
+- One flat enum of every pose, and lists of pose names standing in for a property.
+- A speed size plus a direction flag; a separate direction enum for each kind of movement.
+- A mode spread across several booleans and a "none" value.
+- One large state object that every routine reads and writes.
+- Gameplay changes made inside drawing code.
+- Animation "instruction lists" stepped by an interpreter.
+- Multi-tile objects made of one real tile plus tiles that point at it.
+- Values left over in a reused storage place and read by the next thing to use it.
+
+When one of these produces something the player can observe, keep the observable result, expressed in the new
+design, in the one place it belongs (manifesto, section 5). Do not keep the mechanism.
+
+**Why, and extending it.** Every item on this list is a way the 1994 program coped with its machine: fixed memory,
+no objects, one routine per frame phase. None is a decision about the game. The list will grow as the old code is
+read. The way to recognise a new one: the structure exists to manage storage or to fit the original's routines, and
+a person describing the game to someone would never mention it. Add it here when found.
+
+## Project layout
+
+- The project is `godot/`. It has no references to the old code.
+- It has three layers: `engine/` (a game engine with nothing of Super Metroid in it), `game/` (Super Metroid in
+  code, built on the engine, including its compatibility layer) and `assets/` (Super Metroid's art, audio and room
+  layouts as plain, neutral, editable files). `engine/` never references `game/`.
+- [The type system](godot-types.md) gives the folder tree, every kind of type the game is made of, what each owns
+  and manages, the rules for access and inheritance, and the questions that decide where a thing belongs. Work
+  extends that system.
+- One folder per thing, one class per file. No folder that collects unrelated things, and no file that collects
+  many entities.
+
+## Entities
+
+- **One entity per thing the player sees as one thing.** A boss is one scene with one root script. Its head, arms,
+  weak points and projectile spawn points are child nodes of that scene, not separate entities. How many slots or
+  objects the original or the old code used for it is not evidence.
+- Something is its own entity only when it lives on its own: it can exist, move or die independently of what made
+  it (a projectile, a dropped pickup, a spawned minion).
+- An entity's node owns its state and its behaviour. No separate state object handed to static routines, and no
+  thin entity that forwards to a shared class.
+- A thing with modes is a state machine. Data that only means something in one state lives in that state and stops
+  existing when the state ends.
+- Motion is a signed velocity. A value made of independent parts (facing, aim, what the player is doing) is held as
+  those parts.
+- Tunable data (speeds, health, damage, timings) is an ordinary property of its node or resource, visible in the
+  editor. For this game its value comes from an external data file and shows read-only; with no file named it is
+  edited and saved in the editor (type system, "Values from files").
+- Live things are the objects that exist now. No fixed tables, slot numbers as identities or "empty" entries.
+
+Every actor scene follows the same skeleton: root node with the actor's script; an `ActorVisual`; collider children
+(see Collision); a state machine; any movement components it uses; and the data file its values come from.
+
+**Why, and extending it.** An entity is the unit the player would point at and name, because that is the unit a
+person editing a room, a modder changing a file and the owner building a new game all think in. Splitting one
+thing across several entities is the old code's shape and is always wrong here. When a thing seems to need more
+than one entity, ask what the player sees: one boss with arms is one entity with parts; a boss and the rocks it
+throws are a boss and projectiles. When an actor needs something the skeleton lacks, it is a new child with one
+job, and if a second actor needs the same child it becomes an engine component.
+
+## The game loop
+
+One coordinator owns advancing the game. It runs on Godot's normal `SceneTree`, from `_PhysicsProcess`, sixty
+updates per second.
 
 ```mermaid
 flowchart TD
     G[Godot host] --> P[Phase dispatcher]
     P --> D[Domain dispatcher]
     D --> E[Entity phase entry point]
-    E --> S[Entity behavior and domain services]
-    S --> A[Authoritative entity and shared state]
-    S --> R[Entity result]
+    E --> S[Entity behaviour and shared services]
+    S --> R[Result]
     R --> P
-    P --> O[Published display and audio output]
+    P --> O[Published picture and sound]
     O --> G
 ```
 
-The return to the dispatcher can select the next entity, a nested pass, a branch,
-a continuation, or completion of the current simulation step. It is a synchronous
-control-flow relationship; an asynchronous event bus is not implied.
-
 | Owner | Responsibility |
 | --- | --- |
-| Godot host | Engine integration, input collection, scene authoring, device output, and presentation. |
-| Phase dispatcher | Select the applicable control flow and preserve global order, branching, repetition, suspension, and completion. |
-| Domain dispatcher | Preserve a domain's traversal, nested per-entity order, admission rules, and allocation semantics. |
-| Entity | Own or reference authoritative state, expose applicable phase entry points, execute entity-specific behavior, and invoke its services. |
-| Shared service | Implement reusable domain operations and own shared state where the domain requires it. |
-| Composition root | Construct a simulation session, bind dependency instances, and establish their lifetimes and capabilities. |
+| Godot host | Engine integration, input collection, device output, presentation. |
+| Phase dispatcher | The order of phases within one update, and branching, repetition, suspension and completion. |
+| Domain dispatcher | Which of a domain's entities run, in what order, and when a new one is admitted. |
+| Entity | Its own state and behaviour, exposed as one entry point per phase it takes part in. |
+| Shared service | An operation or state several unrelated entities really share. |
+| Composition root | Builds a game session from the `GameDefinition` and hands each object what it depends on. |
 
-When behavior is specific to one enemy, prefer the enemy or a dedicated behavior
-component as its owner. When the operation is shared, prefer a domain service.
-For example, an enemy can decide to attack and ask a shared projectile service to
-allocate the shot. The dispatcher should know the execution point without
-encoding that enemy's attack pattern.
+- Entities are stepped by the dispatchers' calls. They do not advance themselves from their own `_Process` or
+  `_PhysicsProcess`, and Godot's node order, `_Ready` order and signal order never decide gameplay order.
+- When another actor's work falls between two parts of an entity's update, the entity has two phase entry points.
+  The dispatcher keeps the interleaving; the entity keeps its own logic.
+- Phase entry points are typed interfaces. An entity implements only the phases it takes part in; no empty methods.
+- Being registered (it exists), taking part (it implements a phase) and being eligible (it runs this time) are
+  three separate things. Eligibility is decided at the point of the call, not from a mask taken at the start of
+  the update.
+- Behaviour that belongs to one enemy lives in that enemy. The dispatcher knows when the enemy runs, never what it
+  does.
+- Calls are ordinary synchronous calls with immediate effect. Something is deferred only when it really takes
+  effect later, and then the place it is consumed is named. No event bus.
+- Only complete updates run. Gameplay never takes elapsed time, never interpolates its own positions and never
+  skips a phase. When the host falls behind it runs whole updates to catch up, up to a cap.
+- Do not replace Godot's `MainLoop`, and do not move gameplay to a worker thread, unless a specific need is shown.
 
-Prefer services with coherent responsibilities and explicit dependencies. A clean
-service boundary does not imply independent state or freedom to reorder calls.
-Keep engine types outside reusable simulation contracts where possible, so the
-same phase path can run under the existing confirmation tools.
+Order matters only where it changes a result. Two places the old code's order is known to matter, to be confirmed
+when they are built and kept only if the player could tell: each enemy finishes being hit before it acts, enemy by
+enemy, and part of the player's update runs before the enemies and part after. Find the rest per slice; where order
+changes nothing, it is free.
 
-## Phase dispatch under ordering constraints
+### Pausing and waiting
 
-### Interleaved work
+A message box, the pause screen, the X-ray scope, a suit pickup and a host suspend each stop different things and
+resume differently. Each is its own explicit state with its own resume point. Do not use `await`, a generic wait,
+or one global pause flag (including `SceneTree.paused`) for them.
 
-When another actor's work occurs between two parts of an entity's behavior, prefer
-multiple phase entry points on that entity. Preserve one authoritative state
-across those calls and explicitly retain observations that later calls need.
+### Spawning and removing
 
-For Samus, the current runtime prepares terrain interaction, performs alpha work,
-runs enemies, then proceeds into beta. Moving platforms can contribute displacement
-between preparation and movement. An entity can encapsulate its part of each
-operation while the dispatcher preserves that interleaving. See
-[`PrepareEnemyFrame` and `RunEnemyUpdatePhase`](../csharp/src/SuperMetroid.Core/Enemies/EnemyFramePhase.cs).
+For each kind of thing, state when it is created, when it first takes part in an update, when removal takes
+effect, and when its Godot node is freed. `QueueFree` is deferred; gameplay removal must not depend on when Godot
+gets round to it. A pool that has a limit keeps its limit and its behaviour when full.
 
-When ordering is nested, prefer nested dispatchers or explicit nested schedules.
-The following is only a partial ordinary-gameplay example; conditional branches
-and specialized handlers must be established from the current implementation:
+### Failures
 
-```text
-Samus alpha including applicable projectile production and update
-Enemy pass
-    Build the eligible native slot list
-    For each selected slot in its original order
-        Perform applicable collision and damage work
-        Select and execute AI
-        Perform applicable instruction processing
-        Admit draw work and perform remaining timer work
-Samus beta
-```
+One guarded boundary at the host. A participant does not catch an error and let the rest of the update continue on
+half-finished state, and nothing retries a phase automatically. AGENTS.md's no-dialog error policy applies.
 
-Preserve collision-before-AI within each enemy's turn. A global pass over all
-collisions followed by a global pass over all AI has a different mutation order.
-Likewise, phase numbers sorted ahead of slot numbers cannot represent every nested
-schedule. See [`RoomEnemySystem.StepFrame`](../csharp/src/SuperMetroid.Core/Enemies/RoomEnemySystem.cs)
-and [`ResolveOrdinaryProjectileHit`](../csharp/src/SuperMetroid.Core/Enemies/EnemyCollision.cs).
+**Why, and extending it.** The loop exists so that the order things happen in is written down in one place and is
+the same every time. Godot will happily run every node's own callback in tree order; the moment gameplay depends on
+that, the order is hidden in the scene tree and changes when someone rearranges a scene. So the rule for anything
+new: if it changes gameplay state, it is called by the loop at a named point, and if two things' order could matter,
+their order is stated. Start a new phase or entry point only when something really must happen between two existing
+ones; otherwise it joins the phase it belongs to. Do not copy the old code's phases: begin from the simplest order
+(player, then enemies, then projectiles, then the room) and split only where a result the player can observe
+requires it.
 
-### Immediate effects and retained observations
+## Shared state and services
 
-When an operation's result affects a later operation in the same pass, prefer
-typed synchronous calls and immediate mutation through the designated owner.
-Preserve the original order of target traversal, hitbox traversal, projectile
-selection, side effects, and early exits. Use deferred commands only where the
-original path actually defers the effect, and name their consumption point.
+- State that several systems must agree on is one instance handed to each of them (one weapon cooldown shared by
+  beams, missiles and bombs). Handing it to more consumers must not make it advance more than once.
+- Lifetimes are chosen from what the state is for:
 
-When a decision uses an earlier observation, carry that observation explicitly.
-The current enemy loop records `invincibleAtEntry` before decrementing the timer;
-the call that reaches zero still skips collision. Reading the current timer in a
-new collision callback would change the result. Distinguish retained observations
-from values that intentionally must be read live after another phase mutates them.
-
-When eligibility can change during a frame, evaluate it at the original decision
-point. A frame-start mask of all enabled phases is appropriate only if the source
-establishes that those decisions are all latched there. Keep phase-scoped temporary
-state in an explicit frame context when extraction would otherwise lose a local.
-
-### Suspension and continuation
-
-When execution suspends partway through a state machine, prefer explicit saved
-continuation state describing the resume point and pending operation. Preserve
-the work that continues around the suspension and whether closing the wait returns
-immediately or continues the current pass. Generic asynchronous waits and a global
-pause flag must not invent the continuation behavior.
-
-Message boxes, save prompts, suit transformations, X-ray, game pause, and host
-suspension have different contracts. The current message path retains pending
-save or suit work; the enemy loop can decrement invincibility while movement is
-frozen. Use the actual per-operation rules in
-[`SuperMetroidRuntime`](../csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs)
-and the frontend dispatcher rather than treating these states as interchangeable.
-
-### Failure boundaries
-
-When moving operations across methods or services, preserve their cleanup and
-commit boundaries. The runtime's `finally` restores borrowed ammo and demo input;
-door loading prepares assets before consuming the pending door. These are relevant
-to the existing recoverable-error policy.
-
-Prefer one guarded host boundary and explicit domain recovery where already
-defined. Catching an exception independently in every participant and continuing
-the phase list could execute later phases against incomplete state. Do not add
-automatic phase retries without accounting for side effects already performed.
-Maintain the no-dialog error policy required by AGENTS.md.
-
-## Entity contracts and registration
-
-### Capabilities and metadata
-
-When the dispatcher must invoke a known operation, prefer a typed interface or
-equally explicit compile-time contract. An entity may implement several meaningful
-phase contracts. Illustrative interfaces include `ISamusAlphaParticipant`,
-`ISamusBetaParticipant`, and `IEnemyAiParticipant`; avoid requiring every entity to
-implement every phase with empty methods.
-
-When identity, order, or lifetime information is required, prefer an explicit
-registration record. It should establish the owning dispatcher, authored ordinal
-or physical slot, supported handlers, and admission/removal semantics.
-
-Attributes may help editor discovery or generate registration code. If used, prefer
-validated metadata with one source of truth. Attributes should not silently invent
-execution order, duplicate an interface's participation declaration, or require
-unvalidated string dispatch. A reflection or DI framework is not prescribed here.
-
-Keep these concepts separate:
-
-| Concept | Contract |
+| Situation | Lifetime |
 | --- | --- |
-| Registration | The entity exists in this domain and has a known identity and lifetime. |
-| Participation | The entity implements a particular phase operation. |
-| Eligibility | That operation should execute at this point under the applicable rules. |
-
-Register independently scheduled gameplay entities with their owning dispatcher.
-When a subsystem owns a fixed pool of records, its registry may be that pool; it
-does not require one Godot node per record. Decorative nodes need no simulation
-registration. Multipart visuals and multipart native actors must be distinguished
-by their actual scheduling and slot requirements.
-
-### Initialization and dynamic lifetime
-
-When initialization order is observable, prefer collecting scene declarations and
-validating them before activating gameplay in the original order. Descriptor
-collection must not execute initialization AI early. Preserve sequential record
-installation and initialization when an initializer reads a preceding slot.
-Godot lifecycle callback arrival order should only establish bindings under this
-design; it should not determine population order.
-
-The current population loader initializes each record before advancing to the
-next. The gunship bottom accesses preceding physical slots during initialization.
-Keep the 32-slot layout, empty slots, adjacency, and native index meanings where
-consumers rely on them. See `LoadPopulation` and `InitializeGunshipBottom` in
-[`RoomEnemySystem`](../csharp/src/SuperMetroid.Core/Enemies/RoomEnemySystem.cs).
-
-When entities spawn or disappear during a pass, specify separately:
-
-- When storage is allocated and initialization executes.
-- When the new occupant becomes eligible for this or a later pass.
-- When logical deletion takes effect and when storage becomes reusable.
-- When the corresponding Godot representation is created or freed.
-
-Prefer the domain's original rules over a universal end-of-frame mutation queue.
-Preserve capacity and exhaustion behavior: the current
-[`Mother Brain falling-tube spawn`](../csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainBehavior.cs)
-returns without spawning when the enemy pool is full. Other paths have their own
-failure contracts.
-
-When iteration snapshots identities, preserve what the snapshot contains. The
-enemy loop records native slot indices, then resolves the current slot during
-iteration. Snapshotting entity references instead can change replacement behavior.
-Use generations to protect host bindings from stale visual callbacks where needed,
-but do not change a native gameplay link's deliberate slot-alias semantics by
-silently giving it a different identity model.
-
-## Shared state and dependency injection
-
-### One storage identity across several consumers
-
-When multiple systems read and write one original value, prefer one shared state
-instance injected into all relevant consumers. Keep a single authoritative value
-even when separate interfaces expose different read or write capabilities.
-Entity-private state remains private where the source establishes independence.
-
-The current weapon systems share one cooldown. A possible `IWeaponCooldown`
-instance would be referenced by missiles, beams, and bombs. The designated phase
-operation advances it; consumers read or replace it at their original call sites.
-Injecting the instance into more entities must not multiply its advancement.
-
-Preserve the exact timer contract: width, wrapping, read interpretation, decrement
-point, and side effects. A generic `ICountDown` is appropriate only if it expresses
-those semantics. A timer measured in engine seconds is not an equivalent substitute
-for a wrapping simulation word.
-
-When several names are views of one storage location, prefer typed views backed
-by that single location. When similarly named timers are independent, provide
-separate instances. Do not infer storage identity from matching names or values.
-
-Some values that look derivable are independently authored state. For example,
-the bomb counter can be assigned to suppress allocation without creating bombs.
-Preserve it rather than deriving it from the number of registered entities. See
-[`SamusBombProjectileSystem`](../csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusBombProjectileSystem.cs).
-
-### Lifetimes and service composition
-
-When mutable state belongs to a game session, prefer a DI instance scoped to that
-session. This supports independent editor previews, confirmation sessions, and
-restored games. Process-wide mutable statics should not connect otherwise separate
-simulations. Static immutable definition catalogs remain appropriate.
-
-Choose lifetimes from the state contract, not from scene hierarchy alone:
-
-| Situation | Preferred lifetime |
-| --- | --- |
-| State must survive entity destruction or ordinary room transitions | Session-owned instance, retained across those transitions. |
-| State is recreated for a room or encounter | Explicit room or encounter scope with defined entry and teardown operations. |
-| State belongs only to one actor | Entity instance, with the original initialization and replacement rules. |
-| Content is shared and immutable | Shared definition or asset instance; mutable runtime state uses a separate owner. |
-
-Bind dependencies before the phase that requires them. Prefer constructor or
-explicit composition-time injection over repeatedly resolving services inside
-simulation callbacks. Expose domain operations instead of a service locator or
-an unrestricted world object that recreates the current coupling under one name.
-
-Shared code does not require shared mutable state. A movement algorithm may work
-on each actor's private kinematics, while a projectile allocator owns a shared
-pool. Conversely, multiple services may require restricted access to one shared
-word. Ownership and permitted access should be recorded independently.
-
-### Random state
-
-When behavior uses the original shared RNG, preserve both the shared instance and
-the sequence of reads, advances, and explicit writes. Giving every enemy the same
-seed in a private generator does not preserve that sequence.
-
-Menu frames participate in RNG progression, and runtime release preserves the
-value. Some HDMA effect work mutates it before the gameplay prologue advances it.
-Only the established reset path should reseed it. Presentation previews and added
-cosmetic effects must not consume the gameplay stream. See
-[`SuperMetroidGame.AdvanceMenuRandom`](../csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.cs)
-and `StepFrameGuarded` in the runtime.
-
-## Godot timing and presentation boundaries
-
-### One owner of simulation advancement
-
-When a Godot callback can trigger a complete simulation step under the required
-host policy, prefer a single coordinator using the normal `SceneTree`. It can
-dispatch several synchronous phases inside one `_PhysicsProcess` invocation.
-Gameplay participants should receive those explicit calls rather than also
-advancing authoritative state through independent engine callbacks.
-
-Godot permits a custom `MainLoop`. Prefer replacing it only when an identified
-integration constraint requires control unavailable through the coordinator;
-phase dispatch alone does not require an engine fork or loop replacement.
-[Godot MainLoop reference](https://docs.godotengine.org/en/stable/classes/class_mainloop.html)
-
-When a simulation worker is necessary, give that worker sole ownership of the
-same scheduler and communicate with Godot through explicitly owned input and
-output buffers. Do not also advance the game from physics callbacks. Prefer
-serial execution of authoritative phases while preserving shared mutation order;
-task completion order must not become gameplay order.
-
-Treat callback selection and host cadence as decisions to establish for the
-target build. The inspected desktop runs at 60 frames per second with a four-frame
-catch-up cap, while the dormant Android host's `AndroidFrameTimingDefinitions` specifies a two-frame cap. Godot
-also has its own physics rate, maximum steps per rendered frame, and timing
-adjustment settings. Record the chosen baseline, catch-up behavior, long-stall
-policy, pause/resume behavior, and audio relationship. Do not combine migration
-with an unrequested correction to cartridge wall-clock cadence.
-[Godot Engine reference](https://docs.godotengine.org/en/stable/classes/class_engine.html)
-
-When frame-counted logic advances, prefer complete original simulation steps.
-Passing elapsed time into the existing arithmetic, interpolating authoritative
-positions, or dropping an internal phase changes the contract. Presentation may
-replace superseded pictures without discarding the simulation work that produced
-them. Host missed frames and the modeled distinction between accepted and lagged
-NMIs are separate concepts.
-
-### Input and audio
-
-When inputs arrive between simulation samples, preserve held state and pending
-edges until their designated sampling point. Sample and record the controller
-word once for each admitted simulation step. A render frame may contain several
-steps; render callback frequency must not consume input edges or duplicate them.
-Preserve source merging, simultaneous directions, bindings, and focus-loss policy
-as defined by the selected host contract. The existing
-[`FrameInputLatch`](../csharp/src/SuperMetroid.Core/Input/FrameInputLatch.cs)
-preserves a complete tap between samples.
-
-When audio acknowledgements affect dispatch, keep simulated audio advancement
-inside the session's ordered frame contract. Apply the frame's commands, generate
-its samples, and make the resulting acknowledgements available at the original
-boundary. Device playback callbacks consume output; device latency must not select
-gameplay acknowledgement timing. Specify output mute and device-failure behavior
-without accidentally changing simulated audio progression.
-
-When output storage is reused, give the consumer a copy or an explicit ownership
-handoff. The session reuses its PCM buffer, so `AudioSession.CopyFrame`
-copies each update's samples into host-owned storage. Enqueuing one reused array
-repeatedly can overwrite queued samples.
-See [`AudioSession`](../csharp/src/SuperMetroid.Core/Audio/AudioSession.cs)
-and the current host frame loops.
-
-### Simulation position and visible position
-
-When movement has exact integer or fixed-point semantics, keep that representation
-authoritative in the entity and its services. A movement result includes the
-required state changes and side effects, not merely a floating-point position.
-Project the appropriate result into Godot coordinates without feeding rounded or
-interpolated presentation coordinates back into the simulation.
-
-When existing draw routines mutate gameplay state, preserve those operations as
-simulation phases before replacing their graphics output. Samus's draw epilogue
-updates input history, and drawing also participates in palette and other state
-progression. That work must run under its original eligibility rules even when
-the host does not display a picture. See
-[`SamusInputSnapshot`](../csharp/src/SuperMetroid.Core/Samus/SamusInputSnapshot.cs)
-and [`GameplayActorDrawing`](../csharp/src/SuperMetroid.Core/Gameplay/GameplayActorDrawing.cs).
-
-When display state is latched before subsequent gameplay changes, publish the
-latched state. `RunNmi` copies finalized OAM and display registers and drains
-transfers in a defined order. Publishing the latest live actor transform can
-change visual timing even with identical simulation positions. Prefer an explicit
-display snapshot boundary such as the existing
-[`StepCaptured`](../csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.cs) and [`FrontendDisplay`](../csharp/src/SuperMetroid.Core/Frontend/FrontendDisplay.cs).
-Repainting or attaching a view must not advance simulation or rerun draw side effects.
-
-When stock rendering semantics depend on sprite priority, palette arithmetic,
-windows, scanline effects, or Mode 7, prefer a presentation backend that implements
-those semantics explicitly. Ordinary Godot sprite composition is suitable only
-where it preserves the required result. Existing software output and the published
-frame description (whole-frame sprite entries bound to their artwork) are useful staged boundaries.
-
-## Sprite and animation migration
-
-The finished Godot project needs composed, inspectable, editable actor animations.
-Importing the current tile sheets as textures alone does not meet that goal.
-Treat sprite conversion as a migration workstream alongside scene conversion,
-with the same future-only scope as this document.
-
-### Existing artwork and animation ownership
-
-The current representation separates indexed pixels, composition, visual selection,
-and animation mechanics. These inspected sources provide starting boundaries:
-
-| Existing source | Migration-relevant information |
-| --- | --- |
-| [SamusBodyArtworkFiles](../csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyArtworkFiles.cs) and [SamusSpritemapArtworkCatalog](../csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapArtworkCatalog.cs) | Indexed upper/lower tile atlases, pose/frame graphics selectors, and ordered sprite parts. The atlas chunks are transfer definitions, not finished animation frames. |
-| [SpriteComposition](../csharp/src/SuperMetroid.Core/Assets/SpriteComposition.cs) | Ordered visual regions with offsets, size, flips, priority, and explicit or inherited palette selection. |
-| [EnemySpritemapCatalog](../csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCatalog.cs) | Native frame identities and editable display bindings; changing artwork does not replace the AI's frame pointer. |
-| [EnemyExtendedFrameFiles](../csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyExtendedFrameFiles.cs) and [EnemyBg2FrameFiles](../csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyBg2FrameFiles.cs) | Multipart visual roots, including bodies mixing ordinary sprites with background tilemap drawing. Gameplay hitboxes and callbacks are separate. |
-
-When defining a conversion slice, inventory its artwork selectors, composition
-rules, graphics transfers, palettes, and animation consumers statically. Follow
-current definition APIs, including calculated definitions. Do not discover frames
-by running gameplay until no new pictures appear, or assume atlas order specifies
-animation order. This evidence establishes the path for the selected family;
-it is not a claim that every visual family has already been mapped.
-
-### From chunks to composed frames
-
-When the selected parts determine a complete picture independently of other
-drawing, prefer an import-time compositor that produces complete frames, packed
-atlases if useful, and explicit metadata. Resolve the original graphics selection
-before assembling parts. Preserve part offsets, dimensions, flips, transparency,
-overlap order, and palette bindings; a tile index alone does not identify the
-pixels when graphics slots are reused. Consume installed artwork, as the player
-may have edited it, through its existing boundaries without adding gameplay ROM reads.
-
-Keep the actor origin stable across frames. Either use a common canvas around
-that origin or retain each cropped frame's offset from it. Independently centering
-cropped images produces visible movement even when simulation coordinates match.
-Record any visual attachment anchors separately from gameplay-owned projectile
-origins and hitboxes; neither should be inferred from opaque pixels. Deduplicated
-textures may share storage without merging distinct frame identities or timings.
-
-When composition depends on retained graphics state, make that state part of the
-resolution contract. For example,
-[SamusTileTransferState](../csharp/src/SuperMetroid.Core/Samus/Drawing/SamusTileTransferState.cs)
-selects upper and lower transfers, retains the previous lower selection when a
-record specifies no new lower transfer, and applies enabled transfers at NMI.
-A converter keyed only by the current pose/frame can therefore omit a dependency.
-Prefer bounded explicit variants or a state-aware composition adapter, selected
-from the actual consumer contract. Preserve the existing display-latching boundary
-when publishing the resolved frame; do not substitute the newest logical pose.
-
-When parts can move, select graphics, or change palette independently, prefer an
-editable actor scene with composed component frames and explicit layer bindings.
-The editor should show the assembled actor while allowing its relevant parts to
-be edited. Samus's body halves and separately selected cannon artwork need their
-dependencies resolved before choosing whether a particular frame can be flattened.
-Do not require one node per native tile or bake every possible component combination.
-
-When parts interleave with other actors or background layers, flatten only groups
-whose external ordering remains equivalent. A single actor texture and one Godot
-Z value cannot represent every original per-part ordering. Preserve ordered layers
-or use the presentation backend required for that effect. Mixed sprite/background
-boss bodies, clipping and wrapping, color math, and any modeled sprite-capacity
-behavior need explicit dispositions before their slice is replaced. A flattened
-editor thumbnail can still help inspect such an actor without defining its runtime
-rendering strategy.
-
-When colors change independently of shape, retain indexed artwork and palette
-bindings through an appropriate material or equivalent palette-aware compositor.
-Fixed RGBA variants are suitable only when they cover the required state without
-losing palette changes. Preserve transparent-index interpretation, color precision,
-and the timing of palette publication. Choose texture import and sampling settings
-that preserve the intended pixels, including atlas padding where needed; generic
-filtering or color conversion must not silently change indexed data.
-
-### Godot animation resources and runtime playback
-
-When an animation is an ordinary sequence of complete pictures, prefer a Godot
-`SpriteFrames` resource with meaningful animation names and a stable mapping from
-the original visual selectors to its frames. `AnimatedSprite2D` exposes these
-resources in its editor. When presentation needs coordinated component tracks,
-prefer an actor scene with explicit bindings and, where useful, presentation-only
-`AnimationPlayer` tracks. Choose the representation per family rather than forcing
-all actors into one flat strip.
-[Godot SpriteFrames reference](https://docs.godotengine.org/en/stable/classes/class_spriteframes.html),
-[Godot AnimatedSprite2D reference](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html)
-
-When animation advancement affects behavior, keep its timer, instruction cursor,
-branching, and side effects in the original simulation phases. The existing
-[Samus animation path](../csharp/src/SuperMetroid.Core/Samus/Drawing/SamusPresentation.cs)
-depends on liquid state, rising versus falling, running momentum, and special
-handlers that write frame/timer state. Enemy instruction processing likewise
-belongs to the domain dispatcher. These are not all fixed-FPS loops.
-
-Prefer having the adapter select the published animation/frame or component state
-explicitly, with automatic gameplay playback disabled. Render repetition, catch-up,
-visibility, and editor scrubbing must not advance gameplay or duplicate actions.
-Damage, spawning, sounds already scheduled by the simulation, and death completion
-must not move into animation-finished signals or method tracks. Seeking an
-`AnimationPlayer` skips intervening events, so it cannot substitute for executing
-the original instruction path.
-[Godot AnimationPlayer reference](https://docs.godotengine.org/en/stable/classes/class_animationplayer.html#class-animationplayer-method-seek)
-
-When a sequence has fixed durations, store exact simulation-tick durations in its
-binding metadata and derive editor preview timing from them. When it branches,
-waits, or changes rate from live state, expose the relevant visual sequences and
-conditions rather than inventing one authoritative clip length. Preview playback
-may use declared conditions or an isolated simulation session; identify those
-conditions and keep the active game untouched. Artwork, frame composition, and
-visual bindings remain editable. Changing original gameplay timing or transition
-rules is a separate mechanics change, not an incidental sprite import option.
-
-### Editable ownership and import records
-
-When generated resources will also be edited, establish ownership before the first
-import. Prefer reproducible generated defaults plus explicit authored overrides,
-or a deliberate one-way handoff to Godot-authored assets. Reimport must preserve
-edits by stable identity and report conflicts. Do not let both a legacy chunk
-sheet and its independently edited composed frame silently claim authority over
-the same pixels. Reverse-splitting a replacement full frame into the original
-shared tiles is not a prerequisite for a usable Godot authoring workflow.
-
-Keep enough metadata to explain and regenerate a converted family:
-
-- Stable actor, visual-frame, and animation identities, with original selector
-  mappings independent of atlas packing and editor display names.
-- Selected source artwork identity, import format/version, and authored override
-  ownership; stale generated output must be detectable.
-- Origin, crop offset, component transforms/order, and palette or material bindings.
-- Fixed tick durations where applicable, or the simulation selector and conditions
-  that drive state-dependent playback.
-- Rendering requirements and any explicit unresolved case for that family.
-
-When an original blank frame is meaningful, retain its identity and duration.
-Missing artwork must produce a diagnostic rather than silently becoming blank.
-Scene resources, composed textures, materials, and binding metadata must travel
-together in the exported project; loading them should not require a developer's
-private extraction paths. Presentation edits should change selected content
-identities under this plan's state/recording compatibility policy.
-
-### Staged conversion and confirmation
-
-For each selected sprite family, prefer this sequence:
-
-1. Establish its source and animation contracts from current code, including
-   persistent graphics state and any multipart or background participation.
-2. Build composed frames or composed layers with origin and selector metadata.
-   Keep unsupported cases explicit rather than exporting misleading placeholders.
-3. Generate editable Godot resources and an actor scene that presents the assembled
-   result, then establish its reimport/override behavior.
-4. Bind the existing phase-owned animation state to those resources at the correct
-   publication point, replacing the old drawing for that family exactly once.
-5. Confirm the changed contract with the smallest faithful fixture: relevant pixels,
-   origin, layer/palette result, and frame/timer or side-effect ordering as applicable.
-
-For a selected conversion, confirm a real edit survives reimport and affects the
-runtime presentation while the unchanged mechanics follow their original path.
-Choose retained-half, palette, or overlap cases only when they are dependencies of
-that conversion. These are scoped confirmation examples, not an agent-owned
-whole-game capture campaign. The intermediate framebuffer host remains useful,
-but it does not complete sprite migration or provide editable composed animations.
-
-## Editable scenes and original data constraints
-
-When a scene becomes an authoring source, prefer a validated conversion into
-engine-independent definitions used by the same production services. Keep authored
-resources separate from mutable runtime state so gameplay block destruction does
-not edit a shared scene resource. Establish one authoritative source for each
-editable field; define how reimport preserves user edits and references.
-
-When scene order differs from original execution order, store explicit population
-ordinals, slot requirements, and stable references. Rearranging nodes for editor
-readability should not reorder gameplay. Preserve room-state selection order,
-door links, camera rules, callbacks, and multipart actor constraints in the data
-conversion. Reject ambiguous mappings with useful diagnostics.
-
-The existing
-[`RoomVisualLayoutFiles`](../csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomVisualLayoutFiles.cs)
-edits intentionally affect visuals while collision types and BTS behavior
-metadata retain their original ownership. Editable gameplay layout therefore needs
-a new definition boundary; relabeling those edits as full scene editing is
-insufficient. An unedited imported scene should preserve its original definition
-semantics. A deliberate edit may change outcomes while using the same mechanics.
-
-Stock content is identified by semantic names; the mapping from a native identity
-to that name belongs to the import pipeline and never to the simulation or the
-scene data. Establish an explicit identity and compatibility policy before allowing
-new rooms or actors that exceed current catalogs or slot constraints. Do not assume
-arbitrary content already works because existing scenes can be edited.
-
-When room transitions carry global state, prefer an explicit transition operation
-that prepares content and performs teardown, initialization, and activation at
-the original boundaries. The existing loader carries elevator and X-ray state
-into destination setup. Godot scene replacement alone does not define those
-semantics. Asynchronous asset preparation must not insert unintended simulation
-steps while a transition waits. See
-[`RoomLoader`](../csharp/src/SuperMetroid.Core/Rooms/RoomLoader.cs).
-
-When a smaller integer width, unusual index, alias, or bounded overread affects
-behavior, preserve the operation's exact interpretation. Wider arithmetic followed
-by one final cast may differ from wrapping at intermediate steps. The current
-[`RoomLevelData`](../csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelData.cs)
-models allocation tails for off-room PLM writes and streaming reads. Generic scene
-bounds, clamping, compacting arrays, or standard physics replacement must not
-silently remove those behaviors. Unbounded corruption remains outside AGENTS.md's
-implementation scope.
-
-Keep extraction and startup imports separate from gameplay capabilities. Reuse
-the ROM-free runtime boundary; scene conversion must not restore runtime ROM reads
-or reintroduce addresses as identities. Definition data stays in domain-named
-catalogs. Do not undo independently justified algorithms by exporting mechanics
-back into arbitrary lookup data as part of scene authoring.
-
-## State restoration and host bindings
-
-When state is restored, reconstruct the same sharing relationships, pending work,
-and continuation state. Prefer persisting simulation state separately from Godot
-nodes, device objects, and dispatcher callback registrations. Rebind host services
-and rebuild registrations without replaying gameplay initialization or retaining
-callbacks to the replaced session.
-
-The current
-[`DebuggerObjectGraphSerializer`](../csharp/src/SuperMetroid.Diagnostics/SaveStates/DebuggerObjectGraphSerializer.cs)
-preserves private fields, reference identity, cycles, and delegates. Moving fields
-or callback owners can change compatibility. Establish a deliberate schema and
-migration policy for debugger states and recordings; ordinary SRAM/save data and
-debugger snapshots have different contracts.
-
-When recordings depend on initial state and installed content, retain those
-identities and include authored scene content in the relevant compatibility
-policy. A controller sequence alone does not identify the simulation it should
-reproduce. Restoring game frame counters also must not rewind host publication
-identities and admit stale display output from the previous session.
-
-## Contract records for implementation
-
-When extracting a phase or shared service, record the relevant contracts near
-the implementation or in the ticket's scoped design notes. Complete these fields
-for the affected path; do not require a whole-game inventory before a bounded
-change can be implemented and handed off.
-
-| Phase contract field | Information to establish |
-| --- | --- |
-| Trigger and scope | Dispatcher state, enclosing pass, and invocation frequency. |
-| Participants and order | Domain registry, traversal direction, nested order, and identity interpretation. |
-| Eligibility | Conditions and the exact points at which they are evaluated. |
-| Reads | State owners and whether values are live, latched, or captured at entry. |
-| Writes | Permitted operations, visibility timing, and required order of side effects. |
-| Control result | Continue, branch, repeat, suspend, terminate, or resume behavior. |
-| Lifetime effects | Initialization, spawn admission, deletion, slot reuse, and teardown. |
-| Failure behavior | Cleanup, committed effects, reporting, and any established recovery boundary. |
-| Evidence | Current call sites, applicable original references, and the specific confirmation property. |
-
-| Shared state contract field | Information to establish |
-| --- | --- |
-| Identity and representation | Original storage identity, aliases, width, signedness, and interpretation. |
-| Owner and lifetime | Session, room, encounter, entity, or immutable content scope. |
-| Capabilities | Which consumers may read, write, advance, or reset the value. |
-| Advancement | Responsible operation, phase, frequency, and suspension rules. |
-| Restoration | Serialization, alias reconstruction, and service rebinding. |
-
-Record candidate decisions as proposals until their affected source contract is
-established. When an exception to a preference is necessary, document its constraint,
-the selected alternative, and its focused evidence so later agents can carry the
-reasoning forward.
-
-## Migration and confirmation approach
-
-When a boundary has not been established, begin with static source and call-graph
-inspection for the selected slice. Map the relevant execution, shared-state, and
-lifetime contracts before moving its logic. Source inspection is not permission
-to hunt for unrelated failures through gameplay or expanding tests.
-
-When an existing routine already preserves the needed behavior, prefer initially
-calling it from the new boundary. Extract one cohesive segment and replace its
-old invocation at the same execution point. Ensure that the old loop and new
-entity callback cannot both execute the operation. A phase dispatcher that merely
-renames the entire monolith is an intermediate adapter, not the completed service
-decomposition.
-
-When a new host needs an early integration milestone, a framebuffer and PCM adapter
-can establish loading and session execution before replacing presentation. When
-scene authoring is the next scoped change, demonstrate a real edit flowing through
-validated definitions into the same services. The final goal remains a full
-editable Godot project.
-
-For each implemented change, select proportionate confirmation tied to its contract.
-Examples of suitable properties, when that specific boundary is being changed:
-
-| Changed boundary | Focused property to confirm |
-| --- | --- |
-| Shared weapon cooldown | All intended consumers observe one value and only the designated operation advances it. |
-| Enemy phase extraction | A selected overlapping-shot fixture preserves the winning target, projectile mutation, and subsequent AI result. |
-| Phase admission or slot reuse | The identified spawn/replacement path runs at its original point using the correct occupant. |
-| Draw preparation | State evolution is unchanged when presentation is skipped or repeated. |
-| Sprite composition and animation binding | The selected frame preserves pixels, origin, applicable layering/palette state, and phase-owned timing; its authored edit survives reimport. |
-| Input and audio adapter | The selected tap/catch-up case consumes edges correctly and preserves command/acknowledgement order. |
-| Scene conversion | An unchanged selected fixture preserves definitions; an intentional edit reaches the expected production behavior. |
-| Restore and rebind | Shared identities and the selected continuation survive restoration without duplicate registration or initialization. |
-
-Use the smallest faithful deterministic fixture. Where integration depends on a
-retail room or recorded sequence, use that scoped input. Compare the state or
-pixels relevant to the changed property; end positions alone cannot confirm
-intermediate damage or timing. An optional focused phase trace can report the first
-divergent operation without becoming a broad gameplay search campaign.
-
-No cases above were run as part of writing this plan. They are selection guidance,
-not a mandatory matrix for every migration change. The user owns exploratory
-playtesting and final whole-game validation. Preserve the existing issue workflow,
-commit and push completed bounded work, and mark player-facing changes awaiting
-player validation as required by AGENTS.md.
-
-## Decisions to establish before dependent implementation
-
-| Decision | Evidence or constraint that should select the approach |
-| --- | --- |
-| Godot and .NET versions and export targets | Compatibility of the current .NET 10 projects, selected Godot SDK, export templates, and required platforms. Pin the chosen combination. |
-| Callback coordinator or simulation worker | Required pacing, input availability, device integration, and main-thread constraints; preserve one owner of advancement. |
-| Host timing policy | Selected baseline's frame rate, catch-up limits, suspension behavior, and audio progression. |
-| Actual phase interfaces | Static control flow for each selected slice, including nested passes and continuations. |
-| Service boundaries and lifetimes | Read/write ownership, aliases, initialization dependencies, and state carried across transitions. |
-| Scene schema and identity model | Existing slot/callback constraints, editable fields, import ownership, and stock/new-content compatibility. |
-| Composed sprite and animation resources | Per-family composition, persistent graphics state, palette/layer requirements, stable visual bindings, and ownership of reimported artwork edits. |
-| Presentation backend | The effects and composition semantics needed by the scoped conversion and target export platform. |
-| State compatibility | Existing save, debugger graph, recording, and content-identity contracts. |
-
-Godot's documented C# platform support is version-sensitive. At the time of this
-plan, its stable documentation describes desktop support, experimental Android
-and iOS support, and no C# web export. Recheck the selected release before making
-platform commitments.
-[Godot C# platform support](https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/index.html)
-
-Godot's node lifecycle, processing priority, and deferred deletion are engine
-contracts that the adapter must account for. They do not replace the game's
-explicit execution and lifetime rules.
-[Godot Node reference](https://docs.godotengine.org/en/stable/classes/class_node.html)
+| Survives room changes and entity deaths | The game session. |
+| Rebuilt for each room or encounter | The room or encounter, with defined setup and teardown. |
+| Belongs to one actor | That actor. |
+| Shared and never changes | A shared definition resource. |
+
+- No process-wide mutable state: no mutable statics, and no autoload used as a global bag. Two sessions (the game
+  and an editor preview) must be able to exist at once.
+- Dependencies are handed over when an object is built. No service locator, and no "world" object that exposes
+  everything.
+- Shared code does not mean shared state. A movement routine can serve every actor while each keeps its own
+  position.
+- **Random numbers.** Gameplay uses one shared generator and the order of draws matters. Cosmetic effects and
+  previews never draw from it.
+
+**Why, and extending it.** Shared state is where the old code's worst habits hide: a value several routines happen
+to read, living nowhere in particular. Here a shared thing has exactly one owner and a lifetime, and is handed to
+whoever needs it. When something new must be shared, decide three things in order: who owns it, how long it lives
+(session, room, one actor), and who is handed it. If it must be shared by unrelated systems for the whole session,
+it is one of the listed shared services or part of one; a new shared service is a rule change, not an extension.
+Most things that look shared turn out to belong to one owner that others ask.
+
+## Collision
+
+The game has its own small collision system. Godot's physics is floating-point and decides its own ordering, so it
+is not used for gameplay: no `CharacterBody2D` movement, no `Area2D` signals, no physics layers deciding outcomes.
+
+Everything the game collides is an integer, axis-aligned rectangle or a tile. There are no circles, polygons or
+rotation. That is small enough to own.
+
+**Colliders**
+
+- A collider is a child node of the entity it belongs to: a rectangle relative to the entity's origin, placed and
+  sized in the editor and drawn there.
+- A collider has a role: *body* (moves against terrain), *hurtbox* (can be hit), *hitbox* (hits), *solid* (blocks
+  the player).
+- A boss's separate parts are separate hurtbox nodes of the one boss scene. A hurtbox says which part it is; the
+  boss decides what a hit on that part does.
+- Where hitboxes change with the animation, the animation turns collider nodes on and off or moves them. No code
+  tables of rectangles per frame.
+
+**Terrain**
+
+- A room's terrain is its tile grid. Each tile kind has collision data: empty, solid, a slope with a height per
+  pixel column, or a block that reacts (spike, breakable, crumbling).
+- A door cap, a gate or a breakable wall is a `Barrier`: an object with its own collider and health, not a group of
+  tiles. The way out behind it is a separate `RoomExit` region (type system, "Barriers and exits").
+
+**Moving**
+
+- Positions are fixed-point: whole pixels plus a fraction, in one position type. No floats in gameplay movement.
+- One mover moves a body along one axis by a displacement and reports how far it got and what stopped it. The
+  player, enemies and projectiles all use it.
+- Any actor may have a solid collider. A solid blocks the player and can be stood on, and when a solid moves, the
+  mover carries what stands on it. Platforms, frozen enemies and anything else stood on work this one way.
+- Differences between movers are options on the call (how slopes are treated, which direction tiles are scanned),
+  not separate movement routines per kind of actor.
+
+**Overlaps**
+
+- A room has one collision world. Colliders register with it; it answers "what does this rectangle overlap" with
+  results in a defined, stable order.
+- Whether edges that only touch count is an option on the query.
+- The collision world finds overlaps. It does not decide what they mean.
+
+**Prototype**
+
+Build this much, in the engine with stand-in content, before anything depends on it: a player moving on terrain with
+slopes; one simple enemy; one enemy with several hurtboxes, as a boss has; shots against all three. If one system
+handles those cleanly, continue. If it does not, stop and bring what failed to the owner.
+
+A few collision results in the original come from how it stored things, not from geometry. When a slice meets one,
+apply the manifesto's test. If the player can observe it, it is kept: in the one enemy or object it belongs to, or,
+if it changes how the engine's collision behaves, as a compatibility answer to a named option on the collision call.
+The engine's default is always the plain geometric result.
+
+**Why, and extending it.** The engine owns collision because the game needs exact, repeatable results and Godot's
+physics gives neither. It stays small because everything collided is a rectangle or a tile. Two things must stay
+true as it grows: there is one mover and one overlap query, and collision only finds things, never decides what a
+contact means. A new need is a new option on an existing call with the plain behaviour as its default. A new shape
+(a circle, a rotated box) would be a real change to the system and is not an extension. If a case seems to need a
+second mover or a special collision routine for one kind of actor, the difference is an option that has not been
+named yet.
+
+## Interactions
+
+- An entity affects another through that entity's own methods. Nothing writes another entity's fields.
+- A hit is delivered to the target: the attacker's hitbox meets a hurtbox, the target's "take hit" is called with a
+  small value describing the hit, and the target decides what happens.
+- Nothing tests what kind of enemy or object something is. It asks through an interface for the thing it needs (can
+  this be grappled, can this be stood on).
+- Signals are for announcing something to whoever is listening (died, room changed), mainly to presentation. They
+  do not carry gameplay decisions whose order matters.
+
+**Why, and extending it.** Each thing decides its own fate. That is what lets an enemy, a barrier or the player be
+understood, tested and replaced on its own, and it is what lets the fork swap every particular thing out. For a new
+interaction, name the two sides and ask which one's state changes: that one gets a method, the other calls it and
+passes a small value describing what happened. If both change, there are two methods. If one side needs to know
+something about the other first, it asks through an interface named for the question. If you find one thing
+switching on what another thing is, an interface is missing.
+
+## Rooms and scenes
+
+- A room is a scene: its `Terrain`, placed entity instances, exits and its own settings. The tile layout is an
+  asset the `Terrain` loads, shown in the editor but never stored in the scene (type system, "Assets").
+- Scene node order is for the editor's convenience and never decides gameplay order. Where order matters it is
+  stated explicitly in the room's data.
+- A scene is authored content. Runtime changes (a destroyed block, an opened door) live in runtime state and never
+  edit the shared scene resource.
+- A room change is one explicit operation with defined teardown, setup and activation points, carrying across what
+  must carry across. Swapping scenes is not that operation by itself, and loading must not let extra updates run
+  while it waits.
+- The engine never assumes this game's content: no fixed number of rooms, areas, enemies or items, and no list of
+  them, in engine code. A room, enemy or item someone adds or changes works without touching the engine.
+- A room that differs by what has happened is still one scene: placed things have a "present when" condition and
+  the room's settings have versions (type system, section 5).
+
+**Why, and extending it.** A room scene is where the owner and anyone else will spend their time in the editor, so
+it should read as the room: open it and see what is there. Hence one scene per room, real nodes for placed things,
+and runtime state kept out of the scene. Anything new that belongs to a room is a node placed in it or a setting on
+it; anything that changes while playing lives in the room's runtime state and is lost when the room is left unless
+it is remembered.
+
+## Input
+
+- Held buttons and presses are kept until the update that samples them, so a tap between two updates is not lost.
+- Input is sampled once per update. A rendered frame may contain several updates or none; rendering never consumes
+  or duplicates a press.
+
+## Audio
+
+- What the game asks to be played, and when, is decided inside the update. Device latency, mute and device failure
+  never change gameplay.
+- A buffer the game reuses is copied or handed over before it is queued for playback.
+
+## Presentation
+
+- **Position.** Gameplay positions are exact and authoritative. They are projected into Godot coordinates for
+  display and nothing reads the displayed position back.
+- **What is shown.** The picture shows the state as it stood at the end of an update. Repainting, resizing or
+  attaching a view never advances the game.
+- **Effects.** Layer priority, colour blending, windows, per-line distortion and the rotating floor are done with
+  Godot shaders and layers that implement what the effect needs. Plain sprite stacking is used only where it gives
+  the right picture.
+- **Pixels.** Textures are sampled unfiltered, with atlas padding where needed. Nothing is scaled down.
+
+### Animation
+
+- An animation whose timing matters to play is a `FrameTimeline`, stepped by its owner through a `TimelinePlayer`
+  once per update. Each step names the picture to show by its path in the assets tree; `ActorVisual` shows it.
+- Godot's `AnimationPlayer` and `SpriteFrames` are used only for motion that is purely for show, and never hold a
+  direct reference to an asset file (type system, "Assets").
+- Every frame of an actor shares one origin. Frames are not centred independently.
+- Gameplay timing never lives in Godot's animation. Damage, spawning, sounds and death completion are not driven by
+  animation-finished signals or method tracks. Gameplay picks the frame to show.
+- Where colours change independently of shape (suit changes, flashes, glows), use a shader over the artwork, not a
+  baked copy per colour, unless the copies cover every case.
+- A meaningful blank frame keeps its identity and duration. Missing artwork is an error, never a silent blank.
+- No node per tile, and no baking of every possible combination of parts.
+- Assets never ship with the exported project. They are loaded from the installed assets folder, through
+  `ContentLibrary` only.
+
+**Why, and extending it.** Presentation follows the game and never leads it: the game must play identically with
+the screen off. So everything shown is derived from gameplay state at the end of an update, and nothing shown is
+read back. For any new visual, ask whether removing it would change what happens. If it would, part of it is
+gameplay and that part belongs in the update, with only the look left here. Use Godot's own rendering features
+freely for the look; they are only off limits as a clock or as a source of gameplay facts.
+
+## Project settings
+
+- The game draws at 256 by 224 and is scaled up to the window by whole multiples only. Nothing is scaled down.
+- Textures are unfiltered.
+- Godot's physics rate is sixty per second; that tick is the game's update.
+- Godot's generated `.godot/` folder and `assets/` are git-ignored. Everything else in `godot/` is committed.
+
+## Building and checking
+
+- The Godot project is built and run from the command line without opening the editor. One script builds it and
+  one script runs its checks; both are written with the project's first code and are the only way the agent builds
+  or checks.
+- A check is a C# class under `engine/tests/` or `game/tests/`, in the folder mirroring what it checks, run by one
+  test-runner scene. No third-party test framework. Engine checks use only the engine's own stand-in content, so
+  they pass with `game/` and `assets/` deleted.
+- A check builds the smallest scene that shows the behaviour and asserts what the player would observe. It does not
+  assert internal fields, and nothing is made public for it.
+- A failure anywhere prints the full error and ends the process with a failing exit code. No dialogs, in the game
+  or in the checks.
+
+**Why, and extending it.** Checks exist to confirm the thing just built does what it should, as a player would see
+it, and to keep the engine provably free of the game. They are not a way to hunt for problems and not a measure of
+internal shape. A new check asks one question about observable behaviour with the least content that can show it.
+An engine check that needs something from `game/` to pass means either the check or the engine has a piece of
+Super Metroid in it.
+
+## Build order
+
+The work is done in this order. Each stage's types are in [the type system](godot-types.md).
+
+1. Remove the old-code instructions from AGENTS.md (#2579).
+2. **Foundation:** the project and its settings, the build and check scripts, the shared values, `ContentLibrary`,
+   `InputSampler`, `GameDefinition`, `GameSession` and `GameLoop`.
+3. **Two proofs.** Nothing below starts until both work.
+   - The collision prototype (see Collision).
+   - Values from files: one stand-in enemy whose health and speed come from a text file, shown read-only in the
+     inspector when it is clicked in a room, not written into the scene when the scene is saved, loaded the same
+     way by an exported build, and editable and saved when no file is named. If Godot cannot do all of that with
+     one mechanism, stop and bring what failed to the owner.
+4. **The player:** the engine's `Player` controller, its standard states, `Inventory` and `Weapons`, then Samus on
+   top of it, in a test room.
+5. **Rooms:** `Terrain` and blocks, `Room` setup and teardown, exits, barriers and the room transition, the camera
+   and its zones, liquids, room effects, backdrops; then this game's rooms.
+6. **Room objects:** every engine kind, then this game's use of each.
+7. **Enemies:** the engine's `Enemy`, `Projectile`, `Pickup` and `Effect`, then every enemy of this game.
+8. **Bosses:** every boss, its encounter and its room's sequence.
+9. **Screens:** the engine's message box, map view, saving and options, then this game's HUD, pause screen and menus.
+10. **Cinematics and the rest:** title and demos, intro, Ceres, the escape, ending and credits.
+11. **Export** for Windows.
+
+In every stage the engine part is built first, checked with stand-in content, and only then used by the game part.
+If building a thing of this game shows the engine is missing something any game would want, the engine gets it
+first.
+
+Each asset format is defined, and documented beside `ContentLibrary`, in the stage that first needs it, and the
+asset extractor is changed to write it in that same stage. That is the one place v1.0.0 work touches the old
+repository's code, and it touches only the extractor's output.
+
+Sound is added with each stage's things; `SoundRequests` and `AudioDirector` are built in stage 4.
+
+The project is ready for replay testing when every item in the type system's section 10 exists and the game can be
+played from the title to the credits. The owner decides when that is so.
+
+**Why, and extending it.** The order is: prove the risky ideas, then build each engine system before the game
+things that use it, working outward from the player. That way every piece of Super Metroid lands on an engine part
+that already works with stand-in content, and the engine never gets shaped around one enemy's needs. Stages can be
+split into as many tickets as the work needs. Within a stage, order by dependency and do the general thing before
+the particular. If a later stage shows an earlier engine part was wrong, fix the engine part; do not work around
+it in the game.
+
+## Working a slice
+
+1. **Learn it.** From the old code and the references, write down what the slice does as the player experiences
+   it: behaviours, numbers, timings, quirks.
+2. **Design it.** Describe the scenes, nodes, states, colliders and resources. Check it against the manifesto's
+   test and this document. If it mirrors the old code's class list or object count, redesign.
+3. **Build it** from that design, not from the old code's files.
+4. **Confirm it** with a focused check of what the slice does. Not with a recorded movie: the replays are off
+   limits until the owner opens testing (manifesto, section 4).
+5. **Report** what the slice does, how it is built, each original structure that was not carried over, and each
+   quirk kept and where it lives.
+
+## Checking parity
+
+Replay testing does not start until the owner says the project is architected and ready for it. Until then the
+agent does not run the movies, read their traces, build replay tooling, or let them influence the design.
+
+Once the owner opens it, the recorded movies are replayed through the Godot game from their inputs and compared on
+observable results (manifesto, section 4). A mismatch is investigated from the observable that differs; the fix is
+in the new design, not a step back toward the original's structure.
+
+## Open decisions
+
+The manifesto's section 7 lists what the owner has not decided. Do not settle any of it in a ticket or in code.

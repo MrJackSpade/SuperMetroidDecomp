@@ -5,10 +5,10 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// The shades the import pre-colours the Ridleys' sheets and rooms in (#1512): the colours each encounter loads for its
-/// door, container and Baby, the eye and body fades, health bands, the retreat, the getaway floor's zoom, Norfair Ridley's
-/// blacked-out arrival and his arena's reveal, and the self-destruct warning's alarm, which only the warning's own written
-/// pictures show (#1544).
+/// The shades the import pre-colours the Ridleys' sheets and rooms in (#1512): the look of each encounter's door,
+/// container and Baby, the eye and body fades, health bands, the retreat, the getaway floor's zoom, Norfair Ridley's
+/// blacked-out arrival and his arena's reveal, and the self-destruct warning's alarm, which only the warning's own
+/// written pictures show (#1544).
 /// </summary>
 public static class RidleyShades
 {
@@ -25,10 +25,10 @@ public static class RidleyShades
             [CeresBabyShade.VerticalSquish] = "ridley-baby-VerticalSquish",
         }.ToFrozenDictionary();
 
-    /// <summary>The Ceres door's, container's and Baby's colours Ceres Ridley's initialization loads.</summary>
+    /// <summary>The Ceres door, container and Baby as Ceres Ridley's fight starts.</summary>
     public static PictureShade CeresStart { get; } = new("ridley-ceres-start", 0);
 
-    /// <summary>Ridley's own colours cleared to black as Ceres Ridley's initialization loads them.</summary>
+    /// <summary>Ridley shown black before he appears in Ceres.</summary>
     public static PictureShade CeresHidden { get; } = new("ridley-ceres-hidden", 0);
 
     /// <summary>
@@ -50,7 +50,7 @@ public static class RidleyShades
     /// <exception cref="ArgumentOutOfRangeException">The shade has no installed name.</exception>
     public static PictureShade Baby(CeresBabyShade shade) => new(Ensure.Listed(BabyKeys, shade), 0);
 
-    /// <summary>The colours Norfair Ridley's initialization loads.</summary>
+    /// <summary>The look of Norfair Ridley's arena as his fight starts.</summary>
     public static PictureShade NorfairStart { get; } = new("ridley-norfair-start", 0);
 
     /// <summary>Norfair Ridley's body and tail cleared to black as he arrives.</summary>

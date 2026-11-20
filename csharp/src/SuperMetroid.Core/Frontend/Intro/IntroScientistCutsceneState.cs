@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroScientistCutsceneState
 {
     /// <summary>Delivered or examined Baby actor whose animation drives scene completion.</summary>
-    internal readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroLaboratoryCue> baby;
+    private readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroLaboratoryCue> baby;
 
     /// <summary>Initializes the selected laboratory page, mirrored camera pan, and Baby actor animation.</summary>
     private IntroScientistCutsceneState(IntroLaboratoryScene scene)
@@ -47,7 +47,7 @@ internal sealed class IntroScientistCutsceneState
     public static IntroScientistCutsceneState CreateExamination() => new(IntroLaboratoryScene.Examination);
 
     /// <summary>
-    /// Advances the Baby script and pans the laboratory with it on every fourth update counted down by the crossfade into
+    /// Advances the Baby script and pans the laboratory with it on each crossfade step counted down by the crossfade into
     /// the laboratory; the crossfade back out of the laboratory ends the Baby as it reaches its final update (#1980).
     /// </summary>
     /// <param name="crossfade">What the running crossfade did on this update, or null when none runs.</param>
@@ -61,7 +61,8 @@ internal sealed class IntroScientistCutsceneState
             baby.Delete();
         }
         else if (crossfade is { To: IntroCrossfadeScene.Laboratory } intoLaboratory
-            && IntroCadenceDefinitions.LaboratoryStepEveryFourthUpdate.IsDue(intoLaboratory.UpdatesLeft))
+            // The laboratory steps on the cadence's updates counted before the crossfade's last, one fewer than it has left.
+            && IntroCadenceDefinitions.LaboratoryStep.IsDue(intoLaboratory.UpdatesLeft - 1))
         {
             if (Scene == IntroLaboratoryScene.Delivery && Background.X != 0)
             {
@@ -93,7 +94,7 @@ internal sealed class IntroScientistCutsceneState
         switch (cue)
         {
             case IntroLaboratoryCue.StartNextPage:
-                // The Baby's tenth pulse ends by selecting the next page.
+                // The Baby's last pulse ends by selecting the next page.
                 NextPageRequested = true;
                 return;
             default:

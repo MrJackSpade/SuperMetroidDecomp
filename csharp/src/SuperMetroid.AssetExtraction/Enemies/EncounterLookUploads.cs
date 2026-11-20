@@ -77,7 +77,7 @@ internal static class EncounterLookUploads
     internal static ComposedLook MotherBrainCorpseLook { get; } = new(ComposedEncounter.MotherBrain, "Corpse");
 
     /// <summary>Mother Brain's look once her death has copied the escape timer.</summary>
-    internal static ComposedLook MotherBrainEscapeTimerLook { get; } = new(ComposedEncounter.MotherBrain, "EscapeTimer");
+    private static ComposedLook MotherBrainEscapeTimerLook { get; } = new(ComposedEncounter.MotherBrain, "EscapeTimer");
 
     /// <summary>Mother Brain's look once her death has copied the escape message.</summary>
     internal static ComposedLook MotherBrainEscapeTextLook { get; } = new(ComposedEncounter.MotherBrain, "EscapeText");
@@ -196,7 +196,8 @@ internal static class EncounterLookUploads
     /// <exception cref="InvalidDataException">The look is none of the encounter's.</exception>
     internal static int IndexOf(ComposedEncounter encounter, ComposedLook look)
     {
-        int index = look.Encounter == encounter ? Looks(encounter).ToList().IndexOf(look) : -1;
+        int index = look.Encounter == encounter ? Looks(encounter).ToList().IndexOf(look)
+            : throw new InvalidDataException($"{encounter} has no look {look}.");
         return index >= 0 ? index : throw new InvalidDataException($"{encounter} has no look {look}.");
     }
 
@@ -210,7 +211,7 @@ internal static class EncounterLookUploads
     /// against <paramref name="installed"/>: nothing for the room's load.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed artwork lacks the look's characters, or the encounter has no such look.</exception>
-    internal static IReadOnlyList<EncounterArtworkUpload> Uploads(ComposedEncounter encounter, int look, IInstalledEncounterArtwork installed)
+    private static IReadOnlyList<EncounterArtworkUpload> Uploads(ComposedEncounter encounter, int look, IInstalledEncounterArtwork installed)
     {
         Ensure.NotNull(installed);
         Ensure.BetweenInclusive(0, Looks(encounter).Count - 1, look);

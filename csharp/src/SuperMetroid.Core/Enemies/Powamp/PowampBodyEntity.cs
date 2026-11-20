@@ -5,12 +5,16 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// reactions where its definition leaves them to it, each carrying the hit on to its balloon.
 /// </summary>
 /// <param name="species">The Powamp species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="balloon">The balloon that heads the body.</param>
-internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, PowampBalloon balloon)
-    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PowampBalloon balloon)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The body's own shot reaction, built for this occupant.</summary>
+    private readonly EnemyShotReaction ownShot = species.PowampBodyShotReaction(occupant);
+
     /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
     private EnemyBombReaction OwnPowampBombReaction => field ??= PowampBehavior.PowampBombReactionOf(State);
 
@@ -24,20 +28,20 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace pl
     internal PowampBodyState State { get; } = PowampBehavior.InitializePowampBody(place, balloon);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Place, State, frame.Level, frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Occupant, Place, State, frame.Level, frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBodyTypedAnimation(Place, State);
 
     /// <summary>Whether the body's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == PowampReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the body's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
-            species.ReactToPowampBodyTouch(context, State);
+        if (Occupant.Definition.Touch == PowampReactions.Touch)
+            species.ReactToPowampBodyTouch(Occupant, context, State);
         else
             base.ReactToTouch(context);
     }
@@ -47,13 +51,13 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace pl
 
     /// <summary>The Powamp's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? OwnPowampBombReaction : base.CommonBombDamageReaction(context);
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
+        context.SelectedShot == PowampReactions.Shot ? OwnPowampBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The body's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? OwnPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? OwnPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The Powamp's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == PowampReactions.Shot;
 }

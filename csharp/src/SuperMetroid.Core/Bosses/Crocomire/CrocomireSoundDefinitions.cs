@@ -6,7 +6,7 @@ internal static class CrocomireSoundDefinitions
     /// <summary>The sound queued as each fight projectile leaves the mouth.</summary>
     internal static readonly SoundEffectId ProjectileSpit = EnemySound.Rattle;
 
-    /// <summary>The acid burn, repeated every 32 frames while the body sinks.</summary>
+    /// <summary>The acid burn, repeated at <see cref="CrocomireBridgeCollapseDefinitions.AcidSoundInterval"/> while the body sinks.</summary>
     internal static readonly SoundEffectId AcidBurn = EnemySound.RisingSqueaks;
 
     /// <summary>The big explosion of the body and skeleton animations and the spike-wall pieces.</summary>

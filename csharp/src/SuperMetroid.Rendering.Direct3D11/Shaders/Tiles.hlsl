@@ -10,8 +10,8 @@ static const uint OpXrayRoom = 14;
 cbuffer TileParameters : register(b0)
 {
     // LayerWindowed marks a layer pass drawn only within its window (#1514), whose shapes WindowShapes holds. DrawnDepth
-    // is the depth of what a pass draws (#1514, #1634): zero for everything; for a sprite insertion, one more than the depth
-    // whose sprites it inserts; for a layer pass, which of its pictures' parts it draws (DrawsBehindPart or
+    // is the depth of what a pass draws (#1514, #1634): zero for everything; for a sprite insertion, a bit for each depth
+    // whose sprites it inserts (#2583); for a layer pass, which of its pictures' parts it draws (DrawsBehindPart or
     // DrawsInFrontPart).
     uint Operation, TableWord, LayerWindowed, HorizontalScroll;
     uint VerticalScroll, Reserved5, Reserved6, DrawnDepth;
@@ -729,7 +729,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     {
         bool blends;
         uint2 winner = SpriteAt(id.xy, blends);
-        if (winner.y != NoSprite && (DrawnDepth == 0 || DrawnDepth - 1 == winner.y))
+        if (winner.y != NoSprite && (DrawnDepth == 0 || ((DrawnDepth >> winner.y) & 1) != 0))
         {
             // AddR makes the sprites glow, adding each one's colour to the screen's; AddG tints the sprites that blend by
         // AddB's five-bit colour. The sums are of five-bit channels, before brightness (#1514).

@@ -13,8 +13,8 @@ internal static class TourianStatueParticleDefinitions
     internal static readonly RandomSampleField LaunchAngle = new(0, 6);
 
     /// <summary>
-    /// The angle steps a selected launch angle is turned back by, half the selection's 64, centring the launch on the zero
-    /// angle: an eighth of a turn either side of it.
+    /// The angle steps a selected launch angle is turned back by, half the selection's range, centring the launch on the zero
+    /// angle.
     /// </summary>
     internal const int LaunchAngleCentring = 32;
 

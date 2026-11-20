@@ -29,7 +29,7 @@ internal static class MenuClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Pause/Artwork/PauseReserveUiDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Pause/Artwork/PauseReserveUiTiles.cs")]),
         new("SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseReserveArrowColours", "pause-reserve-arrow-v1-complete-colours",
-            ["Pulse"],
+            ["Shades"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Pause/Artwork/PauseReserveArrowColours.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseReserveArrowDefinitions.cs")]),
     ];

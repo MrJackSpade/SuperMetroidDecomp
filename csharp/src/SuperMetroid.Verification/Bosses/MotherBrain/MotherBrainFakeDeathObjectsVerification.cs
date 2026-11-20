@@ -63,15 +63,14 @@ internal static class MotherBrainFakeDeathObjectsVerification
             width * height).ToArray();
         RoomLevelData level = CreateRoom(new(width, height), terrain, new RoomBlockBehavior[terrain.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(level, request),
-            $"Mother Brain mutation {request} allocates");
+        roomObjects.BossRoomMutations.MotherBrainRoom.Spawn(level, request);
         string mutation = request.ToString();
         int originX = request.Block.X;
         int originY = request.Block.Y;
         RoomTerrainBlock[] expected = Enumerable.Range(0, terrain.Length)
             .Select(index => level.GetCollisionBlockByIndex(index).Terrain)
             .ToArray();
-        AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is TerrainChangeObject { Change: var started } && started == change,
+        AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is TerrainChangeObject started && started.Starts(change),
             $"Mother Brain mutation {mutation} starts its terrain change");
         AssertTrue(MotherBrainFakeDeathDraws.TryGet(change.Frames.Single().Draw, out var draw),
             $"Mother Brain mutation {mutation} has a physical draw");

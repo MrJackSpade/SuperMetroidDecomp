@@ -112,19 +112,19 @@ internal static class OutOfHealthGameStateVerification
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState, "the darkening's gameplay enters the AUTO reserves' refill");
         AssertTrue(runtime.Freeze.GameplayTimeFrozen, "the refill freezes gameplay");
         AssertTrue(!runtime.GameTime.Reading.Equals(beforeRefill), "the refill's update counts the play time");
-        int dimmed = game.Session.PauseBrightness;
-        AssertTrue(dimmed is > 0 and < DisplayBrightness.Full, $"the darkening's fade stopped part-way at {dimmed}");
+        int dimmed = game.Session.PauseBrightness.StepsAboveBlack;
+        AssertTrue(dimmed > 0 && dimmed < DisplayBrightness.StepsFromBlackToFull, $"the darkening's fade stopped part-way at {dimmed}");
 
         int updates = 0;
         while (game.GameState == SuperMetroidGameState.ReserveTankRefill)
         {
             game.Step(0);
-            AssertEqual(dimmed, game.Session.PauseBrightness, "the refill keeps the screen at the darkening's level");
+            AssertEqual(dimmed, game.Session.PauseBrightness.StepsAboveBlack, "the refill keeps the screen at the darkening's level");
             AssertTrue(++updates < 200, "the refill completes");
         }
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the completed refill returns to main gameplay");
         game.Step(0);
-        AssertEqual(dimmed, game.Session.PauseBrightness, "main gameplay after the refill keeps the darkened screen");
+        AssertEqual(dimmed, game.Session.PauseBrightness.StepsAboveBlack, "main gameplay after the refill keeps the darkened screen");
 
         Console.WriteLine("Out of health with AUTO reserves while the pause darkens: the refill begins, and the screen keeps the darkening's level.");
     }

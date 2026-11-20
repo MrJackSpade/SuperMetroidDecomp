@@ -25,14 +25,15 @@ public static class SamusVisorColorFile
         Ensure.NotNull(json);
         SamusVisorColorDocument document;
         document = JsonAssetDocument.Read<SamusVisorColorDocument>(json, ArtworkJson.Options, "Samus visor color");
-        if (document.Version != Version ||
-            document.Colors is null || document.Colors.Length != SamusVisorColorFormat.ColorCount)
-            throw new InvalidDataException("Samus visor colors require the supported version and six RGB5 colors.");
+        if (document.Version != Version || document.Widening is null || document.Cycle is null ||
+            document.Widening.Length + document.Cycle.Length != SamusVisorColorFormat.ColorCount || document.Widening.Length != document.Cycle.Length)
+            throw new InvalidDataException("Samus visor colors require the supported version, three widening and three cycle RGB5 colors.");
 
-        var compiled = new RgbColor[document.Colors.Length];
-        for (int index = 0; index < document.Colors.Length; index++)
+        PaletteRgb5[] colours = document.InReaderOrder();
+        var compiled = new RgbColor[colours.Length];
+        for (int index = 0; index < colours.Length; index++)
         {
-            PaletteRgb5? color = document.Colors[index];
+            PaletteRgb5? color = colours[index];
             if (color is null || (uint)color.Red > 31 ||
                 (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Samus visor color {index} requires RGB components from zero through 31.");

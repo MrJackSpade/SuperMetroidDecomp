@@ -56,8 +56,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
         return false;
     }
 
-    /// <summary>Whether <paramref name="stage"/> walks her forward: the stages walk forward and back in turn, the first forward.</summary>
-    private static bool WalksForward(ListStep<MotherBrainStaggerStage> stage) => stage.Place % 2 == 0;
+    /// <summary>Whether <paramref name="stage"/> walks her forward, as its definition says.</summary>
+    private static bool WalksForward(ListStep<MotherBrainStaggerStage> stage) => stage.Entry.Direction == MotherBrainStaggerDirection.Forward;
 
     /// <summary>
     /// Recoils from the Baby latching onto her: her form changes, her neck rises and the wait to regain her balance

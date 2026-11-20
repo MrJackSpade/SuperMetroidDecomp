@@ -14,6 +14,6 @@ internal static class InstalledSamusFullBodyCycleColorsPrivateAccess
     extension(global::SuperMetroid.AssetExtraction.Samus.InstalledSamusFullBodyCycleColors self)
     {
         /// <summary>The private field <c>palettes</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Assets.RgbColor[][] palettes => PrivateState.Field<global::SuperMetroid.AssetExtraction.Samus.InstalledSamusFullBodyCycleColors, global::SuperMetroid.Core.Assets.RgbColor[][]>(self, "palettes");
+        internal global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Samus.Artwork.SamusFullBodyCycleShade, global::SuperMetroid.Core.Assets.RgbColor[]> palettes => PrivateState.Field<global::SuperMetroid.AssetExtraction.Samus.InstalledSamusFullBodyCycleColors, global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Samus.Artwork.SamusFullBodyCycleShade, global::SuperMetroid.Core.Assets.RgbColor[]>>(self, "palettes");
     }
 }

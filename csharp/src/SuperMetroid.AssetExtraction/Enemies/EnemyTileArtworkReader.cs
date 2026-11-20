@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.World.Artwork;
@@ -132,7 +133,7 @@ internal sealed class EnemyTileArtworkReader
         // The compiled graphics sets must name the same pinned identities the installation was built from.
         EnemyTileArtworkFiles.ValidateDefinitionIds(EnemyTileSourceDefinitions.All.Select(source => (int)EnemyDefinitionIds.HeaderPointer(source.DefinitionId))
             .Concat(EnemyTileSourceDefinitions.Unplaced.Select(artwork => (int)EnemyHeaderWords.UnplacedArtworkHeaders.WordsByIdentity[artwork].Single())));
-        if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(KraidHeadTilemapFormat.HeadsByMouthStage.Select(KraidHeadTilemapFormat.ImportKey)))
+        if (!manifest.KraidHeadsSha256.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(KraidHeadTilemapFormat.HeadsByMouthStage.Select(KraidHeadTilemapFormat.ImportKey)))
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a Kraid head frame.");
         if (!manifest.TorizoInstructionTilesSha256.Keys.Order(StringComparer.Ordinal)
                 .SequenceEqual(TorizoSwapArtworkDefinitions.All
@@ -299,17 +300,17 @@ internal sealed class EnemyTileArtworkReader
     /// <exception cref="InvalidDataException">An extracted file is invalid.</exception>
     internal CrocomireMeltingArtwork CrocomireMelting(string importData)
     {
-        byte[] first = ReadImportData(importData, CrocomireMeltingArtworkFormat.FirstFileName);
-        byte[] second = ReadImportData(importData, CrocomireMeltingArtworkFormat.SecondFileName);
+        byte[] first = ReadImportData(importData, CrocomireMeltingArtworkFormat.FleshFileName);
+        byte[] second = ReadImportData(importData, CrocomireMeltingArtworkFormat.BareSkullFileName);
         byte[] firstTilemap = ReadImportData(importData,
-            CrocomireMeltingArtworkFormat.FirstTilemapFileName);
+            CrocomireMeltingArtworkFormat.FleshTilemapFileName);
         byte[] secondTilemap = ReadImportData(importData,
-            CrocomireMeltingArtworkFormat.SecondTilemapFileName);
+            CrocomireMeltingArtworkFormat.BareSkullTilemapFileName);
         try
         {
             return CrocomireMeltingArtwork.Load(
-                RoomCharacterAtlasPng.Read(new MemoryStream(first, writable: false), CrocomireMeltingArtworkFormat.FirstByteCount),
-                RoomCharacterAtlasPng.Read(new MemoryStream(second, writable: false), CrocomireMeltingArtworkFormat.SecondByteCount),
+                RoomCharacterAtlasPng.Read(new MemoryStream(first, writable: false), CrocomireMeltingArtworkFormat.FleshByteCount),
+                RoomCharacterAtlasPng.Read(new MemoryStream(second, writable: false), CrocomireMeltingArtworkFormat.BareSkullByteCount),
                 new MemoryStream(firstTilemap, writable: false),
                 new MemoryStream(secondTilemap, writable: false));
         }
@@ -639,20 +640,20 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>Kraid's body and head layouts and room background, all import data (#1636, #1638).</summary>
     /// <exception cref="InvalidDataException">An extracted file is invalid.</exception>
-    internal KraidBackgroundArtwork KraidBackground(string importData)
+    internal static KraidBackgroundArtwork KraidBackground(string importData)
     {
         RoomBackgroundTilemapAtlas upperKraid = LoadKraidTilemap(importData,
             KraidBackgroundArtworkFormat.UpperFileName);
         RoomBackgroundTilemapAtlas lowerKraid = LoadKraidTilemap(importData,
             KraidBackgroundArtworkFormat.LowerFileName);
-        var kraidHeads = new Dictionary<int, KraidHeadTilemapAtlas>();
-        foreach (int mouthStage in manifest.KraidHeadsSha256.Keys)
+        var kraidHeads = new Dictionary<KraidHeadFrame, KraidHeadTilemapAtlas>();
+        foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
         {
-            string fileName = KraidBackgroundArtworkFormat.HeadFileName(mouthStage);
+            string fileName = KraidBackgroundArtworkFormat.HeadFileName(KraidHeadTilemapFormat.ImportKey(head));
             byte[] selected = ReadImportData(importData, fileName);
             try
             {
-                kraidHeads.Add(mouthStage, KraidHeadTilemapAtlas.Load(
+                kraidHeads.Add(head, KraidHeadTilemapAtlas.Load(
                     new MemoryStream(selected, writable: false)));
             }
             catch (InvalidDataException error)

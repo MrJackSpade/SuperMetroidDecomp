@@ -48,7 +48,7 @@ public sealed class InstalledSamusBody
         this.artOrigins = artOrigins.ToDictionary();
         this.frames = frames.ToDictionary(pose => pose.Key, pose => new SortedDictionary<SamusAnimationFrame, int>(pose.Value.ToDictionary(),
             SamusAnimationDelays.AnimationForPose(pose.Key).FrameOrder));
-        Frames = [.. SamusPoseNumbers.RecordedPoses.OrderBy(SamusPoseNumbers.Number)
+        Frames = [.. SamusPoseIdKeys.ListedOrder.Where(this.frames.ContainsKey)
             .SelectMany(pose => this.frames[pose].Keys.Select(frame => new SamusBodyFrame(pose, frame)))];
         Gameplay = new InstalledSamusBodyArtwork(new SamusBodyArtworkContent
         {
@@ -66,7 +66,8 @@ public sealed class InstalledSamusBody
     public SamusShownFrames ShownFrames { get; }
 
     /// <summary>
-    /// Every body frame the body sheet pictures, in the cartridge's pose order and frame order: the frames the game can
+    /// Every body frame the body sheet pictures, in the installation's listed pose order (#2556) and each pose's frame order:
+    /// the frames the game can
     /// draw, which name the sheet's frames.
     /// </summary>
     public IReadOnlyList<SamusBodyFrame> Frames { get; }

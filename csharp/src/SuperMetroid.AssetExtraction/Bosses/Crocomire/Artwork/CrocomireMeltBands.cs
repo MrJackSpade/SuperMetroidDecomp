@@ -24,10 +24,24 @@ internal static class CrocomireMeltBands
             [CrocomireMeltingIllustration.BareSkull] = "BareSkull step 0",
         }.ToFrozenDictionary();
 
+    /// <summary>
+    /// The installed key of each melt band's animation, from the melt images' top band down, written out so the installed
+    /// names never follow a change to how the bands are counted.
+    /// </summary>
+    private static readonly string[] BandAnimationKeys =
+    [
+        "Crocomire melt band 0",
+        "Crocomire melt band 1",
+        "Crocomire melt band 2",
+        "Crocomire melt band 3",
+        "Crocomire melt band 4",
+        "Crocomire melt band 5",
+    ];
+
     /// <summary>The animation band <paramref name="band"/> of the melt images is.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="band"/> is not a band of either melt image.</exception>
     internal static ArtworkAnimation Animation(int band) =>
-        (uint)band < CrocomireMeltingDefinitions.MeltImageBandCount ? new($"Crocomire melt band {band}")
+        (uint)band < CrocomireMeltingDefinitions.MeltImageBandCount && (uint)band < BandAnimationKeys.Length ? new(BandAnimationKeys[band])
             : throw new ArgumentOutOfRangeException(nameof(band), band, "Crocomire's melt images have no such band.");
 
     /// <summary>

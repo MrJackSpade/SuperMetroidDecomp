@@ -78,9 +78,11 @@ internal static class GameOptionsLanguagePalettesVerification
         GameOptionsSourcePresentation presentation = GameOptionsSourcePresentation.Load(new MemoryStream(extracted));
         InstalledScreenContent installed = RetailPresentationFixture();
         AssertEqual(4, GameOptionsPageDefinitions.LanguageRegions.RowCount, "native language highlight has four regions");
-        foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.LanguagePaletteRegion(index),
-                $"unsupported language region {index}");
+        AssertEqual(GameOptionsPageDefinitions.LanguageRegions.RowCount, GameOptionsPageCells.LanguagePaletteRegions.Count, "one installed region per label row");
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.LanguagePaletteRegion((GameOptionsPageCells.GameOptionsLabelLanguage)99, GameOptionsPageCells.GameOptionsLabelRow.Upper),
+            "unsupported label language");
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.LanguagePaletteRegion(GameOptionsPageCells.GameOptionsLabelLanguage.English, (GameOptionsPageCells.GameOptionsLabelRow)99),
+            "unsupported label row");
 
         // Set_Language_Text_Option_Highlight ($82:EDED) chooses palette zero for
         // the first pair with AltText=0 and the second pair with AltText=1.
@@ -103,7 +105,7 @@ internal static class GameOptionsLanguagePalettesVerification
                 int originalOffset = ReadVerificationWord(bus, instruction + 1);
                 int originalCount = ReadVerificationWord(bus, instruction + 4);
                 int expected = ReadVerificationWord(bus, instruction + 7) >> 10;
-                GameOptionsLanguagePaletteRegion region = GameOptionsPageCells.LanguagePaletteRegion(regionIndex);
+                GameOptionsLanguagePaletteRegion region = GameOptionsPageCells.LanguagePaletteRegions[regionIndex];
                 AssertEqual(originalOffset, region.ByteOffset, "language region offset");
                 AssertEqual(originalCount, region.ByteCount, "language region byte count");
                 AssertEqual(expected == 0, region.HighlightWhenJapanese == japanese, "language selection polarity");

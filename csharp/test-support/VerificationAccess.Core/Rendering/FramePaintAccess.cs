@@ -106,7 +106,7 @@ internal static class FramePaintAccess
         /// <param name="blend">How the sprites show.</param>
         /// <param name="before">The layers drawn behind the sprites, back to front.</param>
         internal LayeredScene SpritesScene(int brightness, SpriteBlend blend = SpriteBlend.Drawn, params DisplayLayer[] before) =>
-            new(new FramePaint(memory.Backdrop), [.. before, new SpritesLayer(memory.SpriteDraws, blend)], brightness);
+            new(new FramePaint(memory.Backdrop), [.. before, new SpritesLayer(memory.SpriteDraws, blend)], DisplayBrightness.StepsAbove(brightness));
     }
 
     /// <summary>

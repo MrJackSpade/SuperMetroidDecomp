@@ -24,7 +24,7 @@ internal sealed class SetCharacters
     private IReadOnlyList<EncounterLookSteps> Encounters { get; }
 
     /// <summary>Each encounter's characters as each of its looks leaves them, from the loaded table.</summary>
-    private readonly Dictionary<ComposedEncounter, byte[][]> afterLook = [];
+    private readonly Dictionary<ComposedEncounter, Dictionary<ComposedLook, byte[]>> afterLook = [];
 
     /// <summary>The corpses that rot in the set's rooms, whose frames are drawn through their own rows.</summary>
     private readonly IReadOnlyList<RottingCorpseCells> corpses;
@@ -47,12 +47,14 @@ internal sealed class SetCharacters
         foreach (EncounterLookSteps encounter in Encounters)
         {
             byte[] shown = [.. table];
-            afterLook.Add(encounter.Encounter, [.. encounter.Looks.Select(look =>
+            var shownAfter = new Dictionary<ComposedLook, byte[]>();
+            foreach (EncounterLookStep step in encounter.InOrder)
             {
-                foreach (EncounterArtworkUpload upload in look)
+                foreach (EncounterArtworkUpload upload in step.Copies)
                     upload.ApplyTo(shown);
-                return (byte[])[.. shown];
-            })]);
+                shownAfter.Add(step.Look, [.. shown]);
+            }
+            afterLook.Add(encounter.Encounter, shownAfter);
         }
         Loaded = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), table);
     }
@@ -92,16 +94,16 @@ internal sealed class SetCharacters
                 continue;
             if (drawn.ArtworkOfLook)
             {
-                if (drawn.Looks is not [int own])
+                if (drawn.Looks is not [ComposedLook own])
                     throw new InvalidDataException($"Frame {name}'s artwork is its {encounter.Encounter} look's own, yet it is drawn in {drawn.Looks.Count} looks.");
                 // A frame its own look's copies never write reads only what the room's load or an earlier look leaves there,
                 // another family's artwork: it has none of its own to show, so it shows nothing (#1513), as Mother Brain's
                 // initial body frame, drawn only while her body is hidden, reads the head artwork her room loads where her
                 // legs never land.
-                if (own != EncounterLookSteps.RoomLoad && !Writes(encounter.Looks[own], read))
+                if (!own.IsLoaded && !Writes(encounter.CopiesOf(own), read))
                     return new FramePictures(name, [], [], [name]);
             }
-            int[] distinct = [.. drawn.Looks.DistinctBy(look => Shown(afterLook[encounter.Encounter][look], read))];
+            ComposedLook[] distinct = [.. drawn.Looks.DistinctBy(look => Shown(afterLook[encounter.Encounter][look], read))];
             if (distinct.Length == 1)
             {
                 parts.Add(new FrameLookPart(encounter, [drawn.Looks[0]], null));
@@ -114,15 +116,15 @@ internal sealed class SetCharacters
         FrameLookPart[] changing = [.. parts.Where(part => part.ShownAs is not null)];
         FrameLookChange[] changes = [.. changing.Select(part => new FrameLookChange(
             part.ShownAs ?? throw new InvalidOperationException($"Frame {name}'s changing part names no shown encounter."),
-            [.. part.Looks.Select(look => EncounterLookUploads.Looks(part.Encounter.Encounter)[look].Name)]))
+            [.. part.Looks.Select(look => look.Name)]))
             .OrderBy(change => Installation.EnemySheetFiles.EncounterOrder.PlaceOf(change.Encounter))];
         var sources = new List<SheetFrameSource>();
         var blank = new List<string>();
         var placements = new Dictionary<string, CorpsePicturePlacement>(StringComparer.Ordinal);
-        foreach (int[] combination in Combinations(parts))
+        foreach (ComposedLook[] combination in Combinations(parts))
         {
             string picture = EncounterLook.PictureName(name, parts.Select((part, index) => part.ShownAs is EncounterArtwork shown
-                ? new EncounterLook(shown, EncounterLookUploads.Looks(part.Encounter.Encounter)[combination[index]].Name) : (EncounterLook?)null)
+                ? new EncounterLook(shown, combination[index].Name) : (EncounterLook?)null)
                 .OfType<EncounterLook>().OrderBy(look => Installation.EnemySheetFiles.EncounterOrder.PlaceOf(look.Encounter)));
             byte[] characters = Characters(parts, combination);
             if (ShowsNothing(characters, read))
@@ -141,11 +143,11 @@ internal sealed class SetCharacters
     /// Every combination of the looks <paramref name="parts"/> picture the frame in, one look of each part, by part: a
     /// part that leaves the frame alike in all its looks pictures it in one.
     /// </summary>
-    private static IEnumerable<int[]> Combinations(IReadOnlyList<FrameLookPart> parts)
+    private static IEnumerable<ComposedLook[]> Combinations(IReadOnlyList<FrameLookPart> parts)
     {
-        IEnumerable<int[]> combinations = [[]];
+        IEnumerable<ComposedLook[]> combinations = [[]];
         foreach (FrameLookPart part in parts)
-            combinations = [.. combinations.SelectMany(earlier => part.Looks.Select(look => (int[])[.. earlier, look]))];
+            combinations = [.. combinations.SelectMany(earlier => part.Looks.Select(look => (ComposedLook[])[.. earlier, look]))];
         return combinations;
     }
 
@@ -173,7 +175,7 @@ internal sealed class SetCharacters
     }
 
     /// <summary>The characters with every look of each part up to the one <paramref name="combination"/> names copied in order.</summary>
-    private SpriteArtwork Page(IReadOnlyList<FrameLookPart> parts, int[] combination)
+    private SpriteArtwork Page(IReadOnlyList<FrameLookPart> parts, ComposedLook[] combination)
     {
         var key = new EncounterLookCombination(parts, combination);
         if (pages.TryGetValue(key, out SpriteArtwork? page))
@@ -188,9 +190,9 @@ internal sealed class SetCharacters
     /// The character table <see cref="Page"/> shows for <paramref name="combination"/>, built once: the loaded table where
     /// every part shows its room's load.
     /// </summary>
-    private byte[] Characters(IReadOnlyList<FrameLookPart> parts, int[] combination)
+    private byte[] Characters(IReadOnlyList<FrameLookPart> parts, ComposedLook[] combination)
     {
-        if (combination.All(look => look == EncounterLookSteps.RoomLoad))
+        if (combination.All(look => look.IsLoaded))
             return table;
         var key = new EncounterLookCombination(parts, combination);
         if (lookTables.TryGetValue(key, out byte[]? known))
@@ -198,7 +200,7 @@ internal sealed class SetCharacters
         byte[] shown = [.. table];
         for (int index = 0; index < parts.Count; index++)
         {
-            foreach (EncounterArtworkUpload upload in parts[index].Encounter.Looks.Take(combination[index] + 1).SelectMany(copies => copies))
+            foreach (EncounterArtworkUpload upload in parts[index].Encounter.CopiesThrough(combination[index]))
                 upload.ApplyTo(shown);
         }
         lookTables.Add(key, shown);
@@ -225,7 +227,7 @@ internal sealed class SetCharacters
 
     /// <summary>The looks of one encounter a frame is pictured in.</summary>
     /// <param name="Encounter">The encounter and what its looks copy.</param>
-    /// <param name="Looks">The places of the looks the frame is pictured in.</param>
+    /// <param name="Looks">The looks the frame is pictured in.</param>
     /// <param name="ShownAs">The encounter gameplay shows, whose looks name the frame's pictures; none for a part that pictures the frame in one look.</param>
-    internal sealed record FrameLookPart(EncounterLookSteps Encounter, IReadOnlyList<int> Looks, EncounterArtwork? ShownAs);
+    internal sealed record FrameLookPart(EncounterLookSteps Encounter, IReadOnlyList<ComposedLook> Looks, EncounterArtwork? ShownAs);
 }

@@ -15,60 +15,60 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 public sealed class CrocomireMeltingArtwork
 {
 
-    /// <summary>The import data's planar character data for the first overlapping melt pass.</summary>
-    private readonly RoomCharacterAtlas first;
-    /// <summary>The import data's planar character data for the second, eroded melt pass.</summary>
-    private readonly RoomCharacterAtlas second;
-    /// <summary>The import data's tile placements for the first illustration.</summary>
-    private readonly BackgroundTile[] firstTilemap;
-    /// <summary>The import data's tile placements for the second illustration.</summary>
-    private readonly BackgroundTile[] secondTilemap;
+    /// <summary>The import data's planar character data for the flesh's overlapping melt pass.</summary>
+    private readonly RoomCharacterAtlas flesh;
+    /// <summary>The import data's planar character data for the bare skull's eroded melt pass.</summary>
+    private readonly RoomCharacterAtlas bareSkull;
+    /// <summary>The import data's tile placements for the flesh illustration.</summary>
+    private readonly BackgroundTile[] fleshTilemap;
+    /// <summary>The import data's tile placements for the bare skull illustration.</summary>
+    private readonly BackgroundTile[] bareSkullTilemap;
 
     /// <summary>Keeps both character sheets and both complete layouts the import composes the melt pictures from.</summary>
-    private CrocomireMeltingArtwork(RoomCharacterAtlas first, RoomCharacterAtlas second,
-        BackgroundTile[] firstTilemap, BackgroundTile[] secondTilemap)
+    private CrocomireMeltingArtwork(RoomCharacterAtlas flesh, RoomCharacterAtlas bareSkull,
+        BackgroundTile[] fleshTilemap, BackgroundTile[] bareSkullTilemap)
     {
-        this.first = first;
-        this.second = second;
-        this.firstTilemap = firstTilemap;
-        this.secondTilemap = secondTilemap;
+        this.flesh = flesh;
+        this.bareSkull = bareSkull;
+        this.fleshTilemap = fleshTilemap;
+        this.bareSkullTilemap = bareSkullTilemap;
     }
 
     /// <summary>Combines both of the import data's character sheets and tile layouts into the melt's import snapshot (#1638).</summary>
-    /// <param name="first">The first illustration's installed characters.</param>
-    /// <param name="second">The second illustration's installed characters.</param>
-    /// <param name="firstTilemapJson">The first illustration's tile layout.</param>
-    /// <param name="secondTilemapJson">The second illustration's tile layout.</param>
+    /// <param name="flesh">The flesh illustration's installed characters.</param>
+    /// <param name="bareSkull">The bare skull illustration's installed characters.</param>
+    /// <param name="fleshTilemapJson">The flesh illustration's tile layout.</param>
+    /// <param name="bareSkullTilemapJson">The bare skull illustration's tile layout.</param>
     /// <exception cref="InvalidDataException">A sheet is not its illustration's length or holds pixels outside it, or a layout is invalid.</exception>
-    public static CrocomireMeltingArtwork Load(RoomCharacterAtlas first, RoomCharacterAtlas second,
-        Stream firstTilemapJson, Stream secondTilemapJson)
+    public static CrocomireMeltingArtwork Load(RoomCharacterAtlas flesh, RoomCharacterAtlas bareSkull,
+        Stream fleshTilemapJson, Stream bareSkullTilemapJson)
     {
-        Ensure.NotNull(first);
-        Ensure.NotNull(second);
-        Ensure.NotNull(firstTilemapJson);
-        Ensure.NotNull(secondTilemapJson);
-        RequireLength(first, CrocomireMeltingArtworkFormat.FirstByteCount, CrocomireMeltingIllustration.Flesh);
-        RequireLength(second, CrocomireMeltingArtworkFormat.SecondByteCount, CrocomireMeltingIllustration.BareSkull);
-        ValidatePadding(first, CrocomireMeltingIllustration.Flesh);
-        ValidatePadding(second, CrocomireMeltingIllustration.BareSkull);
-        return new(first, second, ReadTilemap(firstTilemapJson),
-            ReadTilemap(secondTilemapJson));
+        Ensure.NotNull(flesh);
+        Ensure.NotNull(bareSkull);
+        Ensure.NotNull(fleshTilemapJson);
+        Ensure.NotNull(bareSkullTilemapJson);
+        RequireLength(flesh, CrocomireMeltingArtworkFormat.FleshByteCount, CrocomireMeltingIllustration.Flesh);
+        RequireLength(bareSkull, CrocomireMeltingArtworkFormat.BareSkullByteCount, CrocomireMeltingIllustration.BareSkull);
+        ValidatePadding(flesh, CrocomireMeltingIllustration.Flesh);
+        ValidatePadding(bareSkull, CrocomireMeltingIllustration.BareSkull);
+        return new(flesh, bareSkull, ReadTilemap(fleshTilemapJson),
+            ReadTilemap(bareSkullTilemapJson));
     }
 
     /// <summary>The four-bit characters of <paramref name="illustration"/>'s image, sixteen to a row, a band per row.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="illustration"/> is not a melt image.</exception>
     internal ReadOnlyMemory<byte> Characters(CrocomireMeltingIllustration illustration) => illustration switch
     {
-        CrocomireMeltingIllustration.Flesh => first.Characters,
-        CrocomireMeltingIllustration.BareSkull => second.Characters,
+        CrocomireMeltingIllustration.Flesh => flesh.Characters,
+        CrocomireMeltingIllustration.BareSkull => bareSkull.Characters,
         _ => throw new ArgumentOutOfRangeException(nameof(illustration), illustration, $"Undefined {nameof(CrocomireMeltingIllustration)}."),
     };
 
     /// <summary>Returns only the visual tile references, never melt control or hitboxes.</summary>
     internal ReadOnlySpan<BackgroundTile> Tilemap(CrocomireMeltingIllustration illustration) => illustration switch
     {
-        CrocomireMeltingIllustration.Flesh => firstTilemap,
-        CrocomireMeltingIllustration.BareSkull => secondTilemap,
+        CrocomireMeltingIllustration.Flesh => fleshTilemap,
+        CrocomireMeltingIllustration.BareSkull => bareSkullTilemap,
         _ => throw new InvalidDataException(
             $"Crocomire melt tilemap {illustration} is not a melt image."),
     };

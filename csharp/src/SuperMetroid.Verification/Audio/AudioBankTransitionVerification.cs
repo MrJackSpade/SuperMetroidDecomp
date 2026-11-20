@@ -33,11 +33,11 @@ internal static class AudioBankTransitionVerification
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
         AssertTrue((dsp.ReadRegister(checked((byte)SnesDspRegisterLayout.AddressOf(DspGlobalRegister.EndFlags))) & 1) != 0, "retired raw headers continue setting ENDX");
         AssertEqual((byte)0, dsp.ReadRegister(SnesDspRegisterLayout.Voice.SampleOutput), "retired voice remains silent");
-        dsp.WriteRegister((byte)DspVoiceRegister.SourceNumber, 1);
+        dsp.WriteRegister(checked((byte)SnesDspRegisterLayout.OffsetOf(DspVoiceRegister.SourceNumber)), 1);
         dsp.WriteRegister(checked((byte)SnesDspRegisterLayout.AddressOf(DspGlobalRegister.KeyOn)), 1);
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterLayout.Voice.SampleOutput)) > 0, "key-on restores ordinary PCM playback");
-        dsp.WriteRegister((byte)DspVoiceRegister.SourceNumber, 0);
+        dsp.WriteRegister(checked((byte)SnesDspRegisterLayout.OffsetOf(DspVoiceRegister.SourceNumber)), 0);
         AssertThrows<InvalidDataException>(() =>
         {
             for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();

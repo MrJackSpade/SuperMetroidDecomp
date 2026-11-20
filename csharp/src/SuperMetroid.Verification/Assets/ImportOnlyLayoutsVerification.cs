@@ -27,8 +27,8 @@ internal static class ImportOnlyLayoutsVerification
     private static IEnumerable<(string Component, string File)> Layouts()
     {
         string enemyTiles = GameInstallationLayout.EnemyTileDirectoryName;
-        yield return (enemyTiles, CrocomireMeltingArtworkFormat.FirstTilemapFileName);
-        yield return (enemyTiles, CrocomireMeltingArtworkFormat.SecondTilemapFileName);
+        yield return (enemyTiles, CrocomireMeltingArtworkFormat.FleshTilemapFileName);
+        yield return (enemyTiles, CrocomireMeltingArtworkFormat.BareSkullTilemapFileName);
         yield return (enemyTiles, KraidBackgroundArtworkFormat.UpperFileName);
         yield return (enemyTiles, KraidBackgroundArtworkFormat.LowerFileName);
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
@@ -47,7 +47,7 @@ internal static class ImportOnlyLayoutsVerification
         yield return (GameInstallationLayout.IntroCinematicDirectoryName, IntroCinematicArtworkFormat.ManifestFileName);
         yield return (GameInstallationLayout.EndingObjectDirectoryName, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.ManifestFileName);
         string intro = GameInstallationLayout.IntroCinematicDirectoryName;
-        for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
+        foreach (SuperMetroid.Core.Frontend.Intro.IntroScenePage page in IntroCinematicArtworkFormat.ScenePagesInTransferOrder)
             yield return (intro, IntroCinematicArtworkFormat.BackgroundPageFileName(page));
         yield return (intro, IntroCinematicArtworkFormat.PortraitTilemapFileName);
         yield return (intro, IntroCinematicArtworkFormat.InitialNarrationTilemapFileName);
@@ -72,10 +72,10 @@ internal static class ImportOnlyLayoutsVerification
         // The map manifest lists the import data's hashes, and only the import's read opens it (#1693).
         yield return (GameInstallationLayout.MapDirectoryName, AreaMapCatalogFormat.ManifestFile);
         string ending = GameInstallationLayout.EndingObjectDirectoryName;
-        for (int fragment = 0; fragment < SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.FragmentCount; fragment++)
-            yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.FragmentFileName(fragment));
+        foreach (SuperMetroid.Core.Frontend.Ending.Artwork.EndingExplosionPicture picture in SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.ExplosionPictures)
+            yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.FragmentFileName(picture));
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.WaitingTilemapFileName);
-        yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.PostCreditsFragmentBFileName);
+        yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.TransformationMapFileName);
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.PostShotLogoMapFileName);
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCloudSpriteFormat.FileName);
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingExplosionSpriteFormat.FileName);

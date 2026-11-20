@@ -10,43 +10,28 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusSpritemapSourcesPrivateAccess
 {
-    /// <summary>The getter of <c>Entries</c>, called directly: reflection cannot return a ref struct.</summary>
-    private delegate global::System.ReadOnlySpan<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId?> EntriesRead(global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources self);
-
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources self)
     {
-        /// <summary>The private method <c>BottomBase</c>, invoked by name.</summary>
-        internal int BottomBase(global::SuperMetroid.Core.Samus.Poses.SamusPoseId pose) =>
-            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources, int>(self, "BottomBase", [typeof(global::SuperMetroid.Core.Samus.Poses.SamusPoseId)], new object?[] { pose });
-
-        /// <summary>The private property <c>Entries</c>, reached by name.</summary>
-        internal global::System.ReadOnlySpan<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId?> Entries => PrivateState.GetterDelegate<EntriesRead>(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources), "Entries")(self);
-
-        /// <summary>The private method <c>EntryIndex</c>, invoked by name.</summary>
-        internal int EntryIndex(global::SuperMetroid.AssetExtraction.Samus.SamusBodyHalfFrame frame) =>
-            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources, int>(self, "EntryIndex", [typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodyHalfFrame)], new object?[] { frame });
-
-        /// <summary>The private method <c>TopBase</c>, invoked by name.</summary>
-        internal int TopBase(global::SuperMetroid.Core.Samus.Poses.SamusPoseId pose) =>
-            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources, int>(self, "TopBase", [typeof(global::SuperMetroid.Core.Samus.Poses.SamusPoseId)], new object?[] { pose });
-
         /// <summary>The private method <c>TryGetComposition</c>, invoked by name.</summary>
         internal bool TryGetComposition(global::SuperMetroid.AssetExtraction.Samus.SamusBodyHalfFrame frame, out global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId composition)
         {
-            object?[] invocationArguments = new object?[] { frame, null };
-            bool invocationResult = PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources, bool>(self, "TryGetComposition", [typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodyHalfFrame), typeof(global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId).MakeByRefType()], invocationArguments);
-            composition = (global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId)invocationArguments[1]!;
-            return invocationResult;
+            object?[] arguments = [frame, null];
+            bool result = PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources, bool>(self, "TryGetComposition", [typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodyHalfFrame), typeof(global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId).MakeByRefType()], arguments);
+            composition = (global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId)(arguments[1] ?? throw new global::System.InvalidOperationException("TryGetComposition returned no composition."));
+            return result;
         }
 
-        /// <summary>The private method <c>TryGetEntry</c>, invoked by name.</summary>
-        internal bool TryGetEntry(int index, out global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId composition)
-        {
-            object?[] invocationArguments = new object?[] { index, null };
-            bool invocationResult = PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources, bool>(self, "TryGetEntry", [typeof(int), typeof(global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId).MakeByRefType()], invocationArguments);
-            composition = (global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId)invocationArguments[1]!;
-            return invocationResult;
-        }
+        /// <summary>The private field <c>definitions</c>, reached by name.</summary>
+        internal global::System.Collections.Generic.Dictionary<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId, global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapDefinition> definitions => PrivateState.Field<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources, global::System.Collections.Generic.Dictionary<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId, global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapDefinition>>(self, "definitions");
+
+        /// <summary>The private field <c>halves</c>, reached by name.</summary>
+        internal global::System.Collections.Generic.Dictionary<global::SuperMetroid.AssetExtraction.Samus.SamusBodyHalfFrame, global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId?> halves => PrivateState.Field<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources, global::System.Collections.Generic.Dictionary<global::SuperMetroid.AssetExtraction.Samus.SamusBodyHalfFrame, global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId?>>(self, "halves");
+
+        /// <summary>The private field <c>explosion</c>, reached by name.</summary>
+        internal global::System.Collections.Generic.Dictionary<string, global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId?> explosion => PrivateState.Field<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources, global::System.Collections.Generic.Dictionary<string, global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId?>>(self, "explosion");
+
+        /// <summary>The private field <c>atmosphere</c>, reached by name.</summary>
+        internal global::System.Collections.Generic.Dictionary<string, global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId?> atmosphere => PrivateState.Field<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources, global::System.Collections.Generic.Dictionary<string, global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId?>>(self, "atmosphere");
     }
 }

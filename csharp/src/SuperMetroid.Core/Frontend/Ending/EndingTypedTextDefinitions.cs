@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The ending's typed texts' spellings and typing cadence (#1513, #2195).</summary>
@@ -27,6 +29,6 @@ internal static class EndingTypedTextDefinitions
     internal const int ClearTimeShownUpdates = 128;
 
 
-    /// <summary>The texts typed before the final message: one, the item percentage, which stays shown above it.</summary>
-    internal const int TypedBeforeFinalMessage = 1;
+    /// <summary>The texts typed before the final message: the item percentage, which stays shown above it.</summary>
+    internal static IReadOnlyCollection<EndingTextSequence> TypedBeforeFinalMessage { get; } = [EndingTextSequence.ItemPercentage];
 }

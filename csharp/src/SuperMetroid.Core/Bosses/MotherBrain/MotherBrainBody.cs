@@ -82,7 +82,7 @@ internal sealed class MotherBrainBody
         // The encounter's setup creates the walk credit, the burst cycle and the brain animation the encounter and its later
         // sequence share.
         // The body begins the encounter, which it holds from here and her head joins (#2218).
-        MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(occupant, _places.ListedRunAfter(body, MotherBrainFightDefinitions.PartsAfterBody)[0],
+        MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(occupant, _places.Member(body, MotherBrainFightDefinitions.Listing, EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead),
             new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation())
         {
             Form = MotherBrainForm.Glass,

@@ -14,11 +14,11 @@ internal static class InstalledBackgroundSetPositionDefinitions
     [
         InstalledBackgroundSet.Hud,
         InstalledBackgroundSet.HudItemsAndEffects,
-        InstalledBackgroundSet.TilesFirst,
-        InstalledBackgroundSet.TilesSecond,
-        InstalledBackgroundSet.TilesThird,
-        InstalledBackgroundSet.TilesFourth,
-        InstalledBackgroundSet.TilesFifth,
-        InstalledBackgroundSet.TilesSixth,
+        InstalledBackgroundSet.DoorAndSandTiles,
+        InstalledBackgroundSet.AnimatedLightTiles,
+        InstalledBackgroundSet.MachineryTiles,
+        InstalledBackgroundSet.BackgroundAndFloorTiles,
+        InstalledBackgroundSet.BackdropAndStatueTiles,
+        InstalledBackgroundSet.BackgroundBossTiles,
     ];
 }

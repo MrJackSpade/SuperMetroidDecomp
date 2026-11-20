@@ -1511,7 +1511,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0x0100, super.Velocity.X.InTwoHundredFiftySixthsOfPixel,
         "super ignition begins at one pixel per frame");
     AssertTrue(super.KindStateAs<SuperMissileShotState>().Ignition.HasIgnited, "super owner has ignited");
-    AssertEqual(1, super.KindStateAs<SuperMissileShotState>().LinkPlace,
+    AssertEqual(1, super.KindStateAs<SuperMissileShotState>().LinkChainPosition,
         "super owner names place one as its link");
     AssertEqual(SamusShotBehaviors.SuperMissile, super.Behavior,
         "super owner selects `$90:AFE5`");

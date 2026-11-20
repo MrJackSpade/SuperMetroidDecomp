@@ -51,7 +51,7 @@ internal static class EndingScreenMemory
             EndingScreenImage.Execute(vram, new EndingSheetTransfer(EndingTransferKind.EndingFont), artwork);
         }
         for (int part = 0; part < loads.PostShotParts; part++)
-            EndingScreenImage.Execute(vram, new EndingPostShotPartTransfer(EndingPostShotUploads.Get(part)), artwork);
+            EndingScreenImage.Execute(vram, new EndingPostShotPartTransfer(EndingPostShotUploads.InOrder[part]), artwork);
         return vram.CaptureImage();
     }
 

@@ -46,7 +46,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
     {
         CorpseRottingConfiguration configuration = CorpseRottingConfigurationCodec.Decode(rom, configurationPointer);
         string context = $"dead sidehopper configuration $A9:{configurationPointer:X4}";
-        AssertEqual<CorpseRowUploadList?>(new CorpseRowUploadList(RottingCorpseSpecies.Sidehopper, graphicsVariant / 2), configuration.UploadList,
+        AssertEqual<CorpseRowUploadList?>(graphicsVariant == 0 ? CorpseRowUploadList.SidehopperBabyMetroidVictim : CorpseRowUploadList.SidehopperAlreadyDead, configuration.UploadList,
             $"{context} names the row upload list the extraction finds the corpse's characters by");
         AssertEqual(DeadSidehopperCorpseDefinitions.RowCount, configuration.RowCount, $"{context} corpse height");
     }

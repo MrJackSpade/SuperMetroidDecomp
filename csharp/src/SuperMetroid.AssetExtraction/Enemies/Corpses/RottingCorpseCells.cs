@@ -93,8 +93,8 @@ internal sealed class RottingCorpseCells
             [EnemyDefinitionId.MotherBrainHead] = new(frame => EncounterArtworkDrawingDefinitions.MotherBrainCorpseFrames.Contains(frame), () => [MotherBrain]),
             [EnemyDefinitionId.CorpseTorizo] = new(everyFrame, () => [TorizoBody, TorizoSand]),
             [EnemyDefinitionId.CorpseSidehopper] = new(everyFrame, () =>
-                [DeadMonster(new CorpseRowUploadList(RottingCorpseSpecies.Sidehopper, 0)),
-                    DeadMonster(new CorpseRowUploadList(RottingCorpseSpecies.Sidehopper, 1))]),
+                [DeadMonster(CorpseRowUploadList.SidehopperBabyMetroidVictim),
+                    DeadMonster(CorpseRowUploadList.SidehopperAlreadyDead)]),
         };
         foreach ((EnemyDefinitionId dead, DeadTourianCorpseSpecies species) in DeadTourianCorpseSpeciesDefinitions.Species)
         {
@@ -106,7 +106,7 @@ internal sealed class RottingCorpseCells
 
     /// <summary>The dead monster whose rows <paramref name="list"/> uploads.</summary>
     private static RottingCorpseCells DeadMonster(CorpseRowUploadList list) =>
-        new(list.Name, DeadMonsterRowUploadDefinitions.ForList(list).Select(Run));
+        new(list.ToString(), DeadMonsterRowUploadDefinitions.ForList(list).Select(Run));
 
     /// <summary>The dead Torizo's body: the body rows of both its upload lists.</summary>
     private static RottingCorpseCells TorizoBody { get; } = new("Torizo",

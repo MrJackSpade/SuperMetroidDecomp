@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
 
@@ -46,7 +45,7 @@ public sealed class GrappleTileAtlas : IInstalledArtworkContent
         InstalledArtworkId point = GrappleTileSelection.PointAssetFor(pointFrame);
         InstalledArtworkId segments = GrappleTileSelection.SegmentAssetFor(orientation);
         return tileSets.GetOrAdd(new GrappleTileSetKey(point, segments), key => new SpriteArtwork(
-            new SpriteArtworkId(SpriteArtworkKind.GrappleTiles, LittleEndianBytes.Word(checked((byte)key.Segments), checked((byte)key.Point))),
+            new SpriteArtworkId(SpriteArtworkKind.GrappleTiles, new GrappleTilesVariant(key.Point, key.Segments)),
             [.. Resolve(key.Point).Span, .. Resolve(key.Segments).Span]));
     }
 
@@ -63,13 +62,18 @@ public sealed class GrappleTileAtlas : IInstalledArtworkContent
             pagesComposedOn = standardObjects;
         }
         SpriteArtwork tiles = Tiles(pointFrame, orientation);
-        return pages.GetOrAdd(tiles.Id.Variant, variant => SpriteArtwork.Overlay(
-            new SpriteArtworkId(SpriteArtworkKind.GrappleTilesOnStandardObjects, variant), standardObjects, tiles,
+        return pages.GetOrAdd(tiles.Id, id => SpriteArtwork.Overlay(
+            id.InKind(SpriteArtworkKind.GrappleTilesOnStandardObjects), standardObjects, tiles,
             GrappleTileDefinitions.FirstCharacter));
     }
 
     /// <summary>Composed pages by grapple tile selection, for <see cref="pagesComposedOn"/>.</summary>
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<int, SpriteArtwork> pages = new();
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<SpriteArtworkId, SpriteArtwork> pages = new();
+
+    /// <summary>A Grapple tile sheet, distinguished by the endpoint frame and the rope characters it holds.</summary>
+    /// <param name="Point">The endpoint frame's characters.</param>
+    /// <param name="Segments">The rope's characters.</param>
+    private sealed record GrappleTilesVariant(InstalledArtworkId Point, InstalledArtworkId Segments) : SpriteArtworkVariant;
 
     /// <summary>The standard page <see cref="pages"/> were composed over.</summary>
     private SpriteArtwork? pagesComposedOn;

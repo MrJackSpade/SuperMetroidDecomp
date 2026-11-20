@@ -123,13 +123,13 @@ internal static class ProjectileDamageVerification
     {
         for (int beam = 0; beam < 12; beam++)
             AssertEqual(readWord(SamusSourceDefinitionsConstants.SpecialBeamAttackCosts.Value + beam * 2),
-                SamusComboMechanics.GetPowerBombCost(SamusBeamCombinationTableOrder.FromTableIndex(beam)),
+                SamusComboMechanics.GetPowerBombCost(SamusBeamCombinationTableOrderConstants.FromTableIndex(beam)),
                 $"compiled combo Power Bomb cost {beam}");
         AssertThrows<ArgumentOutOfRangeException>(
             () => SamusComboMechanics.GetPowerBombCost(SamusBeamCombination.SpazerPlasma),
             "combo cost rejects a beam index beyond the native table");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusComboMechanics.GetPowerBombCost(SamusBeamCombinationTableOrder.FromTableIndex(-1)),
+            () => SamusComboMechanics.GetPowerBombCost(SamusBeamCombinationTableOrderConstants.FromTableIndex(-1)),
             "combo cost rejects a negative beam index");
         Console.WriteLine("Combo cost algorithm: all twelve original cost words and bounds match.");
     }

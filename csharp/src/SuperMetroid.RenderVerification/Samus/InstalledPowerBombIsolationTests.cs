@@ -43,7 +43,7 @@ internal static class InstalledPowerBombIsolationTests
                 if (glow is not null)
                 {
                     var packet = new DisplayPacket(0,
-                        new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []), new DisplayLayer[] { glow }, 15));
+                        new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []), new DisplayLayer[] { glow }, DisplayBrightness.Full));
                     framesToRender.Add(new ContextFrame(packet, context));
                 }
             } while (explosion.IsActive);

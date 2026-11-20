@@ -43,8 +43,8 @@ internal static class PhantoonSoundDefinitions
     /// </summary>
     internal static IReadOnlyList<SoundEffectId> MaterializationSounds { get; } =
     [
-        EnemySound.PhantoonAppears1,
-        EnemySound.PhantoonAppears2,
-        EnemySound.PhantoonAppears3,
+        EnemySound.PhantoonAppearsMiddle,
+        EnemySound.PhantoonAppearsLow,
+        EnemySound.PhantoonAppearsHigh,
     ];
 }

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
@@ -43,8 +44,9 @@ public sealed class SporeSpawnColorCatalog
 
     /// <summary>Gets installed spore ink 0–15, shown in sprite palette 7.</summary>
     public RgbColor ResolveSpore(int color) => spores.Colour(color);
-    /// <summary>Gets installed ink 0–15 of health band 0–3, selected by boss health and copied to sprite palette 1.</summary>
-    public RgbColor ResolveHealth(int frame, int color) => health.Colour(frame, color);
+    /// <summary>Gets installed ink 0–15 of health band <paramref name="band"/>, selected by boss health and copied to sprite palette 1.</summary>
+    public RgbColor ResolveHealth(SporeSpawnHealthBand band, int color) =>
+        health.Colour(InstalledRows.Of(SporeSpawnHealthBandDefinitions.HighestFirst, band), color);
     /// <summary>Gets installed ink 0–15 of sprite-death phase 0–7.</summary>
     public RgbColor ResolveDeathSprite(int frame, int color) => deathSprite.Colour(frame, color);
     /// <summary>Gets installed ink 0–15 of level-graphics death phase 0–6, assigned to background palette 4 by the death-script owner.</summary>

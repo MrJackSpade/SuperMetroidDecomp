@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Scripted Ceres laboratory vignette between intro pages three and four.</summary>
+/// <summary>Scripted Ceres laboratory vignette: the Baby's delivery to the scientists or their examination of it, each between two narration pages.</summary>
 internal sealed class IntroScientistCutsceneState
 {
     /// <summary>How one laboratory scene pans: while it has not reached its end, its page moves and the baby with it.</summary>
@@ -58,10 +58,10 @@ internal sealed class IntroScientistCutsceneState
     /// </remarks>
     public bool NextPageRequested { get; private set; }
 
-    /// <summary>Starts the delivered-Baby page with a leftward camera pan and page-four handoff.</summary>
+    /// <summary>Starts the delivered-Baby page with a leftward camera pan, handing on to the narration page that follows the delivery.</summary>
     public static IntroScientistCutsceneState CreateDelivery() => new(IntroLaboratoryScene.Delivery);
 
-    /// <summary>Starts the examined-Baby page with a downward camera pan and page-five handoff.</summary>
+    /// <summary>Starts the examined-Baby page with a downward camera pan, handing on to the narration page that follows the examination.</summary>
     public static IntroScientistCutsceneState CreateExamination() => new(IntroLaboratoryScene.Examination);
 
     /// <summary>

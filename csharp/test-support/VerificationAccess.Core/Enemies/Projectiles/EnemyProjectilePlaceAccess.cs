@@ -35,5 +35,5 @@ internal static class EnemyProjectilePlaceAccess
     /// <summary>Every place's latest projectile in place order, for checks that fill the pool.</summary>
     /// <exception cref="InvalidOperationException">The room has spawned nothing into some place.</exception>
     internal static EnemyProjectile[] EveryPlace(this EnemyProjectileEngine engine) =>
-        [.. Enumerable.Range(0, EnemyProjectileEngine.PlaceCount).Select(engine.SpawnedInPlace)];
+        [.. Enumerable.Range(0, EnemyProjectilePlaces.Capacity).Select(engine.SpawnedInPlace)];
 }

@@ -23,7 +23,7 @@ internal static class SamusDrawingDefinitionsVerification
         }
 
         CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        int poseCount = SuperMetroid.AssetExtraction.Samus.SamusBodySources.PoseCount;
+        int poseCount = SuperMetroid.AssetExtraction.Samus.SamusBodyTableDecoding.PoseCount;
 
         TouchRange(bus, SamusDrawingDefinitionsBodyConstants.TopSpritemapBaseIndices,
             poseCount * sizeof(ushort), "top spritemap base-index table");

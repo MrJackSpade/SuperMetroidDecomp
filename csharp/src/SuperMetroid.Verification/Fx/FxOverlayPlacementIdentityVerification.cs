@@ -150,7 +150,7 @@ internal static class FxOverlayPlacementIdentityVerification
             liquidCut: new LiquidTransferRows(BodyFirstRow: 5, BodyRows: 4)).Shown as LiquidArtwork
             ?? throw new InvalidOperationException("Water's artwork is a liquid.");
         var across = new SampledScrollWave(77, [.. Enumerable.Range(0, 16).Select(sample => sample - 8)], 3, 120, 224);
-        RgbaPixel[] backdrop = DisplayRendering.Render(new LayeredScene(memory, [], 15));
+        RgbaPixel[] backdrop = DisplayRendering.Render(new LayeredScene(memory, [], DisplayBrightness.Full));
         int drawn = 0;
         var wrong = new List<string>();
         foreach (int surfaceLine in new[] { -300, -41, -1, 0, 1, 7, 8, 40, 100, 186, 223, 224, 230, 231, 300 })
@@ -187,7 +187,7 @@ internal static class FxOverlayPlacementIdentityVerification
     /// <summary>The frame the renderer draws of <paramref name="picture"/> alone, added below the HUD, scrolled across by <paramref name="across"/>.</summary>
     private static RgbaPixel[] Render(FramePaint memory, OverlayPicture picture, LineScroll across) =>
         DisplayRendering.Render(new LayeredScene(memory,
-            new DisplayLayer[] { new OverlayBlendLayer(picture, FirstLine, BlendOperation.Add, across) }, 15));
+            new DisplayLayer[] { new OverlayBlendLayer(picture, FirstLine, BlendOperation.Add, across) }, DisplayBrightness.Full));
 
     /// <summary>The first retail record of effect <paramref name="type"/> for its room's default entry.</summary>
     private static RoomEffectDefinition RetailRecord(RoomFxType type) =>

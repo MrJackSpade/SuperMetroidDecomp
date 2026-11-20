@@ -14,11 +14,11 @@ internal static class IntroDiscoveryFrameCatalogVerification
     /// </summary>
     internal static void VerifyIntroDiscoveryFrameCatalog(ISnesAddressSpace rom)
     {
-        string[] names = ["egg-intact", "egg-crack-1", "egg-crack-2", "egg-crack-3",
-            "egg-crack-4", "egg-crack-5", "egg-crack-6", "egg-crack-7", "egg-hatched",
-            "egg-remnant-1", "egg-remnant-2", "egg-remnant-3", "egg-remnant-4",
-            "egg-remnant-5", "egg-remnant-6", "egg-remnant-7",
-            "confused-baby-1", "confused-baby-2", "confused-baby-3"];
+        string[] names = ["egg-intact", "egg-rocking-left", "egg-rocking-right", "egg-cracking-upper-left",
+            "egg-cracking-top", "egg-cracking-left", "egg-cracking-upper-right", "egg-cracking-right", "egg-hatched",
+            "egg-remnant-dome-sagging", "egg-remnant-dome-falling", "egg-remnant-dome-crumbling", "egg-remnant-ribs-bared",
+            "egg-remnant-ribs-shifting", "egg-remnant-ribs-settling", "egg-remnant-settled",
+            "confused-baby-stretched", "confused-baby-round", "confused-baby-squashed"];
         var frames = IntroDiscoveryActorSpriteDefinitions.Frames;
         AssertEqual(names.Length, frames.Count, "discovery catalog original frame count");
         int pointer = 0x8d6f;

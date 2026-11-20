@@ -32,11 +32,10 @@ internal static class SporeSpawnSheetShades
     {
         SporeSpawnColorCatalog colours = Colours(bosses);
         var shades = new List<SheetShade> { SheetShade.Run(SporeSpawnShades.Spores, SporesRow * LoadedSetColours.RowColours, Frame(colours.ResolveSpore)) };
-        for (int frame = 0; frame < SporeSpawnColorFormat.HealthFrameCount; frame++)
+        foreach (SporeSpawnHealthBand band in SporeSpawnHealthBandDefinitions.HighestFirst)
         {
-            int shown = frame;
-            shades.Add(SheetShade.Run(SporeSpawnShades.Health(SporeSpawnHealthBandDefinitions.HighestFirst[shown]), BodyRow * LoadedSetColours.RowColours,
-                Frame(colour => colours.ResolveHealth(shown, colour))));
+            shades.Add(SheetShade.Run(SporeSpawnShades.Health(band), BodyRow * LoadedSetColours.RowColours,
+                Frame(colour => colours.ResolveHealth(band, colour))));
         }
         foreach (SporeSpawnDeathFadeStep step in SporeSpawnDeathFadeStep.All)
             shades.Add(SheetShade.Run(SporeSpawnShades.DeathSprite(step), BodyRow * LoadedSetColours.RowColours, Frame(colour => colours.ResolveDeathSprite(step.Step, colour))));

@@ -9,8 +9,6 @@ internal static class EnemyProjectileDefinitionCatalog
     /// <summary>The complete definition of each enemy projectile identity.</summary>
     internal static readonly Dictionary<RoomEnemyProjectileKind, EnemyProjectileDefinition> Definitions = new()
     {
-        [RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace] = new(
-            new(0, 0), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.YappingMawBody] = new(
             new(2, 2), 5, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.SkreeMetareeParticle] = new(

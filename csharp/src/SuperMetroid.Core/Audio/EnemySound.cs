@@ -46,12 +46,12 @@ public enum EnemySound
     LiquidDamage,
     /// <summary>High-pitched air bubbles.</summary>
     HighBubbles,
-    /// <summary>The first lava bubbling sound.</summary>
-    LavaBubbling1,
-    /// <summary>The second lava bubbling sound.</summary>
-    LavaBubbling2,
-    /// <summary>The third lava bubbling sound.</summary>
-    LavaBubbling3,
+    /// <summary>Lava bubbling as a burst of four pops; one of the three the lava picks from at random.</summary>
+    LavaBubblingBurst,
+    /// <summary>Lava bubbling as two pops falling in pitch; one of the three the lava picks from at random.</summary>
+    LavaBubblingFalling,
+    /// <summary>Lava bubbling as two pops rising in pitch; one of the three the lava picks from at random.</summary>
+    LavaBubblingRising,
     /// <summary>The Maridia elevatube.</summary>
     Elevatube,
     /// <summary>Fake Kraid's cry; a high-priority sound.</summary>
@@ -272,12 +272,12 @@ public enum EnemySound
     CrocomireMeltingCry,
     /// <summary>The Baby Metroid draining.</summary>
     BabyMetroidDrain,
-    /// <summary>Phantoon's first appearance sound.</summary>
-    PhantoonAppears1,
-    /// <summary>Phantoon's second appearance sound.</summary>
-    PhantoonAppears2,
-    /// <summary>Phantoon's third appearance sound.</summary>
-    PhantoonAppears3,
+    /// <summary>Phantoon materialising, the swell that rises from the middle of his three pitches.</summary>
+    PhantoonAppearsMiddle,
+    /// <summary>Phantoon materialising, the swell that rises from the lowest of his three pitches.</summary>
+    PhantoonAppearsLow,
+    /// <summary>Phantoon materialising, the swell held at the highest of his three pitches.</summary>
+    PhantoonAppearsHigh,
     /// <summary>Botwoon spitting; a high-priority sound.</summary>
     BotwoonSpit,
     /// <summary>The Baby Metroid's guilt; a high-priority sound.</summary>

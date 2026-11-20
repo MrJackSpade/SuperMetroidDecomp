@@ -76,7 +76,8 @@ public static class TitleGradientFile
             }
             variants[variant] = new ScreenGradient(stops.MoveToImmutable(), ScreenGeometry.ScreenHeightPixels);
         }
-        return new TitleGradientPresentation(variants);
+        // The installed file's first gradient, the no-zoom range's, is also the one the floor shows at its own size.
+        return new TitleGradientPresentation(variants, ownSize: variants[0]);
     }
 
     /// <summary>

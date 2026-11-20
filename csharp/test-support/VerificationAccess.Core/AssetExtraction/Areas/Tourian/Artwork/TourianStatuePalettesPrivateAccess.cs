@@ -22,4 +22,14 @@ internal static class TourianStatuePalettesPrivateAccess
         /// <summary>The private field <c>statueColors</c>, reached by name.</summary>
         internal global::SuperMetroid.AssetExtraction.Areas.Tourian.Artwork.TourianStatuePalettes.PaletteBand statueColors => PrivateState.Field<global::SuperMetroid.AssetExtraction.Areas.Tourian.Artwork.TourianStatuePalettes, global::SuperMetroid.AssetExtraction.Areas.Tourian.Artwork.TourianStatuePalettes.PaletteBand>(self, "statueColors");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Areas.Tourian.Artwork.TourianStatuePalettes)
+    {
+        /// <summary>The private property <c>EyeRowOrder</c>, reached by name.</summary>
+        internal static global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.Core.Areas.Tourian.TourianStatue> EyeRowOrder
+        {
+            get => PrivateState.StaticGet<global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.Core.Areas.Tourian.TourianStatue>>(typeof(global::SuperMetroid.AssetExtraction.Areas.Tourian.Artwork.TourianStatuePalettes), "EyeRowOrder");
+        }
+    }
 }

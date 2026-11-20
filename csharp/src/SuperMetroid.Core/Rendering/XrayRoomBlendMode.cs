@@ -53,7 +53,7 @@ public sealed record XrayRoomBlendMode
     public bool KeepsDarkness { get; private init; }
 
     /// <summary>
-    /// Whether the room outside the cone takes the X-ray's grey (<see cref="XrayWindowRenderDefinitions.RevealTintLevel"/>);
+    /// Whether the room outside the cone takes the X-ray's grey (<see cref="XrayWindowRenderDefinitions.RevealTint"/>);
     /// a darkness it keeps takes its shade where that is darker.
     /// </summary>
     public bool WashesGrey { get; private init; }

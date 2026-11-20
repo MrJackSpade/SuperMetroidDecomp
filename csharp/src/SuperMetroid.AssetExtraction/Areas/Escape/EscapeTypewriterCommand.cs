@@ -1,11 +1,14 @@
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
-/// <summary>The control words of an escape typewriter program between its lines' character bytes.</summary>
+/// <summary>
+/// The commands of an escape typewriter program between its lines' character bytes; the cartridge's words for them are
+/// <see cref="EscapeTypewriterControlWords"/>'s.
+/// </summary>
 internal enum EscapeTypewriterCommand
 {
-    /// <summary>$A6:C2B7: the program ends.</summary>
-    End = 0,
+    /// <summary>The program ends.</summary>
+    End,
 
-    /// <summary>$A6:C2E8: a new line starts at the VRAM tilemap word that follows.</summary>
-    LineStart = 13,
+    /// <summary>A new line starts at the VRAM tilemap word that follows.</summary>
+    LineStart,
 }

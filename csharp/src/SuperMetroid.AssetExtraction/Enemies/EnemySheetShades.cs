@@ -19,7 +19,6 @@ using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
-using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Fx;
@@ -413,8 +412,7 @@ internal sealed class EnemySheetShades
         WorkRobotPaletteCycle cycle = inputs.Enemies.WorkRobotPaletteCycle ?? throw Missing("Work Robot glow colours");
         // The cartridge's colour records are the glow's steps in the order the glow shows them. The steps that show
         // one place show it in one colouring, so each place installs one shade (#2393).
-        return [.. WorkRobotGlowAnimations.Places.Select(place =>
-            SheetShade.Run(WorkRobotShades.Glow(place), first + WorkRobotPaletteDefinitions.FirstAnimatedColor, WorkRobotGlowColours(cycle, place)))];
+        return [.. WorkRobotGlowAnimations.Places.Select(place => cycle.GlowShade(place, first))];
     }
 
     /// <summary>A Torizo's colourings over its own rows (#1512), with <paramref name="belly"/>, its belly's glow.</summary>
@@ -600,10 +598,10 @@ internal sealed class EnemySheetShades
         yield return new SheetShade(TourianStatueShades.Entrance,
             [.. Enumerable.Range(body, 16), .. Enumerable.Range(decoration, 16)],
             [.. Frame(16, statue.StatueColor), .. Frame(16, statue.BaseColor)]);
-        foreach ((PictureShade glow, int row) in TourianStatueColorDefinitions.EyeGlowRows)
+        foreach ((PictureShade glow, SuperMetroid.Core.Areas.Tourian.TourianStatue boss) in TourianStatueColorDefinitions.EyeGlowRows)
         {
             yield return SheetShade.Run(glow, decoration + 9,
-                Frame(TourianStatueColorDefinitions.EyeColorCount, colour => statue.ResolveEye(row, colour)));
+                Frame(TourianStatueColorDefinitions.EyeColorCount, colour => statue.ResolveEye(boss, colour)));
         }
         yield return SheetShade.Run(TourianStatueShades.PhantoonCleared, body + 12, Frame(3, _ => RgbColor.Black));
         yield return SheetShade.Run(TourianStatueShades.PhantoonGrey, body, Frame(TourianStatueColorDefinitions.GreyColorCount, statue.GreyColor));
@@ -675,21 +673,6 @@ internal sealed class EnemySheetShades
 
     /// <summary><paramref name="count"/> colours, colour after colour.</summary>
     private static RgbColor[] Frame(int count, Func<int, RgbColor> colour) => [.. Enumerable.Range(0, count).Select(colour)];
-
-    /// <summary>
-    /// The colours the Work Robot glow shows <paramref name="place"/> in (#2393): the record of every step showing it, which
-    /// must agree, since the place installs one shade.
-    /// </summary>
-    /// <exception cref="InvalidDataException">Two steps showing the place have different colours.</exception>
-    private static RgbColor[] WorkRobotGlowColours(WorkRobotPaletteCycle cycle, WorkRobotGlowPlace place)
-    {
-        RgbColor[][] showing = [.. Enumerable.Range(0, WorkRobotGlowAnimations.Cycle.Count)
-            .Where(step => WorkRobotGlowAnimations.Cycle[step] == place)
-            .Select(step => Frame(WorkRobotPaletteDefinitions.ColorCount, colour => cycle.Resolve(step, colour)))];
-        if (showing.Any(colours => !colours.SequenceEqual(showing[0])))
-            throw new InvalidDataException($"The Work Robot glow colour records for {place} differ; each place has one colouring.");
-        return showing[0];
-    }
 
     /// <summary>
     /// The colours of face-block glow level <paramref name="level"/> (#2477): those of every colour record of a step showing

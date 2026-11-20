@@ -104,7 +104,7 @@ internal static class GameOverRomDataVerification
             },
             maximumFrames: 160,
             "game-over menu fade-in");
-        AssertTrue(framesToMenu > SuperMetroid.Core.Rendering.DisplayBrightness.Full,
+        AssertTrue(framesToMenu > SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull,
             "game-over menu waits for queued music before fading");
 
         menu.Step(ControllerButton.Down);

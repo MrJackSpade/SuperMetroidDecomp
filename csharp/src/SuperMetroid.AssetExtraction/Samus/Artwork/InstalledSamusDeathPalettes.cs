@@ -56,16 +56,18 @@ public sealed class InstalledSamusDeathPalettes
     }
 
     /// <summary>Returns one installed suited death colour.</summary>
-    /// <param name="suit">Family index 0=Power, 1=Varia, 2=Gravity; not the byte offsets 0, 2, and 4.</param>
+    /// <param name="suit">The suit whose death colours are read.</param>
     /// <param name="palette">Death-flash step, below <see cref="SamusShadeDefinitions.Death.ExplosionShadeCount"/>: base, flash, the whitening steps, then the final foreground step.</param>
     /// <param name="color">Ink index 0..15, copied by the consumer to colours 192..207; index-zero pixels remain transparent.</param>
     /// <returns>The installed colour; no palette is written.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Any index is outside its documented range.</exception>
-    public RgbColor SuitedColor(int suit, int palette, int color)
+    public RgbColor SuitedColor(SamusSuit suit, int palette, int color)
     {
-        if ((uint)suit >= SuitCount)
-            throw new ArgumentOutOfRangeException(nameof(suit));
-        return Step(suited[suit], palette, color);
+        // The installed families are listed in the suits' order (SamusSuitListLayout.Order).
+        int family = SamusSuitListLayout.Order.IndexOf(suit);
+        if (family < 0)
+            throw new ArgumentOutOfRangeException(nameof(suit), suit, "Samus has no such suit.");
+        return Step(suited[family], palette, color);
     }
 
     /// <summary>Returns one installed suitless death colour.</summary>

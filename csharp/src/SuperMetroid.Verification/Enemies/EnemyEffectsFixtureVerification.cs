@@ -144,13 +144,13 @@ internal static class EnemyEffectsFixtureVerification
     internal static CrocomireMeltingArtwork MeltEffectArtwork(byte pattern = 0x55,
         int seed = 0, string? firstJson = null)
     {
-        using var first = EffectPng(CrocomireMeltingArtworkFormat.FirstByteCount,
+        using var first = EffectPng(CrocomireMeltingArtworkFormat.FleshByteCount,
             CrocomireMeltingArtwork.UsedByteCount(CrocomireMeltingIllustration.Flesh), pattern);
-        using var second = EffectPng(CrocomireMeltingArtworkFormat.SecondByteCount,
+        using var second = EffectPng(CrocomireMeltingArtworkFormat.BareSkullByteCount,
             CrocomireMeltingArtwork.UsedByteCount(CrocomireMeltingIllustration.BareSkull), pattern);
         using var firstMap = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(firstJson ?? MeltEffectJson(seed)));
         using var secondMap = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(MeltEffectJson(seed)));
-        return CrocomireMeltingArtwork.Load(RoomCharacterAtlasPng.Read(first, CrocomireMeltingArtworkFormat.FirstByteCount),
-            RoomCharacterAtlasPng.Read(second, CrocomireMeltingArtworkFormat.SecondByteCount), firstMap, secondMap);
+        return CrocomireMeltingArtwork.Load(RoomCharacterAtlasPng.Read(first, CrocomireMeltingArtworkFormat.FleshByteCount),
+            RoomCharacterAtlasPng.Read(second, CrocomireMeltingArtworkFormat.BareSkullByteCount), firstMap, secondMap);
     }
 }

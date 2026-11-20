@@ -276,11 +276,10 @@ internal static class BossSheetShades
             SheetShade.Run(DraygonShades.BodyWhite, DraygonBackgroundFirstInk,
                 [.. Enumerable.Range(0, DraygonColorDefinitions.WhiteFlashCount).Select(draygon.ResolveWhiteFlash)]),
         };
-        for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
+        foreach (DraygonHealthBand band in DraygonHealthBandDefinitions.HighestFirst)
         {
-            int shown = band;
-            shades.Add(SheetShade.Run(DraygonShades.Health(DraygonHealthBandDefinitions.HighestFirst[shown]), DraygonBackgroundFirstInk + DraygonHealthFirstColour,
-                [.. Enumerable.Range(0, DraygonColorDefinitions.HealthBandColorCount).Select(colour => draygon.ResolveHealthBand(shown, colour))]));
+            shades.Add(SheetShade.Run(DraygonShades.Health(band), DraygonBackgroundFirstInk + DraygonHealthFirstColour,
+                [.. Enumerable.Range(0, DraygonColorDefinitions.HealthBandColorCount).Select(colour => draygon.ResolveHealthBand(band, colour))]));
         }
         return shades;
     }
@@ -311,11 +310,10 @@ internal static class BossSheetShades
     private static IEnumerable<SheetShade> Botwoon(BossSourceArtwork bosses, int firstInk)
     {
         BotwoonColorCatalog botwoon = bosses.BotwoonColors ?? throw new InvalidDataException("Botwoon is shaded from the installed Botwoon colours.");
-        for (int band = 0; band < BotwoonColorFormat.HealthBandCount; band++)
+        foreach (BotwoonHealthBand band in BotwoonHealthBandDefinitions.InOrderShown)
         {
-            int shown = band;
-            yield return SheetShade.Run(BotwoonShades.Health(BotwoonHealthBandDefinitions.InOrderShown[shown]), firstInk,
-                [.. Enumerable.Range(0, BotwoonColorFormat.ColorsPerPalette).Select(colour => botwoon.HealthColor(shown, colour))]);
+            yield return SheetShade.Run(BotwoonShades.Health(band), firstInk,
+                [.. Enumerable.Range(0, BotwoonColorFormat.ColorsPerPalette).Select(colour => botwoon.HealthColor(band, colour))]);
         }
     }
 

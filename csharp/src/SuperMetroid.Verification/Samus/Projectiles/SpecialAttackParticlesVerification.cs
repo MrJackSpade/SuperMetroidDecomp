@@ -94,7 +94,7 @@ internal static class SpecialAttackParticlesVerification
     private static object? KindOf(SamusProjectile shot) => shot.HeldShot().KindState switch
     {
         null => null,
-        SuperMissileShotState superMissile => (superMissile.Ignition, superMissile.LinkPlace),
+        SuperMissileShotState superMissile => (superMissile.Ignition, superMissile.LinkChainPosition),
         MissileShotState missile => missile.Ignition,
         IceParticleState ice => (ice.Part, ice.Angle, ice.Radius, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(ice, "TurnPerUpdate"), ice.Lifetime.UpdatesLeft),
         PlasmaParticleState ring => (ring.Part, ring.Angle, ring.Radius, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(ring, "TurnPerUpdate"), ring.Phase),
@@ -193,13 +193,13 @@ internal static class SpecialAttackParticlesVerification
                 break;
             case PlaceHolding.SuperMissile:
                 IgnitedMissile(projectiles, place, fraction, SamusProjectileFamily.SuperMissile, SamusShotBehaviors.SuperMissile)
-                    .KindStateAs<SuperMissileShotState>().LinkPlace = FifthPlace;
+                    .KindStateAs<SuperMissileShotState>().LinkChainPosition = FifthPlace;
                 _ = SuperMissileLink(projectiles, FifthPlace, fraction);
                 return fraction;
             case PlaceHolding.SuperMissileLink:
                 _ = SuperMissileLink(projectiles, place, fraction);
                 IgnitedMissile(projectiles, FifthPlace, fraction, SamusProjectileFamily.SuperMissile, SamusShotBehaviors.SuperMissile)
-                    .KindStateAs<SuperMissileShotState>().LinkPlace = place;
+                    .KindStateAs<SuperMissileShotState>().LinkChainPosition = place;
                 return fraction;
             case PlaceHolding.CrashEcho:
                 SamusProjectile echo = projectiles.Pool.Occupy(place);

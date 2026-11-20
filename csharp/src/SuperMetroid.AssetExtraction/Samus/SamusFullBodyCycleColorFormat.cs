@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -19,22 +18,5 @@ public static class SamusFullBodyCycleColorFormat
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
 
-    /// <summary>The contiguous artwork row of a cycle palette.</summary>
-    /// <remarks>Each suit owns sixteen consecutive rows, Power then Varia then Gravity: four Speed Booster shades, then
-    /// stored shine, active shinespark and Screw Attack.</remarks>
-    internal static int PaletteIndex(SamusFullBodyCycleShade palette)
-    {
-        if ((uint)palette.Shade >= ShadesPerSuit)
-            throw new ArgumentOutOfRangeException(nameof(palette), $"Uncatalogued full-body palette {palette}.");
-        int family = palette.Family switch
-        {
-            SamusFullBodyCycleFamily.SpeedBooster => 0,
-            SamusFullBodyCycleFamily.StoredShine => 1,
-            SamusFullBodyCycleFamily.ActiveShinespark => 2,
-            SamusFullBodyCycleFamily.ScrewAttack => 3,
-            _ => throw new ArgumentOutOfRangeException(nameof(palette), $"Uncatalogued full-body palette family {palette.Family}."),
-        };
-        return SamusSuitListLayout.Place(palette.Suit) * (PaletteCount / SuitCount) + family * ShadesPerSuit + palette.Shade;
-    }
 
 }

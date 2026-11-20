@@ -271,7 +271,7 @@ internal sealed class TorizoAttacks : IBombTorizoStatueFragmentSpawner
             bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
             if (projectile.Velocity.Y.IsNegative || !collided)
             {
-                EnemyProjectile? firstPlace = projectiles.LatestInPlace(0);
+                EnemyProjectile? firstPlace = projectiles.LatestInFirstPlace;
                 SignedEightEight acceleration = FirstPlaceFallAcceleration.Of(
                     firstPlace is { IsActive: true },
                     firstPlace is { IsActive: true, Kind: RoomEnemyProjectileKind.BombTorizoStatueBreaking } ? StatueFragments.Of(firstPlace).Acceleration : null);

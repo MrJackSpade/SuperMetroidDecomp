@@ -114,11 +114,10 @@ internal static class MotherBrainSheetShades
         }
         shades.Add(SheetShade.Run(MotherBrainShades.BabyArrives, SeventhRow + FirstColour,
             Colours(BabyMetroidCutsceneColorFormat.InitialColorCount, baby.InitialColor)));
-        // The Baby's installed fade colours number its images from one.
         foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.BabyFade, BabyMetroidCutsceneColorDefinitions.FadeFrameCount))
         {
             shades.Add(SheetShade.Run(MotherBrainShades.Fade(image), SeventhRow + FirstColour,
-                Colours(BabyMetroidCutsceneColorFormat.FadeColorCount, colour => baby.FadeColor(image.Step + 1, colour))));
+                Colours(BabyMetroidCutsceneColorFormat.FadeColorCount, colour => baby.FadeColor(image.Step, colour))));
         }
         return shades;
     }

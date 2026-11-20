@@ -52,7 +52,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>The selected slot's helmet picture, retained through the options fade.</summary>
     private FileSelectHelmetFrame HelmetAnimationFrame => selectedHelmet.Frame;
     /// <summary>The screen's brightness and the cadence of its entry and submenu fades; the menu opens black.</summary>
-    private readonly ScreenFade screenFade = new(0);
+    private readonly ScreenFade screenFade = new(DisplayBrightness.Black);
     /// <summary>The opening's black hold (<see cref="FileSelectPhase.BlackHold"/>), counted once each update.</summary>
     private readonly UpdateCountdown blackHold = UpdateCountdown.Lasting(FileSelectLayout.BlackHoldUpdates);
     /// <summary>The page file select has selected, which it shows with its slots as they are now.</summary>

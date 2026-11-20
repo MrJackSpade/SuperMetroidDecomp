@@ -1033,6 +1033,14 @@ value type names its own units (`SignedSixteenSixteen.OnePixel`, `SignedEightEig
 `UpdateCountdown.LastingOneUpdate()`); zero, a literal beside computed state and a literal passed by position are not
 definitions.
 
+SME6482 (#2556) keeps relations as references, never list positions. Outside an `[EncodingOwner]` type and a
+`[CompatibilityService]`, Core reads no place's `Ordinal`, its position in the list it belongs to, except to spell it in an
+interpolated message: no partner is found by counting places from another (`part.Ordinal - 1`), and no place number is
+handed to a lookup, stored or compared (`Inherit(place.Ordinal, ...)`). A member of a multipart enemy finds the member
+playing another role through the one owner of the population's listing (`EnemyCompositeListing.Member`, with the roles
+in listed order in the species' `EnemyComposite`) and keeps the place it finds; a rule the game makes depend on placement
+itself is a compatibility service (`FollowUpAfterStruckPart`, `BabyMetroidVictim`); a place is handed on as itself.
+
 SME6474 (#2566) keeps every result read and every parameter needed, in Core and AssetExtraction. A method outside the
 assembly's public surface whose result no caller in the assembly reads, each caller discarding it (`_ = Step();`) or
 calling it as a statement, returns nothing (a spawn no caller acts on a refusal of reports nothing); an out result no

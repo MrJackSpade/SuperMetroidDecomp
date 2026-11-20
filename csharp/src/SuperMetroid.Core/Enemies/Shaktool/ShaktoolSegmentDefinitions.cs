@@ -13,43 +13,43 @@ internal static class ShaktoolSegmentDefinitions
 {
     /// <summary>The leading saw: the chain's fixed anchor, in its first place.</summary>
     internal static readonly ShaktoolSegmentDefinition LeadingSaw =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.None, 0,
+        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.None,
             RotationAngle.Zero, ShaktoolSegment.SawHandPrimaryPiece,
             ShaktoolSegmentMotion.Idle, RotationAngle.Zero, ShaktoolSegment.SawHandHeadBobPrimaryPiece, AnchorsChain: true, IsSaw: true);
 
     /// <summary>The outer arm on the leading saw's side, next to the saw.</summary>
     internal static readonly ShaktoolSegmentDefinition LeadingOuterArm =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 1,
+        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus,
             RotationAngle.FromSteps(248), ShaktoolSegment.ArmPieceNormal,
             ShaktoolSegmentMotion.OrbitPreviousSegment, RotationAngle.FromStepFraction(1, 8), ShaktoolSegment.ArmPieceHeadBobBack);
 
     /// <summary>The inner arm on the leading saw's side, next to the head.</summary>
     internal static readonly ShaktoolSegmentDefinition LeadingInnerArm =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 2,
+        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus,
             RotationAngle.FromSteps(232), ShaktoolSegment.ArmPieceNormal,
             ShaktoolSegmentMotion.OrbitPreviousSegment, RotationAngle.FromStepFraction(3, 8), ShaktoolSegment.ArmPieceHeadBobFront);
 
     /// <summary>The head at the chain's centre, which orients itself along the chain.</summary>
     internal static readonly ShaktoolSegmentDefinition Head =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 3,
+        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus,
             RotationAngle.FromSteps(208), ShaktoolSegment.HeadAimingDown,
             ShaktoolSegmentMotion.OrbitAndOrientCenter, RotationAngle.FromStepFraction(3, 4), ShaktoolSegment.HeadHeadBob);
 
     /// <summary>The inner arm on the trailing saw's side, next to the head.</summary>
     internal static readonly ShaktoolSegmentDefinition TrailingInnerArm =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 4,
+        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus,
             RotationAngle.FromSteps(176), ShaktoolSegment.ArmPieceNormal,
             ShaktoolSegmentMotion.OrbitPreviousSegment, RotationAngle.FromStepFraction(5, 4), ShaktoolSegment.ArmPieceHeadBobFront);
 
     /// <summary>The outer arm on the trailing saw's side, next to the saw.</summary>
     internal static readonly ShaktoolSegmentDefinition TrailingOuterArm =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 5,
+        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus,
             RotationAngle.FromSteps(152), ShaktoolSegment.ArmPieceNormal,
             ShaktoolSegmentMotion.OrbitPreviousSegment, RotationAngle.FromStepFraction(13, 8), ShaktoolSegment.ArmPieceHeadBobBack);
 
     /// <summary>The trailing saw, which drives the chain and reverses it at walls.</summary>
     internal static readonly ShaktoolSegmentDefinition TrailingSaw =
-        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.None, 6,
+        new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.None,
             RotationAngle.FromSteps(136), ShaktoolSegment.SawHandPrimaryPiece,
             ShaktoolSegmentMotion.DriveTailAndReverseAtWalls, RotationAngle.FromStepFraction(15, 8), ShaktoolSegment.SawHandHeadBobFinalPiece, IsSaw: true);
 
@@ -57,6 +57,6 @@ internal static class ShaktoolSegmentDefinitions
     internal static readonly ShaktoolSegmentDefinition[] Segments =
         [LeadingSaw, LeadingOuterArm, LeadingInnerArm, Head, TrailingInnerArm, TrailingOuterArm, TrailingSaw];
 
-    /// <summary>How many segments Shaktool's chain has, in consecutive enemy places: the two saws and the five between.</summary>
-    internal const int SegmentCount = 7;
+    /// <summary>How the room lists Shaktool (#2556): its seven segments together, in chain order.</summary>
+    internal static readonly EnemyComposite<ShaktoolSegmentDefinition> Chain = new(Segments);
 }

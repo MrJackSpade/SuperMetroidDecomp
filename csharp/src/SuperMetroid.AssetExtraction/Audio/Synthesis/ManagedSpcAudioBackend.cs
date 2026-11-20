@@ -91,7 +91,7 @@ public sealed class ManagedSpcAudioBackend
     {
         Player.Uploads.Upload(assets.GetUpload(bank).Span);
         Player.Uploads.ApplyInstrumentDefinitions(assets.GetInstrumentBank(bank));
-        Player.Uploads.ApplyMusicDefinitions(assets.GetMusicBank(bank), assets.GetCompiledMusicBank(bank));
+        Player.Uploads.ApplyMusicDefinitions(assets.GetMusicBank(bank), AudioAssetCatalogDefinitions.Get(bank).DataSet, assets.GetCompiledMusicBank(bank));
         Player.Uploads.ApplySoundEffectDefinitions(assets.SoundEffectImage);
         Player.SetSampleBank(assets.GetSampleBank(bank));
     }

@@ -73,7 +73,7 @@ internal static class SamusColoursAccess
             self.ShownInks(sources)[SamusSheetInks.Suitless..(SamusSheetInks.Suitless + SamusColourSets.ColoursPerSet)];
 
         /// <summary>The colour her visor shows.</summary>
-        internal RgbColor ShownVisor(SamusShadeSources sources) => self.ShownInks(sources)[SamusSheetInks.Suit + SamusSheetInks.VisorColour];
+        internal RgbColor ShownVisor(SamusShadeSources sources) => self.ShownInks(sources)[SamusSheetInks.Visor];
 
         /// <summary>The visor shade laid over her suit, or null while the suit's own visor colour shows.</summary>
         internal PictureShade? VisorShade => self.SuitOverlays.LastOrDefault(shade =>

@@ -10,10 +10,10 @@ namespace SuperMetroid.Desktop.Input;
 /// Hot-pluggable WinMM adapter for legacy, DirectInput, and generic USB game controllers.
 /// </summary>
 /// <remarks>
-/// This deliberately uses the operating system's joystick API instead of XInput. XInput is
-/// excellent for Xbox-compatible devices but does not enumerate the connected VID_0079 /
-/// PID_0011 generic HID pad. WinMM sits above the installed HID joystick driver, requires no
+/// XInput does not enumerate generic HID pads such as the VID_0079 / PID_0011 adapter, so
+/// those are read here. WinMM sits above the installed HID joystick driver, requires no
 /// native package beside the executable, and returns all state in one non-blocking call.
+/// Xbox controllers and pads in X-input mode are read by <see cref="XInputGamepadInput"/>.
 /// </remarks>
 internal sealed partial class WindowsGamepadInput
 {
@@ -61,7 +61,16 @@ internal sealed partial class WindowsGamepadInput
         return MapAndRemember(position);
     }
 
-    /// <summary>Selects the first WinMM joystick with readable capabilities and position.</summary>
+    /// <summary>
+    /// Whether a joystick slot advertises any button or axis. Windows can answer for a slot
+    /// with neither (seen with Xbox controllers, which XInput reads instead); selecting it
+    /// would hold the adapter on a device that never reports input while a usable joystick
+    /// sits in a later slot.
+    /// </summary>
+    internal static bool CanProduceInput(JoystickCapabilities capabilities) =>
+        capabilities.ButtonCount > 0 || capabilities.AxisCount > 0;
+
+    /// <summary>Selects the first WinMM joystick with readable capabilities and position that can produce input.</summary>
     private void DiscoverFirstConnectedDevice()
     {
         uint possibleDeviceCount = NativeMethods.JoyGetNumberOfDevices();
@@ -73,6 +82,7 @@ internal sealed partial class WindowsGamepadInput
                 ref capabilities,
                 (uint)Unsafe.SizeOf<JoystickCapabilities>());
             if (result != WindowsMultimediaResult.NoError ||
+                !CanProduceInput(capabilities) ||
                 !TryRead(deviceId, out JoystickPosition initialPosition))
                 continue;
 

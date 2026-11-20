@@ -91,10 +91,10 @@ public static class SamusAtmosphericArtworkFiles
     /// <summary>Requires both four-frame single-piece lists before installing a ROM-independent catalog.</summary>
     private static SamusAtmosphericSourceArtwork Build(ArtworkDocument document, string source)
     {
-        if (document.Version != FormatVersion || document.TypeOne is null ||
-            document.SharedTypeFour is null)
+        if (document.Version != FormatVersion || document.FootstepSplash is null ||
+            document.LavaAndDust is null)
             throw new InvalidDataException($"Samus atmospheric artwork {source} has invalid structure.");
-        return new SamusAtmosphericSourceArtwork(Pieces(document.TypeOne, source), Pieces(document.SharedTypeFour, source));
+        return new SamusAtmosphericSourceArtwork(Pieces(document.FootstepSplash, source), Pieces(document.LavaAndDust, source));
     }
 
     /// <summary>The stored single small pieces of one list, each at the sprite origin.</summary>
@@ -123,7 +123,7 @@ public static class SamusAtmosphericArtworkFiles
     }
 
     /// <summary>The extracted single small pieces for footsteps and the shared lava/dust effect.</summary>
-    private sealed record ArtworkDocument(int Version, SpriteVisualPart[] TypeOne, SpriteVisualPart[] SharedTypeFour);
+    private sealed record ArtworkDocument(int Version, SpriteVisualPart[] FootstepSplash, SpriteVisualPart[] LavaAndDust);
     /// <summary>The extracted artwork's source revision.</summary>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);
 }

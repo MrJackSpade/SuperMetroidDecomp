@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
@@ -88,8 +89,23 @@ internal static class EnemyExtendedFrameDefinitions
         DraygonBg2FrameCount + PhantoonBg2FrameCount + CrocomireSkeletonVisualDefinitions.FrameCount +
         KraidFootVisualDefinitions.FrameCount;
 
-    /// <summary>Indexed view spanning the complete schema-ordered visual catalog.</summary>
-    internal static EnemyExtendedFrameSequence Frames => new(0, ExpectedFrameCount);
+    /// <summary>Every extended frame, each with its document name, in the document's order.</summary>
+    internal static ImmutableArray<EnemyFrameName> Frames { get; } =
+        [.. EnemyExtendedFrameDocumentOrder.Frames.Select(frame => new EnemyFrameName(frame, EnemyFrameNameDefinitions.Names[frame]))];
+
+    /// <summary>The frames of <paramref name="family"/>, as the document's run of that family holds them.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The document holds no run of the family.</exception>
+    internal static IEnumerable<EnemyFrameName> FramesOf(EnemyExtendedFrameFamily family)
+    {
+        int before = 0;
+        foreach (EnemyExtendedFrameRun run in FamilyRuns)
+        {
+            if (run.Family == family)
+                return Frames.Skip(before).Take(run.Count);
+            before += run.Count;
+        }
+        throw new ArgumentOutOfRangeException(nameof(family), family, "The document holds no frames of the family.");
+    }
 
     /// <summary>$10: the high byte of Ceres steam's spritemap headers, cartridge drawing metadata after the component count (#1415).</summary>
     private const int CeresSteamHeaderHighByte = 16;

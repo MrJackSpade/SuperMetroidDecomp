@@ -916,7 +916,7 @@ internal static class LookupStream5Verification
         var document = RequiredJson.Deserialize<TourianStatueColorDocument>(nativeJson,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var stock = Check(document);
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveEye(0, 4), "Eye color cannot cross into next row");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveEye(SuperMetroid.Core.Areas.Tourian.TourianStatue.Phantoon, 4), "Eye color cannot cross into next row");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveStatue(16), "Statue upper bound");        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBase(-1), "Base ramp lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveGrey(8), "Grey ramp upper bound");
         Console.WriteLine("Tourian statue ramps: all56 native palette colors kept as installed, actual CGRAM and canonical identities pass.");
@@ -943,7 +943,7 @@ internal static class LookupStream5Verification
             for (int row = 0; row < expected.Eye.Length; row++)
             {
                 for (int color = 0; color < expected.Eye[row].Length; color++)
-                    AssertEqual(Shown(expected.Eye[row][color]), actual.ResolveEye(row, color), "Installed eye glow colour");
+                    AssertEqual(Shown(expected.Eye[row][color]), actual.ResolveEye(TourianStatuePalettes.EyeRowOrder[row], color), "Installed eye glow colour");
             }
             string identity = SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", hash =>
             {

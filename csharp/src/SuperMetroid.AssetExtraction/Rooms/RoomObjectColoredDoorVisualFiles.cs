@@ -81,8 +81,8 @@ public static class RoomObjectColoredDoorVisualFiles
     private static IEnumerable<RoomObjectDraw> Draws()
     {
         foreach (ColoredDoorColor color in Colors)
-            for (int orientation = 0; orientation < 4; orientation++)
+            foreach (ColoredDoorOrientation orientation in DoorCapOrientations.InTableOrder)
                 foreach (DoorCapLook look in DoorCaps.OpeningLooks)
-                    yield return ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(color, DoorCapOrientations.FromTableIndex(orientation), look));
+                    yield return ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(color, orientation, look));
     }
 }

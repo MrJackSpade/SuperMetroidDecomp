@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
@@ -207,7 +206,7 @@ public sealed class FileSelectSourcePresentation
             throw new InvalidDataException("File select requires ten digit cells.");
         if (document.SlotLetters is null || document.SlotLetters.Length != 3)
             throw new InvalidDataException("File select requires three slot-letter cells.");
-        if ((uint)document.ObjectPalette >= MapPresentationFormat.PaletteCount)
+        if ((uint)document.ObjectPalette > SpritePart.MaximumPalette)
             throw new InvalidDataException("File-select object palette must be 0..7.");
 
         var pages = FileSelectPresentationFormat.Pages.ToDictionary(page => page,
@@ -376,13 +375,8 @@ public sealed class FileSelectSourcePresentation
     /// <summary>Validates an authored cell's tile coordinates and palette and places its tile.</summary>
     private static BackgroundTile CompileCell(MapPresentationCell? cell, string owner)
     {
-        if (cell is null ||
-            (uint)cell.TileColumn >= FileSelectPresentationFormat.CharacterColumns ||
-            (uint)cell.TileRow >= FileSelectPresentationFormat.CharacterRows ||
-            (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
-            throw new InvalidDataException($"{owner} has an invalid character or palette.");
-        return new BackgroundTile(cell.TileRow * FileSelectPresentationFormat.CharacterColumns + cell.TileColumn,
-            cell.Palette, cell.FlipX, cell.FlipY, cell.Priority);
+        return cell?.Placement(FileSelectPresentationFormat.CharacterColumns, FileSelectPresentationFormat.CharacterRows)
+            ?? throw new InvalidDataException($"{owner} has an invalid character or palette.");
     }
 
     /// <summary>Requires every save-slot field anchor to remain within a menu page.</summary>

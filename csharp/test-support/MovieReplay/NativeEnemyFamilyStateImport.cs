@@ -346,7 +346,7 @@ internal static class NativeEnemyFamilyStateImport
             if (words.F != AnimalsNativeWords.DachoraEchoRoutine)
                 throw new InvalidDataException($"Recorded Dachora echo {enemy.Ordinal} runs routine {words.F:X4}, not the echo's.");
             dachoraEcho.Lifetime = UpdateCountdownAccess.Recorded(unchecked((short)words.D));
-            if (enemies.Places.ListedBeforeOrNone(enemy, 1)?.SpeciesState<DachoraEnemyState>() is { } echoBody)
+            if ((enemy.Ordinal > 0 ? enemies.Places.PlacesBefore(enemy)(1) : null)?.SpeciesState<DachoraEnemyState>() is { } echoBody)
                 echoBody.TrailTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
         }
         if (enemy.SpeciesState<DachoraEnemyState>() is { } dachoraRecord)

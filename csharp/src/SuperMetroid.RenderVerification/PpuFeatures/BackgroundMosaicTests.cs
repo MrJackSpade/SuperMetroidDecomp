@@ -61,7 +61,7 @@ internal static class BackgroundMosaicTests
                     Operation = BlendOperation.Add,
                     BackgroundBehind = mode == 2,
                 }), backgroundBehind: mode == 2);
-            var scene = new LayeredScene(memory, [layer], 15);
+            var scene = new LayeredScene(memory, [layer], DisplayBrightness.Full);
             cases++;
             var packet = new DisplayPacket(0, scene);
             var actual = DisplayRendering.Render(scene);
@@ -104,15 +104,15 @@ internal static class BackgroundMosaicTests
         var paint = FramePaint.FromNative(palette, []);
         // The reveal's layout: a 32-by-32 tilemap at word $5C00 over sixteen-colour characters at word $6000.
         PicturedPlane plane = VramPictureFixtures.Plane(bytes, palette, 0x5c00, 0x6000, TileInkDepth.SixteenColours, new Extent16<CharacterCells>(32, 32));
-        var unpixelated = new LayeredScene(paint, [new PicturedPlaneLayer(plane, Offset16<PlanePixels>.Zero)], 15);
+        var unpixelated = new LayeredScene(paint, [new PicturedPlaneLayer(plane, Offset16<PlanePixels>.Zero)], DisplayBrightness.Full);
         RgbaPixel[] clear = DisplayRendering.Render(unpixelated);
-        RgbaPixel backdrop = DisplayRendering.Render(new LayeredScene(paint, [], 15))[0];
+        RgbaPixel backdrop = DisplayRendering.Render(new LayeredScene(paint, [], DisplayBrightness.Full))[0];
         if (!clear.Contains(backdrop) || clear.All(pixel => pixel == backdrop))
             throw new InvalidDataException("The pixelated plane fixture must show both picture pixels and clear pixels.");
         foreach (int size in Enumerable.Range(1, 16))
         {
             var packet = new DisplayPacket(0, new LayeredScene(paint,
-                [new PicturedPlaneLayer(plane, Offset16<PlanePixels>.Zero) { Pixelation = new(size) }], 15));
+                [new PicturedPlaneLayer(plane, Offset16<PlanePixels>.Zero) { Pixelation = new(size) }], DisplayBrightness.Full));
             var expected = new RgbaPixel[clear.Length];
             for (int y = 0; y < 224; y++)
             for (int x = 0; x < 256; x++)

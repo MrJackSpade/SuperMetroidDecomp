@@ -24,23 +24,23 @@ internal static class FollowUpAfterStruckPartVerification
         IReadOnlyList<RoomEnemyPlace> places = table.InUpdateOrder;
         AssertEqual(EnemyPlaceOrder.Capacity, places.Count, "the room has every enemy place");
 
-        IReadOnlyList<RoomEnemyPlace> dragonBody = FollowUpAfterStruckPart.Recipients(distance => table.ListedAfter(places[17], distance), reach: 1);
+        IReadOnlyList<RoomEnemyPlace> dragonBody = FollowUpAfterStruckPart.Recipients(table.PlacesAfter(places[17]), reach: 1);
         AssertEqual(1, dragonBody.Count, "a Dragon's follow-up reaches one enemy");
         AssertTrue(ReferenceEquals(places[18], dragonBody[0]), "a Dragon body's follow-up reaches its wing");
-        AssertTrue(ReferenceEquals(places[19], FollowUpAfterStruckPart.Recipients(distance => table.ListedAfter(places[18], distance), reach: 1)[0]),
+        AssertTrue(ReferenceEquals(places[19], FollowUpAfterStruckPart.Recipients(table.PlacesAfter(places[18]), reach: 1)[0]),
             "a power bomb on a Dragon wing reaches the enemy after it");
 
-        IReadOnlyList<RoomEnemyPlace> evirArms = FollowUpAfterStruckPart.Recipients(distance => table.ListedAfter(places[4], distance), reach: 2);
+        IReadOnlyList<RoomEnemyPlace> evirArms = FollowUpAfterStruckPart.Recipients(table.PlacesAfter(places[4]), reach: 2);
         AssertEqual(2, evirArms.Count, "an Evir's follow-up reaches two enemies");
         AssertTrue(ReferenceEquals(places[5], evirArms[0]) && ReferenceEquals(places[6], evirArms[1]),
             "a power bomb on Evir arms reaches their spit and the next Evir's body, nearest first");
 
         int last = places.Count - 1;
-        AssertTrue(ReferenceEquals(places[last], FollowUpAfterStruckPart.Recipients(distance => table.ListedAfter(places[last - 2], distance), reach: 2)[1]),
+        AssertTrue(ReferenceEquals(places[last], FollowUpAfterStruckPart.Recipients(table.PlacesAfter(places[last - 2]), reach: 2)[1]),
             "a follow-up may reach the final place");
-        AssertThrows<InvalidDataException>(() => FollowUpAfterStruckPart.Recipients(distance => table.ListedAfter(places[last], distance), reach: 1),
+        AssertThrows<InvalidDataException>(() => FollowUpAfterStruckPart.Recipients(table.PlacesAfter(places[last]), reach: 1),
             "a follow-up past the final place is refused");
-        AssertThrows<InvalidDataException>(() => FollowUpAfterStruckPart.Recipients(distance => table.ListedAfter(places[last - 1], distance), reach: 2),
+        AssertThrows<InvalidDataException>(() => FollowUpAfterStruckPart.Recipients(table.PlacesAfter(places[last - 1]), reach: 2),
             "a two-place follow-up past the final place is refused");
         VerifyRetailMagdolliteFollowUps(table);
         Console.WriteLine("Follow-up after the struck part: Dragon, Evir and Magdollite follow-ups reach the places after the part hit, and none past the last.");
@@ -69,7 +69,7 @@ internal static class FollowUpAfterStruckPartVerification
                 if (records[place].SpawnSettings is MagdolliteHeadSpawnSettings)
                     head = place;
                 int part = place;
-                IReadOnlyList<RoomEnemyPlace> recipients = FollowUpAfterStruckPart.RecipientsWithin(table.AllListedAfter(places[part]), reach: 2);
+                IReadOnlyList<RoomEnemyPlace> recipients = FollowUpAfterStruckPart.RecipientsWithin(table.AllPlacesAfter(places[part]), reach: 2);
                 AssertTrue(ReferenceEquals(places[part + 1], recipients[0]) && ReferenceEquals(places[part + 2], recipients[1]),
                     $"{population.Name}'s Magdollite part at place {part} reaches the two places after it");
                 for (int distance = 1; distance <= 2; distance++)

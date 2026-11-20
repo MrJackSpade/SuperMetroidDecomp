@@ -239,7 +239,7 @@ internal static class RoomBlockWriters
         {
             XrayRevealShape command = XrayReveals.Find(key.Type, key.Reaction)
                 ?? throw new InvalidDataException($"X-ray visual {key.Type}/reaction {key.Reaction} has no reveal rule.");
-            var blocks = new HashSet<int>(visual.InReadingOrder);
+            var blocks = new HashSet<int>(visual.InReadingOrder.Select(picture => picture.Block));
             yield return new(blocks,
                 state => state.Holds(key.Type, key.Reaction) && XrayRevealShapes.RevealsIn(command, state.Area));
         }

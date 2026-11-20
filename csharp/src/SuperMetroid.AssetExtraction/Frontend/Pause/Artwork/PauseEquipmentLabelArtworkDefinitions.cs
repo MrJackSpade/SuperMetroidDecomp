@@ -12,8 +12,6 @@ public static class PauseEquipmentLabelArtworkDefinitions
     public const int BeamWords = 5;
     /// <summary>Nine tile words in suit, miscellaneous equipment, boot, blank, and stored Hyper strips.</summary>
     public const int EquipmentWords = 9;
-    /// <summary>The beam item whose place the cartridge's Hyper label table gives Hyper's only nonblank strip: Wave's.</summary>
-    public const int HyperBeamItem = 2;
     /// <summary>Supported schema version of the import-data label document, requiring fourteen ordinary inventory labels, the Hyper label, and a nine-cell blank strip.</summary>
     public const int Version = 1;
     /// <summary>Import-data JSON filename the import pictures the equipment-page labels from: their artwork, destinations, and the unequipped-label palette selector.</summary>

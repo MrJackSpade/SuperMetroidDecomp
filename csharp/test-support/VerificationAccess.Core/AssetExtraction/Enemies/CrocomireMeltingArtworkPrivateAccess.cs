@@ -14,16 +14,16 @@ internal static class CrocomireMeltingArtworkPrivateAccess
     extension(global::SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingArtwork self)
     {
         /// <summary>The private field <c>first</c>, reached by name.</summary>
-        internal global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas first => PrivateState.Field<global::SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingArtwork, global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas>(self, "first");
+        internal global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas first => PrivateState.Field<global::SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingArtwork, global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas>(self, "flesh");
 
         /// <summary>The private field <c>firstTilemap</c>, reached by name.</summary>
-        internal global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[] firstTilemap => PrivateState.Field<global::SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingArtwork, global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[]>(self, "firstTilemap");
+        internal global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[] firstTilemap => PrivateState.Field<global::SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingArtwork, global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[]>(self, "fleshTilemap");
 
         /// <summary>The private field <c>second</c>, reached by name.</summary>
-        internal global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas second => PrivateState.Field<global::SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingArtwork, global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas>(self, "second");
+        internal global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas second => PrivateState.Field<global::SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingArtwork, global::SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas>(self, "bareSkull");
 
         /// <summary>The private field <c>secondTilemap</c>, reached by name.</summary>
-        internal global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[] secondTilemap => PrivateState.Field<global::SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingArtwork, global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[]>(self, "secondTilemap");
+        internal global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[] secondTilemap => PrivateState.Field<global::SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingArtwork, global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[]>(self, "bareSkullTilemap");
     }
 
     /// <summary>The private static members checks name.</summary>

@@ -105,10 +105,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Initializes the Mama Turtle and links her to the four babies her room lists right after her.</summary>
+    /// <summary>Initializes the Mama Turtle and links her to the four babies her room lists with her.</summary>
     internal void InitializeMamaTurtle(RoomEnemyPlace place)
     {
-        RoomEnemyPlace[] babies = _places.ListedRunAfter(place, MamaTurtleMotionDefinitions.BabyCount);
+        RoomEnemyPlace[] babies = _places.Members(place, MamaTurtlePartListingDefinitions.Listing, EnemyDefinitionId.MamaTurtle, EnemyDefinitionId.BabyTurtle);
         _babiesOfMama.Place(place, babies);
         foreach (RoomEnemyPlace baby in babies)
             _mamaOfBaby.Place(baby, place);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
@@ -44,17 +45,17 @@ internal static class UnpauseReserveBlackoutVerification
         samus.Health = 0;
         samus.MaxReserveEnergy = samus.ReserveEnergy = 100;
         samus.ReserveTankMode = ReserveTankMode.Auto;
-        unpausing.Session.screenFade.Show(0);
+        unpausing.Session.screenFade.Show(DisplayBrightness.Black);
         unpausing.Session.Enter(PauseStep.BrighteningGameplay);
         unpausing.Step(0);
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, unpausing.GameState,
             "state $12's gameplay pass routes zero health into the auto reserve refill");
-        AssertEqual(0, unpausing.Session.PauseBrightness, "the interrupted fade-in leaves $51 black");
+        AssertEqual(0, unpausing.Session.PauseBrightness.StepsAboveBlack, "the interrupted fade-in leaves $51 black");
 
         // Once gameplay resumes the screen is still black; a pause darkens from there.
         var (pausing, _) = Create();
         pausing.Session.Enter(SuperMetroidGameState.MainGameplay);
-        pausing.Session.screenFade.Show(0);
+        pausing.Session.screenFade.Show(DisplayBrightness.Black);
         pausing.Step(0);
         pausing.Step(ControllerButton.Start);
         AssertTrue(pausing.IsAt(PauseStep.DarkeningGameplay), "Start pauses");

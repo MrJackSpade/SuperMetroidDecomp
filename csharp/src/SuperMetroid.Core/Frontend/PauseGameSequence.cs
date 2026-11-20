@@ -143,7 +143,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
             throw new InvalidOperationException(
                 "Pause setup requires an active room.");
         session.Show(new PauseMenuState(new PauseMenuEntry { Samus = session.GameplayRuntime.Player.IntroducedSamus, System = session.GameplayRuntime.System, Area = pauseRoom.Area, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayHud = session.GameplayRuntime.AcceptedHud, MapRevealMode = session.Assists.MapReveal, ScreenContent = session.Artwork.ScreenContent, SpriteSheets = session.Artwork.SpriteSheets }));
-        session.BeginPauseFade(0);
+        session.BeginPauseFade(DisplayBrightness.Black);
         session.display.PublishMenu(session.ActivePauseMenu);
         session.SetDisplayBrightness(session.PauseBrightness);
         session.Enter(PauseStep.FadingIn);
@@ -219,7 +219,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ResumeFromPause();
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.Close<PauseMenuState>();
-        session.BeginPauseFade(0);
+        session.BeginPauseFade(DisplayBrightness.Black);
         session.display.PublishBlack();
         session.Enter(PauseStep.BrighteningGameplay);
     }

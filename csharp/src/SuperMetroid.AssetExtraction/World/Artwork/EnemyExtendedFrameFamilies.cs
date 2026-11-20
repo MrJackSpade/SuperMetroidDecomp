@@ -28,7 +28,7 @@ internal static class EnemyExtendedFrameFamilies
     private static FrozenDictionary<EnemyFrameId, EnemyExtendedFrameRun> Build()
     {
         var families = new Dictionary<EnemyFrameId, EnemyExtendedFrameRun>();
-        using IEnumerator<EnemyFrameName> frames = EnemyExtendedFrameDefinitions.Frames.GetEnumerator();
+        using IEnumerator<EnemyFrameName> frames = ((IEnumerable<EnemyFrameName>)EnemyExtendedFrameDefinitions.Frames).GetEnumerator();
         foreach (EnemyExtendedFrameRun run in EnemyExtendedFrameDefinitions.FamilyRuns)
         {
             for (int index = 0; index < run.Count; index++)

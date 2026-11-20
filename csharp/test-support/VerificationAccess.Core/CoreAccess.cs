@@ -103,7 +103,7 @@ internal static class CoreAccess
     extension(EndingCreditsState ending)
     {
         /// <summary>Current credits fade brightness, 0 (black) through 15 (full), from the private cinematic state.</summary>
-        internal int Brightness => ending.Stage.Brightness;
+        internal int Brightness => ending.Stage.Brightness.StepsAboveBlack;
         /// <summary>Cinematic calls the ending has made so far.</summary>
         internal int CinematicFrame => PrivateState.Field<EndingCreditsState, int>(ending, "cinematicFrame");
         /// <summary>Whole-pixel vertical credits scroll position while the staff credits show, or zero in every other scene.</summary>

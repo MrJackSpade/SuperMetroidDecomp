@@ -14,7 +14,7 @@ internal static class BlueDoorObjectDrawDefinitionsTooling
             for (int orientation = 0; orientation < 4; orientation++)
             {
                 RoomObjectBlueDoorVisualFiles.TryGet(BlueDoorCaps.ClosedSolid(
-                    DoorCapOrientations.FromTableIndex(orientation)), out var draw);
+                    DoorCapOrientations.InTableOrder[orientation]), out var draw);
                 yield return draw;
             }
         }

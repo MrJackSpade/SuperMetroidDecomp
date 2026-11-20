@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Powamp;
 
 namespace SuperMetroid.Verification.Bosses;
 
@@ -53,7 +52,7 @@ internal static class BossRuleRangesVerification
             AssertEqual(expected, leftover.Named(number), $"a leftover number {number}");
         }
         AssertEqual(EnemyDeathExplosion.Small, leftover.Named(null), "a leftover that is no number");
-        AssertEqual(EnemyDeathExplosion.Small, PowampBehavior.ExplosionAfterBurst(null), "a burst into a full pool");
+        AssertEqual(EnemyDeathExplosion.Small, SuperMetroid.Verification.Enemies.Powamp.PowampBurstExplosionVerification.ExplosionAfter(null), "a burst into a full pool");
         for (int place = 0; place < 18; place++)
         {
             EnemyDeathExplosion expected = place switch
@@ -63,7 +62,7 @@ internal static class BossRuleRangesVerification
                 2 => EnemyDeathExplosion.Big,
                 _ => EnemyDeathExplosion.Small,
             };
-            AssertEqual(expected, PowampBehavior.ExplosionAfterBurst(place), $"a last spike in place {place}");
+            AssertEqual(expected, SuperMetroid.Verification.Enemies.Powamp.PowampBurstExplosionVerification.ExplosionAfter(place), $"a last spike in place {place}");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => leftover.Named(-1), "a negative number is refused");
         Console.WriteLine("  Death explosion rules: every leftover number and spike place selects the original's explosion.");

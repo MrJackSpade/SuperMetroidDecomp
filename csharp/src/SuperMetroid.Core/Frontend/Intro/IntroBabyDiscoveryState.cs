@@ -32,7 +32,7 @@ internal sealed class IntroBabyDiscoveryState
     private readonly ShellFragmentFallPastCurve shellFallPastCurve;
     /// <summary>The egg actor whose animation controls the hatch sequence.</summary>
     private readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> egg;
-    /// <summary>What the egg waits for: Samus's approach, then nothing while it hatches, then page three's cross-fade.</summary>
+    /// <summary>What the egg waits for: Samus's approach, then nothing while it hatches, then the cross-fade back to the narration.</summary>
     private MetroidEggBehavior eggBehavior = MetroidEggBehavior.WaitsForSamus;
     /// <summary>
     /// Whether the egg's shell has burst: set by the hatching's cue that spawns the shell pieces, on the update the egg
@@ -152,8 +152,8 @@ internal sealed class IntroBabyDiscoveryState
             eggBehavior = MetroidEggBehavior.Hatches;
         }
 
-        // The egg is gone from the update page three's crossfade reaches its final update. The egg's animation starts the wait
-        // after starting page three.
+        // The egg is gone from the update the crossfade back to the narration reaches its final update. The egg's animation
+        // starts the wait after starting that page.
         if (eggBehavior == MetroidEggBehavior.WaitsForCrossFadeEnd && crossfadeFinishing)
         {
             egg.Delete();
@@ -248,7 +248,7 @@ internal sealed class IntroBabyDiscoveryState
                 return;
 
             case IntroDiscoveryCue.StartNextPage:
-                // This cue switches the outer cinematic phase to page three. The state
+                // This cue switches the outer cinematic phase to the narration page after the discovery. The state
                 // owner performs the colour transition; the actor merely reports the request.
                 NextPageRequested = true;
                 return;
@@ -323,7 +323,7 @@ internal sealed class IntroBabyDiscoveryState
             // The hatched baby publishes the first confused cry at the same equality edge
             // that creates the four egg-slime drops.
             audio.QueueSound(
-                IntroCinematicDefinitions.Sounds.BabyCry1,
+                IntroCinematicDefinitions.Sounds.BabyHighCry,
                 priority: IntroCinematicDefinitions.Sounds.SoundPriority);
         }
 
@@ -362,7 +362,7 @@ internal sealed class IntroBabyDiscoveryState
             // The dancing baby cries when its count of frames danced reaches its cry cadence's places.
             if (IntroCadenceDefinitions.BabyCriesInDance.IsDue(BabyCryingDance.Age))
                 audio.QueueSound(
-                    IntroCinematicDefinitions.Sounds.BabyCry1,
+                    IntroCinematicDefinitions.Sounds.BabyHighCry,
                     priority: IntroCinematicDefinitions.Sounds.SoundPriority);
         }
 

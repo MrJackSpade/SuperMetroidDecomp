@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Bosses.Draygon;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 
@@ -48,5 +49,6 @@ public sealed class DraygonColorCatalog
     public RgbColor ResolveWhiteFlash(int color) => whiteFlash.Colour(color);
 
     /// <summary>Gets one of the four installed colors of one of Draygon's eight health bands.</summary>
-    public RgbColor ResolveHealthBand(int band, int color) => healthBands.Colour(band, color);
+    public RgbColor ResolveHealthBand(DraygonHealthBand band, int color) =>
+        healthBands.Colour(InstalledRows.Of(DraygonHealthBandDefinitions.HighestFirst, band), color);
 }

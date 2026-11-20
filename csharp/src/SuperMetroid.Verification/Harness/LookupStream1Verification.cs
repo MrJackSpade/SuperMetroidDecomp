@@ -660,6 +660,10 @@ internal static class LookupStream1Verification
         }
         for (int row = 0; row < 12; row++)
         {
+            // The glitch-ball and instant morphing records name no pose (#2048): no path gives Samus their numbers, so the
+            // draw never indexes their rows by them. The earlier poses' frames still read on into those rows, as their checks show.
+            if (!SamusPoseNumbering.NamesPose(0x35 + row))
+                continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(0x35 + row);
             AssertTrue(stock.Placements[pose].FrameRises is { } rises && rises.SequenceEqual(posture.Skip(row * 2).Select(offset => -offset)),
                 "Each posture-transition frame installs the negated native offset its frame indexes");

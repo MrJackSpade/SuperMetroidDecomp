@@ -217,10 +217,18 @@ public sealed class MagicAbsenceAnalyzer : DiagnosticAnalyzer
             context.ReportDiagnostic(Diagnostic.Create(Rule, location, message));
     }
 
-    /// <summary>Whether <paramref name="operation"/> is minus one or the largest <c>int</c>, through any conversion.</summary>
+    /// <summary>
+    /// Whether <paramref name="operation"/> is minus one or the largest <c>int</c>, through any conversion. A constant the
+    /// code itself names is not one: its name is what makes the value not magic.
+    /// </summary>
     private static bool IsSentinel(IOperation operation)
     {
-        Optional<object?> value = Unwrapped(operation).ConstantValue;
+        IOperation unwrapped = Unwrapped(operation);
+        if (unwrapped is IFieldReferenceOperation { Field: { IsConst: true } field } && field.Locations.Any(location => location.IsInSource))
+            return false;
+        if (unwrapped is ILocalReferenceOperation { Local.IsConst: true })
+            return false;
+        Optional<object?> value = unwrapped.ConstantValue;
         return value.HasValue && value.Value switch
         {
             int number => number is -1 or int.MaxValue,

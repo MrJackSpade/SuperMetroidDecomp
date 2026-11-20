@@ -3,6 +3,17 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <summary>Where Samus wakes and steers an Etecoon, and the room columns its teaching routes turn at (#2279).</summary>
 internal static class EtecoonRouteDefinitions
 {
+    /// <summary>
+    /// Each route: the one running left to the teaching start calls out as its Etecoon wakes; the one teaching at once
+    /// takes the long run and hops lesson after lesson.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<EtecoonRoute, EtecoonRouteDefinition> Routes = new Dictionary<EtecoonRoute, EtecoonRouteDefinition>
+    {
+        [EtecoonRoute.RunLeftToTeachingStart] = new(CallsOnWaking: true, TakesLongRun: false, RepeatsLessons: false),
+        [EtecoonRoute.RunRightToTeachingStart] = new(CallsOnWaking: false, TakesLongRun: false, RepeatsLessons: false),
+        [EtecoonRoute.TeachAtOnce] = new(CallsOnWaking: false, TakesLongRun: true, RepeatsLessons: true),
+    };
+
     /// <summary>The teaching hops an Etecoon counts before the count empties (#2369).</summary>
     internal const int TeachingHopsPerLesson = 4;
 

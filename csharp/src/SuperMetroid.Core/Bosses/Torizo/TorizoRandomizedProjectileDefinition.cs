@@ -4,7 +4,9 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// One Torizo launch: the animation it starts, its offset from the Torizo and its velocity, whose two axes receive
 /// independent signed random displacements when the projectile starts.
 /// </summary>
-internal readonly record struct TorizoRandomizedProjectileDefinition(
-    TorizoProjectileSegment Animation,
+/// <typeparam name="TSegment">The segments of the launched projectile's animation family.</typeparam>
+internal readonly record struct TorizoRandomizedProjectileDefinition<TSegment>(
+    TSegment Animation,
     Offset16<RoomPixels> Offset,
-    PixelVelocity<RoomPixels> BaseVelocity);
+    PixelVelocity<RoomPixels> BaseVelocity)
+    where TSegment : struct;

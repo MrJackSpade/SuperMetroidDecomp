@@ -4,24 +4,24 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// A Torizo projectile's typed animation: one starting at a segment, or one its owner starts by its own name, as a forming
+/// A typed animation of the Torizos' drool, swipes, sonic booms, landing dust and statue fragments: one starting at a segment, or one its owner starts by its own name, as a forming
 /// drool's (#2411).
 /// </summary>
 /// <param name="animation">The animation the projectile plays from its start.</param>
 /// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
-internal sealed class TorizoProjectileAnimation(Animation<TorizoProjectileSegment> animation, IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue> cues)
-    : EnemyProjectileFrameAnimation<TorizoProjectileSegment, TorizoProjectileCue>(animation, cues)
+internal sealed class TorizoProjectileAnimation(Animation<TorizoProjectileSegment> animation, IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoFamilyCue<TorizoFallCueKind>> cues)
+    : EnemyProjectileFrameAnimation<TorizoProjectileSegment, TorizoFamilyCue<TorizoFallCueKind>>(animation, cues)
 {
     /// <summary>A projectile animation starting at <paramref name="segment"/>.</summary>
     /// <param name="segment">The segment the animation starts at.</param>
     /// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
-    internal TorizoProjectileAnimation(TorizoProjectileSegment segment, IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue> cues)
+    internal TorizoProjectileAnimation(TorizoProjectileSegment segment, IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoFamilyCue<TorizoFallCueKind>> cues)
         : this(TorizoProjectileAnimations.StartingWith(segment), cues)
     {
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<TorizoProjectileSegment, EnemyProjectileFrameId, TorizoProjectileCue> Segments => TorizoProjectileAnimations.Segments;
+    private protected override AnimationSegments<TorizoProjectileSegment, EnemyProjectileFrameId, TorizoFamilyCue<TorizoFallCueKind>> Segments => TorizoProjectileAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IReadOnlyDictionary<TorizoProjectileSegment, Animation<TorizoProjectileSegment>> StartingAt => TorizoProjectileAnimations.StartingAt;

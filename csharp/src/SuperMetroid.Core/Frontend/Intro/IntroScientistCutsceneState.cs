@@ -61,7 +61,8 @@ internal sealed class IntroScientistCutsceneState
             baby.Delete();
         }
         else if (crossfade is { To: IntroCrossfadeScene.Laboratory } intoLaboratory
-            && IntroCadenceDefinitions.LaboratoryStepEveryFourthUpdate.IsDue(intoLaboratory.UpdatesLeft))
+            // The laboratory steps on every fourth update counted before the crossfade's last, one fewer than it has left.
+            && IntroCadenceDefinitions.LaboratoryStepEveryFourthUpdate.IsDue(intoLaboratory.UpdatesLeft - 1))
         {
             if (Scene == IntroLaboratoryScene.Delivery && Background.X != 0)
             {

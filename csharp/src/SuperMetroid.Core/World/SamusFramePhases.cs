@@ -869,7 +869,7 @@ internal sealed class SamusFramePhases
 
         // Preserve movement on either side of the frame boundary. A new camera uses
         // the fallback sampled before enemy-owned motion and her movement.
-        frame.SampleCameraPoint(room.Camera.PreviousSamusPoint ?? cameraPointAtFrameStart);
+        frame.SampleCameraPoint(room.Camera.PreviousSamusPoint is SamusScrolledCheckpoint { Point: var point } ? point : cameraPointAtFrameStart);
 
         // Retain the frame-start pose because the turn-transition animation cue can replace Samus.Pose during
         // animation later in this same frame. Input/movement/transition phases all

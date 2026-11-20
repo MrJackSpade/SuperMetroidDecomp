@@ -639,7 +639,10 @@ internal sealed class SuperMetroidRuntime
             return null;
         bool lockedBeforeEnemyUpdate = samus.Control.InputLocked;
         EnemyFrameResult pass = EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared,
-            room.Camera.PreviousSamusPoint ?? context.SamusCameraPointAtFrameStart, room, samus);
+            // A camera placed since its last scroll takes the point Samus stood at as the frame began.
+            SamusScrollCheckpoint.At(room.Camera.PreviousSamusPoint is SamusScrolledCheckpoint { Point: var point }
+                ? point
+                : context.SamusCameraPointAtFrameStart), room, samus);
         frame.RecordEnemyUpdateReleasedInputLock(lockedBeforeEnemyUpdate && !samus.Control.InputLocked);
         return pass;
     }
@@ -651,7 +654,7 @@ internal sealed class SuperMetroidRuntime
         SamusControlFrame frame = context.Samus;
         SamusPhases.RunInputPhase(frame, RunningGameState, samus, context.SamusCameraPointAtFrameStart, room);
         EnemyFrameResult? pass = frame.MovementEnabled && !frame.EnemyUpdateRanFirst
-            ? EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared, frame.PreviousCameraPoint, room, samus)
+            ? EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared, SamusScrollCheckpoint.At(frame.PreviousCameraPoint), room, samus)
             : null;
         SamusPhases.RunPostEnemyUpdateResample(frame, samus, room);
         SamusPhases.RunMovementPhase(frame, samus, runsLowHealthCheck, room);

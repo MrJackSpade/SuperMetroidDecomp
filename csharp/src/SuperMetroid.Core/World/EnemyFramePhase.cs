@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
@@ -72,7 +73,7 @@ internal sealed class EnemyFramePhase
     /// <param name="room">The loaded room.</param>
     /// <param name="samus">Samus, whom the enemies touch, carry and hand over to.</param>
     /// <returns>What the pass's enemies did: the events they published, which this phase has carried out.</returns>
-    internal EnemyFrameResult RunEnemyUpdatePhase(EnemyProcessingList processingList, FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint, RoomScope room, SamusState samus)
+    internal EnemyFrameResult RunEnemyUpdatePhase(EnemyProcessingList processingList, SamusScrollCheckpoint samusPreviousPositionCheckpoint, RoomScope room, SamusState samus)
     {
         bool hyperBeamBefore = samus.HyperBeamEnabled;
         if (processingList == EnemyProcessingList.Unprepared)

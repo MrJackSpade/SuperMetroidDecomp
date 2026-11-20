@@ -322,7 +322,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Camera speed Y fraction", runtime.Room.LoadedCamera.Speed.Y.Fraction, NativeSnapshotMemory.CameraSpeedYFraction);
                 // A fresh door camera defers its first sample to the runtime's frame-start
                 // fallback. Compare that effective sample instead of requiring storage.
-                var previous = runtime.Room.LoadedCamera.PreviousSamusPoint ?? samus.Position;
+                var previous = runtime.Room.LoadedCamera.PreviousSamusPoint is SuperMetroid.Core.Samus.Movement.SamusScrolledCheckpoint { Point: var scrolled } ? scrolled : samus.Position;
                 Check("Previous Samus X", previous.X.Whole, NativeSnapshotMemory.PreviousSamusX);
                 Check("Previous Samus X fraction", previous.X.Fraction, NativeSnapshotMemory.PreviousSamusXFraction);
                 Check("Previous Samus Y", previous.Y.Whole, NativeSnapshotMemory.PreviousSamusY);

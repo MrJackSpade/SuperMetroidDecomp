@@ -86,7 +86,7 @@ internal static class RoomEnemyFrameFixtures
         Samus = inputs.Samus,
         NewlyPressedControllerInput = GameplayAction.None,
         ControllerInput = GameplayAction.None,
-        SamusPreviousPositionCheckpoint = null,
+        SamusPreviousPositionCheckpoint = SuperMetroid.Core.Samus.Movement.SamusScrollCheckpoint.SincePlacement,
         Level = Ensure.NotNull(level),
         SamusProjectiles = inputs.Projectiles,
         SamusColours = inputs.Colours,

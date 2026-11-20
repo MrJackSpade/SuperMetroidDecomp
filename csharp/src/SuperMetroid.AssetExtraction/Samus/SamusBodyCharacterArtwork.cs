@@ -83,7 +83,7 @@ public sealed class SamusBodyCharacterArtwork
 
     /// <summary>The tile transfers <paramref name="picture"/> makes.</summary>
     /// <exception cref="InvalidDataException">The picture is absent from installed art.</exception>
-    public SamusBodyTileTransfer Transfer(SamusBodyPicture picture) =>
+    private SamusBodyTileTransfer Transfer(SamusBodyPicture picture) =>
         pictures.TryGetValue(picture, out SamusBodyTileTransfer? transfer)
             ? transfer
             : throw new InvalidDataException($"Samus body picture {picture.Name} is absent from installed art.");

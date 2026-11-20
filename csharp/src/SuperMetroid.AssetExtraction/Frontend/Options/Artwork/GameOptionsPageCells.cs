@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using static SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageDefinitions;
@@ -12,49 +13,92 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// </summary>
 public static class GameOptionsPageCells
 {
-    /// <summary>The page cell of each controller-action label's upper-left cell, action 0..6, each three rows below the last.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The action is outside the seven assignable rows.</exception>
-    public static Position16<CharacterCells> ControllerLabelAnchor(int action)
+    /// <summary>A language label's language.</summary>
+    public enum GameOptionsLabelLanguage
     {
-        if ((uint)action >= GameOptionsPageRows.ControllerActions.Count) throw new ArgumentOutOfRangeException(nameof(action));
-        return new(ControllerLabels.AnchorColumn, checked((ushort)(ControllerLabels.FirstAnchorRow + ControllerLabels.AnchorRowSpacing * action)));
+        /// <summary>The English label.</summary>
+        English,
+
+        /// <summary>The Japanese label.</summary>
+        Japanese,
+    }
+
+    /// <summary>One of a language label's two rows.</summary>
+    public enum GameOptionsLabelRow
+    {
+        /// <summary>The label's upper row.</summary>
+        Upper,
+
+        /// <summary>The label's lower row.</summary>
+        Lower,
     }
 
     /// <summary>
-    /// One of the primary page's four language-label rows: the English label's two rows, then the Japanese label's, which
-    /// take the selected palette when Japanese is active.
+    /// The page cell of <paramref name="action"/>'s label's upper-left cell: each action's label three rows below the label of
+    /// the action listed above it (<see cref="GameOptionsPageRows.ControllerActions"/>).
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside the four rows.</exception>
-    public static GameOptionsLanguagePaletteRegion LanguagePaletteRegion(int index)
+    /// <exception cref="ArgumentOutOfRangeException">The action is not one of the seven assignable rows.</exception>
+    public static Position16<CharacterCells> ControllerLabelAnchor(ControllerAction action)
     {
-        if ((uint)index >= LanguageRegions.RowCount) throw new ArgumentOutOfRangeException(nameof(index));
-        int language = index / 2;
-        int row = index % 2;
+        if (!GameOptionsPageRows.ControllerActions.Contains(action)) throw new ArgumentOutOfRangeException(nameof(action), action, "Not an assignable action.");
+        int rowsAbove = GameOptionsPageRows.ControllerActions.PlaceOf(action);
+        return new(ControllerLabels.AnchorColumn, checked((ushort)(ControllerLabels.FirstAnchorRow + ControllerLabels.AnchorRowSpacing * rowsAbove)));
+    }
+
+    /// <summary>
+    /// The primary page's four language-label rows, as the installed regions list them: the English label's upper and lower
+    /// rows, then the Japanese label's.
+    /// </summary>
+    public static IReadOnlyList<GameOptionsLanguagePaletteRegion> LanguagePaletteRegions { get; } =
+    [
+        LanguagePaletteRegion(GameOptionsLabelLanguage.English, GameOptionsLabelRow.Upper),
+        LanguagePaletteRegion(GameOptionsLabelLanguage.English, GameOptionsLabelRow.Lower),
+        LanguagePaletteRegion(GameOptionsLabelLanguage.Japanese, GameOptionsLabelRow.Upper),
+        LanguagePaletteRegion(GameOptionsLabelLanguage.Japanese, GameOptionsLabelRow.Lower),
+    ];
+
+    /// <summary>
+    /// The <paramref name="row"/> row of <paramref name="language"/>'s label on the primary page; the Japanese label's take the
+    /// selected palette when Japanese is active.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The language or the row is undefined.</exception>
+    public static GameOptionsLanguagePaletteRegion LanguagePaletteRegion(GameOptionsLabelLanguage language, GameOptionsLabelRow row)
+    {
+        int rowsBelowLabelTop = row switch
+        {
+            GameOptionsLabelRow.Upper => 0,
+            GameOptionsLabelRow.Lower => 1,
+            _ => throw new ArgumentOutOfRangeException(nameof(row), row, "Undefined label row."),
+        };
+        (int labelsAbove, int byteCount) = language switch
+        {
+            GameOptionsLabelLanguage.English => (0, LanguageRegions.EnglishByteCount),
+            GameOptionsLabelLanguage.Japanese => (1, LanguageRegions.JapaneseByteCount),
+            _ => throw new ArgumentOutOfRangeException(nameof(language), language, "Undefined label language."),
+        };
         int rowBytes = GameOptionsPageDefinitions.MenuTilemapWidth * sizeof(ushort);
-        return new(LanguageRegions.FirstByteOffset + rowBytes * (row + LanguageRegions.LanguageRowSpacing * language),
-            language == 0 ? LanguageRegions.EnglishByteCount : LanguageRegions.JapaneseByteCount,
-            HighlightWhenJapanese: language != 0);
+        return new(LanguageRegions.FirstByteOffset + rowBytes * (rowsBelowLabelTop + LanguageRegions.LanguageRowSpacing * labelsAbove),
+            byteCount, HighlightWhenJapanese: language == GameOptionsLabelLanguage.Japanese);
     }
 
     /// <summary>The Icon Cancel toggle's choice boxes.</summary>
-    public static GameOptionsToggleLayout IconCancel => ToggleLayout(SpecialRowIndex(GameOptionsSpecialRow.IconCancel));
+    public static GameOptionsToggleLayout IconCancel => ToggleLayout(GameOptionsSpecialRow.IconCancel);
 
     /// <summary>The Moonwalk toggle's choice boxes, six tilemap rows below Icon Cancel's.</summary>
-    public static GameOptionsToggleLayout Moonwalk => ToggleLayout(SpecialRowIndex(GameOptionsSpecialRow.Moonwalk));
-
-    /// <summary>The cursor position of the special page's row <paramref name="row"/>.</summary>
-    private static int SpecialRowIndex(GameOptionsSpecialRow row) => GameOptionsPageRows.Special.PlaceOf(row);
+    public static GameOptionsToggleLayout Moonwalk => ToggleLayout(GameOptionsSpecialRow.Moonwalk);
 
     /// <summary>
-    /// The two-row choice boxes of Icon Cancel (0) or Moonwalk (1): the toggles are six tilemap rows apart and their
-    /// choices seven cells apart. Exit has no boxes.
+    /// The two-row choice boxes of the toggle row <paramref name="toggle"/>: each toggle's boxes six tilemap rows below the
+    /// boxes of the toggle listed above it on the special page, and their choices seven cells apart. Exit has no boxes.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The setting is not a toggle.</exception>
-    private static GameOptionsToggleLayout ToggleLayout(int setting)
+    /// <exception cref="ArgumentOutOfRangeException">The row is not a toggle.</exception>
+    private static GameOptionsToggleLayout ToggleLayout(GameOptionsSpecialRow toggle)
     {
-        if ((uint)setting >= (uint)SpecialRowIndex(GameOptionsSpecialRow.Exit)) throw new ArgumentOutOfRangeException(nameof(setting));
+        if (toggle is not (GameOptionsSpecialRow.IconCancel or GameOptionsSpecialRow.Moonwalk))
+            throw new ArgumentOutOfRangeException(nameof(toggle), toggle, "Not a toggle row.");
+        int rowsAbove = GameOptionsPageRows.Special.PlaceOf(toggle);
         int rowStride = GameOptionsPageDefinitions.MenuTilemapWidth * sizeof(ushort);
-        int origin = SpecialToggles.FirstByteOffset + SpecialToggles.SettingRowSpacing * rowStride * setting;
+        int origin = SpecialToggles.FirstByteOffset + SpecialToggles.SettingRowSpacing * rowStride * rowsAbove;
         int choiceStride = SpecialToggles.ChoiceCellSpacing * sizeof(ushort);
         return new(origin, origin + rowStride, origin + choiceStride, origin + rowStride + choiceStride);
     }

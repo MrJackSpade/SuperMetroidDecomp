@@ -49,12 +49,11 @@ public static class GameOptionsPresentationExtractor
                     GameOptionsPageDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
 
-        Position16<CharacterCells>[] controllerAnchors = Enumerable.Range(0, GameOptionsPageRows.ControllerActions.Count)
+        Position16<CharacterCells>[] controllerAnchors = GameOptionsPageRows.ControllerActions
             .Select(GameOptionsPageCells.ControllerLabelAnchor)
             .ToArray();
         GameOptionsLanguageRegionDocument[] languageRegions =
-            Enumerable.Range(0, GameOptionsPageDefinitions.LanguageRegions.RowCount)
-                .Select(GameOptionsPageCells.LanguagePaletteRegion)
+            GameOptionsPageCells.LanguagePaletteRegions
                 .Select(region => new GameOptionsLanguageRegionDocument
                 {
                     Cells = CellRange(region.ByteOffset, region.ByteCount),

@@ -33,7 +33,7 @@ public sealed class GameOptionsSourcePresentation
     /// <summary>The installed controller-button glyphs, keyed by every assignable button.</summary>
     private readonly Dictionary<ControllerButton, BackgroundTile[]> controllerLabels;
     /// <summary>The installed controller-label anchors, one per action.</summary>
-    private readonly Position16<CharacterCells>[] controllerLabelAnchors;
+    private readonly Dictionary<ControllerAction, Position16<CharacterCells>> controllerLabelAnchors;
     /// <summary>The installed primary-language highlight regions.</summary>
     private readonly GameOptionsLanguageRegionDocument[] languageRegions;
     /// <summary>The installed special-setting choice cells, keyed by toggle.</summary>
@@ -58,7 +58,9 @@ public sealed class GameOptionsSourcePresentation
         this.pages = pages.Pages;
         background = pages.Background;
         controllerLabels = pages.ControllerLabels;
-        controllerLabelAnchors = [.. document.ControllerLabelAnchors];
+        // The document lists the anchors in the order the controller page lists its actions.
+        controllerLabelAnchors = GameOptionsPageRows.ControllerActions.Zip(document.ControllerLabelAnchors)
+            .ToDictionary(pair => pair.First, pair => pair.Second);
         languageRegions = [.. document.LanguageRegions];
         specialToggles = GameOptionsPresentationFormat.Toggles.ToDictionary(
             toggle => toggle, toggle => document.SpecialToggles[GameOptionsNames.ToggleName(toggle)]);
@@ -87,19 +89,19 @@ public sealed class GameOptionsSourcePresentation
     private int[] LanguageCells() => [.. languageRegions.SelectMany(region => region.Cells)];
 
     /// <summary>Writes the selected button glyph into one controller action's two-row label area.</summary>
-    private void ApplyControllerLabel(Span<BackgroundTile> page, int action, ControllerButton button)
+    private void ApplyControllerLabel(Span<BackgroundTile> page, ControllerAction action, ControllerButton button)
     {
-        if ((uint)action >= GameOptionsPageRows.ControllerActions.Count)
-            throw new ArgumentOutOfRangeException(nameof(action));
+        if (!controllerLabelAnchors.ContainsKey(action))
+            throw new ArgumentOutOfRangeException(nameof(action), action, "Not an assignable action.");
         BackgroundTile[] cells = Ensure.Listed(controllerLabels, button);
         foreach (GameOptionsLabelCell cell in ControllerLabelCells(action))
             page[cell.PageCell] = cells[cell.GlyphCell];
     }
 
     /// <summary>Each page cell of controller action <paramref name="action"/>'s label, with its place in the label's glyph.</summary>
-    private IEnumerable<GameOptionsLabelCell> ControllerLabelCells(int action)
+    private IEnumerable<GameOptionsLabelCell> ControllerLabelCells(ControllerAction action)
     {
-        Position16<CharacterCells> anchor = controllerLabelAnchors[action];
+        Position16<CharacterCells> anchor = Ensure.Listed(controllerLabelAnchors, action);
         for (int row = 0; row < GameOptionsPageDefinitions.ControllerLabelHeight; row++)
         for (int column = 0; column < GameOptionsPageDefinitions.ControllerLabelWidth; column++)
             yield return new GameOptionsLabelCell((anchor.Y + row) * GameOptionsPageDefinitions.MenuTilemapWidth + anchor.X + column,
@@ -142,14 +144,14 @@ public sealed class GameOptionsSourcePresentation
             ApplyLanguage(primary, japanese);
             yield return ScreenPictureSubject.Cells(GameOptionsNames.LanguageFrame(japanese), primary, width, LanguageCells());
         }
-        for (int action = 0; action < GameOptionsPageRows.ControllerActions.Count; action++)
+        foreach (ControllerAction action in GameOptionsPageRows.ControllerActions)
         {
             int[] cells = [.. ControllerLabelCells(action).Select(cell => cell.PageCell)];
             foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
             {
                 BackgroundTile[] controller = CreatePage(GameOptionsScreen.ControllerEnglish);
                 ApplyControllerLabel(controller, action, button);
-                yield return ScreenPictureSubject.Cells(GameOptionsNames.ControllerLabelFrame(GameOptionsPageRows.ControllerActions[action], button),
+                yield return ScreenPictureSubject.Cells(GameOptionsNames.ControllerLabelFrame(action, button),
                     controller, width, cells);
             }
         }
@@ -189,7 +191,7 @@ public sealed class GameOptionsSourcePresentation
     {
         GameOptionsScreen.Primary => LanguageCells(),
         GameOptionsScreen.ControllerEnglish or GameOptionsScreen.ControllerJapanese =>
-            Enumerable.Range(0, GameOptionsPageRows.ControllerActions.Count).SelectMany(action => ControllerLabelCells(action).Select(cell => cell.PageCell)),
+            GameOptionsPageRows.ControllerActions.SelectMany(action => ControllerLabelCells(action).Select(cell => cell.PageCell)),
         GameOptionsScreen.SpecialEnglish or GameOptionsScreen.SpecialJapanese => GameOptionsPresentationFormat.Toggles.SelectMany(toggle =>
             ToggleChoiceCells(toggle, GameOptionsToggleState.Enabled).Concat(ToggleChoiceCells(toggle, GameOptionsToggleState.Disabled))),
         _ => throw new ArgumentOutOfRangeException(nameof(tilemap), tilemap, "Undefined options page."),

@@ -67,7 +67,7 @@ internal sealed partial class WindowsGamepadInput
     /// would hold the adapter on a device that never reports input while a usable joystick
     /// sits in a later slot.
     /// </summary>
-    internal static bool CanProduceInput(JoystickCapabilities capabilities) =>
+    private static bool CanProduceInput(JoystickCapabilities capabilities) =>
         capabilities.ButtonCount > 0 || capabilities.AxisCount > 0;
 
     /// <summary>Selects the first WinMM joystick with readable capabilities and position that can produce input.</summary>

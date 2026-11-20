@@ -15,7 +15,7 @@ internal readonly record struct XInputGamepadState(
     Offset16<XInputStick> LeftStick)
 {
     /// <summary>Trigger travel above which a trigger counts as held (XInput's <c>XINPUT_GAMEPAD_TRIGGER_THRESHOLD</c>).</summary>
-    public const int TriggerThreshold = 30;
+    private const int TriggerThreshold = 30;
 
     /// <summary>Left trigger travel, 0 through 255: the range XInput reports.</summary>
     public int LeftTrigger { get; } = Ensure.BetweenInclusive(0, byte.MaxValue, LeftTrigger);

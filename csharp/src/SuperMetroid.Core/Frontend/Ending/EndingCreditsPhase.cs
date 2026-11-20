@@ -78,7 +78,7 @@ internal class EndingCreditsPhase
     /// <summary>Holds the first post-credits backdrop blank (<see cref="EndingSequenceDefinitions.Timing.PostCreditsBlankFrames"/>).</summary>
     internal static EndingCastPhase PostCreditsBlank { get; } = new(nameof(PostCreditsBlank), ending => ending.CastPostCreditsBlank());
 
-    /// <summary>Reveals the waiting scene at the slower four-update brightness cadence.</summary>
+    /// <summary>Reveals the waiting scene at the slower post-credits brightness cadence.</summary>
     internal static EndingCastPhase PostCreditsFadeIn { get; } = new(nameof(PostCreditsFadeIn), ending => ending.CastPostCreditsFadeIn());
 
     /// <summary>Fades the shooting-star backdrop toward the waiting colours.</summary>

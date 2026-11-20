@@ -39,7 +39,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState(state);
         SetOwtchAnimation(place, state, InitialAnimation(settings.InitialBehavior));
 
-        // An Owtch placed underground starts buried: it moves down by whole pixels only, to the same sixteen-pixel depth
+        // An Owtch placed underground starts buried: it moves down by whole pixels only, to the same burial depth
         // sinking reaches.
         if (state.Behavior == OwtchBehaviorState.Underground)
             place.Position = place.Position.WithWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.MaximumBurialDepth);
@@ -143,7 +143,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Behavior = OwtchBehaviorState.MovingLeft;
     }
 
-    /// <summary>Runs Owtch's six-in-256 per-frame burial gate.</summary>
+    /// <summary>Runs Owtch's burial chance (<see cref="OwtchMovementDefinitions.Sinks"/>) each update.</summary>
     private void MaybeMakeOwtchSink(RoomEnemyPlace place, OwtchEnemyState state)
     {
         if (OwtchMovementDefinitions.Sinks.IsTakenBy(_room.Random.Generate(), advancedBy: place.FrameCounter))

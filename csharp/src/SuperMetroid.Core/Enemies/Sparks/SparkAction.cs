@@ -11,7 +11,7 @@ public enum SparkAction
     /// <summary>Counts down the intangible interval before starting the flicker-on animation.</summary>
     IntermittentInactive,
 
-    /// <summary>Counts down the tangible interval before starting the flicker-out animation and eight-update extension.</summary>
+    /// <summary>Counts down the tangible interval before starting the flicker-out animation and its extension (<see cref="SparkTimingDefinitions.ExtraTimeOut"/>).</summary>
     IntermittentActive,
 
     /// <summary>Periodically spawns a falling Spark projectile and reloads the countdown.</summary>

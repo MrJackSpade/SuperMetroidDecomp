@@ -113,16 +113,16 @@ internal static class MotherBrainRandomDefinitions
         new(64, MotherBrainSecondPhaseAttack.Bomb));
 
     /// <summary>
-    /// Her second phase's next move at 4500 health or more: the lowest 4096 of the 65536 samples, one in sixteen, try an
-    /// attack; the rest walk.
+    /// Her second phase's next move at full strength (<see cref="MotherBrainFightDefinitions.FullStrengthHealth"/> or more):
+    /// one sample in sixteen tries an attack; the rest walk.
     /// </summary>
     internal static readonly RandomChance AttacksAtFullStrength = RandomChance.Lowest(4096, RandomSampleField.Whole);
 
-    /// <summary>Her second phase's next move below 4500 health: the lowest 8192 of the 65536 samples, one in eight, walk.</summary>
+    /// <summary>Her second phase's next move below full strength: one sample in eight walks.</summary>
     internal static readonly RandomChance WalksWhenWounded = RandomChance.Lowest(8192, RandomSampleField.Whole);
 
     /// <summary>
-    /// Her second phase's next move below 4500 health: the top 24576 of the 65536 samples, three in eight, try an attack;
+    /// Her second phase's next move below full strength: three samples in eight try an attack;
     /// the samples between walking and attacking fire the hand beam.
     /// </summary>
     internal static readonly RandomChance AttacksWhenWounded = RandomChance.Highest(24576, RandomSampleField.Whole);
@@ -131,8 +131,8 @@ internal static class MotherBrainRandomDefinitions
     internal static readonly RandomChance BombWalkStaysPut = RandomChance.Highest(128, RandomSampleField.Whole);
 
     /// <summary>
-    /// Her bomb walk's target: the lowest 24576 of the 65536 samples walk her back only to X 96; the rest of the samples that
-    /// walk take her back to X 64.
+    /// Her bomb walk's target: three samples in eight walk her back only to her short retreat; the rest of the samples that
+    /// walk take her back to her long retreat.
     /// </summary>
     internal static readonly RandomChance BombWalkShortRetreat = RandomChance.Lowest(24576, RandomSampleField.Whole);
 

@@ -1,6 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One complete early Tourian escape red-flash control program.</summary>
+/// <summary>One early Tourian escape red flash's records and the colours each writes.</summary>
 public sealed class TourianEscapeRedFlashPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>

@@ -29,7 +29,7 @@ internal static class GameOverBabyAnimation
     internal static Animation<GameOverBabySegment> Playing { get; } =
         Animation<GameOverBabySegment>.Looping([Segments.Whole(GameOverBabySegment.Crying)]);
 
-    /// <summary>The Baby idling once: closed, middle, open and middle again, ten updates each, in its idle colours.</summary>
+    /// <summary>The Baby idling once: closed, middle, open and middle again, in its idle colours.</summary>
     private static AnimationBeat<GameOverBabyLook, GameOverBabySound>[] Idling() =>
     [
         Show(F.Closed, C.Idle, 10),
@@ -39,8 +39,8 @@ internal static class GameOverBabyAnimation
     ];
 
     /// <summary>
-    /// The Baby crying <paramref name="cry"/>: its poses twice through in their cry colours, slowing from six updates to two
-    /// and back to five, the cry heard as the first pose ends.
+    /// The Baby crying <paramref name="cry"/>: its poses twice through in their cry colours, quickening and then slowing
+    /// again, the cry heard as the first pose ends.
     /// </summary>
     private static AnimationBeat<GameOverBabyLook, GameOverBabySound>[] Crying(GameOverBabySound cry) =>
     [

@@ -265,7 +265,7 @@ internal static class LookupStream2Verification
             AssertEqual(64, cycle, "Native pass cadence sums to its exact loop period");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var actualSession = new ColourEffectSessionState();
-            var actual = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(actualSession), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
+            var actual = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { actualSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
             actual.Start(definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);
@@ -976,7 +976,9 @@ internal static class LookupStream2Verification
                 else { cursor += 2; }
             }
             var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            // The native interpreter's own trail, run beside the port's.
+            // The native interpreter's own trail, run beside the port's, for the same two sparkles: native keeps each
+            // picture's corner, the port the sparkle with its picture drawn centred on it (#2573), so equal OAM is the
+            // port's pictures landing where native draws them.
             var nativeTrail = new SuperMetroid.Verification.Samus.Projectiles.NativeTrail(
                 SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)),
                 SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)));
@@ -1004,7 +1006,7 @@ internal static class LookupStream2Verification
                     if (sides.First.FrameHold != 0)
                         AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
                     AssertEqual(sides.First.FrameHold, sides.Second.FrameHold, "Trail artwork cannot change live timing");
-                    AssertEqual(sides.First.Position.Y, authoredTrail.Origin.Y + sides.Second.Offset.Y, "Trail artwork cannot change sibling-targeted movement");
+                    AssertEqual(sides.First.Sparkle.Y, authoredTrail.Origin.Y + sides.Second.Offset.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
         }
@@ -1076,7 +1078,7 @@ internal static class LookupStream2Verification
             var projectile = new SamusProjectile(0);
             projectile.Occupy(trailingType);
             projectile.Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3);
-            projectile.Position = new(new(100, 0), new(200, 0));
+            projectile.Position = new(new(SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.ShotColumn, 0), new(200, 0));
             projectiles.Trails.SpawnTrail(projectile.HeldShot());
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
             if (projectiles.LiveTrails.SingleOrDefault() is not { } trail)
@@ -1084,7 +1086,8 @@ internal static class LookupStream2Verification
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");
             AssertEqual(1, trail.Left.FrameHold, "Selector extraction leaves allocation timer unchanged");
-            AssertEqual(96, trail.Origin.X + trail.Left.Offset.X, "Selector extraction leaves origin offset unchanged");
+            SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.AssertSelectedTrailStandsOnShot(
+                projectiles, trail, SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.ShotColumn);
         }
         Console.WriteLine("Trail selectors: every trailing projectile's real spawn selection passes.");
     }

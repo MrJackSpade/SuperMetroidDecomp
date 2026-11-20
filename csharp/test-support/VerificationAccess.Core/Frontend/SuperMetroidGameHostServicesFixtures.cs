@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Compatibility;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Host services a check runs a session against (#2570): the game's own, with the services the check replaces.</summary>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>An enemy's item-drop probabilities, each out of 255; an authored table's six chances sum to 255.</summary>
+/// <summary>An enemy's item-drop probabilities, each out of the full weight budget (<see cref="EnemyDropSelectionDefinitions.FullWeightBudget"/>); an authored table's chances sum to it.</summary>
 /// <param name="SmallEnergy">The chance of a small energy drop.</param>
 /// <param name="BigEnergy">The chance of a big energy drop.</param>
 /// <param name="Missile">The chance of a missile drop.</param>
@@ -15,7 +15,7 @@ public readonly record struct EnemyDropChances(
     int SuperMissile,
     int PowerBomb)
 {
-    /// <summary>The six chances together, 255 for every authored table.</summary>
+    /// <summary>The chances together, the full weight budget for every authored table.</summary>
     internal int Total => SmallEnergy + BigEnergy + Missile + Nothing + SuperMissile + PowerBomb;
 
     /// <summary>The chance of the roll's <paramref name="outcome"/>.</summary>

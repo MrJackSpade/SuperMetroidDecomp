@@ -10,7 +10,7 @@ internal static class CeresDoorQuake
 {
     /// <summary>
     /// Returns the horizontal offset of the earthquake phase <paramref name="earthquakeFrames"/> falls in; the phases
-    /// repeat every four frames.
+    /// repeat after <see cref="PhaseOffsets"/> has run through.
     /// </summary>
     /// <param name="earthquakeFrames">Frames the earthquake still runs, zero or more.</param>
     internal static int XOffset(int earthquakeFrames) => PhaseOffsets[earthquakeFrames % PhaseOffsets.Length];

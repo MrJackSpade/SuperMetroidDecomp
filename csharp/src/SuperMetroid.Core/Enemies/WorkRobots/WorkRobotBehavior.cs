@@ -235,7 +235,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
 
     /// <summary>
     /// Runs the robot's custom touch. Work Robots are moving solids: body contact publishes a
-    /// four-pixel external push away from their center and deliberately deals no touch damage.
+    /// external push away from their center (<see cref="WorkRobotMotionDefinitions.TouchPush"/>) and deliberately deals no touch damage.
     /// </summary>
     private static void ResolveWorkRobotTouch(RoomEnemyPlace robot, SamusState samus)
     {
@@ -338,7 +338,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
         AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
     };
 
-    /// <summary>Routes robot contact to its four-pixel external push without Samus damage.</summary>
+    /// <summary>Routes robot contact to its external push without Samus damage.</summary>
     internal static void ReactToWorkRobotTouch(EnemyTouchContext context) =>
         ResolveWorkRobotTouch(context.Place, context.Samus);
 

@@ -25,7 +25,7 @@ public sealed class EvirSpitState : EvirPartState
     public EvirSpitAction Action { get; internal set; }
 
     /// <summary>
-    /// The regenerating spit's horizontal offset from the body's mouth, in room pixels: eight pixels away from the
+    /// The regenerating spit's horizontal offset from the body's mouth, in room pixels: <see cref="EvirMotionDefinitions.RegenerationStartDistance"/> away from the
     /// body's installed facing when regeneration starts, then one pixel back towards the mouth per animation step.
     /// </summary>
     public Offset16<RoomPixels> RegenerationOffset { get; internal set; }

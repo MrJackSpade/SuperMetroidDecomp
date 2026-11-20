@@ -24,7 +24,7 @@ internal static class DeadSidehopperVictimDefinitions
     /// <summary>The drained victim's half height once it lies as a corpse, in pixels.</summary>
     internal const int DrainedHalfHeight = 12;
 
-    /// <summary>How long the victim rests after landing a hop before its next, in updates: 65, the last the one it hops or drains on.</summary>
+    /// <summary>How long the victim rests after landing a hop before its next, in updates, the last the one it hops or drains on.</summary>
     internal const int PostLandingPause = 65;
 
     /// <summary>The updates each stage of the Baby Metroid's drain lasts on its victim.</summary>

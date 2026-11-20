@@ -218,7 +218,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : BeetomSegment.HopRight);
     }
 
-    /// <summary>Aims the lunge toward Samus using the signed horizontal difference.</summary>
+    /// <summary>Aims the lunge toward the side Samus is on.</summary>
     private static void StartBeetomLunge(RoomEnemyPlace place, BeetomEnemyState state, SamusState samus)
     {
         HorizontalDirection towardSamus = samus.Position.X.Whole < place.Position.X.Whole
@@ -235,7 +235,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : BeetomSegment.HopRight);
     }
 
-    /// <summary>Starts the attached blood-drain animation for the current facing.</summary>
+    /// <summary>Starts the attached blood-drain animation on <paramref name="side"/> of Samus.</summary>
     private static void StartBeetomDrain(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection side)
     {
         SetBeetomAnimation(
@@ -259,7 +259,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = BeetomAction.Dropping;
     }
 
-    /// <summary>Probes eight pixels ahead for a ledge, then crawls or reverses at terrain.</summary>
+    /// <summary>Probes ahead for a ledge (<see cref="BeetomMotionDefinitions.LedgeProbeReach"/>), then crawls or reverses at terrain.</summary>
     private void RunBeetomCrawl(RoomEnemyPlace place, BeetomEnemyState state, RoomLevelData level, HorizontalDirection direction)
     {
         if (state.ActionTimer.Step())
@@ -382,7 +382,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = BeetomAction.StartBeingFlung;
     }
 
-    /// <summary>Falls three pixels per frame and resumes crawling on floor contact.</summary>
+    /// <summary>Falls at <see cref="BeetomMotionDefinitions.DropSpeed"/> and resumes crawling on floor contact.</summary>
     private void RunBeetomDrop(RoomEnemyPlace place, BeetomEnemyState state, RoomLevelData level)
     {
         if (!_terrain.MoveEnemyVertically(level, place, BeetomMotionDefinitions.DropSpeed))
@@ -429,12 +429,12 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (BeetomCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.EnemyPassCount) && samus.Health >= BeetomCadenceDefinitions.DrainSoundLeastHealth)
+        if (BeetomCadenceDefinitions.DrainSound.IsDue(_frameContext.EnemyPassCount) && samus.Health >= BeetomCadenceDefinitions.DrainSoundLeastHealth)
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
-        // Unlike ordinary touch damage, the drain every 64th update hurts Samus by her suit-scaled damage and then
+        // Unlike ordinary touch damage, the drain at its cadence hurts Samus by her suit-scaled damage and then
         // cancels the invincibility and knockback that touch gives her.
-        if (!BeetomCadenceDefinitions.DrainDamageEverySixtyFourthUpdate.IsDue(place.FrameCounter))
+        if (!BeetomCadenceDefinitions.DrainDamage.IsDue(place.FrameCounter))
             return;
         SamusSuitDamage.Hurt(samus, place.Definition.Damage);
         samus.ClearHurtTimers();
@@ -467,8 +467,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Beetom's reaction to a bomb: after the common damage, it lets go of Samus.</summary>
-    /// <remarks>Common damage can kill the Beetom before it lets go, so the identity is matched before the
-    /// reaction runs.</remarks>
+    /// <remarks>Common damage can kill the Beetom before it lets go; a Beetom it kills has nothing left to let go of.</remarks>
     internal static EnemyBombReaction BeetomBombReaction { get; } = new()
     {
         AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),

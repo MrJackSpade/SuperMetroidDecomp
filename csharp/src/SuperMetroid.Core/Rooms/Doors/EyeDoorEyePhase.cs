@@ -5,7 +5,7 @@ internal enum EyeDoorEyePhase
 {
     /// <summary>The eye has just been placed: on its next update it takes its first look at its door (#2482).</summary>
     Placed,
-    /// <summary>The eye is closed and looks for Samus every four updates.</summary>
+    /// <summary>The eye is closed and looks for Samus each time its closed image ends.</summary>
     Closed,
     /// <summary>Samus came near: the eye opens and starts taking shots.</summary>
     Opening,

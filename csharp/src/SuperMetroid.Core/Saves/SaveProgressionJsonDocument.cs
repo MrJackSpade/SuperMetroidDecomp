@@ -13,7 +13,7 @@ public sealed record SaveProgressionJsonDocument
     [InstalledKey]
     public required string[] Events { get; init; }
 
-    /// <summary>How many Zebetites have been destroyed, 0 through 4 (schema five, #1527).</summary>
+    /// <summary>How many Zebetites have been destroyed, up to <see cref="PersistentProgress.ZebetiteCount"/> (schema five, #1527).</summary>
     public required int ZebetitesDestroyed { get; init; }
 
     /// <summary>Each area's defeated bosses, one entry per area in area order.</summary>

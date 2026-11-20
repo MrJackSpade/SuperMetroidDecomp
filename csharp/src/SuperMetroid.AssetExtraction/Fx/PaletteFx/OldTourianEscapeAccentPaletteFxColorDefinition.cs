@@ -1,6 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One complete old-Tourian escape accent control program.</summary>
+/// <summary>One old-Tourian escape accent's records and the colours each writes.</summary>
 public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>

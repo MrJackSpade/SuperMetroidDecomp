@@ -10,8 +10,6 @@ namespace SuperMetroid.AssetExtraction.Video;
 [EncodingOwner("colour positions of gameplay's 256-colour image")]
 internal static class GameplayColourPositionDefinitions
 {
-    /// <summary>The first background set's first colour.</summary>
-    internal const int BackgroundSetsFirst = 0;
 
     /// <summary>The first sprite set's first colour: the image's upper half.</summary>
     internal const int SpriteSetsFirst = 128;

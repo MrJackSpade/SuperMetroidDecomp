@@ -59,7 +59,7 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     public BossCountdown? ReleaseIntangibility { get; internal set; }
     /// <summary>Gets the current movement target's whole-pixel room position.</summary>
     public Position16<RoomPixels> Target { get; internal set; }
-    /// <summary>Gets the pogo bounce counter, reset after its two-bounce threshold.</summary>
+    /// <summary>Gets the pogo bounce counter, reset once it reaches the bounces each fireballing takes.</summary>
     public int PogoBounceCount { get; internal set; }
     /// <summary>
     /// The side his pogo bounces toward (#2569): each launch takes its sideways speed toward it, and each bounce chooses
@@ -76,7 +76,7 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     public RidleyHurtCarryLag HurtCarryLag { get; } = new();
     /// <summary>Gets the number of zero-health lunges completed before the authored death transition.</summary>
     public int ZeroHealthLungeCount { get; internal set; }
-    /// <summary>The wait before his death's next small explosion, one every five updates.</summary>
+    /// <summary>The wait before his death's next small explosion, at the death's explosion interval.</summary>
     public BossCountdown DeathExplosionTimer { get; } = new();
     /// <summary>
     /// Where his death's next small explosion bursts: each takes the next point of the scatter shared with the Baby

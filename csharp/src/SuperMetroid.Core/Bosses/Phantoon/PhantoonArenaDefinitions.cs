@@ -122,8 +122,8 @@ internal static class PhantoonArenaDefinitions
     internal const int FirstDyingExplosionUpdates = 15;
 
     /// <summary>
-    /// The updates of the wait, once he is gone, before the Wrecked Ship's power starts coming on: sixty updates pass, and
-    /// the power may start on the next, which is the wait's last.
+    /// The updates of the wait, once he is gone, before the Wrecked Ship's power starts coming on: the power may start on
+    /// the wait's last.
     /// </summary>
     internal const int PowerReturnDelayUpdates = 61;
 

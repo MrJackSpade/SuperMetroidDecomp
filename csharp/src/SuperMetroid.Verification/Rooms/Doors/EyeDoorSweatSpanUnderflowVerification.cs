@@ -27,7 +27,7 @@ internal static class EyeDoorSweatSpanUnderflowVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0058, 0x0020)),
             Velocity = new(new SignedEightEight(0xffc0), new SignedEightEight(0x0200)),
-        }, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.EyeDoorSweat));
+        }, "Kind", RoomEnemyProjectileKind.EyeDoorSweat);
         // The drop runs the sweat's own behaviour, which owns its fall and its splash's events.
         var sweat = new EyeDoorBehavior.EyeDoorProjectileBehavior(EyeDoorProjectileMotion.SweatFalling);
         EyeDoorBehavior.DripEyeDoorSweat(sweat, drop, level);

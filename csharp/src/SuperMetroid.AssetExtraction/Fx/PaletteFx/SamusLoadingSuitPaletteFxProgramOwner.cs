@@ -11,8 +11,7 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     /// 0, 2, 4, 6, 8 equal the normal Power Suit palette; records 1 and 3
     /// equal its first speed-boost shade; records 5 and 7 equal
     /// its second and third shades. Each comparison covers all sixteen
-    /// colors, independently rechecked under #1165. Every colour is installed and kept as installed. Production
-    /// reads only records 0..8 and colors 0..15.
+    /// colors.
     /// </remarks>
     PowerSuit,
     /// <summary>Varia-suit colors.</summary>
@@ -22,8 +21,7 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     /// 0, 2, 4, 6, 8 equal the normal Varia Suit palette; records 1 and 3
     /// equal its first speed-boost shade; records 5 and 7 equal
     /// its second and third shades. Each comparison covers all sixteen
-    /// colors, independently rechecked under #1165. Every colour is installed and kept as installed. Production
-    /// reads only records 0..8 and colors 0..15.
+    /// colors.
     /// </remarks>
     VariaSuit,
     /// <summary>Gravity-suit colors.</summary>
@@ -33,8 +31,7 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     /// 0, 2, 4, 6, 8 equal the normal Gravity Suit palette; records 1 and 3
     /// equal its first speed-boost shade; records 5 and 7 equal
     /// its second and third shades. Each comparison covers all sixteen
-    /// colors, independently rechecked under #1165. Every colour is installed and kept as installed. Production
-    /// reads only records 0..8 and colors 0..15.
+    /// colors.
     /// </remarks>
     GravitySuit,
 }

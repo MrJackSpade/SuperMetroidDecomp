@@ -96,8 +96,8 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Flies the grabbed pair toward the authored spiral center, then
-    /// install the facing-specific roar before the expanding orbit begins.
+    /// Flies Draygon and the grabbed Samus toward the authored spiral centre, then roars facing his way before the
+    /// expanding orbit begins.
     /// </summary>
     internal void CarrySamusToDraygonSpiral(DraygonEnemyState state, SamusState samus)
     {
@@ -147,7 +147,7 @@ internal sealed class DraygonGrab
         }
 
         RoomEnemyPlace body = state.Body;
-        // The radius starts at none and grows until it reaches its maximum of 160 pixels, so its whole pixels are never
+        // The radius starts at none and grows until it reaches its maximum, so its whole pixels are never
         // negative.
         body.Position = body.Position.WithWhole(state.SpiralCenter.Center.Whole + new Offset16<RoomPixels>(
             EnemyMath.CircleCosinePixels(state.SpiralAngle.ToTrigonometryAngle(), state.SpiralXRadius.WholePixels),
@@ -155,7 +155,7 @@ internal sealed class DraygonGrab
                 state.SpiralAngle.ToTrigonometryAngle(),
                 state.SpiralXRadius.WholePixels / DraygonArenaDefinitions.SpiralWidthToHeight)));
 
-        if (DraygonCadenceDefinitions.GrabFoamEveryEighthUpdate.IsDue(body.FrameCounter))
+        if (DraygonCadenceDefinitions.GrabFoam.IsDue(body.FrameCounter))
         {
             _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + DraygonParts.TowardFacing(DraygonArenaDefinitions.MouthFacingRight, state.Facing),

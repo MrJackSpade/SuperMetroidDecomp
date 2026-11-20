@@ -8,8 +8,8 @@ public enum SbugActivationBehavior
 {
     /// <summary>Continuously moves along the spawn angle without block collision checks.</summary>
     MoveForward,
-    /// <summary>Alternates the spawn angle minus and plus an eighth of a turn in sixteen-update legs.</summary>
+    /// <summary>Alternates the spawn angle minus and plus an eighth of a turn in legs its zigzag cadence times.</summary>
     ZigZag,
-    /// <summary>Moves along the spawn angle for 32 updates, then waits for Samus to activate it again.</summary>
+    /// <summary>Moves along the spawn angle for its leg (<see cref="SbugMovementDefinitions.LegDuration"/>), then waits for Samus to activate it again.</summary>
     MoveForwardThenWait,
 }

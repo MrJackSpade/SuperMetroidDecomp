@@ -96,7 +96,7 @@ public sealed class ScrollBoundaryCamera
         int maxX = RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1);
 
         // The vertical maximum depends on whether the screen aligns the camera to its top. Starting with the
-        // room-wide conservative 31-pixel allowance matches the boundary check's largest legal result;
+        // room-wide conservative lower-alignment allowance matches the boundary check's largest legal result;
         // the first vertical movement applies the screen-specific exact maximum.
         int maxY = (RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + SamusCameraDefinitions.LowerAlignment;
         var clamped = new Position16<RoomPixels>(
@@ -223,7 +223,7 @@ public sealed class ScrollBoundaryCamera
 
     /// <summary>
     /// The camera's scrolling during a fast grapple swing: the camera
-    /// steps three pixels toward a dead zone around Samus, then both autoscrollers run.
+    /// steps toward a dead zone around Samus by its slow-scroll step, then both autoscrollers run.
     /// The camera's scroll speeds are not recalculated. A negative Samus X skips both axes.
     /// </summary>
     public void TrackGrappleSlowScrolling(Position16<RoomPixels> samus, bool timeIsFrozen)
@@ -300,7 +300,7 @@ public sealed class ScrollBoundaryCamera
     /// <remarks>
     /// This step does not chase Samus. It gently pushes a camera that is sitting inside
     /// a closed scroll screen toward an open adjacent screen, or back from a closed screen on its
-    /// right. The extra two pixels are the game's, not an invented smoothing rule.
+    /// right, by the camera's speed plus the closed screen's drift (<see cref="SamusCameraDefinitions.ClosedScreenDrift"/>).
     /// </remarks>
     private void HandleHorizontalAutoscrolling(bool timeIsFrozen)
     {
@@ -324,7 +324,7 @@ public sealed class ScrollBoundaryCamera
 
         if (Scrolls.ReadCameraState(current) == RoomScrollState.Closed)
         {
-            // In a closed current screen, drift right by camera speed + 2 toward its right edge.
+            // In a closed current screen, drift right by the camera's speed plus the closed screen's drift toward its right edge.
             // If the screen right of the candidate is also closed, discard the fractional screen position and stay
             // on the candidate screen's left edge instead of allowing the viewport to enter it.
             int rightBoundary = NextScreenStart(Position.X.Whole);
@@ -373,8 +373,8 @@ public sealed class ScrollBoundaryCamera
 
         Position16<RoomScreens> preClamp = VerticalCheckScreen();
 
-        // Screens open with the camera aligned to the top align the 224-line gameplay viewport to
-        // the top of the screen; closed and open ones permit the game's 31-pixel lower alignment. Crucially, the
+        // Screens open with the camera aligned to the top align the gameplay viewport to
+        // the top of the screen; closed and open ones permit the game's lower alignment. Crucially, the
         // alignment is selected before Y is clamped and remains fixed for this update.
         int verticalAlignment = Scrolls.ReadCameraState(preClamp) == RoomScrollState.OpenAlignedToTop
             ? 0
@@ -496,7 +496,7 @@ public sealed class ScrollBoundaryCamera
         int proposed = Position.Y.Whole;
         Position16<RoomScreens> current = VerticalCheckScreen();
 
-        // Top-aligned screens align the 224-line playfield with no allowance; closed and open ones allow 31 pixels lower.
+        // Top-aligned screens align the playfield with no allowance; closed and open ones allow the lower alignment.
         int verticalAlignment = Scrolls.ReadCameraState(current) == RoomScrollState.OpenAlignedToTop
             ? 0
             : SamusCameraDefinitions.LowerAlignment;

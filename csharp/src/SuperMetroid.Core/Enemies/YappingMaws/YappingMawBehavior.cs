@@ -150,7 +150,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (distance < YappingMawAttackDefinitions.GrabSafetyDistance)
         {
-            // A target already inside 32 pixels triggers no extension, and starts the grab cooldown again on every update.
+            // A target already inside the safety distance triggers no extension, and starts the grab cooldown again on every update.
             state.GrabCooldown = YappingMawGrabCooldown.Started(YappingMawAttackDefinitions.GrabCooldown);
             return;
         }
@@ -408,7 +408,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RootEffectActor.Graphics = state.RootEffectActor.Graphics.In(shading);
     }
 
-    /// <summary>Flashes the frozen colours against the Maw's own colours during the last 89 ticks.</summary>
+    /// <summary>Flashes the frozen colours against the Maw's own colours once the freeze passes its steady stretch (<see cref="EnemyDrawPhaseDefinitions.FrozenColoursSteadyUpdates"/>).</summary>
     private static PictureShading SelectYappingMawFrozenShading(
         PictureShading originalShading,
         int frozenTimer)

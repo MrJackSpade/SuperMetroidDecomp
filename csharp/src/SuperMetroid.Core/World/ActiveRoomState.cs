@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -65,7 +64,7 @@ internal sealed class ActiveRoomState
     private T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
         _construction is { } construction ? building(construction) : Scope is { } scope ? loaded(scope) : null;
 
-    /// <summary>The selected room/state definition for a generic backed room.</summary>
+    /// <summary>The selected room and state of the room loading or loaded.</summary>
     public SelectedRoom? ActiveRoom => View(c => c.Room, s => s.Room);
     /// <summary>The loaded room's definition; gameplay runs only in a loaded room.</summary>
     public SelectedRoom LoadedRoom => ActiveRoom ??
@@ -73,10 +72,6 @@ internal sealed class ActiveRoomState
 
     /// <summary>The load-station door whose setup established the current room.</summary>
     public DoorDefinition? ActiveDoor => View(c => c.Door, s => s.Door);
-
-
-    /// <summary>The loaded room's Ceres elevator arrival; null while a load builds the next room's scope.</summary>
-    public CeresElevatorArrivalState? CeresElevatorArrival => _construction is null ? Scope?.CeresElevatorArrival : null;
 
     /// <summary>What one room's main hands the next, which room loading never clears.</summary>
     public RoomMainHandOvers RoomMainHandOvers { get; } = new();

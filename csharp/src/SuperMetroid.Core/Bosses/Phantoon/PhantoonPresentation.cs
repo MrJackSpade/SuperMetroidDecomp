@@ -17,13 +17,13 @@ internal sealed class PhantoonPresentation
         _frameContext = frameContext;
     }
 
-    /// <summary>Fades his body toward the colours of his health band over <paramref name="steps"/> steps, one every second update.</summary>
+    /// <summary>Fades his body toward the colours of his health band over <paramref name="steps"/> steps, one at each place of the fade's cadence.</summary>
     internal void AdvancePhantoonFadeIn(
         RoomEnemyPlace body,
         PhantoonEnemyState state,
         int steps)
     {
-        if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.BodyFade.IsFinished)
+        if (!PhantoonCadenceDefinitions.FadeStep.IsDue(_frameContext.FrameCounter) || state.BodyFade.IsFinished)
             return;
 
         // The fade's step is a typed fade toward his health band's colours (#1512, #2251).

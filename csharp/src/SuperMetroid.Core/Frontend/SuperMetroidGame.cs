@@ -105,7 +105,7 @@ public sealed class SuperMetroidGame
 
     /// <summary>Copies the last update's interleaved stereo samples (<see cref="AudioSession.PcmSamplesPerFrame"/>) into host-owned storage.</summary>
     /// <exception cref="InvalidOperationException">No audio catalog is bound.</exception>
-    /// <exception cref="ArgumentException"><paramref name="destination"/> holds fewer than 1,600 samples.</exception>
+    /// <exception cref="ArgumentException"><paramref name="destination"/> holds fewer than an update's samples.</exception>
     public void CopyAudioFrame(Span<short> destination) => Session.audioSession.CopyFrame(destination);
 
 

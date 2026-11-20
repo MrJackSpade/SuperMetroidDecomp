@@ -87,7 +87,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
             }
             else
             {
-                // The arm draws its first extension image for six updates, holds fully inserted for 96, then activates
+                // The arm draws its first extension image, holds fully inserted (StationAccessTimingDefinitions), then activates
                 // the station. The touch locked Samus; this update does not lock her again, so one an intervening
                 // unpause freed stays free. A map station's access never reads the map: a station whose map is held
                 // has no access blocks (#2508), and the arm's draws leave a used station's access cells solid.

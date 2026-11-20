@@ -305,7 +305,7 @@ internal sealed class RidleyTail
 
     /// <summary>
     /// Randomly updates the tail's curliness: when the live random number falls in its roll's top outcome (sampled, not
-    /// advanced), the ideal link spacing becomes the least curly spacing plus the curliness roll, so eight through 23 steps.
+    /// advanced), the ideal link spacing becomes the least curly spacing plus the curliness roll.
     /// </summary>
     internal void RandomlyUpdateCeresRidleyTailCurliness(RidleyTailState tail)
     {
@@ -345,7 +345,7 @@ internal sealed class RidleyTail
         RidleyTailState tail,
         RoomLevelData level)
     {
-        // The tail's floor check samples the tip 16 pixels below it and each shaft link 18 pixels below it.
+        // The tail's floor check samples below the tip and below each shaft link, by their floor probes.
         if (ProbeTouchesTerrain(tail.Tip.Position + RidleyTailDefinitions.TipFloorProbe, level))
             return true;
         foreach (RidleyTailLink link in tail.Shaft.Reverse().Take(RidleyTailDefinitions.FloorProbingShaftLinks))
@@ -376,8 +376,8 @@ internal sealed class RidleyTail
     }
 
     /// <summary>
-    /// Resolves shots against the tail. Only the tip and the inner joint block shots: a radius-14 tip followed by a
-    /// radius-10 inner joint. A hit is snapped to the joint,
+    /// Resolves shots against the tail. Only the tip and the inner joint block shots, each within its armour's reach
+    /// (<see cref="RidleyTailDefinitions.TipArmourReach"/>, <see cref="RidleyTailDefinitions.InnerJointArmourReach"/>). A hit is snapped to the joint,
     /// marked consumed, and replaced by the game's dust/dud actor; Ridley's health is
     /// never consulted because the tail is armor rather than another body hitbox.
     /// </summary>

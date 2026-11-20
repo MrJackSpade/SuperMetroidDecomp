@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
-/// One of the sixteen phases of the heat pulse a heated Norfair room glows in (#1598): the room's heat glow publishes each
+/// One of the phases of the heat pulse a heated Norfair room glows in (#1598): the room's heat glow publishes each
 /// phase as it shows that phase's look, and Samus's heat shimmer follows the published phase, restarting her suit's pulse
 /// at the same phase's look. Phases run from <see cref="First"/> up and round again (<see cref="InOrder"/>).
 /// </summary>

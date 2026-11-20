@@ -61,7 +61,7 @@ internal sealed class CeresRidleyEntity(CeresRidleyBehavior ceres, ICeresEscapeS
         if (context.SelectedShot != RidleyReactions.Shot)
             return base.TryReactToBomb(context);
         // Ceres Ridley takes no damage: an exploding bomb counts toward his hits like any shot, the bomb already marked
-        // as having struck, while Ridley alternates his hurt timing and moves on toward his hundredth hit's escape.
+        // as having struck, while Ridley alternates his hurt timing and moves on toward the escape his last hit brings.
         CeresRidleyHits.ResolveCeresRidleyShotAfterCollision(Place, Encounter);
         return true;
     }

@@ -35,7 +35,7 @@ internal sealed class ShaktoolChain
     /// <summary>
     /// The heading the chain turns toward after a wall, a quarter turn on from the trailing saw's bearing from the leading
     /// saw; zero until the first wall. The trailing saw's reaching it starts the chain's curl again, the segments turn toward
-    /// it at a sixty-fourth of the steps left, and their head bob moves them along it.
+    /// it at a share of the steps left (<see cref="ShaktoolOrbitDefinitions.ConvergenceShares"/>), and their head bob moves them along it.
     /// </summary>
     /// <remarks>
     /// The game also turns each segment's copy of the target a step on for every update the segment orbits while the chain

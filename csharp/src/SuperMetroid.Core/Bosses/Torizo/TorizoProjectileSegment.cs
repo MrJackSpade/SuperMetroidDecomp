@@ -19,8 +19,8 @@ internal enum TorizoProjectileSegment
     DeathSmoke,
     /// <summary>
     /// Bomb Torizo's drool forming, unseen for two updates: a drool that forms plays it once or twice before
-    /// <see cref="DroolNoDelay"/>'s release and fall (<see cref="TorizoProjectileAnimations.DroolFormingForTwoUpdates"/>,
-    /// <see cref="TorizoProjectileAnimations.DroolFormingForFourUpdates"/>).
+    /// <see cref="DroolNoDelay"/>'s release and fall (<see cref="TorizoProjectileAnimations.DroolFormingShort"/>,
+    /// <see cref="TorizoProjectileAnimations.DroolFormingLong"/>).
     /// </summary>
     DroolForming,
     /// <summary>Bomb Torizo's drool released at once: it starts falling, harmless, then shows its falling pose for good.</summary>

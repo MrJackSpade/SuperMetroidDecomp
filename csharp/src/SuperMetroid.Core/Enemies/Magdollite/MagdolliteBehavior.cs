@@ -135,7 +135,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         FinishPlacingMagdollitePart();
     }
 
-    /// <summary>Places the rising body, hidden 32 pixels below its origin until the head triggers an attack.</summary>
+    /// <summary>Places the rising body, hidden below its origin (<see cref="MagdolliteMotionDefinitions.HiddenDepth"/>) until the head triggers an attack.</summary>
     internal void InitializeMagdolliteBody(RoomEnemyPlace place)
     {
         PlaceMagdollitePart(place, MagdollitePartListingDefinitions.BodyPlacesAfterHead);

@@ -143,7 +143,7 @@ internal sealed class RoomLoader
         _scrollCells = RoomScrollGrid.KeepCellsAcrossRooms(_system.StoredExploredMaps);
 
     }
-    /// <summary>The door's four-pixel scroll trajectory, kept while the destination loads and scrolls in.</summary>
+    /// <summary>The door's scroll trajectory, kept while the destination loads and scrolls in.</summary>
     private DoorOpeningScrollState? _doorOpeningScroll;
     /// <summary>
     /// Where an arriving elevator places Samus, set up on the destination's loading update but applied only once loading
@@ -525,7 +525,7 @@ internal sealed class RoomLoader
         ScrollBoundaryCamera camera = _room.LoadedCamera;
         bool completed = state.Advance();
         PublishDoorOpeningLayers(state);
-        // Each four-pixel step recomputes the layer scrolls, so the layers show where the camera stands on every update
+        // Each scroll step recomputes the layer scrolls, so the layers show where the camera stands on every update
         // (#2573).
         _backgroundScroll.CalculateLayerScrolls();
 
@@ -683,9 +683,8 @@ internal sealed class RoomLoader
         // The elevator's initialization sees the arrival, moves the platform to its arrival height, and then pins
         // Samus to it, so the door's placement comes first and never moves her off the platform.
         samus.Position = placement.SamusPosition;
-        // The door's scroll moves Samus at its own speed. Ordinary jump velocity survives
-        // room loading and the final nudge; clearing it here restarts a fall
-        // at its apex and lets horizontal momentum carry Samus too far after exit.
+        // The door's scroll moves Samus at its own speed. The door clears the external displacement enemies added; her
+        // own velocity, an ordinary jump's included, survives room loading and the final nudge.
         samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.Zero;
 
         LoadRoom(
@@ -773,8 +772,8 @@ internal sealed class RoomLoader
             _backgroundScroll.CalculateScrolls();
         else
         {
-            // Up calculates background from the destination plus 31 before changing the scroll's camera
-            // endpoint to the destination plus 32. Keeping those adjacent positions distinct prevents
+            // Up calculates background from the destination plus one pixel short of the upward snap before changing the
+            // scroll's camera endpoint to the destination plus the snap. Keeping those adjacent positions distinct prevents
             // a parallax room from accumulating a one-pixel layer mismatch at the snap.
             Position16<RoomPixels> parallaxBasis = door.Orientation.Direction == DoorDirection.Up
                 ? camera + DoorOpeningScrollDefinitions.UpwardParallaxBasis
@@ -1077,7 +1076,7 @@ internal sealed class RoomLoader
         if (!direction.IsVertical())
             finalX = direction == DoorDirection.Right ? RoomGridConversions.HalfBlockEnd(finalX) : RoomGridConversions.HalfBlockStart(finalX);
         samus = samus.WithWhole(new Position16<RoomPixels>(finalX, NudgeOffScreenLeftEdge(samus.Y.Whole)));
-        // The door scroll adds 32 to the destination Y after using the unmodified value
+        // The door scroll adds the upward snap to the destination Y after using the unmodified value
         // for Samus's setup origin. The scroll's completion later snaps an upward transition's
         // camera to that adjusted destination; the other three directions retain theirs.
         Position16<RoomPixels> destination = DoorOpeningScrollState.GetDestination(door);
@@ -1154,7 +1153,7 @@ internal sealed class RoomLoader
 
     /// <summary>
     /// The doorway nudge the door transition and room load apply: a room coordinate in its screen's second block moves
-    /// to eight pixels past that block; any other stays.
+    /// half a block past that block; any other stays.
     /// </summary>
     private static int NudgeOffScreenLeftEdge(int pixel) =>
         RoomGridConversions.BlockRowWithinScreen(pixel) == DoorOpeningScrollDefinitions.DoorwayNudgeNearBlock
@@ -1162,7 +1161,7 @@ internal sealed class RoomLoader
             : pixel;
 
     /// <summary>
-    /// The doorway nudge's other edge: a room coordinate in its screen's fifteenth block moves to eight pixels before it;
+    /// The doorway nudge's other edge: a room coordinate in its screen's second-to-last block moves half a block before it;
     /// any other stays.
     /// </summary>
     private static int NudgeOffScreenRightEdge(int pixel) =>

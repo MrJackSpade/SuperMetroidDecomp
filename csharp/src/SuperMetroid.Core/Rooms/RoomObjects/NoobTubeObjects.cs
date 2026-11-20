@@ -11,7 +11,7 @@ internal sealed class NoobTubeObjects
     private readonly IRoomSamusAccess _samus;
     /// <summary>The game's event flags.</summary>
     private readonly IStoryEvents _events;
-    /// <summary>The room's effect overlay FX.</summary>
+    /// <summary>The room's water physics, which the tube's break enables.</summary>
     private readonly IRoomWaterPhysics _waterPhysics;
     /// <summary>The room's earthquake.</summary>
     private readonly IRoomEarthquakeWriter _earthquake;

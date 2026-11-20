@@ -87,7 +87,7 @@ internal static class EyeDoorSequenceDefinitions
             ],
         });
 
-    /// <summary>The closed eye, for four updates before it looks for Samus again.</summary>
+    /// <summary>The closed eye, held for its beat before it looks for Samus again.</summary>
     internal static Animation<EyeDoorSegment> Closed { get; } = Once(S.Closed);
 
     /// <summary>The eye opening as Samus nears.</summary>

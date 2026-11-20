@@ -96,7 +96,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
             GrowingShutterWait.SamusNear => GrowingShutterAction.WaitForProximity,
             _ => throw new InvalidOperationException($"Growing shutter wait {settings.Wait} is not a wait."),
         };
-        // Its sections' origins follow from the spawn row, each eight pixels further along the growth.
+        // Its sections' origins follow from the spawn row, each one spacing further along the growth.
         var state = new GrowingShutterEnemyState(action, place.Position.Y.Whole, settings.Growth)
         {
             ActivationTimer = UpdateCountdown.For(settings.ActivationWait + EnemyWaitDefinitions.RunOutUpdate),
@@ -167,8 +167,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         place.Position = place.Position.AdvanceY(occupant.SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed);
         int targetY = state.OriginYForLevel() + GrowingShutterDefinitions.SectionLength;
 
-        // A section finishes only once the shutter has moved past its sixteen pixels, not on reaching them; each of the
-        // first three is then placed seven pixels short of its full-size end.
+        // A section finishes only once the shutter has moved past its section length, not on reaching it; each section
+        // but the last is then placed its intermediate inset short of its full-size end.
         if (targetY >= place.Position.Y.Whole)
             return;
         FinishGrowingShutterSection(place, state, targetY, direction: VerticalDirection.Down);

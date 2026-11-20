@@ -73,11 +73,11 @@ internal sealed class DraygonShots
             context => RunFlyingDraygonGoop(context.Projectile, context.Samus, context.SamusBombs.PowerBombExplosion));
 
         /// <summary>A goop stuck to Samus, slowing her until it wears off or her body attack shakes it off.</summary>
-        internal EnemyProjectileOwnedMotion GoopStuckToSamus => field ??= new(nameof(GoopStuckToSamus),
+        private EnemyProjectileOwnedMotion GoopStuckToSamus => field ??= new(nameof(GoopStuckToSamus),
             context => RunAttachedDraygonGoop(context.Projectile, context.Samus, context.SamusBombs.PowerBombExplosion));
 
         /// <summary>A wall turret's shot flying along its heading until it leaves the room.</summary>
-        internal EnemyProjectileOwnedMotion TurretShotFlying => field ??= new(nameof(TurretShotFlying), context =>
+        private EnemyProjectileOwnedMotion TurretShotFlying => field ??= new(nameof(TurretShotFlying), context =>
         {
             // The goop's power-bomb step frees a power-bombed shot's place, then still moves the shot.
             FreePlaceIfPowerBombed(context.Projectile, context.Samus, context.SamusBombs.PowerBombExplosion);
@@ -160,7 +160,7 @@ internal sealed class DraygonShots
             SamusState samus,
             SamusPowerBombExplosionState powerBomb)
         {
-            // The power-bomb catch does not stop the goop's flight on this update.
+            // A power bomb frees the goop's place, and the goop still follows Samus on this update.
             FreePlaceIfPowerBombed(goop, samus, powerBomb);
             if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
             {
@@ -221,7 +221,7 @@ internal sealed class DraygonShots
     }
 
     /// <summary>
-    /// Tests the projectile against the 512-by-512-pixel Draygon arena bounds: a place before the room, counted back from
+    /// Tests the projectile against the Draygon arena bounds (<see cref="DraygonArenaDefinitions.ArenaSize"/>): a place before the room, counted back from
     /// the far end of the room's coordinates (<see cref="OffRoomPlaces"/>), lies past the arena's far edges too.
     /// </summary>
     private static bool IsOutsideDraygonRoom(EnemyProjectile projectile) =>

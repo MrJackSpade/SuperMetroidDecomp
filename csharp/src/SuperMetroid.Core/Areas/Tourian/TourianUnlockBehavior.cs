@@ -111,8 +111,8 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         // A particle leaves within an eighth of a turn either side of the zero angle; one below zero lies near a full turn.
         TrigonometryAngle angle = TrigonometryAngle.Wrapped(
             _room.Random.Next(TourianStatueParticleDefinitions.LaunchAngle) - TourianStatueParticleDefinitions.LaunchAngleCentring);
-        // The particle flies one pixel an update across at the angle's sine, and four up or down at its negative cosine, the
-        // sine a quarter turn back.
+        // The particle flies its across speed at the angle's sine, and its vertical speed up or down at its negative cosine,
+        // the sine a quarter turn back.
         particle.Velocity = particle.Velocity.WithX(Trigonometry.SineVelocity(angle, TourianStatueParticleDefinitions.LaunchAcrossPixels));
         particle.Velocity = particle.Velocity.WithY(Trigonometry.SineVelocity(angle - TrigonometryAngle.QuarterTurn,
             TourianStatueParticleDefinitions.LaunchVerticalPixels));

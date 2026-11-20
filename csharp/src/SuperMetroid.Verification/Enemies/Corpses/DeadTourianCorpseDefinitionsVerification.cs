@@ -47,7 +47,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
             for (int variantIndex = 0; variantIndex < family.VariantCount; variantIndex++)
             {
                 DeadTourianCorpseDefinition definition =
-                    DeadTourianCorpses.For(family.Species, variantIndex);
+                    DeadTourianCorpses.Variants(family.Species)[variantIndex];
                 VerifyVariantPlaysItsCorpse(rom, family, variantIndex, definition);
                 VerifyDeadTourianCorpseConfiguration(
                     rom, family.Species, variantIndex, definition);
@@ -56,12 +56,12 @@ internal static class DeadTourianCorpseDefinitionsVerification
             }
 
             AssertThrows<ArgumentOutOfRangeException>(
-                () => DeadTourianCorpses.For(family.Species, family.VariantCount),
+                () => DeadTourianCorpses.RowUploadList(family.Species, family.VariantCount),
                 $"dead {family.Species} selector past definitions");
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => DeadTourianCorpses.For((DeadTourianCorpseSpecies)3, 0),
+            () => DeadTourianCorpses.RowUploadList((DeadTourianCorpseSpecies)3, 0),
             "unknown dead Tourian corpse species");
         VerifyCoexistingDeadMonsterSchedulesShareNoHeapBytes(rom);
         Console.WriteLine(

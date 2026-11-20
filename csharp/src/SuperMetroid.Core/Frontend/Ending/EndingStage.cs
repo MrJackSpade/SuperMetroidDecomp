@@ -123,10 +123,10 @@ internal sealed class EndingStage
     /// <summary>The ending scenes' installed backdrops (#1544).</summary>
     internal EndingBackdrops Backdrops { get; private set; }
 
-    /// <summary>Starts a fast fade: the next step lands two updates from now, and one every two updates after it.</summary>
+    /// <summary>Starts a fast fade, a step every <see cref="EndingCadenceDefinitions.FastFadeUpdatesPerStep"/> from now.</summary>
     internal void StartFastFade() => Fade.StepEvery(EndingCadenceDefinitions.FastFadeUpdatesPerStep);
 
-    /// <summary>Starts the post-credits reveal's slow fade: the next step lands two updates from now, then one every four updates.</summary>
+    /// <summary>Starts the post-credits reveal's slow fade: its first step lands soon, then the rest at the slow fade's pace.</summary>
     internal void StartPostCreditsFade() =>
         Fade.SetCadence(EndingCadenceDefinitions.PostCreditsFadeStepDelay, EndingCadenceDefinitions.PostCreditsFadeFirstWait);
 

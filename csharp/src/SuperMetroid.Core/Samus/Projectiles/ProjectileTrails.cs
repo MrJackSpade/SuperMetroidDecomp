@@ -53,7 +53,7 @@ internal sealed class ProjectileTrails
                 held.Type.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged,
                 held.Type.BeamCombination, projectile.Direction);
 
-        // A shot whose direction names no placement list leaves no trail, and neither does a shot whose animation has shown
+        // A shot whose beams name no trail family leaves no trail, and neither does a shot whose animation has shown
         // no frame yet or whose frame its list places no trail for: those placements are not part of the game's design
         // (owner decision on #1318, #1625).
         if (list is not { } placements ||

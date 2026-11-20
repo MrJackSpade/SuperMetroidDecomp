@@ -62,7 +62,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
 
         // The speed is scaled by the game's sine and cosine of the aim, the cosine being the sine a quarter turn on:
         // each takes the speed by the sine's size in 256ths and keeps the sine's direction, so neither part of the
-        // velocity ever exceeds the speed of five pixels an update.
+        // velocity ever exceeds the fireball's speed.
         state.FireballVelocity = new PixelVelocity<RoomPixels>(
             EnemyMath.SineSpeed(RidleyFireballDefinitions.FireballSpeed, angle),
             EnemyMath.SineSpeed(RidleyFireballDefinitions.FireballSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
@@ -178,7 +178,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
             source.Velocity);
     }
 
-    /// <summary>Switches an afterburn branch that struck something to its final five-frame animation; it keeps moving and still hurts Samus.</summary>
+    /// <summary>Switches an afterburn branch that struck something to its final animation: it stops, sparks and puffs while it still hurts Samus.</summary>
     internal void BeginAfterburnFinalAnimation(EnemyProjectile projectile)
     {
         projectile.StartAnimation(new RidleyFireballAnimation(this, RidleyFireballSegment.AfterburnFinal));

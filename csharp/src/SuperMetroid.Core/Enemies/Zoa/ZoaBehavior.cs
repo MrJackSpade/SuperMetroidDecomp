@@ -74,7 +74,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Wakes when Samus enters the 128-pixel column and rises facing her.</summary>
+    /// <summary>Wakes when Samus comes within its activation distance across and rises facing her.</summary>
     private static void RunZoaWait(
         RoomEnemyPlace place,
         ZoaEnemyState state,
@@ -100,7 +100,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Presence = place.Presence.Without(EnemyPresence.Hidden);
         if (samus.Position.Y.Whole < place.Position.Y.Whole)
         {
-            // The Zoa rises half a pixel each update.
+            // The Zoa rises by its rising speed each update.
             place.Position = place.Position.AdvanceY(-ZoaSpeedDefinitions.RisingSpeed);
             return;
         }
@@ -117,8 +117,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SignedSixteenSixteen speed = state.LaunchSpeed;
 
-        // The shot travels the way the Zoa faces. The shooting animation's cues set the speed as it starts and after 64
-        // and 72 updates.
+        // The shot travels the way the Zoa faces. The shooting animation's cues set the speed as it starts and at its later
+        // beats.
         SignedSixteenSixteen xDisplacement = speed.Toward(state.Facing);
         place.Position = place.Position.AdvanceX(xDisplacement);
         if (EnemyProcessingWindow.EnemyCenterIsOnScreen(place, camera))
@@ -127,7 +127,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Once its center leaves the inclusive 256x256 camera square, Zoa teleports to the
+        // Once its center leaves the camera's inclusive view, Zoa teleports to the
         // saved population coordinate and becomes invisible until the next proximity wake.
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
         place.Position = place.Position.WithWhole(state.SpawnPosition);

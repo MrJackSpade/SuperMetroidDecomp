@@ -30,7 +30,7 @@ public static class CeresRidleyColorFormat
     /// <summary>The colours of one health band's damage shade.</summary>
     public const int HealthColorCount = 14;
 
-    /// <summary>The self-destruct alarm's EMERGENCY-text steps, one every fourth frame, cycling.</summary>
+    /// <summary>The self-destruct alarm's EMERGENCY-text steps, one at each alarm step, cycling.</summary>
     public const int AlarmStepCount = 16;
 
     /// <summary>The text colours of one alarm step, excluding the transparent colour.</summary>

@@ -29,11 +29,11 @@ internal static class SamusBombCountVerification
         var terrain = new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled };
 
         SamusBombProjectileSystem range = CreateBombFixture();
-        global::SuperMetroid.Core.PrivateState.Set(range, "BombCounter", (int)(SamusBombProjectileSystem.PlaceCount));
+        global::SuperMetroid.Core.PrivateState.Set(range, "BombCounter", SamusBombProjectileSystem.PlaceCount);
         AssertEqual(SamusBombProjectileSystem.PlaceCount, range.BombCounter, "the count holds every place's bomb");
-        AssertThrows<ArgumentOutOfRangeException>(() => global::SuperMetroid.Core.PrivateState.Set(range, "BombCounter", (int)(SamusBombProjectileSystem.PlaceCount + 1)),
+        AssertThrows<ArgumentOutOfRangeException>(() => global::SuperMetroid.Core.PrivateState.Set(range, "BombCounter", SamusBombProjectileSystem.PlaceCount + 1),
             "no more bombs are out than there are places");
-        AssertThrows<ArgumentOutOfRangeException>(() => global::SuperMetroid.Core.PrivateState.Set(range, "BombCounter", (int)(-1)), "the count is never below zero");
+        AssertThrows<ArgumentOutOfRangeException>(() => global::SuperMetroid.Core.PrivateState.Set(range, "BombCounter", -1), "the count is never below zero");
 
         // A full count rejects a fresh Shoot edge even with no cooldown running: nothing is placed and the count stays full.
         SamusBombProjectileSystem full = CreateBombFixture();

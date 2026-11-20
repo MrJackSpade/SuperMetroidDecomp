@@ -1,6 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One complete exploding-Zebes layer-fade control program.</summary>
+/// <summary>One exploding-Zebes layer fade's records and the colours each writes.</summary>
 public sealed class ZebesExplosionLayerFadePaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>

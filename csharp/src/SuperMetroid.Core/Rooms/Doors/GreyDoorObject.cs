@@ -79,7 +79,10 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
             base.Update(place, context);
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// What the cap's wait does this update: waiting on its condition, a shot before it holds only plays the dud sound and
+    /// once it holds the cap starts flashing; waiting on a shot, a shot opens it. Returns whether the wait acted.
+    /// </summary>
     private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         GreyDoorObjects doors = context.RoomObjects.GreyDoors;
@@ -119,7 +122,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
                 Look(place, context);
                 return;
             case GreyDoorPhase.HeldOpen:
-                // Bomb Torizo's door stays open, two updates at a time, until Samus has Bombs.
+                // Bomb Torizo's door stays open, its held-open segment over and over, until Samus has Bombs.
                 if (!context.Frame.CollectedItems.HasAny(SamusEquipmentFlags.Bombs))
                 {
                     Play(GreyDoorDefinitions.BombTorizoHeldOpen, place, context);

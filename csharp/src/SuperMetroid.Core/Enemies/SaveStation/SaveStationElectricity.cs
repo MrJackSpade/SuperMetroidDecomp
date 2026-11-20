@@ -18,7 +18,7 @@ internal sealed class SaveStationElectricity
 
     /// <summary>
     /// Spawns the save station's electricity with the room's graphics. The game derives its origin from the save station
-    /// room object at <paramref name="roomObjectBlock"/>: one block right and two blocks above its trigger block.
+    /// room object at <paramref name="roomObjectBlock"/>: off its trigger block by <see cref="SaveStationElectricityDefinitions.BlocksFromTrigger"/>.
     /// </summary>
     internal void Spawn(Position16<RoomBlocks> roomObjectBlock)
     {
@@ -26,7 +26,7 @@ internal sealed class SaveStationElectricity
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SaveStationElectricity, EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
         {
-            // The projectile spawn deliberately drops a spawn when all eighteen places
+            // The projectile spawn deliberately drops a spawn when every place
             // are occupied. This is the game's finite-pool behavior, not an error.
             return;
         }

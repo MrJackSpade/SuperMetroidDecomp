@@ -25,7 +25,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     }
     /// <summary>
     /// Runs the room setup that spawns the rescue wall's setup object at <paramref name="origin"/> (#2495), whose setup turns
-    /// that block into the wall's shootable origin and the two below it into blocks that extend it. Only each block's
+    /// that block into the wall's shootable origin and the blocks below it into blocks that extend it. Only each block's
     /// collision kind and behaviour change: its picture and what it shows stay. The object holds its place until the room
     /// objects first update, and leaves the room then.
     /// </summary>
@@ -44,7 +44,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     }
 
     /// <summary>
-    /// Runs the room setup that spawns the escape wall at block (61,11). Its setup
+    /// Runs the room setup that spawns the escape wall at its block. Its setup
     /// removes the wall unless the critters-escaped event is set, so the passage
     /// stays shut when the animals were left behind.
     /// </summary>

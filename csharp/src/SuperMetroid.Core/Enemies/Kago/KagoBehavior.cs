@@ -70,7 +70,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // The shell withstands as many shots as its placement names and dies of the next (#2340).
         if (++state.HitsTaken > occupant.SpawnSettings<KagoSpawnSettings>().HitCount)
         {
-            // The shot's damage may already have killed the 1600-health shell, which counts its death once.
+            // The shot's damage may already have killed the shell, which counts its death once.
             if (!place.Presence.HasAny(EnemyPresence.Deleted))
             {
                 place.Presence = place.Presence.With(EnemyPresence.Deleted);
@@ -243,7 +243,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             bool jumpLeft;
             if (Math.Abs(sourceDelta) >= KagoDefinitions.BugHomingDistance)
             {
-                // Outside the 48-pixel band the bug always jumps back toward its parent shell.
+                // Outside its homing band the bug always jumps back toward its parent shell.
                 jumpLeft = sourceDelta < 0;
             }
             else
@@ -316,7 +316,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Lets Samus's shots hit the bug once it is at least 23 pixels from its source Kago. That
+    /// Lets Samus's shots hit the bug once it is at least <see cref="KagoDefinitions.BugBlocksShotsDistance"/> from its source Kago. That
     /// delay prevents the shot which opened the shell from immediately destroying the bug.
     /// </summary>
     /// <param name="owner">The bug's behaviour, which keeps its source Kago.</param>

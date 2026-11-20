@@ -21,14 +21,6 @@ internal static class DeadTourianCorpses
     /// <exception cref="ArgumentOutOfRangeException">The species is not a dead Tourian corpse.</exception>
     internal static int VariantCount(DeadTourianCorpseSpecies species) => Variants(species).Length;
 
-    /// <summary>The corpse variant <paramref name="variantIndex"/> of <paramref name="species"/> lies as: its pose and height.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The species or its variant is not a dead Tourian corpse.</exception>
-    private static DeadTourianCorpseDefinition For(DeadTourianCorpseSpecies species, int variantIndex)
-    {
-        RequireVariant(species, variantIndex);
-        return Variants(species)[variantIndex];
-    }
-
     /// <summary>Requires <paramref name="variantIndex"/> to be one of <paramref name="species"/>'s corpse variants.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The species or its variant is not a dead Tourian corpse.</exception>
     private static void RequireVariant(DeadTourianCorpseSpecies species, int variantIndex)

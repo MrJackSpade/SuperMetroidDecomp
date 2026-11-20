@@ -38,7 +38,7 @@ internal sealed class DraygonDeath
     internal void DriftDyingDraygonToBurialPoint(DraygonEnemyState state)
     {
         RoomEnemyPlace body = state.Body;
-        if (DraygonCadenceDefinitions.DyingFoamEverySixteenthUpdate.IsDue(body.FrameCounter))
+        if (DraygonCadenceDefinitions.DyingFoam.IsDue(body.FrameCounter))
         {
             _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + DraygonParts.TowardFacing(DraygonArenaDefinitions.MouthFacingRight, state.Facing),
@@ -107,7 +107,7 @@ internal sealed class DraygonDeath
 
         state.BodyPart.StartAnimation(DraygonSegment.Delete);
 
-        // The death drops use Draygon's body definition for sixteen independent drops over the
+        // The death drops use Draygon's body definition for his independent death drops over the
         // lower half of the arena. The drops spawn before the body is deleted.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.DraygonBody,
@@ -128,10 +128,10 @@ internal sealed class DraygonDeath
         _effectActors.EndAll();
     }
 
-    /// <summary>Consumes room RNG and spawns smoke at the dying body every eighth frame.</summary>
+    /// <summary>Consumes room RNG and spawns smoke at the dying body at its smoke cadence.</summary>
     private void SpawnDyingDraygonSmoke(int frameCounter)
     {
-        if (!DraygonCadenceDefinitions.DyingSmokeEveryEighthUpdate.IsDue(frameCounter))
+        if (!DraygonCadenceDefinitions.DyingSmoke.IsDue(frameCounter))
             return;
 
         int random = _room.Random.Generate();

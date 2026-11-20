@@ -13,7 +13,7 @@ public enum CrawlerAction
     /// outside corners; an orange Zoomer also reverses its tangent toward Samus while attached.
     /// </summary>
     CrawlingVertically,
-    /// <summary>Detachment fall with half-pixel downward acceleration until the whole velocity reaches four pixels per update; landing clears fall motion and restores the saved attached action.</summary>
+    /// <summary>Detachment fall with its downward gravity (<see cref="CrawlerMotionDefinitions.FallingGravity"/>) until the whole velocity reaches <see cref="CrawlerMotionDefinitions.FallingSpeedCap"/>; landing clears fall motion and restores the saved attached action.</summary>
     Falling,
     /// <summary>
     /// Floor or ceiling crawling: probes vertical attachment, advances horizontally with slope adjustment and rotates the

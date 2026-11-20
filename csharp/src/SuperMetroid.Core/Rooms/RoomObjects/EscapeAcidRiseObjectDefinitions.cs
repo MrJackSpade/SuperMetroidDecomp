@@ -11,7 +11,7 @@ internal static class EscapeAcidRiseObjectDefinitions
     /// <summary>The row of the block the room object is spawned at.</summary>
     internal const int BlockY = 16;
 
-    /// <summary>The point Samus passes, right of X 240 and below Y 1344, to start the acid rising.</summary>
+    /// <summary>The point Samus passes, going right and down, to start the acid rising.</summary>
     internal static SamusTriggerPoint TriggerPoint { get; } = new(new Position16<RoomPixels>(240, 1344));
 
     /// <summary>The acid's rising speed once triggered: thirteen thirty-seconds of a pixel upward per update.</summary>

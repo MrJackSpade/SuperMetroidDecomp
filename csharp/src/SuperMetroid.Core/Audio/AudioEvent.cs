@@ -42,7 +42,7 @@ public abstract record AudioEvent
     }
 
     /// <summary>One step of the sound acceptance clock at its sample offset within the update.</summary>
-    /// <param name="SampleOffset">Sound samples (32,040 per second) from the update's start at which the step runs.</param>
+    /// <param name="SampleOffset">Sound samples (<see cref="AudioSession.SampleRate"/> per second) from the update's start at which the step runs.</param>
     /// <param name="Steps">Elapsed step periods the step accounts for.</param>
     /// <param name="ChecksRequests">Whether the step also checks the three sound libraries' requests.</param>
     public sealed record ClockStep(int SampleOffset, int Steps, bool ChecksRequests) : AudioEvent

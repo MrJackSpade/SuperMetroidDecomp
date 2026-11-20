@@ -506,7 +506,7 @@ public static class RoomFxDefinitions
     ],
         new(474, null, SignedEightEight.Zero, 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
-    /// <summary>A selection whose rooms show lava, the liquid level starting at line 218 and falling to line 0, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
+    /// <summary>A selection whose rooms show lava, the liquid level starting at line 218 and rising to line 0, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the <see cref="RoomEffectTint.Lava"/> tint.</summary>
     public static RoomFxSelection SpeedBooster { get; } = new([],
         new(218, 0, SignedEightEight.Zero, 32, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.Lava));
 
@@ -635,7 +635,7 @@ public static class RoomFxDefinitions
     public static RoomFxSelection GoldenTorizoEnergyRefill { get; } = new([],
         null);
 
-    /// <summary>A selection whose rooms show acid, the liquid level starting at line 528 and falling to line 464, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 528 and rising to line 464, starting <see cref="ColourEffectId.SamusInHeat"/>, <see cref="ColourEffectId.NorfairForegroundAndHeatPhase"/>, <see cref="ColourEffectId.NorfairGreenForegroundHeatGlow"/>, <see cref="ColourEffectId.NorfairPurpleForegroundHeatGlow"/> and <see cref="ColourEffectId.NorfairDarkForegroundHeatGlow"/>, in the untinted look.</summary>
     public static RoomFxSelection Ridley { get; } = new([],
         new(528, 464, SignedEightEight.Zero, 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.Small, HeatHazeDirection.Vertical), [ColourEffectId.SamusInHeat, ColourEffectId.NorfairForegroundAndHeatPhase, ColourEffectId.NorfairGreenForegroundHeatGlow, ColourEffectId.NorfairPurpleForegroundHeatGlow, ColourEffectId.NorfairDarkForegroundHeatGlow], [], RoomEffectTint.None));
 
@@ -1114,7 +1114,7 @@ public static class RoomFxDefinitions
     public static RoomFxSelection TourianEscape3 { get; } = new([],
         new(null, null, SignedEightEight.Zero, 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.TourianBackgroundRedFlashing, ColourEffectId.TourianGeneralLevelRedFlashing, ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 
-    /// <summary>A selection whose rooms show acid, the liquid level starting at line 1504 and falling to line 16, starting <see cref="ColourEffectId.TourianBackgroundRedFlashing"/>, <see cref="ColourEffectId.TourianGeneralLevelRedFlashing"/> and <see cref="ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
+    /// <summary>A selection whose rooms show acid, the liquid level starting at line 1504 and rising to line 16, starting <see cref="ColourEffectId.TourianBackgroundRedFlashing"/>, <see cref="ColourEffectId.TourianGeneralLevelRedFlashing"/> and <see cref="ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs"/>, in the untinted look.</summary>
     public static RoomFxSelection TourianEscape4 { get; } = new([],
         new(1504, 16, SignedEightEight.Zero, 64, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [ColourEffectId.TourianBackgroundRedFlashing, ColourEffectId.TourianGeneralLevelRedFlashing, ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs], [], RoomEffectTint.None));
 

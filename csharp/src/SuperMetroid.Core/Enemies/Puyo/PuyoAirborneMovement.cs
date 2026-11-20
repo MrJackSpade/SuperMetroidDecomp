@@ -12,7 +12,7 @@ public enum PuyoAirborneMovement
     NormalBigHop,
     /// <summary>Moves as the big hop with increased horizontal speed and selects the fast grounded animation on landing or terrain collision.</summary>
     NormalLongHop,
-    /// <summary>Moves the 128-pixel-height hop; normal landing restores small-hop selection, while wall or ceiling collision retains dropping recovery.</summary>
+    /// <summary>Moves the giant hop; normal landing restores small-hop selection, while wall or ceiling collision retains dropping recovery.</summary>
     GiantHop,
     /// <summary>Falls at the drop's own speed until terrain contact selects a random small or big post-drop bounce.</summary>
     Dropping,

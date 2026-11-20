@@ -16,11 +16,11 @@ internal static class SamusBeamShotBehaviors
             SamusBeamCombination.SpazerIce or SamusBeamCombination.Plasma or SamusBeamCombination.PlasmaIce =>
             SamusShotBehaviors.Beam,
         SamusBeamCombination.Wave or SamusBeamCombination.IceWave => charged
-            ? SamusShotBehaviors.WaveBeamFourUpdateTrail
-            : SamusShotBehaviors.WaveBeamThreeUpdateTrail,
+            ? SamusShotBehaviors.WaveBeamTrail
+            : SamusShotBehaviors.UnchargedWaveBeamTrail,
         SamusBeamCombination.SpazerWave or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.PlasmaWave or
             SamusBeamCombination.PlasmaIceWave =>
-            SamusShotBehaviors.WaveBeamFourUpdateTrail,
+            SamusShotBehaviors.WaveBeamTrail,
         SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
             SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
             SamusBeamShotBehaviorDefinitions.Unauthored.ShotBehavior(combination, charged),

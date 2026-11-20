@@ -22,7 +22,7 @@ public readonly record struct HudSnapshot(
         samus.MaxSuperMissiles, samus.PowerBombs, samus.MaxPowerBombs, samus.EquippedItems, samus.SelectedHudItem,
         samus.ReserveEnergy, samus.ReserveTankMode);
 
-    /// <summary>The HUD a new game starts with, before any item is collected: 99 energy and no equipment.</summary>
+    /// <summary>The HUD a new game starts with, before any item is collected: its starting energy (<see cref="SamusEnergyDefinitions.StartingEnergy"/>) and no equipment.</summary>
     public static HudSnapshot NewGame => new(
         Health: SamusEnergyDefinitions.StartingEnergy,
         MaxHealth: SamusEnergyDefinitions.StartingEnergy,

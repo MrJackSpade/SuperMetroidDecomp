@@ -79,7 +79,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Moves six pixels downward and one toward Samus until the downward solid-block probe starts burrowing.</summary>
+    /// <summary>Moves downward by <see cref="SkreeMotionDefinitions.DiveStep"/> and toward Samus by <see cref="SkreeMotionDefinitions.DiveDrift"/> until the downward solid-block probe starts burrowing.</summary>
     private void RunSkreeDive(
         RoomEnemyPlace place,
         SkreeEnemyState state,
@@ -103,7 +103,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             SkreeMotionDefinitions.DiveDrift.Toward(place.Position.X.Whole >= samus.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right));
     }
 
-    /// <summary>Advances the 21-frame burrow, spawning debris at eight and deleting the place at zero.</summary>
+    /// <summary>Advances the burrow (<see cref="SkreeMotionDefinitions.BurrowDuration"/>), spawning debris at <see cref="SkreeMotionDefinitions.DebrisBurstAt"/> and deleting the place at zero.</summary>
     private void RunSkreeBurrow(RoomEnemyOccupant occupant, RoomEnemyPlace place, SkreeEnemyState state)
     {
         if (state.BurrowTimer.StepEnds())

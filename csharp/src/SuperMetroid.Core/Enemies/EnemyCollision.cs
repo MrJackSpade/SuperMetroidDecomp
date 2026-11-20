@@ -406,7 +406,7 @@ internal sealed class EnemyCollision
         bool hurtUnfrozen = enemy.Freeze.IsOver;
         if (hurtUnfrozen && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
             _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
-        // Every plasma-family hit gives sixteen invincibility frames.
+        // Every plasma-family hit gives its invincibility frames (EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates).
         // Only a beam combining Plasma gives this; other projectile
         // families never count as Plasma.
         if (projectileType.BeamCombination.HasPlasma)
@@ -711,8 +711,8 @@ internal sealed class EnemyCollision
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
                 continue;
 
-            // A definition names only the ignoring reaction, which the entity answers, or none; an entity with a Power
-            // Bomb reaction it has no response to throws here.
+            // A definition names only the ignoring reaction, which the entity answers, or none; an entity without a
+            // Power Bomb reaction takes the common damage.
             EnemyPowerBombReaction? reaction = (enemy.Entity as IEnemyPowerBombReaction)?.PowerBombReaction;
             if (reaction?.SkipsEnemy?.Invoke(enemy) == true)
                 continue;
@@ -1048,8 +1048,8 @@ internal sealed class EnemyCollision
     /// (#2155, #2342): that centre lies above the enemy's centre, and their bodies overlap: horizontally strictly, so bodies
     /// that only meet side by side do not count, and vertically including the pixel where her feet meet the enemy's top.
     /// Every enemy that asks stays in the room, and Samus lies above its top only on a departing up-elevator, where none
-    /// of them is placed. The Kzan reckons her five pixels lower
-    /// (<see cref="Kzan.KzanMotionDefinitions.SamusStandingBias"/>), every other enemy three.
+    /// of them is placed. The Kzan reckons her lower by its own bias
+    /// (<see cref="Kzan.KzanMotionDefinitions.SamusStandingBias"/>), every other enemy by the common one.
     /// </summary>
     internal static bool IsSamusStandingOn(RoomEnemyPlace enemy, SamusState samus, int bias)
     {

@@ -28,7 +28,7 @@ internal static class VerticalOffScreenDeletionVerification
             var projectile = global::SuperMetroid.Core.PrivateState.With<EnemyProjectile>(new EnemyProjectile(0, default, RoomEnemyProjectileKind.NoobTubeShard)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0, y)),
-            }, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.NoobTubeShard));
+            }, "Kind", RoomEnemyProjectileKind.NoobTubeShard);
             EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
             AssertEqual(kept, projectile.IsActive, label);
         }

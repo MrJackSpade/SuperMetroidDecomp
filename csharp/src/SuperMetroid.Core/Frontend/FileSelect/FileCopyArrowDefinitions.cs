@@ -12,7 +12,7 @@ public static class FileCopyArrowDefinitions
     /// again (#1512).
     /// </summary>
     public const int RotationSteps = 7;
-    /// <summary>All file-copy arrows use screen X = 20.</summary>
+    /// <summary>The screen X every file-copy arrow uses.</summary>
     internal const int OriginX = 20;
     /// <summary>The screen Y of a short arrow between slots A and B.</summary>
     internal const int UpperShortArrowY = 88;

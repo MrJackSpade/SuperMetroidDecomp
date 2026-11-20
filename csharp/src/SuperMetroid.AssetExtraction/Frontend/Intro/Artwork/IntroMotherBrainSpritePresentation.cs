@@ -27,7 +27,7 @@ public sealed class IntroMotherBrainSpritePresentation : ICinematicSpriteFrames
 
     /// <summary>Validates and compiles the three named intro Mother Brain frames into independently owned visual compositions.</summary>
     /// <param name="json">Readable JSON stream at its current position; it remains open and caller-owned.</param>
-    /// <returns>Artwork keyed by the original bank-$8C identities, independent of subsequent edits to authoring arrays.</returns>
+    /// <returns>Artwork whose compositions are keyed by the poses that show them, independent of subsequent edits to authoring arrays.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON is malformed, contains duplicate properties, has an unsupported version or frame set, or contains invalid OAM visual fields.</exception>
     public static IntroMotherBrainSpritePresentation Load(Stream json)

@@ -87,7 +87,7 @@ public static class BrinstarDoorDefinitions
     /// <summary>The door from the Big Pink room to the Green Hill Zone room.</summary>
     public static DoorDefinition BigPinkToGreenHillZone { get; } = new("BigPinkToGreenHillZone", RoomDefinitions.GreenHillZone, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
-    /// <summary>The door from the Big Pink room to the Big Pink Save Room room.</summary>
+    /// <summary>The door from the Big Pink room to the Big Pink Save Room.</summary>
     public static DoorDefinition BigPinkToBigPinkSaveRoom { get; } = new("BigPinkToBigPinkSaveRoom", RoomDefinitions.BigPinkSaveRoom, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Big Pink room to the Pink Brinstar Power Bombs room, arriving at its upper doorway.</summary>
@@ -207,7 +207,7 @@ public static class BrinstarDoorDefinitions
     /// <summary>The door from the Hopper Energy Tank room to the Pink Brinstar Hoppers room.</summary>
     public static DoorDefinition HopperEnergyTankToPinkBrinstarHoppers { get; } = new("HopperEnergyTankToPinkBrinstarHoppers", RoomDefinitions.PinkBrinstarHoppers, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(30, 22), new(1, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
-    /// <summary>The door from the Big Pink Save Room room to the Big Pink room.</summary>
+    /// <summary>The door from the Big Pink Save Room to the Big Pink room.</summary>
     public static DoorDefinition BigPinkSaveRoomToBigPink { get; } = new("BigPinkSaveRoomToBigPink", RoomDefinitions.BigPink, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(17, 6), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.BigPinkOpensScreen1x0);
 
     /// <summary>The door from the Blue Brinstar Boulders room to the Blue Brinstar Energy Tank room.</summary>

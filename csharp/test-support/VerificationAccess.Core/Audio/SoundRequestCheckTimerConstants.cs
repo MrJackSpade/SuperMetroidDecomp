@@ -6,5 +6,5 @@ internal static class SoundRequestCheckTimerConstants
     /// <summary>A timer holding <paramref name="phase"/>, which must lie in [0, <see cref="SoundRequestCheckTimer.Period"/>).</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="phase"/> is outside one period.</exception>
     public static SoundRequestCheckTimer FromPhase(int phase) =>
-        global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Compatibility.SoundRequestCheckTimer>([typeof(int)], new object?[] { (int)(Ensure.BetweenInclusive(0, SoundRequestCheckTimer.Period - 1, phase)) });
+        global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Compatibility.SoundRequestCheckTimer>([typeof(int)], new object?[] { Ensure.BetweenInclusive(0, SoundRequestCheckTimer.Period - 1, phase) });
 }

@@ -48,7 +48,7 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDiction
 
     /// <summary>
     /// One slot's field at <paramref name="layout"/>'s anchors: NO DATA for an empty slot, else ENERGY, the health's last two
-    /// digits, a filled or empty tank for each hundred of maximum health, and the time as HH:MM.
+    /// digits, a filled or empty tank for each tank's worth of maximum health (<see cref="SamusEnergyDefinitions.EnergyPerTank"/>), and the time as HH:MM.
     /// </summary>
     private static IEnumerable<PlacedFrame> Field(ShownFileSelectSave? save, FileSelectSlotFieldDocument layout)
     {
@@ -64,7 +64,7 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDiction
         yield return new PlacedFrame(FileSelectParts.DigitFrame(health % FileSelectFieldDefinitions.DigitBase), Right(layout.HealthAnchor, 1));
         int filled = save.Health / SamusEnergyDefinitions.EnergyPerTank;
         int tanks = save.MaxHealth / SamusEnergyDefinitions.EnergyPerTank;
-        // Tanks fill rows of seven left to right, the first row below ENERGY and each later row one tank above the last.
+        // Tanks fill rows left to right, the first row below ENERGY and each later row one tank above the last.
         for (int tank = 0; tank < tanks; tank++)
         {
             int column = FileSelectEnergyTankDefinitions.ColumnOffset + tank % FileSelectEnergyTankDefinitions.TanksPerRow;

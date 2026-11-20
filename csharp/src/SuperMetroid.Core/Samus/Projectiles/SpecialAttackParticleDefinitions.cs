@@ -5,7 +5,7 @@ internal static class SpecialAttackParticleDefinitions
 {
     /// <summary>
     /// Each particle's part, in place order: the Ice and Plasma orbits start a quarter turn apart; the Wave particles
-    /// start 128 pixels from Samus on both axes, one in each corner; the Spazer beam pair turns clockwise and
+    /// start away from Samus on both axes, one in each corner; the Spazer beam pair turns clockwise and
     /// counterclockwise with its trailing pair after it; the first particle voices the Spazer convergence and the last
     /// the Wave pulse.
     /// </summary>

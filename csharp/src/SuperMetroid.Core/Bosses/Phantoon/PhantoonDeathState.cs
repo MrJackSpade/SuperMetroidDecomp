@@ -17,7 +17,7 @@ public sealed class PhantoonDeathState
 
     /// <summary>
     /// His body's pixelation block size in screen pixels, which the display latches: one (no quantization) until the dying
-    /// fade grows it one pixel every sixteenth update up to sixteen, and one again once his body is cleared.
+    /// fade grows it at its growth cadence up to its largest (<see cref="PhantoonDeathDefinitions"/>), and one again once his body is cleared.
     /// </summary>
     public int PixelationSize
     {

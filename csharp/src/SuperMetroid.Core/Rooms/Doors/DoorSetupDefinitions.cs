@@ -443,7 +443,7 @@ public static class DoorSetupDefinitions
         new(nameof(ClimbClosesScreen1x8OpensScreen0x8TopAligned), [new(new(0, 8), RoomScrollState.OpenAlignedToTop), new(new(1, 8), RoomScrollState.Closed)]);
 
     /// <summary>
-    /// Entering the CeresElevator room, shows the room as a turning floor, unrotated, about room point (128, 1008).
+    /// Entering the CeresElevator room, shows the room as a turning floor, unrotated, about the shaft's floor.
     /// </summary>
     public static DoorSetup CeresElevatorShowsTurningFloor { get; } =
         new(nameof(CeresElevatorShowsTurningFloor), [], DoorRoomEvent.ShowsTurningFloor);

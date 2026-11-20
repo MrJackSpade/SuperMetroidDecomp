@@ -10,8 +10,8 @@ public enum HopperAction
     /// <summary>Chooses a small or a big hop at random, each one time in two, and hops from the next update.</summary>
     ChooseHopSize,
     /// <summary>
-    /// Sets the chosen hop size's precomputed speed-curve place and its place step (three marks a pass for a small hop,
-    /// four for a big one) before choosing the hop's direction (#2338).
+    /// Sets the chosen hop size's precomputed speed-curve place and its place step (the big hop's larger than the small
+    /// hop's) before choosing the hop's direction (#2338).
     /// </summary>
     PrepareHop,
     /// <summary>Turns the hopper's heading toward Samus: left when she is to its left, otherwise right.</summary>

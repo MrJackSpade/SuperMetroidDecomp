@@ -76,8 +76,8 @@ internal sealed class ProjectileMotion
             return;
         }
 
-        // The Wave shots differ only in the interval reloaded after a trail timer expires. Firing always starts it at
-        // four; an uncharged Wave or Ice and Wave shot reloads three only after its first trail. Spawning precedes
+        // The Wave shots differ only in the interval reloaded after a trail timer expires. Firing always starts it at the
+        // trail interval; an uncharged Wave or Ice and Wave shot reloads its shorter one only after its first trail. Spawning precedes
         // acceleration and movement, so the trail samples the old world position just like a beam without Wave.
         if (shot.CountsDownToTrail(trailInterval))
             _trails.SpawnTrail(held);
@@ -255,8 +255,8 @@ internal sealed class ProjectileMotion
 
     /// <summary>
     /// Applies the shared beam/missile deletion window after movement. The game's
-    /// check allows a 64-pixel apron above and left of the viewport and extends through
-    /// coordinate 319 on the other axes; centralizing those bounds keeps projectile
+    /// check allows an apron above and left of the viewport (<see cref="SamusProjectileMotionDefinitions.MovementWindowApron"/>) and extends through
+    /// <see cref="SamusProjectileMotionDefinitions.MovementWindowFarEdge"/> on the other sides; centralizing those bounds keeps projectile
     /// families from drifting apart.
     /// </summary>
     /// <returns>True when the projectile was outside the movement window and cleared.</returns>
@@ -413,8 +413,8 @@ internal sealed class ProjectileMotion
         shot.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
 
         // Missile block collision tests the projectile center, not its radius-spanning leading edge. Room
-        // width is counted in 256-pixel screens; coordinates in or past the first screen beyond
-        // the room skip reaction and are left for the later 64-pixel viewport deletion.
+        // width is counted in screens; coordinates in or past the first screen beyond
+        // the room skip reaction and are left for the later viewport deletion.
         int roomWidthInScreens = RoomGridConversions.ScreensCovering(level.Size.X);
         if (RoomGridConversions.PixelToScreen(shot.Position.X.Whole) >= roomWidthInScreens)
             return false;

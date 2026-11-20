@@ -17,8 +17,8 @@ internal static class MotherBrainWalkBackwardsPoseVerification
         {
             var sequence = MotherBrainLateFightFixtures.NewSequence();
             // The stagger walks back in its second stage, at its fastest.
-            global::SuperMetroid.Core.PrivateState.Set(sequence.DrainedByBaby, "PainfulWalkingStage", (global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainStaggerStage>)(SuperMetroid.Core.Bosses.ListStep<MotherBrainStaggerStage>.At(MotherBrainPainfulWalkingDefinitions.Stages, 1)));
-            global::SuperMetroid.Core.PrivateState.Set(sequence.DrainedByBaby, "PainfulWalkingSpeed", (global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainWalkSpeed)(MotherBrainWalkSpeed.ReallyFast));
+            global::SuperMetroid.Core.PrivateState.Set(sequence.DrainedByBaby, "PainfulWalkingStage", SuperMetroid.Core.Bosses.ListStep<MotherBrainStaggerStage>.At(MotherBrainPainfulWalkingDefinitions.Stages, 1));
+            global::SuperMetroid.Core.PrivateState.Set(sequence.DrainedByBaby, "PainfulWalkingSpeed", MotherBrainWalkSpeed.ReallyFast);
             sequence.Encounter.Body.Position = sequence.Encounter.Body.Position.WithWholeX(x);
             sequence.Encounter.Pose = pose;
             return sequence;

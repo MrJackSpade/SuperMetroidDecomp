@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
 /// A starfield's motion with the gunship's flyaway (#1903, #2489): once waiting, the starfield starts moving as the fast
-/// planet escape starts, a quarter pixel an update to the right, slowing by 1/2048 of a pixel each update, and it leaves at
+/// planet escape starts, to the right and slowing each update, and it leaves at
 /// the handoff out of the explosion's last phase.
 /// </summary>
 /// <param name="motion">How the starfield starts moving with the flyaway.</param>

@@ -42,15 +42,15 @@ internal sealed class IntroCeresFlightState
         SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.FrontInitialFloorScrollX),
         SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.FrontInitialFloorScrollY));
     /// <summary>
-    /// The floor's zoom: two floor pixels per screen pixel at the start, narrowed by the slow step per update while at
-    /// least an eighth (ending at a sixteenth) for the front approach, then widened by the slow step below twelve and by
-    /// the fast step below thirty-two for the rear view, ending at thirty-two (<see cref="CeresFlightRenderDefinitions"/>).
+    /// The floor's zoom: its front zoom at the start, narrowed by the slow step per update to its narrowest for the front
+    /// approach, then widened by the slow step and then the fast step for the rear view, to its widest
+    /// (<see cref="CeresFlightRenderDefinitions"/>).
     /// </summary>
     private FloorZoom zoom = CeresFlightRenderDefinitions.FrontInitialZoom;
     /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle = CeresFlightSceneDefinitions.FrontInitialAngle;
     /// <summary>
-    /// The screen's brightness: held black until music is ready, then fully lit, and lowered one level every other update
+    /// The screen's brightness: held black until music is ready, then fully lit, and lowered a level at the fade-out's pace
     /// in the final fade, stopping at black.
     /// </summary>
     private readonly ScreenFade fade = new(0);
@@ -312,8 +312,8 @@ internal sealed class IntroCeresFlightState
         // The white flash fades by one step per frame, stopping at none.
         (rearViewFlash ?? throw new InvalidOperationException("The rear view flies with no flash set up.")).Fade();
 
-        // The rear view drifts left by an eighth of a pixel and grows the rear-of-gunship turning
-        // image in two bands: the slow step until twelve floor pixels per screen pixel, then the fast step until thirty-two.
+        // The rear view drifts left by its drift and grows the rear-of-gunship turning
+        // image in two bands: the slow step and then the fast step, to the rear view's widest zoom.
         background = background.WithX(background.X - CeresFlightRenderDefinitions.RearViewDrift);
         if (zoom < CeresFlightRenderDefinitions.RearSlowWideningLimit)
             zoom = zoom.Widened(CeresFlightRenderDefinitions.SlowZoomStep);
@@ -337,8 +337,8 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>
-    /// Types the title's letters every sixteen frames, optionally adds katakana, then holds the completed caption before
-    /// the fade step installs the ordinary fade owner.
+    /// Types the title's letters at the title's typing pace, optionally adds katakana, then holds the completed caption
+    /// before the fade step hands over to the ordinary fade owner.
     /// </summary>
     private void StepSpaceColonyTitle() =>
         (caption ?? throw new InvalidOperationException("The SPACE COLONY title runs with no caption set up.")).Step(CarryOut);
@@ -356,7 +356,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Lowers brightness every other update until the black screen permits the Ceres handoff.</summary>
     private void StepFadeOut()
     {
-        // The fade-out removes one brightness level every other frame and ends with the screen black.
+        // The fade-out removes a brightness level at its pace and ends with the screen black.
         if (fade.Darken())
             Phase = IntroCeresFlightPhase.StartGameAtCeres;
     }
@@ -378,10 +378,10 @@ internal sealed class IntroCeresFlightState
     /// <summary>Accelerates the front stars and both turning-floor scroll offsets along the same diagonal.</summary>
     private void StepStarsAndBackground()
     {
-        // The star field's speed grows by half a pixel each update, and that same growing distance moves the star
+        // The star field's speed grows by its acceleration each update, and that same growing distance moves the star
         // actor and both turning-floor offsets, so the ship's rush looks diagonal.
-        // The rush lasts while the zoom falls from two floor pixels by a sixteenth an update, about 32 updates, so the speed rises from four
-        // pixels an update one way to at most twelve the other.
+        // The rush lasts while the zoom falls to its narrowest, so the speed reverses and grows only a few pixels an update
+        // the other way.
         starsVelocity += CeresFlightActorDefinitions.FrontStarAcceleration;
         SignedSixteenSixteen rush = starsVelocity.ToSixteenSixteenDelta();
         stars.Position = new(stars.Position.X + rush, stars.Position.Y + rush);

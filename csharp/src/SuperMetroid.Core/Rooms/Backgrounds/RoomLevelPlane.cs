@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// One room background plane as the room shows it: a grid of 16x16 blocks, each naming the block it shows and its
+/// One room background plane as the room shows it: a grid of blocks (<see cref="BlockPixels"/> square), each naming the block it shows and its
 /// mirroring, or the collectible picture shown where a collectible showing its own picture lies (#1538). Immutable; the
 /// room publishes a new plane when gameplay changes a block, so the display draws each block's picture from the room's grid
 /// with no stored picture grid (#1346, #1431, #1469).

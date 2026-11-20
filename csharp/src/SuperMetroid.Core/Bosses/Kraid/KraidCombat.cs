@@ -113,10 +113,7 @@ internal sealed class KraidCombat
         _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>
-    /// Both passes return immediately once Kraid has begun sinking.
-    /// </summary>
-    private static bool KraidSinkingSkipsProjectileCollision(KraidEnemyState state) => !state.BodyState.ShotsCollide;
+
 
     /// <summary>
     /// Resolves projectile hits on Kraid's mouth. Projectile
@@ -124,7 +121,7 @@ internal sealed class KraidCombat
     /// </summary>
     internal void ResolveKraidMouthProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
-        if (KraidSinkingSkipsProjectileCollision(state))
+        if (!state.BodyState.ShotsCollide)
             return;
 
         int mouthHits = 0;
@@ -196,7 +193,7 @@ internal sealed class KraidCombat
     /// </summary>
     internal void ResolveKraidBodyProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
-        if (KraidSinkingSkipsProjectileCollision(state))
+        if (!state.BodyState.ShotsCollide)
             return;
 
         bool chargedHit = false;

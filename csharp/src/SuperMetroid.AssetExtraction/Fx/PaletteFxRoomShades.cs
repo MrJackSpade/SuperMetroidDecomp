@@ -60,8 +60,8 @@ internal static class PaletteFxRoomShades
     /// from <paramref name="colours"/>.
     /// </summary>
     /// <param name="rooms">The rooms whose pictures are shaded, each with the state it loads.</param>
-    /// <param name="colours">The records' installed colours.</param>
-    /// <exception cref="InvalidDataException">A record has no installed colour, or writes past its group's colours.</exception>
+    /// <param name="colours">The import's palette-effect colours of the records.</param>
+    /// <exception cref="InvalidDataException">A record has no colour in the import's palette-effect colours, or writes past its group's colours.</exception>
     internal static IReadOnlyList<SheetShade> Of(IEnumerable<SelectedRoom> rooms, IPaletteFxColorSource colours)
     {
         Ensure.NotNull(rooms);
@@ -84,7 +84,7 @@ internal static class PaletteFxRoomShades
         : throw new InvalidDataException($"Palette-FX colours {group} recolour no room picture.");
 
     /// <summary>The shade of the room's <paramref name="group"/> showing <paramref name="frame"/>, coloured from <paramref name="colours"/>.</summary>
-    /// <exception cref="InvalidDataException">A colour is not installed, or the frame's record writes past its group's colours.</exception>
+    /// <exception cref="InvalidDataException">A colour is missing from the import's palette-effect colours, or the frame's record writes past its group's colours.</exception>
     private static SheetShade Shade(ColourEffectColours group, ColourEffectFrame frame, IPaletteFxColorSource colours)
     {
         int first = FirstInk(group);

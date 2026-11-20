@@ -20,10 +20,6 @@ internal class SingleMotionProjectileBehavior : EnemyProjectileMotionBehavior<Si
         Func<EnemyProjectileAnimation>? shot = null)
         : base(initial, shot) => _move = Ensure.NotNull(move);
 
-    /// <summary>Starts <paramref name="projectile"/> moving by its kind's one motion.</summary>
-    /// <param name="projectile">A projectile this behaviour is bound to.</param>
-    internal void StartMoving(EnemyProjectile projectile) => Ensure.NotNull(projectile).StartMotion(this, SingleMotion.Moving);
-
     /// <inheritdoc/>
     internal sealed override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => _move(context);
 }

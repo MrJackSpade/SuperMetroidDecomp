@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal static class EnemyProjectileOffScreenDefinitions
 {
     /// <summary>
-    /// The distance, 288 pixels below the camera's top row, at which
+    /// The distance below the camera's top row at which
     /// the vertical off-screen check deletes a projectile.
     /// </summary>
     internal const int VerticalDeletionDepth = 288;

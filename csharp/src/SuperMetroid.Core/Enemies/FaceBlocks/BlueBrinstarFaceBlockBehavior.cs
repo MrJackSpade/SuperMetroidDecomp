@@ -98,7 +98,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
 
         state.Playback = EnemyAnimationPlayback.Start(place, BlueBrinstarFaceBlockAnimations.StartingWith(Wake(samusSide)));
 
-        // Waking restarts the room's glow countdown at sixteen updates but keeps the glow's level.
+        // Waking restarts the room's glow countdown at a frame's duration but keeps the glow's level.
         RestartGlowStep();
     }
 

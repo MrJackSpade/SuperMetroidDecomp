@@ -26,25 +26,25 @@ public enum BlockAnimation
 
     /// <summary>
     /// The lava animation, spawned by the lava room effect.
-    /// Its five-frame loop animates the liquid's pictures.
+    /// Its loop animates the liquid's pictures.
     /// </summary>
     Lava,
 
     /// <summary>
     /// The acid animation, spawned by the acid room effect.
-    /// Its five-frame loop animates the liquid's pictures.
+    /// Its loop animates the liquid's pictures.
     /// </summary>
     Acid,
 
     /// <summary>
     /// The rain animation, spawned by the rain room effect.
-    /// Its five-frame loop animates the rain's pictures.
+    /// Its loop animates the rain's pictures.
     /// </summary>
     Rain,
 
     /// <summary>
     /// The spore animation, spawned by the spore room effect.
-    /// Three ten-tick frames animate the spores' pictures.
+    /// Its loop animates the spores' pictures.
     /// </summary>
     Spores,
 }

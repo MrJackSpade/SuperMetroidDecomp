@@ -39,14 +39,14 @@ public sealed class RidleyFlightState
     /// too.
     /// </summary>
     public bool HitRoomBoundary { get; internal set; }
-    /// <summary>Gets Ridley's velocity, each axis held unchanged.</summary>
+    /// <summary>Ridley's flight speed on each axis, in pixels an update.</summary>
     public PixelVelocity<RoomPixels> Velocity { get; internal set; }
     /// <summary>His wing beat: the pose his wings show and the countdown to the next, paced by his flight speed (#2329).</summary>
     public RidleyWingBeat Wings { get; }
     /// <summary>Gets the swoop's heading, which wraps around the full turn; its whole step selects the sine sample.</summary>
     public RotationAngle SwoopAngleAccumulator { get; internal set; }
     /// <summary>
-    /// Gets the swoop's speed along its heading, at most five pixels an update, moved an eighth of a pixel each update
+    /// Gets the swoop's speed along its heading, held to his fastest, moved by <see cref="RidleyFlightDefinitions.SwoopSpeedStep"/> each update
     /// toward each phase's target speed before it resolves into axis velocities.
     /// </summary>
     public SignedEightEight SwoopSpeed { get; internal set; }

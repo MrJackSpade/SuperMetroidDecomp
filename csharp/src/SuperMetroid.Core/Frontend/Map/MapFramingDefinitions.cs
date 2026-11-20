@@ -7,15 +7,15 @@ namespace SuperMetroid.Core.Frontend.Map;
 public static class MapFramingDefinitions
 {
     /// <summary>
-    /// File select's room map: the revealed rows centred on line 112, and the up arrow's limit 40 pixels down the screen,
-    /// where the pause screen's is 56.
+    /// File select's room map: the revealed rows centred higher on the screen than the pause screen's, and the up arrow's
+    /// limit nearer the screen's top.
     /// </summary>
     public static MapFraming FileSelect { get; } =
         new(CentreLine: 112, LeftEdge: 24, RightEdge: 232, TopEdge: 40, BottomEdge: 145, ArrowDrop: 0);
 
     /// <summary>
-    /// The pause screen's map page: the revealed rows centred on line 128, the arrows' limits inside its frame, and the
-    /// arrows drawn 24 pixels below file select's.
+    /// The pause screen's map page: the revealed rows centred on the screen, the arrows' limits inside its frame, and the
+    /// arrows drawn below file select's.
     /// </summary>
     public static MapFraming Pause { get; } =
         new(CentreLine: 128, LeftEdge: 24, RightEdge: 232, TopEdge: 56, BottomEdge: 177, ArrowDrop: 24);

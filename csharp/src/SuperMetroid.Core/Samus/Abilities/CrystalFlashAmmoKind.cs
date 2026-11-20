@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// The ammunition Crystal Flash is currently converting into energy. The drain empties ten of each kind in this
-/// order, missiles first and power bombs last, and finishes after the tenth power bomb.
+/// The ammunition Crystal Flash is currently converting into energy. The drain empties its share of each kind
+/// (<see cref="CrystalFlashDefinitions.AmmunitionPerKind"/>) in this order, missiles first and power bombs last, and finishes after the last power bomb.
 /// </summary>
 public enum CrystalFlashAmmoKind
 {
-    /// <summary>Ten missiles are consumed first.</summary>
+    /// <summary>Missiles are consumed first.</summary>
     Missiles,
 
-    /// <summary>Ten super missiles follow the missiles.</summary>
+    /// <summary>Super missiles follow the missiles.</summary>
     SuperMissiles,
 
-    /// <summary>Ten power bombs are consumed last; their tenth decrement ends the drain.</summary>
+    /// <summary>Power bombs are consumed last; the last of them ends the drain.</summary>
     PowerBombs,
 }

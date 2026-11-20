@@ -236,8 +236,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Accelerates the beam's angular half-width by a quarter step per update until its whole steps reach four;
-    /// that update sets the whole steps to four, keeping the fraction, and the beam is full.
+    /// Accelerates the beam's angular half-width by <see cref="MorphBallEyeBeamDefinitions.WidthGrowthStep"/> each update until its whole steps reach
+    /// <see cref="MorphBallEyeBeamDefinitions.FullHalfWidth"/>; that update sets the whole steps to it, keeping the fraction, and the beam is full.
     /// </summary>
     private void WidenMorphBallEyeBeam()
     {

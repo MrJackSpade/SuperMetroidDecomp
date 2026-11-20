@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 public static class RidleyShadeDefinitions
 {
-    /// <summary>The black-to-visible body shades, one shown every two updates of his body fade.</summary>
+    /// <summary>The black-to-visible body shades, each shown for <see cref="BodyFadeShadeUpdates"/> of his body fade.</summary>
     public const int BodyFadeShadeCount = 16;
 
     /// <summary>

@@ -22,8 +22,8 @@ internal static class CeresFlightActorDefinitions
     /// pixels an update toward the top-left.
     /// </summary>
     /// <remarks>
-    /// The opening stars and the rear view's stars share this star animation: the star picture for ten updates, again and
-    /// again while its scene keeps the actor. Which stars they are changes their motion, not their animation.
+    /// The opening stars and the rear view's stars share this star animation: the stars hold their one picture while
+    /// their scene keeps the actor. Which stars they are changes their motion, not their animation.
     /// </remarks>
     public static CeresFlightActorDefinition FrontStars => new(
         Animation: CeresAnimation.Stars,

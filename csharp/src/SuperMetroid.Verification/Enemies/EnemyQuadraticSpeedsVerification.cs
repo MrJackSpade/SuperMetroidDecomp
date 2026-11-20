@@ -117,7 +117,7 @@ internal static class EnemyQuadraticSpeedsVerification
         foreach (VerticalDirection direction in directions)
         {
             int speed = EnemySpeedTableCodec.QuadraticSpeedToward(cartridge, EnemySpeedTableCodec.QuadraticTable, row, direction).RawValue;
-            maw.Extension = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawCurl>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { (global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)(SixteenSixteenWords.ToDisplacement(unchecked((int)start))) });
+            maw.Extension = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawCurl>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { SixteenSixteenWords.ToDisplacement(unchecked((int)start)) });
             maw.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
             maw.CurlPhase = direction == VerticalDirection.Up ? YappingMawCurlPhase.Retracting : YappingMawCurlPhase.Extending;
             mawAdditions++;

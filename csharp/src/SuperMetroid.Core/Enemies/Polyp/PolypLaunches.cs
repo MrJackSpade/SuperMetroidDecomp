@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 internal static class PolypLaunches
 {
     /// <summary>
-    /// The place along the quadratic speed curve a rock's rise starts at,
-    /// selects one of marks 28 through 43.
+    /// The place along the quadratic speed curve a rock's rise starts at: <see cref="PolypLaunchDefinitions.FirstLaunchPlace"/>
+    /// on by what <see cref="PolypLaunchDefinitions.LaunchSelector"/> selects.
     /// </summary>
     internal static QuadraticSpeedCurvePlace LaunchPlace(int random) =>
         FirstLaunchPlace + QuadraticSpeedCurvePlace.FromMarks(LaunchSelector.Of(random));

@@ -57,7 +57,7 @@ public sealed class MaridiaElevatubeRoomMainState
     }
 
     /// <summary>
-    /// Runs the elevatube once: hold Samus at X 128, move both the tracked height and Samus by the velocity, Samus
+    /// Runs the elevatube once: hold Samus at the tube's centre (<see cref="MaridiaElevatubeDefinitions.SamusCenterX"/>), move both the tracked height and Samus by the velocity, Samus
     /// through her ordinary vertical collision check, then add the acceleration to the velocity unless that passes the
     /// maximum speed.
     /// </summary>

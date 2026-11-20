@@ -9,11 +9,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainRoomFxDefinitions
 {
     /// <summary>
-    /// Her room's acid rises from Y 232 to Y 184 after a short delay: requested by her body's initialization and applied
+    /// Her room's acid rises from its low level to its high one after a short delay: requested by her body's initialization and applied
     /// as the room finishes loading.
     /// </summary>
     internal static RoomEffectDefinition AcidRises => RoomFxDefinitions.MotherBrainAcidRises;
 
-    /// <summary>Her room's acid drains from Y 184 back down to Y 232: requested when her fake death starts the room flash.</summary>
+    /// <summary>Her room's acid drains from its high level back down to its low one: requested when her fake death starts the room flash.</summary>
     internal static RoomEffectDefinition AcidDrains => RoomFxDefinitions.MotherBrainAcidDrains;
 }

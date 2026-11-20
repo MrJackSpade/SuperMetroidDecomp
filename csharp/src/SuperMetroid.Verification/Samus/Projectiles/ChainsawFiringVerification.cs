@@ -52,11 +52,11 @@ internal static class ChainsawFiringVerification
         samus.SelectedHudItem = HudItem.Beam;
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
-        projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+        SoundRequest? firingSound = projectiles.StepFrameFiringSound(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
 
         // A missing shot also leaves an empty slot, so checking deletion alone would
         // incorrectly pass the existing silent >=12 rejection in HandleBeamInput.
-        AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
+        AssertTrue(firingSound is not null,
             "native Chainsaw admits and allocates the shot");
         AssertEqual(0, projectiles.Pool.ShotCount.Count, "inactive Power Bomb deletes Chainsaw on first update");
         AssertEqual(0, projectiles.Shots[0].InstructionPointer, "deleted Chainsaw has no animation list");

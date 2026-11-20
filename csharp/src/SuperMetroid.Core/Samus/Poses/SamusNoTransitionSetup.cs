@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Samus.Movement;
-
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>

@@ -49,7 +49,7 @@ internal static class DemoInputProgramsVerification
                 string at = $"demo {id} input {index} at $91:{cursor:X4}";
                 if (loop is { } authored && cursor == authored.Entry)
                     AssertEqual(authored.FirstRecord, index, $"{at}: the recording runs on into its loop's list at the loop's first input");
-                AssertEqual(cursor, DemoInputNativeListAddresses.Address(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Input.DemoPlaybackPosition>([typeof(global::SuperMetroid.Core.Input.DemoInputRecordingId), typeof(int)], new object?[] { (global::SuperMetroid.Core.Input.DemoInputRecordingId)(id), (int)(index) })), $"{at}: native address");
+                AssertEqual(cursor, DemoInputNativeListAddresses.Address(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Input.DemoPlaybackPosition>([typeof(global::SuperMetroid.Core.Input.DemoInputRecordingId), typeof(int)], new object?[] { id, index })), $"{at}: native address");
                 ushort word = Word(cursor);
                 if (word < DemoInputListWords.RoutineWord)
                 {

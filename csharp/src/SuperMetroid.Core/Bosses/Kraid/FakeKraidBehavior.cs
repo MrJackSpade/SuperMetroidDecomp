@@ -25,7 +25,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Runs common Samus contact damage before Fake Kraid's specialized death.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Spawns Fake Kraid's death explosion and the four-pickup scatter after lethal hits.</summary>
+    /// <summary>Spawns Fake Kraid's death explosion and the pickup scatter after lethal hits.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Receives Fake Kraid's cry and spike-launch sounds.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -53,7 +53,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 SpawnFakeKraidSpitPair(occupant, place, spit.Direction);
                 return null;
             case FakeKraidCue.Move:
-                // Walk cue: advance one four-pixel step unless its random reversal
+                // Walk cue: advance one step unless its random reversal
                 // clock expires, then turn to face Samus.
                 ProcessFakeKraidWalkAnimation(place, place.RequireSpeciesState<FakeKraidEnemyState>(), samus, level);
                 return null;
@@ -144,8 +144,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.SpitWait.Step();
 
-        // On the walk's last step he turns round without moving, and starts his next walk. Otherwise he attempts the
-        // four-pixel step and turns round only if it meets a wall.
+        // On the walk's last step he turns round without moving, and starts his next walk. Otherwise he attempts a
+        // step and turns round only if it meets a wall.
         bool reverse = state.WalkTurnWait.StepRunsOut();
         if (reverse)
         {
@@ -255,7 +255,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The fall speed stops at four pixels an update: a spit falling within one step of it is set to it.
+        // The fall speed stops at the spit's fastest fall: a spit falling within one step of it is set to it.
         SignedEightEight oldVelocity = projectile.Velocity.Y;
         SignedEightEight nextVelocity = oldVelocity + FakeKraidProjectileDefinitions.SpitGravity;
         if (!nextVelocity.IsNegative && oldVelocity >= FakeKraidProjectileDefinitions.SpitMaximumFallSpeed - FakeKraidProjectileDefinitions.SpitGravity)
@@ -279,7 +279,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Fake Kraid's shared death reaction: the enemy's death spawns death
     /// explosion and clears the place, then the death drop
-    /// scatters four pickups from where the enemy stood before the shot struck.
+    /// scatters its pickups from where the enemy stood before the shot struck.
     /// The explosion therefore takes the first free projectile place.
     /// </summary>
     private void KillFakeKraid(RoomEnemyOccupant fakeKraid, SamusState samus)
@@ -290,7 +290,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         SpawnFakeKraidDeathDrops(origin, samus);
     }
 
-    /// <summary>Scatters four Fake Kraid pickups around the position saved before death clears its place.</summary>
+    /// <summary>Scatters Fake Kraid's death pickups (<see cref="FakeKraidProjectileDefinitions.DeathDropCount"/>) around the position saved before death clears its place.</summary>
     private void SpawnFakeKraidDeathDrops(Position16<RoomPixels> origin, SamusState samus)
     {
         _deathsAndDrops.SpawnEnemyDropScatterAround(
@@ -300,13 +300,13 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             samus);
     }
 
-    /// <summary>Replaces generic bomb death with Fake Kraid's death explosion and four-drop sequence.</summary>
+    /// <summary>Replaces generic bomb death with Fake Kraid's death explosion and drop sequence.</summary>
     internal EnemyBombReaction FakeKraidBombReaction => field ??= new()
     {
         // Fake Kraid keeps where it stood before the common damage, then dies in its own explosion and scatters its
         // drops there. It never dies the generic death, whatever reaction a hitbox selects.
         RunsGenericDeath = false,
-        // Fake Kraid's shot reaction runs the common damage without the hit burst.
+        // The bomb's common damage shows no hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
         AfterCommon = c =>
         {
@@ -334,11 +334,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         };
 
         /// <summary>The spit flying through the room's blocks, then falling under capped gravity.</summary>
-        internal EnemyProjectileOwnedMotion SpitFlying { get; } = new(nameof(SpitFlying),
+        private EnemyProjectileOwnedMotion SpitFlying { get; } = new(nameof(SpitFlying),
             context => FlyFakeKraidSpit(context.Projectile, context.Level));
 
         /// <summary>A spike flying along its heading until it strikes a wall.</summary>
-        internal EnemyProjectileOwnedMotion SpikeFlying { get; } = new(nameof(SpikeFlying),
+        private EnemyProjectileOwnedMotion SpikeFlying { get; } = new(nameof(SpikeFlying),
             context => FlyFakeKraidSpike(context.Projectile, context.Level));
 
         /// <inheritdoc/>
@@ -372,10 +372,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? new AnimationContinuation<FakeKraidSegment>(FakeKraidAnimations.StartingWith(action), AnimationPlace.StartOfAnimation)
                 : null);
 
-    /// <summary>Spawns Fake Kraid's own explosion and four drops after a lethal power bomb.</summary>
+    /// <summary>Spawns Fake Kraid's own explosion and drops after a lethal power bomb.</summary>
     internal EnemyPowerBombReaction FakeKraidPowerBombReaction => field ??= new()
     {
-        // Fake Kraid's private power-bomb reaction still owns its four direct pickup explosions, spawned after its
+        // Fake Kraid's private power-bomb reaction still owns its direct pickup explosions, spawned after its
         // death explosion.
         ReplacesGenericDeath = c => KillFakeKraid(c.Occupant, c.Samus),
     };

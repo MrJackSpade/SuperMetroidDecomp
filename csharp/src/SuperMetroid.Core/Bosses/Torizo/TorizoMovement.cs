@@ -21,7 +21,7 @@ internal sealed class TorizoMovement
     /// <summary>The medium up-and-down foreground shake a landing statue starts.</summary>
     private static readonly EarthquakeShake LandingShake =
         new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
-    /// <summary>Bomb and Golden Torizo's body: its behaviour flags, colours, animation start and the low-health drool it triggers.</summary>
+    /// <summary>Bomb and Golden Torizo's body, which shows the Torizo's colouring and drips its low-health drool.</summary>
     private readonly TorizoBody _body;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -84,7 +84,7 @@ internal sealed class TorizoMovement
         _body.MaybeSpawnLowHealthDrool(occupant, torizo);
 
         // Until its gut and face are blown up, which its death also does, health thresholds interrupt the current
-        // authored animation with the core/head bursts.
+        // authored animation with the gut's and the face's blow-ups.
         if (!state.GutBlownUp &&
             torizo.Health < TorizoDecisionDefinitions.GutBlowUpHealth)
         {

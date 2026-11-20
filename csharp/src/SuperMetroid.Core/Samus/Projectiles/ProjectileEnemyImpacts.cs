@@ -119,7 +119,7 @@ internal sealed class ProjectileEnemyImpacts
         {
             shot.Install(!held.Type.BeamCombination.HasWave
                 ? SamusShotBehaviors.Beam
-                : SamusShotBehaviors.WaveBeamFourUpdateTrail, kindState: null);
+                : SamusShotBehaviors.WaveBeamTrail, kindState: null);
         }
     }
 

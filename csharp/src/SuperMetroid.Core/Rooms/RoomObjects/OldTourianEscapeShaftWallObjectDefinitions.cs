@@ -30,6 +30,6 @@ internal static class OldTourianEscapeShaftWallObjectDefinitions
         new(new(1, 0), RoomCollisionType.Air), new(new(1, 1), RoomCollisionType.Air), new(new(1, 2), RoomCollisionType.Air),
     ]);
 
-    /// <summary>The point Samus passes, right of X 240 and below Y 2080, to blow the wall open.</summary>
+    /// <summary>The point Samus passes, going right and down, to blow the wall open.</summary>
     internal static SamusTriggerPoint WakePoint { get; } = new(new Position16<RoomPixels>(240, 2080));
 }

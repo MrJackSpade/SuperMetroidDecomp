@@ -145,7 +145,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case RioAction.HoveringTowardSamus:
                 // Once Rio reaches Samus's height from above, it takes back its saved sideways dive speed and starts
-                // its climb back to its perch at a 256th of a pixel an update.
+                // its climb back to its perch at its return speed.
                 if (place.Position.Y.Whole >= samus.Position.Y.Whole)
                 {
                     state.Velocity = new PixelVelocity<RoomPixels>(

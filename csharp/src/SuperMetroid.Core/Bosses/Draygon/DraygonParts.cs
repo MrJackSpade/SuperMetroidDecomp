@@ -11,7 +11,7 @@ using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
+/// <summary>Draygon's four parts, his body, eye, tail and arms: their setup, animations and cues.</summary>
 [RoomLifetime]
 internal sealed class DraygonParts
 {
@@ -54,7 +54,6 @@ internal sealed class DraygonParts
     /// </summary>
     internal void InitializeDraygonBody(RoomEnemyPlace body)
     {
-        // His opening's colours are the import's shade of them, which his sprites draw in (#1512).
 
         body.AnimationClock.StepOnNextUpdate();
 
@@ -231,13 +230,13 @@ internal sealed class DraygonParts
     internal void RequestDraygonMusic(MusicRequest request) =>
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
-    /// <summary>Runs the eye direction partition.</summary>
+    /// <summary>The eye breathes its bubble and turns its look toward Samus.</summary>
     private void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)
     {
         RoomEnemyPlace eye = state.Eye;
         // The eye breathes its bubble on its cadence whether or not its gaze turns,
         // as one of the room's dust and explosion effects.
-        if (DraygonCadenceDefinitions.EyeBreathBubbleEvery128thUpdate.IsDue(eye.FrameCounter))
+        if (DraygonCadenceDefinitions.EyeBreathBubble.IsDue(eye.FrameCounter))
             _projectiles.SpawnDustOrExplosion(
                 new(OffRoomPlaces.Place(eye.Position.X.Whole + (DraygonEyeEffects.HorizontalOffset.Toward(facing))), OffRoomPlaces.Place(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
                 DraygonEyeEffects.DustVariant);
@@ -292,7 +291,7 @@ internal sealed class DraygonParts
         state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
         SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
 
-        // The tail hit also shakes the foreground strongly for 32 updates, so the camera shows the hit as well as the
+        // The tail hit also shakes the foreground strongly for its shake's updates, so the camera shows the hit as well as the
         // energy it costs.
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), DraygonArenaDefinitions.TailHitShakeUpdates);
 

@@ -254,7 +254,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemyPlace mama = turtle.Place;
         ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
-        if (!MamaTurtleCadenceDefinitions.LeavingShellStepEverySecondUpdate.IsDue(frameCycle))
+        if (!MamaTurtleCadenceDefinitions.LeavingShellStep.IsDue(frameCycle))
             return;
 
         if (EnemyCollision.IsSamusStandingOn(mama, samus))
@@ -295,7 +295,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = MamaTurtleAction.Idle;
     }
 
-    /// <summary>Runs the 16-frame upward transition.</summary>
+    /// <summary>Runs the upward transition (<see cref="MamaTurtleMotionDefinitions.RiseToHoverDuration"/>).</summary>
     private void RunMamaTurtleRisingToHover(
         RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
@@ -316,7 +316,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.ActionTimer.StepEnds())
             return;
 
-        // She hovers off from rest toward Samus's side, speeding up a sixteenth of a pixel each update.
+        // She hovers off from rest toward Samus's side, speeding up by her hover acceleration each update.
         state.XAcceleration = MamaTurtleMotionDefinitions.HoverAcceleration.Toward(
             mama.Position.X.Whole < samus.Position.X.Whole ? HorizontalDirection.Right : HorizontalDirection.Left);
         state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.Zero);
@@ -391,7 +391,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.XAcceleration = MamaTurtleWallReversal.ReversedAcceleration(state.XAcceleration, velocity);
     }
 
-    /// <summary>Runs the rider-powered seven-pixel ascent.</summary>
+    /// <summary>Runs the rider-powered ascent (<see cref="MamaTurtleMotionDefinitions.RiddenAscentSpeed"/>).</summary>
     private void RunMamaTurtleRisingToPeak(
         RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
@@ -446,7 +446,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // The cap compares Mama's own fall speed.
         if (state.Velocity.Y < MamaTurtleMotionDefinitions.FastestFall)
         {
-            // The one-eighth-pixel fraction step carries into the whole pixels.
+            // The fall acceleration's fraction step carries into the whole pixels.
             state.Velocity = state.Velocity.WithY(
                 state.Velocity.Y + MamaTurtleMotionDefinitions.FallAcceleration);
         }
@@ -598,7 +598,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Animation cue: turn around at 48 pixels from spawn.</summary>
+    /// <summary>Animation cue: turn around at the baby's travel distance from spawn.</summary>
     private static BabyTurtleSegment SelectBabyTurtleCrawlLoop(
         RoomEnemyPlace baby,
         BabyTurtleEnemyState state)

@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// One 16x16 cell of a room's background image whose picture changes with appearance inputs (#1392, #1466): while every
+/// One block-sized cell of a room's background image whose picture changes with appearance inputs (#1392, #1466): while every
 /// input shows the room's load the image shows the cell, otherwise the block sheet's picture of the cell for their values.
 /// </summary>
 /// <param name="Cell">The cell, counted row by row across the image's picture.</param>

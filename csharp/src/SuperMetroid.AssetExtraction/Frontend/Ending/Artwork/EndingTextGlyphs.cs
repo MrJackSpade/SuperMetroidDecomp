@@ -9,9 +9,12 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// </summary>
 public static class EndingTextGlyphs
 {
-    /// <summary>Font3's small alphabet occupies tiles00..19. Large tops occupy20..2F
-    /// and40..49 with bottoms16 tiles later; copyright digits occupy60..69/70..79.
-    /// Native8C ending text records supply each style's attributes and blank identity.</summary>
+    /// <summary>Encodes one character in a text style. The small result letters start at
+    /// <see cref="EndingTextDefinitions.ResultLetterBase"/>; the large letters' tops start at
+    /// <see cref="EndingTextDefinitions.LargeFirstGroupTopBase"/> and <see cref="EndingTextDefinitions.LargeSecondGroupTopBase"/>
+    /// and the copyright digits' tops at <see cref="EndingTextDefinitions.CopyrightDigitTopBase"/>, each bottom
+    /// <see cref="EndingTextDefinitions.LargeBottomOffset"/> tiles after its top. Each style's blank tile, colour variant
+    /// and priority come from <see cref="EndingTextDefinitions"/>.</summary>
     /// <param name="character">The supported character to encode.</param>
     /// <param name="style">The destination text style.</param>
     /// <param name="bottom">Whether to encode the bottom half of a large glyph.</param>

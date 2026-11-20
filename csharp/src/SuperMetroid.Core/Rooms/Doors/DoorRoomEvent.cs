@@ -4,8 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// What a door's setup starts in the room it leads into besides changing its screens (#1721): a behaviour object that
 /// runs its own work at each point of the room's load it acts at (#2485). It composes what the room shows from its first
 /// frame before the room's graphics and actors initialize (<see cref="Compose"/>), and changes the room once its own room
-/// objects are placed, before its enemies load (<see cref="Run"/>). <see cref="None"/> does nothing. It replaces the
-/// room-event enumeration every owner switched over or tested.
+/// objects are placed, before its enemies load (<see cref="Run"/>). <see cref="None"/> does nothing.
 /// </summary>
 public abstract class DoorRoomEvent
 {
@@ -104,7 +103,7 @@ public abstract class DoorRoomEvent
     {
         /// <inheritdoc/>
         /// <remarks>
-        /// The setup ignores whether the tube's room object found a free place: with all forty held, Samus is still placed
+        /// The setup ignores whether the tube's room object found a free place: with every place held, Samus is still placed
         /// for the ride and the elevatube does not appear.
         /// </remarks>
         internal override void Run(IDoorEventRoom room)

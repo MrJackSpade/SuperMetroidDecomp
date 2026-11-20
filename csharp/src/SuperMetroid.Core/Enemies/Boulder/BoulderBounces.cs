@@ -7,7 +7,7 @@ public static class BoulderBounces
     public static int ImpactCount => BoulderBounceDefinitions.ImpactRestarts.Length;
 
     /// <summary>The curve place the impact after <paramref name="impactsSoFar"/> earlier ones restarts the bounce from.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="impactsSoFar"/> is outside zero through two.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="impactsSoFar"/> is negative or not below <see cref="ImpactCount"/>.</exception>
     public static QuadraticSpeedCurvePlace RestartPlace(int impactsSoFar) =>
         impactsSoFar >= 0 && impactsSoFar < BoulderBounceDefinitions.ImpactRestarts.Length
             ? BoulderBounceDefinitions.ImpactRestarts[impactsSoFar]

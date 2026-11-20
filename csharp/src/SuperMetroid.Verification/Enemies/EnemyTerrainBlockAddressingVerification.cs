@@ -183,7 +183,7 @@ internal static class EnemyTerrainBlockAddressingVerification
             foreach (int column in columns)
             foreach (Axis edge in new[] { Axis.Horizontal, Axis.Vertical })
             {
-                var scan = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBlockScan>([typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>), typeof(global::SuperMetroid.Core.Spatial.Axis), typeof(int)], new object?[] { (global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>)(Position16<RoomBlocks>.Of(column, row)), (global::SuperMetroid.Core.Spatial.Axis)(edge), (int)(0) });
+                var scan = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBlockScan>([typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>), typeof(global::SuperMetroid.Core.Spatial.Axis), typeof(int)], new object?[] { Position16<RoomBlocks>.Of(column, row), edge, 0 });
                 int first = (row & 0xff) * width + column;
                 foreach (int step in steps)
                 {
@@ -209,8 +209,8 @@ internal static class EnemyTerrainBlockAddressingVerification
                 int startLine = ((spanStart + shift) & 0xffff) >> 4;
                 int extraBlocks = (((spanEnd + shift) & 0xffff) - (((spanStart + shift) & 0xffff) & 0xfff0) & 0xffff) >> 4;
                 var first = edge == Axis.Vertical ? Position16<RoomBlocks>.Of(startLine, edgeLine) : Position16<RoomBlocks>.Of(edgeLine, startLine);
-                if (scan != global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBlockScan>([typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>), typeof(global::SuperMetroid.Core.Spatial.Axis), typeof(int)], new object?[] { (global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>)(first), (global::SuperMetroid.Core.Spatial.Axis)(edge), (int)(extraBlocks) }))
-                    AssertEqual(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBlockScan>([typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>), typeof(global::SuperMetroid.Core.Spatial.Axis), typeof(int)], new object?[] { (global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>)(first), (global::SuperMetroid.Core.Spatial.Axis)(edge), (int)(extraBlocks) }), scan,
+                if (scan != global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBlockScan>([typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>), typeof(global::SuperMetroid.Core.Spatial.Axis), typeof(int)], new object?[] { first, edge, extraBlocks }))
+                    AssertEqual(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBlockScan>([typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>), typeof(global::SuperMetroid.Core.Spatial.Axis), typeof(int)], new object?[] { first, edge, extraBlocks }), scan,
                         $"the {edge} scan across edge pixel {edgePixel} over pixels {spanStart + shift}..{spanEnd + shift}");
             }
         }

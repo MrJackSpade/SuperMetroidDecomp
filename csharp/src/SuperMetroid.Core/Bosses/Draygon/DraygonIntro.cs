@@ -57,7 +57,7 @@ internal sealed class DraygonIntro
         state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
     }
 
-    /// <summary>Runs the 1,232-frame Evir dance.</summary>
+    /// <summary>Runs the Evir dance (<see cref="DraygonIntroDanceDefinitions.DurationFrames"/>).</summary>
     internal void RunDraygonIntroDance(
         DraygonEnemyState state,
         SamusState samus,

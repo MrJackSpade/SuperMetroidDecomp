@@ -4,7 +4,7 @@ using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="RuntimeArtwork"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[ArchitectureReview("wide-dependencies", "Ten members are the immutable installed artwork catalogs the runtime binds once at construction (#2049), data rather than collaborators; the runtime-layer GameplayArtwork that groups them sits above World, so World cannot take it without a module cycle.")]
+[ArchitectureReview("wide-dependencies", "Its members beside its collaborators are the immutable installed artwork catalogs the runtime binds once at construction (#2049), data rather than collaborators; the runtime-layer GameplayArtwork that groups them sits above World, so World cannot take it without a module cycle.")]
 internal sealed record RuntimeArtworkDependencies
 {
     /// <summary>The installed screen content the runtime is built over (#2049, #2203).</summary>

@@ -76,8 +76,8 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>
-    /// Runs the death explosions. An authored-position small explosion appears every five updates while the
-    /// acid lowers. When its countdown runs out, Samus is released and Ridley's twelve
+    /// Runs the death explosions. An authored-position small explosion appears at the death's explosion interval while the
+    /// acid lowers. When its countdown runs out, Samus is released and Ridley's
     /// independently moving body and tail pieces take places in the room's enemy list.
     /// </summary>
     internal void TickNorfairRidleyDeathExplosions(
@@ -137,7 +137,7 @@ internal sealed class NorfairRidleyDeath
 
         _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
 
-        // The death drops scatter their pickups through Ridley's authored 128x64 arena
+        // The death drops scatter their pickups through Ridley's authored arena
         // rectangle. The body is deleted immediately afterward, so the drop actors must
         // retain Ridley's definition themselves.
         _deathsAndDrops.SpawnEnemyDropScatter(

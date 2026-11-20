@@ -64,7 +64,7 @@ internal static class CeresDestructionSceneDefinitions
         internal const MusicTrack CeresTrack = MusicTrack.CeresExplosion;
         /// <summary>The station's destruction track when Samus is still aboard.</summary>
         internal const MusicTrack CeresWithSamusTrack = MusicTrack.CeresExplosionWithSamusAboard;
-        /// <summary>How long the destruction track waits on the music queue: fourteen passes.</summary>
+        /// <summary>How long the destruction track waits on the music queue, in passes.</summary>
         internal static MusicQueueDelay QueueDelay { get; } = new(14);
     }
 
@@ -75,11 +75,11 @@ internal static class CeresDestructionSceneDefinitions
         internal const int ExplosionHoldFrames = 192;
         /// <summary>Updates the completed Zebes approach stays shown.</summary>
         internal const int ZebesHoldFrames = 64;
-        /// <summary>Updates each step of the cinematic's slow fades takes: one level every second update.</summary>
+        /// <summary>Updates each step of the cinematic's slow fades takes.</summary>
         internal const int FadeUpdatesPerStep = 2;
         /// <summary>
-        /// Updates the screen's first fade, from black, waits before each step, the first included: one, a level every
-        /// second update, as <see cref="FadeUpdatesPerStep"/> paces the later fades.
+        /// Updates the screen's first fade, from black, waits before each step, the first included, a level at each step, as
+        /// <see cref="FadeUpdatesPerStep"/> paces the later fades.
         /// </summary>
         internal const int FirstFadeWaitBeforeEachStep = 1;
     }

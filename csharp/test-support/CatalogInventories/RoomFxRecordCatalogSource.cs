@@ -274,7 +274,8 @@ internal static class RoomFxRecordCatalogSource
         string surface = $", the liquid level starting at line {start.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
         if (effect.LiquidTargetLevel is not int target)
             return surface;
-        return surface + (effect.LiquidLevelSpeed.IsNegative ? " and rising to line " : " and falling to line ") +
+        // Levels are lines from the room's top, so a target above the start is a rise.
+        return surface + (target < start ? " and rising to line " : target > start ? " and falling to line " : " and holding at line ") +
             target.ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 

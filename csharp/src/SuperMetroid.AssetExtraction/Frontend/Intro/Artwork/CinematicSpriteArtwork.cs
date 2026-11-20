@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// <summary>Content identity shared by the cinematic sprite presentations, whose compositions are keyed by pose.</summary>
 internal static class CinematicSpriteArtwork
 {
-    /// <summary>Frame lookup order is irrelevant; ordered parts remain significant for OAM drawing.</summary>
+    /// <summary>The content identity of the family's compositions, hashed in a fixed pose order; each composition's ordered parts are part of it.</summary>
     internal static string ContentIdentity(string domain, IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> frames) =>
         SelectedPresentationHash.Create(domain, content =>
         {

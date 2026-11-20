@@ -41,7 +41,7 @@ internal sealed class TourianObjects
     }
 
     /// <summary>
-    /// Runs the room setup that spawns the fake wall at block (16,135), whose setup clears the block's collision before
+    /// Runs the room setup that spawns the fake wall at its block (<see cref="OldTourianEscapeShaftWallObjectDefinitions"/>), whose setup clears the block's collision before
     /// the wall's first update.
     /// </summary>
     public void SpawnOldTourianEscapeShaftWall(RoomLevelData level)
@@ -57,7 +57,7 @@ internal sealed class TourianObjects
         place.Become(new OldTourianWallObject(_samus, _enemies));
     }
     /// <summary>
-    /// Runs the room setup that spawns the acid trigger at block (16,16), whose setup leaves a solid block solid and makes
+    /// Runs the room setup that spawns the acid trigger at its block (<see cref="EscapeAcidRiseObjectDefinitions"/>), whose setup leaves a solid block solid and makes
     /// any other block air, as the fake wall's does.
     /// </summary>
     public void SpawnEscapeAcidRise(RoomLevelData level)

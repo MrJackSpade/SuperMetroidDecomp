@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Map.Artwork;
 /// </summary>
 public sealed class AreaMapPresentationAsset : IAreaMapView
 {
-    /// <summary>Validated cells, row by row from the map's top left, 64 to a row.</summary>
+    /// <summary>Validated cells, row by row from the map's top left, <see cref="AreaMapSize.WidthInMapTiles"/> to a row.</summary>
     private readonly MapCell[] cells;
     /// <summary>Snapshot of stock discoverability rules, unaffected by visual tile edits.</summary>
     private readonly bool[] discoverable;
@@ -20,7 +20,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
     public AreaId Area { get; }
 
     /// <summary>Pairs copied cells with a complete independent snapshot of gameplay map rules.</summary>
-    /// <param name="cells">Every cell of the area in logical 64-column row order.</param>
+    /// <param name="cells">Every cell of the area in logical row order.</param>
     /// <param name="rules">The exploration rules the cells are shown under.</param>
     /// <exception cref="ArgumentException">There is not one cell for each of the area map's cells.</exception>
     internal AreaMapPresentationAsset(MapCell[] cells, IAreaMapView rules)
@@ -44,13 +44,13 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         }
     }
 
-    /// <summary>How the cell at logical map coordinates X 0–63, Y 0–31 looks.</summary>
+    /// <summary>How the cell at logical map coordinates within the area map looks.</summary>
     public MapCell Cell(Position16<MapTiles> cell) => cells[Index(cell)];
-    /// <summary>Gets the supplied rule snapshot for whether logical cell (X 0–63, Y 0–31) can be discovered, independent of the cell's edited or blank artwork.</summary>
+    /// <summary>Gets the supplied rule snapshot for whether a logical cell within the area map can be discovered, independent of the cell's edited or blank artwork.</summary>
     public bool IsDiscoverable(Position16<MapTiles> cell) => discoverable[Index(cell)];
-    /// <summary>Gets the supplied rule snapshot for whether downloading this area's map reveals logical cell (X 0–63, Y 0–31); asking marks nothing explored.</summary>
+    /// <summary>Gets the supplied rule snapshot for whether downloading this area's map reveals a logical cell within the area map; asking marks nothing explored.</summary>
     public bool IsRevealedByMapStation(Position16<MapTiles> cell) => station[Index(cell)];
-    /// <summary>Gets the supplied slope-rule snapshot for whether visiting logical cell (X 0–63, Y 0–31) also explores the cell above; replacing its artwork does not change this rule.</summary>
+    /// <summary>Gets the supplied slope-rule snapshot for whether visiting a logical cell within the area map also explores the cell above; replacing its artwork does not change this rule.</summary>
     public bool RevealsCellAbove(Position16<MapTiles> cell) => revealsAbove[Index(cell)];
 
     /// <summary>Validates the logical coordinate, then indexes the row-major arrays.</summary>

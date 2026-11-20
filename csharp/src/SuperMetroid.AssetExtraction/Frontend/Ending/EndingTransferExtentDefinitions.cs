@@ -9,8 +9,8 @@ internal static class EndingTransferExtentDefinitions
     /// <summary>The bytes of each explosion tilemap fragment and of the post-credits transformation tilemap.</summary>
     internal const int ObjectFragmentBytes = 2048;
 
-    /// <summary>The bytes the ending font must cover before its upload.</summary>
-    internal const int ObjectFragmentLimit = 4096;
+    /// <summary>The bytes of the ending font's characters its upload copies.</summary>
+    internal const int EndingFontUploadBytes = 4096;
 
     /// <summary>The bytes of the ending font's characters the credits show.</summary>
     internal const int FontCharacterBytes = 4096;

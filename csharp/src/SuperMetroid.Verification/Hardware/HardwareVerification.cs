@@ -271,11 +271,11 @@ internal static void VerifyEscapeTimerStateMachine()
 
     var borrowSecond = CreateRunningTimer(EscapeTimerClock.Time(0, 1, 0));
     AssertTrue(!borrowSecond.Process(1, holdAtOneSecond: false), "00:01.00 remains nonzero after a step");
-    AssertEqual(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Escape.EscapeTimeReadout>([typeof(int), typeof(int), typeof(int)], new object?[] { (int)(0), (int)(0), (int)(98) }), borrowSecond.Readout, "a two-centisecond step from one second shows 00:00.98");
+    AssertEqual(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Escape.EscapeTimeReadout>([typeof(int), typeof(int), typeof(int)], new object?[] { 0, 0, 98 }), borrowSecond.Readout, "a two-centisecond step from one second shows 00:00.98");
 
     var borrowMinute = CreateRunningTimer(EscapeTimerClock.Time(1, 0, 0));
     AssertTrue(!borrowMinute.Process(0, holdAtOneSecond: false), "01:00.00 remains nonzero after a step");
-    AssertEqual(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Escape.EscapeTimeReadout>([typeof(int), typeof(int), typeof(int)], new object?[] { (int)(0), (int)(59), (int)(99) }), borrowMinute.Readout, "a one-centisecond step from one minute shows 00:59.99");
+    AssertEqual(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Escape.EscapeTimeReadout>([typeof(int), typeof(int), typeof(int)], new object?[] { 0, 59, 99 }), borrowMinute.Readout, "a one-centisecond step from one minute shows 00:59.99");
 
     var expiration = CreateRunningTimer(EscapeTimerClock.Time(0, 0, 1));
     AssertTrue(expiration.Process(0, holdAtOneSecond: false), "00:00.01 expires on a step of one");

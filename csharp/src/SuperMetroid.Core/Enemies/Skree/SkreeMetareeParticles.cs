@@ -38,7 +38,7 @@ internal static class SkreeMetareeParticles
     }
 
     /// <summary>
-    /// Spawns one particle through the projectile spawn's definition copy (damage four, contact enabled, Skree or Metaree
+    /// Spawns one particle through the projectile spawn's definition copy (its damage, contact enabled, Skree or Metaree
     /// animation), then applies the shared particle setup's position and velocity. A spawn that finds
     /// every place held spawns nothing.
     /// </summary>

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.World;
 /// <summary>The collaborators a <see cref="EnemyFramePhase"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record EnemyFramePhaseDependencies
 {
-    /// <summary>Where the layers stand, which takes Phantoon's body placement before the frame is shown.</summary>
+    /// <summary>Where the layers stand: the foreground position follows the camera X an enemy moves the view to.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
     /// <summary>The player's gameplay actions as the frame boundary latched them.</summary>

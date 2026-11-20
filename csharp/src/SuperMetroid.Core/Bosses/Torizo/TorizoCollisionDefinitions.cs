@@ -20,15 +20,15 @@ internal static class TorizoCollisionDefinitions
     private static readonly TorizoHitboxList SeatedBodyRight = new([new(-15, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
     /// <summary>The right-facing body rising from its seat (#2241).</summary>
     private static readonly TorizoHitboxList RisingFromSeatBodyRight = new([new(-13, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The right-facing body crouched, growing upward to Y -32.</summary>
+    /// <summary>The right-facing body crouched, growing upward.</summary>
     private static readonly TorizoHitboxList CrouchedBodyRight = new([new(-14, -32, 13, 33, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The right-facing body half risen, reaching Y -35 and down to 39.</summary>
+    /// <summary>The right-facing body half risen.</summary>
     private static readonly TorizoHitboxList HalfRisenBodyRight = new([new(-14, -35, 11, 39, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
     /// <summary>The right-facing body nearly upright, its upper reach shifted toward positive X.</summary>
     private static readonly TorizoHitboxList NearlyUprightBodyRight = new([new(-6, -42, 13, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
     /// <summary>The right-facing body upright and stepping.</summary>
     private static readonly TorizoHitboxList UprightSteppingBodyRight = new([new(-7, -41, 11, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The right-facing body upright in its wide stance, expanding to X 22.</summary>
+    /// <summary>The right-facing body upright in its wide stance, expanding forward.</summary>
     private static readonly TorizoHitboxList UprightWideStanceBodyRight = new([new(-8, -41, 22, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
     /// <summary>Right-facing active body.</summary>
     private static readonly TorizoHitboxList ActiveBodyRight = new([new(-10, -38, 13, 23, TorizoReactions.Touch, TorizoReactions.Shot)]);
@@ -37,7 +37,7 @@ internal static class TorizoCollisionDefinitions
     /// <summary>Compact right-facing jump-back body, fitted separately from its left counterpart.</summary>
     private static readonly TorizoHitboxList JumpBackBodyRight = new([new(-8, -37, 15, 14, TorizoReactions.Touch, TorizoReactions.Shot)]);
 
-    /// <summary>The seated body, 32 by 54, with the stand-up/sit-down shot reaction.</summary>
+    /// <summary>The seated body, with the stand-up/sit-down shot reaction.</summary>
     private static readonly TorizoHitboxList SeatedBody = new([new(-16, -27, 16, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
     /// <summary>The body rising from its seat (#2241), narrowed on the left.</summary>
     private static readonly TorizoHitboxList RisingFromSeatBody = new([new(-14, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
@@ -53,9 +53,9 @@ internal static class TorizoCollisionDefinitions
     private static readonly TorizoHitboxList UprightWideStanceBody = new([new(-17, -42, 5, 15, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
     /// <summary>Left-facing active body, with the ordinary body shot reaction.</summary>
     private static readonly TorizoHitboxList ActiveBody = new([new(-15, -39, 7, 21, TorizoReactions.Touch, TorizoReactions.Shot)]);
-    /// <summary>Compact left-facing jump-back body with its lower edge at Y 9.</summary>
+    /// <summary>Compact left-facing jump-back body, its lower edge drawn up.</summary>
     private static readonly TorizoHitboxList JumpBackBody = new([new(-18, -38, 7, 9, TorizoReactions.Touch, TorizoReactions.Shot)]);
-    /// <summary>Left-facing standing body, extending to Y 18.</summary>
+    /// <summary>Left-facing standing body.</summary>
     private static readonly TorizoHitboxList StandingBody = new([new(-18, -37, 7, 18, TorizoReactions.Touch, TorizoReactions.Shot)]);
 
     /// <summary>Each Torizo frame's body hitboxes.</summary>

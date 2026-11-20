@@ -102,7 +102,7 @@ internal sealed class PhantoonPatterns
         }
     }
 
-    /// <summary>Changes horizontal velocity over the forward half of a figure-eight.</summary>
+    /// <summary>Changes Phantoon's speed along the figure-eight path over its forward run.</summary>
     private static void AdjustPhantoonForwardFigureEightSpeed(PhantoonFigureEightState figureEight)
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
@@ -135,7 +135,7 @@ internal sealed class PhantoonPatterns
         }
     }
 
-    /// <summary>Changes horizontal velocity over the returning half of a figure-eight.</summary>
+    /// <summary>Changes Phantoon's speed along the figure-eight path over its returning run.</summary>
     private static void AdjustPhantoonReverseFigureEightSpeed(PhantoonFigureEightState figureEight)
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
@@ -250,7 +250,7 @@ internal sealed class PhantoonPatterns
         state.BodyPart.StartAnimation(PhantoonPartSegment.FullHitboxBody);
     }
 
-    /// <summary>Runs the 360-frame opaque swoop.</summary>
+    /// <summary>Runs the opaque swoop (<see cref="PhantoonArenaDefinitions.SwoopUpdates"/>).</summary>
     internal static void RunPhantoonSwoop(
         RoomEnemyPlace body,
         PhantoonEnemyState state,
@@ -459,13 +459,13 @@ internal sealed class PhantoonPatterns
         state.BodyFade.Resume();
     }
 
-    /// <summary>Runs all eight alternating radial flame waves.</summary>
+    /// <summary>Runs all the alternating radial flame waves (<see cref="PhantoonRageDefinitions.WaveCount"/>).</summary>
     internal void RunPhantoonRage(PhantoonEnemyState state)
     {
         if (!state.PhaseWait.StepRunsOut())
             return;
 
-        // Alternating waves contain seven and eight flames, not seven each.
+        // Alternating waves contain different numbers of flames, as their definitions hold.
         IReadOnlyList<PhantoonRageFlameStart> wave = PhantoonCadenceDefinitions.OddRageWave.IsSetIn(state.RageWaveCount)
             ? PhantoonFlameSpawns.OddRageWave
             : PhantoonFlameSpawns.EvenRageWave;
@@ -592,12 +592,12 @@ internal sealed class PhantoonPatterns
         state.EyePart.StartAnimation(PhantoonEyeGaze.EyeAnimation(direction));
     }
 
-    /// <summary>Fades his body toward his faded-out colours over <paramref name="steps"/> steps, one every second update.</summary>
+    /// <summary>Fades his body toward his faded-out colours over <paramref name="steps"/> steps, one at each place of the fade's cadence.</summary>
     internal void AdvancePhantoonFadeOut(
         PhantoonEnemyState state,
         int steps)
     {
-        if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.BodyFade.IsFinished)
+        if (!PhantoonCadenceDefinitions.FadeStep.IsDue(_frameContext.FrameCounter) || state.BodyFade.IsFinished)
             return;
 
         // The fade's step is a typed fade toward his faded-out colours (#1512, #2251).

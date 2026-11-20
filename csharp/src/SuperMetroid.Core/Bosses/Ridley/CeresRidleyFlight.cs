@@ -67,7 +67,7 @@ internal sealed class CeresRidleyFlight
     internal static void LiftOff(CeresRidleyState state) => Ensure.NotNull(state).Phase = CeresRidleyPhase.LiftoffAccelerating;
 
     /// <summary>
-    /// Ceres Ridley cuts his fireballing short when Samus has under 30 energy: his hover lasts only the cut's updates
+    /// Ceres Ridley cuts his fireballing short when Samus's energy is low (<see cref="CeresRidleyFightDefinitions.SamusLowEnergy"/>): his hover lasts only the cut's updates
     /// (<see cref="CeresRidleyFlightDefinitions.FireballingCutShortUpdates"/>), and he
     /// continues in the fireballing's end for the way he faces, which nothing in the fireballing turns.
     /// </summary>
@@ -81,13 +81,13 @@ internal sealed class CeresRidleyFlight
         return RidleyAnimations.FireballingEnd.For(state.Flight.FacingDirection);
     }
 
-    /// <summary>Slows Ridley's rise by five sixty-fourths of a pixel an update until he climbs past line 80, where he starts hovering.</summary>
+    /// <summary>Slows Ridley's rise by its slowing step each update until he climbs past his hover line, where he starts hovering.</summary>
     internal static void TickCeresRidleyLiftoffDecelerating(
         RoomEnemyPlace place,
         CeresRidleyState state)
     {
-        // On the update the rise starts slowing, his speed takes both the rise's -16 and the slowing's +20.
-        // The rise carries Ridley past line 80, 32 pixels above where the slowing starts, within a few updates.
+        // On the update the rise starts slowing, his speed takes both the rise's step and the slowing's.
+        // The rise carries Ridley past his hover line, above where the slowing starts, within a few updates.
         state.Flight.Velocity = state.Flight.Velocity.WithY(state.Flight.Velocity.Y + CeresRidleyFlightDefinitions.LiftoffSlowingStep);
         if (RidleyFlight.SignedPlace(place).Y < CeresRidleyArenaDefinitions.HoverLineY)
         {
@@ -110,7 +110,7 @@ internal sealed class CeresRidleyFlight
         SamusState samus)
     {
         // Ceres Ridley never loses health. Each shot that hits him counts here, and the fight ends in the fake
-        // retreat once 100 have.
+        // retreat once enough have.
         if (state.HitCounter >= CeresRidleyFightDefinitions.HitsToDriveOff)
         {
             state.FightMode = RidleyFightMode.NotFighting;
@@ -119,7 +119,7 @@ internal sealed class CeresRidleyFlight
             return;
         }
 
-        // The fight's other end is Samus's energy falling below 30: the real retreat starts and takes its first
+        // The fight's other end is Samus's energy falling low: the real retreat starts and takes its first
         // acceleration in this same update.
         if (samus.Health < CeresRidleyFightDefinitions.SamusLowEnergy)
         {
@@ -210,7 +210,7 @@ internal sealed class CeresRidleyFlight
         }
     }
 
-    /// <summary>Runs the swoop arc and publishes the one-frame tail-fling request at its bottom.</summary>
+    /// <summary>Turns his swoop toward its aim and moves to the swoop's next stage when the stage's timer runs out.</summary>
     internal static void TickCeresRidleySwoopPhase(
         CeresRidleyState state,
         TurnStep turn,
@@ -234,24 +234,24 @@ internal sealed class CeresRidleyFlight
         state.Flight.MovementMinimum = state.Flight.MovementMinimum.WithY(CeresRidleyArenaDefinitions.RetreatMovementTop);
     }
 
-    /// <summary>Moves the 100-shot retreat toward the Baby retrieval staging point.</summary>
+    /// <summary>Moves the fake retreat his hits bring on toward the Baby retrieval staging point.</summary>
     internal static void TickCeresRidleyFakeRetreatMoveToPosition(
         RoomEnemyPlace place,
         CeresRidleyState state)
     {
-        // Ridley steers toward the fake retreat's point. Only the fake retreat after 100 hits takes the Baby back; the retreat
+        // Ridley steers toward the fake retreat's point. Only the fake retreat his hits bring on takes the Baby back; the retreat
         // at Samus's low energy leaves without it.
         AccelerateRidleyToward(place, state.Flight, CeresRidleyArenaDefinitions.FakeRetreatPoint, CeresRidleyFlightDefinitions.SweepDivisor);
         if (RidleyFlight.SignedPlace(place).X >= CeresRidleyArenaDefinitions.FakeRetreatPoint.X)
             state.Phase = CeresRidleyPhase.FakeRetreatRising;
     }
 
-    /// <summary>Raises Ridley above Y=32 before releasing the Baby into its independent fall.</summary>
+    /// <summary>Raises Ridley above the Baby's drop line (<see cref="CeresRidleyArenaDefinitions.BabyDropLineY"/>) before releasing the Baby into its independent fall.</summary>
     internal static void TickCeresRidleyFakeRetreatRising(
         RoomEnemyPlace place,
         CeresRidleyState state)
     {
-        // Ridley rises past Y=32 while the Baby still follows his original hand
+        // Ridley rises past the drop line while the Baby still follows his original hand
         // anchor. Crossing that line starts the Baby's independent fall and the wait
         // before Ridley changes to the retrieval pose.
         state.Flight.MovementMinimum = state.Flight.MovementMinimum.WithY(CeresRidleyArenaDefinitions.RetreatMovementTop);

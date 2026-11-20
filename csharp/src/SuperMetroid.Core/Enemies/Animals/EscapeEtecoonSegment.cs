@@ -8,25 +8,25 @@ internal enum EscapeEtecoonSegment
 {
     /// <summary>The leftward run's low-tide check, its entry cue.</summary>
     RunningLeftLowTide,
-    /// <summary>The leftward run's four strides at low tide.</summary>
+    /// <summary>One stride running left at low tide, repeating.</summary>
     RunningLeftLowTideStride,
     /// <summary>Running left at high tide, stretching, bunching and pushing off, repeating.</summary>
     RunningLeftHighTide,
     /// <summary>The rightward run's low-tide check, its entry cue.</summary>
     RunningRightLowTide,
-    /// <summary>The rightward run's four strides at low tide.</summary>
+    /// <summary>One stride running right at low tide, repeating.</summary>
     RunningRightLowTideStride,
     /// <summary>Running right at high tide, stretching, bunching and pushing off, repeating.</summary>
     RunningRightHighTide,
     /// <summary>The escape run's start, its entry cue.</summary>
     RunningForEscape,
-    /// <summary>The escape run's four strides.</summary>
+    /// <summary>One stride of the escape run, repeating.</summary>
     RunningForEscapeStride,
     /// <summary>Standing still, looking right, then turning to look left and back again, repeating.</summary>
     Stationary,
     /// <summary>The thanks to Samus, its entry cue.</summary>
     ExpressGratitudeThenEscape,
-    /// <summary>A thanking Etecoon's four steps to the left, each moving it three pixels.</summary>
+    /// <summary>A thanking Etecoon's steps to the left, each moving it by <see cref="EscapeEtecoonAnimations.ThankingStepPixels"/>.</summary>
     ThankingSteps,
     /// <summary>A thanking Etecoon's look back to the right and turn, before it runs for the escape.</summary>
     ThankingLook,

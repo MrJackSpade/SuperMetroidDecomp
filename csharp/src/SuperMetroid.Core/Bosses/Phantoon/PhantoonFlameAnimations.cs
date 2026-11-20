@@ -72,8 +72,8 @@ internal static class PhantoonFlameAnimations
 
     /// <summary>
     /// How each flame animation plays its steps: the loops cycle for good, a resting or impacting flame runs on into dying
-    /// and its deletion, a shot flame dies, leaves its drop and is deleted, and a falling flame plays each of its three
-    /// flickers four times, in turn for good.
+    /// and its deletion, a shot flame dies, leaves its drop and is deleted, and a falling flame plays each of its
+    /// flickers over again (<see cref="FallingRepeatCount"/>), in turn for good.
     /// </summary>
     internal static IReadOnlyDictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>> StartingAt { get; } = new Dictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>>
     {

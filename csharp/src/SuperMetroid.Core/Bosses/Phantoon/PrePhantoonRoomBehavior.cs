@@ -17,7 +17,7 @@ internal sealed class PrePhantoonRoomBehavior
     /// <summary>The hold on the place the room's setup takes.</summary>
     private readonly PrePhantoonRoomHeldProjectilePlace _heldPlace = new();
 
-    /// <summary>Connects the room's rules to its loaded-room guard and projectile pool.</summary>
+    /// <summary>Binds the room's setup to the enemy projectile pool.</summary>
     internal PrePhantoonRoomBehavior(EnemyProjectileEngine projectiles)
     {
         _projectiles = projectiles;

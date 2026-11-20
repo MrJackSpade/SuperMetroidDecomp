@@ -52,5 +52,5 @@ internal static class RetailRuntimeFixtureVerification
         InstalledRoomLevelStreams? levelStreams = null) =>
         LoadedRoomAssets.Load(RoomScrollGrid.PowerOnCells(), room, global::SuperMetroid.Core.PrivateState.With<global::SuperMetroid.Core.Rooms.RoomAssetCatalogs>(global::SuperMetroid.Core.PrivateState.With<global::SuperMetroid.Core.Rooms.RoomAssetCatalogs>(InstalledFixtures.RoomAssets with
         {
-            }, "VisualLayouts", (global::SuperMetroid.Core.Rooms.RoomLevelArtworks)(visualLayouts ?? InstalledFixtures.RoomAssets.VisualLayouts)), "LevelStreams", (global::SuperMetroid.Core.Rooms.LevelData.InstalledRoomLevelStreams)(levelStreams ?? InstalledFixtures.RoomAssets.LevelStreams)));
+            }, "VisualLayouts", visualLayouts ?? InstalledFixtures.RoomAssets.VisualLayouts), "LevelStreams", levelStreams ?? InstalledFixtures.RoomAssets.LevelStreams));
 }

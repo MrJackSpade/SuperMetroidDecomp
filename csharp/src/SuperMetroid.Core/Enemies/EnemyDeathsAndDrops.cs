@@ -79,7 +79,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Starts an enemy's generic death. The enemy is cleared immediately,
-    /// while the death explosion retains the definition, position, and optional respawn index until
+    /// while the death explosion keeps the killed enemy, its position and whether it respawns until
     /// its authored animation reaches its become-pickup cue.
     /// </summary>
     /// <param name="killed">The dying enemy, whose place its death empties.</param>
@@ -142,7 +142,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// The twelve item drops' shared behaviour.
+    /// Spawns <paramref name="count"/> drops scattered around a base, each placed by one random sample.
     /// Each pickup advances RNG once for both coordinates; spawning the pickup
     /// and choosing its drop then advance it on their own inside the pickup. Both scatters read
     /// their fields from the one sample.
@@ -158,7 +158,7 @@ internal sealed class EnemyDeathsAndDrops
         ScatterDrops(count, xBase, xScatter, yBase, yScatter, position => SpawnEnemyDropFromDefinition(position, definitionId, samus));
 
     /// <summary>
-    /// The twelve item drops' shared behaviour, each rolling <paramref name="dropChances"/> (#2244): a fight whose drops
+    /// Spawns <paramref name="count"/> drops that each roll <paramref name="dropChances"/> (#2244): a fight whose drops
     /// roll a table of their own rather than an enemy's.
     /// </summary>
     internal void SpawnEnemyDropScatter(
@@ -280,7 +280,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Gives the projectile the selected pickup's identity, 400-frame life and collision reaction, keeping
+    /// Gives the projectile the selected pickup's identity, life (<see cref="EnemyPickupDefinitions.Lifetime"/>) and collision reaction, keeping
     /// <paramref name="killedEnemy"/>, the enemy its explosion came from, and returns its animation.
     /// </summary>
     private EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind, KilledEnemy killedEnemy) =>
@@ -439,7 +439,7 @@ internal sealed class EnemyDeathsAndDrops
         // The grapple's endpoint and Samus reach such a pickup from the room's top row or left column the short way, as
         // DistanceAcrossRoomEdge.Between gives it.
         // The grapple query reports any grapple phase but inactive. A pickup is immune to its
-        // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
+        // endpoint for its grapple delay's decrements, then uses strict axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&
             pickup.Lifetime.UpdatesLeft < EnemyPickupDefinitions.Lifetime - EnemyPickupDefinitions.GrappleDelay &&
             DistanceAcrossRoomEdge.Between(projectile.Position.X.Whole, samus.Grapple.Anchor.X) < EnemyPickupDefinitions.GrappleReach &&

@@ -7,12 +7,12 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// </summary>
 public static class BotwoonSpeedStageDefinitions
 {
-    /// <summary>Botwoon at half his starting health or more, or at none: two pixels or steps an update, spits at speed two.</summary>
+    /// <summary>Botwoon at half his starting health or more, or at none: his slowest movement and spits.</summary>
     public static BotwoonSpeedStage Full { get; } = new(2, 6, 2, "full");
 
-    /// <summary>Botwoon below half his starting health: three pixels or steps an update, spits at speed three.</summary>
+    /// <summary>Botwoon below half his starting health: faster movement and spits.</summary>
     public static BotwoonSpeedStage BelowHalf { get; } = new(3, 4, 3, "below-half");
 
-    /// <summary>Botwoon below a quarter of his starting health: four pixels or steps an update, spits at speed four.</summary>
+    /// <summary>Botwoon below a quarter of his starting health: his fastest movement and spits.</summary>
     public static BotwoonSpeedStage BelowQuarter { get; } = new(4, 3, 4, "below-quarter");
 }

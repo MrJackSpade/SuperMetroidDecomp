@@ -258,7 +258,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             : WalkingSpacePirateSegment.WalkingRight;
     }
 
-    /// <summary>Tests signed vertical separation against the sixteen-pixel firing band.</summary>
+    /// <summary>Tests vertical separation against the firing band (<see cref="SpacePirateMotionDefinitions.WalkingFiringBand"/>).</summary>
     private static bool WalkingSpacePirateIsVerticallyClose(
         RoomEnemyPlace place,
         SamusState samus) =>
@@ -340,7 +340,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             ? SpacePirateProjectileSegment.LaserRight
             : SpacePirateProjectileSegment.LaserLeft));
 
-        // The laser holds still through its three two-frame muzzle frames until its animation fires it, running its flight
+        // The laser holds still through its muzzle frames until its animation fires it, running its flight
         // at once.
         Laser.Lasers.Start(projectile, new PirateLaserState(speed, direction));
 
@@ -354,7 +354,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         return projectile;
     }
 
-    /// <summary>Flies a laser one step its way, deleting it once it leaves the 256x256 camera square.</summary>
+    /// <summary>Flies a laser one step its way, deleting it once it leaves the camera's view.</summary>
     private static void FlyPirateLaser(
         LaserBehavior owner,
         EnemyProjectile projectile,

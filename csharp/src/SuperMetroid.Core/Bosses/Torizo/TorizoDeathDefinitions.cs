@@ -29,11 +29,11 @@ internal static class TorizoDeathDefinitions
     /// </summary>
     internal static readonly EnemyDropChances DeathDropChances = new(SmallEnergy: 50, BigEnergy: 50, Missile: 50, Nothing: 0, SuperMissile: 50, PowerBomb: 55);
 
-    /// <summary>Bomb Torizo's arena: a 128-by-64-pixel stretch of the upper room.</summary>
+    /// <summary>Bomb Torizo's arena: a narrow stretch of the upper room.</summary>
     internal static readonly TorizoDropArena BombTorizoArena =
         new(new(64, 96), EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter, EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
 
-    /// <summary>Golden Torizo's arena: a 256-by-64-pixel strip much lower in its room.</summary>
+    /// <summary>Golden Torizo's arena: a wide strip much lower in its room.</summary>
     internal static readonly TorizoDropArena GoldenTorizoArena =
         new(new(128, 288), EnemyDropScatterDefinitions.WideArenaHorizontalScatter, EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
 }

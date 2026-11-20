@@ -83,7 +83,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         {
             RumbleOscillation = ListStep<CrocomireRumbleOscillation>.FirstOf(CrocomireRumbleDefinitions.Oscillations),
             RumbleTowardExtreme = false,
-        }, "DeathStage", (global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathStage>)(CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>()));
+        }, "DeathStage", CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>());
         state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
         CrocomireDeathState death = state.Death;
         death.RumbleYOffset = 0;

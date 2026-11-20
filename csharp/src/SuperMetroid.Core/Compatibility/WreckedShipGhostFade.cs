@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// The Wrecked Ship ghost's sixteen colours as its brightening and fades move them (#1512, #1544, #1552), counted on the
+/// The Wrecked Ship ghost's colours (<see cref="ColourCount"/>) as its brightening and fades move them (#1512, #1544, #1552), counted on the
 /// game's fade scale (<see cref="FadeLevelColour"/>), the levels the game authored and steps them in.
 /// </summary>
 /// <remarks>
@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// raises every colour whose red is below full by one level in each channel, a channel that passes full overflowing into the
 /// next (red into green, green into blue, blue's overflow lost), and the brightening ends on the first step that changes no
 /// colour; each fade step moves every channel of every colour one level toward the fade's target, the ghost's own colours
-/// as it materializes or white as it vanishes, and the fade ends on the first step that moves no channel. All sixteen
+/// as it materializes or white as it vanishes, and the fade ends on the first step that moves no channel. All its
 /// colours take part, colour zero too, which no picture draws, so how many steps each takes and when each ends are decided
 /// over all of them, and that decides when the ghost's AI moves on.
 /// </para>
@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Consulted on every update of the ghost's brightening, materializing and vanishing phases, during its enemy update;
 /// darkened by its initialization. Evidence: the original game's brightening and fade routines for the ghost, which add
 /// one level to all three channels of a colour in one addition, so a channel passing full carries into the next, and step
-/// all sixteen of the ghost's colours; the Wrecked Ship ghost replays confirm their end conditions.
+/// all of the ghost's colours; the Wrecked Ship ghost replays confirm their end conditions.
 /// </para>
 /// <para>
 /// A value the ghost's state owns; each operation gives the colours after it. The import pre-colours the ghost's shades by
@@ -113,8 +113,8 @@ public readonly struct WreckedShipGhostFade
         return Stepped(next.MoveToImmutable(), changed, Effect.Brightening);
     }
 
-    /// <summary>The fade toward <paramref name="ownColours"/>, the ghost's own sixteen colours, begun; it materializes the ghost.</summary>
-    /// <exception cref="ArgumentException">The colours are not sixteen, or one lies off the fade scale.</exception>
+    /// <summary>The fade toward <paramref name="ownColours"/>, the ghost's own colours, begun; it materializes the ghost.</summary>
+    /// <exception cref="ArgumentException">The colours are not <see cref="ColourCount"/>, or one lies off the fade scale.</exception>
     public WreckedShipGhostFade Materializing(IReadOnlyList<RgbColor> ownColours)
     {
         Ensure.NotNull(ownColours);
@@ -165,7 +165,7 @@ public readonly struct WreckedShipGhostFade
         return new(new WreckedShipGhostFade(next, target, fade, change, steps), changes);
     }
 
-    /// <summary>Sixteen black colours.</summary>
+    /// <summary>A black colour for each of the ghost's colours.</summary>
     private static ImmutableArray<FadeLevelColour> Black() => [.. Enumerable.Repeat(FadeLevelColour.Of(RgbColor.Black), ColourCount)];
 
     /// <summary>

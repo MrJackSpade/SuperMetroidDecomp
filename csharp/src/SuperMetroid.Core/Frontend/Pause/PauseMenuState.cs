@@ -83,8 +83,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Current map/equipment fade or load phase, or null while no page change is in progress.</summary>
     private PauseMenuTransition? Transition { get; set; }
     /// <summary>
-    /// The page transition's fade: one level darker every update on the way out, and one level brighter every second
-    /// update on the way in after the load.
+    /// The page transition's fade: one level darker every update on the way out, and one level brighter on alternate
+    /// updates on the way in after the load.
     /// </summary>
     private readonly ScreenFade transitionFade = new(DisplayBrightness.Full);
     /// <summary>Current page-transition brightness, from black to full intensity.</summary>
@@ -135,10 +135,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // stays over the area it covers instead of the map showing there.
         screen.ShowHud(entry.GameplayHud);
 
-        // Pause setup ends by clearing the effect overlay
-        // beneath the HUD. Pause draws
-        // only the HUD's own pictures (PauseScreen.ShownHudPictures), so every otherwise-empty map
-        // square shows nothing.
 
         // The pause screen's base page shows the button page's two label rows over the backdrop's bottom rows, its labels
         // lit or dimmed by the highlight; the frame is the area's backdrop picture, the button rows' picture and each
@@ -215,7 +211,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
     /// <summary>
     /// The pause screen's Start-button handling, run last on both stable
-    /// pages. It reads the delayed-held buttons: a fresh press is excluded for three frames by
+    /// pages. It reads the delayed-held buttons: a fresh press is excluded for <see cref="PauseCadenceDefinitions.HeldInputRepeatDelay"/> by
     /// the controller's delayed-held filter before becoming menu input. True requests the unpause state.
     /// </summary>
     private bool HandleStartButton(ControllerButton delayedPressed)
@@ -442,8 +438,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>
-    /// Runs the three button-label lighting variants and the redraw of the two label rows
-    /// that follows each: the frame shows its labels in <paramref name="highlight"/>'s shades from the next capture.
+    /// Sets which button labels are lit: the frame shows its labels in <paramref name="highlight"/>'s shades from the
+    /// next capture.
     /// </summary>
     private void SetPauseButtonLabelMode(PauseButtonHighlight highlight) =>
         ButtonHighlight = Enum.IsDefined(highlight) ? highlight : throw new ArgumentOutOfRangeException(nameof(highlight), highlight, "Undefined pause highlight.");

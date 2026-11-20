@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 internal static class EndingRewardAnimations
 {
-    /// <summary>The gesture's animations; the suitless legs stand still for the hair release's first nine pictures, 195 updates.</summary>
+    /// <summary>The gesture's animations; the suitless legs stand still through the hair release's opening pictures.</summary>
     internal static CinematicAnimations<EndingRewardAnimation, CinematicSpritePose, EndingRewardGestureCue> Gesture { get; } = new(
         new Dictionary<EndingRewardAnimation, AnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[]>
         {

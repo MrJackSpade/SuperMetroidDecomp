@@ -17,7 +17,7 @@ public sealed class PhantoonFigureEightState
 
     /// <summary>
     /// His speed in path places per update: zero or more forward, zero or less while he runs the path backwards, and
-    /// never more than seven places from rest.
+    /// never further from rest than <see cref="PhantoonMotionDefinitions.ForwardFastCap"/>.
     /// </summary>
     public PhantoonPathSpeed Speed { get; internal set; }
 

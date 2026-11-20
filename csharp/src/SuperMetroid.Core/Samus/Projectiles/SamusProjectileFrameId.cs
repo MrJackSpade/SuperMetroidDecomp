@@ -1250,7 +1250,7 @@ internal enum SamusProjectileFrameId
     SpazerSpecialAttackTrailHidden,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerSpecialAttackTrail"/> showing nothing, as <see cref="SpazerSpecialAttackTrailHidden"/> does, with a wider hitbox and its trail's sparkles placed further apart.</summary>
     SpazerSpecialAttackTrailHiddenWide,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerSpecialAttackTrail"/> showing nothing, as <see cref="SpazerSpecialAttackTrailHidden"/> does, with the widest hitbox and its trail's sparkles placed furthest apart.</summary>
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerSpecialAttackTrailWidest"/> showing nothing, as <see cref="SpazerSpecialAttackTrailHidden"/> does, with the widest hitbox and its trail's sparkles placed furthest apart.</summary>
     SpazerSpecialAttackTrailHiddenWidest,
     /// <summary>A frame of <see cref="SamusProjectileSegment.WaveSpecialAttack"/> showing the Charged Wave picture, core.</summary>
     WaveSpecialAttackCore,

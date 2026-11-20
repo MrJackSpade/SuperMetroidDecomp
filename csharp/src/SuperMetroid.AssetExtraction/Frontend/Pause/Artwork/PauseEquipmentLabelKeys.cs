@@ -18,7 +18,7 @@ public static class PauseEquipmentLabelKeys
     }
 
     /// <summary>Returns the ordinary category strip width in sixteen-bit tile words, not bytes; Hyper's stored width is a separate contract.</summary>
-    /// <param name="category">Equipment category: one denotes beams; every other integer returns the equipment width without category validation.</param>
+    /// <param name="category">Equipment category: <see cref="PauseEquipmentCategory.Beams"/> takes the beam width and every other category the equipment width.</param>
     /// <returns>Five for the beam category, otherwise nine.</returns>
     public static int WordCount(PauseEquipmentCategory category) => category == PauseEquipmentCategory.Beams
         ? PauseEquipmentLabelArtworkDefinitions.BeamWords : PauseEquipmentLabelArtworkDefinitions.EquipmentWords;

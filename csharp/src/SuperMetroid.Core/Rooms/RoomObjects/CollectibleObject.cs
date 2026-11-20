@@ -197,7 +197,7 @@ internal sealed class CollectibleObject(
 
     /// <summary>
     /// The pickup message has closed: the item shows its empty block for one update and then leaves, or a shot block's
-    /// item leaves its block empty for twenty-two eight-update intervals before it respawns.
+    /// item leaves its block empty for <see cref="CollectibleTimingDefinitions.CollectedShotBlockEmptyUpdates"/> before it respawns.
     /// </summary>
     private void FinishPickup(IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
     {

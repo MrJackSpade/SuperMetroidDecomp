@@ -14,7 +14,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new CacatacEntity(this, occupant, place, common));
 
-    /// <summary>Supplies shared room RNG for the three-in-256 spike attack gate.</summary>
+    /// <summary>Supplies shared room RNG for the spike attack gate (<see cref="CacatacAttackDefinitions.Attacks"/>).</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates spike projectiles with source position and sprite attributes.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -75,7 +75,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         SetCacatacAnimation(place, state, onFloor ? CacatacSegment.OnFloorIdle : CacatacSegment.OnCeilingIdle);
     }
 
-    /// <summary>Runs a Cacatac for one update through its three actions.</summary>
+    /// <summary>Runs a Cacatac for one update: its patrol, or it stays stopped.</summary>
     private void RunCacatacMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, CacatacEnemyState state)
     {
         switch (state.Action)
@@ -113,7 +113,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             state.PatrolDirection = HorizontalDirection.Left;
     }
 
-    /// <summary>The 3/256 random attack gate.</summary>
+    /// <summary>The random attack gate (<see cref="CacatacAttackDefinitions.Attacks"/>).</summary>
     private void MaybeStartCacatacAttack(RoomEnemyOccupant occupant, RoomEnemyPlace place, CacatacEnemyState state)
     {
         if (!CacatacAttackDefinitions.Attacks.IsTakenBy(_room.Random.Generate(), advancedBy: place.FrameCounter))

@@ -65,8 +65,8 @@ internal sealed class CrocomireFight
         _roomStatus.Boss = AreaBoss.Crocomire;
         var state = new CrocomireEnemyState(occupant, place);
         place.SetSpeciesState(state);
-        // The room's shaking main and his melt's display read him from the room from here (#2194); his parts each hold
-        // the encounter from their own setup.
+        // Once attached, the room's shaking and his melt's display read his encounter from the room (#2194); his parts
+        // each hold the encounter from their own setup.
         _encounters.Attach(state);
         // Crocomire shows his body frames and his death's melt images on his body (#1355, #1466, #1515), nothing at first.
         _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Crocomire, state));

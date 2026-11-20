@@ -36,12 +36,12 @@ public sealed class FileSelectMapAnimations
         }
     }
 
-    /// <summary>Resetting the map's animations resets the highlight cycle but does not clear the arrow counters.</summary>
+    /// <summary>Restarts the highlight cycle and leaves the arrows as they are.</summary>
     public void ResetHighlight() => highlight.Reset();
     /// <summary>Replaces the installed highlight timing while retaining the menu-owned cycle state.</summary>
     internal void BindHighlight(MapHighlightCycle cycle) => highlight.Bind(cycle);
 
-    /// <summary>Advances the highlight cycle; returns the room-library sound request at the cycle's loop terminator.</summary>
+    /// <summary>Advances the highlight and returns whether its cycle starts again.</summary>
     /// <returns>True when the cycle wraps and the map's highlight-loop sound should be queued; this method does not enqueue audio itself.</returns>
     public bool StepHighlight() => highlight.Step();
 

@@ -43,7 +43,7 @@ public static class DachoraColorFile
             .ToArray();
     }
 
-    /// <summary>Checks a full Dachora palette row and converts five-bit channels to hardware color words.</summary>
+    /// <summary>Checks a full Dachora palette row and converts its five-bit channels to the installed RGB colours.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != DachoraColorFormat.ColorsPerFrame)

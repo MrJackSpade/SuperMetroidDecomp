@@ -29,16 +29,16 @@ internal sealed class DefinitionCatalog(Type type, IReadOnlyList<FieldInfo> memb
     /// <summary>The declaring type's static read-only fields that can hold a reference other than a string.</summary>
     internal IReadOnlyList<FieldInfo> Members { get; } = members;
 
-    /// <summary>The index of the objects the members reach, or null until a capture or restore first needs it.</summary>
-    private BoundObjectGraph? graph;
-
     /// <summary>
     /// The index of every object the members reach, built breadth first over the members in name order the first time it
     /// is asked for. Reading the members runs the declaring type's initializer; a failing initializer fails the capture
     /// or restore that needed it. Static members hold definition data, fixed once initialized, so the index is never
     /// refreshed: a part a member loads on first use after that is written by its contents.
     /// </summary>
-    internal BoundObjectGraph Graph => graph ??= new BoundObjectGraph(Roots());
+    internal BoundObjectGraph Graph => BuiltGraph ??= new BoundObjectGraph(Roots());
+
+    /// <summary>The index once a capture or restore has first needed it, and none before.</summary>
+    private BoundObjectGraph? BuiltGraph { get; set; }
 
     /// <summary>Each member holding an object other than a string, named by its prefix and field, in name order.</summary>
     private (string Name, object Root)[] Roots()

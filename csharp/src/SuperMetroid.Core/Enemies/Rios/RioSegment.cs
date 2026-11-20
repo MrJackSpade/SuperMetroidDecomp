@@ -8,11 +8,11 @@ internal enum RioSegment
 {
     /// <summary>
     /// A wingbeat with its legs tucked (#2451, #2512): the idle starts with one, and the hover, which the idle runs on into
-    /// and a swoop ends in, plays it three times before its legs hang.
+    /// and a swoop ends in, plays it over (<see cref="RioAnimations.TuckedWingbeats"/>) before its legs hang.
     /// </summary>
     TuckedWingbeat,
     /// <summary>
-    /// The hover's wingbeat with its legs hanging, which it plays twice before the idle starts again (#2451).
+    /// The hover's wingbeat with its legs hanging, which it plays over (<see cref="RioAnimations.HangingWingbeats"/>) before the idle starts again (#2451).
     /// </summary>
     HangingWingbeat,
     /// <summary>The opening of the swoop, which holds its last pose until it finishes.</summary>

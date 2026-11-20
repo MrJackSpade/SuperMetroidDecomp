@@ -8,7 +8,7 @@ public enum ElevatorActorStatus
 {
     /// <summary>No ride: the elevator waits, while Samus stands on its pseudo-door, for the newly pressed direction that starts one.</summary>
     Inactive,
-    /// <summary>Leaving the room: the departing platform moves and carries Samus at one-and-one-half pixels per update.</summary>
+    /// <summary>Leaving the room: the departing platform moves and carries Samus at <see cref="ElevatorActorDefinitions.TravelSpeed"/>.</summary>
     Departing,
     /// <summary>Set by the door load: the arriving elevator starts at its arrival height, then begins its return.</summary>
     BeginArrivalReturn,

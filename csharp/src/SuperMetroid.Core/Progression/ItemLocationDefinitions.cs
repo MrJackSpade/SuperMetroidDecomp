@@ -301,7 +301,7 @@ public static class ItemLocationDefinitions
     /// <summary>The Spring Ball held in a Chozo statue's orb at column 24, row 22 of the Springball room.</summary>
     public static ItemLocation SpringballChozoSpringBall { get; } = new("SpringballChozoSpringBall");
 
-    /// <summary>The Missile Tank hidden in a shot block at column 28, row 6 of the The Precious room.</summary>
+    /// <summary>The Missile Tank hidden in a shot block at column 28, row 6 of the Precious room.</summary>
     public static ItemLocation ThePreciousShotBlockMissileTank { get; } = new("ThePreciousShotBlockMissileTank");
 
     /// <summary>The Energy Tank lying in the open at column 50, row 5 of the Botwoon Energy Tank room.</summary>

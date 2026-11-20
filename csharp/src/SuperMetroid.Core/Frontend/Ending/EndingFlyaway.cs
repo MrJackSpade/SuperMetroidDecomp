@@ -118,7 +118,7 @@ internal sealed class EndingFlyaway
         PlanetVelocity -= EndingMotionDefinitions.PlanetAcceleration;
         _stage.Floor.MoveAcross(PlanetVelocity);
         if (_stage.Floor.Zoom < EndingMotionDefinitions.PlanetTurnStartZoom &&
-            EndingCadenceDefinitions.PlanetTurnEveryFourthUpdate.IsDue(cinematicFrame) &&
+            EndingCadenceDefinitions.PlanetTurn.IsDue(cinematicFrame) &&
             _stage.Floor.Angle != EndingMotionDefinitions.PlanetExitTargetAngle)
         {
             _stage.Floor.Turn(EndingMotionDefinitions.PlanetExitTurnSteps);

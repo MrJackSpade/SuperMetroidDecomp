@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Frontend;
 internal static class GameplayFadeDefinitions
 {
     /// <summary>
-    /// The updates the fade into Landing Site or Ceres arrival waits before each brightness step, the first included: one,
-    /// so it steps on every second update.
+    /// The updates the fade into Landing Site or Ceres arrival waits before each brightness step, the first included, so
+    /// it steps on the update after each wait.
     /// </summary>
     internal const int FadeInWaitBeforeEachStep = 1;
 

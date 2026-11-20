@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Samus's phases of a gameplay frame: grounded movement, animation transitions, uninitialized-pose movement,
-/// the grapple beam, X-ray from the HUD, load appearance and beam picture loading.
+/// the grapple beam, X-ray from the HUD, load appearance and showing the equipped beams' colours.
 /// </summary>
 internal sealed class SamusFramePhases
 {
@@ -271,7 +271,7 @@ internal sealed class SamusFramePhases
 
         // The input phase order is cooldown -> movement-type HUD projectile producer ->
         // projectile handling. The outer gameplay loop then runs overlap
-        // before movement. A newly placed bomb therefore counts 60 -> 59 and
+        // before movement. A newly placed bomb therefore counts its fuse down once and
         // shows its first frame in the placement frame itself.
         // The door fade's enemy and draw pass does not run the normal input phase.
         // In particular its draw-only zero input must not release a held charge.
@@ -299,7 +299,7 @@ internal sealed class SamusFramePhases
                 SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
             }
 
-            // The selected scope uses held Run, not Fire. Setup installs its
+            // The selected scope uses held Dash, not Shoot. Setup installs its
             // own pose and movement, superseding the input phase's ordinary pending pose.
             if (!frame.InputHandlingLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
                 samus.SelectedHudItem == HudItem.XRay &&
@@ -911,8 +911,8 @@ internal sealed class SamusFramePhases
                 _playerActions.Current));
         }
 
-        // Preserve movement on either side of the frame boundary. A new camera uses
-        // the fallback sampled before enemy-owned motion and her movement.
+        // The camera point is the room camera's previous Samus point or, for a new camera, the point sampled at the
+        // frame's start, before enemy-owned motion and her movement.
         frame.SampleCameraPoint(room.Camera.PreviousSamusPoint is SamusScrolledCheckpoint { Point: var point } ? point : cameraPointAtFrameStart);
 
         // Retain the frame-start pose because the turn-transition animation cue can replace Samus.Pose during
@@ -1006,7 +1006,7 @@ internal sealed class SamusFramePhases
     private void AnimateAndSettleSamus(SamusControlFrame frame, SamusState samus, bool runsLowHealthCheck, RoomScope room)
     {
         // Samus's normal movement phase updates the speed echo after her movement owner has moved her
-        // and before animation/pose transitions. Every fourth gameplay frame at the full boost stage, it alternates
+        // and before animation/pose transitions. At its capture cadence at the full boost stage, it alternates
         // between two of her places in the room, so the echoes drawn after it stand where she has moved to.
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup && frame.ShinesparkMovement is null)
         {
@@ -1112,7 +1112,7 @@ internal sealed class SamusFramePhases
         if (!_player.AdvanceLoadAppearance())
             return;
 
-        // The item fanfare publishes its same-pose history shift only on the
+        // The saved game's appearance fanfare publishes its same-pose history shift only on the
         // update it ends, before her ordinary input and movement modes regain control.
         samus.CommitPoseHistory();
         samus.Control.Unlock();

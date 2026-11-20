@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Ordered phases of the opening narration, flashbacks, laboratory scenes, and Ceres flight.</summary>
+/// <summary>The phases of the opening narration, flashbacks, laboratory scenes, and Ceres flight.</summary>
 public enum IntroCinematicPhase
 {
     /// <summary>Waits for the initial opening music requests to finish queuing.</summary>
@@ -14,7 +14,7 @@ public enum IntroCinematicPhase
     /// <summary>Waits for the Mother Brain flashback music requests.</summary>
     WaitForSecondMusicQueue,
     /// <summary>Holds the first narration card for its authored four seconds.</summary>
-    FourSecondHold,
+    HoldFirstNarration,
     /// <summary>Fades out the first narration card.</summary>
     FadeOutFirstNarration,
     /// <summary>Waits for the first narration page's music queue.</summary>

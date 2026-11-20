@@ -29,7 +29,7 @@ internal static class CrocomireBridgeCollapseDefinitions
     internal static readonly SignedSixteenSixteen MaximumSinkAcceleration = SignedSixteenSixteen.FromPixelFraction(3, 16);
 
     /// <summary>
-    /// The sink's fastest whole pixels an update, three (#2299): a speed past them keeps them and its own fraction
+    /// The sink's fastest whole pixels an update (#2299): a speed past them keeps them and its own fraction
     /// (<see cref="CrocomireSpeedGain"/>). Each rise starts at this speed.
     /// </summary>
     internal static readonly SignedEightEight MaximumSinkSpeed = SignedEightEight.FromPixels(3);

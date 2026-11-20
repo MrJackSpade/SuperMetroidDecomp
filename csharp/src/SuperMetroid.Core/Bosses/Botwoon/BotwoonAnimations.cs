@@ -61,7 +61,7 @@ internal static class BotwoonAnimations
 
     /// <summary>
     /// The segments a body segment plays, each beat the installed <see cref="EnemyProjectileFrameId"/> it shows (#2036): a
-    /// body link cycles its facing's four frames at eight updates apiece, and a tail cap and the hidden segment show their
+    /// body link cycles its facing's frames at <see cref="BodyFrameDuration"/> apiece, and a tail cap and the hidden segment show their
     /// one frame.
     /// </summary>
     internal static AnimationSegments<BotwoonBodyAnimationSegment, EnemyProjectileFrameId, NoAnimationCue> BodySegments { get; } = new(
@@ -141,7 +141,7 @@ internal static class BotwoonAnimations
     internal static IReadOnlyDictionary<BotwoonBodyAnimationSegment, Animation<BotwoonBodyAnimationSegment>> BodyStartingAt { get; } =
         BodyAnimationKeys.ToDictionary(segment => segment, BodyAnimation);
 
-    /// <summary>The spit's run, each beat the installed <see cref="EnemyProjectileFrameId"/> it shows: five frames at three updates apiece.</summary>
+    /// <summary>The spit's run, each beat the installed <see cref="EnemyProjectileFrameId"/> it shows: its frames at <see cref="SpitFrameDuration"/> apiece.</summary>
     internal static AnimationSegments<BotwoonSpitSegment, EnemyProjectileFrameId, NoAnimationCue> SpitSegments { get; } = new(
         new Dictionary<BotwoonSpitSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>[]>
         {
@@ -218,7 +218,7 @@ internal static class BotwoonAnimations
         HeadEvent(new BotwoonHeadCue.ApplyFacingRadius(facing)),
         HeadEvent(new BotwoonHeadCue.Signal(BotwoonHeadCueKind.QueueSpitSound)),
         HeadEvent(new BotwoonHeadCue.Signal(BotwoonHeadCueKind.ReachSpitFrame)),
-        // Botwoon holds its open mouth longer only when spitting left (25 updates, the rest 16).
+        // Botwoon holds its open mouth longer only when spitting left.
         HeadFrame(BotwoonHeadFrame.Open(facing), facing == CompassDirection.Left ? MouthOpenAfterSpitLeft : MouthOpenAfterSpit),
     ];
 

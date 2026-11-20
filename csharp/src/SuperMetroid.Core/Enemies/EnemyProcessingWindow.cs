@@ -64,7 +64,7 @@ internal sealed class EnemyProcessingWindow
 
     /// <summary>
     /// Whether the enemy lies within the processing window around the camera: its radius reaches the screen's width from
-    /// the camera's left edge, and its centre lies from eight pixels above the camera to 248 pixels below it. The window
+    /// the camera's left edge, and its centre lies from <see cref="ProcessingWindowAboveView"/> above the camera to the view's extent below it. The window
     /// selects the enemies an update processes, and also the enemies the draw pass reaches and the enemies Rios and
     /// pipe bugs treat as on screen.
     /// </summary>
@@ -75,7 +75,7 @@ internal sealed class EnemyProcessingWindow
     /// lies at the end of the axis, and the window reads it the short way from the camera, across the axis. With the
     /// camera at or near the room's left edge, a body whose centre lies past that edge but whose radius reaches back past
     /// the camera is processed and drawn; with the camera at or near the room's top, so is a centre above that edge and no
-    /// more than eight pixels above the camera. A plain difference would read either centre as far right of or below the
+    /// further above the camera than the window reaches. A plain difference would read either centre as far right of or below the
     /// view. The camera lies inside its room, at most 12575 pixels along either axis (#2441), so the wrap changes nothing
     /// for a centre inside the room.
     /// </remarks>

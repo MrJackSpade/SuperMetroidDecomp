@@ -82,8 +82,8 @@ public sealed class SamusDraygonGrabbedState
 
     /// <summary>
     /// Places Samus where Draygon carries her, after enemy AI has updated the
-    /// boss body. Facing left places Samus eight pixels left; facing right places her eight
-    /// pixels right; both place her 40 pixels below the body center. Draygon also places a
+    /// boss body. Facing left places Samus to his left and facing right to his right, by
+    /// <see cref="SamusDraygonHoldDefinitions.HeldAhead"/>; both place her below the body center by <see cref="SamusDraygonHoldDefinitions.HeldBelow"/>. Draygon also places a
     /// Samus who has just escaped: the carry that places her reports her escape, which he sees once.
     /// </summary>
     /// <returns>Whether she had broken free since his last carry, which this carry has him see.</returns>

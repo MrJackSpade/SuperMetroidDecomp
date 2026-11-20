@@ -81,7 +81,7 @@ internal sealed class NorfairRidleyCombat
 
     /// <summary>
     /// Plays one update of the arena reveal Ridley holds his roar through (#2409): a Norfair-only fade of
-    /// <see cref="NorfairRidleyRevealDefinitions.RevealStepCount"/> colour steps, one every third update. The update after
+    /// <see cref="NorfairRidleyRevealDefinitions.RevealStepCount"/> colour steps, each held <see cref="NorfairRidleyRevealDefinitions.RevealStepUpdates"/>. The update after
     /// the last step's raises the battle's liquid and ends the hold.
     /// </summary>
     /// <returns>Whether the reveal ended this update, so he takes off.</returns>

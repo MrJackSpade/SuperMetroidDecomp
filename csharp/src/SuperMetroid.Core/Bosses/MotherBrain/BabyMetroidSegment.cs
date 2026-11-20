@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The Tourian Baby Metroid's animations, order.</summary>
+/// <summary>The Tourian Baby Metroid's animation runs.</summary>
 public enum BabyMetroidSegment
 {
     /// <summary>A long wide-open hold, then calm.</summary>
@@ -10,8 +10,8 @@ public enum BabyMetroidSegment
     /// <summary>The quick draining pulse.</summary>
     LatchedOn,
     /// <summary>
-    /// The remorse's calm pulse, at ten updates a pose, which starts the hesitant pulsing before it leaves: played twice
-    /// before the pulsing quickens.
+    /// The remorse's calm pulse, which starts the hesitant pulsing before it leaves: played over again before the
+    /// pulsing quickens.
     /// </summary>
     Remorse,
     /// <summary>

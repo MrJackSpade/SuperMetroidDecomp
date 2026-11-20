@@ -107,7 +107,7 @@ public sealed class SamusArmCannonState
     }
 
     /// <summary>
-    /// Starts opening or closing only after the HUD item has been stable for two updates. The starting update already
+    /// Starts opening or closing only after the HUD item has been stable for <see cref="SamusArmCannonDefinitions.StableSelectionUpdates"/>. The starting update already
     /// shows the transition's first picture: slightly open for an opening, fully open for a closing.
     /// </summary>
     private void TryStartTransition(HudItem selectedHudItem)

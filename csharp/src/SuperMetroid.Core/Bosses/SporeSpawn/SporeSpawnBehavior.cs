@@ -155,10 +155,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Position = body.Position.WithWholeX(
             state.MovementCenter.X +
             EnemyMath.CircleCosinePixels(state.Angle.ToTrigonometryAngle(), state.SwayRadius.Reach.X));
-        // The vertical sway turns twice as fast as the horizontal, from a quarter turn behind it, sixteen pixels
-        // narrower. Spore Spawn only moves once the fight has started, which sets the radius to 48 or 64 first; the only
-        // other way into movement is a hit on the exposed core, which only the open frames after that start carry. The
-        // radius therefore never lies below sixteen when it is read.
+        // The vertical sway turns twice as fast as the horizontal, from a quarter turn behind it, narrower by its
+        // narrowing. Spore Spawn only moves once the fight has started, which sets the radius first; the only other way
+        // into movement is a hit on the exposed core, which only the open frames after that start carry. The radius
+        // therefore never lies below the narrowing when it is read.
         TrigonometryAngle swayBehind = (state.Angle - RotationAngle.QuarterTurn).ToTrigonometryAngle();
         body.Position = body.Position.WithWholeY(
             state.MovementCenter.Y +
@@ -194,7 +194,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         UpdateSporeSpawnStalks(body, state);
         // The dust follows the game's frame counter.
-        if (SporeSpawnCadenceDefinitions.IdleDustEverySixteenthUpdate.IsDue(_frameContext.FrameCounter))
+        if (SporeSpawnCadenceDefinitions.IdleDust.IsDue(_frameContext.FrameCounter))
         {
             int random = _room.Random.Generate();
             _ = _effectActors.SpawnRoomEffectActor(

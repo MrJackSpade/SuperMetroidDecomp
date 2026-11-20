@@ -9,7 +9,7 @@ internal sealed class BeamCombos
     private readonly ProjectileAnimation _animation;
     /// <summary>Resets Samus's charge flare while combo particles control shared firing state.</summary>
     private readonly BeamChargeState _charge;
-    /// <summary>The shot pool whose first four places a special beam attack's particles take together.</summary>
+    /// <summary>The shot pool whose first places a special beam attack's particles take together.</summary>
     private readonly SamusShotPool _pool;
     /// <summary>Spawns periodic Wave and other special attack trails from their live particles.</summary>
     private readonly ProjectileTrails _trails;
@@ -61,8 +61,8 @@ internal sealed class BeamCombos
             // and each plays its part.
             IReadOnlyList<SpecialAttackParticle> parts = SpecialAttackParticleDefinitions.InPlaceOrder;
             SamusProjectile[] particles = SpecialAttackReplacesFirstShots.ParticleShots(parts.Count, _pool.Occupy);
-            // The Ice and Plasma particles turn round Samus four steps on each update, or four steps back (a full circle
-            // less four) when a left-facing Samus starts the attack, which carries them the opposite way by as much.
+            // The Ice and Plasma particles turn round Samus by OrbitTurnOn each update, or by OrbitTurnBack (a full circle
+            // less as much) when a left-facing Samus starts the attack, which carries them the opposite way by as much.
             TrigonometryAngle orbitTurn = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right)
                 ? BeamComboDefinitions.OrbitTurnOn
                 : BeamComboDefinitions.OrbitTurnBack;
@@ -99,7 +99,7 @@ internal sealed class BeamCombos
                     shot.Position = shot.Position.WithoutFractions();
                 if (kind == SamusComboKind.Wave)
                 {
-                    // A Wave particle starts 128 pixels from Samus on each axis, so near the room's top or left edge it
+                    // A Wave particle starts its wave start away from Samus on each axis, so near the room's top or left edge it
                     // starts above or left of the room's origin, a place OffRoomPlaces gives it.
                     shot.Position = shot.Position.WithWhole(new(OffRoomPlaces.Place(samus.Position.X.Whole + part.WaveStart.X), OffRoomPlaces.Place(samus.Position.Y.Whole + part.WaveStart.Y)));
                 }
@@ -164,7 +164,7 @@ internal sealed class BeamCombos
         }
         StepTrail(held);
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(ice.Angle, ice.Radius);
-        // An Ice particle circles Samus 32 pixels out, further than her centre lies from a wall at the room's left edge, so
+        // An Ice particle circles Samus at its orbit radius, further than her centre lies from a wall at the room's left edge, so
         // it passes left of the room's origin there, and above it where the room is open at the top, places
         // OffRoomPlaces gives it.
         shot.Position = OffRoomPlaces.WithWholeX(shot.Position, samus.Position.X.Whole + orbit.X);
@@ -264,7 +264,7 @@ internal sealed class BeamCombos
         shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.SpecialAttackHold);
         _charge.ClearCount();
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(ring.Angle, ring.Radius);
-        // A Plasma ring grows as far as 192 pixels round Samus, so near the room's top or left edge it passes above or left
+        // A Plasma ring grows as far as its outer radius round Samus, so near the room's top or left edge it passes above or left
         // of the room's origin, places OffRoomPlaces gives it.
         shot.Position = shot.Position.WithWhole(new(OffRoomPlaces.Place(orbit.X + samus.Position.X.Whole), OffRoomPlaces.Place(orbit.Y + samus.Position.Y.Whole)));
         ring.Turn();
@@ -408,7 +408,7 @@ internal sealed class BeamCombos
         SamusProjectile shot = held.Projectile;
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(spazer.Angle, spazer.Radius);
         int centreHeight = spazer.Phase == SpazerComboPhase.Circling ? 0 : BeamComboDefinitions.SpazerFlightCentreHeight;
-        // A Spazer particle circles Samus 40 pixels out, then as far as 160 round a point 114 above her, so near the room's
+        // A Spazer particle circles Samus close in, then far out round a point above her, so near the room's
         // top or left edge it passes above or left of the room's origin, places OffRoomPlaces gives it.
         shot.Position = shot.Position.WithWhole(new(OffRoomPlaces.Place(samus.Position.X.Whole + orbit.X),
             OffRoomPlaces.Place(samus.Position.Y.Whole + orbit.Y - centreHeight)));
@@ -419,7 +419,7 @@ internal sealed class BeamCombos
     {
         SamusProjectile shot = held.Projectile;
         // The particle can lie left of the room's origin as its flight ends (PlaceSpazerParticle), and the step out moves it
-        // sixteen pixels either way, so its place is one OffRoomPlaces gives it.
+        // its side step either way, so its place is one OffRoomPlaces gives it.
         shot.Position = OffRoomPlaces.WithWholeX(shot.Position, shot.Position.X.Whole +
             BeamComboDefinitions.SpazerFallSideStep.Toward(spazer.Part.SpazerTrail ? HorizontalDirection.Left : HorizontalDirection.Right));
         shot.Direction = SamusProjectileDirection.DownFacingLeft;
@@ -456,7 +456,7 @@ internal sealed class BeamCombos
         }
         SignedEightEight oldXSpeed = shot.Velocity.X;
         StepTrail(held);
-        // A Wave particle starts 128 pixels from Samus on each axis and swings through her as far again, ignoring
+        // A Wave particle starts its wave start away from Samus on each axis and swings through her as far again, ignoring
         // terrain, so near the room's top or left edge it lies above or left of the room's origin; it homes on her the
         // short way, as DistanceAcrossRoomEdge.Apart gives it.
         shot.Velocity = shot.Velocity.WithX(AccelerateWaveAxis(shot.Velocity.X, DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, shot.Position.X.Whole)));

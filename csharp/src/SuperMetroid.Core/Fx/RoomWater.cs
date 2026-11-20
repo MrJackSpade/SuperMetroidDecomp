@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>A room's water (#1695): its tide and what its surface does.</summary>
 /// <param name="Tide">How the surface rises and falls about its base line.</param>
-/// <param name="SurfaceDrift">Whether the effect overlay's surface texture drifts right by a quarter pixel every frame.</param>
+/// <param name="SurfaceDrift">Whether the effect overlay's surface texture drifts right by <see cref="WaterWaveDefinitions.SurfaceDriftSpeed"/> every frame.</param>
 /// <param name="BackgroundWave">
 /// Whether the background below the surface ripples with the horizontal water wave. Only water shows it: the statue
 /// effect's water moves the statue instead.

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx;
 [RoomLifetime]
 internal sealed class QuicksandObjects
 {
-    /// <summary>The room's forty room-object places; a full room keeps a quicksand reaction from spawning.</summary>
+    /// <summary>The room's room-object places; a full room keeps a quicksand reaction from spawning.</summary>
     private readonly RoomObjectPlaceList _places;
 
     /// <summary>Binds quicksand reactions to the room's room-object places.</summary>
@@ -26,7 +26,7 @@ internal sealed class QuicksandObjects
     /// are therefore observable gameplay state even though they never draw.
     /// </remarks>
     /// <param name="block">The sand block Samus is inside.</param>
-    /// <param name="reaction">One of the four inside sand reactions.</param>
+    /// <param name="reaction">One of the inside sand reactions.</param>
     /// <returns>False only when the room-object pool is full.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a sand reaction.</exception>
     public bool TrySpawnQuicksandReaction(Position16<RoomBlocks> block, SpecialAirInsideReaction reaction) =>
@@ -39,7 +39,7 @@ internal sealed class QuicksandObjects
     /// <see cref="TrySpawnQuicksandReaction(Position16{RoomBlocks}, SpecialAirInsideReaction)"/> does for an inside reaction.
     /// </summary>
     /// <param name="block">The sand block Samus's movement reached.</param>
-    /// <param name="reaction">One of the four collision sand reactions.</param>
+    /// <param name="reaction">One of the collision sand reactions.</param>
     /// <returns>False only when the room-object pool is full.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a sand reaction.</exception>
     public bool TrySpawnQuicksandReaction(Position16<RoomBlocks> block, SpecialAirCollisionReaction reaction) =>

@@ -52,6 +52,6 @@ internal static class BotwoonWallMutationDefinitions
         .. Enumerable.Repeat(NextRow, CrumbleRows - 1).SelectMany(CrumbleRow),
     ]);
 
-    /// <summary>The clear of an already-defeated room: the nine cleared wall blocks, drawn on the next update.</summary>
+    /// <summary>The clear of an already-defeated room: the cleared wall blocks, drawn on the next update.</summary>
     internal static TerrainChange Clear { get; } = TerrainChange.DrawnOnce(BotwoonWallObjectDrawDefinitions.Clear);
 }

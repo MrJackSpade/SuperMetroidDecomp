@@ -5,10 +5,11 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// The Ceres room's haze: the colour it takes and how it fades in and out with the room. A waiting haze starts fading in on
-/// the update the room fades in, showing its first strength on that same update; fading in, it shows strengths 0 through
-/// 15, one an update, and on the update after 15 it holds at full strength without changing what it shows. Holding, it
-/// starts fading out on the update the room fades out and shows its first fade-out strength on the next update; fading
-/// out, it shows full strength once more and then strengths 15 down to 1, one an update, and then stays at 1 (#2573). A
+/// the update the room fades in, showing its first strength on that same update; fading in, it shows each strength of its
+/// fade from none upward, one an update, and on the update after its strongest it holds at full strength without changing
+/// what it shows. Holding, it starts fading out on the update the room fades out and shows its first fade-out strength on
+/// the next update; fading out, it shows full strength once more and then each strength downward, one an update, to its
+/// faintest, and then stays there (#2573). A
 /// haze shown as the room appears at once starts holding, at the strength a finished fade-in shows.
 /// </summary>
 [RoomLifetime]
@@ -19,14 +20,14 @@ public sealed class CeresHazeState
     {
         /// <summary>Waits for the room fade-in gate without changing the published haze strength.</summary>
         Waiting,
-        /// <summary>Shows strengths zero through fifteen, one an update, rising after each.</summary>
+        /// <summary>Shows each strength of the fade from none upward, one an update, rising after each.</summary>
         FadingIn,
         /// <summary>Retains full haze until the room fade-out gate selects the next phase.</summary>
         Holding,
-        /// <summary>Shows full strength and then fifteen down to one, one an update, falling after each, then stays at one.</summary>
+        /// <summary>Shows full strength and then each strength downward, one an update, falling after each, then stays at the faintest.</summary>
         FadingOut,
     }
-    /// <summary>Current haze phase, independent of its selected color channel.</summary>
+    /// <summary>Current haze phase.</summary>
     private Phase _phase;
     /// <summary>
     /// The fade running: one update a strength, its age the strength fading in shows next and its updates left the strength
@@ -35,7 +36,7 @@ public sealed class CeresHazeState
     private UpdateCountdown fade = UpdateCountdown.Ended();
     /// <summary>The tint the haze adds, chosen once as it starts by whether Ridley is dead; later defeats do not change it.</summary>
     public CeresHazeTint Tint { get; }
-    /// <summary>The strength the haze shows, in steps of its fade: 0 through 15 as it fades in, 15 down to 1 as it fades out, and 1 once it has faded out.</summary>
+    /// <summary>The strength the haze shows, in steps of its fade: rising as it fades in, falling as it fades out, and its faintest once it has faded out.</summary>
     private int _strength;
 
     /// <summary>The haze's full strength, the last step of its fade.</summary>
@@ -55,7 +56,7 @@ public sealed class CeresHazeState
         _strength = immediateViewport ? CeresHazeDefinitions.FadeSteps - 1 : 0;
     }
 
-    /// <summary>One per-frame haze step while no door fade runs. Transition changes do not rewrite the selected channel.</summary>
+    /// <summary>One per-frame haze step while no door fade runs.</summary>
     public void Step() => Step(RoomFade.None);
 
     /// <summary>

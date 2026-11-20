@@ -1,5 +1,3 @@
-using SuperMetroid.Core;
-
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
@@ -13,11 +11,6 @@ internal static class SamusProjectileSystemPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem self)
     {
-        /// <summary>The private property <c>LastFrameResult</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileFrameResult LastFrameResult
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem, global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileFrameResult>(self, "LastFrameResult");
-        }
 
         /// <summary>The private property <c>Trails</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Samus.Projectiles.ProjectileTrails Trails

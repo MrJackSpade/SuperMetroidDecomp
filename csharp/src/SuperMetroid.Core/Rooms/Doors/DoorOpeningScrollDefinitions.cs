@@ -22,7 +22,7 @@ internal static class DoorOpeningScrollDefinitions
 
     /// <summary>
     /// Where the background starts, from its endpoint: as far before it as the setup camera stands before the destination,
-    /// except an upward door's, which begins 220 pixels below it. A downward door's first update only readies the row
+    /// except an upward door's, which begins nearly a screen below it. A downward door's first update only readies the row
     /// below the screen.
     /// </summary>
     internal static readonly IReadOnlyDictionary<DoorDirection, Offset16<BackgroundPixels>> SetupBackgroundOffsets =
@@ -35,9 +35,8 @@ internal static class DoorOpeningScrollDefinitions
         };
 
     /// <summary>
-    /// The scroll updates that remain after setup: a right or left setup takes the first step before placement (63
-    /// remain), down's first update only readies a row (56 remain), and an upward door's placement correction leaves its
-    /// first moving step to setup (55 remain).
+    /// The scroll updates that remain after setup: a right or left setup takes the first step before placement, down's
+    /// first update only readies a row, and an upward door's placement correction leaves its first moving step to setup.
     /// </summary>
     internal static readonly IReadOnlyDictionary<DoorDirection, int> MovingScrollUpdates = new Dictionary<DoorDirection, int>
     {
@@ -49,7 +48,7 @@ internal static class DoorOpeningScrollDefinitions
 
     /// <summary>
     /// Where the opening's foreground stands from the setup camera: horizontal setups have not yet taken their step, and an
-    /// upward door's correction of the source room's top row places the foreground five (the background four) pixels lower.
+    /// upward door's correction of the source room's top row places the foreground (and the background) a few pixels lower.
     /// </summary>
     internal static readonly IReadOnlyDictionary<DoorDirection, Offset16<RoomPixels>> OpeningForegroundOffsets =
         new Dictionary<DoorDirection, Offset16<RoomPixels>>

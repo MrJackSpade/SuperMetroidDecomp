@@ -136,7 +136,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.FigureEight.PathPlace = PhantoonPath.At(words.A);
                 phantoon.Death.ExplosionPasses = words.A;
                 phantoon.StartingFlames.Orbiting = words.B != 0;
-                phantoon.FigureEight.Speed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPathSpeed>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { (global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B)) });
+                phantoon.FigureEight.Speed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPathSpeed>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B) });
                 phantoon.FigureEight.Stage = PhantoonFigureEightStageWords.Decode(words.D);
                 if (words.F != 0)
                     phantoon.Phase = PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
@@ -288,7 +288,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {
-            global::SuperMetroid.Core.PrivateState.Set(crocomireRecord, "DeathStage", (global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathStage>)(CrocomireNativeWords.DeathStages.Decode(words.A, "recorded Crocomire death stage")));
+            global::SuperMetroid.Core.PrivateState.Set(crocomireRecord, "DeathStage", CrocomireNativeWords.DeathStages.Decode(words.A, "recorded Crocomire death stage"));
             if (CrocomireNativeWords.DamageReactionPending(words.B))
                 crocomireRecord.StepBack.Ask();
             else
@@ -357,7 +357,7 @@ internal static class NativeEnemyFamilyStateImport
             // in variable D; each is read here as the meaning the recorded phase gives it.
             if (dachoraRecord.Action is DachoraAction.BlinkingBeforeRun or DachoraAction.ChargingShinespark)
             {
-                global::SuperMetroid.Core.PrivateState.Set(dachoraRecord, "PhaseTimer", (global::SuperMetroid.Core.UpdateCountdown)(UpdateCountdownAccess.Recorded(unchecked((short)words.A))));
+                global::SuperMetroid.Core.PrivateState.Set(dachoraRecord, "PhaseTimer", UpdateCountdownAccess.Recorded(unchecked((short)words.A)));
                 dachoraRecord.Speed = SignedSixteenSixteen.FromParts(0, words.B);
                 dachoraRecord.VerticalAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.D);
             }
@@ -792,7 +792,7 @@ internal static class NativeEnemyFamilyStateImport
             beetom.Action = beetomAction;
             // Only an action that goes one way names its heading (#2277).
             if (beetomHeading is { } beetomGoes)
-                global::SuperMetroid.Core.PrivateState.Set(beetom, "Heading", (global::SuperMetroid.Core.Spatial.HorizontalDirection)(beetomGoes));
+                global::SuperMetroid.Core.PrivateState.Set(beetom, "Heading", beetomGoes);
             beetom.ActionTimer = TrueWait(words.D);
             beetom.ButtonCounter = unchecked((short)words.E);
             beetom.LastSeenPlayerActions = GameplayActionWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
@@ -838,7 +838,7 @@ internal static class NativeEnemyFamilyStateImport
             if (skulteraSpeed != enemy.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>().Speed)
                 throw new InvalidDataException($"Recorded Skultera speed {skulteraSpeed} is not its placement's {enemy.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>().Speed}.");
             // Only the angle word's low byte is ever read; movement discards its high byte.
-            global::SuperMetroid.Core.PrivateState.Set(skultera, "Angle", (global::SuperMetroid.Core.Spatial.RotationAngle)(RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F))));
+            global::SuperMetroid.Core.PrivateState.Set(skultera, "Angle", RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F)));
         }
         if (enemy.Holds(EnemyDefinitionId.Coven) && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {

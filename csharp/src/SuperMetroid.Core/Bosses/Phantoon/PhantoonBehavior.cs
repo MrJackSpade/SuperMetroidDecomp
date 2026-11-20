@@ -98,7 +98,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.PhaseWait.LastFor(PhantoonTimerDefinitions.InitialFlameDelayFrames);
         state.StartingFlames.NextFlame = PhantoonStartingFlamesState.First;
-        state.StartingFlames.Orbiting = false;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         StartPhantoonPart(state.BodyPart);
         body.SetSpeciesState(state.BodyPart);

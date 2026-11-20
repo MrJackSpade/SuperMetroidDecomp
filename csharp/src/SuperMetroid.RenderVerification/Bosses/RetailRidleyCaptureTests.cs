@@ -32,7 +32,7 @@ internal static class RetailRidleyCaptureTests
         foreach (int tilt in new[] { -33, 0, 33 })
         foreach (short scroll in new short[] { -19, 0, 19 })
         {
-            runtime.Enemies.CeresEscape.Floor.Active = true;
+            global::SuperMetroid.Core.PrivateState.Set(runtime.Enemies.CeresEscape, "Stage", CeresEscapeStage.Getaway);
             runtime.Enemies.CeresEscape.Floor.Zoom = FloorZoomConstants.FromTwoHundredFiftySixths(scale);
             runtime.Enemies.CeresEscape.Floor.Angle = RotationAngle.WrappedSteps(tilt);
             runtime.Enemies.CeresEscape.Floor.Center = new Offset16<FloorPixels>(128, 120);
@@ -49,7 +49,7 @@ internal static class RetailRidleyCaptureTests
                 $"{device.Kind}: retail Ridley scale={scale}, tilt={tilt}, scroll={scroll}");
             retained.Add(new RetainedFrame(packet, expected));
         }
-        runtime.Enemies.CeresEscape.Floor.Active = false;
+        global::SuperMetroid.Core.PrivateState.Set(runtime.Enemies.CeresEscape, "Stage", CeresEscapeStage.SelfDestruct);
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         foreach (var sample in retained.AsEnumerable().Reverse())
             PixelComparison.Verify(sample.Packet, sample.Expected, renderer.RenderForReadback(sample.Packet),

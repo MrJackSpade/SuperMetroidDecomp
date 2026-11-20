@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -22,38 +23,38 @@ public sealed class KraidBodyState : KraidPartState
     public KraidBodyStage Stage => step.Stage;
 
     /// <summary>The stage the body is in with the phase of it it runs, one value (#2560): no phase of another stage is held.</summary>
-    private KraidBodyStep step = new KraidBodyStep.InStage<KraidRisePhase>(KraidBodyStage.Rising, KraidRisePhase.RestrictSamusToFirstScreen);
+    private BossStagePhase<KraidBodyStage> step = new BossStagePhase<KraidBodyStage>.Of<KraidRisePhase>(KraidBodyStage.Rising, KraidRisePhase.RestrictSamusToFirstScreen);
 
     /// <summary>The phase of his rise through the floor the body runs.</summary>
     /// <exception cref="InvalidOperationException">The body is not rising.</exception>
     public KraidRisePhase RisePhase
     {
-        get => step is KraidBodyStep.InStage<KraidRisePhase> { Stage: KraidBodyStage.Rising } inStage ? inStage.Phase : throw NotIn(KraidBodyStage.Rising);
-        internal set => step = new KraidBodyStep.InStage<KraidRisePhase>(KraidBodyStage.Rising, value);
+        get => step is BossStagePhase<KraidBodyStage>.Of<KraidRisePhase> { Stage: KraidBodyStage.Rising } inStage ? inStage.Phase : throw NotIn(KraidBodyStage.Rising);
+        internal set => step = new BossStagePhase<KraidBodyStage>.Of<KraidRisePhase>(KraidBodyStage.Rising, value);
     }
 
     /// <summary>The phase of his fight the body runs.</summary>
     /// <exception cref="InvalidOperationException">The body is not fighting.</exception>
     public KraidFightPhase FightPhase
     {
-        get => step is KraidBodyStep.InStage<KraidFightPhase> { Stage: KraidBodyStage.Fighting } inStage ? inStage.Phase : throw NotIn(KraidBodyStage.Fighting);
-        internal set => step = new KraidBodyStep.InStage<KraidFightPhase>(KraidBodyStage.Fighting, value);
+        get => step is BossStagePhase<KraidBodyStage>.Of<KraidFightPhase> { Stage: KraidBodyStage.Fighting } inStage ? inStage.Phase : throw NotIn(KraidBodyStage.Fighting);
+        internal set => step = new BossStagePhase<KraidBodyStage>.Of<KraidFightPhase>(KraidBodyStage.Fighting, value);
     }
 
     /// <summary>The phase of his growth the body runs.</summary>
     /// <exception cref="InvalidOperationException">The body is not growing.</exception>
     public KraidGrowthPhase GrowthPhase
     {
-        get => step is KraidBodyStep.InStage<KraidGrowthPhase> { Stage: KraidBodyStage.Growing } inStage ? inStage.Phase : throw NotIn(KraidBodyStage.Growing);
-        internal set => step = new KraidBodyStep.InStage<KraidGrowthPhase>(KraidBodyStage.Growing, value);
+        get => step is BossStagePhase<KraidBodyStage>.Of<KraidGrowthPhase> { Stage: KraidBodyStage.Growing } inStage ? inStage.Phase : throw NotIn(KraidBodyStage.Growing);
+        internal set => step = new BossStagePhase<KraidBodyStage>.Of<KraidGrowthPhase>(KraidBodyStage.Growing, value);
     }
 
     /// <summary>The phase of his death the body runs.</summary>
     /// <exception cref="InvalidOperationException">The body is not dying.</exception>
     public KraidDeathPhase DeathPhase
     {
-        get => step is KraidBodyStep.InStage<KraidDeathPhase> { Stage: KraidBodyStage.Dying } inStage ? inStage.Phase : throw NotIn(KraidBodyStage.Dying);
-        internal set => step = new KraidBodyStep.InStage<KraidDeathPhase>(KraidBodyStage.Dying, value);
+        get => step is BossStagePhase<KraidBodyStage>.Of<KraidDeathPhase> { Stage: KraidBodyStage.Dying } inStage ? inStage.Phase : throw NotIn(KraidBodyStage.Dying);
+        internal set => step = new BossStagePhase<KraidBodyStage>.Of<KraidDeathPhase>(KraidBodyStage.Dying, value);
     }
 
     /// <summary>

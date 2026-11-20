@@ -135,7 +135,6 @@ internal static class NativeEnemyFamilyStateImport
                     phantoon.StartingFlames.NextFlame = SuperMetroid.Core.Bosses.ListStep<TrigonometryAngle>.At(PhantoonFlameSpawns.StartingFlameStarts, words.A);
                 phantoon.FigureEight.PathPlace = PhantoonPath.At(words.A);
                 phantoon.Death.ExplosionPasses = words.A;
-                phantoon.StartingFlames.Orbiting = words.B != 0;
                 phantoon.FigureEight.Speed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPathSpeed>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B) });
                 phantoon.FigureEight.Stage = PhantoonFigureEightStageWords.Decode(words.D);
                 if (words.F != 0)

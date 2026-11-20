@@ -148,7 +148,7 @@ internal sealed class PhantoonCombat
         private void RunPhantoonStartingFlameWaiting(EnemyProjectile flame)
         {
             PhantoonOrbitingFlameState orbit = Orbits.Of(flame);
-            if (!orbit.Phantoon.StartingFlames.Orbiting)
+            if (orbit.Phantoon.Phase != PhantoonPhase.WaitForStartingFlamesToDisappear)
                 return;
             flame.StartMotion(IntroOrbiting);
             orbit.FullRadiusHold.LastFor(PhantoonFlameMotionDefinitions.IntroCircleHoldUpdates);

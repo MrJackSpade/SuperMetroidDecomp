@@ -105,8 +105,7 @@ internal sealed class TorizoCombat
         state.DeathStarted = true;
         state.Phase = TorizoPhase.Idle;
         TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.Dying));
-        state.GutBlownUp = true;
-        state.FaceBlownUp = true;
+        state.Breakage = TorizoBreakage.GutAndFaceBlownUp;
         // The normal Torizo shot reaction makes the actor intangible when
         // entering the death animation. This removes the dying actor from Samus contact and
         // solid-enemy collision while its flashing/invisible animation frames continue.

@@ -94,8 +94,8 @@ internal sealed class MotherBrainRainbowAndDeath
         {
             _projectiles.SpawnDustOrExplosion(dust.Position, dust.Animation);
             // The rot dust's sound competes at low priority.
-            if (dust.SoundEffectQueued)
-                _audio.QueueEnemySound(dust.SoundEffect, priority: SoundRequestPriority.Low);
+            if (dust.Sound is { } sound)
+                _audio.QueueEnemySound(sound, priority: SoundRequestPriority.Low);
         }
         if (step.Starts(MotherBrainStepEffect.MusicStop)) _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
         if (step.Starts(MotherBrainStepEffect.EscapeMusic)) _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.RidleyAndDraygonBattles), MusicQueueDelay.Shortest);

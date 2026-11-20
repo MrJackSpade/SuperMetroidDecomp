@@ -552,13 +552,13 @@ internal static class RidleyFullMovieVerification
         // The check starts every link blank rather than at the tail's initial layout.
         RidleyTailFixtures.BlankLinks(state.Tail);
         var segment = state.Tail.Base;
-        segment.Active = true; segment.StartedNextLink = false; segment.Stagger = RidleyTailTurn.OfSteps(2);
+        segment.Swing = RidleyTailLinkSwing.Staggering; segment.Stagger = RidleyTailTurn.OfSteps(2);
         segment.Offset = new Offset16<RoomPixels>(7, 11);
         RidleyTail.TickRidleyTailLink(state.Tail, segment);
         AssertEqual(RidleyTailTurn.OfSteps(4), segment.Stagger, "native stagger advances before returning");
         AssertEqual((short)7, segment.Offset.X, "stagger retains X offset");
         AssertEqual((short)11, segment.Offset.Y, "stagger retains Y offset");
-        segment.StartedNextLink = true; segment.Angle = RidleyTailAngle.StraightDown;
+        segment.Swing = RidleyTailLinkSwing.Swinging; segment.Angle = RidleyTailAngle.StraightDown;
         segment.SwingDirection = RotationDirection.Clockwise; segment.Distance = SignedEightEight.FromParts(2, 0);
         RidleyTail.TickRidleyTailLink(state.Tail, segment);
         AssertEqual(RidleyTailAngle.StraightDown.TurnedClockwise(2), segment.Angle, "a clockwise step short of the limit turns by the whole step");
@@ -571,8 +571,8 @@ internal static class RidleyFullMovieVerification
         AssertEqual((short)7, segment.Offset.X, "stop retains X offset");
         AssertEqual((short)11, segment.Offset.Y, "stop retains Y offset");
         var child = state.Tail.Shaft[0];
-        segment.Active = true;
-        child.Active = true; child.StartedNextLink = true;
+        segment.Activate();
+        child.Swing = RidleyTailLinkSwing.Swinging;
         child.Angle = RidleyTailAngle.StraightDown; child.SwingDirection = RotationDirection.Clockwise; child.Distance = SignedEightEight.FromParts(8, 0);
         RidleyTail.TickRidleyTailLink(state.Tail, child);
         AssertTrue(child.Active, "moving predecessor prevents child deactivation");

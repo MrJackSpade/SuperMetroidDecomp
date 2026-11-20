@@ -35,7 +35,7 @@ public sealed class BabyMetroidEnemyState
         BabyMetroidMembraneAnimations.StandingOn(BabyMetroidMembranePace.Calm, BabyMetroidMembranePulse.First, 1);
 
     /// <summary>The pace of the membrane's pulse: calm, or quick while it feeds.</summary>
-    public BabyMetroidMembranePace MembranePace { get; private set; }
+    public BabyMetroidMembranePace MembranePace => Membrane.Playback.PlayingSegment;
 
     /// <summary>
     /// Sets the membrane's pulse to <paramref name="pace"/>: the phase showing keeps the updates it has left, and the phases
@@ -43,7 +43,6 @@ public sealed class BabyMetroidEnemyState
     /// </summary>
     internal void PaceMembrane(BabyMetroidMembranePace pace)
     {
-        MembranePace = pace;
         Membrane.GoOnIn(BabyMetroidMembraneAnimations.At(pace));
     }
 

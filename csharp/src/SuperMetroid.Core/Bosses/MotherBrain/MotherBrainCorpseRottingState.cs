@@ -40,8 +40,7 @@ public sealed class MotherBrainCorpseRottingState
                     Position: brainPosition + MotherBrainLateFightDefinitions.CorpseDustFromBrain +
                         new Offset16<RoomPixels>(randomNumberSeed.Read(MotherBrainRandomDefinitions.CorpseDustOffset), 0),
                     Animation: DustExplosionAnimation.CorpseDustCloud,
-                    SoundEffectQueued: MotherBrainCadenceDefinitions.CorpseDustSound.IsDue(enemyPassCount),
-                    SoundEffect: EnemySound.LiquidDamage));
+                    Sound: MotherBrainCadenceDefinitions.CorpseDustSound.IsDue(enemyPassCount) ? EnemySound.LiquidDamage : null));
             });
 
         return new MotherBrainCorpseRottingStepResult(StillRotting: stillRotting, DustRequests: dustRequests);

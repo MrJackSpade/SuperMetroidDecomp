@@ -20,8 +20,8 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
     /// <summary>Where the hand is in its course.</summary>
     internal BombTorizoHandPhase Phase { get; private set; } = BombTorizoHandPhase.Starting;
 
-    /// <summary>Whether Samus's Bombs wake the hand: from its second update until they do.</summary>
-    internal bool WakeArmed { get; private set; }
+    /// <summary>Whether Samus's Bombs wake the hand: while it rests, from its second update until they do (#2560).</summary>
+    internal bool WakeArmed => Phase == BombTorizoHandPhase.Resting;
 
     /// <summary>The step of its crumble the hand shows; none before its crumble starts (#1627, #2332).</summary>
     internal ListStep<BombTorizoHandCrumbleStep>? CrumbleStep { get; private set; }
@@ -35,7 +35,6 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
         Ensure.NotNull(place);
         if (WakeArmed && _owner.SamusHasBombs())
         {
-            WakeArmed = false;
             Phase = BombTorizoHandPhase.Crumbling;
             _holdBeforeNextStep.LastFor(1);
         }
@@ -49,7 +48,6 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
                 Phase = BombTorizoHandPhase.Arming;
                 return;
             case BombTorizoHandPhase.Arming:
-                WakeArmed = true;
                 _holdBeforeNextStep.LastFor(1);
                 Phase = BombTorizoHandPhase.Resting;
                 return;

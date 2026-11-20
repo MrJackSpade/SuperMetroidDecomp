@@ -990,8 +990,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     // assertion isolates the missing request/target side effects reported in gameplay.
     foreach (RidleyTailLink segment in state.Tail.Links)
     {
-        segment.Active = true;
-        segment.StartedNextLink = true;
+        segment.Swing = RidleyTailLinkSwing.Swinging;
         segment.SwingDirection = RotationDirection.Clockwise;
         segment.TargetDistance = null;
     }

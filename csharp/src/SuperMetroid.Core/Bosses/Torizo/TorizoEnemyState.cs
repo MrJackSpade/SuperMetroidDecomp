@@ -27,7 +27,7 @@ public sealed class TorizoEnemyState
     internal bool Stunned { get; set; }
 
     /// <summary>Whether Bomb Torizo's face is blown up; its faceless animations walk on from here, and its death sets it.</summary>
-    internal bool FaceBlownUp { get; set; }
+    internal bool FaceBlownUp => Breakage == TorizoBreakage.GutAndFaceBlownUp;
 
     /// <summary>
     /// How the Torizo walks as it now is (#2472): its own walk with its face, and Bomb Torizo's faceless walk once its face
@@ -36,7 +36,10 @@ public sealed class TorizoEnemyState
     internal TorizoWalker Walker => FaceBlownUp ? TorizoWalkerDefinitions.FacelessBombTorizo : Variant.Walker;
 
     /// <summary>Whether Bomb Torizo's gut is blown up, which its first low-health interruption sets, and its death too.</summary>
-    internal bool GutBlownUp { get; set; }
+    internal bool GutBlownUp => Breakage != TorizoBreakage.Intact;
+
+    /// <summary>How far Bomb Torizo's body has broken (#2560): intact, his gut blown up, then his face too.</summary>
+    internal TorizoBreakage Breakage { get; set; }
     /// <summary>Which Torizo this is, Bomb or Golden Torizo, whose values its fight reads (#1931, #2410); fixed at initialization.</summary>
     internal TorizoVariant Variant { get; }
 

@@ -153,8 +153,11 @@ internal static class SymbolRelocator
         var renames = new RenameMap(new Dictionary<string, string>(StringComparer.Ordinal), identity);
         var collected = new ReferenceRewriter(trees, moves, holders, identity, shippedAssemblies, renames, shimsMembers: true).Collect();
         var refusals = new Dictionary<ISymbol, string>(SymbolEqualityComparer.Default);
+        // A type moved code names becomes internal in this step, so a staying member's signature may name it.
+        var becomingVisible = collected.Promotions.OfType<INamedTypeSymbol>().Select(type => (ISymbol)type.OriginalDefinition)
+            .ToHashSet(SymbolEqualityComparer.Default);
         foreach (var member in collected.Promotions.Where(symbol => symbol is not INamedTypeSymbol))
-            if (PrivateAccessShims.Refusal(member) is { } reason)
+            if (PrivateAccessShims.Refusal(member, becomingVisible) is { } reason)
                 refusals[member] = $"{member.ToDisplayString()}, which moved code reaches and stays private, is a {reason}, which no " +
                     "private-access member can stand in for: move or reach it by hand";
         foreach (var property in collected.SetterPromotions.Where(symbol => !collected.Promotions.Contains(symbol)))

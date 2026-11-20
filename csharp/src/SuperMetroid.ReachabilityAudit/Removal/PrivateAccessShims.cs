@@ -89,8 +89,9 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
     /// <summary>
     /// Why no extension member can stand in for <paramref name="member"/>, or null: a constructor, an indexer, an event, a
     /// generic member, a generic type containing the owner, an owner test-support cannot see, a <c>ref struct</c> or pointer in its signature.
+    /// A type of its signature among <paramref name="becomingVisible"/>, which the same step makes internal, test-support sees.
     /// </summary>
-    public static string? Refusal(ISymbol member)
+    public static string? Refusal(ISymbol member, IReadOnlySet<ISymbol>? becomingVisible = null)
     {
         if (member.ContainingType is { TypeKind: TypeKind.Extension } block && (block.IsGenericType || block.ExtensionParameter is not { RefKind: RefKind.None } ||
                 member is not (IMethodSymbol { MethodKind: MethodKind.Ordinary, IsGenericMethod: false } or IPropertySymbol { IsIndexer: false })))
@@ -103,7 +104,7 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
             if (type.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal)
                 return "owner not visible to test-support";
         }
-        if (SignatureTypes(member).FirstOrDefault(Hidden) is { } hidden)
+        if (SignatureTypes(member).FirstOrDefault(type => Hidden(type, becomingVisible)) is { } hidden)
             return $"a type in its signature test-support cannot see ({hidden.ToDisplayString()})";
         return member switch
         {
@@ -139,20 +140,21 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
     };
 
     /// <summary>Whether test-support cannot name <paramref name="type"/>: it, a type containing it or a type argument is private or protected.</summary>
-    private static bool Hidden(ITypeSymbol type) => type switch
+    private static bool Hidden(ITypeSymbol type, IReadOnlySet<ISymbol>? becomingVisible) => type switch
     {
-        IArrayTypeSymbol array => Hidden(array.ElementType),
-        IPointerTypeSymbol pointer => Hidden(pointer.PointedAtType),
-        INamedTypeSymbol named => named.TypeArguments.Any(Hidden) || HiddenDeclaration(named),
+        IArrayTypeSymbol array => Hidden(array.ElementType, becomingVisible),
+        IPointerTypeSymbol pointer => Hidden(pointer.PointedAtType, becomingVisible),
+        INamedTypeSymbol named => named.TypeArguments.Any(argument => Hidden(argument, becomingVisible)) || HiddenDeclaration(named, becomingVisible),
         _ => false,
     };
 
-    /// <summary>Whether a named type, or a type containing it, is private or protected.</summary>
-    private static bool HiddenDeclaration(INamedTypeSymbol type)
+    /// <summary>Whether a named type, or a type containing it, is private or protected and does not become internal.</summary>
+    private static bool HiddenDeclaration(INamedTypeSymbol type, IReadOnlySet<ISymbol>? becomingVisible)
     {
         for (INamedTypeSymbol? declared = type; declared is not null; declared = declared.ContainingType)
         {
-            if (declared.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal)
+            if (declared.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal &&
+                becomingVisible?.Contains(declared.OriginalDefinition) != true)
                 return true;
         }
         return false;

@@ -25,12 +25,18 @@ internal static class KraidColors
     /// the health colours hold the hurt flash's colour group and then each band's, the eyes starting at the same colour
     /// of each.
     /// </summary>
-    internal static KraidEyeColours Eyes(KraidColorCatalog colors) =>
-        new(EyeSet(colors, KraidPalettes.HurtFlashBand),
-            KraidHealthBandDefinitions.HighestFirst.ToDictionary(band => band, band => (IReadOnlyList<RgbColor>)EyeSet(colors, KraidPalettes.BandOf(band))));
+    internal static KraidEyeColours Eyes(KraidColorCatalog colors)
+    {
+        // The installed health colours hold one colour group per shade, in the order KraidPalettes.HealthShades lists them.
+        Dictionary<PictureShade, RgbColor[]> byShade = KraidPalettes.HealthShades
+            .Select((shade, group) => (shade, group))
+            .ToDictionary(entry => entry.shade, entry => EyeSet(colors, entry.group));
+        return new(byShade[KraidShades.HurtFlash],
+            KraidHealthBandDefinitions.HighestFirst.ToDictionary(band => band, band => (IReadOnlyList<RgbColor>)byShade[KraidShades.Health(band)]));
+    }
 
-    /// <summary>The eyes' colours of the health colours' band <paramref name="band"/>: the hurt flash's or a health band's.</summary>
-    private static RgbColor[] EyeSet(KraidColorCatalog colors, int band) =>
-        [.. Enumerable.Range(KraidPalettes.BandColors * band + KraidPalettes.FirstEyeColour, KraidEyeGlow.Eyes)
+    /// <summary>The eyes' colours of the installed health colours' colour group <paramref name="group"/>.</summary>
+    private static RgbColor[] EyeSet(KraidColorCatalog colors, int group) =>
+        [.. Enumerable.Range(KraidPalettes.BandColors * group + KraidPalettes.FirstEyeColour, KraidEyeGlow.Eyes)
             .Select(colour => Resolve(colors, KraidPaletteSource.Health, colour))];
 }

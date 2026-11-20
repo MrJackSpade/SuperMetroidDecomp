@@ -51,9 +51,9 @@ internal static class EnemyColorPresentationContractChecks
                     botwoon.HealthColor(BotwoonColorFormat.HealthBandCount, 0);
                     baby.InitialColor(BabyMetroidCutsceneColorFormat.InitialColorCount - 1);
                     baby.InitialColor(BabyMetroidCutsceneColorFormat.InitialColorCount);
-                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorFormat.FadeColorCount - 1);
-                    baby.FadeColor(0, 0);
-                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorFormat.FadeColorCount);
+                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount - 1, BabyMetroidCutsceneColorFormat.FadeColorCount - 1);
+                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, 0);
+                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount - 1, BabyMetroidCutsceneColorFormat.FadeColorCount);
                     shitroid.NormalColor(BabyMetroidColorDefinitions.NormalFrameCount - 1, BabyMetroidColorDefinitions.NormalColorsPerFrame - 1);
                     shitroid.NormalColor(0, BabyMetroidColorDefinitions.NormalColorsPerFrame);
                     shitroid.TargetColor(BabyMetroidColorTarget.DeadSidehopper, BabyMetroidColorDefinitions.TargetColorCount - 1);

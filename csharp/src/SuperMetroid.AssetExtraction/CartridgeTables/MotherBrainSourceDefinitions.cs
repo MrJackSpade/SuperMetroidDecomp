@@ -25,11 +25,12 @@ internal static class MotherBrainSourceDefinitions
         private const int FirstFadeColors = 0xade90c;
 
         /// <summary>
-        /// The source of displayed fade image <paramref name="paletteIndex"/> (one-based, 1..6), from $AD:E90C through
-        /// $AD:E998 in fourteen-colour strides; the last image is entirely black.
+        /// The source of the fade's step <paramref name="step"/> (zero-based, 0..5), from $AD:E90C through $AD:E998 in
+        /// fourteen-colour strides; the last image is entirely black. The cartridge selects these images from one, its
+        /// image zero unused.
         /// </summary>
-        internal static int FadeColors(int paletteIndex) =>
-            FirstFadeColors + (paletteIndex - 1) * BabyMetroidCutsceneColorFormat.FadeColorCount * ColorWordBytes;
+        internal static int FadeColors(int step) =>
+            FirstFadeColors + step * BabyMetroidCutsceneColorFormat.FadeColorCount * ColorWordBytes;
     }
 
     /// <summary>Mother Brain's bank-$AD colour images and the pointer tables that order them.</summary>

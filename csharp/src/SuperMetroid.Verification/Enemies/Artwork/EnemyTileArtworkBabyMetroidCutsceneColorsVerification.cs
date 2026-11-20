@@ -38,14 +38,14 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
                 $"installed cutscene Baby initial color {color}");
         for (int index = 1; index <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount; index++)
         {
-            int source = MotherBrainSourceDefinitions.BabyMetroid.FadeColors(index);
+            int source = MotherBrainSourceDefinitions.BabyMetroid.FadeColors(index - 1);
             AssertEqual(unchecked((ushort)source),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     FadePointerTable + index * 2),
                 $"native cutscene Baby fade selector {index}");
             for (int color = 0; color < BabyMetroidCutsceneColorFormat.FadeColorCount; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
-                    native.FadeColor(index, color),
+                    native.FadeColor(index - 1, color),
                     $"installed cutscene Baby fade {index} color {color}");
         }
 
@@ -81,7 +81,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
             BabyMetroidCutsceneBehavior.ShowBabyMetroidFade(motherBrain.Colours, MotherBrainFadeDefinitions.BabyFade.Images[index - 1]);
             cgram = Shown();
             for (int color = 0; color < BabyMetroidCutsceneColorFormat.FadeColorCount; color++)
-                AssertEqual(colors.FadeColor(index, color).ToWord(), cgram[destination + color],
+                AssertEqual(colors.FadeColor(index - 1, color).ToWord(), cgram[destination + color],
                     $"live cutscene Baby fade {index} color {color}");
             AssertEqual(initialLastColor, cgram[destination + 14],
                 $"cutscene Baby fade {index} preserves color fifteen");
@@ -105,7 +105,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
                             BabyMetroidCutsceneColorFormat.InitialColorCount * sizeof(ushort)) ||
                     address >= MotherBrainSourceDefinitions.BabyMetroid.FirstFadeColors &&
                     address < MotherBrainSourceDefinitions.BabyMetroid.FadeColors(
-                        BabyMetroidCutsceneColorDefinitions.FadeFrameCount) +
+                        BabyMetroidCutsceneColorDefinitions.FadeFrameCount - 1) +
                         BabyMetroidCutsceneColorFormat.FadeColorCount * sizeof(ushort),
                 address => $"Live cutscene Baby read migrated color ROM ${address:X6}.");
 }

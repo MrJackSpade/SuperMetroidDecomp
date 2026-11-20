@@ -30,14 +30,14 @@ public sealed class BabyMetroidCutsceneColorCatalog
     public RgbColor InitialColor(int color) => initial.Colour(color);
 
     /// <summary>Resolves one installed displayed death fade-to-black color, without advancing the fade timer.</summary>
-    /// <param name="paletteIndex">One-based displayed image selector from one through six; the unused image zero is not installed.</param>
+    /// <param name="step">The fade's step, from zero for its first image through five for its last.</param>
     /// <param name="color">Zero-based image index from zero through 13, corresponding to OBJ palette seven colors 1..14; transparent color zero and black color 15 are excluded.</param>
     /// <returns>The installed image color.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">Either selector is outside the installed fade images; the exception names <paramref name="paletteIndex"/> for both invalid cases.</exception>
-    public RgbColor FadeColor(int paletteIndex, int color) =>
-        paletteIndex is >= 1 and <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount &&
+    /// <exception cref="ArgumentOutOfRangeException">Either selector is outside the installed fade images; the exception names <paramref name="step"/> for both invalid cases.</exception>
+    public RgbColor FadeColor(int step, int color) =>
+        (uint)step < BabyMetroidCutsceneColorDefinitions.FadeFrameCount &&
         (uint)color < BabyMetroidCutsceneColorFormat.FadeColorCount
-            ? fade.Colour(paletteIndex - 1, color)
-            : throw new ArgumentOutOfRangeException(nameof(paletteIndex),
-                $"Cutscene Baby fade index {paletteIndex}, color {color} is outside the installed images.");
+            ? fade.Colour(step, color)
+            : throw new ArgumentOutOfRangeException(nameof(step),
+                $"Cutscene Baby fade step {step}, color {color} is outside the installed images.");
 }

@@ -1368,7 +1368,7 @@ internal static class LookupStream3Verification
                 AssertEqual(initial[color], catalog.InitialColor(color), "stream 3 Baby initial color");
             for (int frame = 0; frame < fade.Length; frame++)
             for (int color = 0; color < fade[frame].Length; color++)
-                AssertEqual(fade[frame][color], catalog.FadeColor(frame + 1, color), "stream 3 Baby fade selected color");
+                AssertEqual(fade[frame][color], catalog.FadeColor(frame, color), "stream 3 Baby fade selected color");
             string identity = SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
             {
                 content.AppendWords("initial", initial);
@@ -1378,10 +1378,10 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        foreach (int invalid in new[] { -1, 0, 7, int.MaxValue })
+        foreach (int invalid in new[] { -1, 6, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(invalid, 0), "stream 3 Baby fade frame bounds");
         foreach (int invalid in new[] { -1, 14, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(1, invalid), "stream 3 Baby fade color bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(0, invalid), "stream 3 Baby fade color bounds");
     }
 
     /// <summary>Checks Mother Brain body, leg, and corpse fade frames against the native color sequences.</summary>

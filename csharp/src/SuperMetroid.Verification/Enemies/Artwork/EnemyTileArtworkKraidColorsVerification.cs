@@ -58,20 +58,21 @@ internal static class EnemyTileArtworkKraidColorsVerification
         // reads back. They are the installed health colours at the eyes' inks.
         var eyeReaderOwner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         KraidEyeColours eyes = eyeReaderOwner.KraidBehavior.Background.EyeColours;
-        AssertEyes(catalog, eyes.Hurt.ToArray(), KraidPalettes.HurtFlashBand, "the hurt flash");
+        List<PictureShade> installedGroups = [.. KraidPalettes.HealthShades];
+        AssertEyes(catalog, eyes.Hurt.ToArray(), installedGroups.IndexOf(KraidShades.HurtFlash), "the hurt flash");
         foreach (KraidHealthBand band in KraidHealthBandDefinitions.HighestFirst)
-            AssertEyes(catalog, eyes.Of(band).ToArray(), KraidPalettes.BandOf(band), $"band {band}");
+            AssertEyes(catalog, eyes.Of(band).ToArray(), installedGroups.IndexOf(KraidShades.Health(band)), $"band {band}");
         // The game reads the eye colours from their own installed document by purpose (#1637), and no other Kraid colour.
         SuperMetroid.AssetExtraction.Installation.GameInstallation installation = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation;
         AssertTrue(!File.Exists(Path.Combine(installation.EnemyTileDirectory, KraidColorFormat.FileName)),
             "the installation holds none of Kraid's colours but his eyes'");
         KraidEyeColours installedEyes = installation.LoadEnemyTiles().KraidEyes;
         AssertEqual(KraidPalettes.HealthBandCount, KraidPalettes.HealthShades.Count, "his health colours are the hurt flash's and the eight health bands'");
-        AssertEqual(KraidShades.HurtFlash, KraidPalettes.HealthShades[KraidPalettes.HurtFlashBand], "the hurt flash's colours come first among his health colours");
+        AssertEqual(KraidShades.HurtFlash, KraidPalettes.HealthShades[0], "the hurt flash's colours come first among his health colours");
         AssertTrue(installedEyes.Hurt.ToArray().SequenceEqual(eyes.Hurt.ToArray()), "Kraid's installed hurt flash eye colours are the eyes' colours of his health colours");
         foreach (KraidHealthBand band in KraidHealthBandDefinitions.HighestFirst)
         {
-            AssertEqual(KraidShades.Health(band), KraidPalettes.HealthShades[KraidPalettes.BandOf(band)], $"Kraid band {band}'s shade names its band");
+            AssertTrue(KraidPalettes.HealthShades.Contains(KraidShades.Health(band)), $"Kraid band {band}'s shade is among his health colours");
             AssertTrue(installedEyes.Of(band).ToArray().SequenceEqual(eyes.Of(band).ToArray()),
                 $"Kraid band {band}'s installed eye colours are the eyes' colours of his health colours");
         }

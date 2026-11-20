@@ -46,6 +46,6 @@ internal static class RoomEnemyPlaceSpawnParameters
 
     /// <summary>An entry placing <paramref name="species"/> at the room origin with no contact, processing or presence of its own.</summary>
     internal static RoomEnemyPlacement PlacementFor(EnemyDefinitionId species, EnemySpawnSettings settings) =>
-        new(species, Position16<RoomPixels>.Zero, EnemyContact.None, EnemyProcessing.None, EnemyPresence.None,
+        new(species, EnemyPlacing.At(Position16<RoomPixels>.Zero), EnemyContact.None, EnemyProcessing.None, EnemyPresence.None,
             CollidesByFrameHitboxes: false, settings);
 }

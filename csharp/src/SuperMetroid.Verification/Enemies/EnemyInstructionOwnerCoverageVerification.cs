@@ -162,7 +162,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             place.Bind(place.HeldOccupant().DefinitionId, definition);
             place.Radius = new(definition.Radius.X, definition.Radius.Y);
             place.Health = definition.Health;
-            place.Position = place.Position.WithWhole(new(population.Position.X, population.Position.Y));
+            place.Position = population.Placing.Place(place.Position);
             place.Contact = population.Contact;
             place.Processing = population.Processing;
             place.Presence = population.Presence;

@@ -22,7 +22,7 @@ internal static class Zebetites
     internal static RoomEnemyPlacement SpawnPopulation(ZebetiteHalf half, int destroyed)
     {
         ZebetiteGenerationDefinition generation = Generation(destroyed);
-        return new(EnemyDefinitionId.Zebetite, new(generation.X, YPosition(generation, half)), EnemyContact.None, EnemyProcessing.Animates,
+        return new(EnemyDefinitionId.Zebetite, EnemyPlacing.At(new(generation.X, YPosition(generation, half))), EnemyContact.None, EnemyProcessing.Animates,
             EnemyPresence.None, CollidesByFrameHitboxes: false, new ZebetiteSpawnSettings(half));
     }
 

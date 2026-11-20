@@ -24,7 +24,7 @@ internal static class RoomEnemySlotSpawnWords
     internal static void SetSpawnWords(this RoomEnemyPlace place, EnemyDefinitionId species, Func<PopulationWords, PopulationWords> change)
     {
         RoomEnemyPlacement? current = place.Occupant?.Spawn ?? place.LastSpawn;
-        Position16<RoomPixels> position = current?.Position ?? Position16<RoomPixels>.Zero;
+        Position16<RoomPixels> position = current is null ? Position16<RoomPixels>.Zero : RoomEnemyPopulationRecordCodec.PositionWordsOf(current.Placing);
         PopulationWords blank = EnemySpawnSettingsCodec.Blank(species);
         Type kind = KindOf(EnemySpawnSettingsCodec.Decode(species, blank, position).GetType());
         PopulationWords words = current is not null && KindOf(current.SpawnSettings.GetType()) == kind

@@ -40,7 +40,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         place.Bind(population, definition);
         place.Radius = new(definition.Radius.X, definition.Radius.Y);
         place.Health = definition.Health;
-        place.Position = place.Position.WithWhole(new(population.Position.X, population.Position.Y));
+        place.Position = population.Placing.Place(place.Position);
 
         place.Contact = population.Contact;
         place.Processing = population.Processing;

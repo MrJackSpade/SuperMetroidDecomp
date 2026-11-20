@@ -109,9 +109,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             ReserveSpecialRinkaSpawn(place, state);
 
         // A special Rinka returns to its spawn point, the one it last reserved; an ordinary Rinka to its own placement.
-        place.Position = place.Position.WithWhole(state.SharedSpawn is { } shared
-            ? RinkaSpawnReservations.Centre(shared.SpawnPoint)
-            : occupant.Spawn.Position);
+        place.Position = state.SharedSpawn is { } shared
+            ? place.Position.WithWhole(RinkaSpawnReservations.Centre(shared.SpawnPoint))
+            : occupant.Spawn.Placing.Place(place.Position);
         InitializeRinkaLife(occupant, place, state);
     }
 

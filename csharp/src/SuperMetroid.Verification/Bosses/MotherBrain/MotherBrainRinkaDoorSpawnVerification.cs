@@ -83,7 +83,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
             RinkaSpawnPoint point = rinkas[index].SpeciesState<RinkaEnemyState>()?.SharedSpawn?.SpawnPoint
                 ?? throw new InvalidOperationException($"Special Rinka {index} holds no spawn point.");
             AssertEqual(rinkas[index].Position.Whole, RinkaSpawnReservations.Centre(point), $"Rinka {index} respawns at the point it moved to");
-            AssertEqual(populated[index], rinkas[index].HeldOccupant().Spawn.Position, $"Rinka {index}'s population entry keeps its placement");
+            AssertEqual(EnemyPlacing.At(populated[index]), rinkas[index].HeldOccupant().Spawn.Placing, $"Rinka {index}'s population entry keeps its placement");
         }
         Console.WriteLine("Mother Brain Rinka door spawn: spawn points are chosen against the loader's scrolling camera.");
     }

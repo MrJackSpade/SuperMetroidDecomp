@@ -976,7 +976,9 @@ internal static class LookupStream2Verification
                 else { cursor += 2; }
             }
             var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            // The native interpreter's own trail, run beside the port's.
+            // The native interpreter's own trail, run beside the port's, for the same two sparkles: native keeps each
+            // picture's corner, the port the sparkle with its picture drawn centred on it (#2573), so equal OAM is the
+            // port's pictures landing where native draws them.
             var nativeTrail = new SuperMetroid.Verification.Samus.Projectiles.NativeTrail(
                 SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)),
                 SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)));
@@ -1004,7 +1006,7 @@ internal static class LookupStream2Verification
                     if (sides.First.FrameHold != 0)
                         AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
                     AssertEqual(sides.First.FrameHold, sides.Second.FrameHold, "Trail artwork cannot change live timing");
-                    AssertEqual(sides.First.Position.Y, authoredTrail.Origin.Y + sides.Second.Offset.Y, "Trail artwork cannot change sibling-targeted movement");
+                    AssertEqual(sides.First.Sparkle.Y, authoredTrail.Origin.Y + sides.Second.Offset.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
         }
@@ -1086,7 +1088,20 @@ internal static class LookupStream2Verification
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");
             AssertEqual(1, trail.Left.FrameHold, "Selector extraction leaves allocation timer unchanged");
-            AssertEqual(96, trail.Origin.X + trail.Left.Offset.X, "Selector extraction leaves origin offset unchanged");
+            // The sparkle stands on its placement from the shot, which for this frame is the shot's own column; its picture
+            // carries its own anchor (#2573).
+            AssertEqual(100, trail.Origin.X + trail.Left.Offset.X, "Selector extraction leaves origin offset unchanged");
+            OamBuffer drawn = SpriteFrameBuffer.DrawnOam(frame =>
+            {
+                projectiles.AdvanceTrails(false);
+                projectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
+            });
+            // Native keeps and draws the left sparkle's picture from the shot's column less half the picture, 96; the
+            // port's centred picture lands there. A left program that shows no pose draws nothing to compare.
+            if (!trail.Left.HasEnded && trail.Left.ShownPose is not null)
+                AssertEqual(new Position16<ScreenPixels>(100 - SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.PictureHalf,
+                        trail.Origin.Y + trail.Left.DisplayedOffset.Y - SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.PictureHalf),
+                    drawn.GetEntry(0).Position, "Selector extraction's left picture is drawn where native draws it");
         }
         Console.WriteLine("Trail selectors: every trailing projectile's real spawn selection passes.");
     }

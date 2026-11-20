@@ -30,4 +30,12 @@ internal static class KraidCombatPrivateAccess
         internal static global::SuperMetroid.Core.Compatibility.KraidPassBounds PlaceKraidPassBounds(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Bosses.Kraid.KraidMouthCollisionEdges shape) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Compatibility.KraidPassBounds>(typeof(global::SuperMetroid.Core.Bosses.Kraid.KraidCombat), "PlaceKraidPassBounds", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Kraid.KraidMouthCollisionEdges)], new object?[] { body, shape });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Kraid.KraidCombat)
+    {
+        /// <summary>The private method <c>PlaceKraidPassBounds</c>, invoked by name.</summary>
+        internal static global::SuperMetroid.Core.Compatibility.KraidPassBounds PlaceKraidPassBounds(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Bosses.Kraid.KraidMouthHitbox shape) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.Compatibility.KraidPassBounds>(typeof(global::SuperMetroid.Core.Bosses.Kraid.KraidCombat), "PlaceKraidPassBounds", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Kraid.KraidMouthHitbox)], new object?[] { body, shape });
+    }
 }

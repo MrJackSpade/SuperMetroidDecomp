@@ -43,4 +43,12 @@ internal static class RoomObjectNoobTubeVisualFilesPrivateAccess
             return invocationResult;
         }
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectNoobTubeVisualFiles)
+    {
+        /// <summary>The private method <c>VisualId</c>, invoked by name.</summary>
+        internal static string VisualId(global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectDraw request) =>
+            PrivateState.InvokeStatic<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectNoobTubeVisualFiles), "VisualId", [typeof(global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectDraw)], new object?[] { request });
+    }
 }

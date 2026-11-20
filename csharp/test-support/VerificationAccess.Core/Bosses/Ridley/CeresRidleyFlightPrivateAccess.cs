@@ -17,4 +17,12 @@ internal static class CeresRidleyFlightPrivateAccess
         internal static void AccelerateRidleyToward(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Bosses.Ridley.RidleyFlightState flight, global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.RoomPixels> target, int divisor) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Ridley.CeresRidleyFlight), "AccelerateRidleyToward", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Ridley.RidleyFlightState), typeof(global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.RoomPixels>), typeof(int)], new object?[] { place, flight, target, divisor });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Ridley.CeresRidleyFlight)
+    {
+        /// <summary>The private method <c>AccelerateRidleyToward</c>, invoked by name.</summary>
+        internal static void AccelerateRidleyToward(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Bosses.Ridley.RidleyFlightState flight, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> target, int divisor) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Ridley.CeresRidleyFlight), "AccelerateRidleyToward", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Ridley.RidleyFlightState), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>), typeof(int)], new object?[] { place, flight, target, divisor });
+    }
 }

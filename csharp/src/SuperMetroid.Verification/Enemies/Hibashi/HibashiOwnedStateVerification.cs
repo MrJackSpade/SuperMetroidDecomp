@@ -19,12 +19,12 @@ internal static class HibashiOwnedStateVerification
         RoomEnemyPlace graphics = enemies.Places.InUpdateOrder[0];
         graphics.SetSpawnParameter1(EnemyDefinitionId.Hibashi, ushort.MaxValue);
         graphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
-        graphics.Bind(EnemyDefinitionId.Hibashi, graphics.Definition);
+        graphics.Bind(EnemyDefinitionId.Hibashi, graphics.KeptDefinition);
         graphics.Position = graphics.Position.WithWhole(new(0x0040, 0x0120));
         graphics.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
         RoomEnemyPlace hitbox = enemies.Places.InUpdateOrder[1];
         hitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
-        hitbox.Bind(EnemyDefinitionId.Hibashi, hitbox.Definition);
+        hitbox.Bind(EnemyDefinitionId.Hibashi, hitbox.KeptDefinition);
         hitbox.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
 
         HibashiEnemyState graphicsState = enemies.HibashiStates[0] ?? throw new InvalidOperationException("The graphics part has no state.");

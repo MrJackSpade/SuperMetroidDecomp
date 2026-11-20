@@ -37,7 +37,7 @@ internal static class KraidGrowthCommandCursorVerification
         Action<RoomEnemyPlace, ushort> footMain = (foot, cameraY) => enemies.KraidBehavior.Limbs.RunKraidFootMain(foot, state.FootState, cameraY);
         var body = enemies.Places.InUpdateOrder[0];
         var foot = enemies.Places.InUpdateOrder[5];
-        body.Bind(EnemyDefinitionId.Kraid, body.Definition);
+        body.Bind(EnemyDefinitionId.Kraid, body.KeptDefinition);
         state.InitialHealth = 1000;
         body.Health = 874;
         state.HeadPlayback = native.PlaybackAt(0x96e2);

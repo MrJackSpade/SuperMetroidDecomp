@@ -23,7 +23,7 @@ internal static class KzanRiseStepVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.KzanTop, place.Definition);
+        place.Bind(EnemyDefinitionId.KzanTop, place.KeptDefinition);
         place.SetSpawnParameter1(EnemyDefinitionId.KzanTop, 0);
         place.SetSpawnParameter2(EnemyDefinitionId.KzanTop, 32 * 256);
         // The rising target lies on the room's top edge, so every height checked keeps rising.

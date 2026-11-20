@@ -190,7 +190,7 @@ internal static class LookupStream1Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().HasEvent = _ => false;
         RoomEnemyPlace dachora = enemies.Places.InUpdateOrder[0];
-        dachora.Bind(EnemyDefinitionId.DachoraEscape, dachora.Definition);
+        dachora.Bind(EnemyDefinitionId.DachoraEscape, dachora.KeptDefinition);
         dachora.Bind(dachora.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         dachora.Position = dachora.Position.WithWhole(new(256, 200));
         enemies.EscapeAnimalsBehavior.InitializeEscapeDachora(dachora);
@@ -210,12 +210,12 @@ internal static class LookupStream1Verification
             // The balloon and its body are placed as their room places them, whose settings name the part each is (#2163).
             var balloon = enemies.Places.InUpdateOrder[0];
             balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
-            balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
+            balloon.Bind(EnemyDefinitionId.Powamp, balloon.KeptDefinition);
             balloon.Bind(balloon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             PowampBehavior.InitializePowampBalloon(balloon);
             var body = enemies.Places.InUpdateOrder[1];
             body.SetSpawnSettings(new PowampBodySpawnSettings(PowampContact.Accepts));
-            body.Bind(EnemyDefinitionId.Powamp, body.Definition);
+            body.Bind(EnemyDefinitionId.Powamp, body.KeptDefinition);
             body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             enemies.PowampBehavior.InitializePowampBody(body);
             body.Position = body.Position.WithWholeY(100);
@@ -287,7 +287,7 @@ internal static class LookupStream1Verification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 5; };
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Metroid, place.Definition);
+            place.Bind(EnemyDefinitionId.Metroid, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.AnimationClock.StepOnNextUpdate();
             enemies.Places.InUpdateOrder[0].SetSpeciesState(new MetroidEnemyState(new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))

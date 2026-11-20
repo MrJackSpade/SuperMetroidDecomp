@@ -34,20 +34,20 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyOccu
         => SporeSpawnBehavior.FindSporeSpawnHitboxReaction(Place, probe);
 
     /// <summary>Whether Spore Spawn's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == SporeSpawnReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == SporeSpawnReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs Spore Spawn's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == SporeSpawnReactions.Touch)
+        if (Occupant.Definition.Touch == SporeSpawnReactions.Touch)
             species.ReactToSporeSpawnTouch(context, Encounter);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>Spore Spawn's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == SporeSpawnReactions.Shot ? OwnShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SporeSpawnReactions.Shot ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>
     /// Spore Spawn's dud shot for a bomb whose hitbox selects it, in place of common bomb damage once the ignoring check has

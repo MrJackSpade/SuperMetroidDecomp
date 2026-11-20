@@ -65,7 +65,7 @@ internal static class HopperAnimationDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => 0;
 
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(definitions[variant], place.Definition);
+            place.Bind(definitions[variant], place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.Sidehopper, onCeiling ? (ushort)1 : (ushort)0);
             enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant());
@@ -120,7 +120,7 @@ internal static class HopperAnimationDefinitionsVerification
         enemies.VerificationServices().NextRandom = () => 0;
 
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.SidehopperTourian, place.Definition);
+        place.Bind(EnemyDefinitionId.SidehopperTourian, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
         enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant());

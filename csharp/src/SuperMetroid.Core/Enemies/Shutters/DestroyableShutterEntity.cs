@@ -40,7 +40,7 @@ internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEne
     }
 
     /// <summary>The destroyable shutter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == ShutterReactions.Shot ? ownShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == ShutterReactions.Shot ? ownShot : base.ShotReaction;
 
     /// <summary>The destroyable shutter's own stages around common bomb damage, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

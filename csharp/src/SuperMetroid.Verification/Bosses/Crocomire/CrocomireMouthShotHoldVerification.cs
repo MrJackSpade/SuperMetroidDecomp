@@ -87,7 +87,7 @@ internal static class CrocomireMouthShotHoldVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
+        body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(576, 144));
         return (enemies, body);
     }

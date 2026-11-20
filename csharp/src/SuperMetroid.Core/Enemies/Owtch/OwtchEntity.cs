@@ -18,7 +18,7 @@ internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyOccupant occup
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Place);
 
     /// <summary>The Owtch's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == OwtchReactions.Shot ? OwtchBehavior.OwtchShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == OwtchReactions.Shot ? OwtchBehavior.OwtchShotReaction : base.ShotReaction;
 
     /// <summary>The Owtch's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

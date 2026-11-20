@@ -235,7 +235,7 @@ internal static class BotwoonAnimationsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
+        head.Bind(EnemyDefinitionId.Botwoon, head.KeptDefinition);
         var state = new BotwoonEnemyState(body: []);
         head.SetSpeciesState(state);
         return new NewBotwoonHeadResult(enemies, head, state);

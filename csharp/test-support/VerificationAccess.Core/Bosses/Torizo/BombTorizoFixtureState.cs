@@ -13,7 +13,7 @@ internal static class BombTorizoFixtureState
     internal static TorizoEnemyState BindTorizoFixtureState(this RoomEnemyPlace torizo, int parameter1, TorizoVariant? variant = null)
     {
         TorizoVariant bound = variant ?? TorizoVariant.Bomb;
-        torizo.Bind(bound == TorizoVariant.Golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.BombTorizo, torizo.Definition);
+        torizo.Bind(bound == TorizoVariant.Golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.BombTorizo, torizo.KeptDefinition);
         var state = new TorizoEnemyState(bound)
         {
             Posture = TorizoParameterFlagWords.PostureOf(parameter1),

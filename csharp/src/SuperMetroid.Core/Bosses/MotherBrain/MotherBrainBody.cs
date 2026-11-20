@@ -287,7 +287,7 @@ internal sealed class MotherBrainBody
             {
                 // The hurting touch is an ordinary enemy touch: suit-divided damage, the hit's invincibility, and
                 // knockback away from her body.
-                EnemyCollision.ApplyOrdinaryTouchDamage(samus, state.Body.Definition.Damage, state.Body.Position.X.Whole);
+                EnemyCollision.ApplyOrdinaryTouchDamage(samus, state.Body.RequireOccupant().Definition.Damage, state.Body.Position.X.Whole);
             }
             return true;
         }

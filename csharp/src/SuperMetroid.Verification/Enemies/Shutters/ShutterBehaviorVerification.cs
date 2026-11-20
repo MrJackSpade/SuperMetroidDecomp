@@ -50,7 +50,7 @@ internal static class ShutterBehaviorVerification
 
         RoomEnemySystem kamerSystem = NewSystem();
         RoomEnemyPlace kamer = NewPlace(kamerSystem, EnemyDefinitionId.Kamer);
-        kamer.Bind(EnemyDefinitionId.Kamer, kamer.Definition);
+        kamer.Bind(EnemyDefinitionId.Kamer, kamer.KeptDefinition);
         // The Kamer's own entity sets it up, showing its platform (#2179).
         AssertTrue(kamer.Entity is KamerEntity, "the Kamer is its own entity");
         ((IEnemyInitialization)kamer.Entity!).Initialize();
@@ -84,7 +84,7 @@ internal static class ShutterBehaviorVerification
     private static RoomEnemyPlace NewPlace(RoomEnemySystem enemies, EnemyDefinitionId definition)
     {
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(definition, place.Definition);
+        place.Bind(definition, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(2, 0));
         return place;
@@ -235,7 +235,7 @@ internal static class ShutterBehaviorVerification
         RoomEnemyPlace SetUp(int ordinal, EnemyDefinitionId definition)
         {
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[ordinal];
-            place.Bind(definition, place.Definition);
+            place.Bind(definition, place.KeptDefinition);
             place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(2, 0));
             ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("Verification requires a bound shutter."))).Initialize();
             place.Shading = PictureShading.Standard;

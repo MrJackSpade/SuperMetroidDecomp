@@ -917,7 +917,7 @@ internal static class LookupStream2Verification
             for (int member = 0; member < 5; member++)
             {
                 var place = enemies.Places.InUpdateOrder[member];
-                place.Bind(EnemyDefinitionId.Gamet, place.Definition);
+                place.Bind(EnemyDefinitionId.Gamet, place.KeptDefinition);
                 place.Position = place.Position.WithWhole(new(128, 128)); place.SetSpawnParameter2(EnemyDefinitionId.Gamet, 64);
                 enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place.HeldOccupant(), place);
                 place.AnimationClock.HoldFor((ushort)(member + 4));

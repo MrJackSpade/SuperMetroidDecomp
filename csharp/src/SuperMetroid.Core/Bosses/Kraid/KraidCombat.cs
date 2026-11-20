@@ -144,7 +144,7 @@ internal sealed class KraidCombat
                 // Every beam takes Kraid's charged-beam response; the other families take their own.
                 EnemyWeaponVulnerability vulnerability = type.Family switch
                 {
-                    SamusProjectileFamily.Beam => EnemyVulnerabilities.Of(body.Definition).ChargedBeam,
+                    SamusProjectileFamily.Beam => EnemyVulnerabilities.Of(body.RequireOccupant().Definition).ChargedBeam,
                     SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile or
                     SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb =>
                         EnemyCollision.ReadProjectileVulnerability(body, type),

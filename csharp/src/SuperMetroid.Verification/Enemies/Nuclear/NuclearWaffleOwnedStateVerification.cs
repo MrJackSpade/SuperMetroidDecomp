@@ -16,7 +16,7 @@ internal static class NuclearWaffleOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.NuclearWaffle, place.Definition);
+        place.Bind(EnemyDefinitionId.NuclearWaffle, place.KeptDefinition);
         place.SetSpawnParameter1(EnemyDefinitionId.NuclearWaffle, LittleEndianBytes.Word(24, 32));
         place.SetSpawnParameter2(EnemyDefinitionId.NuclearWaffle, LittleEndianBytes.Word(1, 6));
         place.Position = place.Position.WithWhole(new(384, 512));

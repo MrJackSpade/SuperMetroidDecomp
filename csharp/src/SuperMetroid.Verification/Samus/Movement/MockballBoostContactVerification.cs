@@ -39,7 +39,7 @@ internal static class MockballBoostContactVerification
             speed.ExtraRunSpeed = speed.ExtraRunSpeed.WithWhole(7);
             speed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
             var enemy = fixture.System.Places.InUpdateOrder[0];
-            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
+            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
             enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
             {
                 Touch = EnemyReaction.OrdinaryTouch,

@@ -23,7 +23,7 @@ internal static class BullBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Bull, place.Definition);
+        place.Bind(EnemyDefinitionId.Bull, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
         enemies.BullBehavior.InitializeBull(place.HeldOccupant(), place);
@@ -43,7 +43,7 @@ internal static class BullBehaviorVerification
         // #2350: a bomb that leaves the Bull unhurt kicks it as the original's shot table kicks a shot fired up facing
         // right, the direction the original reads for every bomb.
         RoomEnemyPlace bombed = enemies.Places.InUpdateOrder[1];
-        bombed.Bind(EnemyDefinitionId.Bull, bombed.Definition);
+        bombed.Bind(EnemyDefinitionId.Bull, bombed.KeptDefinition);
         bombed.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
         enemies.BullBehavior.InitializeBull(bombed.HeldOccupant(), bombed);
         var bomb = new SamusBomb(0);
@@ -72,7 +72,7 @@ internal static class BullBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace slot = enemies.Places.InUpdateOrder[0];
-        slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
+        slot.Bind(EnemyDefinitionId.Bull, slot.KeptDefinition);
         slot.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
         enemies.BullBehavior.InitializeBull(slot.HeldOccupant(), slot);
         BullEnemyState state = slot.RequireSpeciesState<BullEnemyState>();

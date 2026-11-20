@@ -51,7 +51,7 @@ internal static class NuclearWaffleDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemyPlace> initialize = waffle => enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(waffle.HeldOccupant(), waffle);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.NuclearWaffle, place.Definition);
+            place.Bind(EnemyDefinitionId.NuclearWaffle, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.NuclearWaffle, 0x2001);
             place.SetSpawnParameter2(EnemyDefinitionId.NuclearWaffle, (ushort)(0x2000 | direction));
             place.Position = place.Position.WithWhole(new(0x0180, 0x0200));
@@ -99,7 +99,7 @@ internal static class NuclearWaffleDefinitionsVerification
         const int finishingUpdate = 163;
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.NuclearWaffle, place.Definition);
+        place.Bind(EnemyDefinitionId.NuclearWaffle, place.KeptDefinition);
         place.SetSpawnParameter1(EnemyDefinitionId.NuclearWaffle, LittleEndianBytes.Word(speedIndex, radius));
         place.SetSpawnParameter2(EnemyDefinitionId.NuclearWaffle, LittleEndianBytes.Word(1, 0));
         place.Position = place.Position.WithWhole(new(384, 512));

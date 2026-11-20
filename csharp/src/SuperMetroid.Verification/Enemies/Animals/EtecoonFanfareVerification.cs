@@ -23,7 +23,7 @@ internal static class EtecoonFanfareVerification
         for (int index = 0; index < 3; index++)
         {
             var place = enemies.Places.InUpdateOrder[index];
-            place.Bind(EnemyDefinitionId.Etecoon, place.Definition);
+            place.Bind(EnemyDefinitionId.Etecoon, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(place.HeldOccupant().DefinitionId));
             place.Health = place.Definition.Health;
             place.Radius = new(place.Definition.Radius.X, place.Definition.Radius.Y);

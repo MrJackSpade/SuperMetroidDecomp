@@ -24,7 +24,7 @@ internal static class KraidPartsAccess
             for (int place = 0; place < PartsInRoomOrder.Length; place++)
             {
                 RoomEnemyPlace partPlace = enemies.InUpdateOrder[place];
-                partPlace.Bind(PartsInRoomOrder[place], partPlace.Definition);
+                partPlace.Bind(PartsInRoomOrder[place], partPlace.KeptDefinition);
             }
         }
     }

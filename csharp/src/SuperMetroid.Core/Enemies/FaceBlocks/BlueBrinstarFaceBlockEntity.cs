@@ -19,7 +19,7 @@ internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior 
 
     /// <summary>The pass-through shot reaction where the face block's definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction =>
-        Place.Definition.Shot == FaceBlockReactions.Shot ? BlueBrinstarFaceBlockBehavior.PassThroughShot : base.ShotReaction;
+        Occupant.Definition.Shot == FaceBlockReactions.Shot ? BlueBrinstarFaceBlockBehavior.PassThroughShot : base.ShotReaction;
 
     /// <summary>
     /// Passes a bomb that selects the face block's own shot reaction through it in place of common bomb damage, once the

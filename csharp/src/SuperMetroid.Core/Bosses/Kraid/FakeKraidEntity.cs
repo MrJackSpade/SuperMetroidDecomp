@@ -20,20 +20,20 @@ internal sealed class FakeKraidEntity(FakeKraidBehavior species, RoomEnemyOccupa
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFakeKraidTypedAnimation(Occupant, Place, context);
 
     /// <summary>Whether the fake Kraid's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == KraidReactions.FakeKraidTouch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == KraidReactions.FakeKraidTouch || base.ReactsToTouch;
 
     /// <summary>Runs the fake Kraid's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == KraidReactions.FakeKraidTouch)
+        if (Occupant.Definition.Touch == KraidReactions.FakeKraidTouch)
             species.ReactToFakeKraidTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The fake Kraid's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == KraidReactions.FakeKraidShot ? species.FakeKraidShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KraidReactions.FakeKraidShot ? species.FakeKraidShotReaction : base.ShotReaction;
 
     /// <summary>The fake Kraid's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

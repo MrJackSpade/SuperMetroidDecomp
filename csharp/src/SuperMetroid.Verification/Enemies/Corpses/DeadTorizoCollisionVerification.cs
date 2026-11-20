@@ -21,7 +21,7 @@ internal static class DeadTorizoCollisionVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: InstalledFixtures.BossArtwork);
             enemies.VerificationServices().ReadRandom = () => 0;
             var place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.CorpseTorizo, place.Definition);
+            place.Bind(EnemyDefinitionId.CorpseTorizo, place.KeptDefinition);
             place.Position = place.Position.WithWhole(new(120, 100));
             place.Radius = new(16, 32);
             enemies.DeadTorizoBehavior.InitializeDeadTorizo(place);

@@ -30,7 +30,7 @@ internal static class OverlappingEnemyShotsVerification
         for (int index = 0; index < 3; index++)
         {
             var enemy = enemies.Places.InUpdateOrder[index];
-            enemy.Bind(EnemyDefinitionId.Beetom, enemy.Definition);
+            enemy.Bind(EnemyDefinitionId.Beetom, enemy.KeptDefinition);
             enemy.Bind(enemy.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(enemy.HeldOccupant().DefinitionId));
             enemy.Position = enemy.Position.WithWhole(new(128, 128));
             enemy.Radius = new(enemy.Definition.Radius.X, enemy.Definition.Radius.Y);

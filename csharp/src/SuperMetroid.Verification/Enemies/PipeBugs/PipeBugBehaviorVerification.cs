@@ -171,7 +171,7 @@ internal static class PipeBugBehaviorVerification
     /// <summary>Runs <paramref name="definition"/>'s real initializer on <paramref name="place"/>.</summary>
     private static void Initialize(RoomEnemySystem enemies, RoomEnemyPlace place, EnemyDefinitionId definition, ushort parameter)
     {
-        place.Bind(definition, place.Definition);
+        place.Bind(definition, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(definition, parameter);
         switch (definition)

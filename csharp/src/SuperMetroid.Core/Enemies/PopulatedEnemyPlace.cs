@@ -11,10 +11,11 @@ public sealed class PopulatedEnemyPlace : EnemyPlaceHistory
     /// <summary>Starts the history of <paramref name="place"/> with the first occupant it creates there.</summary>
     /// <param name="place">The place the history belongs to.</param>
     /// <param name="firstSpawn">The population entry the first enemy spawned there is spawned from.</param>
-    internal PopulatedEnemyPlace(RoomEnemyPlace place, RoomEnemyPlacement firstSpawn)
+    /// <param name="definition">The first enemy's resolved definition.</param>
+    internal PopulatedEnemyPlace(RoomEnemyPlace place, RoomEnemyPlacement firstSpawn, RoomEnemyDefinition definition)
     {
         Place = Ensure.NotNull(place);
-        LatestOccupant = new RoomEnemyOccupant(this, firstSpawn);
+        LatestOccupant = new RoomEnemyOccupant(this, firstSpawn, definition);
         Occupancy = new OccupiedEnemyPlace(LatestOccupant);
     }
 
@@ -41,10 +42,11 @@ public sealed class PopulatedEnemyPlace : EnemyPlaceHistory
 
     /// <summary>Creates the occupant spawned in the place from <paramref name="spawn"/>, which now holds it.</summary>
     /// <param name="spawn">The population entry the occupant is spawned from.</param>
+    /// <param name="definition">The occupant's resolved definition.</param>
     /// <returns>The new occupant, which knows this history.</returns>
-    internal RoomEnemyOccupant Occupy(RoomEnemyPlacement spawn)
+    internal RoomEnemyOccupant Occupy(RoomEnemyPlacement spawn, RoomEnemyDefinition definition)
     {
-        LatestOccupant = new RoomEnemyOccupant(this, spawn);
+        LatestOccupant = new RoomEnemyOccupant(this, spawn, definition);
         Occupancy = new OccupiedEnemyPlace(LatestOccupant);
         return LatestOccupant;
     }

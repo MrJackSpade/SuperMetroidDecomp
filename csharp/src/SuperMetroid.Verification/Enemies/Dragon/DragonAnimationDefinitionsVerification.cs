@@ -164,8 +164,8 @@ internal static class DragonAnimationDefinitionsVerification
     {
         body.SetSpawnParameter1(EnemyDefinitionId.Dragon, 0);
         wing.SetSpawnParameter1(EnemyDefinitionId.Dragon, 1);
-        body.Bind(EnemyDefinitionId.Dragon, body.Definition);
-        wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);
+        body.Bind(EnemyDefinitionId.Dragon, body.KeptDefinition);
+        wing.Bind(EnemyDefinitionId.Dragon, wing.KeptDefinition);
         enemies.DragonBehavior.InitializeDragonBody(body);
         enemies.DragonBehavior.InitializeDragonWing(wing);
     }

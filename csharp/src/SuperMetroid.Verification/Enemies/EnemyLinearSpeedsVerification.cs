@@ -45,12 +45,12 @@ internal static class EnemyLinearSpeedsVerification
             (SignedSixteenSixteen positive, SignedSixteenSixteen negative) = EnemySpeedTableCodec.LinearRow(cartridge, EnemySpeedTableCodec.LinearTable, index);
             place.SetSpawnParameter1(EnemyDefinitionId.Cacatac, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.Cacatac, LittleEndianBytes.Word(0, unchecked((byte)index)));
-            place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
+            place.Bind(EnemyDefinitionId.Cacatac, place.KeptDefinition);
             cacatac(place);
             SignedSixteenSixteen cacatacSpeed = place.HeldOccupant().SpawnSettings<CacatacSpawnSettings>().Speed;
             AssertEqual((positive, negative), (cacatacSpeed, -cacatacSpeed), "Cacatac spawn speed, negated for walking left");
             place.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)index);
-            place.Bind(EnemyDefinitionId.Owtch, place.Definition);
+            place.Bind(EnemyDefinitionId.Owtch, place.KeptDefinition);
             owtch(place);
             SignedSixteenSixteen owtchSpeed = place.HeldOccupant().SpawnSettings<OwtchSpawnSettings>().Speed;
             AssertEqual((positive, negative), (owtchSpeed, -owtchSpeed), "Owtch spawn speed, negated for moving left");

@@ -20,20 +20,20 @@ internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOc
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBabyMetroidAnimation(Place);
 
     /// <summary>Whether Baby Metroid's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == BabyMetroidReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == BabyMetroidReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs Baby Metroid's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == BabyMetroidReactions.Touch)
+        if (Occupant.Definition.Touch == BabyMetroidReactions.Touch)
             BabyMetroidBehavior.ReactToBabyMetroidTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>Baby Metroid's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == BabyMetroidReactions.Shot ? species.BabyMetroidShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BabyMetroidReactions.Shot ? species.BabyMetroidShotReaction : base.ShotReaction;
 
     /// <summary>Runs the Baby Metroid's own bomb reaction, which comes before the ignoring check, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

@@ -35,7 +35,7 @@ internal static class GrappleEnemyDeathVerification
         ushort header = TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
         SeedEnemyDropChancePointer(fixture.Bus, header);
         var enemy = fixture.System.Places.InUpdateOrder[0];
-        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
+        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
         enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
         {
             GrappleResponse = GrappleEnemyReaction.Kill,
@@ -115,7 +115,7 @@ internal static class GrappleEnemyDeathVerification
             var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
             var enemy = fixture.System.Places.InUpdateOrder[0];
-            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
+            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
             enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
             {
                 GrappleResponse = GrappleEnemyReaction.Kill,

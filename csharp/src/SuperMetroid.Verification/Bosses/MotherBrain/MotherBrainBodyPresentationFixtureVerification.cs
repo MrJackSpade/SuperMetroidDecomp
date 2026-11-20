@@ -34,7 +34,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         {
             Inner = new EnemyAnimationFixture(artwork);
             EnemyDefinitionId bodyId = EnemyDefinitionId.MotherBrainBody;
-            Body.Bind(bodyId, Body.Definition);
+            Body.Bind(bodyId, Body.KeptDefinition);
             Body.Bind(Body.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(bodyId));
             Body.Position = Body.Position.WithWhole(new(128, 128));
             // She draws under the retail graphics set her room loads, whose sheets hold her frames, at the tile base and

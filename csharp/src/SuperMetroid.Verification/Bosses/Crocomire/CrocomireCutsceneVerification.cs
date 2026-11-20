@@ -26,7 +26,7 @@ internal static class CrocomireCutsceneVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Crocomire, place.Definition);
+        place.Bind(EnemyDefinitionId.Crocomire, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SpritemapPointer = 0xe6bc;
         object?[] arguments = [place, Position16<RoomPixels>.Zero, new Extent16<RoomPixels>(8, 8), false, (ushort)0];
@@ -186,7 +186,7 @@ internal static class CrocomireCutsceneVerification
             enemies.VerificationServices().SetRoomScrollState = scrolls.SetRoomScreen;
             enemies.VerificationServices().IsAreaMiniBossDefeated = () => defeated;
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
+            body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
             enemies.CrocomireBehavior.Fight.InitializeCrocomire(body.HeldOccupant(), body);
             string room = defeated ? "a defeated room" : "a living fight";
             RoomScrollState[] kept = scrolls.KeptStates;

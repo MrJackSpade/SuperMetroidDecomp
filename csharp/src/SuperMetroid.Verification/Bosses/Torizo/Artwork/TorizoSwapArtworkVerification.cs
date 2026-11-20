@@ -36,7 +36,7 @@ internal static class TorizoSwapArtworkVerification
             "installed Torizo instruction tile pages exist");
         var installedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemyPlace installedPlace = installedEnemies.Places.InUpdateOrder[0];
-        installedPlace.Bind(EnemyDefinitionId.GoldenTorizo, installedPlace.Definition);
+        installedPlace.Bind(EnemyDefinitionId.GoldenTorizo, installedPlace.KeptDefinition);
         installedPlace.Bind(installedPlace.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
 
         ushort previousInstruction = 0;
@@ -106,8 +106,8 @@ internal static class TorizoSwapArtworkVerification
             "stock Golden Torizo upload remains addressable");
         var goldenEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemyPlace goldenPlace = goldenEnemies.Places.InUpdateOrder[0];
-        goldenPlace.Bind(EnemyDefinitionId.GoldenTorizo, goldenPlace.Definition);
-        goldenPlace.Bind(goldenPlace.HeldOccupant().DefinitionId, installedPlace.Definition);
+        goldenPlace.Bind(EnemyDefinitionId.GoldenTorizo, goldenPlace.KeptDefinition);
+        goldenPlace.Bind(goldenPlace.HeldOccupant().DefinitionId, installedPlace.KeptDefinition);
         // Golden Torizo's initial program shows its awakening sheet first.
         TorizoArtworkLook goldenAwakening = TorizoAnimations.Segments.Beats(TorizoBodySegment.GoldenTorizoDormant)
             .OfType<AnimationBeat<EnemyFrameId, TorizoCue>.Event>().Select(beat => beat.Raised).OfType<TorizoCue.ShowArtwork>().First().Look;

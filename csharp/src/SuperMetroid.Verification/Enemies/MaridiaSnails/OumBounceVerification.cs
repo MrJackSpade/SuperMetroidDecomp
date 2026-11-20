@@ -33,7 +33,7 @@ internal static class OumBounceVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Oum, place.Definition);
+            place.Bind(EnemyDefinitionId.Oum, place.KeptDefinition);
             OumBehavior.InitializeOum(place);
             OumEnemyState state = place.RequireSpeciesState<OumEnemyState>();
             place.Radius = new(16, 16);

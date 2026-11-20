@@ -34,7 +34,7 @@ internal static class ElevatorInputDefinitionsVerification
                     SamusProjectileSystem> wait = (fixturePlace, fixtureArg1, fixtureArg2, fixtureArg3) => enemies.ElevatorBehavior.WaitForElevatorDirectionInput(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1, fixtureArg2, fixtureArg3);
 
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Elevator, place.Definition);
+            place.Bind(EnemyDefinitionId.Elevator, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.Elevator, direction);
             place.Position = place.Position.WithWhole(new(0x0100, 0x0180));
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());

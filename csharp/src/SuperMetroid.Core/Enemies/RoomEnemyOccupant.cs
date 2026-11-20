@@ -11,14 +11,22 @@ public sealed class RoomEnemyOccupant
     /// <summary>Creates the occupant <paramref name="history"/>'s place is populated with from <paramref name="spawn"/>.</summary>
     /// <param name="history">The history of the place the occupant is spawned in.</param>
     /// <param name="spawn">The population entry the occupant is spawned from, which names its enemy.</param>
-    internal RoomEnemyOccupant(PopulatedEnemyPlace history, RoomEnemyPlacement spawn)
+    /// <param name="definition">The occupant's resolved definition.</param>
+    internal RoomEnemyOccupant(PopulatedEnemyPlace history, RoomEnemyPlacement spawn, RoomEnemyDefinition definition)
     {
         History = Ensure.NotNull(history);
         Spawn = Ensure.NotNull(spawn);
+        Definition = definition;
     }
 
     /// <summary>The occupant's enemy definition, which the game re-reads each time the enemy runs.</summary>
     public EnemyDefinitionId DefinitionId => Spawn.DefinitionId;
+
+    /// <summary>
+    /// The occupant's resolved definition (#2558), supplying its initialization, collision and AI values: the occupant's
+    /// own, so a place that holds no enemy holds no definition.
+    /// </summary>
+    public RoomEnemyDefinition Definition { get; }
 
     /// <summary>
     /// The population entry the occupant was spawned from, kept unchanged while its live state moves on; a respawn

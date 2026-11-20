@@ -24,7 +24,7 @@ internal sealed class SkreeEntity(SkreeBehavior species, RoomEnemyOccupant occup
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SkreeBehavior.AdvanceSkreeTypedAnimation(Place);
 
     /// <summary>The Skree's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == SkreeReactions.Shot ? ownShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SkreeReactions.Shot ? ownShot : base.ShotReaction;
 
     /// <summary>The Skree's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

@@ -18,7 +18,7 @@ internal static class MotherBrainTubeDescentVerification
         tube.SetSpawnSettings(new MotherBrainTubeSpawnSettings(MotherBrainTubePiece.Main));
         tube.Position = tube.Position.WithWhole(new(128, 128));
         state.Head.Position = state.Head.Position.WithWholeY(72);
-        tube.Bind(EnemyDefinitionId.MotherBrainTubes, tube.Definition);
+        tube.Bind(EnemyDefinitionId.MotherBrainTubes, tube.KeptDefinition);
         // The tube holds the encounter that spawned it, as its spawn gives it (#2218).
         tube.SetSpeciesState(state);
         MotherBrainFakeDeath.InitializeMotherBrainFallingTube(tube.HeldOccupant(), tube);

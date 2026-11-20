@@ -44,7 +44,7 @@ internal sealed class NorfairRidleyEntity(NorfairRidleyBehavior norfair, RoomEne
     }
 
     /// <summary>Ridley's own shot reaction where his definition leaves shots to him, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == RidleyReactions.Shot ? RidleyInteractions.RidleyShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == RidleyReactions.Shot ? RidleyInteractions.RidleyShotReaction : base.ShotReaction;
 
     /// <summary>Ridley's own stages around common bomb damage, for a bomb that selects his shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

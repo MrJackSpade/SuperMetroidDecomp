@@ -1948,7 +1948,7 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { NorfairRidleyColors = selected };
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artworkBosses);
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
-                RoomEnemyPlace place = enemies.Places.InUpdateOrder[0]; place.Bind(EnemyDefinitionId.Ridley, place.Definition);
+                RoomEnemyPlace place = enemies.Places.InUpdateOrder[0]; place.Bind(EnemyDefinitionId.Ridley, place.KeptDefinition);
                 new Action<RoomEnemyPlace>(enemies.NorfairRidleyBehavior.Combat.InitializeNorfairRidley)(place);
                 NorfairRidleyState state = enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.");
                 state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; enemies.NorfairRidleyBehavior.BeginRoarHold(state);
@@ -2022,7 +2022,7 @@ internal static class LookupStream4Verification
                 var guard = NewProjectileCompositionForbiddenBus();
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-                place.Bind(EnemyDefinitionId.Ridley, place.Definition);
+                place.Bind(EnemyDefinitionId.Ridley, place.KeptDefinition);
                 new Action<RoomEnemyPlace>(enemies.NorfairRidleyBehavior.Combat.InitializeNorfairRidley)(place);
                 ushort[] shown = RidleyLaidColours.Of(enemies.Ridley() ?? throw new InvalidOperationException("Verification requires the initialized Ridley."),
                     RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
@@ -2154,7 +2154,7 @@ internal static class LookupStream4Verification
         foreach (int freeSlots in new[] { 12, 2, 0 })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder) place.Bind(EnemyPlaceFixtures.StandIn, place.Definition);
+            foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder) place.Bind(EnemyPlaceFixtures.StandIn, place.KeptDefinition);
             for (int index = 1; index <= freeSlots; index++) enemies.Places.InUpdateOrder[index].Clear();
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = () => (ushort)(0x100 + 0x10 * randomCalls++);

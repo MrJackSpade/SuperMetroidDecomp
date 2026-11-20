@@ -64,7 +64,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             var bodyState = new EvirBodyState(spit: place) { Facing = HorizontalDirection.Left };
             body.SetSpeciesState(bodyState);
             // The spit finds its body as production places it, two places after the body.
-            place.Bind(EnemyDefinitionId.EvirProjectile, place.Definition);
+            place.Bind(EnemyDefinitionId.EvirProjectile, place.KeptDefinition);
             enemies.EvirBehavior.InitializeEvirProjectile(place);
             EvirSpitState state = PrepareEvirSpit(place, EvirSegment.ProjectileRegenerating, body);
             // #1269: the projectile's own facing word disagrees with its body on purpose; $A8:879B/$87B6 follow the
@@ -140,7 +140,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
     {
         if (definition == EnemyDefinitionId.Evir)
             place.BindPlaced(definition, PlacedBody);
-        place.Bind(definition, place.Definition);
+        place.Bind(definition, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.AnimationClock.StepOnNextUpdate();
     }

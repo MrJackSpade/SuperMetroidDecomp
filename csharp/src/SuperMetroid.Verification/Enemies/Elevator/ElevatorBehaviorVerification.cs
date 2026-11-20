@@ -20,7 +20,7 @@ internal static class ElevatorBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Elevator, place.Definition);
+        place.Bind(EnemyDefinitionId.Elevator, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Elevator, words => words);
         enemies.ElevatorBehavior.InitializeElevator(place.HeldOccupant(), place, RoomEnemyFrameFixtures.StandaloneSamus());
@@ -41,7 +41,7 @@ internal static class ElevatorBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace elevator = enemies.Places.InUpdateOrder[3];
-        elevator.Bind(EnemyDefinitionId.Elevator, elevator.Definition);
+        elevator.Bind(EnemyDefinitionId.Elevator, elevator.KeptDefinition);
         elevator.SetSpawnParameter1(EnemyDefinitionId.Elevator, 0);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         samus.BindBodyFixture(InstalledFixtures.SamusBody);

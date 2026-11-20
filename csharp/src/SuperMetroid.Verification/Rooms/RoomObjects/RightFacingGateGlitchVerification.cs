@@ -267,7 +267,7 @@ internal static class RightFacingGateGlitchVerification
         foreach (RoomEnemyPlace enemy in runtime.Enemies.Places.InUpdateOrder)
         {
             if (!ReferenceEquals(enemy, frozen))
-                enemy.Bind(0, enemy.Definition);
+                enemy.Bind(0, enemy.KeptDefinition);
         }
         frozen.Position = frozen.Position.WithWhole(new(checked((ushort)frozenEnemyX), 139));
         frozen.Freeze.Restart(1000);

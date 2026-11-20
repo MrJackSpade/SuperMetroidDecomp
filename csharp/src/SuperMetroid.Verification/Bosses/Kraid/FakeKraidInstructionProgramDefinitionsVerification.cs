@@ -175,7 +175,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             Action<RoomEnemyPlace, SamusState> initialize = enemies.FakeKraidBehavior.InitializeFakeKraid;
 
             place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.FakeKraid, place.Definition);
+            place.Bind(EnemyDefinitionId.FakeKraid, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // The header's collision half-extents: the terrain movers scan the rows the body spans.
             place.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.FakeKraid).Radius;

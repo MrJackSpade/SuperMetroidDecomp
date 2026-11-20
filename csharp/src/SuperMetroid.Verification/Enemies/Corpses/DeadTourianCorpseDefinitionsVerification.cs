@@ -153,7 +153,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(LookupStream5CorpseFixtureArtwork(rom)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemyPlace> initialize = corpse => DeadTourianBehavior.InitializeDeadTourianCorpse(corpse, corpse.HeldOccupant());
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(enemyDefinition, place.Definition);
+        place.Bind(enemyDefinition, place.KeptDefinition);
         place.SetSpawnParameter1(enemyDefinition, checked((ushort)(variantIndex * 2)));
 
         initialize(place);

@@ -23,7 +23,7 @@ internal static class SbugMovementDefinitionsVerification
         Action<RoomEnemyPlace> initialize = fixturePlace => SbugBehavior.InitializeSbug(fixturePlace.HeldOccupant(), fixturePlace);
         Action<RoomEnemyPlace, SamusState> runMain = (fixturePlace, fixtureArg1) => SbugBehavior.RunSbugMain(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Sbug, place.Definition);
+        place.Bind(EnemyDefinitionId.Sbug, place.KeptDefinition);
 
         for (int facing = 0; facing < 8; facing++)
         {

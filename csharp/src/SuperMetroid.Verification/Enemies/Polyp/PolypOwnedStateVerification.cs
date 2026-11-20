@@ -16,7 +16,7 @@ internal static class PolypOwnedStateVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Polyp, place.Definition);
+        place.Bind(EnemyDefinitionId.Polyp, place.KeptDefinition);
         enemies.PolypBehavior.InitializePolyp(place);
         PolypEnemyState state = place.RequireSpeciesState<PolypEnemyState>();
         AssertEqual<PolypAction?>(PolypAction.WaitingForSamus, state.Action, "a new Polyp waits for Samus");

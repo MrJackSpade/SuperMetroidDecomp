@@ -18,7 +18,7 @@ internal sealed class SparkEntity(SparkBehavior species, RoomEnemyOccupant occup
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SparkBehavior.AdvanceSparkTypedAnimation(Place);
 
     /// <summary>The pass-through shot reaction where the Spark's definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == SparkReactions.Shot ? SparkBehavior.PassThroughShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SparkReactions.Shot ? SparkBehavior.PassThroughShot : base.ShotReaction;
 
     /// <summary>
     /// Passes a bomb that selects the Spark's own shot reaction through it in place of common bomb damage, once the

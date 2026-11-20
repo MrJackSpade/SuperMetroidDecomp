@@ -16,7 +16,7 @@ internal static class CacatacMovementDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemyPlace> initialize = fixturePlace => CacatacBehavior.InitializeCacatac(fixturePlace.HeldOccupant(), fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
+        place.Bind(EnemyDefinitionId.Cacatac, place.KeptDefinition);
 
         // Spawn columns from the shipped placements' range: the left edge's nearest, a middle one and the farthest right.
         foreach (int spawnX in new[] { 72, 0x100, 3240 })

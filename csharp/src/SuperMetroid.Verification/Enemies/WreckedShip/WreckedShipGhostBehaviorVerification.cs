@@ -16,7 +16,7 @@ internal static class WreckedShipGhostBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace ghost = enemies.Places.InUpdateOrder[0];
-        ghost.Bind(EnemyDefinitionId.Coven, ghost.Definition);
+        ghost.Bind(EnemyDefinitionId.Coven, ghost.KeptDefinition);
         ghost.Bind(ghost.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         WreckedShipGhostBehavior.InitializeWreckedShipGhost(ghost);
         AssertEqual(new AnimationPlayback<WreckedShipGhostSegment>(WreckedShipGhostAnimations.StartingWith(WreckedShipGhostSegment.Floating), AnimationPlace.StartOfAnimation),

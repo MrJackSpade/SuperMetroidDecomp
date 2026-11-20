@@ -26,7 +26,7 @@ internal static class RidleyCollisionDefinitionsVerification
         compiledPlace.Bind(EnemyDefinitionId.Ridley, EnemyDefinitionFixtures.Blank);
         // The reference slot is read by the independent test-side cartridge
         // walker. The installed definition selects the new compiled Ridley branch.
-        compiledPlace.Bind(EnemyDefinitionId.Ridley, compiledPlace.Definition);
+        compiledPlace.Bind(EnemyDefinitionId.Ridley, compiledPlace.KeptDefinition);
         AssertEqual(11, RidleyCollisionDefinitions.FramePointers.Length,
             "all Ceres/Norfair Ridley body frames have fixed collision");
 

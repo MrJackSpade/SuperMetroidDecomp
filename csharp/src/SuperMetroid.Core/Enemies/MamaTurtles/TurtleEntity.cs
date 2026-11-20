@@ -29,20 +29,20 @@ internal abstract class TurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupa
     protected abstract void ReactToOwnTouch(EnemyTouchContext context);
 
     /// <summary>Whether the turtle's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == TurtleReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == TurtleReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the turtle's own touch where the definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch != TurtleReactions.Touch)
+        if (Occupant.Definition.Touch != TurtleReactions.Touch)
             base.ReactToTouch(context);
         else
             ReactToOwnTouch(context);
     }
 
     /// <summary>The baby turtle's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == TurtleReactions.Shot ? species.BabyTurtleShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == TurtleReactions.Shot ? species.BabyTurtleShotReaction : base.ShotReaction;
 
     /// <summary>The baby turtle's own stages around common bomb damage, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

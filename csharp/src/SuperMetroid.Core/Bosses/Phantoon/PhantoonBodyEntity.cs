@@ -47,13 +47,13 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyOccu
     }
 
     /// <summary>Whether the body's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == PhantoonReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == PhantoonReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the body's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == PhantoonReactions.Touch)
+        if (Occupant.Definition.Touch == PhantoonReactions.Touch)
             Species.Combat.ReactToPhantoonBodyTouch(context);
         else
             base.ReactToTouch(context);

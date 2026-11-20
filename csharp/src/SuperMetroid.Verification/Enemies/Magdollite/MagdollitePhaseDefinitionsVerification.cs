@@ -39,7 +39,7 @@ internal static class MagdollitePhaseDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
             place.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)index);
             place.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
-            place.Bind(EnemyDefinitionId.Magdollite, place.Definition);
+            place.Bind(EnemyDefinitionId.Magdollite, place.KeptDefinition);
             place.Position = place.Position.WithWhole(new(0x0200, 0x0300));
             initialize(place, RoomEnemyFrameFixtures.StandaloneSamus());
         }

@@ -28,7 +28,7 @@ internal static class RioInstructionProgramDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace rio = enemies.Places.InUpdateOrder[0];
-        rio.Bind(EnemyDefinitionId.Rio, rio.Definition);
+        rio.Bind(EnemyDefinitionId.Rio, rio.KeptDefinition);
         rio.Bind(rio.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         // The room spawn primes the instruction timer before the species initializer runs.
         rio.AnimationClock.StepOnNextUpdate();

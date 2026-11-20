@@ -67,7 +67,7 @@ internal static class CacatacBehaviorVerification
         // A random word that keeps the three-in-256 attack gate closed, so every update is a patrol step.
         enemies.VerificationServices().NextRandom = () => 100;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
+        place.Bind(EnemyDefinitionId.Cacatac, place.KeptDefinition);
         place.Position = FixedPosition<RoomPixels>.FromWhole(new(40, 112));
         place.SetSpawnWords(EnemyDefinitionId.Cacatac, words => words);
         CacatacBehavior.InitializeCacatac(place.HeldOccupant(), place);
@@ -108,7 +108,7 @@ internal static class CacatacBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
+        place.Bind(EnemyDefinitionId.Cacatac, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(EnemyDefinitionId.Cacatac, onFloor ? CacatacNativeValues.OnFloorParameter : (ushort)0);
         CacatacBehavior.InitializeCacatac(place.HeldOccupant(), place);

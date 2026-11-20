@@ -74,7 +74,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Etecoon, place.Definition);
+        place.Bind(EnemyDefinitionId.Etecoon, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Etecoon, words => words);
         EtecoonBehavior.InitializeEtecoon(place.HeldOccupant(), place);

@@ -68,7 +68,7 @@ internal static class OwtchPatrolStateVerification
         enemies.VerificationServices().NextRandom = () => 0x80;
         enemies.VerificationServices().ReadRandom = () => 0x80;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Owtch, place.Definition);
+        place.Bind(EnemyDefinitionId.Owtch, place.KeptDefinition);
         place.SetSpawnParameter1(EnemyDefinitionId.Owtch, OwtchNativeWords.Behaviors.Word(behavior));
         place.SetSpawnParameter2(EnemyDefinitionId.Owtch, 0);
         place.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64));

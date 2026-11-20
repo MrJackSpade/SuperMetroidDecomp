@@ -16,7 +16,7 @@ internal static class RoomEnemyPlaceInitializationAccess
         /// </summary>
         internal void InitializeAsPlaced(SamusState samus)
         {
-            self.Bind(self.HeldOccupant().Spawn, self.Definition);
+            self.Bind(self.HeldOccupant().Spawn, self.KeptDefinition);
             EnemyLifecycle.SetUpEnemy(self, new EnemyPopulationSurroundings(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), samus, GameplayAction.None, default));
         }
     }

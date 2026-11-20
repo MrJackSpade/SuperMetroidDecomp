@@ -34,7 +34,7 @@ internal static class CrawlerBehaviorVerification
         {
             var enemies = EnemySystemFixtures.New((artwork is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(artwork.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork?.Bosses);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(definition, place.Definition);
+            place.Bind(definition, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // The population entry names the surface; InitAI_Viola reads its block side instead.
             if (family == CrawlerAnimationFamily.Viola)

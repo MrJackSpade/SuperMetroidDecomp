@@ -22,7 +22,7 @@ internal static class SkreeBurrowVerification
         RoomLevelData level = VerificationHelpersVerification.CreateSolidRowsRoom(new(16, 16), firstSolidRow: 10, solidRowCount: 1);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Skree, place.Definition);
+        place.Bind(EnemyDefinitionId.Skree, place.KeptDefinition);
         place.Radius = new(8, 8);
         place.Position = place.Position.WithWhole(new(64, 100));
         SkreeBehavior.InitializeSkree(place);

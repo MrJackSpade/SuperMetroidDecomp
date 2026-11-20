@@ -25,20 +25,20 @@ internal abstract class WorkRobotEntity(WorkRobotBehavior species, RoomEnemyOccu
     public abstract void AdvanceTypedAnimation(EnemyAnimationCueContext context);
 
     /// <summary>Whether the Work Robot's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == WorkRobotReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == WorkRobotReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Work Robot's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == WorkRobotReactions.Touch)
+        if (Occupant.Definition.Touch == WorkRobotReactions.Touch)
             WorkRobotBehavior.ReactToWorkRobotTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Work Robot's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == WorkRobotReactions.Shot ? OwnShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == WorkRobotReactions.Shot ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>The Work Robot's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

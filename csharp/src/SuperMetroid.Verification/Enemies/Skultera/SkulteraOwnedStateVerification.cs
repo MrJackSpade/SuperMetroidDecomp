@@ -19,7 +19,7 @@ internal static class SkulteraOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Skultera, place.Definition);
+        place.Bind(EnemyDefinitionId.Skultera, place.KeptDefinition);
         const int speedRecord = 3;
         place.SetSpawnParameter1(EnemyDefinitionId.Skultera, speedRecord);
         place.SetSpawnParameter2(EnemyDefinitionId.Skultera, LittleEndianBytes.Word(20, 10));

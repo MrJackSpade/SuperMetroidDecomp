@@ -20,20 +20,20 @@ internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemyOccupant
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ZebetiteBehavior.AdvanceZebetiteAnimation(Place);
 
     /// <summary>Whether the Zebetite's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == ZebetiteReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == ZebetiteReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Zebetite's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == ZebetiteReactions.Touch)
+        if (Occupant.Definition.Touch == ZebetiteReactions.Touch)
             species.ReactToZebetiteTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Zebetite's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == ZebetiteReactions.Shot ? species.ZebetiteShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == ZebetiteReactions.Shot ? species.ZebetiteShotReaction : base.ShotReaction;
 
     /// <summary>The Zebetite's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

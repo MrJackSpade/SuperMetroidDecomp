@@ -129,7 +129,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>Chooses the definition's death explosion, raising the smaller ones for Super Missile kills.</summary>
     internal static EnemyDeathExplosion ShotKillExplosion(
-        RoomEnemyPlace enemy,
+        RoomEnemyOccupant enemy,
         SamusProjectileType projectileType,
         ShotDeathAnimationRule rule = ShotDeathAnimationRule.ByProjectile)
     {

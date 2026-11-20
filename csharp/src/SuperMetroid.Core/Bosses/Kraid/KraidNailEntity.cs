@@ -25,13 +25,13 @@ internal sealed class KraidNailEntity(KraidBehavior species, RoomEnemyOccupant o
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Encounter.Nail(nail));
 
     /// <summary>Whether the fingernail's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == KraidReactions.NailTouch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == KraidReactions.NailTouch || base.ReactsToTouch;
 
     /// <summary>Runs the fingernail's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == KraidReactions.NailTouch)
+        if (Occupant.Definition.Touch == KraidReactions.NailTouch)
             Species.Projectiles.ReactToKraidNailTouch(context);
         else
             base.ReactToTouch(context);

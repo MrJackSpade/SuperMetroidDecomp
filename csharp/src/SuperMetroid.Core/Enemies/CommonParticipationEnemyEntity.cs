@@ -26,11 +26,11 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemyOccupant occupan
     public virtual EnemyCapabilities Capabilities => EnemyCapabilities.None;
 
     /// <summary>Whether the definition names no shared Power Bomb reaction, leaving the blast to the species or to common damage.</summary>
-    protected bool LeavesPowerBombToSpecies => Place.Definition.PowerBombReaction == EnemyReaction.CommonPowerBomb;
+    protected bool LeavesPowerBombToSpecies => Occupant.Definition.PowerBombReaction == EnemyReaction.CommonPowerBomb;
 
     /// <summary>The inert hurt the definition names, which does nothing; false when the definition names the species' own.</summary>
     /// <param name="frame">The enemy frame.</param>
-    public virtual bool RunHurt(RoomEnemyFrame frame) => EnemyCommonParticipation.HasInertHurt(Place.Definition);
+    public virtual bool RunHurt(RoomEnemyFrame frame) => EnemyCommonParticipation.HasInertHurt(Occupant.Definition);
 
     /// <summary>No frozen step of its own; the common thaw follows.</summary>
     public virtual bool PreemptFrozenTurn() => false;
@@ -41,14 +41,14 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemyOccupant occupan
     }
 
     /// <summary>Whether the definition names a shared touch reaction.</summary>
-    public virtual bool ReactsToTouch => EnemyCommonParticipation.ReactsToTouch(Place.Definition);
+    public virtual bool ReactsToTouch => EnemyCommonParticipation.ReactsToTouch(Occupant.Definition);
 
     /// <summary>Runs the shared touch reaction the definition names.</summary>
     /// <param name="context">The touch.</param>
     public virtual void ReactToTouch(EnemyTouchContext context) => Common.ReactToTouch(context);
 
     /// <summary>The shared shot reaction the definition names, or the reaction of an enemy shots pass.</summary>
-    public virtual EnemyShotReaction ShotReaction => EnemyCommonParticipation.ShotReaction(Place.Definition);
+    public virtual EnemyShotReaction ShotReaction => EnemyCommonParticipation.ShotReaction(Occupant.Definition);
 
     /// <summary>No reaction of its own before the check for the ignoring reaction.</summary>
     /// <param name="context">The bomb contact.</param>
@@ -63,5 +63,5 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemyOccupant occupan
     public virtual EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) => EnemyBombReaction.PlainCommon;
 
     /// <summary>The shared Power Bomb reaction the definition names: the ignoring one, or the common Power Bomb damage.</summary>
-    public virtual EnemyPowerBombReaction PowerBombReaction => EnemyCommonParticipation.PowerBombReaction(Place.Definition);
+    public virtual EnemyPowerBombReaction PowerBombReaction => EnemyCommonParticipation.PowerBombReaction(Occupant.Definition);
 }

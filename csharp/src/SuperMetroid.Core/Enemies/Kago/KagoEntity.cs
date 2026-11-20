@@ -21,7 +21,7 @@ internal sealed class KagoEntity(KagoBehavior species, RoomEnemyOccupant occupan
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KagoBehavior.AdvanceKagoTypedAnimation(Place);
 
     /// <summary>The Kago's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == KagoReactions.Shot ? ownShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KagoReactions.Shot ? ownShot : base.ShotReaction;
 
     /// <summary>The Kago's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

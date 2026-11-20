@@ -63,7 +63,7 @@ internal static class KraidNailSiblingVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.Places.BindKraidPartsInRoomOrder();
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
-        enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.Kraid, enemies.Places.InUpdateOrder[0].Definition);
+        enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.Kraid, enemies.Places.InUpdateOrder[0].KeptDefinition);
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = () => random;
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Nail initialization must not advance RNG.");
@@ -72,7 +72,7 @@ internal static class KraidNailSiblingVerification
         foreach ((int place, EnemyDefinitionId nailDefinition) in new[] { (6, EnemyDefinitionId.KraidFirstNail), (7, EnemyDefinitionId.KraidSecondNail) })
         {
             RoomEnemyPlace living = enemies.Places.InUpdateOrder[place];
-            living.Bind(nailDefinition, living.Definition);
+            living.Bind(nailDefinition, living.KeptDefinition);
             KraidEncounterAccess.AttachKraidPart(place == 6 ? state.FirstNailState : state.SecondNailState);
         }
         foreach (int slot in new[] { 6, 7 })

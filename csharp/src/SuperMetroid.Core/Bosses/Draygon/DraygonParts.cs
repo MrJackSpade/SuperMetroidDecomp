@@ -289,7 +289,7 @@ internal sealed class DraygonParts
     private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState samus)
     {
         state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
-        SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
+        SamusSuitDamage.Hurt(samus, state.Body.RequireOccupant().Definition.Damage);
 
         // The tail hit also shakes the foreground strongly for its shake's updates, so the camera shows the hit as well as the
         // energy it costs.

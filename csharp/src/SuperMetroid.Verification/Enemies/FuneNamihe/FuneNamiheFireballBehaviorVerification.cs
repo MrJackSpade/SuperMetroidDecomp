@@ -32,7 +32,7 @@ internal static class FuneNamiheFireballBehaviorVerification
         {
             // Each species spits its own fireball.
             EnemyDefinitionId species = kind == RoomEnemyProjectileKind.FuneFireball ? EnemyDefinitionId.Fune : EnemyDefinitionId.Namihe;
-            source.Bind(species, source.Definition);
+            source.Bind(species, source.KeptDefinition);
             source.SetSpawnParameter1(species, species == EnemyDefinitionId.Namihe ? 1 : 0);
             source.SetSpawnParameter2(species, 0);
             FuneNamiheEnemyState spitter = species == EnemyDefinitionId.Namihe

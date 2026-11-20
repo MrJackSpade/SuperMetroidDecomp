@@ -102,7 +102,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         // of creating a placeholder that runs nothing.
         const EnemyDefinitionId unowned = (EnemyDefinitionId)0x9000;
         InvalidOperationException unknownException = AssertThrows<InvalidOperationException>(
-            () => unknown.Bind(unowned, unknown.Definition),
+            () => unknown.Bind(unowned, unknown.KeptDefinition),
             "binding a definition no species owns fails");
         AssertTrue(
             unknownException.Message.Contains($"No enemy species owns definition {unowned}", StringComparison.Ordinal),

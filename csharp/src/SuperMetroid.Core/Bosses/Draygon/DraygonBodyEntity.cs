@@ -36,20 +36,20 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
     }
 
     /// <summary>Whether the body's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == DraygonReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == DraygonReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the body's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == DraygonReactions.Touch)
+        if (Occupant.Definition.Touch == DraygonReactions.Touch)
             Species.Combat.ReactToDraygonTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == DraygonReactions.Shot ? Species.Combat.DraygonShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == DraygonReactions.Shot ? Species.Combat.DraygonShotReaction : base.ShotReaction;
 
     /// <summary>
     /// The body's dud shot for a bomb whose hitbox selects it, in place of common bomb damage once the ignoring check has

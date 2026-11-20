@@ -43,7 +43,7 @@ internal static class PowerBombDeathDrawingVerification
             FixtureGraphicsSetRows.Record(set, [PowerBombFixtureRow]);
             enemies.DrawUnder(set);
             var actor = enemies.Places.InUpdateOrder[0];
-            actor.Bind(header, actor.Definition);
+            actor.Bind(header, actor.KeptDefinition);
             actor.Bind(actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(header));
             actor.Shading = PictureShading.Standard;
             actor.Health = lethal ? (ushort)1 : (ushort)1000;

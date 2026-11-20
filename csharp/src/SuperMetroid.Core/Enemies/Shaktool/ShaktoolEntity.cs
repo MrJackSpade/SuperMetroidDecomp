@@ -18,20 +18,20 @@ internal sealed class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceShaktoolTypedAnimation(Place);
 
     /// <summary>Whether Shaktool's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == ShaktoolReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == ShaktoolReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs Shaktool's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == ShaktoolReactions.Touch)
+        if (Occupant.Definition.Touch == ShaktoolReactions.Touch)
             species.ReactToShaktoolTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>Shaktool's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == ShaktoolReactions.Shot ? species.ShaktoolShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == ShaktoolReactions.Shot ? species.ShaktoolShotReaction : base.ShotReaction;
 
     /// <summary>Shaktool's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

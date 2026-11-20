@@ -234,7 +234,7 @@ internal static class KraidAnimationsVerification
         }
 
         RoomEnemyPlace foot = enemies.Places.InUpdateOrder[5];
-        foot.Bind(EnemyDefinitionId.KraidFoot, foot.Definition);
+        foot.Bind(EnemyDefinitionId.KraidFoot, foot.KeptDefinition);
         // The foot binds after the encounter began, and joins it as its setup would.
         KraidEncounterAccess.AttachKraidPart(state.FootState);
         // The walks' cues raise, lower and step the body: it stands clear of the room's edges while they do.
@@ -265,7 +265,7 @@ internal static class KraidAnimationsVerification
     {
         (RoomEnemySystem enemies, KraidEnemyState state, _, RoomEnemyPlace arm) = NewKraid();
         RoomEnemyPlace foot = enemies.Places.InUpdateOrder[5];
-        foot.Bind(EnemyDefinitionId.KraidFoot, foot.Definition);
+        foot.Bind(EnemyDefinitionId.KraidFoot, foot.KeptDefinition);
         // The foot binds after the encounter began, and joins it as its setup would.
         KraidEncounterAccess.AttachKraidPart(state.FootState);
         state.FootState.Playback = Started(KraidPartSegment.FootNeutral);
@@ -300,7 +300,7 @@ internal static class KraidAnimationsVerification
         // #2213: a lint's stopped clock never steps its animation, through any number of updates and a lengthened hold,
         // until its owner steps it again.
         RoomEnemyPlace lint = enemies.Places.InUpdateOrder[2];
-        lint.Bind(EnemyDefinitionId.KraidLintTop, lint.Definition);
+        lint.Bind(EnemyDefinitionId.KraidLintTop, lint.KeptDefinition);
         // The lint binds after the encounter began, and joins it as its setup would.
         KraidEncounterAccess.AttachKraidPart(state.TopLintState);
         state.TopLintState.Playback = Started(KraidPartSegment.LintInitial);
@@ -366,7 +366,7 @@ internal static class KraidAnimationsVerification
         (RoomEnemySystem enemies, KraidEnemyState state, _, _) = NewKraid();
         KraidNailState part = state.Nail(KraidNailPart.First);
         RoomEnemyPlace nail = part.Place;
-        nail.Bind(EnemyDefinitionId.KraidFirstNail, nail.Definition);
+        nail.Bind(EnemyDefinitionId.KraidFirstNail, nail.KeptDefinition);
         enemies.KraidBehavior.Projectiles.InitializeKraidNail(nail, KraidNailPart.First);
         AssertEqual((EnemyFrameId?)EnemyFrameId.KraidNailTurned0, nail.Frame, "a fingernail set up shows its spin's first pose");
         AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.NailLoop), part.Playback.Animation, "the pose is its spin's");

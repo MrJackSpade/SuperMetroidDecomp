@@ -38,12 +38,12 @@ internal static class MamaTurtleOwnedStateVerification
         // finds them and falls asleep on her first step.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace mama = enemies.Places.InUpdateOrder[1];
-        mama.Bind(EnemyDefinitionId.MamaTurtle, mama.Definition);
+        mama.Bind(EnemyDefinitionId.MamaTurtle, mama.KeptDefinition);
         enemies.MamaTurtleBehavior.InitializeMamaTurtle(mama);
         for (int place = 2; place < 6; place++)
         {
             RoomEnemyPlace baby = enemies.Places.InUpdateOrder[place];
-            baby.Bind(EnemyDefinitionId.BabyTurtle, baby.Definition);
+            baby.Bind(EnemyDefinitionId.BabyTurtle, baby.KeptDefinition);
             baby.SetSpawnSettings(new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Right));
             enemies.MamaTurtleBehavior.InitializeBabyTurtle(baby.HeldOccupant(), baby);
         }

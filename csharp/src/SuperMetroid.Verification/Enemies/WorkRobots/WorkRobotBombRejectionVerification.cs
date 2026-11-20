@@ -25,7 +25,7 @@ internal static class WorkRobotBombRejectionVerification
         foreach ((EnemyDefinitionId robot, bool powered) in new[] { (EnemyDefinitionId.WorkRobot, true), (EnemyDefinitionId.UnpoweredWorkRobot, false) })
         {
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[powered ? 0 : 1];
-            place.Bind(robot, place.Definition);
+            place.Bind(robot, place.KeptDefinition);
             var bomb = new SamusBomb(0);
             bomb.OccupyAsPlaced(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(place.Position.Whole);

@@ -67,7 +67,7 @@ internal static class PuyoHopDefinitionsVerification
             int nativeDrop = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa29a0b + PuyoNativeWords.HopRecordOffsets.Word(cut));
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Puyo, place.Definition);
+            place.Bind(EnemyDefinitionId.Puyo, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.Puyo, 5);
             PuyoBehavior.InitializePuyo(place.HeldOccupant(), place);
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));

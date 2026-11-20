@@ -49,7 +49,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New((artwork is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(artwork.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork?.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Puyo, place.Definition);
+        place.Bind(EnemyDefinitionId.Puyo, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 0));
         PuyoBehavior.InitializePuyo(place.HeldOccupant(), place);

@@ -18,20 +18,20 @@ internal sealed class FirefleaEntity(FirefleaBehavior species, RoomEnemyOccupant
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => FirefleaBehavior.AdvanceFirefleaTypedAnimation(Place);
 
     /// <summary>Whether the Fireflea's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == FirefleaReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == FirefleaReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Fireflea's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == FirefleaReactions.Touch)
+        if (Occupant.Definition.Touch == FirefleaReactions.Touch)
             species.ReactToFirefleaTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Fireflea's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == FirefleaReactions.Shot ? species.FirefleaShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == FirefleaReactions.Shot ? species.FirefleaShotReaction : base.ShotReaction;
 
     /// <summary>The Fireflea's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

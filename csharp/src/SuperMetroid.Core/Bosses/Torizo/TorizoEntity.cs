@@ -49,20 +49,20 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant o
     public abstract override bool RunHurt(RoomEnemyFrame frame);
 
     /// <summary>Whether the Torizo's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == TorizoReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == TorizoReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Torizo's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == TorizoReactions.Touch)
+        if (Occupant.Definition.Touch == TorizoReactions.Touch)
             Species.Combat.ReactToTorizoTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Torizo's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == OwnShot ? OwnShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == OwnShot ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>The Torizo's own shot reaction (#2240).</summary>
     protected abstract EnemyShotReaction OwnShotReaction { get; }

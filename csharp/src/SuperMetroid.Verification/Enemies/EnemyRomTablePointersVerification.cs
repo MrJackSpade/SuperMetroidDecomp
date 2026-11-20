@@ -112,7 +112,7 @@ internal static class EnemyRomTablePointersVerification
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork, statueRoom: new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
             RoomEnemyPlace place = system.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
-            place.Bind(EnemyDefinitionId.TourianStatue, place.Definition);
+            place.Bind(EnemyDefinitionId.TourianStatue, place.KeptDefinition);
             EnemySystemFixtures.InitializeStatuePlacement(place);
             AssertEqual(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatueSpawnsDecorations(parameter) ? 3 : 0,
                 system.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),

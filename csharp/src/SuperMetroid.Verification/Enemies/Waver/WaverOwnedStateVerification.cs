@@ -16,7 +16,7 @@ internal static class WaverOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Waver, place.Definition);
+        place.Bind(EnemyDefinitionId.Waver, place.KeptDefinition);
         place.SetSpawnParameter1(EnemyDefinitionId.Waver, 1);
         WaverBehavior.InitializeWaver(place.HeldOccupant(), place);
         WaverEnemyState state = enemies.WaverStates[0] ?? throw new InvalidOperationException("The initialized Waver has no state.");

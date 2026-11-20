@@ -71,7 +71,7 @@ internal static class SporeSpawnCameraFloorVerification
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => loadsDefeated;
         enemies.VerificationServices().SetAreaMiniBossDefeated = onDefeated;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
+        body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         enemies.SporeSpawnBehavior.InitializeSporeSpawn(body.HeldOccupant(), body);

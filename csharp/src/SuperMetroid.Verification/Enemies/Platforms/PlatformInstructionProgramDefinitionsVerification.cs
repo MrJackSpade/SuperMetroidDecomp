@@ -59,7 +59,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(testCase.IsKamer
                 ? EnemyDefinitionId.SuspensorPlatform
-                : EnemyDefinitionId.Tripper, place.Definition);
+                : EnemyDefinitionId.Tripper, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter2(EnemyDefinitionId.Tripper, 0x0101);
             place.SetSpawnSettings(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>() with { Movement = testCase.Direction });

@@ -193,7 +193,7 @@ internal static class SporeSpawnAnimationsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(bound.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.BossArtwork = bound.Bosses;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
+        body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
         body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;

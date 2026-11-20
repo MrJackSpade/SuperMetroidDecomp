@@ -436,7 +436,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // cancels the invincibility and knockback that touch gives her.
         if (!BeetomCadenceDefinitions.DrainDamage.IsDue(place.FrameCounter))
             return;
-        SamusSuitDamage.Hurt(samus, place.Definition.Damage);
+        SamusSuitDamage.Hurt(samus, beetom.Definition.Damage);
         samus.ClearHurtTimers();
     }
 

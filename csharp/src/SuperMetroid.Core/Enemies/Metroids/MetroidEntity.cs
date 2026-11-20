@@ -29,26 +29,26 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant o
     public override void RunFrozen() => MetroidBehavior.RunMetroidFrozen(Place);
 
     /// <summary>Whether the Metroid's own touch, its attachment and suit-dependent draining, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == MetroidReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == MetroidReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Metroid's own touch where its definition leaves the touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == MetroidReactions.Touch)
+        if (Occupant.Definition.Touch == MetroidReactions.Touch)
             species.ResolveMetroidTouch(context.Place, context.Samus);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Metroid's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == MetroidReactions.Shot ? species.ShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MetroidReactions.Shot ? species.ShotReaction : base.ShotReaction;
 
     /// <summary>The Metroid's own bomb reaction, which comes before the ignoring check, where its definition leaves shots to it.</summary>
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        if (Place.Definition.Shot != MetroidReactions.Shot)
+        if (Occupant.Definition.Shot != MetroidReactions.Shot)
             return base.TryReactToBomb(context);
         species.ReactToMetroidBomb(context);
         return true;

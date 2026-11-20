@@ -56,7 +56,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         enemies.VerificationServices().IsAreaBossDefeated = () => true;
 
         robot = enemies.Places.InUpdateOrder[0];
-        robot.Bind(EnemyDefinitionId.WorkRobot, robot.Definition);
+        robot.Bind(EnemyDefinitionId.WorkRobot, robot.KeptDefinition);
         robot.Bind(robot.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         robot.Radius = new(8, 16);
         var state = new WorkRobotEnemyState() { Playback = new(WorkRobotAnimations.StartingWith(WorkRobotSegment.StandingFacingLeft), AnimationPlace.StartOfAnimation) };

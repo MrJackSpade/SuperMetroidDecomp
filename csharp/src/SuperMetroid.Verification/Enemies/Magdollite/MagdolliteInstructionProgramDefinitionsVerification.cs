@@ -142,7 +142,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 RoomEnemyPlace member = enemies.Places.InUpdateOrder[index];
                 member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)index);
                 member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
-                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
+                member.Bind(EnemyDefinitionId.Magdollite, member.KeptDefinition);
                 member.Bind(member.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
                 member.Position = member.Position.WithWhole(new(0x0080, 0x0080));
                 initialize(member, RoomEnemyFrameFixtures.StandaloneSamus());

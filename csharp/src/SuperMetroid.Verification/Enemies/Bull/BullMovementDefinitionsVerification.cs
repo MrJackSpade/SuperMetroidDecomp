@@ -17,7 +17,7 @@ internal static class BullMovementDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemyPlace> initialize = fixturePlace => enemies.BullBehavior.InitializeBull(fixturePlace.HeldOccupant(), fixturePlace);
         var place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Bull, place.Definition);
+        place.Bind(EnemyDefinitionId.Bull, place.KeptDefinition);
         for (ushort interval = 0; interval < 13; interval++)
         for (ushort speed = 0; speed < 8; speed++)
         {

@@ -55,7 +55,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace rinka = enemies.Places.InUpdateOrder[0];
-        rinka.Bind(EnemyDefinitionId.Rinka, rinka.Definition);
+        rinka.Bind(EnemyDefinitionId.Rinka, rinka.KeptDefinition);
         rinka.Bind(rinka.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         RinkaSpawnSettings spawning = special ? new RinkaSpawnSettings.SharingPoints(RinkaSpawnPoint.FarRightUpper) : RinkaSpawnSettings.AtOwnPlacement;
         rinka.SetSpawnSettings(spawning);

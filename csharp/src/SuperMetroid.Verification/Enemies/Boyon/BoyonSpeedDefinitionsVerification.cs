@@ -21,7 +21,7 @@ internal static class BoyonSpeedDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemyPlace> initialize = fixturePlace => BoyonBehavior.InitializeBoyon(fixturePlace);
         RoomEnemyPlace actor = enemies.Places.InUpdateOrder[0];
-        actor.Bind(EnemyDefinitionId.Boyon, actor.Definition);
+        actor.Bind(EnemyDefinitionId.Boyon, actor.KeptDefinition);
         int initialized = 0;
         for (int height = 0; height < 9; height++)
         {

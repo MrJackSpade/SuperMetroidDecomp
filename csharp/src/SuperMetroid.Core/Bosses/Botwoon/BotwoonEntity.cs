@@ -20,20 +20,20 @@ internal sealed class BotwoonEntity(BotwoonBehavior species, RoomEnemyOccupant o
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBotwoonTypedAnimation(Place);
 
     /// <summary>Whether Botwoon's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == BotwoonReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == BotwoonReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs Botwoon's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == BotwoonReactions.Touch)
+        if (Occupant.Definition.Touch == BotwoonReactions.Touch)
             species.ReactToBotwoonTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>Botwoon's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == BotwoonReactions.Shot ? species.BotwoonShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BotwoonReactions.Shot ? species.BotwoonShotReaction : base.ShotReaction;
 
     /// <summary>Botwoon's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

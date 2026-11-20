@@ -92,7 +92,7 @@ internal static class EnemyDropsVerification
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.PseudoScrew;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemy = fixture.System.Places.InUpdateOrder[0];
-        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
+        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
         enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
         {
             Touch = EnemyReaction.OrdinaryTouch,
@@ -371,7 +371,7 @@ internal static class EnemyDropsVerification
         ushort enemyHeader = TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
         SeedEnemyDropChancePointer(fixture.Bus, enemyHeader);
         RoomEnemyPlace enemy = fixture.System.Places.InUpdateOrder[0];
-        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
+        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         enemy.Contact = EnemyContact.None;

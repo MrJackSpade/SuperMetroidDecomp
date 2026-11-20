@@ -25,7 +25,7 @@ internal abstract class RipperEntity(RipperBehavior species, RoomEnemyOccupant o
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RipperBehavior.AdvanceRipperTypedAnimation(Place);
 
     /// <summary>The grapple Ripper and jet Ripper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == RipperReactions.Shot ? RipperBehavior.RipperShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == RipperReactions.Shot ? RipperBehavior.RipperShotReaction : base.ShotReaction;
 
     /// <summary>The grapple Ripper and jet Ripper's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

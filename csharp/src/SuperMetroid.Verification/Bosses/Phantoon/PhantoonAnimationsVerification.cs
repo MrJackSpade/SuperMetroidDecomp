@@ -36,10 +36,10 @@ internal static class PhantoonAnimationsVerification
         RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1];
         RoomEnemyPlace tentacles = enemies.Places.InUpdateOrder[2];
         RoomEnemyPlace mouth = enemies.Places.InUpdateOrder[3];
-        body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
-        eye.Bind(EnemyDefinitionId.PhantoonEye, eye.Definition);
-        tentacles.Bind(EnemyDefinitionId.PhantoonTentacles, tentacles.Definition);
-        mouth.Bind(EnemyDefinitionId.PhantoonMouth, mouth.Definition);
+        body.Bind(EnemyDefinitionId.PhantoonBody, body.KeptDefinition);
+        eye.Bind(EnemyDefinitionId.PhantoonEye, eye.KeptDefinition);
+        tentacles.Bind(EnemyDefinitionId.PhantoonTentacles, tentacles.KeptDefinition);
+        mouth.Bind(EnemyDefinitionId.PhantoonMouth, mouth.KeptDefinition);
         enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body.HeldOccupant(), body, eye, tentacles, mouth));
         return enemies;
     }

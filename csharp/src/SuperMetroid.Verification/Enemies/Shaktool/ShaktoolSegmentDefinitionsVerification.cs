@@ -37,7 +37,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
         {
             ShaktoolSegmentDefinition definition = definitions[index];
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
-            place.Bind(EnemyDefinitionId.Shaktool, place.Definition);
+            place.Bind(EnemyDefinitionId.Shaktool, place.KeptDefinition);
             place.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
             place.Contact = EnemyContact.BlocksPlasmaBeam;
             place.Processing = EnemyProcessing.None;

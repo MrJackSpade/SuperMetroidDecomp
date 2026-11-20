@@ -65,7 +65,7 @@ internal static class BossDisplayBindingsFixtureVerification
             bodyOwner = BodyOwnerOf(definition);
             bodies = bodyOwner is { } drawn ? BossBodySheetFixtures.For(artwork.Bosses, drawn) : BossBodySheetFixtures.Stock;
             Enemies.BossArtworkBinding.BodySheets = Sheets;
-            Actor.Bind(definition, Actor.Definition);
+            Actor.Bind(definition, Actor.KeptDefinition);
             Actor.Bind(Actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(definition));
             Actor.Position = Actor.Position.WithWhole(new(128, 128));
             Actor.Health = Actor.Definition.Health;

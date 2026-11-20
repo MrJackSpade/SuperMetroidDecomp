@@ -26,7 +26,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
         {
             EnemyDropFixture variant = CreateEnemyDropFixture(CreateDropTestSamus(), randomValues: []);
             RoomEnemyPlace enemy = variant.System.Places.InUpdateOrder[0];
-            enemy.Bind(EnemyDefinitionId.Sciser, enemy.Definition);
+            enemy.Bind(EnemyDefinitionId.Sciser, enemy.KeptDefinition);
             variant.System.DeathsAndDrops.StartGenericEnemyDeath(enemy.HeldOccupant(), animation, variant.Samus);
             EnemyProjectile explosion = variant.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(EnemyDeathExplosions.Animation(animation), AnimationOf(explosion), $"death variant {animation} starts its program");
@@ -38,7 +38,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
         ushort enemyHeader = TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
         SeedEnemyDropChancePointer(fixture.Bus, enemyHeader);
         RoomEnemyPlace killed = fixture.System.Places.InUpdateOrder[0];
-        killed.Bind(EnemyPlaceFixtures.StandIn, killed.Definition);
+        killed.Bind(EnemyPlaceFixtures.StandIn, killed.KeptDefinition);
         killed.Position = killed.Position.WithWhole(new(320, 120));
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed.HeldOccupant(), deathAnimation: EnemyDeathExplosion.Small, fixture.Samus);
         EnemyProjectile dying = fixture.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);

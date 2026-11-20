@@ -142,7 +142,7 @@ internal static class ChainsawFiringVerification
         combatProjectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combatShared, new SharedGameState(new SharedRandom()));
         var combat = CreateEnemyDropFixture(samus, [1]);
         RoomEnemyPlace target = combat.System.Places.InUpdateOrder[0];
-        target.Bind(EnemyPlaceFixtures.StandIn, target.Definition);
+        target.Bind(EnemyPlaceFixtures.StandIn, target.KeptDefinition);
         target.Bind(target.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
         {
             Shot = EnemyReaction.OrdinaryShot,

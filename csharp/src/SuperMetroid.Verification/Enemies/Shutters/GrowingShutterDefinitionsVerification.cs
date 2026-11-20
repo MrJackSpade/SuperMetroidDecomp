@@ -30,7 +30,7 @@ internal static class GrowingShutterDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemyPlace> initialize = fixturePlace => ShuttersBehavior.InitializeGrowingShutter(fixturePlace.HeldOccupant(), fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.ShutterGrowing, place.Definition);
+        place.Bind(EnemyDefinitionId.ShutterGrowing, place.KeptDefinition);
         for (ushort selector = 0; selector < 4; selector++)
         {
             for (int high = 0; high < 256; high++)

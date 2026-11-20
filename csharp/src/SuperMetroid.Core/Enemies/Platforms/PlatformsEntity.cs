@@ -18,7 +18,7 @@ internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemyOccupa
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PlatformsBehavior.AdvancePlatformsTypedAnimation(Place);
 
     /// <summary>The Tripper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == PlatformsReactions.TripperShot ? PlatformsBehavior.TripperShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == PlatformsReactions.TripperShot ? PlatformsBehavior.TripperShotReaction : base.ShotReaction;
 
     /// <summary>The Tripper's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

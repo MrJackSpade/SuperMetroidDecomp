@@ -26,7 +26,7 @@ internal static class SporeSpawnSwayVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
+            body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
             body.Position = body.Position.WithWhole(new(128, 624));
             var state = new SporeSpawnEnemyState
             {

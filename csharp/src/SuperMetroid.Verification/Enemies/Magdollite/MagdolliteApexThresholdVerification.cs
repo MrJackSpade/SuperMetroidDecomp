@@ -59,7 +59,7 @@ internal static class MagdolliteApexThresholdVerification
                 member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)part);
                 // The head's placement names its arm's speed (#2474): record 24, one and a half pixels an update.
                 member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, part == 0 ? (ushort)(24 << 8) : (ushort)0);
-                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
+                member.Bind(EnemyDefinitionId.Magdollite, member.KeptDefinition);
                 member.Position = FixedPosition<RoomPixels>.FromWhole(new(472, 672));
                 member.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
             }
@@ -91,7 +91,7 @@ internal static class MagdolliteApexThresholdVerification
                 RoomEnemyPlace member = enemies.Places.InUpdateOrder[headSlot + part];
                 member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)part);
                 member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
-                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
+                member.Bind(EnemyDefinitionId.Magdollite, member.KeptDefinition);
                 member.Position = member.Position.WithWhole(new(0x01d8, 0x02a0));
                 initialize(member, RoomEnemyFrameFixtures.StandaloneSamus());
             }

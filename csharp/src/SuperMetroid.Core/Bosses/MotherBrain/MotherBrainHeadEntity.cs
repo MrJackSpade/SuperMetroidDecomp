@@ -26,20 +26,20 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MotherBrainHead.AdvanceMotherBrainHeadPlace(Place);
 
     /// <summary>Whether the head's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == MotherBrainReactions.HeadTouch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == MotherBrainReactions.HeadTouch || base.ReactsToTouch;
 
     /// <summary>Runs the head's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == MotherBrainReactions.HeadTouch)
+        if (Occupant.Definition.Touch == MotherBrainReactions.HeadTouch)
             MotherBrainCombat.ReactToMotherBrainHeadTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The head's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == MotherBrainReactions.HeadShot ? Species.Combat.HeadShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.HeadShot ? Species.Combat.HeadShotReaction : base.ShotReaction;
 
     /// <summary>Runs the head's own reaction to a bomb that selects its shot reaction, before the ignoring check.</summary>
     /// <param name="context">The bomb contact.</param>

@@ -31,7 +31,7 @@ internal static class SporeSpawnDeathDriftVerification
                 services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 1;
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
+            body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
             body.Position = body.Position.WithWhole(start);
             var state = new SporeSpawnEnemyState
             {

@@ -37,7 +37,7 @@ internal static class GoldenTorizoCodeVerification
             enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
             var initialize = new Action<RoomEnemyPlace, EnemyPopulationSurroundings>(EnemyLifecycle.SetUpEnemy);
             var actor = enemies.Places.InUpdateOrder[0];
-            actor.Bind(header, actor.Definition);
+            actor.Bind(header, actor.KeptDefinition);
             actor.Bind(actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(header));
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {

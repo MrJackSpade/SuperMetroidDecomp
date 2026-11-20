@@ -17,7 +17,7 @@ internal static class MultiviolaBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Multiviola, place.Definition);
+        place.Bind(EnemyDefinitionId.Multiviola, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Multiviola, words => words);
         MultiviolaBehavior.InitializeMultiviola(place.HeldOccupant(), place);

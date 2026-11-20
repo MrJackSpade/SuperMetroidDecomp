@@ -32,7 +32,7 @@ internal sealed class EnemyCommonParticipation(Func<EnemyCollision> collision)
     /// <param name="context">The touch.</param>
     internal void ReactToTouch(EnemyTouchContext context)
     {
-        if (context.Place.Definition.Touch == EnemyReaction.OrdinaryTouch)
+        if (context.Occupant.Definition.Touch == EnemyReaction.OrdinaryTouch)
             collision().ResolveOrdinaryTouch(context);
     }
 

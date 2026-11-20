@@ -17,7 +17,7 @@ internal static class FirefleaBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Fireflea, place.Definition);
+        place.Bind(EnemyDefinitionId.Fireflea, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
         place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
@@ -46,7 +46,7 @@ internal static class FirefleaBehaviorVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Fireflea, place.Definition);
+            place.Bind(EnemyDefinitionId.Fireflea, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
             place.Position = place.Position.WithWhole(new(128, 100));

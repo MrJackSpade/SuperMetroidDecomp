@@ -20,7 +20,7 @@ internal static class PhantoonWaveVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         IReadOnlyList<RoomEnemyPlace> places = enemies.Places.InUpdateOrder;
-        places[0].Bind(EnemyDefinitionId.PhantoonBody, places[0].Definition);
+        places[0].Bind(EnemyDefinitionId.PhantoonBody, places[0].KeptDefinition);
         var boss = new PhantoonEnemyState(places[0].HeldOccupant(), places[0], places[1], places[2], places[3]);
         boss.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         boss.Wave.PhaseStep = RotationAngle.FromSteps(8);

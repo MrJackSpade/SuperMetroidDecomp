@@ -24,7 +24,7 @@ internal static class TorizoPaletteShakeVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var actor = enemies.Places.InUpdateOrder[0];
-        actor.Bind(EnemyDefinitionId.BombTorizo, actor.Definition);
+        actor.Bind(EnemyDefinitionId.BombTorizo, actor.KeptDefinition);
         actor.Bind(actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(actor.HeldOccupant().DefinitionId));
         // The initializer's function words; the build-pinned debugger state below rejects the undefined zero defaults.
         var state = new TorizoEnemyState(TorizoVariant.Bomb) { Phase = TorizoPhase.Falling };

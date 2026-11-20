@@ -18,20 +18,20 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYappingMawTypedAnimation(Place);
 
     /// <summary>Whether the Yapping Maw's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == YappingMawReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == YappingMawReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Yapping Maw's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == YappingMawReactions.Touch)
+        if (Occupant.Definition.Touch == YappingMawReactions.Touch)
             YappingMawBehavior.ReactToYappingMawTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Yapping Maw's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == YappingMawReactions.Shot ? YappingMawBehavior.YappingMawShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == YappingMawReactions.Shot ? YappingMawBehavior.YappingMawShotReaction : base.ShotReaction;
 
     /// <summary>The Yapping Maw's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

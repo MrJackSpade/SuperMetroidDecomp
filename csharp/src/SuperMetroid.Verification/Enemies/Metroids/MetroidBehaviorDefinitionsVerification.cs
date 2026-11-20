@@ -126,7 +126,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             ushort selectedRandom = random;
             enemies.VerificationServices().NextRandom = () => selectedRandom;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Metroid, place.Definition);
+            place.Bind(EnemyDefinitionId.Metroid, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.AnimationClock.StepOnNextUpdate();
             // Start at the chasing loop's random-cry cue, after its four pulses.

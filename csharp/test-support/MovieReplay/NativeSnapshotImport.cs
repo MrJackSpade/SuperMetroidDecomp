@@ -374,7 +374,7 @@ internal static class NativeSnapshotImport
             {
                 EnemyDefinitionId recordedOccupant = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIdsConstants.FromHeaderPointer(W(address));
                 if (!enemy.Holds(recordedOccupant))
-                    enemy.Bind(recordedOccupant, enemy.Definition);
+                    enemy.Bind(recordedOccupant, enemy.KeptDefinition);
             }
             enemy.Position = FixedPosition<RoomPixels>.FromStoredParts(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
             enemy.Radius = new(W(address + 10), W(address + 12));

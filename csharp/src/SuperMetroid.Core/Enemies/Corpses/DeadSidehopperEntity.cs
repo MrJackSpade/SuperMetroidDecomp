@@ -22,20 +22,20 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadSidehopperBehavior.AdvanceDeadSidehopperTypedAnimation(Place);
 
     /// <summary>Whether the dead Sidehopper's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == CorpseReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == CorpseReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the dead Sidehopper's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == CorpseReactions.Touch)
+        if (Occupant.Definition.Touch == CorpseReactions.Touch)
             species.ReactToDeadSidehopperTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The dead Sidehopper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == CorpseReactions.Shot ? DeadSidehopperBehavior.DeadSidehopperShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == CorpseReactions.Shot ? DeadSidehopperBehavior.DeadSidehopperShotReaction : base.ShotReaction;
 
     /// <summary>Runs the dead Sidehopper's own bomb reaction in place of common bomb damage, for a bomb whose hit selects the corpse's own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

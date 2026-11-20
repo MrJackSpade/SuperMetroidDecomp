@@ -63,7 +63,7 @@ internal static class ChootPatternDefinitionsVerification
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
                 var initialize = new Action<RoomEnemyPlace>(fixturePlace => ChootBehavior.InitializeChoot(fixturePlace.HeldOccupant(), fixturePlace));
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-                place.Bind(EnemyDefinitionId.Choot, place.Definition);
+                place.Bind(EnemyDefinitionId.Choot, place.KeptDefinition);
                 place.Position = place.Position.WithWhole(new(0x3456, 0x789a));
                 place.SetSpawnParameter1(EnemyDefinitionId.Choot, (ushort)((patternIndex << 8) | loopCount));
                 initialize(place);
@@ -83,7 +83,7 @@ internal static class ChootPatternDefinitionsVerification
             var fallEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var initializeFall = new Action<RoomEnemyPlace>(fixturePlace => ChootBehavior.InitializeChoot(fixturePlace.HeldOccupant(), fixturePlace));
             RoomEnemyPlace fallPlace = fallEnemies.Places.InUpdateOrder[0];
-            fallPlace.Bind(EnemyDefinitionId.Choot, fallPlace.Definition);
+            fallPlace.Bind(EnemyDefinitionId.Choot, fallPlace.KeptDefinition);
             fallPlace.Position = new(new(0x3456, 0x1111), new(0x789a, 0x2222));
             fallPlace.SetSpawnParameter1(EnemyDefinitionId.Choot, (ushort)((patternIndex << 8) | 2));
             initializeFall(fallPlace);

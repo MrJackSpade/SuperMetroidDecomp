@@ -26,7 +26,7 @@ internal static class DragonFireballBehaviorVerification
 
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.SetSpawnWords(EnemyDefinitionId.Dragon, words => words);
-        body.Bind(EnemyDefinitionId.Dragon, body.Definition);
+        body.Bind(EnemyDefinitionId.Dragon, body.KeptDefinition);
         body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         body.Position = body.Position.WithWhole(new(384, 160));
         body.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook;

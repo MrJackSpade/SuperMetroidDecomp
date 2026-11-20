@@ -30,7 +30,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[0];
-            enemy.Bind(EnemyDefinitionId.Sciser, enemy.Definition);
+            enemy.Bind(EnemyDefinitionId.Sciser, enemy.KeptDefinition);
             enemy.Position = enemy.Position.WithWhole(new(unchecked((ushort)(0xfff0 + animation)), unchecked((ushort)(0x0100 + animation))));
 
             enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy.HeldOccupant(), explosion, RoomEnemyFrameFixtures.StandaloneSamus());
@@ -48,7 +48,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
 
         var clamped = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace clampedEnemy = clamped.Places.InUpdateOrder[0];
-        clampedEnemy.Bind(EnemyDefinitionId.Sciser, clampedEnemy.Definition);
+        clampedEnemy.Bind(EnemyDefinitionId.Sciser, clampedEnemy.KeptDefinition);
         clamped.DeathsAndDrops.StartGenericEnemyDeath(clampedEnemy.HeldOccupant(), EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(5), RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(EnemyDeathAndDropSegment.SmallExplosion,
             ProgramOf(clamped.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive)),

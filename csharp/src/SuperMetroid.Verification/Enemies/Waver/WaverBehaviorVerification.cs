@@ -24,7 +24,7 @@ internal static class WaverBehaviorVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Waver, place.Definition);
+            place.Bind(EnemyDefinitionId.Waver, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnWords(EnemyDefinitionId.Waver, words => words);
             WaverBehavior.InitializeWaver(place.HeldOccupant(), place);

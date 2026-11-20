@@ -25,20 +25,20 @@ internal sealed class OumEntity(OumBehavior species, RoomEnemyOccupant occupant,
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>Whether the snail's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == OumReactions.NonDamagingTouch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == OumReactions.NonDamagingTouch || base.ReactsToTouch;
 
     /// <summary>Runs the snail's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == OumReactions.NonDamagingTouch)
+        if (Occupant.Definition.Touch == OumReactions.NonDamagingTouch)
             species.ReactToOumTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The snail's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == OumReactions.Shot ? species.OumShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == OumReactions.Shot ? species.OumShotReaction : base.ShotReaction;
 
     /// <summary>The snail's own stages around common bomb damage, for a bomb that selects its shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

@@ -19,20 +19,20 @@ internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyOccupant occ
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BeetomBehavior.AdvanceBeetomTypedAnimation(Place);
 
     /// <summary>Whether the Beetom's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == BeetomReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == BeetomReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Beetom's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == BeetomReactions.Touch)
+        if (Occupant.Definition.Touch == BeetomReactions.Touch)
             species.ReactToBeetomTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Beetom's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == BeetomReactions.Shot ? BeetomBehavior.BeetomShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BeetomReactions.Shot ? BeetomBehavior.BeetomShotReaction : base.ShotReaction;
 
     /// <summary>The Beetom's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

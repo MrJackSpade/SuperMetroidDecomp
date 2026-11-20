@@ -347,7 +347,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // The setup replaces the projectile definition's properties with the enemy's damage and the
         // laser's own property. The laser does not take the Pirate's pictures or colours: it draws from the room's
         // shared sheet in its standard colours.
-        projectile.Damage = source.Definition.Damage;
+        projectile.Damage = source.RequireOccupant().Definition.Damage;
         projectile.CanDamageSamus = true;
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;
@@ -549,7 +549,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     private void StartPirateDeath(EnemyShotContext c) =>
         _deathsAndDrops.StartGenericEnemyDeath(
             c.Occupant,
-            EnemyDeathsAndDrops.ShotKillExplosion(c.Enemy, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion),
+            EnemyDeathsAndDrops.ShotKillExplosion(c.Occupant, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion),
             c.Samus);
 
     /// <summary>Skips frozen contact and rejects unsupported extended hitbox reactions before normal touch damage.</summary>

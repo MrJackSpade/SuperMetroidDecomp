@@ -25,20 +25,20 @@ internal sealed class WallSpacePirateEntity(WallSpacePirateBehavior species, Roo
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>Whether the Pirates' own touch, where the definition leaves Samus's touch to them, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == SpacePirateReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == SpacePirateReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Pirates' own touch where the definition leaves Samus's touch to them, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == SpacePirateReactions.Touch)
+        if (Occupant.Definition.Touch == SpacePirateReactions.Touch)
             species.Walking.ReactToSpacePirateTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Pirates' own shot reaction where the definition leaves shots to them, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == SpacePirateReactions.Shot ? species.Walking.SpacePirateShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SpacePirateReactions.Shot ? species.Walking.SpacePirateShotReaction : base.ShotReaction;
 
     /// <summary>The Pirates' own stages around the common bomb damage every bomb that reaches an ordinary Pirate runs.</summary>
     /// <param name="context">The bomb contact.</param>

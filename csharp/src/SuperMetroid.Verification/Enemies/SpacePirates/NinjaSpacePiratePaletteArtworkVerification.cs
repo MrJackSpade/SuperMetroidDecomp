@@ -68,7 +68,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.PirateSilverNinja, place.Definition);
+            place.Bind(EnemyDefinitionId.PirateSilverNinja, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             place.SetSpawnParameter2(EnemyDefinitionId.PirateSilverNinja, 0x0080);

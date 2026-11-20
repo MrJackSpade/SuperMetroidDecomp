@@ -1099,10 +1099,10 @@ internal static class LookupStream5Verification
                 // The mount's beam follows the eye listed right after it (#1835).
                 var followed = enemies.Places.InUpdateOrder[1];
                 followed.SetSpawnParameter1(EnemyDefinitionId.MorphBallEye, 0);
-                followed.Bind(EnemyDefinitionId.MorphBallEye, followed.Definition);
+                followed.Bind(EnemyDefinitionId.MorphBallEye, followed.KeptDefinition);
                 var place = enemies.Places.InUpdateOrder[0];
                 place.SetSpawnParameter2(EnemyDefinitionId.MorphBallEye, (ushort)(0x8000 | direction));
-                place.Bind(EnemyDefinitionId.MorphBallEye, place.Definition);
+                place.Bind(EnemyDefinitionId.MorphBallEye, place.KeptDefinition);
                 place.Position = place.Position.WithWhole(new(origin, origin));
                 new Action<RoomEnemyPlace>(fixturePlace => enemies.MorphBallEyeBehavior.InitializeMorphBallEyeMount(fixturePlace.HeldOccupant(), fixturePlace))(place);
                 AssertEqual(unchecked((ushort)(origin + expected.First)), place.Position.X.Whole, "Actual mount X with native wrap");
@@ -1117,7 +1117,7 @@ internal static class LookupStream5Verification
         var owner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var body = owner.Places.InUpdateOrder[1];
         body.SetSpawnSettings(new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
-        body.Bind(EnemyDefinitionId.MorphBallEye, body.Definition);
+        body.Bind(EnemyDefinitionId.MorphBallEye, body.KeptDefinition);
         new Action<RoomEnemyPlace>(fixturePlace => MorphBallEyeBehavior.InitializeMorphBallEyeBody(fixturePlace.HeldOccupant(), fixturePlace))(body);
         (body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.")).IsActivated = true;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Body = body;
@@ -1598,7 +1598,7 @@ internal static class LookupStream5Verification
         var installed = EnemySpritemapDocuments.Load(new MemoryStream(stockJson, writable: false));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(SpawnedObjectFixtures.InstalledTilesWith(installed)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
-        enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.Places.InUpdateOrder[0].Definition);
+        enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.Places.InUpdateOrder[0].KeptDefinition);
         enemies.HoldCeresRidley(enemies.Places.InUpdateOrder[0], new CeresRidleyState(Position16<RoomPixels>.Zero));
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);

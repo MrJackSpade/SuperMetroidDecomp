@@ -22,20 +22,20 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccu
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTorizoBehavior.AdvanceDeadTorizoTypedAnimation(Place);
 
     /// <summary>Whether the dead Torizo's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == CorpseReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == CorpseReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the dead Torizo's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == CorpseReactions.Touch)
+        if (Occupant.Definition.Touch == CorpseReactions.Touch)
             DeadTorizoBehavior.ReactToDeadTorizoTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The dead Torizo's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == CorpseReactions.Shot ? species.DeadTorizoShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == CorpseReactions.Shot ? species.DeadTorizoShotReaction : base.ShotReaction;
 
     /// <summary>Runs the dead Torizo's own bomb reaction in place of common bomb damage, for a bomb whose hit selects the corpse's own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

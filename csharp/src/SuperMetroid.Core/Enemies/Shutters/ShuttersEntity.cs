@@ -29,13 +29,13 @@ internal abstract class ShuttersEntity(ShuttersBehavior species, RoomEnemyOccupa
     public abstract void AdvanceTypedAnimation(EnemyAnimationCueContext context);
 
     /// <summary>Whether the vertical shutter's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Place.Definition.Touch == ShutterReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == ShutterReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the vertical shutter's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Place.Definition.Touch == ShutterReactions.Touch)
+        if (Occupant.Definition.Touch == ShutterReactions.Touch)
             species.ReactToVerticalShutterTouch(Occupant, context);
         else
             base.ReactToTouch(context);

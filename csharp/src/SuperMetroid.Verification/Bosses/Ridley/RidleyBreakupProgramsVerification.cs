@@ -34,7 +34,7 @@ internal static class RidleyBreakupProgramsVerification
         Action<RoomEnemyPlace, NorfairRidleyState, SamusState> death = enemies.NorfairRidleyBehavior.Death.TickNorfairRidleyDeathExplosions;
         var process = new Action<RoomEnemyPlace, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
         var body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Ridley, body.Definition);
+        body.Bind(EnemyDefinitionId.Ridley, body.KeptDefinition);
         var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus };
         state.PhaseTimer.LastFor(1);
         RidleyTailFixtures.BlankLinks(state.Tail);

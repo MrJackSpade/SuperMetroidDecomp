@@ -187,11 +187,11 @@ internal static class MorphBallEyeBehaviorVerification
         // A mount's beam follows the eye its room lists right after it (#1835).
         RoomEnemyPlace followed = enemies.Places.InUpdateOrder[1];
         followed.SetSpawnParameter1(EnemyDefinitionId.MorphBallEye, 0);
-        followed.Bind(EnemyDefinitionId.MorphBallEye, followed.Definition);
+        followed.Bind(EnemyDefinitionId.MorphBallEye, followed.KeptDefinition);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.SetSpawnParameter1(EnemyDefinitionId.MorphBallEye, parameter1);
         place.SetSpawnParameter2(EnemyDefinitionId.MorphBallEye, parameter2);
-        place.Bind(EnemyDefinitionId.MorphBallEye, place.Definition);
+        place.Bind(EnemyDefinitionId.MorphBallEye, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The eye bound no entity."))).Initialize();
         return (enemies, place);

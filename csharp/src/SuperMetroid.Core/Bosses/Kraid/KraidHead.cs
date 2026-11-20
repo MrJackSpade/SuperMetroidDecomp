@@ -137,8 +137,7 @@ internal sealed class KraidHead
     /// </summary>
     internal KraidHeadAnimationResult RunKraidHeadAnimationStep(KraidEnemyState state)
     {
-        AnimationPlayback<KraidHeadSegment> playback = state.HeadPlayback ?? throw new InvalidDataException(
-            "Kraid's head animation has not been started.");
+        AnimationPlayback<KraidHeadSegment> playback = state.HeadPlayback;
         AnimationPlace place = playback.Place;
         AnimationShown<KraidHeadSegment, KraidHeadFrame> outcome = KraidHeadAnimations.Segments.PlayToNextFrame(
             playback.Animation, ref place, PublishKraidHeadCue);

@@ -77,21 +77,22 @@ internal static class CollectibleObjectDraws
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {group}."),
     };
 
+    /// <summary>The draw of <paramref name="look"/> of the tank kind <paramref name="kind"/>, from its own blocks.</summary>
+    /// <exception cref="InvalidDataException">The kind is no tank: it shows its own picture.</exception>
+    internal static RoomObjectFrameDraw<CollectibleDraw> TankFrame(InWorldCollectibleKind kind, CollectibleLook look) =>
+        TankLooks.TryGetValue(kind, out CollectibleLookDraws tank)
+            ? Family.Of(tank.Of(look))
+            : throw new InvalidDataException($"Collectible {kind} shows its own picture, not a tank's.");
+
     /// <summary>
-    /// The draw of <paramref name="look"/> of a tank kind, or of the block pair an item that shows its own picture took
-    /// (<see cref="CollectibleBlockPairs"/>).
+    /// The draw of <paramref name="look"/> through <paramref name="pair"/>, the block pair an item that shows its own picture
+    /// took (<see cref="CollectibleBlockPairs"/>).
     /// </summary>
-    internal static RoomObjectFrameDraw<CollectibleDraw> VisibleFrame(InWorldCollectibleKind kind,
-        CollectibleLook look, CollectibleBlockPairs.Pair? blockPair)
-    {
-        if (TankLooks.TryGetValue(kind, out CollectibleLookDraws tank))
-            return Family.Of(tank.Of(look));
-        if (blockPair is not { } pair)
-            throw new InvalidDataException($"Collectible {kind} shows its own picture but took no block pair.");
-        return BlockPairLooks.TryGetValue(pair, out CollectibleLookDraws looks)
+    /// <exception cref="InvalidDataException">The pair is not one of the block pairs.</exception>
+    internal static RoomObjectFrameDraw<CollectibleDraw> OwnPictureFrame(CollectibleBlockPairs.Pair pair, CollectibleLook look) =>
+        BlockPairLooks.TryGetValue(pair, out CollectibleLookDraws looks)
             ? Family.Of(looks.Of(look))
             : throw new InvalidDataException($"Undefined collectible block pair {pair}.");
-    }
 
     /// <summary>The collectibles' family: a block pair's frame writes its terrain alone; every other frame draws as pictured.</summary>
     private sealed class CollectibleDrawFamily() : RoomObjectDrawFamily<CollectibleDraw>("collectible",

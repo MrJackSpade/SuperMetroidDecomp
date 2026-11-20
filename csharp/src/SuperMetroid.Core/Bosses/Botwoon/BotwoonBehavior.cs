@@ -154,7 +154,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         BotwoonEnemyState state,
         SamusState samus)
     {
-        if (state.Movement != BotwoonMovement.Finished)
+        if (state.Movement is not BotwoonMovement.Finished)
         {
             RunBotwoonMovingFrame(head, state, samus);
             DetectBotwoonHole(head, state);
@@ -188,10 +188,10 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         BotwoonEnemyState state,
         SamusState samus)
     {
-        if (state.Movement == BotwoonMovement.Finished)
+        if (state.Movement is BotwoonMovement.Finished)
         {
             state.Phase = BotwoonPhase.ChooseNextAction;
-            state.Movement = BotwoonMovement.MoveTowardHole;
+            state.Movement = new BotwoonMovement.MoveTowardHole();
             if (state.InsideHole)
                 state.HoleLatch = false;
             return;
@@ -249,8 +249,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             case BotwoonMovement.MoveTowardHole:
                 MoveBotwoonTowardHole(head, state);
                 return;
-            case BotwoonMovement.FollowAuthoredPath:
-                FollowBotwoonPath(head, state);
+            case BotwoonMovement.FollowAuthoredPath walk:
+                FollowBotwoonPath(head, state, walk.Path);
                 return;
             case BotwoonMovement.Finished:
                 throw new InvalidOperationException("Botwoon moves after finishing his movement, before choosing what follows.");
@@ -278,7 +278,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         else
         {
             state.PreviousInsideHole = state.InsideHole;
-            state.Movement = BotwoonMovement.Finished;
+            state.Movement = new BotwoonMovement.Finished();
         }
     }
 
@@ -321,26 +321,24 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// </summary>
     internal static void StartBotwoonWalk(BotwoonEnemyState state, BotwoonPathWalk walk)
     {
-        state.Path = walk.Path;
         state.PathTraversal = walk.Traversal;
         state.PathStep = walk.FirstStep;
         state.TargetHole = walk.Destination;
-        state.Movement = BotwoonMovement.FollowAuthoredPath;
+        state.Movement = new BotwoonMovement.FollowAuthoredPath(walk.Path);
     }
 
     /// <summary>
     /// Takes as many path steps as the current speed allows. Walking off either end of the path completes it; the
     /// steps already taken on that update are then discarded, so the head does not move on its final update.
     /// </summary>
-    private static void FollowBotwoonPath(RoomEnemyPlace head, BotwoonEnemyState state)
+    private static void FollowBotwoonPath(RoomEnemyPlace head, BotwoonEnemyState state, BotwoonPathDefinition path)
     {
-        BotwoonPathDefinition path = state.Path ?? throw new InvalidOperationException("Botwoon follows a path before choosing one.");
         Offset16<RoomPixels> total = Offset16<RoomPixels>.Zero;
         for (int taken = 0; taken < state.SpeedStage.MovementSpeed; taken++)
         {
             if (!BotwoonNavigation.HasStep(path, state.PathStep))
             {
-                state.Movement = BotwoonMovement.Finished;
+                state.Movement = new BotwoonMovement.Finished();
                 return;
             }
             total += BotwoonNavigation.Step(path, state.PathStep);

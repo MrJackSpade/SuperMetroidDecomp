@@ -22,7 +22,7 @@ public sealed class BotwoonEnemyState
     /// The independent movement behaviour, choosing direct hole movement or an authored path; he starts moving toward
     /// his target hole.
     /// </summary>
-    public BotwoonMovement Movement { get; internal set; } = BotwoonMovement.MoveTowardHole;
+    internal BotwoonMovement Movement { get; set; } = new BotwoonMovement.MoveTowardHole();
 
     /// <summary>
     /// The independent head behaviour, controlling movement orientation, aiming, spit-frame admission, and cooldown; the
@@ -78,14 +78,12 @@ public sealed class BotwoonEnemyState
     public RotationAngle MovementAngle { get; internal set; }
     /// <summary>The direction his spits fly: the bearing from his head to Samus, to which a volley's other spits add their spread.</summary>
     public RotationAngle SpitAngle { get; internal set; }
-    /// <summary>The authored path being walked; none before his first walk.</summary>
-    internal BotwoonPathDefinition? Path { get; set; }
     /// <summary>
-    /// The next step of <see cref="Path"/> to take. A forward walk ends when it passes the last step and a backward
+    /// The next step of the path he walks (<see cref="BotwoonMovement.FollowAuthoredPath"/>) to take. A forward walk ends when it passes the last step and a backward
     /// walk when it passes the first, so it ranges from one before the first step to one after the last.
     /// </summary>
     public int PathStep { get; internal set; }
-    /// <summary>Which way <see cref="Path"/> is walked: a backward walk takes the steps in reverse order, each reversed.</summary>
+    /// <summary>Which way the path he walks is walked: a backward walk takes the steps in reverse order, each reversed.</summary>
     public BotwoonPathTraversal PathTraversal { get; internal set; }
     /// <summary>The head animation the AI last installed and where it stands; reinstalling the same animation does not restart it.</summary>
     internal AnimationPlayback<BotwoonHeadAnimationSegment> HeadPlayback { get; set; } =

@@ -47,6 +47,8 @@ internal sealed class CeresEscape : IGameplayShadingSource
     internal CeresEscape(CeresEscapeDependencies dependencies)
     {
         _bossArtwork = dependencies.BossArtwork;
+        Warning = new CeresSelfDestructWarning(new EscapeTypewriterState(
+            _bossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Ceres)));
         _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _audio = dependencies.Audio;
@@ -63,7 +65,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     internal CeresTurningFloor Floor { get; } = new();
 
     /// <summary>The self-destruct's warning.</summary>
-    internal CeresSelfDestructWarning Warning { get; } = new();
+    internal CeresSelfDestructWarning Warning { get; }
 
     /// <summary>
     /// The chamber's walls the getaway scene shows around its turning floor (#1545, #1989): the chamber wall's pictures of the
@@ -323,8 +325,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// <summary>Types the next step of the escape text.</summary>
     private bool StepTypewriter()
     {
-        var installed = Warning.Typewriter ?? throw new InvalidDataException(
-            "Ceres warning text requires installed typewriter artwork.");
+        EscapeTypewriterState installed = Warning.Typewriter;
         EscapeTypewriterStep typing = installed.Step();
         // The Ceres message types over the room's foreground (#1348), as part of the warning (#1555).
         if (typing is EscapeTypewriterStep.Typed typed)

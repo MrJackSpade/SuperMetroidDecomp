@@ -146,8 +146,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
             case NorfairPipeBugAction.Stagger:
-                RunNorfairPipeBugVerticalStagger(place, state, state.Role.Stagger
-                    ?? throw new InvalidOperationException("A Norfair Pipe Bug staggers in a role that holds its height."));
+                if (state.Role is not NorfairPipeBugRole.Follower follower)
+                    throw new InvalidOperationException("A Norfair Pipe Bug staggers in the leader's role, which holds its height.");
+                RunNorfairPipeBugVerticalStagger(place, state, follower.Stagger);
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
             case NorfairPipeBugAction.WaitForStagger:

@@ -436,8 +436,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.OnLeftWall ? landing.ReversedX() : landing;
         place.Frame = EnemyFrameId.Empty;
         state.Movement = YardMovement.HoldingStill;
-        state.Playback = EnemyAnimationPlayback.Start(place, YardAnimations.StartingWith(state.HidingAnimation ??
-            throw new InvalidDataException("A landing Yard has no hiding animation to resume.")));
+        // It resumes the hiding animation of the way it faced in the air, which its airborne lists selected.
+        state.Playback = EnemyAnimationPlayback.Start(place, YardAnimations.StartingWith(
+            YardDirections.ForAirborneFacing(state.AirborneFacingDirection).HidingAnimation));
     }
 
     /// <summary>Selects visible and hiding animations from Yard's airborne facing direction.</summary>

@@ -58,9 +58,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                 "where both Shaktool room states place it.");
         }
         _chains.Place(place, new ShaktoolChainPlaces(
-            Chain: owner == place ? StartShaktoolChain(owner, settings.Motion) : JoinShaktoolChain(owner, settings.Motion),
-            Previous: _places.ListedBeforeOrNone(place, 1),
-            Next: _places.ListedAfterOrNone(place, 1)));
+            Chain: owner == place ? StartShaktoolChain(owner, settings.Motion) : JoinShaktoolChain(owner, settings.Motion)));
         state.Motion = definition.Motion;
         // Initialization and synchronization both take the segment's authored angular velocity unchanged.
         state.AngularVelocity = definition.AngularVelocity;
@@ -140,8 +138,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         ShaktoolSegmentState state)
     {
-        RoomEnemyPlace previous = _chains.Of(place).Previous
-            ?? throw new InvalidOperationException("Shaktool's anchor has no preceding segment.");
+        RoomEnemyPlace previous = _places.ListedBefore(place, 1);
         // The segment placement reads the preceding segment's place without testing it. A lethal shot clears the
         // struck segment and deletes the chain, but the later segments still run this update; their final orbit uses
         // the cleared coordinates.
@@ -381,8 +378,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The enemy listed after a linked segment center, which it found when it was placed.</summary>
     private RoomEnemyPlace GetNextShaktoolSegment(RoomEnemyPlace place) =>
-        _chains.Of(place).Next ?? throw new InvalidDataException(
-            $"Shaktool center place {place.Ordinal} has no following segment.");
+        _places.ListedAfter(place, 1);
 
     /// <summary>
     /// The state of the segment in <paramref name="place"/>: its own, or, for the segment a hit killed this update, the

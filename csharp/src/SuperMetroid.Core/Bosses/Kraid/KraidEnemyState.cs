@@ -137,10 +137,10 @@ public sealed class KraidEnemyState
     internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
 
     /// <summary>
-    /// Kraid's playing head animation and where it stands; <see cref="HeadHold"/> paces it. Null until the first attack, glow
-    /// or death starts an animation.
+    /// Kraid's playing head animation and where it stands; <see cref="HeadHold"/> paces it. He rises with his roar selected,
+    /// the animation his rise's last update selects again for his first attack; nothing reads his head before then.
     /// </summary>
-    internal AnimationPlayback<KraidHeadSegment>? HeadPlayback { get; set; }
+    internal AnimationPlayback<KraidHeadSegment> HeadPlayback { get; set; } = KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Playback;
 
     /// <summary>
     /// His head's hold on the pose it shows (#2538): each pose the head shows or enters holds for its duration, and the head

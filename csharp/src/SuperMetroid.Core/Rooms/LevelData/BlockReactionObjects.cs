@@ -48,7 +48,7 @@ internal sealed class BlockReactionObjects
         place.Block = position;
         place.Become(respawning
             ? new RespawningGrappleBlockObject(block.Terrain)
-            : new BlockReactionObject(BlockReactionChangeDefinitions.PermanentBreakableGrappleBlock, block.Terrain));
+            : new RestoringBlockReactionObject(BlockReactionChangeDefinitions.PermanentBreakableGrappleBlock, block.Terrain));
 
         // The setup saves the complete original block but clears only its behaviour. It deliberately leaves the
         // Grapple-block collision intact until the first room-object pass later in this same gameplay frame draws the intact
@@ -82,7 +82,7 @@ internal sealed class BlockReactionObjects
         // This is not the block's earlier appearance. The setup deliberately replaces the block and its mirroring with the
         // bomb-block parent; multi-block restorations then add extension blocks around this parent.
         RoomBlockAppearance parent = _drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent);
-        place.Become(new BlockReactionObject(BlockReactionChanges.CollisionBomb(behavior.Bombable),
+        place.Become(new RestoringBlockReactionObject(BlockReactionChanges.CollisionBomb(behavior.Bombable),
             new RoomTerrainBlock(parent, block.CollisionType)));
         level.SetTerrain(position, new RoomTerrainBlock(parent, RoomCollisionType.Air));
         return true;
@@ -114,7 +114,7 @@ internal sealed class BlockReactionObjects
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         // The setup writes the whole block, its picture becoming the parent's, so it shows the parent (#2502).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CrumbleBlockParent));
-        place.Become(new BlockReactionObject(change, restore));
+        place.Become(new RestoringBlockReactionObject(change, restore));
         level.SetTerrain(position, restore.WithCollision(RoomCollisionType.SolidBlock));
         return true;
     }
@@ -162,7 +162,7 @@ internal sealed class BlockReactionObjects
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         // The setup writes the whole block, its picture becoming the parent's, so it shows the parent (#2502).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.SpeedBoosterBlockParent));
-        place.Become(new BlockReactionObject(crumble, restore));
+        place.Become(new RestoringBlockReactionObject(crumble, restore));
         level.SetTerrain(position, restore.WithCollision(RoomCollisionType.Air));
         return true;
     }
@@ -388,7 +388,7 @@ internal sealed class BlockReactionObjects
         BlockReactionChange change)
     {
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(parent));
-        place.Become(new BlockReactionObject(change, restore));
+        place.Become(new RestoringBlockReactionObject(change, restore));
         level.SetTerrain(place.Block, restore.Deactivated());
     }
 }

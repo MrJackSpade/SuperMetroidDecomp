@@ -57,18 +57,16 @@ public sealed class RoomEffectActor
     /// <summary>Counts one update off the shown frame on the object's clock and moves the animation on when it runs out.</summary>
     internal void Step()
     {
-        if (IsActive && AnimationClock.Expire())
-            AdvanceAnimation();
+        if (Playback is { } playback && AnimationClock.Expire())
+            AdvanceAnimation(playback);
     }
 
     /// <summary>
     /// Plays the animation to its next frame: a frame shows for its duration, a still picture or the hold keeps the frame for
     /// good, stopping the clock, and the animation's end ends the object. The animations count no repeats and raise no events.
     /// </summary>
-    private void AdvanceAnimation()
+    private void AdvanceAnimation(AnimationPlayback<RoomEffectActorSegment> playback)
     {
-        AnimationPlayback<RoomEffectActorSegment> playback = Playback ?? throw new InvalidOperationException(
-            $"Effect actor {Kind} has no animation to play.");
         Animation<RoomEffectActorSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
         AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture> shown = RoomEffectActorAnimations.Segments.PlayToNextFrame(

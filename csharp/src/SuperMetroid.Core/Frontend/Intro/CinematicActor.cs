@@ -108,17 +108,25 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
 
     /// <summary>
     /// Advances the actor by one update: when the frame expires, plays the animation on until it shows a frame, holds or
-    /// ends. Owner cues go to <paramref name="ownerCue"/>; an animation that raises one with no owner fails.
+    /// ends. An actor stepped with no owner has none to hand a cue to: an animation that raises one fails.
     /// </summary>
-    public void Step(Action<TCue>? ownerCue = null)
+    public void Step() => Step(cue => throw new InvalidOperationException(
+        $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."));
+
+    /// <summary>
+    /// Advances the actor by one update as <see cref="Step()"/> does, handing each cue its animation raises to
+    /// <paramref name="ownerCue"/>.
+    /// </summary>
+    public void Step(Action<TCue> ownerCue)
     {
+        Ensure.NotNull(ownerCue);
         if (!IsActive || held || !frameHold.Step())
             return;
 
         Animation<TAnimation> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
         AnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
-            animation, ref place, cue => ApplyCue(cue, ownerCue));
+            animation, ref place, ownerCue);
         Playback = new AnimationPlayback<TAnimation>(animation, place);
         switch (shown)
         {
@@ -141,13 +149,6 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
             default:
                 throw new InvalidOperationException($"A cinematic sprite animation ended an update with {shown}.");
         }
-    }
-
-    /// <summary>Hands the cue to the actor's owner.</summary>
-    private void ApplyCue(TCue cue, Action<TCue>? ownerCue)
-    {
-        (ownerCue ?? throw new InvalidOperationException(
-            $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."))(cue);
     }
 
     /// <summary>

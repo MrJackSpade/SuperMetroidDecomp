@@ -55,7 +55,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>A special Rinka whose spawn choice waits for the door loader's camera.</summary>
     /// <param name="Place">The Rinka's place.</param>
     /// <param name="State">The state its setup gave it.</param>
-    private readonly record struct DeferredRinkaSpawn(RoomEnemyPlace Place, RinkaEnemyState State);
+    /// <param name="Own">The spawn point its placement shares.</param>
+    private readonly record struct DeferredRinkaSpawn(RoomEnemyPlace Place, RinkaEnemyState State, RinkaSpawnPoint Own);
 
     /// <summary>
     /// Captures camera coordinates used by the Rinka's flight and spawn checks. StepFrame refreshes these before
@@ -76,15 +77,16 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Presence = place.Presence.Without(EnemyPresence.RespawnsIfKilled);
         place.Processing = place.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
         place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
-        if (IsSpecialRinka(place))
+        // A special Rinka is one its placement gives a shared spawn point.
+        if (state.SpawnPoint is { } own)
         {
             // The spawn selection tests its spawn points against the foreground. A door's loader runs this
             // while the door transition is still scrolling, so that choice waits for the camera
             // of the update in which the loader reaches this place.
             if (_frameContext.DeferLoaderTimeCameraReads)
-                _deferredRinkaSpawns.Add(new DeferredRinkaSpawn(place, state));
+                _deferredRinkaSpawns.Add(new DeferredRinkaSpawn(place, state, own));
             else
-                ReserveSpecialRinkaSpawn(place, state);
+                ReserveSpecialRinkaSpawn(place, state, own);
             place.Processing = place.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
             place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         }
@@ -105,8 +107,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Re-initializes a Rinka, covering both of its later setup paths.</summary>
     private void ReinitializeRinka(RoomEnemyPlace place, RinkaEnemyState state)
     {
-        if (IsSpecialRinka(place))
-            ReserveSpecialRinkaSpawn(place, state);
+        if (state.SpawnPoint is { } own)
+            ReserveSpecialRinkaSpawn(place, state, own);
 
         // A special Rinka returns to its spawn point, the one it last reserved; an ordinary Rinka to its own placement.
         place.Position = place.Position.WithWhole(state.SpawnPoint is { } point
@@ -152,7 +154,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             DeferredRinkaSpawn rinka = _deferredRinkaSpawns[0];
             _deferredRinkaSpawns.RemoveAt(0);
             SetRinkaCamera(camera);
-            ReserveSpecialRinkaSpawn(rinka.Place, rinka.State);
+            ReserveSpecialRinkaSpawn(rinka.Place, rinka.State, rinka.Own);
         }
     }
 
@@ -303,10 +305,11 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Reserves a special Rinka's spawn point against the current camera, moving the Rinka to the point it reserves, which
     /// becomes its spawn point when it cannot keep its own.
     /// </summary>
-    private void ReserveSpecialRinkaSpawn(RoomEnemyPlace place, RinkaEnemyState state)
+    /// <param name="place">The Rinka's place.</param>
+    /// <param name="state">The Rinka.</param>
+    /// <param name="own">Its spawn point, the one its placement shares or the one it last reserved.</param>
+    private void ReserveSpecialRinkaSpawn(RoomEnemyPlace place, RinkaEnemyState state, RinkaSpawnPoint own)
     {
-        RinkaSpawnPoint own = state.SpawnPoint ?? throw new InvalidOperationException(
-            $"Special Rinka {place.Ordinal} has no spawn point to reserve.");
         // Every point being held is a real failure path: the Rinka keeps its place and its spawn point.
         if (_spawnReservations.Reserve(own, _rinkaCamera) is not { } reserved)
             return;

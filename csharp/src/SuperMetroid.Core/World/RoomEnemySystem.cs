@@ -488,8 +488,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         EscapeTypewriterState? active = BossEncounters.MotherBrain?.EscapeTypewriter;
         if (active?.MessageId == EscapeTypewriterMessageId.Zebes)
             active.BindMessage(value.Get(EscapeTypewriterMessageId.Zebes));
-        EscapeTypewriterState? ceres = CeresEscape.Warning.Typewriter;
-        if (ceres?.MessageId == EscapeTypewriterMessageId.Ceres)
+        EscapeTypewriterState ceres = CeresEscape.Warning.Typewriter;
+        if (ceres.MessageId == EscapeTypewriterMessageId.Ceres)
             ceres.BindMessage(value.Get(EscapeTypewriterMessageId.Ceres));
     }
 

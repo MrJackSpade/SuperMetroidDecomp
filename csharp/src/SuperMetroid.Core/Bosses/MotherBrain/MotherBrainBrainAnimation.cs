@@ -26,10 +26,11 @@ public sealed class MotherBrainBrainAnimation
     /// </summary>
     internal void Start(Animation<MotherBrainHeadSegment> animation)
     {
-        Playback = new AnimationPlayback<MotherBrainHeadSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
+        var started = new AnimationPlayback<MotherBrainHeadSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
+        Playback = started;
         ShownFrame = null;
         if (MotherBrainBrainCadence.ShowsOpeningPictureAtStart(MotherBrainAnimations.HeadSegments.OpensWithFrame(animation)))
-            Step(cue => throw new InvalidOperationException($"Mother Brain's brain animation raised {cue} before its opening picture."));
+            Step(started, cue => throw new InvalidOperationException($"Mother Brain's brain animation raised {cue} before its opening picture."));
         else
             Clock.StepOnNextUpdate();
     }
@@ -50,14 +51,13 @@ public sealed class MotherBrainBrainAnimation
                 $"Mother Brain's frozen brain has shown no picture of its animation at {playback.Place}.");
         }
         if (Clock.Expire())
-            Step(react);
+            Step(playback, react);
         return ShownFrame;
     }
 
-    /// <summary>Plays the animation on to its next picture and shows it for the updates it states, or for good.</summary>
-    private void Step(Func<MotherBrainHeadCue, AnimationContinuation<MotherBrainHeadSegment>?> react)
+    /// <summary>Plays the animation on from <paramref name="playback"/> to its next picture and shows it for the updates it states, or for good.</summary>
+    private void Step(AnimationPlayback<MotherBrainHeadSegment> playback, Func<MotherBrainHeadCue, AnimationContinuation<MotherBrainHeadSegment>?> react)
     {
-        AnimationPlayback<MotherBrainHeadSegment> playback = Playback ?? throw new InvalidOperationException("Mother Brain's brain plays no animation.");
         Animation<MotherBrainHeadSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
         AnimationShown<MotherBrainHeadSegment, EnemyFrameId> shown = MotherBrainAnimations.HeadSegments.PlayToNextFrame(ref animation, ref place, react);

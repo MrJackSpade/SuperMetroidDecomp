@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Samus.Artwork;
-
 namespace SuperMetroid.Core.Enemies.EffectActors;
 
 /// <summary>
@@ -9,27 +6,36 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// </summary>
 internal readonly record struct RoomEffectActorPicture
 {
-    /// <summary>A picture of one kind or the other, never both.</summary>
-    private RoomEffectActorPicture(EnemyFrameId? enemyFrame, ProjectileSpriteId? hitBurst)
+    /// <summary>A picture on one sheet or the other: the enemy sheet's frame, or Samus's hit-burst sprite.</summary>
+    private RoomEffectActorPicture(bool isHitBurst, EnemyFrameId enemyFrame, ProjectileSpriteId hitBurst)
     {
-        EnemyFrame = enemyFrame;
-        HitBurst = hitBurst;
+        this.isHitBurst = isHitBurst;
+        this.enemyFrame = enemyFrame;
+        this.hitBurst = hitBurst;
     }
 
-    /// <summary>The enemy-sheet frame the picture is, or null for a hit burst's.</summary>
-    internal EnemyFrameId? EnemyFrame { get; }
+    /// <summary>Whether the picture is one of Samus's hit-burst sprites rather than a frame of the enemy sheet.</summary>
+    private readonly bool isHitBurst;
 
-    /// <summary>The hit-burst sprite of Samus's the picture is, or null for an enemy-sheet frame.</summary>
-    internal ProjectileSpriteId? HitBurst { get; }
+    /// <summary>The enemy-sheet frame the picture is, for a picture on the enemy sheet.</summary>
+    private readonly EnemyFrameId enemyFrame;
+
+    /// <summary>The hit-burst sprite of Samus's the picture is, for a hit burst's picture.</summary>
+    private readonly ProjectileSpriteId hitBurst;
 
     /// <summary>The picture of enemy-sheet frame <paramref name="frame"/>.</summary>
-    internal static RoomEffectActorPicture OfEnemyFrame(EnemyFrameId frame) => new(frame, null);
+    internal static RoomEffectActorPicture OfEnemyFrame(EnemyFrameId frame) => new(isHitBurst: false, frame, default);
 
     /// <summary>The picture of Samus's hit-burst sprite <paramref name="sprite"/>.</summary>
-    internal static RoomEffectActorPicture OfHitBurst(ProjectileSpriteId sprite) => new(null, sprite);
+    internal static RoomEffectActorPicture OfHitBurst(ProjectileSpriteId sprite) => new(isHitBurst: true, default, sprite);
 
-    /// <summary>The enemy-sheet frame the picture is.</summary>
-    /// <exception cref="InvalidOperationException">The picture is one of Samus's hit-burst sprites, on no enemy sheet.</exception>
-    internal EnemyFrameId RequireEnemyFrame() => EnemyFrame
-        ?? throw new InvalidOperationException($"Room effect-actor picture {HitBurst} is Samus's hit burst, on no enemy sheet.");
+    /// <summary>
+    /// What <paramref name="onEnemySheet"/> makes of the picture's enemy-sheet frame, or for a hit burst's picture what
+    /// <paramref name="asHitBurst"/> makes of its sprite.
+    /// </summary>
+    internal TResult Select<TResult>(Func<EnemyFrameId, TResult> onEnemySheet, Func<ProjectileSpriteId, TResult> asHitBurst) =>
+        isHitBurst ? Ensure.NotNull(asHitBurst)(hitBurst) : Ensure.NotNull(onEnemySheet)(enemyFrame);
+
+    /// <inheritdoc/>
+    public override string ToString() => isHitBurst ? $"hit burst {hitBurst}" : $"enemy frame {enemyFrame}";
 }

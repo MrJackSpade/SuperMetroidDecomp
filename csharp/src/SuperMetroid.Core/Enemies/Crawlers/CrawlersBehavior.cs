@@ -140,9 +140,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the separate orange-Zoomer setup.</summary>
     internal static CrawlerEnemyState InitializeOrangeZoomer(RoomEnemyPlace place)
     {
-        CrawlerSpawnSettings settings = place.SpawnSettings<CrawlerSpawnSettings>();
-        SignedEightEight crawlSpeed = settings.CrawlSpeed ??
-            throw new InvalidDataException("An orange Zoomer's placement keeps its velocity, which its setup has no speed for.");
+        OrangeZoomerSpawnSettings settings = place.SpawnSettings<OrangeZoomerSpawnSettings>();
+        SignedEightEight crawlSpeed = settings.CrawlSpeed;
 
         CrawlerSurfaceOrientation orientation = settings.Orientation;
         var state = new CrawlerEnemyState(CrawlerAction.Settling)

@@ -10,6 +10,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 public sealed class CeresSelfDestructWarning
 {
+    /// <summary>Makes the warning, whose typewriter types the installed warning text once the title's hold ends.</summary>
+    /// <param name="typewriter">The typewriter of the installed warning text, which has typed nothing.</param>
+    internal CeresSelfDestructWarning(EscapeTypewriterState typewriter) => Typewriter = Ensure.NotNull(typewriter);
+
     /// <summary>Which step of the warning runs next; the getaway's end starts it.</summary>
     internal CeresSelfDestructPhase Phase { get; set; }
     /// <summary>
@@ -17,8 +21,11 @@ public sealed class CeresSelfDestructWarning
     /// title, the title's hold, then, for Japanese text, the subtitle's wait. The typewriter keeps its own schedule.
     /// </summary>
     public BossCountdown PhaseWait { get; } = new();
-    /// <summary>Gets the installed warning typewriter state, created after the initial delay; null before then.</summary>
-    public EscapeTypewriterState? Typewriter { get; internal set; }
+    /// <summary>
+    /// The installed warning text's typewriter: the end of the title's hold starts it afresh, and it types nothing before
+    /// then.
+    /// </summary>
+    public EscapeTypewriterState Typewriter { get; internal set; }
     /// <summary>
     /// The warning's cycling alarm (#2316, #2409), which shows nothing before its first step; each step, every fourth
     /// update, plays it on to its next colouring, the first after the last.

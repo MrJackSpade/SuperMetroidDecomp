@@ -117,20 +117,7 @@ internal sealed class MotherBrainFakeDeath
                 : state.TubeCollapseTimer.StepRunsOut();
             if (!falls)
                 return;
-            switch (drop)
-            {
-                case MotherBrainBottomTubeDrop bottom:
-                    SpawnMotherBrainFallingTube(state, bottom.Piece);
-                    break;
-                case MotherBrainTopTubeDrop top:
-                    SpawnMotherBrainTopTube(top.Kind, top.Segment, top.Start);
-                    break;
-                case MotherBrainMainTubeDrop:
-                    SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.Main);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Mother Brain's tube collapse cannot drop {drop}.");
-            }
+            drop.React(TubeDrops, new TubeDropping(this, state));
             state.TubeCollapse = new(tube, MotherBrainTubeDropStage.Fallen);
             return;
         }
@@ -140,6 +127,17 @@ internal sealed class MotherBrainFakeDeath
             state.TubeCollapseTimer.LastFor(followed.WaitAfterUpdates);
         state.TubeCollapse = new(tube.Following, MotherBrainTubeDropStage.Standing);
     }
+
+    /// <summary>What the collapse drops for each tube (#2553): a bottom or the main tube falls, a top tube spawns as a projectile.</summary>
+    private static MotherBrainTubeDropReactions<TubeDropping> TubeDrops { get; } = new(
+        Bottom: static (bottom, dropping) => dropping.Owner.SpawnMotherBrainFallingTube(dropping.State, bottom.Piece),
+        Top: static (top, dropping) => dropping.Owner.SpawnMotherBrainTopTube(top.Kind, top.Segment, top.Start),
+        Main: static (_, dropping) => dropping.Owner.SpawnMotherBrainFallingTube(dropping.State, MotherBrainTubePiece.Main));
+
+    /// <summary>A tube the collapse drops (#2553): the fake death dropping it and Mother Brain's state.</summary>
+    /// <param name="Owner">The fake death dropping the tube.</param>
+    /// <param name="State">Mother Brain's state.</param>
+    private readonly record struct TubeDropping(MotherBrainFakeDeath Owner, MotherBrainEnemyState State);
 
     /// <summary>Spawns the top tube projectile of <paramref name="kind"/>, falling as <paramref name="tube"/> shows, for the scripted collapse.</summary>
     private void SpawnMotherBrainTopTube(

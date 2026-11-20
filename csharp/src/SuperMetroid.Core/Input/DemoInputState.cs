@@ -107,21 +107,15 @@ public sealed class DemoInputState
         DemoRecording recording = DemoInputRecordings.Of(position.Recording);
         if (position.NextInput >= recording.Inputs.Count)
         {
-            switch (recording.End)
+            if (recording.End is not DemoRecordingEnd.Loop loop)
             {
-                case DemoRecordingEnd.Loop loop:
-                    position = position with { NextInput = loop.Input };
-                    break;
-                case DemoRecordingEnd.Signal signal:
+                // A stop or a signal ends the input, the signal reaching the owner first.
+                if (recording.End is DemoRecordingEnd.Signal signal)
                     cue(signal.Cue);
-                    EndInput();
-                    return;
-                case DemoRecordingEnd.Stop:
-                    EndInput();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Demo recording {position.Recording} has undefined end {recording.End}.");
+                EndInput();
+                return;
             }
+            position = position with { NextInput = loop.Input };
         }
 
         DemoInput input = recording.Inputs[position.NextInput];

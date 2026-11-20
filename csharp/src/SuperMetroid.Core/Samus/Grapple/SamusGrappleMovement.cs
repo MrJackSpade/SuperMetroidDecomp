@@ -143,34 +143,26 @@ public static class SamusGrappleMovement
         // enemy's grapple reaction: the reactions that stop the beam or connect it act here, while Kill and no
         // interaction let it go on to the room's blocks, exactly like an enemy with no grapple reaction.
         GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
-        switch (enemy.Reaction)
+        GrappleEnemyReaction enemyReaction = enemy.Reaction;
+        if (enemyReaction is GrappleEnemyReaction.Attach or GrappleEnemyReaction.AttachWithoutInvincibility or GrappleEnemyReaction.AttachAndParalyze)
         {
-            case GrappleEnemyReaction.Attach:
-            case GrappleEnemyReaction.AttachWithoutInvincibility:
-            case GrappleEnemyReaction.AttachAndParalyze:
-                grapple.Anchor = enemy.Anchor;
-                return ConnectAcceptedFiringCore(
-                    samus,
-                    grapple,
-                    previousPosition,
-                    GrappleAnchorKind.Enemy);
-
-            case GrappleEnemyReaction.Cancel:
-                return QueueFiringCancellation(grapple);
-
-            case GrappleEnemyReaction.HurtSamus:
-                ApplyGrappleEnemyDamage(
-                    samus,
-                    controllerInput,
-                    enemy.EnemyDamage);
-                return QueueFiringCancellation(grapple);
-            // Kill and no interaction go on to the room's blocks, as if the enemy were not there.
-            case GrappleEnemyReaction.None:
-            case GrappleEnemyReaction.Kill:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined GrappleEnemyReaction {enemy.Reaction}.");
+            grapple.Anchor = enemy.Anchor;
+            return ConnectAcceptedFiringCore(
+                samus,
+                grapple,
+                previousPosition,
+                GrappleAnchorKind.Enemy);
         }
+        if (enemyReaction == GrappleEnemyReaction.HurtSamus)
+        {
+            ApplyGrappleEnemyDamage(
+                samus,
+                controllerInput,
+                enemy.EnemyDamage);
+        }
+        if (enemyReaction is GrappleEnemyReaction.Cancel or GrappleEnemyReaction.HurtSamus)
+            return QueueFiringCancellation(grapple);
+        // Kill and no interaction go on to the room's blocks, as if the enemy were not there.
 
         // The rope moves its end in four equal substeps, probing after each; each keeps parts of the
         // update before's substep, so together they need not add up to the extension speed

@@ -7,4 +7,21 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// What falls, and whether a tube follows it, is the drop's own kind.
 /// </summary>
 /// <param name="Clears">The room mutation clearing the tube's place, and the block it is spawned at.</param>
-internal abstract record MotherBrainTubeDrop(RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears);
+internal abstract record MotherBrainTubeDrop(RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears)
+{
+    /// <summary>Carries out the reaction <paramref name="reactions"/> has to this drop, through the drop it is (#2553).</summary>
+    /// <typeparam name="TContext">What the drop's reaction reads besides the drop.</typeparam>
+    /// <param name="reactions">What the collapse does on each drop.</param>
+    /// <param name="context">What the drop's reaction reads besides the drop, handed to it so the reactions are built once.</param>
+    internal abstract void React<TContext>(MotherBrainTubeDropReactions<TContext> reactions, TContext context);
+}
+
+/// <summary>What the tube collapse does on each <see cref="MotherBrainTubeDrop"/> (#2553).</summary>
+/// <typeparam name="TContext">What each reaction reads besides the drop.</typeparam>
+/// <param name="Bottom">Drops a bottom tube.</param>
+/// <param name="Top">Drops a top tube.</param>
+/// <param name="Main">Drops the main tube.</param>
+internal sealed record MotherBrainTubeDropReactions<TContext>(
+    Action<MotherBrainBottomTubeDrop, TContext> Bottom,
+    Action<MotherBrainTopTubeDrop, TContext> Top,
+    Action<MotherBrainMainTubeDrop, TContext> Main);

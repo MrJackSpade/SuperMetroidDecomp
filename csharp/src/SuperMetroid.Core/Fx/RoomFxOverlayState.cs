@@ -749,27 +749,16 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private void StepLiquidTide()
     {
-        int peakPixels;
-        RotationAngle positiveDelta;
-        RotationAngle negativeDelta;
-        switch (Liquid?.Tide ?? LiquidTide.None)
+        LiquidTide tide = Liquid?.Tide ?? LiquidTide.None;
+        if (tide == LiquidTide.None)
         {
-            case LiquidTide.Small:
-                peakPixels = LiquidTideDefinitions.SmallTidePeakPixels;
-                positiveDelta = LiquidTideDefinitions.SmallTidePositivePhaseDelta;
-                negativeDelta = LiquidTideDefinitions.SmallTideNegativePhaseDelta;
-                break;
-            case LiquidTide.Large:
-                peakPixels = LiquidTideDefinitions.LargeTidePeakPixels;
-                positiveDelta = LiquidTideDefinitions.LargeTidePositivePhaseDelta;
-                negativeDelta = LiquidTideDefinitions.LargeTideNegativePhaseDelta;
-                break;
-            case LiquidTide.None:
-                TideOffset = SignedSixteenSixteen.Zero;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined liquid tide {Liquid?.Tide}.");
+            TideOffset = SignedSixteenSixteen.Zero;
+            return;
         }
+        bool small = tide == LiquidTide.Small;
+        int peakPixels = small ? LiquidTideDefinitions.SmallTidePeakPixels : LiquidTideDefinitions.LargeTidePeakPixels;
+        RotationAngle positiveDelta = small ? LiquidTideDefinitions.SmallTidePositivePhaseDelta : LiquidTideDefinitions.LargeTidePositivePhaseDelta;
+        RotationAngle negativeDelta = small ? LiquidTideDefinitions.SmallTideNegativePhaseDelta : LiquidTideDefinitions.LargeTideNegativePhaseDelta;
 
         // The tide follows the negative cosine of its phase, not the sine: the sine a quarter turn behind it. A crest's
         // height is positive, so the offset lies above the base line exactly while the wave is negative.

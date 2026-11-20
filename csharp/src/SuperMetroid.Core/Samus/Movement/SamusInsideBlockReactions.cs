@@ -66,27 +66,21 @@ public static class SamusInsideBlockReactions
                     QuicksandReactions.SurfacePhysics(
                         samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit));
                 // One reaction per vertical direction; a still Samus takes the grounded reaction.
-                switch (body.VerticalVelocity.Direction)
+                SamusVerticalDirection direction = body.VerticalVelocity.Direction;
+                if (direction == SamusVerticalDirection.None)
                 {
-                    case SamusVerticalDirection.None:
-                        body.VerticalVelocity = body.VerticalVelocity.Stopped();
-                        SetExtra(physics.StationaryDisplacement);
-                        break;
-                    case SamusVerticalDirection.Up:
-                        SignedSixteenSixteen limit = physics.UpwardSpeedLimit;
-                        // A speed past the limit takes the limit's whole pixels and fraction.
-                        if (body.VerticalVelocity.Speed.IsFasterInTwoFiftySixthsThan(limit))
-                        {
-                            body.VerticalVelocity = body.VerticalVelocity.WithSpeed(UnsignedSixteenSixteen.FromDisplacement(limit));
-                        }
-                        SetExtra(physics.MovingDisplacement);
-                        break;
-                    case SamusVerticalDirection.Down:
-                        SetExtra(physics.MovingDisplacement);
-                        break;
-                    default:
-                        throw new InvalidOperationException(
-                            $"Undefined {nameof(SamusVerticalDirection)} {body.VerticalVelocity.Direction}.");
+                    body.VerticalVelocity = body.VerticalVelocity.Stopped();
+                    SetExtra(physics.StationaryDisplacement);
+                }
+                else
+                {
+                    SignedSixteenSixteen limit = physics.UpwardSpeedLimit;
+                    // A rising speed past the limit takes the limit's whole pixels and fraction; a falling one keeps its own.
+                    if (direction == SamusVerticalDirection.Up && body.VerticalVelocity.Speed.IsFasterInTwoFiftySixthsThan(limit))
+                    {
+                        body.VerticalVelocity = body.VerticalVelocity.WithSpeed(UnsignedSixteenSixteen.FromDisplacement(limit));
+                    }
+                    SetExtra(physics.MovingDisplacement);
                 }
             }
             else if (reaction.Sinking is { } sinking)
@@ -159,18 +153,11 @@ public static class SamusInsideBlockReactions
         if (reactionDirection is SamusCollisionDirection.Left or SamusCollisionDirection.Right) return SpecialAirCollisionOutcome.PassesThrough;
         // A rising Samus passes through; a stationary one lands only on an actual downward collision; a falling one lands
         // even during pose-observation probes. The grounded vertical direction never reaches the surface.
-        switch (body.VerticalVelocity.Direction)
+        SamusVerticalDirection direction = body.VerticalVelocity.Direction;
+        if (direction == SamusVerticalDirection.Up ||
+            (direction == SamusVerticalDirection.None && reactionDirection != SamusCollisionDirection.Down))
         {
-            case SamusVerticalDirection.Up:
-                return SpecialAirCollisionOutcome.PassesThrough;
-            case SamusVerticalDirection.None:
-                if (reactionDirection != SamusCollisionDirection.Down) return SpecialAirCollisionOutcome.PassesThrough;
-                break;
-            case SamusVerticalDirection.Down:
-                break;
-            default:
-                throw new InvalidOperationException(
-                    $"Undefined {nameof(SamusVerticalDirection)} {body.VerticalVelocity.Direction}.");
+            return SpecialAirCollisionOutcome.PassesThrough;
         }
         if (contact.ContactDamage == SamusBodyAttack.SpeedBooster)
         {

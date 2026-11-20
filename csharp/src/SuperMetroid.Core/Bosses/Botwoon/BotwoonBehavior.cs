@@ -835,36 +835,32 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         if (segment.Phase == BotwoonBodyPhase.Main && Encounter(segment).BodyDeathStarted)
             segment.Phase = BotwoonBodyPhase.BeginDying;
 
-        switch (segment.Phase)
+        BotwoonBodyPhase phase = segment.Phase;
+        if (phase == BotwoonBodyPhase.Main)
         {
-            case BotwoonBodyPhase.Main:
-                AnimateBotwoonBodySegment(projectile, hurtFlashCadence);
-                return;
-
-            case BotwoonBodyPhase.BeginDying:
-                // The wait follows the segment's projectile place, not its place in the body, and its first update is this
-                // one. The dying segment holds the picture it shows until it lands.
-                segment.FallWait.LastFor(BotwoonSegmentFallDelay.WaitUpdates(projectile.Place));
-                segment.Phase = BotwoonBodyPhase.DyingDelay;
-                projectile.StopFrameHold();
-                goto case BotwoonBodyPhase.DyingDelay;
-
-            case BotwoonBodyPhase.DyingDelay:
-                if (!segment.FallWait.StepKeepsRunning())
-                    segment.Phase = BotwoonBodyPhase.Falling;
-                ShowBotwoonBodyHurtFlash(projectile, hurtFlashCadence);
-                return;
-
-            case BotwoonBodyPhase.Falling:
-                RunBotwoonBodyFall(segment, hurtFlashCadence);
-                return;
-
-            case BotwoonBodyPhase.Landed:
-                return;
-
-            default:
-                throw new InvalidOperationException($"Botwoon's body has no behaviour for phase {segment.Phase}.");
+            AnimateBotwoonBodySegment(projectile, hurtFlashCadence);
+            return;
         }
+        if (phase == BotwoonBodyPhase.Falling)
+        {
+            RunBotwoonBodyFall(segment, hurtFlashCadence);
+            return;
+        }
+        // A landed segment rests where it fell.
+        if (phase == BotwoonBodyPhase.Landed)
+            return;
+        if (phase == BotwoonBodyPhase.BeginDying)
+        {
+            // The wait follows the segment's projectile place, not its place in the body, and its first update is this
+            // one. The dying segment holds the picture it shows until it lands.
+            segment.FallWait.LastFor(BotwoonSegmentFallDelay.WaitUpdates(projectile.Place));
+            segment.Phase = BotwoonBodyPhase.DyingDelay;
+            projectile.StopFrameHold();
+        }
+        // The dying wait, from the update that began it.
+        if (!segment.FallWait.StepKeepsRunning())
+            segment.Phase = BotwoonBodyPhase.Falling;
+        ShowBotwoonBodyHurtFlash(projectile, hurtFlashCadence);
     }
 
     /// <summary>The state of the Botwoon whose body <paramref name="segment"/> is part of: his head's.</summary>

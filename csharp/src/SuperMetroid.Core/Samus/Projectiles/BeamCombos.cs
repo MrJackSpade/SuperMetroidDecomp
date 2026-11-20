@@ -73,24 +73,7 @@ internal sealed class BeamCombos
                 shot.Type = SamusProjectileType.Beam(beam, charged: true);
                 shot.PicturedBeams = beam;
                 shot.Direction = kind == SamusComboKind.Spazer ? SamusProjectileDirection.DownFacingLeft : SamusProjectileDirection.UpFacingRight;
-                switch (kind)
-                {
-                    case SamusComboKind.Wave:
-                        shot.Install(SamusShotBehaviors.WaveSpecialAttack, new WaveParticleState(part));
-                        break;
-                    case SamusComboKind.Ice:
-                        shot.Install(SamusShotBehaviors.IceSpecialAttackInward, new IceParticleState(part, orbitTurn));
-                        break;
-                    case SamusComboKind.Spazer:
-                        shot.Install(SamusShotBehaviors.SpazerSpecialAttack,
-                            new SpazerParticleState(part, SpazerTurn(part.SpazerTurn, BeamComboDefinitions.SpazerCirclingTurn)));
-                        break;
-                    case SamusComboKind.Plasma:
-                        shot.Install(SamusShotBehaviors.PlasmaSpecialAttack, new PlasmaParticleState(part, orbitTurn));
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Undefined combo {kind}.");
-                }
+                ParticleInstalls[kind](shot, part, orbitTurn);
                 // Every particle but a Plasma ring leaves trails, the Spazer beam pair only once the attack falls
                 // (SpazerParticleState.LeavesTrails), which starts its countdown then.
                 if (kind is SamusComboKind.Wave or SamusComboKind.Ice || (kind == SamusComboKind.Spazer && part.SpazerTrail))
@@ -123,6 +106,22 @@ internal sealed class BeamCombos
             samus.SelectedHudItem = samus.AutoCancelledItem = HudItem.Beam;
         return activated;
     }
+
+    /// <summary>
+    /// How each combination's special attack installs a particle (#2553): its behaviour and its state, the Ice and Plasma
+    /// particles turning round Samus by the attack's orbit turn and the Spazer particles circling by their own.
+    /// </summary>
+    private static IdentityTable<SamusComboKind, Action<SamusProjectile, SpecialAttackParticle, TrigonometryAngle>> ParticleInstalls => field ??= new(
+        new Dictionary<SamusComboKind, Action<SamusProjectile, SpecialAttackParticle, TrigonometryAngle>>
+        {
+            [SamusComboKind.Wave] = static (shot, part, _) => shot.Install(SamusShotBehaviors.WaveSpecialAttack, new WaveParticleState(part)),
+            [SamusComboKind.Ice] = static (shot, part, orbitTurn) =>
+                shot.Install(SamusShotBehaviors.IceSpecialAttackInward, new IceParticleState(part, orbitTurn)),
+            [SamusComboKind.Spazer] = static (shot, part, _) => shot.Install(SamusShotBehaviors.SpazerSpecialAttack,
+                new SpazerParticleState(part, SpazerTurn(part.SpazerTurn, BeamComboDefinitions.SpazerCirclingTurn))),
+            [SamusComboKind.Plasma] = static (shot, part, orbitTurn) =>
+                shot.Install(SamusShotBehaviors.PlasmaSpecialAttack, new PlasmaParticleState(part, orbitTurn)),
+        });
 
     /// <summary>Gives a particle the damage and animation of the charged beam, the special attack or the Spazer echo, and starts its first frame.</summary>
     internal static void InitializeComboShot(SamusProjectile shot, BeamComboShotKind shotKind)

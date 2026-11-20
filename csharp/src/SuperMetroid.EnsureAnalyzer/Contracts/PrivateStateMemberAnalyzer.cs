@@ -84,14 +84,20 @@ public sealed class PrivateStateMemberAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// Whether the owner has a member of the kind and name, as reflection over its declared and inherited members finds
-    /// it: any member the owner declares, or a non-private instance member of a base type.
+    /// it: any member the owner declares, or a non-private instance member of a base type. A method is an ordinary method
+    /// or a property's accessor; a static class's extension blocks compile to methods of the class itself, a method of a
+    /// block taking its own name and a property's accessors theirs.
     /// </summary>
     private static bool Has(INamedTypeSymbol owner, string kind, string name)
     {
         for (INamedTypeSymbol? type = owner; type is not null; type = type.BaseType)
         {
             bool own = SymbolEqualityComparer.Default.Equals(type, owner);
-            foreach (ISymbol member in type.GetMembers(name))
+            var members = type.GetMembers(name).AsEnumerable();
+            if (own && kind == "method")
+                members = members.Concat(type.GetTypeMembers().Where(block => block.TypeKind == TypeKind.Extension)
+                    .SelectMany(block => block.GetMembers(name)));
+            foreach (ISymbol member in members)
             {
                 if (!own && (member.IsStatic || member.DeclaredAccessibility == Accessibility.Private))
                     continue;
@@ -99,7 +105,7 @@ public sealed class PrivateStateMemberAnalyzer : DiagnosticAnalyzer
                 {
                     "field" => member is IFieldSymbol { IsImplicitlyDeclared: false },
                     "property" => member is IPropertySymbol { IsIndexer: false },
-                    _ => member is IMethodSymbol { MethodKind: MethodKind.Ordinary },
+                    _ => member is IMethodSymbol { MethodKind: MethodKind.Ordinary or MethodKind.PropertyGet or MethodKind.PropertySet },
                 };
                 if (matches)
                     return true;

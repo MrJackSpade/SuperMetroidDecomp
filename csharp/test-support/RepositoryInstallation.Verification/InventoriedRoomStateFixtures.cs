@@ -29,8 +29,8 @@ internal static class InventoriedRoomStateFixtures
     /// <paramref name="floor"/>; no door leads into its room.
     /// </summary>
     internal static InventoriedRoomState State(RoomGraphicsSet graphicsSet, AreaId area, int placedBlock, IReadOnlyList<RoomTerrainReaction> terrain,
-        IReadOnlySet<RoomTerrainReaction> straddledShots, RoomObjectPopulation objects, RoomMainBehavior main = RoomMainBehavior.None,
-        RoomTurningFloor floor = RoomTurningFloor.None)
+        IReadOnlySet<RoomTerrainReaction> straddledShots, RoomObjectPopulation objects, RoomMainBehavior main,
+        RoomTurningFloor floor)
     {
         var room = new RoomDefinition("InventoriedFixtureRoom", area, new(0, 0), new(1, 1), 0, 0, RoomDoorTransitionStyle.Standard);
         var state = new RoomStateSettings("InventoriedFixtureState", Level, graphicsSet, RoomMusic.Inherited, null,

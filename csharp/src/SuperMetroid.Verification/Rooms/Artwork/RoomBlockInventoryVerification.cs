@@ -115,11 +115,18 @@ internal static class RoomBlockInventoryVerification
 
     /// <summary>
     /// A Zebes or Ceres room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/>, its terrain one block of
+    /// <paramref name="terrain"/>, placing <paramref name="objects"/>, running no room main and showing no turning floor.
+    /// </summary>
+    private static InventoriedRoomState State(RoomGraphicsSet tileset, AreaId area, RoomTerrainReaction terrain, RoomObjectPopulation objects) =>
+        State(tileset, area, terrain, objects, RoomMainBehavior.None, RoomTurningFloor.None);
+
+    /// <summary>
+    /// A Zebes or Ceres room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/>, its terrain one block of
     /// <paramref name="terrain"/>, placing <paramref name="objects"/>, running <paramref name="main"/> and showing
     /// <paramref name="floor"/>.
     /// </summary>
     private static InventoriedRoomState State(RoomGraphicsSet tileset, AreaId area, RoomTerrainReaction terrain, RoomObjectPopulation objects,
-        RoomMainBehavior main = RoomMainBehavior.None, RoomTurningFloor floor = RoomTurningFloor.None) =>
+        RoomMainBehavior main, RoomTurningFloor floor) =>
         InventoriedRoomStateFixtures.State(tileset, area, PlacedBlock, [terrain], new HashSet<RoomTerrainReaction>(), objects, main, floor);
 
     /// <summary>
@@ -128,7 +135,8 @@ internal static class RoomBlockInventoryVerification
     /// alone, as Kraid's room, which places no shot block and is two screens wide, holds none.
     /// </summary>
     private static InventoriedRoomState Quiet(RoomGraphicsSet tileset, params RoomTerrainReaction[] straddledShots) =>
-        InventoriedRoomStateFixtures.State(tileset, AreaId.Brinstar, PlacedBlock, [], straddledShots.ToHashSet(), InventoriedRoomStateFixtures.NoObjects);
+        InventoriedRoomStateFixtures.State(tileset, AreaId.Brinstar, PlacedBlock, [], straddledShots.ToHashSet(), InventoriedRoomStateFixtures.NoObjects,
+            RoomMainBehavior.None, RoomTurningFloor.None);
 
     /// <summary>
     /// The installation's real writers, from its installed room-object catalogs and X-ray reveal (#1650): a room state

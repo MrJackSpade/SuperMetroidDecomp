@@ -28,6 +28,9 @@ internal static class PrivateStateMemberAnalyzerTests
         // A base type's private member, and its static one, are not found on the derived owner.
         Expect(Call("PrivateState.Field<Derived, int>(derived, \"hidden\");"), "names the field 'hidden', which Derived does not have");
         Expect(Call("PrivateState.StaticField<int>(typeof(Derived), \"shared\");"), "names the field 'shared', which Derived does not have");
+        // An accessor or an extension block's member the class does not have.
+        Expect(Call("PrivateState.InvokeStatic<int>(typeof(Owner), \"get_Missing\", [], []);"), "names the method 'get_Missing', which Owner does not have");
+        Expect(Call("PrivateState.InvokeStatic<int>(typeof(Helpers), \"Thrice\", [], []);"), "names the method 'Thrice', which Helpers does not have");
 
         // Members the owner declares, at any accessibility, and a base type's non-private instance members.
         Expect(Call("PrivateState.Get<Owner, int>(owner, \"Count\");"), count: 0);
@@ -39,6 +42,11 @@ internal static class PrivateStateMemberAnalyzerTests
         Expect(Call("PrivateState.InvokeStatic<int>(typeof(Owner), \"Make\", [], []);"), count: 0);
         Expect(Call("PrivateState.Field<Derived, int>(derived, \"shown\");"), count: 0);
         Expect(Call("PrivateState.Field<Generic<int>, int>(generic, \"held\");"), count: 0);
+        // A property's accessor, a classic extension method, and the methods a static class's extension block compiles to.
+        Expect(Call("PrivateState.InvokeStatic<int>(typeof(Owner), \"get_Limit\", [], []);"), count: 0);
+        Expect(Call("PrivateState.InvokeStatic<int>(typeof(Helpers), \"Plain\", [], []);"), count: 0);
+        Expect(Call("PrivateState.InvokeStatic<int>(typeof(Helpers), \"Twice\", [], []);"), count: 0);
+        Expect(Call("PrivateState.InvokeStatic<int>(typeof(Helpers), \"get_Doubled\", [], []);"), count: 0);
         // An owner or a name the call does not state, and a construction, which names no member.
         Expect(Call("PrivateState.Field<Owner, int>(owner, name);"), count: 0);
         Expect(Call("PrivateState.StaticGet<int>(type, \"Missing\");"), count: 0);
@@ -81,6 +89,16 @@ internal static class PrivateStateMemberAnalyzerTests
                 private static int Limit => 3;
                 private int Step() => count + Count;
                 private static int Make() => Limit;
+            }
+            internal static class Helpers
+            {
+                extension(Owner owner)
+                {
+                    internal int Doubled => 2;
+                    internal int Twice() => 2;
+                }
+                private static int Plain(this Owner owner) => 1;
+                internal static int Read(Owner owner) => owner.Plain();
             }
             internal struct Value
             {

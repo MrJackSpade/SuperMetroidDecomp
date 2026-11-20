@@ -26777,14 +26777,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxHeatProgramMechanicsDefinitions",
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxHeatPulseColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxHeatProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxHeatPulseColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"

@@ -15710,7 +15710,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxHeatProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxHeatPulseColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",

@@ -41,8 +41,6 @@ public sealed record GameplayBlendLayer : DisplayLayer
     {
         Ensure.NotNull(gameplay);
         Ensure.NotNull(window);
-        if (!Enum.IsDefined(blend.Operation))
-            throw new ArgumentOutOfRangeException(nameof(blend), blend.Operation, "Undefined blend operation.");
         Gameplay = gameplay;
         Window = window;
         RevealBlocks = revealBlocks;

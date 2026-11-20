@@ -123,9 +123,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         area = entry.Area;
         _ = AreaIds.Require(entry.Area);
         this.roomMapPosition = entry.RoomMapPosition;
-        this.mapRevealMode = Enum.IsDefined(entry.MapRevealMode)
-            ? entry.MapRevealMode
-            : throw new ArgumentOutOfRangeException(nameof(entry.MapRevealMode));
+        this.mapRevealMode = entry.MapRevealMode;
 
         // The pause's setup loads the map, pause interface, menu sprites and HUD artwork; the
         // screen binds that artwork and its capture places the pictures.
@@ -446,7 +444,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// that follows each: the frame shows its labels in <paramref name="highlight"/>'s shades from the next capture.
     /// </summary>
     private void SetPauseButtonLabelMode(PauseButtonHighlight highlight) =>
-        ButtonHighlight = Enum.IsDefined(highlight) ? highlight : throw new ArgumentOutOfRangeException(nameof(highlight), highlight, "Undefined pause highlight.");
+        ButtonHighlight = highlight;
 
     /// <summary>Draws a map sprite sheet frame in the map's colours <paramref name="colouring"/>.</summary>
     private void DrawMapSprite(MapSpriteId id, Offset16<ScreenPixels> origin, MapSpriteColouring colouring) =>

@@ -106,13 +106,6 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         ControllerButton controllerRead,
         ControllerBindings bindings)
     {
-        if (!Enum.IsDefined(messageId))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(messageId),
-                messageId,
-                $"The ordinary message box shows no gameplay message {messageId}.");
-        }
         if (IsActive)
             throw new InvalidOperationException("A gameplay message box is already active.");
 

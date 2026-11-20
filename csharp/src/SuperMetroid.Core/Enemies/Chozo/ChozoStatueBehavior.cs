@@ -53,8 +53,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeChozoStatue(RoomEnemyPlace statue)
     {
         ChozoStatueSite site = statue.SpawnSettings<ChozoStatueSpawnSettings>().Site;
-        if (!Enum.IsDefined(site))
-            throw new InvalidOperationException($"Undefined {nameof(ChozoStatueSite)} {site}.");
 
         // The setup makes the statue solid to Samus and animates it, on screen or off.
         statue.Contact = statue.Contact.With(EnemyContact.SolidToSamus);

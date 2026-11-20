@@ -47,13 +47,7 @@ public static class BlockAnimationLoops
     }
 
     /// <summary>Whether <paramref name="animation"/> has a loop: the Tourian statues and no animation have none.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="animation"/> is undefined.</exception>
-    public static bool HasLoop(BlockAnimation animation)
-    {
-        if (!Enum.IsDefined(animation))
-            throw new InvalidOperationException($"Undefined {nameof(BlockAnimation)} {animation}.");
-        return BlockAnimationLoopDefinitions.IdleLoops.ContainsKey(animation);
-    }
+    public static bool HasLoop(BlockAnimation animation) => BlockAnimationLoopDefinitions.IdleLoops.ContainsKey(animation);
 
     /// <summary>
     /// The loop of every animation with one, built once with the segments, so every start of a loop plays the one loop
@@ -102,11 +96,8 @@ public static class BlockAnimationLoops
         BlockAnimationLoopDefinitions.AwaitingAreaBoss.Contains(Require(animation));
 
     /// <summary>The animation a room effect of <paramref name="type"/> shows on the effect overlay, or null for one that shows none.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="type"/> is undefined.</exception>
     public static BlockAnimation? OnEffectOverlay(RoomFxType type)
     {
-        if (!Enum.IsDefined(type))
-            throw new InvalidOperationException($"Undefined {nameof(RoomFxType)} {type}.");
         return BlockAnimationLoopDefinitions.EffectOverlayAnimations.TryGetValue(type, out BlockAnimation animation)
             ? Require(animation) : null;
     }

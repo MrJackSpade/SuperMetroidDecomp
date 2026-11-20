@@ -69,8 +69,6 @@ public static class SamusKnockbackMovement
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(launch);
-        if (!Enum.IsDefined(launch.KnockbackXDirection))
-            throw new ArgumentOutOfRangeException(nameof(launch.KnockbackXDirection));
         if (launch.KnockbackTimer == 0)
             throw new ArgumentOutOfRangeException(nameof(launch.KnockbackTimer));
         if (samus.KnockbackActive || samus.KnockbackDirection != SamusKnockbackDirection.None)

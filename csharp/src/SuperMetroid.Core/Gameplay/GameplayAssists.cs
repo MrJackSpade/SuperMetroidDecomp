@@ -45,12 +45,7 @@ public sealed record GameplayAssists
     /// How much of the map the HUD minimap and the pause map show. The reveal is drawn only: it never marks rooms
     /// explored or area maps collected, so returning to <see cref="MapRevealMode.None"/> restores the saved map.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The mode is not a named reveal.</exception>
-    public MapRevealMode MapReveal
-    {
-        get;
-        init => field = Enum.IsDefined(value) ? value : throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown map reveal mode.");
-    }
+    public MapRevealMode MapReveal { get; init; }
 
     /// <summary>
     /// Whether the Tourian statues stand open: the statue room starts fully descended with its passage cleared, without

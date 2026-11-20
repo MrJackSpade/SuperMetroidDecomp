@@ -147,14 +147,7 @@ public sealed class SamusHorizontalSpeedState
     /// The medium whose speeds Samus moves by, as the update's inside-block reaction or movement last chose it:
     /// air, water or lava and acid. Each movement takes its speeds from it (<see cref="Speeds"/>).
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The value set is not a medium.</exception>
-    private SamusLiquidMedium SpeedMedium
-    {
-        get;
-        set => field = Enum.IsDefined(value)
-            ? value
-            : throw new ArgumentOutOfRangeException(nameof(value), value, "Samus moves by the speeds of air, water or lava and acid.");
-    } = SamusLiquidMedium.Air;
+    private SamusLiquidMedium SpeedMedium { get; set; } = SamusLiquidMedium.Air;
 
     /// <summary>
     /// Has Samus move by air's speeds, as the inside-block reaction does before movement in ordinary air.

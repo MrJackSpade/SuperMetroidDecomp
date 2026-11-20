@@ -18,15 +18,15 @@ public sealed class GameplayShadingBuilder
     private GameplayDisplayFade? fade;
 
     /// <summary>Lays <paramref name="shade"/> over <paramref name="pictures"/>' shades.</summary>
-    public void Shade(GameplayPictures pictures, PictureShade shade) => shadings[Defined(pictures)] = shadings[pictures].With(shade);
+    public void Shade(GameplayPictures pictures, PictureShade shade) => shadings[pictures] = shadings[pictures].With(shade);
 
     /// <summary>Shows <paramref name="fade"/> over <paramref name="pictures"/>' shades, after their fades (#2215).</summary>
     public void Shade(GameplayPictures pictures, PictureShadeFade fade) =>
-        shadings[Defined(pictures)] = shadings[pictures].With(Ensure.NotNull(fade));
+        shadings[pictures] = shadings[pictures].With(Ensure.NotNull(fade));
 
     /// <summary>Applies <paramref name="effect"/> to <paramref name="pictures"/> after their effects.</summary>
     public void Affect(GameplayPictures pictures, ColourEffect effect) =>
-        shadings[Defined(pictures)] = shadings[pictures].With(Ensure.NotNull(effect));
+        shadings[pictures] = shadings[pictures].With(Ensure.NotNull(effect));
 
     /// <summary>Fades the whole display with <paramref name="displayFade"/>: one fade runs at a time.</summary>
     /// <exception cref="InvalidOperationException">Another fade of the display already runs.</exception>
@@ -53,8 +53,4 @@ public sealed class GameplayShadingBuilder
         return built.WithBackdrop(built.Of(GameplayPictures.Room).Shown(roomColours, backdrop));
     }
 
-    /// <summary>Checks that <paramref name="pictures"/> is a group of gameplay pictures.</summary>
-    private static GameplayPictures Defined(GameplayPictures pictures) => Enum.IsDefined(pictures)
-        ? pictures
-        : throw new ArgumentOutOfRangeException(nameof(pictures), pictures, "Undefined group of gameplay pictures.");
 }

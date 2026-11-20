@@ -29,8 +29,6 @@ public sealed class InstalledKeys<TIdentity>
             if (!keys.TryGetValue(identity, out string? key) || string.IsNullOrEmpty(key))
                 throw new ArgumentException($"The {typeof(TIdentity).Name} member {identity} has no installed key.", nameof(keys));
         }
-        if (keys.Keys.Any(identity => !Enum.IsDefined(identity)))
-            throw new ArgumentException($"An installed key names no {typeof(TIdentity).Name} member.", nameof(keys));
         this.keys = keys.ToFrozenDictionary();
         identities = keys.GroupBy(entry => entry.Value, StringComparer.Ordinal).ToFrozenDictionary(
             group => group.Key,

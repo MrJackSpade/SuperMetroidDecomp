@@ -43,11 +43,8 @@ public sealed class RoomFloorSheet
     /// The name under which a floor's sheet marks <paramref name="frame"/> as the picture its actor rests in on the floor
     /// (#2573), the picture <paramref name="frame"/> shows.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a picture of the floor's actors.</exception>
     [InstalledKey]
-    public static string RestingNameOf(CeresFloorActorPicture frame) => Enum.IsDefined(frame)
-        ? $"Ceres.Resting.{CeresFloorActorPictureKeys.Installed.Of(frame)}"
-        : throw new InvalidDataException($"Unknown Ceres floor actor picture {frame}.");
+    public static string RestingNameOf(CeresFloorActorPicture frame) => $"Ceres.Resting.{CeresFloorActorPictureKeys.Installed.Of(frame)}";
 
     /// <summary>The Ceres tileset.</summary>
     public TilesetDefinition Tileset { get; }
@@ -72,9 +69,6 @@ public sealed class RoomFloorSheet
     public static string NameOf(TilesetDefinition tileset) => $"Floor.{RoomBlockSheet.NameOf(tileset)}";
 
     /// <summary>The name <paramref name="frame"/>'s picture is installed under in a floor's sheet.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a floor animation frame.</exception>
     [InstalledKey]
-    public static string PictureNameOf(CeresFloorActorPicture frame) => Enum.IsDefined(frame)
-        ? $"Ceres.{CeresFloorActorPictureKeys.Installed.Of(frame)}"
-        : throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}.");
+    public static string PictureNameOf(CeresFloorActorPicture frame) => $"Ceres.{CeresFloorActorPictureKeys.Installed.Of(frame)}";
 }

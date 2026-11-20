@@ -5,9 +5,7 @@ namespace SuperMetroid.Core.Hud;
 public sealed record HudReserveIndicatorImage(HudReserveIndicator Indicator) : HudImage
 {
     /// <summary>What the indicator shows.</summary>
-    public HudReserveIndicator Indicator { get; } = Enum.IsDefined(Indicator)
-        ? Indicator
-        : throw new ArgumentOutOfRangeException(nameof(Indicator), Indicator, "Undefined reserve indicator.");
+    public HudReserveIndicator Indicator { get; } = Indicator;
 
     /// <inheritdoc/>
     public override string FrameName => $"Hud.Auto.{HudReserveIndicatorKeys.Installed.Of(Indicator)}";

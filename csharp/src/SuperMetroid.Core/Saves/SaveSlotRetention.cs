@@ -17,12 +17,12 @@ internal static class SaveSlotRetention
     {
         Ensure.NotNull(snapshot);
         ControllerBindings bindings = snapshot.ControllerBindings.RequireUniquePermutation();
-        ReserveTankMode reserveMode = Defined(snapshot.ReserveMode, nameof(snapshot.ReserveMode));
+        ReserveTankMode reserveMode = snapshot.ReserveMode;
         int health = Kept(snapshot.Health), maxHealth = Kept(snapshot.MaxHealth);
         int missiles = Kept(snapshot.Missiles), maxMissiles = Kept(snapshot.MaxMissiles);
         int superMissiles = Kept(snapshot.SuperMissiles), maxSuperMissiles = Kept(snapshot.MaxSuperMissiles);
         int powerBombs = Kept(snapshot.PowerBombs), maxPowerBombs = Kept(snapshot.MaxPowerBombs);
-        HudItem hudItem = Defined(snapshot.HudItem, nameof(snapshot.HudItem));
+        HudItem hudItem = snapshot.HudItem;
         int maxReserveEnergy = Kept(snapshot.MaxReserveEnergy), reserveEnergy = Kept(snapshot.ReserveEnergy);
 
         LoadStation checkpoint = Ensure.NotNull(snapshot.Checkpoint);
@@ -61,8 +61,4 @@ internal static class SaveSlotRetention
     /// <summary>A quantity as the save keeps it: checked against the range a count holds.</summary>
     private static int Kept(int quantity) => CountsRunBelowZero.Require(quantity);
 
-    /// <summary>A selection the save keeps, rejected when it names no member of its kind.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is undefined.</exception>
-    private static T Defined<T>(T value, string field) where T : struct, Enum =>
-        Enum.IsDefined(value) ? value : throw new ArgumentOutOfRangeException(field, value, $"Undefined {typeof(T).Name}.");
 }

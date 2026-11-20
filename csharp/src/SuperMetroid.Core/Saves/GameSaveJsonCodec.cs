@@ -248,12 +248,6 @@ public static class GameSaveJsonCodec
             slot.GameTime is null || slot.Controller is null || slot.Progression is null)
             throw new InvalidDataException($"slots[{expectedSlot}] is missing a required domain object");
         _ = Checkpoint(slot.Checkpoint, $"slots[{expectedSlot}].checkpoint");
-        if (!Enum.IsDefined(slot.ReserveMode))
-            throw new InvalidDataException($"slots[{expectedSlot}].reserveMode names no reserve-tank mode");
-        if (!Enum.IsDefined(slot.HudItem))
-            throw new InvalidDataException($"slots[{expectedSlot}].hudItem names no HUD item");
-        if (!Enum.IsDefined(slot.StartupRoute))
-            throw new InvalidDataException($"slots[{expectedSlot}].startupRoute names no startup route");
         SaveResourcesJsonDocument resources = slot.Resources;
         foreach ((int value, string property) in new SaveFieldCheck[]
                  {

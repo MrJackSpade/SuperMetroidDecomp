@@ -176,9 +176,6 @@ public sealed class ScrollBoundaryCamera
         HorizontalCameraContext context,
         bool timeIsFrozen)
     {
-        if (!Enum.IsDefined(context.CameraDistance))
-            throw new ArgumentOutOfRangeException(nameof(context), $"Undefined camera distance {context.CameraDistance}.");
-
         Speed = Speed.WithX(CalculateDistanceMovedPlusOne(previous.X, current.X));
 
         // The camera compares the whole pixels only. This is intentionally after speed

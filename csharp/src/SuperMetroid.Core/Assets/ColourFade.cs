@@ -15,8 +15,6 @@ public sealed record ColourFade : ColourEffect
     /// <param name="length">The fade's length, one or more.</param>
     public ColourFade(RgbColor endpoint, GradualFadeDirection direction, int progress, int length)
     {
-        if (!Enum.IsDefined(direction))
-            throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined gradual fade direction.");
         Endpoint = endpoint;
         Direction = direction;
         Length = Ensure.BetweenInclusive(1, int.MaxValue, length);

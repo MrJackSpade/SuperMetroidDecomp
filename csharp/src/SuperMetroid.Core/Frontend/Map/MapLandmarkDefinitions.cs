@@ -12,6 +12,9 @@ public static class MapLandmarkDefinitions
     /// <summary>The gunship's marker on the Crateria map, shown whatever Samus has explored.</summary>
     public const string Gunship = "Crateria.Gunship";
 
+    /// <summary>The areas whose maps show the gunship: Crateria, where it landed.</summary>
+    internal static readonly AreaId[] GunshipAreas = [AreaId.Crateria];
+
     /// <summary>Kraid's marker on the Brinstar map.</summary>
     internal static readonly ImmutableArray<MapBossMarker> BrinstarBosses = [new("Boss.Kraid", DefeatedBosses.AreaBoss)];
     /// <summary>Ridley's marker on the Norfair map.</summary>

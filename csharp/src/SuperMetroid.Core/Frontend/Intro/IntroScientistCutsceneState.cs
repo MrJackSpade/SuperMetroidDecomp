@@ -6,6 +6,24 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>Scripted Ceres laboratory vignette between intro pages three and four.</summary>
 internal sealed class IntroScientistCutsceneState
 {
+    /// <summary>How one laboratory scene pans: while it has not reached its end, its page moves and the baby with it.</summary>
+    /// <param name="StillPanning">Whether the scene's page, at its scroll, has yet to reach its end.</param>
+    /// <param name="PagePan">How far the page moves each laboratory step.</param>
+    /// <param name="BabyPan">How far the baby moves on screen each laboratory step.</param>
+    private sealed record LaboratoryPan(Func<Offset16<PlanePixels>, bool> StillPanning, Offset16<PlanePixels> PagePan, Offset16<ScreenPixels> BabyPan);
+
+    /// <summary>
+    /// The laboratory scenes that pan: the delivery scene moves the camera left while keeping the delivered baby fixed
+    /// relative to the laboratory subjects; the examination scene moves the second laboratory page down to its end scroll
+    /// while the examined baby rises by the same distance.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<IntroLaboratoryScene, LaboratoryPan> ScenePans = new Dictionary<IntroLaboratoryScene, LaboratoryPan>
+    {
+        [IntroLaboratoryScene.Delivery] = new(scroll => scroll.X != 0, IntroLaboratoryDefinitions.DeliveryPagePan, IntroLaboratoryDefinitions.DeliveredBabyCounterPan),
+        [IntroLaboratoryScene.Examination] = new(scroll => scroll.Y < IntroLaboratoryDefinitions.ExaminationPageEndY,
+            IntroLaboratoryDefinitions.ExaminationPageScroll, IntroLaboratoryDefinitions.ExaminedBabyRise),
+    };
+
     /// <summary>Delivered or examined Baby actor whose animation drives scene completion.</summary>
     private readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroLaboratoryCue> baby;
 
@@ -64,20 +82,10 @@ internal sealed class IntroScientistCutsceneState
             // The laboratory steps on the cadence's updates counted before the crossfade's last, one fewer than it has left.
             && IntroCadenceDefinitions.LaboratoryStep.IsDue(intoLaboratory.UpdatesLeft - 1))
         {
-            if (Scene == IntroLaboratoryScene.Delivery && Background.X != 0)
+            if (ScenePans.TryGetValue(Scene, out LaboratoryPan? pan) && pan.StillPanning(Background))
             {
-                // The delivery scene moves the camera left while keeping the delivered baby fixed
-                // relative to the laboratory subjects.
-                Background += IntroLaboratoryDefinitions.DeliveryPagePan;
-                baby.ScreenPlace += IntroLaboratoryDefinitions.DeliveredBabyCounterPan;
-            }
-            else if (Scene == IntroLaboratoryScene.Examination &&
-                Background.Y < IntroLaboratoryDefinitions.ExaminationPageEndY)
-            {
-                // The examination scene moves the second laboratory page down to its end scroll while the
-                // examined baby rises by the same distance.
-                Background += IntroLaboratoryDefinitions.ExaminationPageScroll;
-                baby.ScreenPlace += IntroLaboratoryDefinitions.ExaminedBabyRise;
+                Background += pan.PagePan;
+                baby.ScreenPlace += pan.BabyPan;
             }
         }
 

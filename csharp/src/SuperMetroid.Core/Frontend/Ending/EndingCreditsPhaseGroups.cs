@@ -75,6 +75,9 @@ internal static class EndingCreditsPhaseGroups
     /// <summary>The phases that start the completion text, which the planet escape's afterglow and starfields leave for.</summary>
     internal static readonly FrozenSet<EndingCreditsPhase> CompletionText = new[] { EndingCreditsPhase.OperationSuccessfulText }.ToFrozenSet();
 
+    /// <summary>The credits' final message, which the completed game is recorded on reaching.</summary>
+    internal static readonly FrozenSet<EndingCreditsPhase> FinalMessage = new[] { EndingCreditsPhase.SeeYouNextMission }.ToFrozenSet();
+
     /// <summary>Everything after the credits roll.</summary>
     internal static readonly FrozenSet<EndingCreditsPhase> PostCredits = new EndingCreditsPhase[]
     {

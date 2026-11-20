@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// </summary>
 public static class MapLandmarks
 {
+    /// <summary>Whether <paramref name="area"/>'s map shows the gunship, where it landed.</summary>
+    public static bool ShowsGunship(AreaId area) => MapLandmarkDefinitions.GunshipAreas.Contains(area);
+
     /// <summary>The boss markers of <paramref name="area"/>'s map; Crateria and Tourian show none.</summary>
     public static ImmutableArray<MapBossMarker> BossMarkers(AreaId area) => area switch
     {

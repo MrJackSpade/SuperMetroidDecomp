@@ -256,7 +256,9 @@ internal static class MovieDesyncComparison
             string owner = $"Enemy {actor.Ordinal}";
             Check(owner + " identity", actor.AwaitsRespawn
                 ? SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWordsConstants.AwaitingRespawnHeader
-                : SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.HeldOccupant().DefinitionId), address + MovieDesyncMemory.EnemyIdentityOffset);
+                : actor.Occupant is { } held
+                    ? SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(held.DefinitionId)
+                    : SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWordsConstants.FreeSlotHeader, address + MovieDesyncMemory.EnemyIdentityOffset);
             if (actor.Occupant is null) continue;
             Position16<RoomPixels> whole = NativeWholePosition(actor);
             Check(owner + " X", whole.X, address + MovieDesyncMemory.EnemyXOffset);

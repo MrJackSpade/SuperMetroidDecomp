@@ -21,11 +21,10 @@ internal static class RoomEnemyPlaceSpawnParameters
     /// Sets the spawn settings the place's population entry gives its species (#1471): the place's enemy is bound again
     /// from its entry with <paramref name="settings"/>, as a population load binds it, before the check initializes it.
     /// </summary>
-    /// <exception cref="InvalidOperationException">No enemy has been bound in the place.</exception>
     internal static void SetSpawnSettings(this RoomEnemyPlace place, EnemySpawnSettings settings)
     {
-        RoomEnemyPlacement entry = (place.Occupant?.Spawn ?? place.LastSpawn) ?? throw new InvalidOperationException(
-            $"A check sets enemy place {place.Ordinal}'s spawn settings before binding an enemy there.");
+        // A place no enemy has been bound in takes the fixtures' stand-in, as an unbound source place does.
+        RoomEnemyPlacement entry = place.Occupant?.Spawn ?? place.LastSpawn ?? place.HeldOccupant().Spawn;
         place.Bind(entry with { SpawnSettings = settings }, place.Definition);
     }
 

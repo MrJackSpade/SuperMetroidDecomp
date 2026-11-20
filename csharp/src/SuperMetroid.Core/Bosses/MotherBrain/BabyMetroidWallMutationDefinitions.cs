@@ -6,25 +6,14 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The block shape each mutation of the Baby Metroid's invisible wall gives its wall column (#1608).</summary>
 internal static class BabyMetroidWallMutationDefinitions
 {
-    /// <summary>The opened wall: the ten blocks of the wall column, downward from the spawned block, made air.</summary>
-    private static readonly RoomBlockShape OpenedWall = new(
-    [
-        new(new(0, 0), RoomCollisionType.Air), new(new(0, 1), RoomCollisionType.Air),
-        new(new(0, 2), RoomCollisionType.Air), new(new(0, 3), RoomCollisionType.Air),
-        new(new(0, 4), RoomCollisionType.Air), new(new(0, 5), RoomCollisionType.Air),
-        new(new(0, 6), RoomCollisionType.Air), new(new(0, 7), RoomCollisionType.Air),
-        new(new(0, 8), RoomCollisionType.Air), new(new(0, 9), RoomCollisionType.Air),
-    ]);
+    /// <summary>How many blocks tall the wall column is.</summary>
+    private const int WallHeight = 10;
 
-    /// <summary>The raised wall: the ten blocks of the wall column, downward from the spawned block, made solid.</summary>
-    private static readonly RoomBlockShape RaisedWall = new(
-    [
-        new(new(0, 0), RoomCollisionType.SolidBlock), new(new(0, 1), RoomCollisionType.SolidBlock),
-        new(new(0, 2), RoomCollisionType.SolidBlock), new(new(0, 3), RoomCollisionType.SolidBlock),
-        new(new(0, 4), RoomCollisionType.SolidBlock), new(new(0, 5), RoomCollisionType.SolidBlock),
-        new(new(0, 6), RoomCollisionType.SolidBlock), new(new(0, 7), RoomCollisionType.SolidBlock),
-        new(new(0, 8), RoomCollisionType.SolidBlock), new(new(0, 9), RoomCollisionType.SolidBlock),
-    ]);
+    /// <summary>The opened wall: the <see cref="WallHeight"/> blocks of the wall column, downward from the spawned block, made air.</summary>
+    private static readonly RoomBlockShape OpenedWall = RoomBlockShapes.Line(down: true, WallHeight, RoomCollisionType.Air);
+
+    /// <summary>The raised wall: the <see cref="WallHeight"/> blocks of the wall column, downward from the spawned block, made solid.</summary>
+    private static readonly RoomBlockShape RaisedWall = RoomBlockShapes.Line(down: true, WallHeight, RoomCollisionType.SolidBlock);
 
     /// <summary>
     /// The shape each mutation gives the wall column: every covered block takes the cell's collision and keeps its

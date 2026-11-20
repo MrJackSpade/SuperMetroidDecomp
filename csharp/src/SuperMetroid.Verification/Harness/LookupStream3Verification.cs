@@ -1052,12 +1052,12 @@ internal static class LookupStream3Verification
     {
         IReadOnlyList<MotherBrainStaggerStage> stages = MotherBrainPainfulWalkingDefinitions.Stages;
         AssertEqual(8, stages.Count, "stream 3 stagger stage count");
+        AssertEqual(6, MotherBrainPainfulWalkingDefinitions.BeamRunsOutStage, "stream 3 the beam runs out as the seventh stage begins");
         for (int stage = 0; stage < stages.Count; stage++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9beee + 2 * stage)), WalkPoseDuration(stages[stage].Speed), "stream 3 native stagger animation delay");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9befe + 2 * stage)), stages[stage].NeckTurn.RawValue, "stream 3 native stagger neck angle delta");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * stage)), stages[stage].PauseUpdates, "stream 3 native stagger pause timer");
-            AssertEqual(stage == 6, ReferenceEquals(stages[stage], MotherBrainPainfulWalkingDefinitions.BeamRunsOut), "stream 3 the beam runs out as the seventh stage begins");
         }
         for (int stage = 0; stage < stages.Count; stage++)
         {

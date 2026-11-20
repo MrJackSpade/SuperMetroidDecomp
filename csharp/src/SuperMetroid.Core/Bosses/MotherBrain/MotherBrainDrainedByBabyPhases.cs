@@ -113,7 +113,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         MotherBrainStaggerStage stage = PainfulWalkingStage.Entry;
         PainfulWalkingSpeed = stage.Speed;
         Encounter.NeckTurnPerUpdate = stage.NeckTurn;
-        if (ReferenceEquals(stage, MotherBrainPainfulWalkingDefinitions.BeamRunsOut))
+        if (PainfulWalkingStage.Place == MotherBrainPainfulWalkingDefinitions.BeamRunsOutStage)
         {
             _state.RainbowBeamSoundPlaying = false;
             Encounter.DrainedPhase = MotherBrainDrainedPhase.RainbowBeamRunOut;

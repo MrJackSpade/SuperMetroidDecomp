@@ -876,28 +876,9 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Accelerates Y toward its target at no more than the approach's fastest speed and zeroes velocity on crossing.</summary>
     private bool AccelerateTowardsYPosition(int targetY, SignedEightEight acceleration)
     {
-        int difference = SignedPlace.Y - targetY;
-        if (difference == 0)
-            return true;
-
-        if (difference < 0)
-        {
-            Velocity = Velocity.WithY(SignedEightEight.Min(Velocity.Y + acceleration, BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed));
-            int prediction = SignedPlace.Y + Velocity.Y.WholePixels;
-            if (prediction < targetY)
-                return false;
-        }
-        else
-        {
-            Velocity = Velocity.WithY(SignedEightEight.Max(Velocity.Y - acceleration, -BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed));
-            int prediction = SignedPlace.Y + Velocity.Y.WholePixels;
-            int predictedDifference = prediction - targetY;
-            if (predictedDifference > 0)
-                return false;
-        }
-
-        Velocity = Velocity.WithY(default);
-        return true;
+        (bool arrived, SignedEightEight speed) = Approach(SignedPlace.Y, targetY, Velocity.Y, acceleration, exactMatchArrives: true);
+        Velocity = Velocity.WithY(speed);
+        return arrived;
     }
 
     /// <summary>
@@ -905,26 +886,38 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     private bool AccelerateTowardsXPosition(int targetX, SignedEightEight acceleration)
     {
-        int difference = SignedPlace.X - targetX;
+        (bool arrived, SignedEightEight speed) = Approach(SignedPlace.X, targetX, Velocity.X, acceleration, exactMatchArrives: false);
+        Velocity = Velocity.WithX(speed);
+        return arrived;
+    }
+
+    /// <summary>
+    /// One axis of an approach: the speed along it gains <paramref name="acceleration"/> towards <paramref name="target"/>,
+    /// up to <see cref="BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed"/>, and the Baby has arrived, its speed
+    /// zeroed, once its next move would reach or cross the target. A Baby standing exactly on the target has arrived when
+    /// <paramref name="exactMatchArrives"/> says so, its speed kept; otherwise it still accelerates towards the lesser side.
+    /// </summary>
+    private static (bool Arrived, SignedEightEight Speed) Approach(int place, int target, SignedEightEight speed, SignedEightEight acceleration,
+        bool exactMatchArrives)
+    {
+        int difference = place - target;
+        if (difference == 0 && exactMatchArrives)
+            return (true, speed);
+
         if (difference < 0)
         {
-            Velocity = Velocity.WithX(SignedEightEight.Min(Velocity.X + acceleration, BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed));
-            int prediction = SignedPlace.X + Velocity.X.WholePixels;
-            if (prediction < targetX)
-                return false;
+            speed = SignedEightEight.Min(speed + acceleration, BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed);
+            if (place + speed.WholePixels < target)
+                return (false, speed);
         }
         else
         {
-            // A Baby exactly on its target column still accelerates leftward.
-            Velocity = Velocity.WithX(SignedEightEight.Max(Velocity.X - acceleration, -BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed));
-            int prediction = SignedPlace.X + Velocity.X.WholePixels;
-            int predictedDifference = prediction - targetX;
-            if (predictedDifference > 0)
-                return false;
+            speed = SignedEightEight.Max(speed - acceleration, -BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed);
+            if (place + speed.WholePixels - target > 0)
+                return (false, speed);
         }
 
-        Velocity = Velocity.WithX(default);
-        return true;
+        return (true, default);
     }
 
 }

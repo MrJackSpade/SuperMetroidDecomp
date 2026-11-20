@@ -14,27 +14,10 @@ internal static class KraidRoomObjectDrawDefinitions
     private static readonly RoomBlockShape OpenBlock = new([new(new(0, 0), RoomCollisionType.Air)]);
 
     /// <summary>The cleared ceiling of an already-defeated room: fifteen open blocks along the row from the object's block.</summary>
-    private static readonly RoomBlockShape ClearedCeiling = new(
-    [
-        new(new(0, 0), RoomCollisionType.Air), new(new(1, 0), RoomCollisionType.Air), new(new(2, 0), RoomCollisionType.Air),
-        new(new(3, 0), RoomCollisionType.Air), new(new(4, 0), RoomCollisionType.Air), new(new(5, 0), RoomCollisionType.Air),
-        new(new(6, 0), RoomCollisionType.Air), new(new(7, 0), RoomCollisionType.Air), new(new(8, 0), RoomCollisionType.Air),
-        new(new(9, 0), RoomCollisionType.Air), new(new(10, 0), RoomCollisionType.Air), new(new(11, 0), RoomCollisionType.Air),
-        new(new(12, 0), RoomCollisionType.Air), new(new(13, 0), RoomCollisionType.Air), new(new(14, 0), RoomCollisionType.Air),
-    ]);
+    private static readonly RoomBlockShape ClearedCeiling = RoomBlockShapes.Line(down: false, 15, RoomCollisionType.Air);
 
     /// <summary>The cleared spikes of an already-defeated room: twenty-two open blocks along the row from the object's block.</summary>
-    private static readonly RoomBlockShape ClearedSpikes = new(
-    [
-        new(new(0, 0), RoomCollisionType.Air), new(new(1, 0), RoomCollisionType.Air), new(new(2, 0), RoomCollisionType.Air),
-        new(new(3, 0), RoomCollisionType.Air), new(new(4, 0), RoomCollisionType.Air), new(new(5, 0), RoomCollisionType.Air),
-        new(new(6, 0), RoomCollisionType.Air), new(new(7, 0), RoomCollisionType.Air), new(new(8, 0), RoomCollisionType.Air),
-        new(new(9, 0), RoomCollisionType.Air), new(new(10, 0), RoomCollisionType.Air), new(new(11, 0), RoomCollisionType.Air),
-        new(new(12, 0), RoomCollisionType.Air), new(new(13, 0), RoomCollisionType.Air), new(new(14, 0), RoomCollisionType.Air),
-        new(new(15, 0), RoomCollisionType.Air), new(new(16, 0), RoomCollisionType.Air), new(new(17, 0), RoomCollisionType.Air),
-        new(new(18, 0), RoomCollisionType.Air), new(new(19, 0), RoomCollisionType.Air), new(new(20, 0), RoomCollisionType.Air),
-        new(new(21, 0), RoomCollisionType.Air),
-    ]);
+    private static readonly RoomBlockShape ClearedSpikes = RoomBlockShapes.Line(down: false, 22, RoomCollisionType.Air);
 
     /// <summary>The block shape each stage of a crumbling block's breakup draws; its last stage is the picture its draw leaves.</summary>
     internal static readonly Dictionary<BlockBreakupStage, RoomBlockShape> CrumbleShapes = new()

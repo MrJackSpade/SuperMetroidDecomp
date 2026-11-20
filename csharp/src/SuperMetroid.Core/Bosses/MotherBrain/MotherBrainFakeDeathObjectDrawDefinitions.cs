@@ -31,25 +31,14 @@ internal static class MotherBrainFakeDeathObjectDrawDefinitions
         new(new(1, 3), RoomCollisionType.Air),
     ]);
 
-    /// <summary>The mural's top or bottom row: thirteen slope blocks rightward from the origin.</summary>
-    internal static readonly RoomBlockShape MuralBorderRow = new(
-    [
-        new(new(0, 0), RoomCollisionType.Slope), new(new(1, 0), RoomCollisionType.Slope), new(new(2, 0), RoomCollisionType.Slope),
-        new(new(3, 0), RoomCollisionType.Slope), new(new(4, 0), RoomCollisionType.Slope), new(new(5, 0), RoomCollisionType.Slope),
-        new(new(6, 0), RoomCollisionType.Slope), new(new(7, 0), RoomCollisionType.Slope), new(new(8, 0), RoomCollisionType.Slope),
-        new(new(9, 0), RoomCollisionType.Slope), new(new(10, 0), RoomCollisionType.Slope), new(new(11, 0), RoomCollisionType.Slope),
-        new(new(12, 0), RoomCollisionType.Slope),
-    ]);
+    /// <summary>How many blocks wide the mural behind her tank is.</summary>
+    private const int MuralWidth = 13;
 
-    /// <summary>A row inside the mural: thirteen empty blocks rightward from the origin.</summary>
-    internal static readonly RoomBlockShape MuralInteriorRow = new(
-    [
-        new(new(0, 0), RoomCollisionType.Air), new(new(1, 0), RoomCollisionType.Air), new(new(2, 0), RoomCollisionType.Air),
-        new(new(3, 0), RoomCollisionType.Air), new(new(4, 0), RoomCollisionType.Air), new(new(5, 0), RoomCollisionType.Air),
-        new(new(6, 0), RoomCollisionType.Air), new(new(7, 0), RoomCollisionType.Air), new(new(8, 0), RoomCollisionType.Air),
-        new(new(9, 0), RoomCollisionType.Air), new(new(10, 0), RoomCollisionType.Air), new(new(11, 0), RoomCollisionType.Air),
-        new(new(12, 0), RoomCollisionType.Air),
-    ]);
+    /// <summary>The mural's top or bottom row: <see cref="MuralWidth"/> slope blocks rightward from the origin.</summary>
+    internal static readonly RoomBlockShape MuralBorderRow = RoomBlockShapes.Line(down: false, MuralWidth, RoomCollisionType.Slope);
+
+    /// <summary>A row inside the mural: <see cref="MuralWidth"/> empty blocks rightward from the origin.</summary>
+    internal static readonly RoomBlockShape MuralInteriorRow = RoomBlockShapes.Line(down: false, MuralWidth, RoomCollisionType.Air);
 
     /// <summary>A cleared ceiling block: the restored ceiling slope over one emptied block.</summary>
     private static readonly RoomBlockShape ClearedCeilingBlock = new(

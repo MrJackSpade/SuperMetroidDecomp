@@ -46,6 +46,40 @@ internal static class RoomBlockShapes
     }
 
     /// <summary>
+    /// A rectangle of <paramref name="size"/> blocks whose top-left block lies <paramref name="corner"/> from the object's
+    /// block, every block colliding as <paramref name="collision"/> (#2557).
+    /// </summary>
+    /// <param name="corner">Where the rectangle's top-left block lies from the object's block.</param>
+    /// <param name="size">The rectangle's width and height in blocks.</param>
+    /// <param name="collision">How every block collides.</param>
+    internal static RoomBlockShape Rectangle(Offset16<RoomBlocks> corner, Extent16<RoomBlocks> size, RoomCollisionType collision) =>
+        Moved(Rectangle(size, collision), corner);
+
+    /// <summary>A line of <paramref name="length"/> blocks from the object's block, each colliding as <paramref name="collision"/> (#2557).</summary>
+    /// <param name="down">Whether the line runs down the column rather than rightward along the row.</param>
+    /// <param name="length">How many blocks the line covers.</param>
+    /// <param name="collision">How every block collides.</param>
+    internal static RoomBlockShape Line(bool down, int length, RoomCollisionType collision) =>
+        Line(down, DefinitionRun.Repeated(collision, length));
+
+    /// <summary><paramref name="shape"/> with every cell moved <paramref name="by"/> blocks (#2557).</summary>
+    /// <param name="shape">The shape moved.</param>
+    /// <param name="by">How far each cell moves.</param>
+    internal static RoomBlockShape Moved(RoomBlockShape shape, Offset16<RoomBlocks> by) =>
+        new([.. shape.Cells.Select(cell => cell with { Cell = cell.Cell + by })]);
+
+    /// <summary>The shape covering every cell of each of <paramref name="parts"/> (#2557); no two parts cover the same cell.</summary>
+    /// <param name="parts">The shapes joined.</param>
+    /// <exception cref="ArgumentException">Two parts cover the same cell.</exception>
+    internal static RoomBlockShape Joined(params ReadOnlySpan<RoomBlockShape> parts)
+    {
+        var cells = new List<RoomBlockShapeCell>();
+        foreach (RoomBlockShape part in parts)
+            cells.AddRange(part.Cells);
+        return new([.. cells]);
+    }
+
+    /// <summary>
     /// A parent block at the object's block colliding as <paramref name="parent"/>, with blocks linked to it at
     /// <paramref name="children"/>: a child on the parent's row extends it along the row, and a child on a row below
     /// extends it down the column.

@@ -732,10 +732,14 @@ internal sealed class MotherBrainProjectiles
         Extent16<RoomPixels> firstRadius,
         Position16<RoomPixels> second,
         Extent16<RoomPixels> secondRadius) =>
-        Math.Abs(first.X - second.X) <
-            firstRadius.X + secondRadius.X &&
-        Math.Abs(first.Y - second.Y) <
-            firstRadius.Y + secondRadius.Y;
+        StrictlyOverlap(first.X - second.X, first.Y - second.Y, firstRadius.X + secondRadius.X, firstRadius.Y + secondRadius.Y);
+
+    /// <summary>
+    /// Whether two hit areas strictly overlap: their centres lie <paramref name="xApart"/> and <paramref name="yApart"/>
+    /// apart, closer on each axis than the sum of their radii, <paramref name="xReach"/> and <paramref name="yReach"/>.
+    /// </summary>
+    private static bool StrictlyOverlap(int xApart, int yApart, int xReach, int yReach) =>
+        Math.Abs(xApart) < xReach && Math.Abs(yApart) < yReach;
 
     /// <summary>Keeps the escape subtitle projectile fixed to its screen position.</summary>
     internal static void PinMotherBrainEscapeSubtitle(EnemyProjectile subtitle)
@@ -828,19 +832,15 @@ internal sealed class MotherBrainProjectiles
     private static bool MotherBrainOnionRingOverlapsSamus(
         EnemyProjectile ring,
         SamusState samus) =>
-        Math.Abs(SignedPlace(ring).X - samus.Position.X.Whole) <
-            ring.Radius.X + samus.Kinematics.Radius.X &&
-        Math.Abs(SignedPlace(ring).Y - samus.Position.Y.Whole) <
-            ring.Radius.Y + samus.Kinematics.Radius.Y;
+        StrictlyOverlap(SignedPlace(ring).X - samus.Position.X.Whole, SignedPlace(ring).Y - samus.Position.Y.Whole,
+            ring.Radius.X + samus.Kinematics.Radius.X, ring.Radius.Y + samus.Kinematics.Radius.Y);
 
     /// <summary>Checks ring contact against the Baby Metroid's current hitbox.</summary>
     private static bool MotherBrainOnionRingOverlapsBaby(
         EnemyProjectile ring,
         BabyMetroidCutsceneState baby) =>
-        Math.Abs(SignedPlace(ring).X - baby.SignedPlace.X) <
-            ring.Radius.X + BabyMetroidCutsceneState.XHitboxRadius &&
-        Math.Abs(SignedPlace(ring).Y - baby.SignedPlace.Y) <
-            ring.Radius.Y + BabyMetroidCutsceneState.YHitboxRadius;
+        StrictlyOverlap(SignedPlace(ring).X - baby.SignedPlace.X, SignedPlace(ring).Y - baby.SignedPlace.Y,
+            ring.Radius.X + BabyMetroidCutsceneState.XHitboxRadius, ring.Radius.Y + BabyMetroidCutsceneState.YHitboxRadius);
 
     /// <summary>
     /// Where a ring or turret lies from the room's origin: one that has flown or sits above or left of the room lies at a

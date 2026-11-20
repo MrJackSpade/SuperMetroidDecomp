@@ -449,7 +449,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWhole(
             samus.Position.Whole + MotherBrainShakeDefinitions.Offsets[shakeIndex] + new Offset16<RoomPixels>(rightOfShake, BabyMetroidFightDefinitions.DrainAboveSamus));
 
-        // The drain takes four energy without Varia and two with it, leaving Samus at least one.
+        // The drain takes less energy with Varia than without, leaving Samus at least one.
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? BabyMetroidFightDefinitions.DrainWithVaria : BabyMetroidFightDefinitions.DrainWithoutVaria;
         samus.Health = damage >= samus.Health
             ? 1
@@ -542,7 +542,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         return xArrived && yArrived;
     }
 
-    /// <summary>Caps one axis's speed at five pixels an update and stops it where it would pass the target.</summary>
+    /// <summary>Caps one axis's speed at the latch's fastest speed and stops it where it would pass the target.</summary>
     private static BabyMetroidAxisStep AccelerateBabyMetroidAxis(
         int current,
         int target,
@@ -590,8 +590,8 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.SpinJumping &&
             samus.Position.X.Whole >= BabyMetroidFightDefinitions.ArenaLeftX)
         {
-            // The push heads along the negated angle toward Samus and adds a quarter of a pixel an update to the
-            // velocity.
+            // The push heads along the negated angle toward Samus and adds the contact push's speed to the
+            // velocity each update.
             RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
                 DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole),
                 DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole)));
@@ -670,8 +670,8 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Counts a pulse reaching its cry phase toward the Baby Metroid's periodic cry while its cry is enabled: every fourth
-    /// cries, quickly while it feeds.
+    /// Counts a pulse reaching its cry phase toward the Baby Metroid's periodic cry while its cry is enabled: one pulse in
+    /// each run of <see cref="BabyMetroidFightDefinitions.PulsesPerCry"/> cries, quickly while it feeds.
     /// </summary>
     private void CountBabyMetroidCry(BabyMetroidEnemyState state)
     {

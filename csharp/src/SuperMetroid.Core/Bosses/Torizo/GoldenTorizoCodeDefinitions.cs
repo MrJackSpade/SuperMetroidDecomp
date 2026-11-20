@@ -7,7 +7,7 @@ internal static class GoldenTorizoCodeDefinitions
 {
     /// <summary>The secret chord: exactly Jump, Dash, Shoot and item cancel held, with no other action.</summary>
     private const GameplayAction ControllerChord = GameplayAction.Jump | GameplayAction.Dash | GameplayAction.Shoot | GameplayAction.ItemCancel;
-    /// <summary>Current and maximum energy, exactly 700 rather than 799.</summary>
+    /// <summary>Current and maximum energy.</summary>
     internal const int Energy = 700;
     /// <summary>Current and maximum reserve energy; the reserve mode stays as it was.</summary>
     internal const int ReserveEnergy = 300;

@@ -48,8 +48,8 @@ internal sealed class MotherBrainFinishSamusOffPhases
             return false;
         }
 
-        // Above the floor, the hold-back chance does nothing. Every
-        // 32nd enemy frame that idle route may ask her to alternate between standing and leaning down. This is visible body animation, not a
+        // Above the floor, the hold-back chance does nothing. At its posture
+        // cadence that idle route may ask her to alternate between standing and leaning down. This is visible body animation, not a
         // direct pose assignment, so retain the separate animation-stage delay.
         if (frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.FinishOffHoldsBack))
         {

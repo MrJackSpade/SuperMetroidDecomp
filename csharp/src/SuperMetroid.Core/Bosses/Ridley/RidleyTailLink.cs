@@ -48,8 +48,8 @@ public sealed class RidleyTailLink
 
     /// <summary>
     /// Gets how far the link has staggered toward starting the next link, while it has not started it: it grows by the
-    /// tail's swing step each update until it reaches the ideal link spacing. A link starts with a stagger of seventeen
-    /// steps.
+    /// tail's swing step each update until it reaches the ideal link spacing. A link starts with
+    /// <see cref="RidleyTailDefinitions.InitialStagger"/>.
     /// </summary>
     public RidleyTailTurn Stagger { get; internal set; }
 

@@ -34,7 +34,7 @@ public sealed class CeresBaby
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
     /// <summary>
-    /// Gets the Baby's falling speed: zero until it is dropped, then faster by a thirty-second of a pixel an update each
+    /// Gets the Baby's falling speed: zero until it is dropped, then faster by <see cref="CeresRidleyArenaDefinitions.BabyFallGravity"/> each
     /// falling update until it lands.
     /// </summary>
     public SignedEightEight VerticalVelocity { get; internal set; }

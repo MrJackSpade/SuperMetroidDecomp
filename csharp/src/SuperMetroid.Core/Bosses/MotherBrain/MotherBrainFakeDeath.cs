@@ -62,7 +62,7 @@ internal sealed class MotherBrainFakeDeath
         }
 
         // Every update of the grey fade also runs the tube collapse and the explosion, so tube sequencing and dust
-        // begin during the grey fade rather than waiting for the eighth fade step.
+        // begin during the grey fade rather than waiting for its last fade step.
         RunMotherBrainTubeCollapse(state);
         RunMotherBrainFakeDeathExplosion(state);
     }
@@ -165,7 +165,7 @@ internal sealed class MotherBrainFakeDeath
         // The bound source supplies the fixed cutscene placement; rooms resolve it from the loaded definitions.
         RoomEnemyPlacement population = _room.Definitions.ReadFallingTubePopulation(piece);
 
-        // A spawn quietly does nothing when all 32 enemy places are occupied.
+        // A spawn quietly does nothing when every enemy place is occupied.
         // Each tube holds the encounter that spawned it from its setup (#2218).
         _ = _lifecycle.SpawnEnemyJoining(population, state);
     }
@@ -293,7 +293,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>
-    /// Draws the next rows of the mural the tube collapse revealed, two an update from the top (#2211), and hands off to
+    /// Draws the next rows of the mural the tube collapse revealed, <see cref="MotherBrainMuralDefinitions.RowsEachUpdate"/> an update from the top (#2211), and hands off to
     /// the phase-two graphics setup once every row is drawn.
     /// </summary>
     internal void DrawNextMuralRows(MotherBrainEnemyState state)

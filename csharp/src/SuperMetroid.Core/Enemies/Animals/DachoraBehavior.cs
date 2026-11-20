@@ -23,9 +23,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Probes floors, walls, and ceiling during the run and shinespark arc.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>The room's enemy places, where the Dachora finds its four echoes when it is placed.</summary>
+    /// <summary>The room's enemy places, where the Dachora finds its echoes when it is placed.</summary>
     private readonly EnemyPlaces _places;
-    /// <summary>The four speed-boost echoes each Dachora found when it was placed, which its room lists right after it.</summary>
+    /// <summary>The speed-boost echoes each Dachora found when it was placed (<see cref="DachoraTimingDefinitions.EchoCount"/>), which its room lists right after it.</summary>
     private readonly EnemyPartLinks<RoomEnemyPlace[]> _echoes = new();
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
@@ -42,7 +42,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         _places = places;
     }
 
-    /// <summary>Initializes a speed-boost echo: it faces the way the body does; each trail placement later gives it an eight-update life.</summary>
+    /// <summary>Initializes a speed-boost echo: it faces the way the body does; each trail placement later gives it its life (<see cref="DachoraTimingDefinitions.EchoLifetime"/>).</summary>
     internal static void InitializeDachoraEcho(RoomEnemyPlace place)
     {
         DachoraSpawnSettings settings = place.SpawnSettings<DachoraSpawnSettings>();
@@ -54,7 +54,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             : DachoraSegment.EchoLeft), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Initializes the Dachora's body, which finds the four echoes its room lists right after it.</summary>
+    /// <summary>Initializes the Dachora's body, which finds the echoes its room lists right after it.</summary>
     internal void InitializeDachora(RoomEnemyPlace place)
     {
         DachoraSpawnSettings settings = place.SpawnSettings<DachoraSpawnSettings>();
@@ -218,8 +218,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Accelerates the running Dachora. This intentionally retains the
-    /// speed glow's cycle (DachoraGlowCycle): after frame three is reached, the game shows that brightest
-    /// speed glow frame again every sixteen frames instead of wrapping to frame zero.
+    /// speed glow's cycle (DachoraGlowCycle): once its last frame is reached, the game shows that brightest
+    /// speed glow frame again at each step instead of wrapping to frame zero.
     /// </summary>
     private SignedSixteenSixteen AccelerateDachora(
         RoomEnemyPlace place,
@@ -242,7 +242,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // The collision result is discarded; the probe keeps Dachora glued to room slopes.
         _terrain.MoveEnemyVertically(level, place, DachoraMotionDefinitions.RunningFloorPress);
 
-        // Every run starts from rest and gains a sixteenth of a pixel an update, so its speed lands exactly on the cap and
+        // Every run starts from rest and gains its acceleration each update, so its speed lands exactly on the cap and
         // stays there.
         if (state.Speed < DachoraMotionDefinitions.MaximumSpeed)
         {
@@ -266,7 +266,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // The charge animation holds its crouch until the launch, which starts the right-facing echo animation the
-        // four trails also show.
+        // trails also show.
         StartDachoraAnimation(place, state, DachoraSegment.EchoRight);
         state.Action = DachoraAction.Shinesparking;
 
@@ -395,7 +395,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
     }
 
-    /// <summary>Runs the four-frame shine glow.</summary>
+    /// <summary>Runs the shine glow.</summary>
     private static void StepDachoraShineGlow(RoomEnemyPlace place, DachoraEnemyState state)
     {
         ShowDachoraColours(place, DachoraColourPhase.Shine, state.GlowFrame);

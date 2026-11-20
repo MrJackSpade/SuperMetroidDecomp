@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// The phases Ceres Ridley runs once his lift-off ends the reveal (#2227): his rise, his hover and its attacks, his fake
-/// retreat after his hundredth hit (he rises, drops the Baby and swoops to catch it), his real retreat with the Baby and
+/// retreat once his hits drive him off (he rises, drops the Baby and swoops to catch it), his real retreat with the Baby and
 /// his handoff to the station's escape (<see cref="CeresEscape"/>). The state stores the phase, and each phase runs itself on
 /// his encounter (#2571), so his encounter runs its current phase with no switch over phase identities.
 /// </summary>
@@ -67,7 +67,7 @@ public sealed class CeresRidleyPhase
     /// <summary>Continues the faster upward-aiming swoop ascent.</summary>
     private static CeresRidleyPhase SwoopAscendingAimingUpFaster { get; } = new(nameof(SwoopAscendingAimingUpFaster), turn => RunSwoopAscendingAimingUpFaster(turn.State));
 
-    /// <summary>Steers Ridley to the start of his fake retreat after his hundredth hit.</summary>
+    /// <summary>Steers Ridley to the start of his fake retreat once his hits drive him off.</summary>
     public static CeresRidleyPhase FakeRetreatMoveToPosition { get; } = new(nameof(FakeRetreatMoveToPosition), turn => CeresRidleyFlight.TickCeresRidleyFakeRetreatMoveToPosition(turn.Place, turn.State));
 
     /// <summary>Raises Ridley until he lets the Baby fall.</summary>

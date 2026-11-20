@@ -17,7 +17,7 @@ internal sealed class PhantoonPresentation
         _frameContext = frameContext;
     }
 
-    /// <summary>Fades his body toward the colours of his health band over <paramref name="steps"/> steps, one every second update.</summary>
+    /// <summary>Fades his body toward the colours of his health band over <paramref name="steps"/> steps, one at each place of the fade's cadence.</summary>
     internal void AdvancePhantoonFadeIn(
         RoomEnemyPlace body,
         PhantoonEnemyState state,

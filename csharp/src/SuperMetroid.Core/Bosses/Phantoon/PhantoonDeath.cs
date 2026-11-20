@@ -56,7 +56,7 @@ internal sealed class PhantoonDeath
             state.Phase = PhantoonPhase.DyingFadeInOut;
     }
 
-    /// <summary>Alternates five fade-outs and five fade-ins.</summary>
+    /// <summary>Alternates fade-outs and fade-ins (<see cref="PhantoonArenaDefinitions.DyingFadeCycles"/>).</summary>
     internal void RunPhantoonDyingFadeCycles(
         RoomEnemyPlace body,
         PhantoonEnemyState state)
@@ -79,7 +79,7 @@ internal sealed class PhantoonDeath
         state.Death.ExplosionPasses = 0;
     }
 
-    /// <summary>Runs the dying explosions: the opening explosions, then the repeated explosions three times over.</summary>
+    /// <summary>Runs the dying explosions: the opening explosions, then the repeated explosions (<see cref="PhantoonDeathExplosionDefinitions.PassCount"/>).</summary>
     internal void RunPhantoonDyingExplosions(
         RoomEnemyPlace body,
         PhantoonEnemyState state)

@@ -26,7 +26,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     public RotationAngle RainbowBeamAngle { get; set; }
 
     /// <summary>
-    /// Moves Samus toward the wall: right at 16 pixels per update and, until she reaches the arena's wall, up or down
+    /// Moves Samus toward the wall: right at the beam's push speed and, until she reaches the arena's wall, up or down
     /// along the beam's current angle.
     /// </summary>
     /// <param name="samus">Samus, pinned by the beam.</param>
@@ -53,8 +53,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>
-    /// Moves Samus toward the middle of the wall: down by a quarter pixel below/equal to Y 124, or
-    /// up by a quarter pixel above it. Does not snap to the target and can oscillate.
+    /// Moves Samus toward the middle of the wall: down at the middle's speed at or above its height, or
+    /// up below it. Does not snap to the target and can oscillate.
     /// </summary>
     /// <param name="samus">Samus, pinned by the beam.</param>
     public static MotherBrainForcedSamusMovementResult MoveTowardMiddleOfWall(SamusState samus)
@@ -75,7 +75,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
     /// <summary>
     /// Begins Samus's fall, executed when the rainbow beam has narrowed below its
-    /// finishing threshold: initial left speed of one pixel, zero vertical speed.
+    /// finishing threshold: an initial leftward speed, zero vertical speed.
     /// </summary>
     public void BeginFallingAfterRainbowBeam()
     {
@@ -83,7 +83,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>
-    /// Steps Samus's fall: ease horizontal speed toward zero by 2/256, add 24/256 vertical speed, then move her within
+    /// Steps Samus's fall: ease horizontal speed toward zero, add the fall's gravity to her vertical speed, then move her within
     /// the arena's bounds.
     /// </summary>
     /// <param name="samus">Samus, falling from the beam.</param>
@@ -93,7 +93,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         FixedPosition<RoomPixels> before = Capture(samus);
 
-        // The leftward speed slows by two units each update; as soon as it reaches zero or above it is
+        // The leftward speed slows each update; as soon as it reaches zero or above it is
         // clamped to exact zero.
         CustomVelocity = CustomVelocity.WithX(SignedEightEight.Min(CustomVelocity.X + MotherBrainRainbowBeamPushDefinitions.FallingPushSlowing, SignedEightEight.Zero));
         MoveHorizontallyTowardWall(samus, CustomVelocity.X);
@@ -121,7 +121,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             speed, (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle());
     }
 
-    /// <summary>Applies the vertical movement, copies the result into the previous position, and clamps to arena Y=48..192.</summary>
+    /// <summary>Applies the vertical movement, copies the result into the previous position, and clamps between the arena's ceiling and floor.</summary>
     private static bool MoveVerticallyTowardCeilingOrFloor(
         SamusState samus,
         SignedEightEight velocity)
@@ -148,7 +148,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return false;
     }
 
-    /// <summary>Applies the sideways movement, copies the result into the previous position, and clamps at the right wall X=235.</summary>
+    /// <summary>Applies the sideways movement, copies the result into the previous position, and clamps at the right wall.</summary>
     private static bool MoveHorizontallyTowardWall(SamusState samus, SignedEightEight velocity)
     {
         FixedCoordinate moved = MoveByPushVelocity(samus.Position.X, velocity);

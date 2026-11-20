@@ -13,8 +13,8 @@ internal static class SporeSpawnProjectileAnimations
 {
     /// <summary>
     /// Every projectile animation: the closed emitter's pose, held (#2235); the emitter's release, which spawns a spore after its
-    /// second pose; the falling spore's three five-update poses and the stalk's pose, held; and a shot spore's burst, which takes its
-    /// impact properties after its first pose, queues its killed sound after its fourth, then requests its drop and deletes
+    /// second pose; the falling spore's poses and the stalk's pose, held; and a shot spore's burst, which takes its
+    /// impact properties after its first pose, queues its killed sound partway, then requests its drop and deletes
     /// itself.
     /// </summary>
     internal static AnimationSegments<SporeSpawnProjectileSegment, EnemyProjectileFrameId, SporeSpawnProjectileCue> Segments { get; } = new(

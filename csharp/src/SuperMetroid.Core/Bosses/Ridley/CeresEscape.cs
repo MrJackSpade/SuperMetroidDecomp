@@ -153,14 +153,14 @@ internal sealed class CeresEscape : IGameplayShadingSource
         ShowFloorZoom(zoom);
         Floor.Angle += CeresRidleyGetawayDefinitions.TurnPerFrame;
 
-        // The Baby capsule advances on every fourth frame of the frame counter using 0,1,2,1.
+        // The Baby capsule advances at its cadence's place in the frame counter, swinging out and back.
         if (RidleyCadenceDefinitions.GetawayCapsuleStepEveryFourthUpdate.IsDue(frameCounter))
         {
             Floor.Capsule = Floor.Capsule.NextInCycle;
             floor.Show(Floor.Capsule.Entry);
         }
 
-        // The wings beat on every eighth frame of the frame counter. Each wing frame leaves behind the delays
+        // The wings beat at their cadence's place in the frame counter. Each wing frame leaves behind the delays
         // Samus's unauthored Speed Booster cadence runs on from then on.
         if (RidleyCadenceDefinitions.GetawayWingStepEveryEighthUpdate.IsDue(frameCounter))
         {
@@ -362,7 +362,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         return typing is EscapeTypewriterStep.Complete;
     }
 
-    /// <summary>Plays the three-colour alarm cycle of the warning's EMERGENCY title on to its next colouring every fourth update.</summary>
+    /// <summary>Plays the alarm cycle of the warning's EMERGENCY title on to its next colouring at the alarm's cadence.</summary>
     private void StepAlarm(int frameCounter)
     {
         if (!RidleyCadenceDefinitions.SelfDestructAlarmStepEveryFourthUpdate.IsDue(frameCounter))

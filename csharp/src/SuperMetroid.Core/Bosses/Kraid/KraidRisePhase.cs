@@ -16,6 +16,6 @@ public enum KraidRisePhase
     RocksEvery16Frames,
     /// <summary>Requests rise rocks on the faster cadence (<see cref="KraidCadenceDefinitions.FasterRiseRockEveryEighthUpdate"/>) during the faster pre-rise wait.</summary>
     RocksEvery8Frames,
-    /// <summary>Raises Kraid at half a pixel per update with horizontal shaking until first-phase combat starts.</summary>
+    /// <summary>Raises Kraid by <see cref="KraidArenaDefinitions.RisingBodyLift"/> each update with horizontal shaking until first-phase combat starts.</summary>
     RaiseBody,
 }

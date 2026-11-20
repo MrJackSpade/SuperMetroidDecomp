@@ -39,7 +39,7 @@ internal sealed class TorizoChoices
     /// </summary>
     private static int TwoPixelStepsRoundedUp(int x) => (int)Math.Ceiling(x / 2.0);
 
-    /// <summary>Branches to the grounded-ball response only when Samus is four to 39 pixels away behind the statue.</summary>
+    /// <summary>Branches to the grounded-ball response only when Samus is behind the statue, between <see cref="TorizoDecisionDefinitions.MorphedBehindNearest"/> and <see cref="TorizoDecisionDefinitions.MorphedBehindFarthest"/> away.</summary>
     internal static AnimationContinuation<TorizoBodySegment>? SelectGoldenTorizoMorphBallBranch(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
@@ -105,7 +105,7 @@ internal sealed class TorizoChoices
         return TorizoAnimations.ContinueWith(target);
     }
 
-    /// <summary>Starts a backward jump after enough decisions or when Samus closes inside 32 pixels.</summary>
+    /// <summary>Starts a backward jump after enough decisions or when Samus closes inside <see cref="TorizoDecisionDefinitions.CloseInFrontDistance"/>.</summary>
     internal static AnimationContinuation<TorizoBodySegment>? SelectGoldenTorizoRepeatedJump(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
@@ -173,7 +173,7 @@ internal sealed class TorizoChoices
         state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
     }
 
-    /// <summary>Interrupts the walk with the swipe, keeping the walk's place, when Samus is within 56 pixels behind the statue.</summary>
+    /// <summary>Interrupts the walk with the swipe, keeping the walk's place, when Samus is within <see cref="TorizoDecisionDefinitions.CloseBehindDistance"/> behind the statue.</summary>
     internal static AnimationContinuation<TorizoBodySegment>? SelectBombTorizoCloseBehindBranch(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
@@ -189,7 +189,7 @@ internal sealed class TorizoChoices
         return TorizoAnimations.ContinueWith(target);
     }
 
-    /// <summary>Launches the reverse jump when Samus is within 32 pixels in the selected facing half-plane.</summary>
+    /// <summary>Launches the reverse jump when Samus is within <see cref="TorizoDecisionDefinitions.CloseInFrontDistance"/> in the selected facing half-plane.</summary>
     internal static AnimationContinuation<TorizoBodySegment>? SelectBombTorizoCloseFrontJump(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,

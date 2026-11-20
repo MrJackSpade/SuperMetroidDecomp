@@ -20,8 +20,8 @@ public sealed class CeresSelfDestructWarning
     /// <summary>Gets the installed warning typewriter state, created after the initial delay; null before then.</summary>
     public EscapeTypewriterState? Typewriter { get; internal set; }
     /// <summary>
-    /// The warning's cycling alarm (#2316, #2409), which shows nothing before its first step; each step, every fourth
-    /// update, plays it on to its next colouring, the first after the last.
+    /// The warning's cycling alarm (#2316, #2409), which shows nothing before its first step; each step, at the alarm's
+    /// cadence, plays it on to its next colouring, the first after the last.
     /// </summary>
     internal AnimationPlayer<RidleyFadeSegment, RidleyFadeImage, NoAnimationCue> Alarm { get; } = RidleyFadeAnimations.AlarmCycling();
     /// <summary>

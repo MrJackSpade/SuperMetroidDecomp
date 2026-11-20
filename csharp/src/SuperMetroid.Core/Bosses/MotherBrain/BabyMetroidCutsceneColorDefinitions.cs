@@ -7,6 +7,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </remarks>
 public static class BabyMetroidCutsceneColorDefinitions
 {
-    /// <summary>The fade's six shown steps; the step after the sixth ends the fade rather than showing a seventh.</summary>
+    /// <summary>The fade's shown steps; the step after the last ends the fade rather than showing another.</summary>
     public const int FadeFrameCount = 6;
 }

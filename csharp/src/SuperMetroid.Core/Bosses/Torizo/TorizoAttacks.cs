@@ -330,8 +330,8 @@ internal sealed class TorizoAttacks
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectiles, TorizoProjectileSegment.DroolNoDelay));
         int random = _room.Random.Generate();
         // Every vertical and horizontal move of a Torizo is tested against the room's terrain, solid past its edges,
-        // so a Torizo's centre lies at least its half-height (41 pixels) below the room's top and its half-width
-        // (18 pixels) inside either side: the lifted drool lies inside the room and its side offset never leaves it.
+        // so a Torizo's centre lies at least its half-height below the room's top and its half-width
+        // inside either side: the lifted drool lies inside the room and its side offset never leaves it.
         int jitteredY = TorizoRandomDefinitions.InitialDroolYJitter.Of(random) + torizo.Position.Y.Whole;
         projectile.Position = projectile.Position.WithWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
         // The jitter is one of thirty-two fall speeds from the slowest up.
@@ -458,7 +458,7 @@ internal sealed class TorizoAttacks
             torizo,
             RoomEnemyProjectileKind.GoldenTorizoSonicBoom);
 
-    /// <summary>Places a sonic boom 32 pixels ahead and selects the fired-left or fired-right animation.</summary>
+    /// <summary>Places a sonic boom ahead of the Torizo and selects the fired-left or fired-right animation.</summary>
     private void SpawnTorizoSonicBoom(
         RoomEnemyPlace torizo,
         RoomEnemyProjectileKind kind)
@@ -572,7 +572,7 @@ internal sealed class TorizoAttacks
         // velocity, so the jitter only advances the room's random numbers (#1945, #2335).
         SkipVelocityJitter();
 
-        // The beam's heading is its facing's spread by up to eight steps either way.
+        // The beam's heading is its facing's, spread either way by its random spread.
         TrigonometryAngle heading = EyeBeamHeading(facing, _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread));
         projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.EyeBeamSpeed, heading);
     }
@@ -609,7 +609,7 @@ internal sealed class TorizoAttacks
     /// <summary>A randomized projectile's jitter on one axis, either side of its base speed.</summary>
     private static SignedEightEight VelocityJitter(int random) => TorizoRandomDefinitions.VelocityJitter.Of(random);
 
-    /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
+    /// <summary>Places a foot-specific dust effect below the statue after a landing step.</summary>
     internal void SpawnLandingDust(RoomEnemyPlace torizo, HorizontalDirection foot)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
@@ -669,7 +669,7 @@ internal sealed class TorizoAttacks
 
     /// <summary>
     /// Drops the drool: Bomb Torizo's six gut-break droplets and its
-    /// low-health initial drool alike. A drool that its drag slows past zero is left moving at plus three, whichever way
+    /// low-health initial drool alike. A drool that its drag slows past zero is left drifting at <see cref="TorizoMotionDefinitions.DroolPastRestDrift"/>, whichever way
     /// it was moving.
     /// </summary>
     internal static void DropDrool(
@@ -885,7 +885,7 @@ internal sealed class TorizoAttacks
     private static bool IsRunaway(SignedEightEight speed) => speed >= TorizoMotionDefinitions.RunawaySpeed;
 
     /// <summary>
-    /// Whether a bounced Chozo orb's rebound has settled: an upward speed under half a pixel per frame.
+    /// Whether a bounced Chozo orb's rebound has settled: an upward speed under <see cref="TorizoMotionDefinitions.SettledBounceSpeed"/>.
     /// </summary>
     private static bool HasSettled(SignedEightEight speed) =>
         speed.IsNegative && speed >= -TorizoMotionDefinitions.SettledBounceSpeed;

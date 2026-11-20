@@ -27,7 +27,7 @@ public enum MotherBrainHeadSegment
     DecapitatedHeld,
     /// <summary>Her dying head shakes and opens its mouth with a roar.</summary>
     DyingDrool,
-    /// <summary>Her dying head drools once from its widest mouth; a burst of drool plays it four times.</summary>
+    /// <summary>Her dying head drools once from its widest mouth; a burst of drool plays it over and over.</summary>
     DyingDroolBurst,
     /// <summary>Her dying head holds its widest mouth, and on a chance bursts into more drool.</summary>
     DyingDroolLoop,
@@ -64,7 +64,7 @@ public enum MotherBrainHeadSegment
     /// <summary>Her damaged head clears its count of attacks on the Baby Metroid and aims its onion rings at Samus.</summary>
     AttackingSamusFourOnionRingsPhase3,
     /// <summary>
-    /// Her damaged head opens wide, cries unless it has attacked the Baby eleven times, and fires the first of four onion
+    /// Her damaged head opens wide, cries unless this is her silent attack (<see cref="MotherBrainFightDefinitions.SilentBabyAttackCount"/>), and fires the first of her onion
     /// rings where it aimed them: the volley's opening.
     /// </summary>
     FourOnionRingsPhase3,

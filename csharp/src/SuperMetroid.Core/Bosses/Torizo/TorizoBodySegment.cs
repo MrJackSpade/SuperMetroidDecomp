@@ -42,7 +42,7 @@ internal enum TorizoBodySegment
     StunnedEyesLightingAgain,
     /// <summary>A stunned Golden Torizo recovers: it unlocks its animation, starts walking and resumes the walk it interrupted.</summary>
     StunnedRecovery,
-    /// <summary>Bomb Torizo turns around through facing the viewer, twenty-four updates.</summary>
+    /// <summary>Bomb Torizo turns around slowly through facing the viewer.</summary>
     Turning,
     /// <summary>Bomb Torizo, facing left with its right foot forward, starts spewing: it lowers its head, opens its mouth, thrusts and draws back its arm.</summary>
     FacingLeftSpewingChozoOrbsRightFootForward,
@@ -94,7 +94,7 @@ internal enum TorizoBodySegment
     FacingLeftWalkingRightLegMoving,
     /// <summary>Bomb Torizo's step left on its left leg, deciding at each pose whether to swipe or jump back.</summary>
     FacingLeftWalkingLeftLegMoving,
-    /// <summary>Faceless Bomb Torizo or Golden Torizo turns around through facing the viewer, eight updates.</summary>
+    /// <summary>Faceless Bomb Torizo or Golden Torizo turns around quickly through facing the viewer.</summary>
     TurningQuickly,
     /// <summary>Faceless Bomb Torizo's step left on its right leg, deciding as it lifts its leg whether to swipe.</summary>
     FacingLeftFacelessWalkingRightLegMoving,

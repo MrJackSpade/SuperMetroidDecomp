@@ -234,7 +234,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Special Mother Brain Rinkas do not clear their enemy place. They hide, emit the room-graphics small explosion,
-        // wait out their respawn delay, restore ten health, and select a spawn.
+        // wait out their respawn delay, restore their respawn health, and select a spawn.
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
         SpawnRinkaDustExplosion(place.Position.Whole);

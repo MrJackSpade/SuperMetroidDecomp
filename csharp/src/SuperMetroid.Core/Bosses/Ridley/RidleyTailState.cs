@@ -42,7 +42,7 @@ public sealed class RidleyTailState
 
     /// <summary>What Ridley's tail is doing: nothing, curling and whipping in flight, or one of the pogo and stab movements.</summary>
     public RidleyTailAction Action { get; internal set; } = RidleyTailAction.None;
-    /// <summary>Gets how far each swinging link turns each update and adds to its stagger (zero through eight steps).</summary>
+    /// <summary>Gets how far each swinging link turns each update and adds to its stagger.</summary>
     public RidleyTailTurn SwingStep { get; internal set; } = RidleyTailDefinitions.SlowNeutralSwing;
     /// <summary>
     /// Gets the facing-dependent furthest-clockwise angle clockwise tail movement may reach. The tail is made with a
@@ -72,14 +72,14 @@ public sealed class RidleyTailState
     public RidleyTailWhipOrder Whip { get; } = new();
     /// <summary>Gets whether neutral tail control may start random or proximity-triggered whips; the Ceres swoop disables it.</summary>
     public bool IdleWhipEnabled { get; internal set; }
-    /// <summary>Gets the distance (fifteen sixteenths or one and a half pixels) tail links extend each update toward their targets.</summary>
+    /// <summary>Gets the distance tail links extend each update toward their targets (<see cref="RidleyTailDefinitions.StandardExtensionSpeed"/> or <see cref="RidleyTailDefinitions.PogoExtensionSpeed"/>).</summary>
     public SignedEightEight ExtensionSpeed { get; internal set; } = RidleyTailDefinitions.StandardExtensionSpeed;
     /// <summary>
-    /// Gets how far a link swings before it starts the next one (eight through 23 steps), which sets how tightly the tail
+    /// Gets how far a link swings before it starts the next one, which sets how tightly the tail
     /// curls.
     /// </summary>
     public RidleyTailTurn IdealLinkSpacing { get; internal set; } = RidleyTailDefinitions.StandardLinkSpacing;
-    /// <summary>Gets the tail tip's contact damage before Samus's suit reduction: fifteen in Ceres, 120 in Lower Norfair.</summary>
+    /// <summary>Gets the tail tip's contact damage before Samus's suit reduction (<see cref="RidleyTailDefinitions.CeresTipDamage"/> or <see cref="RidleyTailDefinitions.NorfairTipDamage"/>).</summary>
     public int Damage { get; }
 
     /// <summary>The whip target a link swinging <paramref name="direction"/> chases, or null while none is aimed that way.</summary>

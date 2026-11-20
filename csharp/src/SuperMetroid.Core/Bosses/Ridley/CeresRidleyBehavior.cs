@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// Ceres Ridley's encounter (#2229): his reveal's Ceres timings, his flight and attacks, the Baby he carries, the shots
-/// that count toward his hundred hits, and his handoff to the station's escape. His body runs the parts both Ridleys share
+/// that count toward the hits that drive him off, and his handoff to the station's escape. His body runs the parts both Ridleys share
 /// (<see cref="RidleyBody"/>); none runs through Lower Norfair Ridley's encounter.
 /// </summary>
 [RoomLifetime]

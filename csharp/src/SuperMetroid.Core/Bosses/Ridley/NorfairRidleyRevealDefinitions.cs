@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 public static class NorfairRidleyRevealDefinitions
 {
-    /// <summary>The arena reveal's steps, one shown every third reveal update; the reveal ends after the last.</summary>
+    /// <summary>The arena reveal's steps, each shown for <see cref="RevealStepUpdates"/>; the reveal ends after the last.</summary>
     public const int RevealStepCount = 15;
 
     /// <summary>The updates each step of the arena reveal shows; the reveal ends once the last step's have passed.</summary>

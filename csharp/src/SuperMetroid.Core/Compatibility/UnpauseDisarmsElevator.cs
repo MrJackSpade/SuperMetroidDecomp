@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// Resuming gameplay from the pause disarms the elevator's pseudo-door (#2283): whatever armed it, a collision with it or
 /// an elevator door load, is forgotten, so an elevator ridden down when the game unpaused starts its door the moment Samus
-/// reaches the pseudo-door, without the 48-frame down-elevator wait. The ride's status and travel are kept. The skipped
+/// reaches the pseudo-door, without the down-elevator wait (<see cref="ElevatorDoorDefinitions.DownwardsElevatorDelayFrames"/>). The ride's status and travel are kept. The skipped
 /// wait is gameplay-observable: the door, the room load and every later update come one wait earlier.
 /// </summary>
 /// <remarks>

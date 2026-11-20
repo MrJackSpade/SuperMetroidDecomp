@@ -89,7 +89,7 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     /// <summary>The burst of casual flames his mouth spits.</summary>
     public PhantoonCasualFlameBurst CasualFlames { get; } = new();
 
-    /// <summary>The flame waves his rage has sent, zero through eight; each rage starts from none.</summary>
+    /// <summary>The flame waves his rage has sent, up to <see cref="PhantoonRageDefinitions.WaveCount"/>; each rage starts from none.</summary>
     public int RageWaveCount { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>How far the fade on his body has run.</summary>

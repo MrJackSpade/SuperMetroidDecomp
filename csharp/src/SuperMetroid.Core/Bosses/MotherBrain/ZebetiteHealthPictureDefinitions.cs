@@ -3,8 +3,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The pictures each Zebetite form shows by its health (#2250), most health first: a barrier drains a step for every 200
-/// health it loses below 1000, the last picture showing everything below 200.
+/// The pictures each Zebetite form shows by its health (#2250), most health first: a barrier drains a step for each
+/// band of health it loses below <see cref="ZebetiteDefinitions.MaximumHealth"/>, the last picture showing everything in its lowest band.
 /// </summary>
 internal static class ZebetiteHealthPictureDefinitions
 {

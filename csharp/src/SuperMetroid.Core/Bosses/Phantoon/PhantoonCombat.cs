@@ -361,8 +361,8 @@ internal sealed class PhantoonCombat
 
         if (vulnerableWindow || swooping)
         {
-            // A single Super Missile (600 damage) skips ordinary round accumulation
-            // and enters the eight-wave rage sequence immediately.
+            // A single Super Missile skips ordinary round accumulation
+            // and enters the rage sequence immediately.
             if (damage >= PhantoonPatternDefinitions.RoundDamageThreshold &&
                 family == SamusProjectileFamily.SuperMissile)
             {

@@ -15,6 +15,9 @@ internal static class SamusDrainedAnimationDefinitions
     /// <summary>The drained pose the get-up starts from and moves on Up: the left-facing drained crouch.</summary>
     internal const SamusPoseId GetUpPose = SamusPoseId.DrainedCrouchingLeftPose;
 
+    /// <summary>The knockback Mother Brain's rainbow beam turns Samus to and locks her in: the left-facing knockback.</summary>
+    internal const SamusPoseId RainbowBeamKnockbackPose = SamusPoseId.KnockbackLeftPose;
+
     /// <summary>The held crouch's first frame after its landing, from which the crouch accepts Up once she can stand.</summary>
     internal static SamusAnimationPlace AbleToStandFirstFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedAbleToStandFirst, Held, 0);
     /// <summary>The held crouch's end, which the get-up moves the left-facing drained crouch to on Up once she can stand: its next frame starts the stand-up.</summary>

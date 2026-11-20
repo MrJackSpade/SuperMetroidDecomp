@@ -32,6 +32,13 @@ public sealed class SamusDrainedState
     public DrainedSamusPhase Phase { get; private set; }
 
     /// <summary>
+    /// Whether Samus in <paramref name="pose"/> is the knockback Mother Brain's rainbow beam locks her in, which silences the
+    /// hurt flash's impact.
+    /// </summary>
+    internal bool HoldsRainbowBeamKnockback(SamusPoseId pose) =>
+        Phase == DrainedSamusPhase.RainbowBeamLocked && pose == SamusDrainedAnimationDefinitions.RainbowBeamKnockbackPose;
+
+    /// <summary>
     /// The drained Samus's Hyper Beam glow colouring, or null until she receives the Hyper Beam (<see cref="EnableHyperBeam"/>).
     /// It animates the glow's colours independently of the earlier full-body rainbow colouring.
     /// </summary>

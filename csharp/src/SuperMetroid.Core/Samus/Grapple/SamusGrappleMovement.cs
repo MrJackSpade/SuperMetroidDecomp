@@ -703,9 +703,9 @@ public static class SamusGrappleMovement
                     throw new InvalidDataException($"Grapple reached spike block {block.Position} with no spike reaction ({block.Behavior}).");
                 if (spike.LetsGrappleBeamThrough)
                     return GrappleBlockReaction.Passes;
-                if (spike == SpikeReaction.TurretSpike)
+                if (SamusGrappleSpikeDefinitions.LatchingDamage.TryGetValue(spike, out EnergyAmount latchDamage))
                 {
-                    samus.PeriodicDamage.Accumulate(SpikeHazardDefinitions.GrappledTurretSpikeDamage);
+                    samus.PeriodicDamage.Accumulate(latchDamage);
                     return GrappleBlockReaction.Connects;
                 }
 

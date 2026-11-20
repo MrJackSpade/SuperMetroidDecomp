@@ -44,7 +44,7 @@ internal sealed class SamusPoseTransitionPhase
     internal void Apply(SamusControlFrame frame, SamusState samus, SamusTerrain terrain)
     {
         if (!_player.GroundedSamusMovementEnabled ||
-            frame.Mode.Movement is SamusMovementMode.Fatal or SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked)
+            !frame.Mode.Movement.AdmitsPoseUpdate)
             return;
 
         // The hit interruption sees the old movement type before the pose update, and its bomb rejection comes before

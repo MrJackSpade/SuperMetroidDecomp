@@ -30,17 +30,18 @@ public sealed class FileSelectMapNavigation
         if (!AreaIds.IsZebes(area))
             throw new ArgumentOutOfRangeException(nameof(area), area, "Only the six Zebes areas have world-map selections.");
         this.area = area;
+        ActiveWindow = new FileSelectMapWindow(area, labels);
         controller.Latch(initialHeldInput);
     }
 
     /// <summary>Gets the current mutually exclusive navigation or transition-request phase.</summary>
     public FileSelectMapNavigationPhase Phase { get; private set; } = FileSelectMapNavigationPhase.Area;
 
-    /// <summary>Gets the room-map window after preparation begins, or <see langword="null"/> on the area map.</summary>
-    public FileSelectMapWindow? Window { get; private set; }
-    /// <summary>The map window, which exists once the window phase starts.</summary>
-    public FileSelectMapWindow ActiveWindow => Window ??
-        throw new InvalidOperationException("The file-select map window has not been prepared.");
+    /// <summary>
+    /// The room map's window (#2554): the window phase builds it afresh from the labels bound then, and the map shows it from
+    /// then until the return to the area map.
+    /// </summary>
+    public FileSelectMapWindow ActiveWindow { get; private set; }
     /// <summary>Entry/fade owners consume controller samples without executing menu actions.</summary>
     public void LatchInputWithoutNavigation(ControllerButton heldInput) => controller.Latch(heldInput);
 
@@ -66,7 +67,7 @@ public sealed class FileSelectMapNavigation
                 else if (confirm) Phase = FileSelectMapNavigationPhase.PreparingWindow;
                 break;
             case FileSelectMapNavigationPhase.PreparingWindow:
-                Window = new FileSelectMapWindow(area, labels);
+                ActiveWindow = new FileSelectMapWindow(area, labels);
                 Phase = FileSelectMapNavigationPhase.ExpandingWindow;
                 break;
             case FileSelectMapNavigationPhase.ExpandingWindow:
@@ -96,7 +97,6 @@ public sealed class FileSelectMapNavigation
     {
         if (Phase != FileSelectMapNavigationPhase.AreaReturnRequested)
             throw new InvalidOperationException("No return-to-area transition is pending.");
-        Window = null;
         Phase = FileSelectMapNavigationPhase.Area;
     }
 }

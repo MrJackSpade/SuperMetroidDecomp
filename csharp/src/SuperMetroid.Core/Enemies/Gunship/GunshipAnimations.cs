@@ -25,7 +25,7 @@ internal static class GunshipAnimations
         ],
         [P.EntrancePadClosing] =
         [
-            .. PadParting.Reverse(),
+            .. Enumerable.Reverse(PadParting),
             Show(EnemyFrameId.GunshipEntrancePadRaised, 8),
             Show(EnemyFrameId.GunshipEntrancePadLifting, 8),
         ],

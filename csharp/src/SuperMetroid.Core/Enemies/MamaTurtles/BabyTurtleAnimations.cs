@@ -15,31 +15,8 @@ internal static class BabyTurtleAnimations
     internal static AnimationSegments<BabyTurtleSegment, EnemyFrameId, BabyTurtleCue> Segments { get; } = new(
         new Dictionary<BabyTurtleSegment, AnimationBeat<EnemyFrameId, BabyTurtleCue>[]>
     {
-        [P.CrawlingLeft] =
-        [
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReaching, 10),
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsPlanted, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsPushing, 10),
-        ],
-        [P.CrawlingLeftLegsTrailing] =
-        [
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReaching, 10),
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsLifting, 10),
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, 10),
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsLifting, 10),
-            Cue(new BabyTurtleCue(K.LoopOrTurnAround)),
-        ],
+        [P.CrawlingLeft] = Crawl(EnemyFrameId.TurtleBabyCrawlingLeftLegsTucked, EnemyFrameId.TurtleBabyCrawlingLeftLegsReaching, EnemyFrameId.TurtleBabyCrawlingLeftLegsPlanted, EnemyFrameId.TurtleBabyCrawlingLeftLegsPushing),
+        [P.CrawlingLeftLegsTrailing] = CrawlLegsTrailing(EnemyFrameId.TurtleBabyCrawlingLeftLegsTucked, EnemyFrameId.TurtleBabyCrawlingLeftLegsReaching, EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, EnemyFrameId.TurtleBabyCrawlingLeftLegsLifting, EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning),
         [P.Spinning] =
         [
             Show(EnemyFrameId.TurtleBabyShellTurned0, 1),
@@ -50,14 +27,7 @@ internal static class BabyTurtleAnimations
             Show(EnemyFrameId.TurtleBabyShellTurned270, 5),
             Cue(new BabyTurtleCue(K.SetSpinningStoppable)),
         ],
-        [P.HidingLeft] =
-        [
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, 5),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, 5),
-            Show(EnemyFrameId.TurtleBabyShellTurned0, 64),
-            Cue(new BabyTurtleCue(K.LeaveShell)),
-            Hold(EnemyFrameId.TurtleBabyShellTurned0),
-        ],
+        [P.HidingLeft] = Hiding(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, EnemyFrameId.TurtleBabyShellTurned0),
         [P.LeaveShell] =
         [
             Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, 5),
@@ -65,39 +35,9 @@ internal static class BabyTurtleAnimations
             Cue(new BabyTurtleCue(K.LeftShell)),
             Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, 47),
         ],
-        [P.CrawlingRight] =
-        [
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsReaching, 10),
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsPlanted, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsPushing, 10),
-        ],
-        [P.CrawlingRightLegsTrailing] =
-        [
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsReaching, 10),
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTrailing, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsLifting, 10),
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsReturning, 10),
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTrailing, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsLifting, 10),
-            Cue(new BabyTurtleCue(K.LoopOrTurnAround)),
-        ],
-        [P.HidingRight] =
-        [
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsReturning, 5),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTrailing, 5),
-            Show(EnemyFrameId.TurtleBabyShellTurned180, 64),
-            Cue(new BabyTurtleCue(K.LeaveShell)),
-            Hold(EnemyFrameId.TurtleBabyShellTurned180),
-        ],
+        [P.CrawlingRight] = Crawl(EnemyFrameId.TurtleBabyCrawlingRightLegsTucked, EnemyFrameId.TurtleBabyCrawlingRightLegsReaching, EnemyFrameId.TurtleBabyCrawlingRightLegsPlanted, EnemyFrameId.TurtleBabyCrawlingRightLegsPushing),
+        [P.CrawlingRightLegsTrailing] = CrawlLegsTrailing(EnemyFrameId.TurtleBabyCrawlingRightLegsTucked, EnemyFrameId.TurtleBabyCrawlingRightLegsReaching, EnemyFrameId.TurtleBabyCrawlingRightLegsTrailing, EnemyFrameId.TurtleBabyCrawlingRightLegsLifting, EnemyFrameId.TurtleBabyCrawlingRightLegsReturning),
+        [P.HidingRight] = Hiding(EnemyFrameId.TurtleBabyCrawlingRightLegsReturning, EnemyFrameId.TurtleBabyCrawlingRightLegsTrailing, EnemyFrameId.TurtleBabyShellTurned180),
     });
 
     /// <summary>The strides a crawl takes with its legs planting and pushing before its strides with them trailing (#2439).</summary>
@@ -120,6 +60,45 @@ internal static class BabyTurtleAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BabyTurtleSegment> StartingWith(BabyTurtleSegment segment) => StartingAt[segment];
+
+    /// <summary>A baby turtle's crawl over a facing's leg poses, <paramref name="legsTucked"/>, <paramref name="legsReaching"/>, <paramref name="legsPlanted"/>, <paramref name="legsPushing"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, BabyTurtleCue>[] Crawl(EnemyFrameId legsTucked, EnemyFrameId legsReaching, EnemyFrameId legsPlanted, EnemyFrameId legsPushing) =>
+    [
+        Cue(new BabyTurtleCue(K.Crawl)),
+        Show(legsTucked, 10),
+        Show(legsReaching, 10),
+        Cue(new BabyTurtleCue(K.Crawl)),
+        Show(legsPlanted, 10),
+        Show(legsPushing, 10),
+    ];
+
+    /// <summary>A baby turtle's crawl with its legs trailing, over a facing's leg poses, <paramref name="legsTucked"/>, <paramref name="legsReaching"/>, <paramref name="legsTrailing"/>, <paramref name="legsLifting"/>, <paramref name="legsReturning"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, BabyTurtleCue>[] CrawlLegsTrailing(EnemyFrameId legsTucked, EnemyFrameId legsReaching, EnemyFrameId legsTrailing, EnemyFrameId legsLifting, EnemyFrameId legsReturning) =>
+    [
+        Cue(new BabyTurtleCue(K.Crawl)),
+        Show(legsTucked, 10),
+        Show(legsReaching, 10),
+        Cue(new BabyTurtleCue(K.Crawl)),
+        Show(legsTrailing, 10),
+        Show(legsLifting, 10),
+        Cue(new BabyTurtleCue(K.Crawl)),
+        Show(legsTucked, 10),
+        Show(legsReturning, 10),
+        Cue(new BabyTurtleCue(K.Crawl)),
+        Show(legsTrailing, 10),
+        Show(legsLifting, 10),
+        Cue(new BabyTurtleCue(K.LoopOrTurnAround)),
+    ];
+
+    /// <summary>A baby turtle hiding in its shell over a facing's poses, <paramref name="legsReturning"/>, <paramref name="legsTrailing"/>, <paramref name="turtleBabyShell"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, BabyTurtleCue>[] Hiding(EnemyFrameId legsReturning, EnemyFrameId legsTrailing, EnemyFrameId turtleBabyShell) =>
+    [
+        Show(legsReturning, 5),
+        Show(legsTrailing, 5),
+        Show(turtleBabyShell, 64),
+        Cue(new BabyTurtleCue(K.LeaveShell)),
+        Hold(turtleBabyShell),
+    ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, BabyTurtleCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, BabyTurtleCue>.Frame(frame, duration);

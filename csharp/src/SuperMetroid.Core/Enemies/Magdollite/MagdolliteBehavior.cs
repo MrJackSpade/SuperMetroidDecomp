@@ -579,29 +579,20 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         // The follow-up reaches the two enemies listed after the part that was hit (FollowUpAfterStruckPart): a power
         // bomb also kills the rising body and the tracking overlay, whose follow-ups reach the enemies listed after the
         // Magdollite.
-        IReadOnlyList<RoomEnemyPlace?> recipients = _partners.Of(current).FollowUpRecipients;
-        RoomEnemyPlace? following = recipients[0];
-        RoomEnemyPlace? secondFollowing = recipients[1];
+        RoomEnemyPlace[] recipients = [.. _partners.Of(current).FollowUpRecipients.OfType<RoomEnemyPlace>()];
 
         if (current.Health == 0)
         {
-            if (following is not null)
-                following.Presence = following.Presence.With(EnemyPresence.Deleted);
-            if (secondFollowing is not null)
-                secondFollowing.Presence = secondFollowing.Presence.With(EnemyPresence.Deleted);
+            foreach (RoomEnemyPlace recipient in recipients)
+                recipient.Presence = recipient.Presence.With(EnemyPresence.Deleted);
         }
 
         if (current.Freeze.IsOver)
             return;
-        if (following is not null)
+        foreach (RoomEnemyPlace recipient in recipients)
         {
-            following.Freeze.Restart(current.Freeze.UpdatesLeft);
-            following.AiStates = following.AiStates | EnemyAiStates.Frozen;
-        }
-        if (secondFollowing is not null)
-        {
-            secondFollowing.Freeze.Restart(current.Freeze.UpdatesLeft);
-            secondFollowing.AiStates = secondFollowing.AiStates | EnemyAiStates.Frozen;
+            recipient.Freeze.Restart(current.Freeze.UpdatesLeft);
+            recipient.AiStates = recipient.AiStates | EnemyAiStates.Frozen;
         }
     }
 

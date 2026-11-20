@@ -150,7 +150,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGameplayPhas
     /// Begins the death fade: the whole gameplay display but Samus fades to black on the shared gradual colour change
     /// (#1512, <see cref="SamusDeathDefinitions.FadeParts"/>), so her suit stays lit as the game keeps it.
     /// </summary>
-    private void BeginDeathFade(LoadedGameplay live)
+    private static void BeginDeathFade(LoadedGameplay live)
     {
         live.Runtime.FadeOut.Begin(RgbColor.Black, SamusDeathDefinitions.FadeParts, GameplayFadeSpares.Samus);
     }
@@ -160,7 +160,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGameplayPhas
     /// further toward black, and the update after the shared counter passes the fade's last step completes the fade.
     /// </summary>
     /// <returns>Whether the fade completed on this update.</returns>
-    private bool StepDeathFade(LoadedGameplay live)
+    private static bool StepDeathFade(LoadedGameplay live)
     {
         return live.Runtime.FadeOut.Step();
     }

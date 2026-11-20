@@ -46,7 +46,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Owtch's current behaviour.</summary>
-    private void RunOwtchMain(RoomEnemyPlace place, OwtchEnemyState state)
+    internal void RunOwtchMain(RoomEnemyPlace place, OwtchEnemyState state)
     {
         switch (state.Behavior)
         {
@@ -176,12 +176,6 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Rejects = c => !OwtchAcceptsOrdinaryShot(state),
     };
-
-    /// <summary>Runs Owtch's main AI.</summary>
-    internal void RunOwtchMainAi(RoomEnemyPlace place, OwtchEnemyState state, IEnemyAiFrame _)
-    {
-        RunOwtchMain(place, state);
-    }
 
     /// <summary>Advances Owtch's typed animation.</summary>
     internal static void AdvanceOwtchTypedAnimation(RoomEnemyPlace place, OwtchEnemyState owtchEnemyState, EnemyAnimationCueContext _) =>

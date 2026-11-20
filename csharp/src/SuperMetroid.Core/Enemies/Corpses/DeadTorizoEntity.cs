@@ -9,10 +9,10 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyPlac
         IShowsCorpseRotRows
 {
     /// <summary>The enemy's own Power Bomb reaction, built over its state (#2554).</summary>
-    private EnemyPowerBombReaction OwnDeadTorizoPowerBombReaction => field ??= species.DeadTorizoPowerBombReactionOf(State);
+    private EnemyPowerBombReaction OwnDeadTorizoPowerBombReaction => field ??= DeadTorizoBehavior.DeadTorizoPowerBombReactionOf(State);
 
     /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
-    private EnemyShotReaction OwnDeadTorizoShotReaction => field ??= species.DeadTorizoShotReactionOf(State);
+    private EnemyShotReaction OwnDeadTorizoShotReaction => field ??= DeadTorizoBehavior.DeadTorizoShotReactionOf(State);
 
     /// <inheritdoc/>
     public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(State);

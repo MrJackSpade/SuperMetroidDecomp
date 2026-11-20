@@ -11,7 +11,7 @@ internal sealed class SparkEntity(SparkBehavior species, RoomEnemyPlace place, E
     internal SparkEnemyState State { get; } = SparkBehavior.InitializeSpark(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMain(Place, State);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SparkBehavior.AdvanceSparkTypedAnimation(Place, State, context);

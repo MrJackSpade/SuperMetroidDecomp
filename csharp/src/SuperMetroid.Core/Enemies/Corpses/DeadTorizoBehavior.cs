@@ -220,14 +220,14 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Starts corpse rotting on a power bomb without common damage handling.</summary>
     /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
-    internal EnemyPowerBombReaction DeadTorizoPowerBombReactionOf(DeadTorizoEnemyState state) => new()
+    internal static EnemyPowerBombReaction DeadTorizoPowerBombReactionOf(DeadTorizoEnemyState state) => new()
     {
         ReplacesCommon = c => TriggerDeadTorizoPowerBomb(c.Enemy, state),
     };
 
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
     /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
-    internal EnemyShotReaction DeadTorizoShotReactionOf(DeadTorizoEnemyState state) => new()
+    internal static EnemyShotReaction DeadTorizoShotReactionOf(DeadTorizoEnemyState state) => new()
     {
         // The dead corpses and Baby Metroid receive the projectile prelude but never an impact or vulnerability.
         // Its private reaction runs after the ordinary collision prelude but before common impact/vulnerability

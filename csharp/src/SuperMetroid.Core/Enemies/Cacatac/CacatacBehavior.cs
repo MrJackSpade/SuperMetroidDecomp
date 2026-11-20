@@ -78,7 +78,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a Cacatac for one update through its three actions.</summary>
-    private void RunCacatacMain(RoomEnemyPlace place, CacatacEnemyState state)
+    internal void RunCacatacMain(RoomEnemyPlace place, CacatacEnemyState state)
     {
         switch (state.Action)
         {
@@ -141,12 +141,6 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>A Cacatac spike (#1760): it flies by its direction's velocity until it leaves the camera.</summary>
     internal static readonly EnemyProjectileBehavior Spike = new SingleMotionProjectileBehavior(
         context => FlyCacatacSpike(context.Projectile, context.Camera));
-
-    /// <summary>Runs Cacatac's main AI.</summary>
-    internal void RunCacatacMainAi(RoomEnemyPlace place, CacatacEnemyState state, IEnemyAiFrame _)
-    {
-        RunCacatacMain(place, state);
-    }
 
     /// <summary>Advances Cacatac's typed animation.</summary>
     internal void AdvanceCacatacTypedAnimation(RoomEnemyPlace place, CacatacEnemyState cacatacEnemyState, EnemyAnimationCueContext _) =>

@@ -11,10 +11,10 @@ internal sealed class PoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnem
     : WorkRobotEntity(species, place, common)
 {
     /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
-    private EnemyBombReaction OwnPoweredWorkRobotBombReaction => field ??= Species.PoweredWorkRobotBombReactionOf(State);
+    private EnemyBombReaction OwnPoweredWorkRobotBombReaction => field ??= WorkRobotBehavior.PoweredWorkRobotBombReactionOf(State);
 
     /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
-    private EnemyShotReaction OwnWorkRobotShotReaction => field ??= Species.WorkRobotShotReactionOf(State);
+    private EnemyShotReaction OwnWorkRobotShotReaction => field ??= WorkRobotBehavior.WorkRobotShotReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal WorkRobotEnemyState State { get; } = species.InitializePoweredWorkRobot(place);

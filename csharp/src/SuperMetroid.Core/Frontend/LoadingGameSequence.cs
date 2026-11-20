@@ -75,6 +75,7 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPh
                 BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits,
                     GameLoadingCompletion.GameplayFadeIn);
                 break;
+            case GameDataLoadRoute.ZebesLanding:
             default:
                 throw new InvalidOperationException($"Undefined {nameof(GameDataLoadRoute)} {session.LoadingRoute}.");
         }

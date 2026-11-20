@@ -71,7 +71,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Fireflea's main AI, advancing circular angle or vertical travel.</summary>
-    private static void RunFirefleaMain(RoomEnemyPlace place, FirefleaEnemyState state)
+    internal static void RunFirefleaMain(RoomEnemyPlace place, FirefleaEnemyState state)
     {
         switch (state.Flight)
         {
@@ -142,12 +142,6 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyAnimationPlayback.Advance(place, firefleaEnemyState, FirefleaAnimations.Segments,
             static (FirefleaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Fireflea animation raised {cue}."));
-
-    /// <summary>Runs Fireflea's main AI.</summary>
-    internal static void RunFirefleaMainAi(RoomEnemyPlace place, FirefleaEnemyState state, IEnemyAiFrame _)
-    {
-        RunFirefleaMain(place, state);
-    }
 
     /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>
     internal EnemyPowerBombReaction FirefleaPowerBombReaction => field ??= new()

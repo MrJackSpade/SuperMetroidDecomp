@@ -73,7 +73,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Hibashi's main AI.</summary>
-    private void RunHibashiMain(RoomEnemyPlace place, HibashiEnemyState state)
+    internal void RunHibashiMain(RoomEnemyPlace place, HibashiEnemyState state)
     {
         switch (state.Action)
         {
@@ -161,10 +161,6 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The hitbox part the visible geyser found when it was placed; every room that has the geyser lists one right after it.</summary>
     private RoomEnemyPlace GetFollowingHibashiPart(RoomEnemyPlace flame) => _hitboxes.Of(flame);
-
-    /// <summary>Runs the flame's main AI.</summary>
-    internal void RunHibashiMainAi(RoomEnemyPlace place, HibashiEnemyState state, IEnemyAiFrame _) =>
-        RunHibashiMain(place, state);
 
     /// <summary>Advances the collision part's hitbox hold.</summary>
     internal static void AdvanceHibashiCollisionPartTypedAnimation(RoomEnemyPlace place, HibashiCollisionPartState hibashiCollisionPartState) =>

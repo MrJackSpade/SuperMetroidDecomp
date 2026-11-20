@@ -11,7 +11,7 @@ internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemyPl
     internal ChozoStatueState State { get; } = species.InitializeChozoStatue(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ChozoStatueBehavior.RunChozoStatueMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => ChozoStatueBehavior.RunChozoStatueMain(Place, State);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceChozoStatueTypedAnimation(Place, State, context);

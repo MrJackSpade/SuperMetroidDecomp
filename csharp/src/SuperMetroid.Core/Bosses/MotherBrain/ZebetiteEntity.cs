@@ -20,7 +20,7 @@ internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemyPlace pl
     internal ZebetiteEnemyState State { get; } = species.InitializeZebetite(place, setup);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunZebetiteMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunZebetiteMain(Place, State);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ZebetiteBehavior.AdvanceZebetiteAnimation(Place, State);

@@ -533,12 +533,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         BotwoonHeadAnimationSegment segment) =>
         state.HeadPlayback = EnemyAnimationPlayback.StartUnlessPlaying(head, state.HeadPlayback, BotwoonAnimations.HeadStartingWith(segment));
 
-    /// <summary>Advances Botwoon's typed animation.</summary>
-    internal void AdvanceBotwoonTypedAnimation(RoomEnemyPlace place, BotwoonEnemyState state, EnemyAnimationCueContext _)
-    {
-        AdvanceBotwoonHeadAnimation(place, state);
-    }
-
     /// <summary>
     /// Runs Botwoon's head animation where the shared enemy animation runs: the frame
     /// expires on the update its timer would, and the clock notes each newly shown frame
@@ -732,7 +726,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
     /// <summary>Routes bomb hits through the shared shot reaction without generic death animation.</summary>
     /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
-    internal EnemyBombReaction BotwoonBombReactionOf(BotwoonEnemyState state) => new()
+    internal static EnemyBombReaction BotwoonBombReactionOf(BotwoonEnemyState state) => new()
     {
         RunsGenericDeath = false,
         // Botwoon's shot reaction runs the common damage without the hit burst.
@@ -779,7 +773,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
     /// <summary>Applies power-bomb damage while preserving Botwoon's delayed death traversal.</summary>
     /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
-    internal EnemyPowerBombReaction BotwoonPowerBombReactionOf(BotwoonEnemyState state) => new()
+    internal static EnemyPowerBombReaction BotwoonPowerBombReactionOf(BotwoonEnemyState state) => new()
     {
         ExemptFromGenericDeath = true,
         AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, state),
@@ -787,7 +781,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
     /// <summary>Resolves the health bands and skips generic death on shot hits.</summary>
     /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
-    internal EnemyShotReaction BotwoonShotReactionOf(BotwoonEnemyState state) => new()
+    internal static EnemyShotReaction BotwoonShotReactionOf(BotwoonEnemyState state) => new()
     {
         ExemptFromGenericDeath = true,
         // Botwoon's shot reaction runs the common damage without the hit burst.

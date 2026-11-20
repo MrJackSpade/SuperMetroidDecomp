@@ -16,6 +16,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <param name="level">The flashback's collision room.</param>
 /// <param name="progression">The flashback's own progression, which its shots act on; the demo's shots never change the game's.</param>
 /// <param name="demoInput">The flashback's scripted controller input.</param>
+[RoomLifetime]
 internal sealed class IntroMotherBrainFlashback(
     SamusState samus,
     IntroMotherBrainSpriteState motherBrain,

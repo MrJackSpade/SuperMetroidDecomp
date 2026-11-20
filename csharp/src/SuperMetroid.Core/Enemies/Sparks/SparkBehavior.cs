@@ -62,7 +62,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the main step.</summary>
-    private void RunSparkMain(RoomEnemyPlace place, SparkEnemyState state)
+    internal void RunSparkMain(RoomEnemyPlace place, SparkEnemyState state)
     {
         switch (state.Action)
         {
@@ -118,12 +118,6 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Playback = new(SparkAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
-    }
-
-    /// <summary>Runs Spark's main AI.</summary>
-    internal void RunSparkMainAi(RoomEnemyPlace place, SparkEnemyState state, IEnemyAiFrame _)
-    {
-        RunSparkMain(place, state);
     }
 
     /// <summary>Advances Spark's typed animation.</summary>

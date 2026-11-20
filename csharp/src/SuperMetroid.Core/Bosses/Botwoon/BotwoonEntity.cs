@@ -10,13 +10,13 @@ internal sealed class BotwoonEntity(BotwoonBehavior species, RoomEnemyPlace plac
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
-    private EnemyBombReaction OwnBotwoonBombReaction => field ??= species.BotwoonBombReactionOf(State);
+    private EnemyBombReaction OwnBotwoonBombReaction => field ??= BotwoonBehavior.BotwoonBombReactionOf(State);
 
     /// <summary>The enemy's own Power Bomb reaction, built over its state (#2554).</summary>
-    private EnemyPowerBombReaction OwnBotwoonPowerBombReaction => field ??= species.BotwoonPowerBombReactionOf(State);
+    private EnemyPowerBombReaction OwnBotwoonPowerBombReaction => field ??= BotwoonBehavior.BotwoonPowerBombReactionOf(State);
 
     /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
-    private EnemyShotReaction OwnBotwoonShotReaction => field ??= species.BotwoonShotReactionOf(State);
+    private EnemyShotReaction OwnBotwoonShotReaction => field ??= BotwoonBehavior.BotwoonShotReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal BotwoonEnemyState State { get; } = species.InitializeBotwoon(place);
@@ -25,7 +25,7 @@ internal sealed class BotwoonEntity(BotwoonBehavior species, RoomEnemyPlace plac
     public void RunMainAi(IEnemyAiFrame frame) => species.RunBotwoonMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBotwoonTypedAnimation(Place, State, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBotwoonHeadAnimation(Place, State);
 
     /// <summary>Whether Botwoon's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

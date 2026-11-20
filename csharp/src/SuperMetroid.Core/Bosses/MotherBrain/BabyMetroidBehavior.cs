@@ -747,7 +747,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>
     /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
-    internal EnemyShotReaction BabyMetroidShotReactionOf(BabyMetroidEnemyState state) => new()
+    internal static EnemyShotReaction BabyMetroidShotReactionOf(BabyMetroidEnemyState state) => new()
     {
         // Like Dead Torizo, Baby Metroid receives the projectile prelude but never creates an impact or
         // enters vulnerability damage. Its own reaction converts shot strength and the first shot's aim into recoil.

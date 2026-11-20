@@ -140,11 +140,11 @@ public sealed class SuperMetroidGame
     internal PhaseGameplay MatchGameplay(IGamePhase phase)
     {
         Ensure.NotNull(phase);
-        return (phase.Need, Session.Runtime) switch
+        return phase.Need switch
         {
-            (PhaseGameplayNeed.Nothing, _) => PhaseGameplay.Frontend.Instance,
-            (PhaseGameplayNeed.Runtime, { } runtime) => new PhaseGameplay.OfRuntime(runtime),
-            (PhaseGameplayNeed.LoadedRoom, { Room.Occupancy: RoomOccupancy.Loaded room } runtime) =>
+            PhaseGameplayNeed.Nothing => PhaseGameplay.Frontend.Instance,
+            PhaseGameplayNeed.Runtime when Session.Runtime is { } runtime => new PhaseGameplay.OfRuntime(runtime),
+            PhaseGameplayNeed.LoadedRoom when Session.Runtime is { Room.Occupancy: RoomOccupancy.Loaded room } runtime =>
                 new PhaseGameplay.InRoom(new LoadedGameplay(runtime, room)),
             _ => throw new InvalidOperationException($"The {phase.Name} step runs on {phase.Need}, which the session has not loaded."),
         };
@@ -160,8 +160,8 @@ public sealed class SuperMetroidGame
         GamePhaseAudio phaseAudio = phase.Audio;
         bool publishesHeldInputAfterPause = phaseAudio == GamePhaseAudio.PublishesHeldInputAfterPause;
         // The runtime whose message box was open as the update began, or none when no box was open.
-        SuperMetroidRuntime? boxRuntime = Session.Runtime is { MessageBox.IsActive: true } openBoxRuntime ? openBoxRuntime : null;
-        bool messageWasActive = boxRuntime is not null;
+        bool messageWasActive = Session.Runtime is { MessageBox.IsActive: true };
+        SuperMetroidRuntime? boxRuntime = messageWasActive ? Session.Runtime : null;
         bool doorAudioUpdate = phaseAudio is GamePhaseAudio.DoorTransition or GamePhaseAudio.DoorTransitionSoundsDisabled;
         // Whether this update continues the door's destination load, and whether it leaves the load running, are read
         // before the phase steps.
@@ -189,15 +189,15 @@ public sealed class SuperMetroidGame
         AdvanceMenuRandom(phase, gameplay);
         if (Session.Runtime is not null)
             Session.Runtime.RunningGameState = Session.GameState;
-        switch (phase, gameplay)
+        switch (gameplay)
         {
-            case (IFrontendPhase frontend, PhaseGameplay.Frontend):
+            case PhaseGameplay.Frontend when phase is IFrontendPhase frontend:
                 frontend.Step(controllerInput);
                 break;
-            case (IRuntimePhase runtimePhase, PhaseGameplay.OfRuntime ofRuntime):
+            case PhaseGameplay.OfRuntime ofRuntime when phase is IRuntimePhase runtimePhase:
                 runtimePhase.Step(controllerInput, ofRuntime.Runtime);
                 break;
-            case (IGameplayPhase gameplayPhase, PhaseGameplay.InRoom inRoom):
+            case PhaseGameplay.InRoom inRoom when phase is IGameplayPhase gameplayPhase:
                 gameplayPhase.Step(controllerInput, inRoom.Live);
                 break;
             default:
@@ -366,9 +366,9 @@ public sealed class SuperMetroidGame
     internal void AdvanceMenuRandom(IGamePhase phase, PhaseGameplay gameplay)
     {
         Ensure.NotNull(phase);
-        switch (phase.RandomStep, gameplay)
+        switch (phase.RandomStep)
         {
-            case (PhaseRandomStep.Reseed, _):
+            case PhaseRandomStep.Reseed:
                 // Only power-on and soft reset reseed. A continued save must keep the value
                 // produced by gameplay and the game-over and file-map waiting updates.
                 Session.Random.SeedPowerOn();
@@ -378,16 +378,16 @@ public sealed class SuperMetroidGame
                 // not what it sees.
                 Session.Random.Generate();
                 break;
-            case (PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance, PhaseGameplay.InRoom { Live: var paused }):
+            case PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance when gameplay is PhaseGameplay.InRoom { Live: var paused }:
                 // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava or
                 // acid wave swaps the halves of the random number.
                 paused.Runtime.DoorTransition.AdvanceEffectsAndRandom(paused.Room.Scope, paused.Runtime.Player.Samus);
                 break;
-            case (PhaseRandomStep.Advance, _):
+            case PhaseRandomStep.Advance:
                 if (DisplayFrameWaitContinuation.DrawsRandom(PhaseIsWaitingOutDisplayFrame))
                     Session.Random.Generate();
                 break;
-            case (PhaseRandomStep.RuntimeOwned, _):
+            case PhaseRandomStep.RuntimeOwned:
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(PhaseRandomStep)} {phase.RandomStep} on {phase.Need}.");

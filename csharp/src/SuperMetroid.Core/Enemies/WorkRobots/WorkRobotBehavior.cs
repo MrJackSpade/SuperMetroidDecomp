@@ -297,7 +297,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Applies a powered robot's recoil after the bomb damage it takes, which it never rejects once powered.</summary>
     /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
-    internal EnemyBombReaction PoweredWorkRobotBombReactionOf(WorkRobotEnemyState state) => new()
+    internal static EnemyBombReaction PoweredWorkRobotBombReactionOf(WorkRobotEnemyState state) => new()
     {
         AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, state, c.Samus),
     };
@@ -334,7 +334,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The powered robot's shot reaction: the common damage, then its recoil.</summary>
     /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
-    internal EnemyShotReaction WorkRobotShotReactionOf(WorkRobotEnemyState state) => new()
+    internal static EnemyShotReaction WorkRobotShotReactionOf(WorkRobotEnemyState state) => new()
     {
         AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, state, c.Samus),
     };

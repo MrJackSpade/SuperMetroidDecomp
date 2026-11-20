@@ -117,7 +117,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// admits her only once Phantoon is defeated, which the game's wait tests again and always finds so. The animation does
     /// the rest.
     /// </summary>
-    private static void RunChozoStatueMain(RoomEnemyPlace statue, ChozoStatueState state)
+    internal static void RunChozoStatueMain(RoomEnemyPlace statue, ChozoStatueState state)
     {
         if (state.Phase != ChozoStatuePhase.HandTriggered)
             return;
@@ -277,12 +277,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void RequestChozoObject(ChozoStatueRoomObject roomObject, Position16<RoomBlocks> block) =>
         _passEvents.Publish(new ChozoStatueObjectAsked(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject)));
-
-    /// <summary>Runs ChozoStatue's main AI.</summary>
-    internal static void RunChozoStatueMainAi(RoomEnemyPlace place, ChozoStatueState state, IEnemyAiFrame _)
-    {
-        RunChozoStatueMain(place, state);
-    }
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>
     internal void AdvanceChozoStatueTypedAnimation(RoomEnemyPlace place, ChozoStatueState chozoStatueState, EnemyAnimationCueContext context) =>

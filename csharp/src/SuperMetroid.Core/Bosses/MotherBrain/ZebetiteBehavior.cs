@@ -106,7 +106,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the main step.</summary>
-    private void RunZebetiteMain(RoomEnemyPlace place, ZebetiteEnemyState state)
+    internal void RunZebetiteMain(RoomEnemyPlace place, ZebetiteEnemyState state)
     {
         if (!_earthquake.IsShaking)
             place.Shake.End();
@@ -279,12 +279,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
         AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy, state),
     };
-
-    /// <summary>Runs Zebetite's main AI.</summary>
-    internal void RunZebetiteMainAi(RoomEnemyPlace place, ZebetiteEnemyState state, IEnemyAiFrame _)
-    {
-        RunZebetiteMain(place, state);
-    }
 
     /// <summary>Runs shot damage, then shares it across the linked Zebetites' health, with no generic death.</summary>
     /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>

@@ -17,7 +17,7 @@ internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyPlace place, E
     internal OwtchEnemyState State { get; } = OwtchBehavior.InitializeOwtch(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMain(Place, State);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Place, State, context);

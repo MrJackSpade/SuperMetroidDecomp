@@ -49,9 +49,9 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         Ensure.NotNull(level);
         RoomBlockBehavior behavior = level.GetCollisionBlock(block).Behavior;
         // The touched block names the statue whose hand it is, if any (#2560).
-        ChozoStatueHand? hand =
-            _area == AreaId.WreckedShip && behavior == ChozoStatueRoomDefinitions.WreckedShipHandBehavior ? ChozoStatueHand.WreckedShip
-            : _area == AreaId.Norfair && behavior == ChozoStatueRoomDefinitions.LowerNorfairHandBehavior ? ChozoStatueHand.LowerNorfair
+        ChozoStatueSite? hand =
+            _area == AreaId.WreckedShip && behavior == ChozoStatueRoomDefinitions.WreckedShipHandBehavior ? ChozoStatueSite.WreckedShip
+            : _area == AreaId.Norfair && behavior == ChozoStatueRoomDefinitions.LowerNorfairHandBehavior ? ChozoStatueSite.LowerNorfair
             : null;
         if (hand is not { } statue) return;
         // The hand block is solid whether or not the touch is admitted. Samus morphed facing left is not admitted; only
@@ -61,7 +61,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
              SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose);
         // The Wrecked Ship statue admits Samus once its area's boss is defeated, the Lower Norfair one once she has the
         // Space Jump.
-        eligible &= statue == ChozoStatueHand.WreckedShip
+        eligible &= statue == ChozoStatueSite.WreckedShip
             ? _system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss)
             : samus.CollectedItems.HasAny(SamusEquipmentFlags.SpaceJump);
         // The check holds a place of its own while it runs, so the statue's objects it spawns take the places after it.

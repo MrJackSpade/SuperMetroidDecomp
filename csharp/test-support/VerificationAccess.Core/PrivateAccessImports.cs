@@ -641,7 +641,6 @@ global using static SuperMetroid.Core.Fx.FxOverlayPictureResolutionPrivateAccess
 global using static SuperMetroid.Core.Fx.FxOverlayPlanePrivateAccess;
 global using static SuperMetroid.Core.Fx.RoomBlockAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Fx.RoomColourEffectPrivateAccess;
-global using static SuperMetroid.Core.Fx.RoomEffectOverlayLookPrivateAccess;
 global using static SuperMetroid.Core.Fx.RoomFxOverlayStatePrivateAccess;
 global using static SuperMetroid.Core.Fx.RoomFxSelectionPrivateAccess;
 global using static SuperMetroid.Core.Fx.ScrollingSkyBandDefinitionsPrivateAccess;

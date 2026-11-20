@@ -182,7 +182,10 @@ internal static class TestOnlyMembers
         {
             Record(info.Symbol, site, access, reaches: true);
             foreach (ISymbol candidate in info.CandidateSymbols)
-                Record(candidate, site, access, reaches: info.CandidateReason == CandidateReason.Inaccessible);
+                // A check reaches a private candidate however its binding failed: it cannot see the member, so an unrelated
+                // extension of the same name made the failure an overload one (a private extension method's call).
+                Record(candidate, site, access, reaches: info.CandidateReason == CandidateReason.Inaccessible ||
+                    check && candidate.DeclaredAccessibility == Accessibility.Private);
         }
 
         // A check's member name that binds to nothing, for want of the private-access member that stood in for it, names the

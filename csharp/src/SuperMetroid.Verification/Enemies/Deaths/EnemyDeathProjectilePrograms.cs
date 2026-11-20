@@ -14,6 +14,6 @@ internal static class EnemyDeathProjectilePrograms
 
     /// <summary>The death or drop animation <paramref name="projectile"/> plays (#2061).</summary>
     internal static Animation<EnemyDeathAndDropSegment> AnimationOf(EnemyProjectile projectile) =>
-        projectile.Animation is EnemyDeathAndDropAnimation animation ? animation.Playback.Animation
+        projectile.Animation is EnemyDeathAndDropAnimation animation ? animation.PlaybackOf().Animation
             : throw new InvalidOperationException($"Projectile {projectile.Place} runs no death or drop program.");
 }

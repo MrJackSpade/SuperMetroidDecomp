@@ -44,8 +44,8 @@ internal sealed class NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEv
         if (animation is not EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> typed)
             return false;
         (Dictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyList<NativeCountedStart<TSegment>> counted) = Walk(cartridge);
-        typed.Playback = NativeEnemyAnimationOracle.WithNativePlaysLeft(
-            NativeEnemyAnimationOracle.PlaybackAt(lists, entries, startingAt, nativePointer, counted), nativeLoopCounter);
+        typed.SetPlayback(NativeEnemyAnimationOracle.WithNativePlaysLeft(
+            NativeEnemyAnimationOracle.PlaybackAt(lists, entries, startingAt, nativePointer, counted), nativeLoopCounter));
         return true;
     }
 

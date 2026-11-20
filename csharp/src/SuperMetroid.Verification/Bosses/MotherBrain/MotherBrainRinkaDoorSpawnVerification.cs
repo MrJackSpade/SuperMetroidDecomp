@@ -69,7 +69,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         AssertEqual(RoomDefinitions.MotherBrain, runtime.Room.LoadedRoom.Definition, "Samus is in Mother Brain's room");
 
         RoomEnemyPlace[] rinkas = runtime.Enemies.Places.InUpdateOrder
-            .Where(place => place.DefinitionId == EnemyDefinitionId.Rinka && place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint is not null)
+            .Where(place => place.DefinitionId == EnemyDefinitionId.Rinka && place.SpawnSettings<RinkaSpawnSettings>() is RinkaSpawnSettings.SharingPoints)
             .OrderBy(place => place.Ordinal)
             .ToArray();
         AssertEqual(3, rinkas.Length, "Mother Brain's room has three special Rinkas");
@@ -80,7 +80,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
             AssertEqual(expected[index].X, rinkas[index].Position.X.Whole, $"Rinka {index} X follows the loader's camera");
             AssertEqual(expected[index].Y, rinkas[index].Position.Y.Whole, $"Rinka {index} Y follows the loader's camera");
             // The point a Rinka moves to becomes the spawn point it respawns at; its population entry is never rewritten (#2256).
-            RinkaSpawnPoint point = rinkas[index].SpeciesState<RinkaEnemyState>()?.SpawnPoint
+            RinkaSpawnPoint point = rinkas[index].SpeciesState<RinkaEnemyState>()?.SharedSpawn?.SpawnPoint
                 ?? throw new InvalidOperationException($"Special Rinka {index} holds no spawn point.");
             AssertEqual(rinkas[index].Position.Whole, RinkaSpawnReservations.Centre(point), $"Rinka {index} respawns at the point it moved to");
             AssertEqual(populated[index], rinkas[index].Spawn.Population.Position, $"Rinka {index}'s population entry keeps its placement");

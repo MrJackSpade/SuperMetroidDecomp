@@ -43,10 +43,10 @@ internal static class TourianRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.Metroid, new(637, 116), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
         new(EnemyDefinitionId.Metroid, new(877, 146), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
         new(EnemyDefinitionId.Metroid, new(1197, 140), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
-        new(EnemyDefinitionId.Rinka, new(40, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(536, 216), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(1176, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(1128, 216), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
+        new(EnemyDefinitionId.Rinka, new(40, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(536, 216), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(1176, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(1128, 216), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
     ], 4);
 
     /// <summary>The enemy population of the Dust Torizo room.</summary>
@@ -77,9 +77,9 @@ internal static class TourianRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.MotherBrainBody, new(129, 111), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
         new(EnemyDefinitionId.MotherBrainHead, new(129, 111), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ZebetiteSpawnSettings(Half: ZebetiteHalf.Primary)),
-        new(EnemyDefinitionId.Rinka, new(823, 54), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: RinkaSpawnPoint.RightUpper)),
-        new(EnemyDefinitionId.Rinka, new(823, 166), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: RinkaSpawnPoint.RightLower)),
-        new(EnemyDefinitionId.Rinka, new(631, 28), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: RinkaSpawnPoint.CentreUpper)),
+        new(EnemyDefinitionId.Rinka, new(823, 54), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings.SharingPoints(RinkaSpawnPoint.RightUpper)),
+        new(EnemyDefinitionId.Rinka, new(823, 166), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings.SharingPoints(RinkaSpawnPoint.RightLower)),
+        new(EnemyDefinitionId.Rinka, new(631, 28), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings.SharingPoints(RinkaSpawnPoint.CentreUpper)),
     ], 0);
 
     /// <summary>The enemy population of the Tourian Eye Door room.</summary>
@@ -117,10 +117,10 @@ internal static class TourianRoomEnemyPopulationDefinitions
     internal static RoomEnemyPopulationDefinition Metroids2Default { get; } = new("Metroids2Default",
     [
         new(EnemyDefinitionId.Metroid, new(152, 277), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
-        new(EnemyDefinitionId.Rinka, new(152, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(216, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(216, 440), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(8, 328), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
+        new(EnemyDefinitionId.Rinka, new(152, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(216, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(216, 440), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(8, 328), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
         new(EnemyDefinitionId.Metroid, new(86, 394), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
     ], 2);
 
@@ -129,29 +129,29 @@ internal static class TourianRoomEnemyPopulationDefinitions
     [
         new(EnemyDefinitionId.Metroid, new(196, 338), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
         new(EnemyDefinitionId.Metroid, new(62, 251), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
-        new(EnemyDefinitionId.Rinka, new(152, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(152, 392), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(104, 296), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(248, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
+        new(EnemyDefinitionId.Rinka, new(152, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(152, 392), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(104, 296), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(248, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
         new(EnemyDefinitionId.Metroid, new(70, 446), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
     ], 3);
 
     /// <summary>The enemy population of the Metroids 1 room once the first Metroid hall is cleared.</summary>
     internal static RoomEnemyPopulationDefinition Metroids1WhenFirstMetroidHallCleared { get; } = new("Metroids1WhenFirstMetroidHallCleared",
     [
-        new(EnemyDefinitionId.Rinka, new(40, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(536, 216), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(1176, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(1128, 216), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
+        new(EnemyDefinitionId.Rinka, new(40, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(536, 216), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(1176, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(1128, 216), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
     ], 0);
 
     /// <summary>The enemy population of the Metroids 2 room once the first Metroid shaft is cleared.</summary>
     internal static RoomEnemyPopulationDefinition Metroids2WhenFirstMetroidShaftCleared { get; } = new("Metroids2WhenFirstMetroidShaftCleared",
     [
-        new(EnemyDefinitionId.Rinka, new(152, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(216, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(216, 440), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(8, 328), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
+        new(EnemyDefinitionId.Rinka, new(152, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(216, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(216, 440), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(8, 328), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
     ], 0);
 
     /// <summary>The enemy population of the Tourian Escape 2 room.</summary>
@@ -164,24 +164,24 @@ internal static class TourianRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Metroids 3 room once the second Metroid hall is cleared.</summary>
     internal static RoomEnemyPopulationDefinition Metroids3WhenSecondMetroidHallCleared { get; } = new("Metroids3WhenSecondMetroidHallCleared",
     [
-        new(EnemyDefinitionId.Rinka, new(264, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(24, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(40, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(232, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(440, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(616, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(616, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(1496, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(1464, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
+        new(EnemyDefinitionId.Rinka, new(264, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(24, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(40, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(232, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(440, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(616, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(616, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(1496, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(1464, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
     ], 0);
 
     /// <summary>The enemy population of the Metroids 4 room once the second Metroid shaft is cleared.</summary>
     internal static RoomEnemyPopulationDefinition Metroids4WhenSecondMetroidShaftCleared { get; } = new("Metroids4WhenSecondMetroidShaftCleared",
     [
-        new(EnemyDefinitionId.Rinka, new(152, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(152, 392), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(104, 296), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(248, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
+        new(EnemyDefinitionId.Rinka, new(152, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(152, 392), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(104, 296), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(248, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
     ], 0);
 
     /// <summary>The enemy population of the Tourian Escape 3 room.</summary>
@@ -217,23 +217,23 @@ internal static class TourianRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.Metroid, new(394, 129), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
         new(EnemyDefinitionId.Metroid, new(871, 119), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
         new(EnemyDefinitionId.Metroid, new(1130, 115), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
-        new(EnemyDefinitionId.Rinka, new(264, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(24, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(40, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(232, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(440, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(616, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(616, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(1496, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(1464, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
+        new(EnemyDefinitionId.Rinka, new(264, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(24, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(40, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(232, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(440, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(616, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(616, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(1496, 72), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(1464, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
     ], 3);
 
     /// <summary>The enemy population of the Rinka Shaft room.</summary>
     internal static RoomEnemyPopulationDefinition RinkaShaft { get; } = new("RinkaShaft",
     [
-        new(EnemyDefinitionId.Rinka, new(232, 440), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(232, 520), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
-        new(EnemyDefinitionId.Rinka, new(8, 584), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new RinkaSpawnSettings(SharedSpawnPoint: null)),
+        new(EnemyDefinitionId.Rinka, new(232, 440), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(232, 520), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
+        new(EnemyDefinitionId.Rinka, new(8, 584), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
     ], 0);
 
     /// <summary>The Tourian rooms' lists, in their authored order.</summary>

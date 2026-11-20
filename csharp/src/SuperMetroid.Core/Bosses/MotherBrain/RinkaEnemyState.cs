@@ -10,13 +10,14 @@ public sealed class RinkaEnemyState
 
     /// <summary>
     /// Starts the state in <paramref name="action"/>, playing the animation starting at <paramref name="animation"/>
-    /// (#2319), with the shared <paramref name="spawnPoint"/> a special Rinka starts at.
+    /// (#2319), spawning as <paramref name="spawning"/> says: a special Rinka shares Mother Brain's room's spawn points from
+    /// the one it starts at.
     /// </summary>
-    internal RinkaEnemyState(RinkaAction action, RinkaSegment animation, RinkaSpawnPoint? spawnPoint)
+    internal RinkaEnemyState(RinkaAction action, RinkaSegment animation, RinkaSpawnSettings spawning)
     {
         Action = action;
         Playback = Starting(animation);
-        SpawnPoint = spawnPoint;
+        SharedSpawn = Ensure.NotNull(spawning) is RinkaSpawnSettings.SharingPoints sharing ? new RinkaSharedSpawn(sharing.Start) : null;
     }
 
     /// <summary>The Rinka's animation starting at <paramref name="segment"/>, before its first play.</summary>
@@ -33,17 +34,10 @@ public sealed class RinkaEnemyState
     public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// The spawn point a special Mother Brain Rinka holds, which no other Rinka can take until it is released; null
-    /// when it holds none.
+    /// How a special Mother Brain Rinka shares the room's spawn points (#2256): the one it appears and respawns at, and the
+    /// one it holds. An ordinary Rinka, which returns to its own placement, shares none.
     /// </summary>
-    public RinkaSpawnPoint? HeldSpawnPoint { get; internal set; }
-
-    /// <summary>
-    /// The spawn point a special Mother Brain Rinka appears and respawns at (#2256): the one its spawn settings start it
-    /// at, then whichever it last reserved, kept while every point is held. Null for an ordinary Rinka, which returns to
-    /// its own placement.
-    /// </summary>
-    public RinkaSpawnPoint? SpawnPoint { get; internal set; }
+    public RinkaSharedSpawn? SharedSpawn { get; }
 
     /// <summary>The wait before the Rinka aims at Samus, which each life starts (#2253, #2572).</summary>
     public BossCountdown AimDelay { get; } = new();

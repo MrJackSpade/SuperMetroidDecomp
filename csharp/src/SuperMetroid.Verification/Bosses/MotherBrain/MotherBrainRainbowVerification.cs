@@ -191,7 +191,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     MotherBrainRainbowBeamAttackStepResult delay = attack.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 2));
     AssertEqual(MotherBrainRainbowPhase.StartDrainingSamus, attack.Encounter.RainbowPhase,
         "zero delay timer underflows and schedules drain initializer");
-    AssertEqual<MotherBrainEarthquakeRequest?>(new(MotherBrainDeathDefinitions.RainbowBeamEarthquake, 8), delay.Earthquake,
+    AssertEqual<MotherBrainEarthquakeRequest?>(new(MotherBrainDeathDefinitions.RainbowBeamEarthquake, new MotherBrainEarthquakeLength.Lasting(8)), delay.Earthquake,
         "delay underflow starts the rainbow beam's strong diagonal foreground earthquake for eight frames");
 
     int drainCalls = 0;

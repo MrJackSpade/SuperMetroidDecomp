@@ -69,7 +69,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets a Rinka up when the room spawns it.</summary>
     internal void InitializeRinka(RoomEnemyPlace place)
     {
-        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, LifeAnimation(place), place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint);
+        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, LifeAnimation(place), place.SpawnSettings<RinkaSpawnSettings>());
         place.SetSpeciesState(state);
 
         // Every Rinka starts animating and untouchable. Mother Brain's Rinkas also run off-screen and never respawn;
@@ -109,8 +109,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             ReserveSpecialRinkaSpawn(place, state);
 
         // A special Rinka returns to its spawn point, the one it last reserved; an ordinary Rinka to its own placement.
-        place.Position = place.Position.WithWhole(state.SpawnPoint is { } point
-            ? RinkaSpawnReservations.Centre(point)
+        place.Position = place.Position.WithWhole(state.SharedSpawn is { } shared
+            ? RinkaSpawnReservations.Centre(shared.SpawnPoint)
             : place.Spawn.Population.Position);
         InitializeRinkaLife(place, state);
     }
@@ -306,25 +306,25 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void ReserveSpecialRinkaSpawn(RoomEnemyPlace place, RinkaEnemyState state)
     {
-        RinkaSpawnPoint own = state.SpawnPoint ?? throw new InvalidOperationException(
+        RinkaSharedSpawn shared = state.SharedSpawn ?? throw new InvalidOperationException(
             $"Special Rinka {place.Ordinal} has no spawn point to reserve.");
         // Every point being held is a real failure path: the Rinka keeps its place and its spawn point.
-        if (_spawnReservations.Reserve(own, _rinkaCamera) is not { } reserved)
+        if (_spawnReservations.Reserve(shared.SpawnPoint, _rinkaCamera) is not { } reserved)
             return;
 
-        state.SpawnPoint = reserved;
-        state.HeldSpawnPoint = reserved;
+        shared.SpawnPoint = reserved;
+        shared.HeldSpawnPoint = reserved;
         place.Position = place.Position.WithWhole(RinkaSpawnReservations.Centre(reserved));
     }
 
     /// <summary>Releases the spawn point a special Rinka holds, if it holds one.</summary>
     private void ReleaseSpecialRinkaSpawn(RinkaEnemyState state)
     {
-        if (state.HeldSpawnPoint is not { } held)
+        if (state.SharedSpawn is not { HeldSpawnPoint: { } held } shared)
             return;
 
         _spawnReservations.Release(held);
-        state.HeldSpawnPoint = null;
+        shared.HeldSpawnPoint = null;
     }
 
     /// <summary>The Rinka's flight rectangle: the screen widened by its flight margin on every side. A Rinka flown above or left of the room lies outside it.</summary>
@@ -342,7 +342,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Distinguishes Mother Brain's parameterized spawn-sharing actors from ordinary room Rinkas.</summary>
-    private static bool IsSpecialRinka(RoomEnemyPlace place) => place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint is not null;
+    private static bool IsSpecialRinka(RoomEnemyPlace place) => place.SpawnSettings<RinkaSpawnSettings>() is RinkaSpawnSettings.SharingPoints;
 
     /// <summary>Rinka's reaction to a bomb: the common damage without the generic death, then, when the hit kills it, Rinka's own death.</summary>
     internal EnemyBombReaction RinkaBombReaction => field ??= new()

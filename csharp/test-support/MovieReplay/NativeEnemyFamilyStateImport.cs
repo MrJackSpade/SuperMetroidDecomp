@@ -716,10 +716,16 @@ internal static class NativeEnemyFamilyStateImport
             if (words.A != 0)
                 rinkaRecord.Action = MotherBrainNativeWords.RinkaActions.Decode(words.A, "recorded RinkaAction");
             rinkaRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
-            rinkaRecord.HeldSpawnPoint = words.D == 0 ? null : MotherBrainNativeWords.RinkaSpawnPoints.Decode(words.D, "recorded RinkaSpawnPoint");
-            // A special Rinka holding a point was placed at it, which makes it the point it respawns at (#2256).
-            if (rinkaRecord.HeldSpawnPoint is { } heldPoint)
-                rinkaRecord.SpawnPoint = heldPoint;
+            // A zero word holds no point; a special Rinka holding a point was placed at it, which makes it the point it
+            // respawns at (#2256). An ordinary Rinka shares no points, so it holds none.
+            if (rinkaRecord.SharedSpawn is { } shared)
+            {
+                shared.HeldSpawnPoint = words.D == 0 ? null : MotherBrainNativeWords.RinkaSpawnPoints.Decode(words.D, "recorded RinkaSpawnPoint");
+                if (shared.HeldSpawnPoint is { } heldPoint)
+                    shared.SpawnPoint = heldPoint;
+            }
+            else if (words.D != 0)
+                throw new InvalidDataException($"An ordinary Rinka's record holds spawn point word ${words.D:X4}.");
             // The record's one wait is the respawn delay while the Rinka waits to respawn, and its aim delay otherwise.
             (rinkaRecord.Action == RinkaAction.DeathRespawnDelay ? rinkaRecord.RespawnDelay : rinkaRecord.AimDelay)
                 .SetCartridgeCount(CoordinateAxis.AsSigned(words.F));

@@ -368,8 +368,7 @@ internal static class EnemyDropsVerification
         samus.Health = 50;
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
 
-        ushort enemyHeader = TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
-        SeedEnemyDropChancePointer(fixture.Bus, enemyHeader);
+        SeedStandInDropper(fixture.Bus);
         RoomEnemyPlace enemy = fixture.System.Places.InUpdateOrder[0];
         enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
@@ -464,13 +463,21 @@ internal static class EnemyDropsVerification
     }
 
     /// <summary>
-    /// Points the synthetic bank-$A0 enemy definition at <paramref name="enemyHeader"/> (its
-    /// drop-chance pointer field, definition byte 58) at the native first drop-chance table,
-    /// and seeds that table's six chances, which the import decodes.
+    /// Seeds the synthetic bank-$A0 header of the stand-in (<see cref="EnemyPlaceFixtures.StandIn"/>), which a check kills
+    /// for its drop, as the import decodes it. Its bank byte (definition byte 12) and its touch and shot words (bytes 48 and
+    /// 50) are the retail header's: the engine's shared return in the stand-in's bank, so they decode to the ignoring
+    /// reaction its compiled definition names; a zero word would name the species' own reaction instead, which the stand-in
+    /// has none of (#2589). Its drop-chance pointer (byte 58) selects the native first drop-chance table, whose six chances
+    /// are seeded.
     /// </summary>
-    internal static void SeedEnemyDropChancePointer(TestAddressSpace bus, ushort enemyHeader)
+    internal static void SeedStandInDropper(TestAddressSpace bus)
     {
-        WriteTestWord(bus, 0xa00000 | (enemyHeader + 58), SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances);
+        int header = 0xa00000 | TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
+        ushort sharedReturn = SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankA0.NoOp.Offset;
+        WriteTestByte(bus, header + 12, SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankAA.Bank);
+        WriteTestWord(bus, header + 48, sharedReturn);
+        WriteTestWord(bus, header + 50, sharedReturn);
+        WriteTestWord(bus, header + 58, SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances);
         NativeDropChances.Deconstruct(out int small, out int big, out int missile, out int nothing, out int super, out int powerBomb);
         bus.WriteBytes(SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.TableBank | SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances,
             [(byte)small, (byte)big, (byte)missile, (byte)nothing, (byte)super, (byte)powerBomb]);

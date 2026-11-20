@@ -408,14 +408,14 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
     /// <exception cref="InvalidOperationException">The animation has no phase, or its last beat is no frame.</exception>
-    internal TFrame ShowLastFrame(Animation<TSegment> animation, int updates)
+    internal void ShowLastFrame(Animation<TSegment> animation, int updates)
     {
         Ensure.NotNull(animation);
         if (animation.Phases.Count == 0)
             throw new InvalidOperationException("An animation of no phase has no last frame.");
         int last = animation.Phases.Count - 1;
         AnimationPhase<TSegment> lastPhase = animation.Phases[last];
-        return ShowAt(animation, new AnimationPlace(last, lastPhase.BeatCount - 1).WithPlaysLeft(lastPhase.IsRepeated ? 1 : 0), updates);
+        _ = ShowAt(animation, new AnimationPlace(last, lastPhase.BeatCount - 1).WithPlaysLeft(lastPhase.IsRepeated ? 1 : 0), updates);
     }
 
     /// <summary>

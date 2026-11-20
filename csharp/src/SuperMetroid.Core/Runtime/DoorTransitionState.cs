@@ -52,15 +52,28 @@ internal sealed class DoorTransitionState
     public bool LeavesDestinationLoadRunning =>
         Phase is DoorTransitionPhase.LoadDestinationRoom or DoorTransitionPhase.WaitForDoorOpeningScroll;
 
-    /// <summary>Captures the door Samus entered and starts the ordinary-room transition sequence.</summary>
-    /// <param name="runtime">The runtime whose entered door, player, colour, and enemy state are prepared.</param>
+    /// <summary>Samus has entered <paramref name="door"/>: the next transition to begin goes through it.</summary>
+    /// <param name="door">The door the game decided the transition with.</param>
+    /// <exception cref="InvalidOperationException">A door transition is already under way.</exception>
+    public void Enter(DoorDefinition door)
+    {
+        Ensure.NotNull(door);
+        if (IsActive)
+            throw new InvalidOperationException("A door transition is already active.");
+        stage = new DoorTransitionStage.DoorEntered(door, stage is DoorTransitionStage.DoorEntered previous ? previous.EnteredFrom : stage);
+    }
+
+    /// <summary>Starts the ordinary-room transition sequence through the door Samus entered.</summary>
+    /// <param name="runtime">The runtime whose player, colour, and enemy state are prepared.</param>
+    /// <exception cref="InvalidOperationException">No door was entered since the last transition, or one is under way.</exception>
     public void Begin(SuperMetroidRuntime runtime)
     {
         Ensure.NotNull(runtime);
-        DoorDefinition door = runtime.Room.LoadedScope.RoomObjects.DoorContacts.EnteredDoor
-            ?? throw new InvalidOperationException("A door transition requires a door Samus entered.");
-        if (IsActive)
-            throw new InvalidOperationException("A door transition is already active.");
+        if (stage is not DoorTransitionStage.DoorEntered entered)
+            throw new InvalidOperationException(IsActive
+                ? "A door transition is already active."
+                : "A door transition goes through the door the game entered it with.");
+        DoorDefinition door = entered.Door;
 
         SamusState samus = runtime.Player.Samus;
         runtime.Hud.EnableMinimapAfterDoorEntry();

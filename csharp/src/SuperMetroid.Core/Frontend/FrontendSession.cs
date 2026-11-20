@@ -13,6 +13,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World.RoomStates;
@@ -323,6 +324,13 @@ internal sealed class FrontendSession
     {
         Enter(Phases.LoadingGame);
         LoadingRoute = route;
+    }
+
+    /// <summary>Enters the door transition through <paramref name="door"/>, the door Samus entered, as she reaches it.</summary>
+    internal void EnterDoor(DoorDefinition door)
+    {
+        Enter(DoorTransitionStep.EnteringDoor);
+        doorTransition.Enter(door);
     }
 
     /// <summary>Enters the door transition at <paramref name="step"/>.</summary>

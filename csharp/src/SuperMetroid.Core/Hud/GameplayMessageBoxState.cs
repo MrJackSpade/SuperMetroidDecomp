@@ -48,11 +48,6 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// <summary>The controller bindings when the message began, whose Shoot or Dash button a panel's glyph shows.</summary>
     private ControllerBindings _bindings;
 
-    /// <summary>What the message the box shows asks the player to confirm.</summary>
-    /// <exception cref="InvalidOperationException">The box shows no message.</exception>
-    private GameplayMessageConfirmation Confirmation => ConfirmationOf(
-        MessageId ?? throw new InvalidOperationException("An active message box shows a message."));
-
     /// <summary>Whether the box currently pauses gameplay and owns the message window.</summary>
     public bool IsActive => Phase != GameplayMessageBoxPhase.Inactive;
 
@@ -150,6 +145,14 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// </returns>
     public MessageBoxStep Step(ControllerButton controllerInput)
     {
+        // A box that shows no message is inactive, and its update does nothing; every other step runs on the message the
+        // box shows, which its showing set and its finish clears together with the box's phase.
+        if (MessageId is not { } message)
+        {
+            LastFrameAudio = default;
+            return MessageBoxStep.NothingAsked.Instance;
+        }
+
         // Each update of the box processes music and sound once, unless noted below.
         LastFrameAudio = MessageBoxFrameAudio.MusicAndSounds;
 
@@ -175,7 +178,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                 RadiusPixels = _nextRadiusPixels;
                 if (RadiusPixels == GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels)
                 {
-                    if (Confirmation != GameplayMessageConfirmation.None)
+                    if (ConfirmationOf(message) != GameplayMessageConfirmation.None)
                     {
                         MinimumDisplay = UpdateCountdown.Ended();
                         _saveChoiceInput.Begin();
@@ -184,7 +187,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     else
                     {
                         MinimumDisplay = UpdateCountdown.Lasting(Ensure.Listed(GameplayMessageBoxDefinitions.Timing.MinimumDisplayFrames,
-                            MessageId ?? throw new InvalidOperationException("An opening message box shows a message.")));
+                            message));
                         Phase = GameplayMessageBoxPhase.MinimumDisplay;
                     }
                 }
@@ -198,7 +201,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                 return MessageBoxStep.NothingAsked.Instance;
 
             case GameplayMessageBoxPhase.AwaitingInput:
-                if (Confirmation != GameplayMessageConfirmation.None)
+                if (ConfirmationOf(message) != GameplayMessageConfirmation.None)
                 {
                     switch (_saveChoiceInput.Advance())
                     {
@@ -219,9 +222,9 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     // neither moves the two-choice cursor.
                     ControllerButton newlyPressed = _controller.NewlyPressed;
                     if ((newlyPressed & ControllerButton.A) != ControllerButton.None)
-                        return Answer(ConfirmationSelection);
+                        return Answer(message, ConfirmationSelection);
                     if ((newlyPressed & ControllerButton.B) != ControllerButton.None)
-                        return Answer(SaveChoice.No);
+                        return Answer(message, SaveChoice.No);
                     ControllerButton horizontal = newlyPressed & (ControllerButton.Left | ControllerButton.Right | ControllerButton.Select);
                     if (horizontal != ControllerButton.None)
                     {
@@ -234,7 +237,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                 // An ordinary message closes on any held button, not a new press.
                 // This is observable when a player begins holding a button during the
                 // mandatory item fanfare.
-                return controllerInput != ControllerButton.None ? BeginClosing() : MessageBoxStep.NothingAsked.Instance;
+                return controllerInput != ControllerButton.None ? BeginClosing(message) : MessageBoxStep.NothingAsked.Instance;
 
             case GameplayMessageBoxPhase.GunshipSavingSound:
                 if (_savingWait.StepEnds())
@@ -247,7 +250,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                 return MessageBoxStep.NothingAsked.Instance;
 
             case GameplayMessageBoxPhase.Closing:
-                return StepClosing();
+                return StepClosing(message);
 
             default:
                 throw new InvalidDataException($"Unknown gameplay message phase {Phase}.");
@@ -255,31 +258,31 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     }
 
     /// <summary>Accepts a confirmation's <paramref name="answer"/> and begins closing its window.</summary>
-    private MessageBoxStep Answer(SaveChoice answer)
+    private MessageBoxStep Answer(GameplayMessageId message, SaveChoice answer)
     {
         _answer = answer;
-        return BeginClosing();
+        return BeginClosing(message);
     }
 
     /// <summary>Accepts the interaction; the window's first closing step runs in the same update.</summary>
-    private MessageBoxStep BeginClosing()
+    private MessageBoxStep BeginClosing(GameplayMessageId message)
     {
         _nextRadiusPixels = GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels;
         Phase = GameplayMessageBoxPhase.Closing;
-        return StepClosing();
+        return StepClosing(message);
     }
 
     /// <summary>
     /// Publishes one shrinking window radius, then selects restoration or the gunship saving wait, whose saving sound
     /// starts on the update that selects it.
     /// </summary>
-    private MessageBoxStep StepClosing()
+    private MessageBoxStep StepClosing(GameplayMessageId message)
     {
         RadiusPixels = _nextRadiusPixels;
         _nextRadiusPixels -= GameplayMessageBoxDefinitions.Timing.RadiusStepPixels;
         if (_nextRadiusPixels >= 0)
             return MessageBoxStep.NothingAsked.Instance;
-        if (Confirmation == GameplayMessageConfirmation.SaveThenCompletionNotice && _answer == SaveChoice.Yes)
+        if (ConfirmationOf(message) == GameplayMessageConfirmation.SaveThenCompletionNotice && _answer == SaveChoice.Yes)
         {
             // The accepted gunship save pauses one update after closing, then waits out the saving sound.
             Phase = GameplayMessageBoxPhase.GunshipSavingSound;

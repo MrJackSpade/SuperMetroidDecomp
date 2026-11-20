@@ -349,12 +349,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// Whether the landed ship bobs before running <paramref name="phase"/>: every phase from waiting for the
     /// landing entrance through waiting for the engines, Idle among them; firing up the engines is the first that does not.
     /// </summary>
-    private static bool BobsWhileLanded(GunshipPhase phase) => phase is
-        GunshipPhase.WaitForLandingEntranceToOpen or GunshipPhase.EjectSamus or GunshipPhase.FinishLanding or
-        GunshipPhase.Idle or GunshipPhase.WaitForEntranceToOpen or GunshipPhase.LowerSamus or
-        GunshipPhase.WaitForEntranceToClose or GunshipPhase.BeginLiftoffOrRestoreSamus or
-        GunshipPhase.HandleSaveConfirmation or GunshipPhase.WaitForExitPadToOpen or GunshipPhase.RaiseSamus or
-        GunshipPhase.FinishSamusExit or GunshipPhase.WaitForEngines;
+    private static bool BobsWhileLanded(GunshipPhase phase) => GunshipPhaseDefinitions.BobbingWhileLanded.Contains(phase);
 
     /// <summary>Cycles the four idle-bob phases while moving the hull and pad together.</summary>
     private static void StepGunshipBob(RoomEnemyPlace top)

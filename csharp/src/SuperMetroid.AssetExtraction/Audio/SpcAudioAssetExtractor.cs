@@ -261,7 +261,7 @@ public static class SpcAudioAssetExtractor
     }
 
     /// <summary>Builds an exact finite PCM prefix and recurring loop from BRR predictor states.</summary>
-    internal static bool TryDecodeBrr(
+    private static bool TryDecodeBrr(
         byte[] ram,
         bool[] written,
         int start,

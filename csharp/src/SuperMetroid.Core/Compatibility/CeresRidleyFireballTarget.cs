@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Compatibility;
 internal static class CeresRidleyFireballTarget
 {
     /// <summary>The largest jitter either way, in pixels.</summary>
-    internal const int LargestJitter = 7;
+    private const int LargestJitter = 7;
 
     /// <summary>
     /// The point <paramref name="jitter"/> selects around <paramref name="basePosition"/>: moved by the jitter on both

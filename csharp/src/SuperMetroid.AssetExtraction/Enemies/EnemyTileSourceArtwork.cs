@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 public sealed class EnemyTileSourceArtwork
 {
     /// <summary>Each enemy's installed characters, by definition.</summary>
-    internal readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
+    private readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
 
     /// <summary>Each enemy's installed palette, by definition.</summary>
     private readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
@@ -28,7 +28,7 @@ public sealed class EnemyTileSourceArtwork
     private readonly Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet> unplacedPalettes;
 
     /// <summary>Copies installed artwork, rejecting a sheet without its palette.</summary>
-    internal EnemyTileSourceArtwork(EnemyTileArtworkParts parts)
+    private EnemyTileSourceArtwork(EnemyTileArtworkParts parts)
     {
         RejectUnpaired(parts);
         sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
@@ -40,15 +40,16 @@ public sealed class EnemyTileSourceArtwork
         ChozoAndTubeColors = parts.ChozoAndTubeColors;
         DachoraColors = parts.DachoraColors;
         AuxiliaryColors = parts.AuxiliaryColors;
-        _spritemaps = parts.Spritemaps;
-        _extendedFrames = parts.ExtendedFrames;
-        BindFrameDisplays();
+        Spritemaps = parts.Spritemaps;
+        ExtendedFrames = parts.ExtendedFrames;
+        FrameDisplays = Spritemaps is { } spritemaps && ExtendedFrames is { } extended
+            ? InstalledEnemyFrameDisplays.Of(spritemaps, extended).Displays() : null;
         GunshipLiftoff = parts.GunshipLiftoff;
         ProjectileSpritemaps = parts.ProjectileSpritemaps;
     }
 
     /// <summary>Finds the installed palette of <paramref name="enemy"/>.</summary>
-    internal bool TryGetPalette(EnemyDefinitionId enemy, [NotNullWhen(true)] out EnemyPaletteSheet? palette) =>
+    private bool TryGetPalette(EnemyDefinitionId enemy, [NotNullWhen(true)] out EnemyPaletteSheet? palette) =>
         palettes.TryGetValue(enemy, out palette);
 
     /// <summary>The installed palette of <paramref name="enemy"/>.</summary>
@@ -75,47 +76,17 @@ public sealed class EnemyTileSourceArtwork
     internal bool TryGetSheet(EnemyDefinitionId enemy, [NotNullWhen(true)] out RoomCharacterAtlas? sheet) =>
         sheets.TryGetValue(enemy, out sheet);
 
-    /// <summary>The installed ordinary enemy compositions.</summary>
-    private EnemySpritemapCatalog? _spritemaps;
+    /// <summary>Installed visual-only OAM frames; null for constructed legacy fixtures.</summary>
+    public EnemySpritemapCatalog? Spritemaps { get; }
 
-    /// <summary>The installed extended frame compositions.</summary>
-    private EnemyExtendedFrameCatalog? _extendedFrames;
-
-    /// <summary>Installed visual-only OAM frames; null for constructed legacy fixtures. Replacing them rebuilds <see cref="FrameDisplays"/>.</summary>
-    public EnemySpritemapCatalog? Spritemaps
-    {
-        get => _spritemaps;
-        internal set
-        {
-            _spritemaps = value;
-            BindFrameDisplays();
-        }
-    }
-
-    /// <summary>
-    /// Installed extended frame compositions the sheet composer composes the frames' whole pictures from. Replacing them
-    /// rebuilds <see cref="FrameDisplays"/>.
-    /// </summary>
-    public EnemyExtendedFrameCatalog? ExtendedFrames
-    {
-        get => _extendedFrames;
-        internal set
-        {
-            _extendedFrames = value;
-            BindFrameDisplays();
-        }
-    }
+    /// <summary>Installed extended frame compositions the sheet composer composes the frames' whole pictures from.</summary>
+    public EnemyExtendedFrameCatalog? ExtendedFrames { get; }
 
     /// <summary>
     /// Every installed enemy frame as gameplay draws it, built from both enemy frame documents; null for constructed
     /// fixtures that install only one of them.
     /// </summary>
-    public SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays? FrameDisplays { get; private set; }
-
-    /// <summary>Builds <see cref="FrameDisplays"/> from the two installed enemy frame documents, none while either is missing.</summary>
-    private void BindFrameDisplays() =>
-        FrameDisplays = _spritemaps is { } spritemaps && _extendedFrames is { } extended
-            ? InstalledEnemyFrameDisplays.Of(spritemaps, extended).Displays() : null;
+    public SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays? FrameDisplays { get; }
 
     /// <summary>Five editable gunship takeoff character uploads; null for constructed fixtures.</summary>
     public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; }

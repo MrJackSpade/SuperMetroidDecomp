@@ -68,7 +68,7 @@ internal sealed class RoomBlockComposition
     /// tables compose them.
     /// </summary>
     /// <exception cref="InvalidDataException">The compositions are not whole blocks.</exception>
-    internal static BackgroundTile[] StockTiles(RoomMetatileCatalog metatiles, RoomBlockSet set, bool ceres)
+    private static BackgroundTile[] StockTiles(RoomMetatileCatalog metatiles, RoomBlockSet set, bool ceres)
     {
         Ensure.NotNull(metatiles);
         // $82:E7D3 installs a Ceres tileset directly at the start of the block table: unlike Zebes rooms, area six does

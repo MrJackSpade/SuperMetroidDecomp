@@ -140,14 +140,14 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs the jumping animation and starts the hop along the chosen heading.</summary>
-    internal static void StartHopperJump(RoomEnemyPlace place, HopperEnemyState state)
+    private static void StartHopperJump(RoomEnemyPlace place, HopperEnemyState state)
     {
         SetHopperAnimation(place, state, ReadHopperAnimation(place, state, HopperPhase.Jumping));
         state.Action = HopperAction.HoppingAway;
     }
 
     /// <summary>Starts the landed animation and returns the actor to its wait-for-hop action.</summary>
-    internal static void LandHopper(RoomEnemyPlace place, HopperEnemyState state)
+    private static void LandHopper(RoomEnemyPlace place, HopperEnemyState state)
     {
         SetHopperAnimation(place, state, ReadHopperAnimation(place, state, HopperPhase.Landed));
         state.Action = HopperAction.WaitToHop;

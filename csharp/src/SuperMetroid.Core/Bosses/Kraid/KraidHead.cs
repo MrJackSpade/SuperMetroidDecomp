@@ -56,7 +56,7 @@ internal sealed class KraidHead
     /// Shows Kraid in <paramref name="shown"/>, his hurt colours or his current health band's (#1512): his body and every
     /// sprite part take the shade, and his eyes its colours at once.
     /// </summary>
-    internal void UpdateKraidHealthColours(RoomEnemyPlace body, KraidEnemyState state, KraidHurtFlashShade shown)
+    private void UpdateKraidHealthColours(RoomEnemyPlace body, KraidEnemyState state, KraidHurtFlashShade shown)
     {
         switch (shown)
         {
@@ -150,7 +150,7 @@ internal sealed class KraidHead
     /// Plays Kraid's head animation to its next pose: cries on the way are announced, and the head shows the pose and holds
     /// it for its duration; at its segment's end the animation holds there.
     /// </summary>
-    internal KraidHeadAnimationResult RunKraidHeadAnimationStep(KraidEnemyState state)
+    private KraidHeadAnimationResult RunKraidHeadAnimationStep(KraidEnemyState state)
     {
         if (PlayKraidHeadAnimation(state) is not AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
             return KraidHeadAnimationResult.AnimationEnded;
@@ -247,7 +247,7 @@ internal sealed class KraidHead
     }
 
     /// <summary>Emits a mouth rock when a projectile place is free.</summary>
-    internal void SpawnKraidSpitRock(RoomEnemyPlace body)
+    private void SpawnKraidSpitRock(RoomEnemyPlace body)
     {
         EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile();
         if (rock is null)

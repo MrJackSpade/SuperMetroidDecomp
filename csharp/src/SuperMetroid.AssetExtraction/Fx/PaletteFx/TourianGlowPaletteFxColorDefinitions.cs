@@ -20,7 +20,7 @@ public static class TourianGlowPaletteFxColorDefinitions
 {
 
     /// <summary>Eight live BGR555 colors are written by each record.</summary>
-    public const int ColorsPerFrame = 8;
+    private const int ColorsPerFrame = 8;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.TourianGlowingArkanoidBlocksAndRedOrbs, ColorsPerFrame);

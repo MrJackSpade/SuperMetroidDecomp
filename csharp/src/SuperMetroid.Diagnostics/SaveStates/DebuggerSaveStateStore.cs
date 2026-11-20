@@ -136,7 +136,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
     }
 
     /// <summary>Blocks until every queued background write has finished, so the slots on disk hold every capture made so far.</summary>
-    public void WaitForPendingWrites()
+    private void WaitForPendingWrites()
     {
         Task writes;
         lock (writeGate)

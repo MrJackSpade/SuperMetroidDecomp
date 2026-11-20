@@ -40,10 +40,8 @@ internal static class NoobTubeProjectileAnimationsVerification
 
             // Between two flickers of the flight the recording rests on the flight's count-down, its loop counter holding
             // the flickers left.
-            var flying = new NoobTubeProjectileAnimation(pieces, flight)
-            {
-                Playback = new AnimationPlayback<NoobTubeProjectileSegment>(flight, new AnimationPlace(0, flight.Phases[0].BeatCount).WithPlaysLeft(20)),
-            };
+            var flying = new NoobTubeProjectileAnimation(pieces, flight);
+            flying.SetPlayback(new AnimationPlayback<NoobTubeProjectileSegment>(flight, new AnimationPlace(0, flight.Phases[0].BeatCount).WithPlaysLeft(20)));
             var flown = new NoobTubeProjectileAnimation(pieces, NoobTubeProjectileAnimations.StartingWith(NoobTubeProjectileSegment.Crack));
             AssertTrue(pointers(flying) is { } resting && resting != entry && Family.TryResumeAt(cartridge, flown, resting, nativeLoopCounter: 20)
                     && ReferenceEquals(flown.Playback.Animation, flight) && flown.Playback.Place == flying.Playback.Place,

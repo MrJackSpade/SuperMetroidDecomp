@@ -521,12 +521,11 @@ internal static void VerifySamusGroundedMovement()
     // The front-view branch returns before every ordinary standing movement call. Seed
     // deliberately stale motion/collision values to prove the sole native write is the
     // vertical-result clear and that no host convenience cleanup leaked into this path.
-    var forward = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+    var forward = global::SuperMetroid.Core.PrivateState.With<SamusState>(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
         Pose = SamusPoseId.ForwardFacingPowerSuitPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
-        SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling,
-    };
+        }, "SolidVerticalCollisionResult", (global::SuperMetroid.Core.Samus.Movement.SamusVerticalCollisionResult)(SamusVerticalCollisionResult.HitCeiling));
     forward.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x3456);
     forward.HorizontalSpeed.ExtraRunSpeed = forward.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
     SamusGroundedMovement.StepFacingForward(
@@ -558,7 +557,7 @@ internal static void VerifySamusGroundedMovement()
             Radius: new(5, 5),
             Solid: true),
     ];
-    forward.SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling;
+    global::SuperMetroid.Core.PrivateState.Set(forward, "SolidVerticalCollisionResult", (global::SuperMetroid.Core.Samus.Movement.SamusVerticalCollisionResult)(SamusVerticalCollisionResult.HitCeiling));
     SamusGroundedMovement.StepFacingForward(
 
         elevatorLevel,
@@ -1547,7 +1546,7 @@ internal static void VerifySamusMoonwalking()
         "ordinary standing turn does not publish moonwalk shot bridge");
     var moonwalkBridge = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MoonwalkFacingRightPose };
     SamusGroundedPoseTransitions.ApplyGroundedTurn(moonwalkBridge, SamusPoseId.TurningRightToLeftPose);
-    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right), moonwalkBridge.TransitionShot.Handed,
+    AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { (global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right) }), moonwalkBridge.TransitionShot.Handed,
         "moonwalk turn hands over the source shot direction");
     SamusAerialPoseTransitions.DropTransitionShot(moonwalkBridge);
     AssertEqual<SamusTransitionShot?>(null, moonwalkBridge.TransitionShot.Handed,
@@ -1654,8 +1653,8 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
         turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x4000);
         SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection? sourceMuzzleDirection = SamusPoseMetadata.ReadAimDirection(turn);
         SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(turn, target);
-        AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(sourceMuzzleDirection
-                ?? throw new InvalidOperationException($"Moonwalk pose {source} names no aim.")),
+        AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { (global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)(sourceMuzzleDirection
+                ?? throw new InvalidOperationException($"Moonwalk pose {source} names no aim.")) }),
             turn.TransitionShot.Handed, "all six Moonwalk jump routes publish their original muzzle direction");
         AssertEqual(target, turn.Pose, $"moonwalk ${SamusPoseNumbers.Number(source):X2} selects exact turn ${SamusPoseNumbers.Number(target):X2}");
         AssertEqual(SamusAccelerationMode.Turning, turn.HorizontalSpeed.AccelerationMode,

@@ -146,7 +146,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     }
 
     /// <summary>Steps the timer-mode wait one update and reports whether it ran out on this update (#2281).</summary>
-    internal static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state) => state.ActivationTimer.StepEnds();
+    private static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state) => state.ActivationTimer.StepEnds();
 
     /// <summary>Switches a timed or proximity shutter into growth and queues audible activation on screen.</summary>
     private void ActivateGrowingShutter(
@@ -199,7 +199,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     /// <summary>
     /// The upward growth step: the growth speed, fraction included, reversed to move the shutter up.
     /// </summary>
-    internal static SignedSixteenSixteen UpwardGrowthVelocity(SignedSixteenSixteen growthSpeed) =>
+    private static SignedSixteenSixteen UpwardGrowthVelocity(SignedSixteenSixteen growthSpeed) =>
         SignedSixteenSixteen.Zero - growthSpeed;
 
     /// <summary>
@@ -414,7 +414,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     }
 
     /// <summary>Runs the vertical shutter's main AI.</summary>
-    internal void RunVerticalShutterMain(
+    private void RunVerticalShutterMain(
         RoomEnemyPlace place,
         VerticalShutterEnemyState state,
         SamusState samus,
@@ -483,7 +483,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     /// Samus, activating on its first update, or standing still until a reaction. The trigger never changes, so
     /// initialization installs it once and the first update already runs it.
     /// </summary>
-    internal static VerticalShutterAction InitialAction(ShutterTriggerMode triggerMode) => triggerMode switch
+    private static VerticalShutterAction InitialAction(ShutterTriggerMode triggerMode) => triggerMode switch
     {
         ShutterTriggerMode.Timer => VerticalShutterAction.WaitForTimer,
         ShutterTriggerMode.HorizontalProximity => VerticalShutterAction.WaitForHorizontalProximity,

@@ -33,7 +33,7 @@ namespace SuperMetroid.Core.Compatibility;
 public readonly struct WreckedShipGhostFade
 {
     /// <summary>The colours the ghost's fades move: the fifteen its pictures draw and colour zero, which none draws.</summary>
-    public const int ColourCount = 16;
+    private const int ColourCount = 16;
 
     /// <summary>The channels a fade step moves, in the order the game steps them.</summary>
     private static readonly ColorChannel[] Channels = [ColorChannel.Red, ColorChannel.Green, ColorChannel.Blue];

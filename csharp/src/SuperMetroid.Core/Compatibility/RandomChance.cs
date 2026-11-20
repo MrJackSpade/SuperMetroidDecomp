@@ -25,10 +25,10 @@ public readonly record struct RandomChance
     }
 
     /// <summary>The field of the sample the chance reads.</summary>
-    public RandomSampleField Field { get; }
+    private RandomSampleField Field { get; }
 
     /// <summary>How many of the values <see cref="Field"/> can read take the chance, 1 through all but one of them.</summary>
-    public int TakingValues { get; }
+    private int TakingValues { get; }
 
     /// <summary>The lowest field value that takes the chance.</summary>
     private int First { get; }

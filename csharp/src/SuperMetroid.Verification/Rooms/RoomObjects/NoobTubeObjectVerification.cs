@@ -30,6 +30,7 @@ using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.NoobTube;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Exercises the Glass Tunnel PLM's two-stage trigger, break sequence, and reload state.</summary>
 internal static class NoobTubeObjectVerification

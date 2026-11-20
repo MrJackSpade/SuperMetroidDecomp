@@ -158,7 +158,7 @@ public static class SamusGrappleBeamDrawing
     /// How the rope's pictures mirror at the grapple angle <paramref name="angle"/>: horizontally in the second half of
     /// the turn, and vertically within a quarter turn either side of the angle zero.
     /// </summary>
-    internal static SpriteMirror RopeMirror(RotationAngle angle) =>
+    private static SpriteMirror RopeMirror(RotationAngle angle) =>
         (angle >= RotationAngle.HalfTurn ? SpriteMirror.Horizontal : SpriteMirror.None) |
         (angle < RotationAngle.QuarterTurn || angle >= RotationAngle.ThreeQuarterTurn ? SpriteMirror.Vertical : SpriteMirror.None);
 

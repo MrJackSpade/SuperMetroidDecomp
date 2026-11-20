@@ -23,7 +23,7 @@ internal static class ProjectileSheetComposer
     /// and Wave, has none; its projectiles show the sheet of the shot its uncharged beam fires
     /// (<see cref="ProjectileSheetDefinitions.Sheets"/>, #1586).
     /// </summary>
-    internal static IReadOnlyList<SamusBeamCombination> Combinations { get; } =
+    private static IReadOnlyList<SamusBeamCombination> Combinations { get; } =
     [
         SamusBeamCombination.Power, SamusBeamCombination.Wave, SamusBeamCombination.Ice, SamusBeamCombination.IceWave,
         SamusBeamCombination.Spazer, SamusBeamCombination.SpazerWave, SamusBeamCombination.SpazerIce, SamusBeamCombination.SpazerIceWave,

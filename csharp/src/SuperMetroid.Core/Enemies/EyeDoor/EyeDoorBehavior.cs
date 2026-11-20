@@ -90,11 +90,11 @@ internal sealed class EyeDoorBehavior
     /// The eye's shot (#1760): it flies until it strikes the room or its door opens; a shot one runs its typed shot
     /// animation, the animation its definition names.
     /// </summary>
-    internal EyeDoorProjectileBehavior Shot => field ??= new EyeDoorProjectileBehavior(
+    private EyeDoorProjectileBehavior Shot => field ??= new EyeDoorProjectileBehavior(
         initial: null, shot: EyeDoorProjectileSegment.Shot);
 
     /// <summary>A sweat drop (#1760): it falls from its spawn and splashes on the floor.</summary>
-    internal EyeDoorProjectileBehavior Sweat => field ??= new EyeDoorProjectileBehavior(EyeDoorProjectileMotion.SweatFalling);
+    private EyeDoorProjectileBehavior Sweat => field ??= new EyeDoorProjectileBehavior(EyeDoorProjectileMotion.SweatFalling);
 
     /// <summary>
     /// An eye door's shot or sweat: the shot's flight, which its animation starts, the sweat's fall, which its spawn starts,
@@ -172,7 +172,7 @@ internal sealed class EyeDoorBehavior
     /// Starts smoke showing <paramref name="animation"/> scattered across <paramref name="placement"/>: one random number
     /// places the smoke on both axes, then the smoke draws one more random number of its own.
     /// </summary>
-    internal void InitializeEyeDoorSmoke(
+    private void InitializeEyeDoorSmoke(
         EnemyProjectile projectile,
         DustExplosionAnimation animation,
         DustExplosionPlacement placement,
@@ -213,7 +213,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>Applies sweat gravity and starts the impact animation on a downward vertical collision.</summary>
-    internal static void DripEyeDoorSweat(
+    private static void DripEyeDoorSweat(
         EyeDoorProjectileBehavior owner,
         EnemyProjectile projectile,
         RoomLevelData level)
@@ -236,7 +236,7 @@ internal sealed class EyeDoorBehavior
     /// The eye shot's per-update acceleration along <paramref name="angle"/>'s sine: a sixteenth of the one-pixel sine
     /// velocity, rounded toward decreasing coordinates, so a small negative sine still accelerates the shot back.
     /// </summary>
-    internal static SignedEightEight ReadEyeDoorAcceleration(TrigonometryAngle angle) =>
+    private static SignedEightEight ReadEyeDoorAcceleration(TrigonometryAngle angle) =>
         EnemyMath.SineVelocity(angle, 1).DividedRoundingDown(16);
 
     /// <summary>Sends an eye-door shot into its typed impact animation, stopping its movement as the animation switch does.</summary>

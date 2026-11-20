@@ -21,7 +21,7 @@ internal static class DragonNativeWords
     /// <summary>
     /// The cartridge's animation-table ordinal naming each <see cref="DragonSegment"/>: even ordinals face
     /// left, odd ordinals face right. The cartridge's all-ones installed ordinal, which makes the next request restart, is
-    /// not an animation: Core's attack starts over the update after each fireball (<see cref="DragonBehavior.RunDragonAttacking"/>).
+    /// not an animation: Core's attack starts over the update after each fireball (<c>RunDragonAttacking</c>).
     /// </summary>
     internal static readonly NativeWordIdentities<DragonSegment> Animations = new(new Dictionary<DragonSegment, ushort>
     {

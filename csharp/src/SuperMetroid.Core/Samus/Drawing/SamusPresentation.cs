@@ -15,13 +15,13 @@ internal sealed class SamusPresentation
     /// The whole body picture the body last drew, which the speed-booster echoes repeat; none before the body is drawn.
     /// While invincibility flicker hides the body the echoes keep repeating the picture last drawn (#1392).
     /// </summary>
-    public SamusBodyFrame? DrawnFrame { get; private set; }
+    private SamusBodyFrame? DrawnFrame { get; set; }
 
     /// <summary>
     /// The signed screen place Samus's body picture was last drawn at, from her world position and the foreground scroll:
     /// left of or above the screen is negative.
     /// </summary>
-    public Offset16<ScreenPixels> DrawOrigin { get; private set; }
+    private Offset16<ScreenPixels> DrawOrigin { get; set; }
 
     /// <summary>The installed artwork she draws from, bound by whoever built her; never part of save state.</summary>
     private readonly SamusArtworkBinding _artwork;

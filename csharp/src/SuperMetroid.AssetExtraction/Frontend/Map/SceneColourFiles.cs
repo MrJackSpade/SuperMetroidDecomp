@@ -29,16 +29,16 @@ public static class SceneColourFiles
     public const int Version = 3;
 
     /// <summary>The stock tint the Ceres haze fades in to while Ceres Ridley lives.</summary>
-    public static RgbColor StockCeresHazeBlue => StockCeresHaze(CeresHazeColor.Blue);
+    private static RgbColor StockCeresHazeBlue => StockCeresHaze(CeresHazeColor.Blue);
 
     /// <summary>The stock tint the Ceres haze fades in to once Ceres Ridley is dead.</summary>
-    public static RgbColor StockCeresHazeRed => StockCeresHaze(CeresHazeColor.Red);
+    private static RgbColor StockCeresHazeRed => StockCeresHaze(CeresHazeColor.Red);
 
     /// <summary>
     /// The stock tint the Ceres haze of <paramref name="color"/> fades in to: its channel at the last amplitude the fade
     /// writes before it stops. The import records it in the scene colours; the game reads only the installed tint (#1596).
     /// </summary>
-    public static RgbColor StockCeresHaze(CeresHazeColor color)
+    private static RgbColor StockCeresHaze(CeresHazeColor color)
     {
         const int finalAmplitude = CeresHazeDefinitions.FadeSteps - 1;
         return color switch

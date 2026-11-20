@@ -52,7 +52,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
         AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.EnemyPickupEnergySmallDark),
             dying.PresentationOperandAddress, "the drop's first frame shows on the conversion's own pass");
 
-        fixture.System.DeathsAndDrops.Pickups.Of(dying).Lifetime = UpdateCountdown.Lasting(1);
+        fixture.System.DeathsAndDrops.Pickups.Of(dying).Lifetime.PlaceAt(UpdateCountdown.Lasting(1));
         fixture.System.DeathsAndDrops.TendEnemyPickup(dying, samus);
         AssertEqual(EnemyDeathAndDropSegment.RespawnPause, ProgramOf(dying), "an expired drop starts the respawn tail");
         for (int update = 0; update < 70 && dying.IsActive; update++)

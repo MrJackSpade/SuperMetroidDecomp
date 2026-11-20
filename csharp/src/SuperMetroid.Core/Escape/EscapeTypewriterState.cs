@@ -21,7 +21,7 @@ public sealed class EscapeTypewriterState
     /// The pixel of the layer the next character's top-left corner is typed at: reset to each line's start at its first
     /// character and advanced right by a glyph's width for both written glyphs and spaces (#1406, #1514, #1601).
     /// </summary>
-    public Position16<PlanePixels> Corner { get; private set; }
+    private Position16<PlanePixels> Corner { get; set; }
     /// <summary>
     /// The wait before the typewriter types again (#2368): none after its opening character, then
     /// <see cref="EscapeTypewriterDefinitions.CharacterDelayFrames"/> after each later character.

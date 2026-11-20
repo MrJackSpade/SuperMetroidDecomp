@@ -115,7 +115,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Rests the flame whose eruption has finished, which hid it: its wait restarts at its placement's inactive time and the
     /// update it runs out on (#2340).
     /// </summary>
-    internal static void RestHibashi(RoomEnemyPlace flame, HibashiEnemyState state)
+    private static void RestHibashi(RoomEnemyPlace flame, HibashiEnemyState state)
     {
         state.InactiveTimer = UpdateCountdown.For(flame.SpawnSettings<HibashiFlameSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = HibashiAction.Inactive;
@@ -132,7 +132,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs a rising cue: moves the collision part to the step's height above the spawn and gives it the step's
     /// half-height, and the first step its half-width.
     /// </summary>
-    internal void ApplyHibashiEruptionStep(RoomEnemyPlace flame, HibashiEruptionStep step)
+    private void ApplyHibashiEruptionStep(RoomEnemyPlace flame, HibashiEruptionStep step)
     {
         HibashiEnemyState state = flame.RequireSpeciesState<HibashiEnemyState>();
         RoomEnemyPlace hitbox = GetFollowingHibashiPart(flame);

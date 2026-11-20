@@ -46,10 +46,10 @@ internal static class TorizoStateQuantitiesVerification
 
         state.Posture = TorizoPosture.Initial.TurningAround;
         ApplyCue(new TorizoCue.Stepped(HorizontalDirection.Right, Foot: HorizontalDirection.Left));
-        AssertEqual(new TorizoPosture(HorizontalDirection.Right, LeadingFoot: HorizontalDirection.Left), state.Posture,
+        AssertEqual(TorizoPosture.AfterStep(HorizontalDirection.Right, HorizontalDirection.Left), state.Posture,
             "a stepping cue replaces the whole posture: its facing, its leading foot and the turn");
         Apply(TorizoCueKind.SetTurningAround);
-        AssertEqual(new TorizoPosture(HorizontalDirection.Right, LeadingFoot: HorizontalDirection.Left).TurningAround,
+        AssertEqual(TorizoPosture.AfterStep(HorizontalDirection.Right, HorizontalDirection.Left).TurningAround,
             state.Posture, "the turning cue sets the turn alone");
 
         state.Stunned = true;

@@ -44,8 +44,7 @@ internal static class FileSelectMapWindowVerification
         // left and top edges stop at the screen's edge, its right and bottom ones keep their fractions (#1555). The right
         // edge holds its last column, as the cartridge's window does, so the column past it is one further.
         SignedSixteenSixteen pixelAndHalf = SignedSixteenSixteen.FromParts(1, 0x8000);
-        var fractional = new FileSelectMapWindow(AreaId.Crateria, new FileSelectMapWindowMotion(2, -pixelAndHalf, pixelAndHalf, -pixelAndHalf, pixelAndHalf),
-            CreateWindowLabelFixture(new(1, 1)));
+        var fractional = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.FileSelect.FileSelectMapWindow>([typeof(global::SuperMetroid.Core.Progression.AreaId), typeof(global::SuperMetroid.Core.Frontend.FileSelect.FileSelectMapWindowMotion), typeof(global::SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions)], new object?[] { (global::SuperMetroid.Core.Progression.AreaId)(AreaId.Crateria), (global::SuperMetroid.Core.Frontend.FileSelect.FileSelectMapWindowMotion)(new FileSelectMapWindowMotion(2, -pixelAndHalf, pixelAndHalf, -pixelAndHalf, pixelAndHalf)), (global::SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions)(CreateWindowLabelFixture(new(1, 1))) });
         AssertTrue(!fractional.Step(), "the reveal is not complete before its last move");
         AssertEqual(new VerifyWorldMapLabelsCase(0, 0, 3, 2),
             new VerifyWorldMapLabelsCase(fractional.Left, fractional.Top, fractional.Right, fractional.Bottom),
@@ -92,7 +91,7 @@ internal static class FileSelectMapWindowVerification
     private static void VerifyFileSelectMapWindowComposition()
     {
         TestAddressSpace fake = CreateComposedMapWindowCartridge();
-        var window = new FileSelectMapWindow(AreaId.Crateria, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(new(40, 30)));
+        var window = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.FileSelect.FileSelectMapWindow>([typeof(global::SuperMetroid.Core.Progression.AreaId), typeof(global::SuperMetroid.Core.Frontend.FileSelect.FileSelectMapWindowMotion), typeof(global::SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions)], new object?[] { (global::SuperMetroid.Core.Progression.AreaId)(AreaId.Crateria), (global::SuperMetroid.Core.Frontend.FileSelect.FileSelectMapWindowMotion)(ReadCartridgeMapWindowMotion(fake, 0)), (global::SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions)(CreateWindowLabelFixture(new(40, 30))) });
         RgbaPixel areaColor = new(255, 0, 0), frameColor = new(0, 0, 255);
         RgbaPixel[] area = Enumerable.Repeat(areaColor, 256 * 224).ToArray();
         RgbaPixel[] frame = Enumerable.Repeat(frameColor, 256 * 224).ToArray();
@@ -149,7 +148,7 @@ internal static class FileSelectMapWindowVerification
             AssertEqual(activeColors[area], standard[indices[area]], $"area {area} active map color");
             if (area != 0)
                 AssertEqual(0x4a52, standard[86], "another area's sheet shows Crateria inactive");
-            AssertEqual(InstalledFixtures.ImportOf(maps).Palettes.World(areaId)[0], graphics.screen.Backdrop, $"area {area} shows its world-map backdrop");
+            AssertEqual(InstalledFixtures.ImportOf(maps).Palettes.World(areaId)[0], global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Frontend.Menus.MenuScreen, global::SuperMetroid.Core.Assets.RgbColor>(graphics.Screen, "Backdrop"), $"area {area} shows its world-map backdrop");
             // The selected area's image is built once and every tilemap byte read from it.
             var shownArea = MenuScreenFixtures.Vram(graphics, maps);
             for (int offset = 0; offset < MapSourceDefinitions.Menu.TilemapBytes; offset++)

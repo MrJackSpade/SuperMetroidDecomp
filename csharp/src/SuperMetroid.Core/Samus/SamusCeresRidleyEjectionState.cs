@@ -25,7 +25,7 @@ public sealed class SamusCeresRidleyEjectionState
     /// The wall the shove carries Samus toward; none until initialization chooses a side and again once wall contact ends
     /// the shove.
     /// </summary>
-    public HorizontalDirection? PushDirection { get; private set; }
+    private HorizontalDirection? PushDirection { get; set; }
 
     /// <summary>
     /// Sets Samus to be pushed out of Ceres Ridley's way: the shove takes her movement

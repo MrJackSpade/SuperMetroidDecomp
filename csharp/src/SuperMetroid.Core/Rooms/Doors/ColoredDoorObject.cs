@@ -19,36 +19,33 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     internal ColoredDoorObject(ColoredDoorVariant variant, PlacedDoor door)
         : base(variant.Orientation, ColoredDoorDefinitions.Colors[variant.Color].Paint)
     {
-        Color = variant.Color;
         Door = Ensure.NotNull(door);
         _rules = ColoredDoorDefinitions.Colors[variant.Color];
         _sequences = ColoredDoorDefinitions.Sequences[variant];
     }
 
     /// <summary>The door the cap stands in, as its placement named it.</summary>
-    internal PlacedDoor Door { get; }
+    private PlacedDoor Door { get; }
 
     /// <summary>A cap whose door has been opened for good stays open behind Samus.</summary>
     public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood) =>
         Door.IsOpenedForGood(openedForGood);
 
-    /// <summary>The cap's colour, which selects the projectile that opens it.</summary>
-    internal ColoredDoorColor Color { get; }
 
     /// <summary>What the cap is doing.</summary>
-    internal ColoredDoorPhase Phase { get; private set; } = ColoredDoorPhase.Waiting;
+    private ColoredDoorPhase Phase { get; set; } = ColoredDoorPhase.Waiting;
 
     /// <summary>
     /// The hits counted toward the colour's count. It only counts up, by one a hit or straight to the count on a Super
     /// Missile, and the cap opens once it reaches the count.
     /// </summary>
-    internal int HitCounter { get; private set; }
+    private int HitCounter { get; set; }
 
     /// <summary>
     /// Whether a shot at the cap's block reaches it: from its first look until the hit that opens it, so a waiting cap that
     /// takes no shots has yet to take that look.
     /// </summary>
-    internal bool TakesShots { get; private set; }
+    private bool TakesShots { get; set; }
 
     /// <summary>The colour's rules: the shots it counts and the hits it takes.</summary>
     private readonly ColoredDoorColorDefinition _rules;

@@ -61,7 +61,7 @@ public sealed class YardEnemyState
     /// slope alignment, a turn or a landing starts <see cref="YardMotionDefinitions.TurnSuppressionPasses"/> of them, each
     /// unadjusted crawl pass counts one, and once they are over it may turn.
     /// </summary>
-    public UpdateCountdown TurnSuppressionPassesLeft { get; internal set; } = UpdateCountdown.Ended();
+    public UpdateCountdown TurnSuppressionPassesLeft { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether the Yard may not yet turn at a corner, crawling past it instead (<see cref="TurnSuppressionPassesLeft"/>).</summary>
     internal bool TurnsSuppressed => TurnSuppressionPassesLeft.IsRunning;

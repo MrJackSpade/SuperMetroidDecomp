@@ -31,9 +31,9 @@ public sealed class GameOptionsSourcePresentation
     /// <summary>The common backdrop page.</summary>
     private readonly BackgroundTile[] background;
     /// <summary>The installed controller-button glyphs, keyed by every assignable button.</summary>
-    internal readonly Dictionary<ControllerButton, BackgroundTile[]> controllerLabels;
+    private readonly Dictionary<ControllerButton, BackgroundTile[]> controllerLabels;
     /// <summary>The installed controller-label anchors, one per action.</summary>
-    internal readonly Position16<CharacterCells>[] controllerLabelAnchors;
+    private readonly Position16<CharacterCells>[] controllerLabelAnchors;
     /// <summary>The installed primary-language highlight regions.</summary>
     private readonly GameOptionsLanguageRegionDocument[] languageRegions;
     /// <summary>The installed special-setting choice cells, keyed by toggle.</summary>
@@ -74,10 +74,10 @@ public sealed class GameOptionsSourcePresentation
     public int UnselectedPalette { get; }
 
     /// <summary>Returns an independent mutable copy of one compiled foreground page.</summary>
-    internal BackgroundTile[] CreatePage(GameOptionsScreen tilemap) => (BackgroundTile[])pages[tilemap].Clone();
+    private BackgroundTile[] CreatePage(GameOptionsScreen tilemap) => (BackgroundTile[])pages[tilemap].Clone();
 
     /// <summary>Recolors English and Japanese text regions according to the selected language.</summary>
-    internal void ApplyLanguage(Span<BackgroundTile> primaryPage, bool japanese)
+    private void ApplyLanguage(Span<BackgroundTile> primaryPage, bool japanese)
     {
         foreach (GameOptionsLanguageRegionDocument region in languageRegions)
             ApplyPalette(primaryPage, region.Cells, japanese == region.HighlightWhenJapanese ? SelectedPalette : UnselectedPalette);
@@ -87,7 +87,7 @@ public sealed class GameOptionsSourcePresentation
     private int[] LanguageCells() => [.. languageRegions.SelectMany(region => region.Cells)];
 
     /// <summary>Writes the selected button glyph into one controller action's two-row label area.</summary>
-    internal void ApplyControllerLabel(Span<BackgroundTile> page, int action, ControllerButton button)
+    private void ApplyControllerLabel(Span<BackgroundTile> page, int action, ControllerButton button)
     {
         if ((uint)action >= GameOptionsPageRows.ControllerActions.Count)
             throw new ArgumentOutOfRangeException(nameof(action));
@@ -107,7 +107,7 @@ public sealed class GameOptionsSourcePresentation
     }
 
     /// <summary>Recolors the enabled and disabled labels for one special setting.</summary>
-    internal void ApplySpecialToggle(Span<BackgroundTile> page, GameOptionsToggle name, bool enabled)
+    private void ApplySpecialToggle(Span<BackgroundTile> page, GameOptionsToggle name, bool enabled)
     {
         ApplyPalette(page, ToggleChoiceCells(name, GameOptionsToggleState.Enabled), enabled ? SelectedPalette : UnselectedPalette);
         ApplyPalette(page, ToggleChoiceCells(name, GameOptionsToggleState.Disabled), enabled ? UnselectedPalette : SelectedPalette);

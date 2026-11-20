@@ -9,7 +9,7 @@ public sealed class PacedCountdown
 {
     /// <summary>The count left: it runs out once a pace takes it below zero.</summary>
     [IntegerQuantity("the count left before the countdown runs below zero")]
-    public int Left { get; private set; }
+    private int Left { get; set; }
 
     /// <summary>Starts the countdown again at <paramref name="count"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="count"/> is negative.</exception>

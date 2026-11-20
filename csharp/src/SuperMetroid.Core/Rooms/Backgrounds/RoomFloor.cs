@@ -26,7 +26,7 @@ public sealed class RoomFloor
     }
 
     /// <summary>The tileset's installed floor and the pictures of the actors shown on it.</summary>
-    public RoomFloorSheet Sheet { get; }
+    private RoomFloorSheet Sheet { get; }
 
     /// <summary>The actor <paramref name="frame"/> is a picture of shows it from now on.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not a picture of the floor's actors.</exception>

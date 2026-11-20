@@ -20,7 +20,7 @@ public sealed class SharedRandom
     public SharedRandom() => State = SharedRandomDefinitions.PowerOnState;
 
     /// <summary>The current state.</summary>
-    public SharedRandomState State { get; internal set; }
+    public SharedRandomState State { get; private set; }
 
     /// <summary>Samples the current state, 0 through 65535, without advancing it.</summary>
     public int Read() => State.Value;

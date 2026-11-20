@@ -42,7 +42,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     }
 
     /// <summary>The fake wall's explosion (#1760): it holds still while its spawner's animation plays.</summary>
-    internal WallExplosionBehavior WallExplosion => field ??= new WallExplosionBehavior(_projectiles, _audio);
+    private WallExplosionBehavior WallExplosion => field ??= new WallExplosionBehavior(_projectiles, _audio);
 
     /// <summary>
     /// The fake wall's explosion, which carries out its animation's cues: it scatters through the projectile engine and

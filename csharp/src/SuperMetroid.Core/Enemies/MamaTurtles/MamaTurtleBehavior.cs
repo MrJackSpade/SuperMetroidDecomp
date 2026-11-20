@@ -215,7 +215,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the dormant shell's height and carry step.</summary>
-    internal static void RunMamaTurtleAsleep(
+    private static void RunMamaTurtleAsleep(
         RoomEnemyPlace mama,
         SamusState samus)
     {
@@ -359,7 +359,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Adds the hover acceleration to the horizontal speed, a fraction past a whole pixel carrying into the whole pixels, and
     /// caps the whole speed using the old velocity's sign.
     /// </summary>
-    internal static void AddAndClampMamaTurtleHorizontalAcceleration(
+    private static void AddAndClampMamaTurtleHorizontalAcceleration(
         MamaTurtleEnemyState state)
     {
         SignedSixteenSixteen velocity = state.Velocity.X;
@@ -380,7 +380,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private static SignedSixteenSixteen WholePixelFall(SignedSixteenSixteen fall) => fall.WithoutFraction();
 
     /// <summary>Reverses the hovering turtle's horizontal velocity and acceleration at a wall (<see cref="MamaTurtleWallReversal"/>).</summary>
-    internal static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
+    private static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
     {
         SignedSixteenSixteen velocity = state.Velocity.X;
         state.Velocity = state.Velocity.WithX(MamaTurtleWallReversal.ReversedVelocity(velocity));

@@ -252,7 +252,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Cycles the sixteen beam colors while the body stays activated, otherwise begins fading.</summary>
-    internal void StepFullMorphBallEyeBeam()
+    private void StepFullMorphBallEyeBeam()
     {
         MorphBallEyeEnemyState bodyState = BeamEyeState();
         if (!bodyState.IsActivated)

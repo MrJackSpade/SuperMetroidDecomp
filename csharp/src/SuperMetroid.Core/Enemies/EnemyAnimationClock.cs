@@ -29,7 +29,7 @@ public sealed class EnemyAnimationClock
     /// the hold runs out until its owner shows, pauses or holds the frame again. A stopped or suspended clock keeps the
     /// count it had, which a lengthening still adds to.
     /// </summary>
-    public int Hold { get; private set; }
+    private int Hold { get; set; }
 
     /// <summary>
     /// Whether the animation showed a new frame on this update: the clock's own record of its last step, set when a step
@@ -50,7 +50,7 @@ public sealed class EnemyAnimationClock
     /// frame, until its owner resumes it, when the hold runs on from where it stood. Suspending is apart from stopping and
     /// from the hold: starting an animation, or stopping or resuming its clock, leaves the other as it is.
     /// </summary>
-    public bool IsSuspended { get; private set; }
+    private bool IsSuspended { get; set; }
 
     /// <summary>Suspends the clock (#2463): the frame shown stays and the hold waits, without counting, until <see cref="Resume"/>.</summary>
     internal void Suspend() => IsSuspended = true;

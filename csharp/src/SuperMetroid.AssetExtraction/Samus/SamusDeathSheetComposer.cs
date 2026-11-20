@@ -61,7 +61,7 @@ internal static class SamusDeathSheetComposer
     }
 
     /// <summary>The Samus spritemap the explosion's frame <paramref name="frame"/> shows facing <paramref name="facing"/>.</summary>
-    internal static int ExplosionSpritemap(HorizontalDirection facing, int frame) =>
+    private static int ExplosionSpritemap(HorizontalDirection facing, int frame) =>
         (facing == HorizontalDirection.Left ? LeftExplosionSpritemap
             : RightExplosionSpritemap) + frame;
 }

@@ -23,7 +23,7 @@ public static class ZebesExplosionLayerFadePaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes fifteen live BGR555 colors.</summary>
-    public const int ColorsPerFrame = 15;
+    private const int ColorsPerFrame = 15;
 
     /// <summary>Crust and grey-cloud one-shot fades with distinct destinations and authored holds.</summary>
     private static readonly ZebesExplosionLayerFadePaletteFxColorDefinition[] Definitions =

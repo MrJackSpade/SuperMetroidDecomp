@@ -131,7 +131,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Moves the Bull along both axes by its speed in the direction of its committed angle.</summary>
-    internal static void MoveBull(RoomEnemyPlace place, BullEnemyState state)
+    private static void MoveBull(RoomEnemyPlace place, BullEnemyState state)
     {
         place.Position = place.Position.WithX(AddBullComponent(
             place.Position.X,
@@ -160,7 +160,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="share">The axis's share of the Bull's heading.</param>
     /// <param name="speed">The Bull's speed, never below zero (<see cref="BullEnemyState.Speed"/>).</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="speed"/> is negative.</exception>
-    internal static SignedSixteenSixteen BullStep(UnitComponent share, SignedEightEight speed)
+    private static SignedSixteenSixteen BullStep(UnitComponent share, SignedEightEight speed)
     {
         // The share is under one and the speed at most eleven and a quarter pixels, so the step is under six pixels. The
         // step's size is halved before its direction is restored, and a step up or left reverses as BullBackwardStep does.
@@ -173,7 +173,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Finishes the Bull's shot and bomb reactions when they deal no damage: the hit kicks it away at <paramref name="kickAngle"/>.
     /// </summary>
-    internal static void ResolveBullImmuneShot(
+    private static void ResolveBullImmuneShot(
         RoomEnemyPlace bull,
         BullEnemyState state,
         TrigonometryAngle kickAngle)

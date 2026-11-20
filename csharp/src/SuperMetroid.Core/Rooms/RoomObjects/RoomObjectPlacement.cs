@@ -21,7 +21,7 @@ public sealed record RoomObjectPlacement
     public RoomObjectKind Kind { get; init; }
 
     /// <summary>Placement in 16-pixel room blocks.</summary>
-    public Position16<RoomBlocks> Block { get; init; }
+    public Position16<RoomBlocks> Block { get; private init; }
 
     /// <summary>The setup the placement's family runs, with what the placement gives it, decoded at import.</summary>
     internal RoomObjectPlacementSetup Setup { get; }

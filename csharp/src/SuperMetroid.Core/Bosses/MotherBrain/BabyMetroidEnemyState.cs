@@ -31,11 +31,11 @@ public sealed class BabyMetroidEnemyState
     /// (<see cref="BabyMetroidMembraneAnimations"/>). It starts on its first phase, which it leaves on its first update, so
     /// the first phase it shows is its second.
     /// </summary>
-    internal AnimationPlayer<BabyMetroidMembranePace, BabyMetroidMembranePulse, BabyMetroidMembraneCue> Membrane { get; set; } =
+    internal AnimationPlayer<BabyMetroidMembranePace, BabyMetroidMembranePulse, BabyMetroidMembraneCue> Membrane { get; private set; } =
         BabyMetroidMembraneAnimations.StandingOn(BabyMetroidMembranePace.Calm, BabyMetroidMembranePulse.First, 1);
 
     /// <summary>The pace of the membrane's pulse: calm, or quick while it feeds.</summary>
-    public BabyMetroidMembranePace MembranePace { get; internal set; }
+    public BabyMetroidMembranePace MembranePace { get; private set; }
 
     /// <summary>
     /// Sets the membrane's pulse to <paramref name="pace"/>: the phase showing keeps the updates it has left, and the phases

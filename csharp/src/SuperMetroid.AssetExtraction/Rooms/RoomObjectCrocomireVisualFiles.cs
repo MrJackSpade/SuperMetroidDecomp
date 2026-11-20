@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectCrocomireVisualFiles
 {
     /// <summary>JSON filename for Crocomire bridge and invisible-wall visual layouts.</summary>
-    public const string VisualFileName = "crocomire-arena.json";
+    private const string VisualFileName = "crocomire-arena.json";
 
     /// <summary>The bridge and wall frames in the installed file's order (#2567).</summary>
     private static readonly IReadOnlyList<CrocomireArenaDraw> FrameOrder = Ensure.EveryMemberOnce<CrocomireArenaDraw>(
@@ -41,7 +41,7 @@ public static class RoomObjectCrocomireVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of every bridge and wall draw.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -62,7 +62,7 @@ public static class RoomObjectCrocomireVisualFiles
     /// colliding as the game's block shape for the frame says (#1608). The run form is the cartridge's; the game draws
     /// the shape.
     /// </summary>
-    internal static bool TryGet(RoomObjectDraw draw, out RoomObjectDrawLists.DrawList list)
+    private static bool TryGet(RoomObjectDraw draw, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryShape(CrocomireArenaDraws.Family, draw, out RoomBlockShape? described))
         {

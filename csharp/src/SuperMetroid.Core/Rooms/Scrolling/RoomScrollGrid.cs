@@ -18,7 +18,7 @@ public sealed class RoomScrollGrid
     public const int KeptCellCount = 50;
 
     /// <summary>The session's kept scroll cells, of which this room's are the first.</summary>
-    internal ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> KeptCells { get; }
+    private ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> KeptCells { get; }
 
     /// <summary>Validates the room's screen dimensions within the kept cells.</summary>
     private RoomScrollGrid(ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells, Extent16<RoomScreens> size)
@@ -34,7 +34,7 @@ public sealed class RoomScrollGrid
     public Extent16<RoomScreens> Size { get; }
 
     /// <summary>Gets the number of the room's screens.</summary>
-    public int ScreenCount => Size.Area;
+    private int ScreenCount => Size.Area;
 
     /// <summary>
     /// The session's scroll cells, cleared as power-on leaves them, with a check past them reading
@@ -82,7 +82,7 @@ public sealed class RoomScrollGrid
     /// Only the room's width x height cells are written; every kept cell past them keeps what the previous room left
     /// there, and the camera reads them at the room's edges.
     /// </remarks>
-    public static RoomScrollGrid CreateImplicit(
+    private static RoomScrollGrid CreateImplicit(
         ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells,
         Extent16<RoomScreens> size,
         RoomScrollState lastRowState)

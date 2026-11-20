@@ -674,7 +674,7 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>Arms the published bomb jump.</summary>
-    internal static void ArmPublishedBombJump(SamusState samus)
+    private static void ArmPublishedBombJump(SamusState samus)
     {
         // Arming the bomb jump takes, rather than suspends, Samus's movement.
         // A suit-interrupted spark may still hold it despite the ordinary body pose.

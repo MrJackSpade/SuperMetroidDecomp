@@ -17,13 +17,13 @@ internal sealed class DownwardGateObject(GateObjects owner) : SequencedRoomObjec
     private readonly GateObjects _owner = Ensure.NotNull(owner);
 
     /// <summary>Where the gate is in its course.</summary>
-    internal DownwardGatePhase Phase { get; private set; } = DownwardGatePhase.Starting;
+    private DownwardGatePhase Phase { get; set; } = DownwardGatePhase.Starting;
 
     /// <summary>
     /// Whether an accepted shot on one of its triggers has set the gate off since it last rested. A shot can come at any
     /// point of the gate's course and is kept until the gate next rests, so it is a fact of its own beside the phase.
     /// </summary>
-    internal bool Triggered { get; private set; }
+    private bool Triggered { get; set; }
 
     /// <summary>An accepted shot on one of the gate's triggers sets it off; further shots before it rests change nothing.</summary>
     internal void Trigger() => Triggered = true;

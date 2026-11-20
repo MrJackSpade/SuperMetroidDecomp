@@ -26,12 +26,12 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// Rainbow-beam angular width: two steps of a 256-step turn when the beam starts, widening by one and a half steps up
     /// to twelve and narrowing back to two as it shuts down.
     /// </summary>
-    public RotationAngle AngularWidth { get; internal set; }
+    public RotationAngle AngularWidth { get; private set; }
 
     /// <summary>
     /// The beam's sound attempts (#2253): each continuing beam step makes one and counts it, until none are left.
     /// </summary>
-    public UpdateCountdown SoundAttempts { get; internal set; } = UpdateCountdown.Ended();
+    public UpdateCountdown SoundAttempts { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>Rainbow-beam explosion timer.</summary>
     public BossCountdown ExplosionTimer { get; } = new();
@@ -52,7 +52,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>
     /// Starts the beam proper once its charge has run out with no Power Bomb going off: the beam takes hold of Samus.
     /// </summary>
-    public void StartActiveBeam(SamusState samus)
+    private void StartActiveBeam(SamusState samus)
     {
         Ensure.NotNull(samus);
 

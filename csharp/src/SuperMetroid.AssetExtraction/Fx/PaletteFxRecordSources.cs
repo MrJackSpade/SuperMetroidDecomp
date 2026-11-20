@@ -6,10 +6,10 @@ namespace SuperMetroid.AssetExtraction.Fx;
 internal static class PaletteFxRecordSources
 {
     /// <summary>Each record's timer-word address, by record.</summary>
-    internal static readonly Dictionary<PaletteFxRecord, ushort> Addresses = PaletteFxRecordSourceDefinitions.ByAddress.ToDictionary(pair => pair.Value, pair => pair.Key);
+    private static readonly Dictionary<PaletteFxRecord, ushort> Addresses = PaletteFxRecordSourceDefinitions.ByAddress.ToDictionary(pair => pair.Value, pair => pair.Key);
 
     /// <summary>The bank-$8D address of <paramref name="record"/>'s timer word.</summary>
-    internal static ushort Address(PaletteFxRecord record) => Addresses[record];
+    private static ushort Address(PaletteFxRecord record) => Addresses[record];
 
     /// <summary>
     /// The bank-$8D address of the colour word <paramref name="key"/> names: after the record's timer word, counting each

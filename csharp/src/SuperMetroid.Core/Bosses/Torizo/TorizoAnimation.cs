@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <summary>
 /// Bomb and Golden Torizo's body animations, each named for what it shows (#641, #1788, #2235, #2411): the encounter's AI,
 /// its movement, its reactions and its cues start them by name, and each plays the <see cref="TorizoBodySegment"/> runs
-/// <see cref="TorizoAnimations.StartingAt"/> lists for it.
+/// <see cref="TorizoAnimations"/> lists for it.
 /// </summary>
 internal enum TorizoAnimation
 {

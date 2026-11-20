@@ -288,7 +288,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// follows her, so each of her body's pictures lies where its installed frame places it against her; the room's
     /// top-left corner once she is gone, where the escape warning written over the background lies.
     /// </summary>
-    public Position16<RoomPixels>? BodyPlacedAt => BodyPlacement switch
+    private Position16<RoomPixels>? BodyPlacedAt => BodyPlacement switch
     {
         MotherBrainBodyPlacement.FollowsBody => Body.Position.Whole,
         MotherBrainBodyPlacement.AtRoomCorner => Position16<RoomPixels>.Zero,
@@ -363,7 +363,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// Number of live Mother Brain bombs. Phase two refuses another bomb when this is at
     /// least one; <see cref="RecordBombSpawned"/> and <see cref="RecordBombRemoved"/> keep it.
     /// </summary>
-    public int BombCounter { get; internal set; }
+    public int BombCounter { get; private set; }
 
     /// <summary>Counts a bomb the shared bomb setup has just spawned.</summary>
     internal void RecordBombSpawned() => BombCounter++;

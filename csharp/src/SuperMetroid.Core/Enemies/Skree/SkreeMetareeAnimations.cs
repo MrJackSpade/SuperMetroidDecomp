@@ -69,7 +69,7 @@ internal static class SkreeMetareeAnimations
     /// The animation that starts at each segment an owner can start or restart at, each segment played whole; a dive's
     /// spin loops on from its entry cue (#2276).
     /// </summary>
-    internal static IReadOnlyDictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>> StartingAt { get; } = new Dictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>>
+    private static Dictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>> StartingAt { get; } = new Dictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>>
     {
         [P.MetareeIdling] = Animation<SkreeMetareeSegment>.Looping([Segments.Whole(P.MetareeIdling)]),
         [P.MetareePreparingAttack] = new([Segments.Whole(P.MetareePreparingAttack)], AnimationEnd.Holds),

@@ -12,7 +12,7 @@ internal readonly record struct TorizoPosture(HorizontalDirection Facing, Horizo
     internal static TorizoPosture Initial { get; } = new(HorizontalDirection.Left, HorizontalDirection.Left);
 
     /// <summary>Whether the Torizo is turning around; its drool then sprays in every direction.</summary>
-    internal bool IsTurning { get; init; }
+    internal bool IsTurning { get; private init; }
 
     /// <summary>The posture a step <paramref name="direction"/> on <paramref name="foot"/> leaves (#2165): facing that way on that foot, not turning.</summary>
     internal static TorizoPosture AfterStep(HorizontalDirection direction, HorizontalDirection foot) => new(direction, foot);

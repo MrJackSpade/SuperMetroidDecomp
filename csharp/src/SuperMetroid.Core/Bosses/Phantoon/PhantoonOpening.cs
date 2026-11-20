@@ -106,7 +106,7 @@ internal sealed class PhantoonOpening
     /// <summary>Allocates one intro flame at its place on the circle round the body; with no free place, none appears.</summary>
     /// <param name="phantoon">The encounter, whose body the flame circles.</param>
     /// <param name="start">The flame's starting angle round the body.</param>
-    internal void SpawnPhantoonStartingFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
+    private void SpawnPhantoonStartingFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
     {
         RoomEnemyPlace body = phantoon.Body;
         EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile();

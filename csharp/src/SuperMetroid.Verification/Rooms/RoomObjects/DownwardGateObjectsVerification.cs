@@ -137,8 +137,8 @@ internal static class DownwardGateObjectsVerification
         AssertTrue(places[0].Behaviour is DownwardGateObject,
             "first resident slot holds the closed downward gate");
         AssertEqual(1, places[1].UpdatePosition, "shot block is processed next");
-        AssertTrue(places[1].Behaviour is TerrainChangeObject { Change: var triggerChange }
-                && triggerChange == DownwardGateTriggerDefinitions.Triggers[new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)].Change,
+        AssertTrue(places[1].Behaviour is TerrainChangeObject trigger
+                && trigger.Starts(DownwardGateTriggerDefinitions.Triggers[new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)].Change),
             "argument zero selects the blue-left trigger's draw");
 
         for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
@@ -289,13 +289,12 @@ internal static class DownwardGateObjectsVerification
         ushort argument = unchecked((ushort)((RoomObjectBlockBehaviorNativeWords.DownwardGateTriggers.Word(trigger) - 0x46) * 2));
         // Supply imported placements directly. Cartridge header reads belong to import;
         // the guard below prohibits them only while the production runtime sets up slots.
-        var population = new RoomObjectPopulation($"$8F:{populationPointer:X4}",
-        [
+        var population = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation>([typeof(string), typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)], new object?[] { (string)($"$8F:{populationPointer:X4}"), (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([
             RoomObjectPlacementAccess.Placed(RoomObjectKind.DownwardGate,
                 new(gateX, gateY)),
             RoomObjectPlacementAccess.Placed(RoomObjectKind.DownwardGateShotBlock,
                 new(gateX, gateY), RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument)),
-        ]);
+        ]) });
         SeedDownwardGateProjectileRom(bus);
 
         RoomLevelData level = CreateRoom(new(roomWidth, 16),

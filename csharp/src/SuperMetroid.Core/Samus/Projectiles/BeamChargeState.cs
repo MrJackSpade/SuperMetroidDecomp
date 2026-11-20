@@ -44,7 +44,7 @@ internal sealed class BeamChargeState
     /// the flare's fast sparks show their last frame or anything clears the charge. While it shows, the charge reads as
     /// past every threshold (<see cref="Level"/>).
     /// </summary>
-    public bool HyperBeamFlare { get; private set; }
+    private bool HyperBeamFlare { get; set; }
 
     /// <summary>The charge as its tests read it now.</summary>
     public BeamChargeLevel Level => HyperBeamFlare ? BeamChargeLevel.HyperBeam : BeamChargeLevel.Charged(UpdatesHeld);
@@ -67,7 +67,7 @@ internal sealed class BeamChargeState
     /// shades alike (<see cref="SamusGlowAnimationDefinitions.ChargePulses"/>), so a change of suit or of charge kind goes
     /// on from the same place in the other pulse.
     /// </summary>
-    internal AnimationPlace ChargePulse { get; private set; } = AnimationPlace.StartOfAnimation;
+    private AnimationPlace ChargePulse { get; set; } = AnimationPlace.StartOfAnimation;
 
     /// <summary>
     /// Plays the charge pulse on by one update for <paramref name="kind"/> in <paramref name="suit"/> and returns the

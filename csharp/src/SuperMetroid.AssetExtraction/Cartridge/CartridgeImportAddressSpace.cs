@@ -63,7 +63,7 @@ public sealed class CartridgeImportAddressSpace : ISnesAddressSpace,
     /// <returns>The offset formed from 32 KiB banks, with the bank's mirror bit removed.</returns>
     /// <remarks>This arithmetic mapping does not check WRAM bank identity or whether an image contains the resulting offset.</remarks>
     /// <exception cref="ArgumentOutOfRangeException">The address is not 24-bit or selects the lower bank window.</exception>
-    public static int ToRomOffset(int address)
+    private static int ToRomOffset(int address)
     {
         if ((uint)address > CartridgeFormatDefinitions.HighestCpuAddress || (address & 0x8000) == 0) // cartridge-encoding: allow(Mapping) - LoROM upper-window bit
             throw new ArgumentOutOfRangeException(nameof(address), address,

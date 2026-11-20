@@ -52,7 +52,7 @@ public static class RoomLevelStreamFiles
     /// The family's document naming the collision kinds, in the order the level files write them by position; the levels
     /// are the retail rooms' (#1693), each in its own file.
     /// </summary>
-    public const string CollisionKindsFileName = "room-level-streams.json";
+    private const string CollisionKindsFileName = "room-level-streams.json";
     /// <summary>
     /// Collision-kind document schema version this loader accepts; version 3 installs typed blocks instead of decompressed
     /// level data, 4 names the collision kinds alone, with no level list, hash or cartridge digest (#1693), 5 writes each
@@ -91,7 +91,7 @@ public static class RoomLevelStreamFiles
     /// <summary>Formats the stable per-level filename without validating the level.</summary>
     /// <param name="level">The level, shared by all room states using it.</param>
     /// <returns><c>level-</c> followed by the level's name and <c>.bin</c>.</returns>
-    public static string LevelFileName(RoomLevelId level) => $"level-{level.Name}.bin";
+    private static string LevelFileName(RoomLevelId level) => $"level-{level.Name}.bin";
 
     /// <summary>
     /// Decompresses and decodes every distinct retail room level and writes each as typed blocks, and where each room's door

@@ -171,7 +171,7 @@ internal static class RoomFxRomDataVerification
     private static void VerifyRoomLayer3FxTypes()
     {
         var bus = new TestAddressSpace();
-        var state = new RoomFxOverlayState(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var state = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.RoomFxOverlayState>([typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
         const ushort record = 0x9400;
         SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordToolingConstants.DoorPointerOffset, 0);
         SeedSyntheticRoomFxByte(bus, record,

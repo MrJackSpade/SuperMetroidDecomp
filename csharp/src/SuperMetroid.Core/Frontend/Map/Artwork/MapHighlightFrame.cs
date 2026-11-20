@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 public readonly record struct MapHighlightFrame
 {
     /// <summary>The frame at <paramref name="frame"/> of the cycle.</summary>
-    internal MapHighlightFrame(int frame) => Frame = frame;
+    private MapHighlightFrame(int frame) => Frame = frame;
 
     /// <summary>The frame's place in the cycle, from zero: the step of its installed shade.</summary>
     public int Frame { get; }

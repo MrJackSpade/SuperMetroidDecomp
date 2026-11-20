@@ -22,7 +22,7 @@ public static class ScrollingSkyBandDefinitions
     public static SkyDrift Fast { get; } = new(SignedSixteenSixteen.FromPixelFraction(3, 4));
 
     /// <summary>The fastest drift, a pixel and a quarter a frame, which two bands share.</summary>
-    public static SkyDrift Fastest { get; } = new(SignedSixteenSixteen.FromPixelFraction(5, 4));
+    private static SkyDrift Fastest { get; } = new(SignedSixteenSixteen.FromPixelFraction(5, 4));
 
     /// <summary>Every drift the sky's bands move with.</summary>
     public static ImmutableArray<SkyDrift> Drifts { get; } = [Still, Slowest, Slow, Fast, Fastest];

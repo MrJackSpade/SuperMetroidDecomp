@@ -23,7 +23,7 @@ internal static class Program
 {
     /// <summary>Requires an explicit solution path and at most one mode flag.</summary>
     private const string Usage = "Usage: SuperMetroid.ArchitectureAudit --solution <SuperMetroid.Full.slnx> " +
-        "[--write | --findings | --prune-stale-reviews]";
+        "[--write | --findings | --prune-stale-reviews | --test-only-members | --fix-test-only-members]";
 
     /// <summary>Stable camel-case JSON settings shared by the inventory documents.</summary>
     private static readonly JsonSerializerOptions Json = new()
@@ -45,6 +45,8 @@ internal static class Program
                 ["--solution", var path, "--write"] => new AuditArguments(path, AuditMode.Write),
                 ["--solution", var path, "--findings"] => new AuditArguments(path, AuditMode.Findings),
                 ["--solution", var path, "--prune-stale-reviews"] => new AuditArguments(path, AuditMode.PruneStaleReviews),
+                ["--solution", var path, "--test-only-members"] => new AuditArguments(path, AuditMode.TestOnlyMembers),
+                ["--solution", var path, "--fix-test-only-members"] => new AuditArguments(path, AuditMode.FixTestOnlyMembers),
                 _ => throw new ArgumentException(Usage),
             };
             using var workspace = await SolutionLoader.OpenAsync(Path.GetFullPath(solutionPath));
@@ -63,18 +65,22 @@ internal static class Program
     /// steps, hands over the solution as its steps left it.
     /// </summary>
     internal static async Task<int> RunAsync(Solution solution, string repositoryRoot, AuditMode mode) =>
-        Run(await SolutionLoader.CompileAsync(solution, repositoryRoot), mode);
+        Run(await SolutionLoader.CompileAsync(solution, repositoryRoot,
+            // The fix regenerates the private access checks name, so it binds checks that lack it; shipped code compiles.
+            mode == AuditMode.FixTestOnlyMembers ? project => ProjectScope.IsCheck(project.AssemblyName) : null), mode);
 
     /// <summary>Runs the chosen mode on a compiled solution; returns the exit code.</summary>
     private static int Run(LoadedSolution solution, AuditMode mode)
     {
-        var entries = TypeInventory.Collect(solution);
         return mode switch
         {
-            AuditMode.PruneStaleReviews => StaleReviewPruner.Prune(StaleReviews(entries), solution.RepositoryRoot),
-            AuditMode.Findings => CheckFindings(solution, entries),
-            AuditMode.Check => CheckInventories(solution, entries, write: false),
-            AuditMode.Write => CheckInventories(solution, entries, write: true),
+            AuditMode.PruneStaleReviews => StaleReviewPruner.Prune(StaleReviews(TypeInventory.Collect(solution)), solution.RepositoryRoot),
+            AuditMode.Findings => CheckFindings(solution, TypeInventory.Collect(solution)),
+            AuditMode.Check => CheckInventories(solution, TypeInventory.Collect(solution), write: false),
+            AuditMode.Write => CheckInventories(solution, TypeInventory.Collect(solution), write: true),
+            AuditMode.TestOnlyMembers => Report(TestOnlyMembers.Census(solution),
+                "Test-only member census: no product member is wider than its production use for checks."),
+            AuditMode.FixTestOnlyMembers => TestOnlyMemberFixer.Fix(solution),
             _ => throw new InvalidOperationException($"Unknown audit mode {mode}."),
         };
     }
@@ -87,6 +93,7 @@ internal static class Program
     {
         string inventoryPath = Path.Combine(solution.RepositoryRoot, "docs", "architecture-inventory.json");
         var problems = JudgmentProblems(entries);
+        problems.AddRange(TestOnlyMembers.Census(solution));
         problems.AddRange(StaleReviews(entries).Select(stale =>
             $"Stale review: {stale.Type} justifies \"{stale.Review.Finding}\" but has no such finding; remove the attribute " +
             "(--prune-stale-reviews does)."));
@@ -115,13 +122,15 @@ internal static class Program
     }
 
     /// <summary>
-    /// The push gate: fails only on what needs judgment. The module inventory is generated for its Core cycles but not
-    /// compared, and stale reviews are not reported; the asynchronous cleanup regenerates and prunes both.
+    /// The push gate: fails only on what needs judgment, every test-only member (#2570) among it. The module inventory is
+    /// generated for its Core cycles but not compared, and stale reviews are not reported; the asynchronous cleanup
+    /// regenerates and prunes both.
     /// </summary>
     private static int CheckFindings(LoadedSolution solution, IReadOnlyList<TypeEntry> entries)
     {
         var problems = JudgmentProblems(entries);
         _ = ModuleInventory.Collect(solution, problems);
+        problems.AddRange(TestOnlyMembers.Census(solution));
         return Report(problems, $"Architecture findings passed: {entries.Count} types, " +
             $"{entries.Count(entry => entry.Flags.Count != 0)} findings justified at their sites, no Core module cycle.");
     }

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -124,7 +125,8 @@ internal static class EndingCreditsPresentation
     /// Whether the floor repeats beyond its edges (#1674): from the escape's setup through the planet's explosion and the
     /// music waits after it, until the gunship's planet escape shows nothing beyond its floor's edges.
     /// </summary>
-    internal static bool FloorRepeatsBeyondEdges(IEndingActorScene ending) => EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(ending.Phase);
+    [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "The ending is read only through the narrower capability interface SME6332 asks this parameter to take.")]
+    private static bool FloorRepeatsBeyondEdges(IEndingActorScene ending) => EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(ending.Phase);
 
     /// <summary>Whether the current explosion music wait renders a white screen.</summary>
     internal static bool ExplosionWhiteout(IEndingActorScene ending) => (ending.Phase == EndingCreditsPhase.WaitForPlanetEscapeMusic || ending.Phase == EndingCreditsPhase.WaitForPlanetEscapeMusicQueue);
@@ -186,7 +188,7 @@ internal static class EndingCreditsPresentation
     /// <paramref name="only"/>'s sprite layer, or all of them when it is null (#1514).
     /// </summary>
     /// <exception cref="InvalidOperationException">The ending shows a scene the presentation does not draw.</exception>
-    internal static ScreenSprites PrepareSprites(EndingCreditsState ending, EndingSpriteLayer? only = null)
+    private static ScreenSprites PrepareSprites(EndingCreditsState ending, EndingSpriteLayer? only = null)
     {
         var sprites = new ScreenSprites();
         sprites.BeginFrame();

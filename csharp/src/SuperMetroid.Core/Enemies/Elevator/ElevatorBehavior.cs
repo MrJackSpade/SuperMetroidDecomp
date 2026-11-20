@@ -106,7 +106,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Initializes the Elevator.</summary>
-    internal void InitializeElevator(RoomEnemyPlace place, SamusState samus)
+    private void InitializeElevator(RoomEnemyPlace place, SamusState samus)
     {
         var state = new ElevatorEnemyState();
         place.SetSpeciesState(state);
@@ -174,7 +174,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Waits for the travel direction input.</summary>
-    internal void WaitForElevatorDirectionInput(
+    private void WaitForElevatorDirectionInput(
         RoomEnemyPlace place,
         SamusState samus,
         GameplayAction newlyPressedControllerInput,

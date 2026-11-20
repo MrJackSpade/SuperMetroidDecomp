@@ -22,7 +22,7 @@ public sealed class MapScroll
     /// <param name="framing">How the screen frames the map.</param>
     /// <param name="limits">How far the map's revealed cells reach.</param>
     /// <param name="scroll">The screen's top-left corner as an offset from the map's corner.</param>
-    public MapScroll(MapFraming framing, MapScrollLimits limits, Offset16<MapPixels> scroll)
+    private MapScroll(MapFraming framing, MapScrollLimits limits, Offset16<MapPixels> scroll)
     {
         Framing = Ensure.NotNull(framing);
         Limits = limits;
@@ -30,16 +30,16 @@ public sealed class MapScroll
     }
 
     /// <summary>How the screen frames the map.</summary>
-    public MapFraming Framing { get; }
+    private MapFraming Framing { get; }
 
     /// <summary>How far the map's revealed cells reach.</summary>
-    public MapScrollLimits Limits { get; }
+    private MapScrollLimits Limits { get; }
 
     /// <summary>The screen's top-left corner as an offset from the map's corner, negative left of or above it.</summary>
     public Offset16<MapPixels> Scroll { get; private set; }
 
     /// <summary>The direction of the accepted eight-update scroll step, or <see cref="MapScrollDirection.None"/>.</summary>
-    public MapScrollDirection Direction { get; private set; }
+    private MapScrollDirection Direction { get; set; }
 
     /// <summary>
     /// The scroll a screen opens on: the revealed reach centred on the screen, the centring offset rounded down to whole

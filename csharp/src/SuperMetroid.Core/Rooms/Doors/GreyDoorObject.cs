@@ -27,32 +27,32 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
     }
 
     /// <summary>The door the cap stands in, as its placement named it.</summary>
-    internal PlacedDoor Door { get; }
+    private PlacedDoor Door { get; }
 
     /// <summary>A cap whose door has been opened for good stays open behind Samus.</summary>
     public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood) =>
         Door.IsOpenedForGood(openedForGood);
 
     /// <summary>Which grey cap this is.</summary>
-    internal GreyDoorVariant Variant { get; }
+    private GreyDoorVariant Variant { get; }
 
     /// <summary>What holds the cap locked: the condition it was placed with and what that condition reads (#2486).</summary>
-    internal GreyDoorLock Lock { get; }
+    private GreyDoorLock Lock { get; }
 
     /// <summary>What the cap is doing.</summary>
-    internal GreyDoorPhase Phase { get; private set; } = GreyDoorPhase.Locked;
+    private GreyDoorPhase Phase { get; set; } = GreyDoorPhase.Locked;
 
     /// <summary>
     /// What the cap waits for on each update: nothing until its first look locks it (a locked cap waiting for nothing has
     /// yet to take that look), and nothing once it opens.
     /// </summary>
-    internal GreyDoorWait Waits { get; private set; }
+    private GreyDoorWait Waits { get; set; }
 
     /// <summary>
     /// The shot at the cap's block it has yet to take (#2484, #2562). A shot that arrives before the cap waits for anything waits for
     /// it; a later shot before the cap takes it replaces it.
     /// </summary>
-    internal readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> strike = new();
+    private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> strike = new();
 
     /// <inheritdoc/>
     public void Strike(ResidentObjectProjectileHit hit) => strike.Land(hit);

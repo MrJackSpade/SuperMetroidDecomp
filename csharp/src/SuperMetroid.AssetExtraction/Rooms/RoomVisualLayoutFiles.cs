@@ -75,7 +75,7 @@ public static class RoomVisualLayoutFiles
     /// <summary>Formats the stable per-level installed JSON filename without validating the level.</summary>
     /// <param name="level">The level, shared by all room states using it; membership validation occurs during loading.</param>
     /// <returns><c>level-</c> followed by the level's name and <c>.json</c>.</returns>
-    public static string LevelFileName(RoomLevelId level) => $"level-{level.Name}.json";
+    private static string LevelFileName(RoomLevelId level) => $"level-{level.Name}.json";
 
     /// <summary>Decompresses every distinct retail room level and exports what its foreground and background blocks show, without terrain or behaviours.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for the compressed level streams identified by <see cref="RetailLevels"/>.</param>

@@ -16,7 +16,7 @@ internal sealed class OldTourianWallExplosionAnimation(IEnemyProjectileCues<OldT
     /// The segments' beats: the setup that stops the movement, the burst that scatters, plays its sound and shows the six
     /// pictures of a small explosion, and the deletion after the burst's last picture (#2276).
     /// </summary>
-    internal static AnimationSegments<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue> AllSegments { get; } = new(
+    private static AnimationSegments<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue> AllSegments { get; } = new(
         new Dictionary<OldTourianWallExplosionSegment, Beat[]>
         {
             [OldTourianWallExplosionSegment.Start] =

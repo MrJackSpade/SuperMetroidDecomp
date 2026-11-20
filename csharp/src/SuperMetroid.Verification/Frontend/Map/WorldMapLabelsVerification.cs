@@ -28,8 +28,7 @@ internal static class WorldMapLabelsVerification
             native.SelectArea(areaId); installed.SelectArea(areaId);
             // The two scenes' pixels are compared through their descriptions, drawn only when those differ (#1532).
             AssertTrue(ScenePixels.Same(native.Scene(used), installed.Scene(used)), "stock label pixels with position ROM blocked");
-            var nativeWindow = new FileSelectMapWindow(areaId,
-                ReadCartridgeMapWindowMotion(bus, area), original.Maps.Labels);
+            var nativeWindow = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.FileSelect.FileSelectMapWindow>([typeof(global::SuperMetroid.Core.Progression.AreaId), typeof(global::SuperMetroid.Core.Frontend.FileSelect.FileSelectMapWindowMotion), typeof(global::SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions)], new object?[] { (global::SuperMetroid.Core.Progression.AreaId)(areaId), (global::SuperMetroid.Core.Frontend.FileSelect.FileSelectMapWindowMotion)(ReadCartridgeMapWindowMotion(bus, area)), (global::SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions)(original.Maps.Labels) });
             var installedWindow = new FileSelectMapWindow(areaId, original.Maps.Labels);
             while (!nativeWindow.IsComplete)
             {

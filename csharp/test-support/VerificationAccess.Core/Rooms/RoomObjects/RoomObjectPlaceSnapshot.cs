@@ -23,6 +23,6 @@ internal readonly record struct RoomObjectPlaceSnapshot(
     /// Whether the place holds a downward gate's shot block: the terrain change a gate trigger's setup leaves running,
     /// which draws the trigger's shot block once before it leaves the room.
     /// </summary>
-    internal bool HoldsDownwardGateShotBlock => Behaviour is TerrainChangeObject { Change: var change }
-        && DownwardGateTriggerDefinitions.Triggers.Values.Any(trigger => trigger.Change == change);
+    internal bool HoldsDownwardGateShotBlock => Behaviour is TerrainChangeObject terrain
+        && DownwardGateTriggerDefinitions.Triggers.Values.Any(trigger => terrain.Draws(trigger.Change));
 }

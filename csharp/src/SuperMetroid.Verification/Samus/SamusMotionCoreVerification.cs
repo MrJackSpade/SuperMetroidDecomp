@@ -348,13 +348,15 @@ internal static void VerifySamusHorizontalSpeed()
     // `$90:87D3-$90:884B` advances the second echo, then the first echo as an actual draw side effect.
     // Both stored bodies trail a rightward-running Samus, so +8 approaches X=120 while Y
     // independently approaches 90 by two. Crossing clears an echo before it can emit OAM.
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(120, 90)),
+    booster.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(120, 90));
+    AssertTrue(booster.SecondSpeedEchoPosition is not null,
         "right departure the second echo remains before crossing");
     AssertEqual(113, booster.SecondSpeedEchoPosition!.Value.X,
         "right departure the second echo advances positive eight");
     AssertEqual(84, booster.SecondSpeedEchoPosition!.Value.Y,
         "right departure the second echo approaches Samus Y by two");
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90)),
+    booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90));
+    AssertTrue(booster.FirstSpeedEchoPosition is not null,
         "right departure the first echo remains before crossing");
     AssertEqual(109, booster.FirstSpeedEchoPosition!.Value.X,
         "right departure the first echo advances positive eight");
@@ -369,16 +371,19 @@ internal static void VerifySamusHorizontalSpeed()
     booster.CancelRunningMomentum(SamusFacingDirection.Left);
     AssertEqual(8, booster.FirstSpeedEchoHorizontalSpeed,
         "repeated cancellation cannot reverse an active departure");
-    AssertTrue(!booster.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(120, 90)),
+    booster.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(120, 90));
+    AssertTrue(booster.SecondSpeedEchoPosition is null,
         "right departure the second echo clears on crossing");
     AssertTrue(booster.SecondSpeedEchoPosition is null,
         "crossed the second echo holds no echo");
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90)),
+    booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90));
+    AssertTrue(booster.FirstSpeedEchoPosition is not null,
         "right departure the first echo remains one more frame");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(SpeedEchoPhase.Departing, booster.SpeedEchoPhase,
         "one surviving departure keeps high-bit index");
-    AssertTrue(!booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90)),
+    booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90));
+    AssertTrue(booster.FirstSpeedEchoPosition is null,
         "right departure the first echo eventually crosses");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(SpeedEchoPhase.CapturingFirst, booster.SpeedEchoPhase,
@@ -394,19 +399,23 @@ internal static void VerifySamusHorizontalSpeed()
         "left-facing first departure speed is negative eight");
     AssertEqual(-8, leftDeparture.SecondSpeedEchoHorizontalSpeed,
         "left-facing second departure speed is negative eight");
-    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(140, 100)),
+    leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(140, 100));
+    AssertTrue(leftDeparture.SecondSpeedEchoPosition is not null,
         "left departure the second echo remains before crossing");
     AssertEqual(146, leftDeparture.SecondSpeedEchoPosition!.Value.X,
         "left departure the second echo advances negative eight");
     AssertEqual(96, leftDeparture.SecondSpeedEchoPosition!.Value.Y,
         "left departure the second echo approaches Samus Y by two");
-    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(140, 100)),
+    leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(140, 100));
+    AssertTrue(leftDeparture.FirstSpeedEchoPosition is not null,
         "left departure the first echo remains before crossing");
     AssertEqual(142, leftDeparture.FirstSpeedEchoPosition!.Value.X,
         "left departure the first echo advances negative eight");
-    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(140, 100)),
+    leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(140, 100));
+    AssertTrue(leftDeparture.SecondSpeedEchoPosition is null,
         "left departure the second echo clears after passing Samus");
-    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(140, 100)),
+    leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(140, 100));
+    AssertTrue(leftDeparture.FirstSpeedEchoPosition is null,
         "left departure the first echo clears after passing Samus");
     leftDeparture.FinishDepartingSpeedEchoFrame();
     AssertEqual(SpeedEchoPhase.CapturingFirst, leftDeparture.SpeedEchoPhase,

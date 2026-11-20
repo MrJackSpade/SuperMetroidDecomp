@@ -42,7 +42,7 @@ internal static class WaverAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<WaverSegment, Animation<WaverSegment>> StartingAt { get; } = new Dictionary<WaverSegment, Animation<WaverSegment>>
+    private static Dictionary<WaverSegment, Animation<WaverSegment>> StartingAt { get; } = new Dictionary<WaverSegment, Animation<WaverSegment>>
     {
         [P.SteadyFacingLeft] = new([Segments.Whole(P.SteadyFacingLeft)], AnimationEnd.Holds),
         [P.SteadyFacingRight] = new([Segments.Whole(P.SteadyFacingRight)], AnimationEnd.Holds),

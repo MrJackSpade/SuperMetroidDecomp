@@ -206,7 +206,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The Rio's hover velocity along <paramref name="angle"/>'s sine: one pixel per update at its peak, the sine itself
     /// with no speed of its own, unlike Rinka's.
     /// </summary>
-    internal static SignedEightEight HoverVelocity(TrigonometryAngle angle) =>
+    private static SignedEightEight HoverVelocity(TrigonometryAngle angle) =>
         EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>Runs Rio's main AI.</summary>

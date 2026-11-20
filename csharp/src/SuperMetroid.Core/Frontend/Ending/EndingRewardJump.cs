@@ -37,11 +37,11 @@ internal sealed class EndingRewardJump
     /// <summary>How Samus's body moves (#2541): standing until her jump, rising, falling back once above the screen, then landed.</summary>
     private EndingRewardJumpMotion bodyMotion;
     /// <summary>Shared vertical velocity; each active actor movement applies gravity to it.</summary>
-    internal SignedSixteenSixteen Velocity { get; private set; }
+    private SignedSixteenSixteen Velocity { get; set; }
     /// <summary>Whether Samus has passed above the screen and shows as the falling Samus, falling back or landed.</summary>
-    internal bool FellBack => bodyMotion is EndingRewardJumpMotion.Falling or EndingRewardJumpMotion.Landed;
+    private bool FellBack => bodyMotion is EndingRewardJumpMotion.Falling or EndingRewardJumpMotion.Landed;
     /// <summary>Whole-pixel body height used to select the falling and landed animations.</summary>
-    public int BodyY => body.ScreenPlace.Y;
+    private int BodyY => body.ScreenPlace.Y;
 
     /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
     public EndingRewardJump(EndingReward reward)

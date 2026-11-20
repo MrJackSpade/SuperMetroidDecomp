@@ -29,7 +29,7 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class CrashOrbitTravelCarryover
 {
     /// <summary>The largest travel held; one more step continues from zero.</summary>
-    public const int LargestTravel = 65535;
+    private const int LargestTravel = 65535;
 
     /// <summary>The travel at which the copies stop orbiting.</summary>
     private const int OrbitEnd = 128;
@@ -41,7 +41,7 @@ public sealed class CrashOrbitTravelCarryover
     /// The orbit's travel, 0 through <see cref="LargestTravel"/>: what the last orbiting update made of it, or the height
     /// the first released echo last left, or nothing.
     /// </summary>
-    public int Travel { get; private set; }
+    private int Travel { get; set; }
 
     /// <summary>
     /// Adds one orbiting update's travel, continuing past <see cref="LargestTravel"/> from zero, and reports whether the

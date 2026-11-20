@@ -20,22 +20,22 @@ internal sealed class ListPlaces
     internal void Take() => Held++;
 }
 
-/// <summary>A list's slots over its places; <see cref="places"/> says which hold an entry.</summary>
+/// <summary>A list's slots over its places; <see cref="_places"/> says which hold an entry.</summary>
 internal sealed class ListSlots
 {
     /// <summary>The list's places.</summary>
-    internal readonly ListPlaces places;
+    private readonly ListPlaces _places;
 
     /// <summary>Creates the slots over <paramref name="places"/>.</summary>
     /// <param name="places">The list's places.</param>
     internal ListSlots(ListPlaces places)
     {
-        this.places = places;
+        _places = places;
     }
 
     /// <summary>The name production reports the slots' places under.</summary>
-    internal static string PlacesName => nameof(places);
+    internal static string PlacesName => nameof(_places);
 
     /// <summary>How many slots hold an entry, which production reads.</summary>
-    internal int Count => places.Held;
+    internal int Count => _places.Held;
 }

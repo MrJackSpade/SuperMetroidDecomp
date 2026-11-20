@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectChozoStatueVisualFiles
 {
     /// <summary>JSON filename for the cleared Chozo hand and Wrecked Ship slope-access appearances.</summary>
-    public const string VisualFileName = "chozo-statues.json";
+    private const string VisualFileName = "chozo-statues.json";
 
     /// <summary>The Chozo statue as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -38,7 +38,7 @@ public static class RoomObjectChozoStatueVisualFiles
     }
 
     /// <summary>The draw lists of the three statue draws.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -59,7 +59,7 @@ public static class RoomObjectChozoStatueVisualFiles
     /// colliding as the game's block shape for the frame says (#1622). The run form is the cartridge's; the game draws
     /// the shape.
     /// </summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryShape(ChozoStatueDraws.Family, request, out RoomBlockShape? described))
         {
@@ -82,6 +82,6 @@ public static class RoomObjectChozoStatueVisualFiles
     }
 
     /// <summary>Names the cleared hand or blocked/clear slope layout without changing collision ownership.</summary>
-    internal static string VisualId(RoomObjectDraw request) =>
+    private static string VisualId(RoomObjectDraw request) =>
         ChozoStatueDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<ChozoStatueDraw>(request, "Chozo statue draw with a visual ID"));
 }

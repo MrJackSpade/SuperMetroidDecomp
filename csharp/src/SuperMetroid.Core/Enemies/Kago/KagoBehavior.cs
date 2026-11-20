@@ -56,7 +56,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Runs the Kago's own response to a shot, after the common enemy shot reaction has hurt it.
     /// </summary>
-    internal void ResolveKagoShotAfterCommon(RoomEnemyPlace place, KagoEnemyState state)
+    private void ResolveKagoShotAfterCommon(RoomEnemyPlace place, KagoEnemyState state)
     {
         _earthquake.Start(KagoDefinitions.ShotQuake, KagoDefinitions.ShotQuakeDuration);
 
@@ -91,7 +91,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>A Kago bug (#1760).</summary>
-    internal BugBehavior Bug => field ??= new BugBehavior(_room, _audio, _deathsAndDrops);
+    private BugBehavior Bug => field ??= new BugBehavior(_room, _audio, _deathsAndDrops);
 
     /// <summary>
     /// A Kago bug: it waits, jumps and falls, handles its animations' cues, and a shot bug runs its typed shot
@@ -292,7 +292,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Spawns and initializes a Kago bug; with no projectile place free, none spawns.</summary>
-    internal void SpawnKagoBug(RoomEnemyPlace source)
+    private void SpawnKagoBug(RoomEnemyPlace source)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

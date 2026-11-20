@@ -12,11 +12,28 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// (<see cref="EnemyProjectileEngine"/>); each tested block is then judged by the move's
 /// <see cref="EnemyProjectileBlockCollision"/>.
 /// </remarks>
-/// <param name="First">The first block tested, its row as the edge or span names it; <see cref="Block"/> takes it within the cycle.</param>
-/// <param name="Edge">The edge scanned: horizontal for a horizontal move, stepping down the column; vertical for a vertical one, stepping along the row.</param>
-/// <param name="ExtraBlocks">How many blocks the scan tests after the first, 0 through 4095.</param>
-internal readonly record struct EnemyProjectileBlockScan(Position16<RoomBlocks> First, Axis Edge, int ExtraBlocks)
+internal readonly record struct EnemyProjectileBlockScan
 {
+    /// <summary>A value of its parts; only its own operations make one.</summary>
+    /// <param name="first">The first block tested, its row as the edge or span names it; <see cref="Block"/> takes it within the cycle.</param>
+    /// <param name="edge">The edge scanned: horizontal for a horizontal move, stepping down the column; vertical for a vertical one, stepping along the row.</param>
+    /// <param name="extraBlocks">How many blocks the scan tests after the first, 0 through 4095.</param>
+    private EnemyProjectileBlockScan(Position16<RoomBlocks> first, Axis edge, int extraBlocks)
+    {
+        First = first;
+        Edge = edge;
+        ExtraBlocks = extraBlocks;
+    }
+
+    /// <summary>The first block tested, its row as the edge or span names it; <see cref="Block"/> takes it within the cycle.</summary>
+    public Position16<RoomBlocks> First { get; init; }
+
+    /// <summary>The edge scanned: horizontal for a horizontal move, stepping down the column; vertical for a vertical one, stepping along the row.</summary>
+    public Axis Edge { get; init; }
+
+    /// <summary>How many blocks the scan tests after the first, 0 through 4095.</summary>
+    public int ExtraBlocks { get; init; }
+
     /// <summary>The scan across a leading edge.</summary>
     /// <param name="edgePixel">The leading edge's pixel on the axis of the move; it wraps past the room coordinates' 65535.</param>
     /// <param name="spanStartPixel">The first pixel of the span across the move; it wraps past 65535.</param>

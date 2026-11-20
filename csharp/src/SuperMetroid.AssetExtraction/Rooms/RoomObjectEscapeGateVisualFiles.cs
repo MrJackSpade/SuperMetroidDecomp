@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectEscapeGateVisualFiles
 {
     /// <summary>The installed file holding the gate frames' pictures.</summary>
-    public const string VisualFileName = "escape-gate.json";
+    private const string VisualFileName = "escape-gate.json";
 
     /// <summary>The gate frames in the installed file's order (#2567): open, half closed, closed.</summary>
     private static readonly IReadOnlyList<MotherBrainEscapeGateDraw> FrameOrder = Ensure.EveryMemberOnce<MotherBrainEscapeGateDraw>(

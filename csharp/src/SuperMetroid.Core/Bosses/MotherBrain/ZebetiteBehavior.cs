@@ -62,10 +62,10 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The Zebetites' shared pulse (#2259), advanced by every primary Zebetite in the room through its cycle (#2470); it
     /// starts at its first frame with the room. It selects only the pulse the Zebetites show.
     /// </summary>
-    public ListStep<ZebetitePulse> SharedPulse { get; internal set; } = ListStep<ZebetitePulse>.FirstOf(ZebetitePulse.All);
+    private ListStep<ZebetitePulse> SharedPulse { get; set; } = ListStep<ZebetitePulse>.FirstOf(ZebetitePulse.All);
 
     /// <summary>The pulse frame last shown, or null before the pulse's first step in the room (#1512).</summary>
-    internal ZebetitePulse? PulseShown { get; private set; }
+    private ZebetitePulse? PulseShown { get; set; }
 
     /// <summary>The shading every Zebetite draws in: the pulse frame last shown, or the sheet's own colours before it.</summary>
     internal PictureShading PulseShading => PulseShown is { } pulse
@@ -181,7 +181,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Steps the shared pulse, which holds while the shared fade count is past a fade's start: the room's enemies run
     /// between a door fade's steps, and the pulse waits for the fade.
     /// </summary>
-    internal void CycleZebetiteColours(RoomEnemyPlace place)
+    private void CycleZebetiteColours(RoomEnemyPlace place)
     {
         if (_fadeStepCount.IsPastStart || place.RequireSpeciesState<ZebetiteEnemyState>().Half == ZebetiteHalf.Linked)
             return;
@@ -194,7 +194,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Chooses the picture the half's form and current health show (#2250), which the animation pass shows on this update.
     /// </summary>
-    internal static void ChooseZebetiteHealthPicture(
+    private static void ChooseZebetiteHealthPicture(
         RoomEnemyPlace place,
         ZebetiteEnemyState state)
     {
@@ -215,7 +215,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Finds a free place in the room's enemies and initializes a primary or linked half from its population entry.</summary>
-    internal RoomEnemyPlace SpawnZebetite(ZebetiteHalf half)
+    private RoomEnemyPlace SpawnZebetite(ZebetiteHalf half)
     {
         // The spawn takes the first free place. In particular, a primary's death vacates
         // its place before spawning the next generation; surviving linked halves keep

@@ -27,10 +27,12 @@ internal static class GameplayBasePalettesVerification
         GameplayBasePalette baseline = GameplayBasePaletteFiles.LoadForImport(importData);
         AssertTrue(!Directory.Exists(Path.Combine(RepositoryInstallation.Installation.ContentDirectory, GameInstallationLayout.GameplayBasePaletteDirectoryName)),
             "the installation holds no gameplay base palette");
-        // The starting image holds the background colours, then the sprite colours, in the cartridge's order.
+        // The starting image holds the background colours, which checks decode, then the sprite colours, in the cartridge's order.
+        RgbColor[] background = GameplayStartingColoursAccess.BackgroundColours(importData);
         for (int color = 0; color < SnesCgram.ColorCount; color++)
             AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.InitialPalette + color * 2),
-                StartingColour(baseline, color), $"installed starting colour {color}");
+                color < background.Length ? background[color] : baseline.Starting.SpriteColours[color - background.Length],
+                $"installed starting colour {color}");
         for (int color = 0; color < GameplayBasePaletteFormat.SpriteColorCount; color++)
             AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.CommonSpritePalette + color * 2),
                 baseline.CommonSprites[color], $"installed shared OBJ color {color}");
@@ -39,10 +41,6 @@ internal static class GameplayBasePalettesVerification
         _ = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
 
         Console.WriteLine("Gameplay base palettes: 256+16 cartridge colors and guarded runtime construction pass.");
-
-        static RgbColor StartingColour(GameplayBasePalette palette, int color) =>
-            color < palette.Starting.BackgroundColours.Length ? palette.Starting.BackgroundColours[color]
-                : palette.Starting.SpriteColours[color - palette.Starting.BackgroundColours.Length];
 
         static ushort ReadWord(ISnesAddressSpace addressSpace, int address) =>
             LittleEndianBytes.Word(GameplayBasePalettesRomByte(addressSpace, address), GameplayBasePalettesRomByte(addressSpace, address + 1));

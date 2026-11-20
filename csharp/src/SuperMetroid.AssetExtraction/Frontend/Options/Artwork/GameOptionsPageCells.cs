@@ -50,7 +50,7 @@ public static class GameOptionsPageCells
     /// choices seven cells apart. Exit has no boxes.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The setting is not a toggle.</exception>
-    public static GameOptionsToggleLayout ToggleLayout(int setting)
+    private static GameOptionsToggleLayout ToggleLayout(int setting)
     {
         if ((uint)setting >= (uint)SpecialRowIndex(GameOptionsSpecialRow.Exit)) throw new ArgumentOutOfRangeException(nameof(setting));
         int rowStride = GameOptionsPageDefinitions.MenuTilemapWidth * sizeof(ushort);

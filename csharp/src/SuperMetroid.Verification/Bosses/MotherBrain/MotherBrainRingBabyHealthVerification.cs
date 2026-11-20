@@ -34,12 +34,12 @@ internal static class MotherBrainRingBabyHealthVerification
 
         // The movie's hit: the ring reaches ($AE,$8C), exactly $24 above the Baby at ($CE,$B0).
         EnemyProjectile ring = runtime.Enemies.Projectiles.ProjectileInPlace(16);
-        ring.Kind = RoomEnemyProjectileKind.MotherBrainOnionRing;
+        global::SuperMetroid.Core.PrivateState.Set(ring, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.MotherBrainOnionRing));
         ring.Position = ring.Position.WithWhole(new(0x00ae, 0x008c));
         ring.Radius = new(1, 1);
         ring.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         runtime.Enemies.MotherBrainBehavior.Projectiles.OnionRing.OnionRings.Start(ring, new MotherBrainOnionRingState(state, mouthWaitUpdates: 1));
-        babyMetroid.Position = babyMetroid.Position.WithWhole(new(0x00ce, 0x00b0));
+        global::SuperMetroid.Core.PrivateState.Set(babyMetroid, "Position", (global::SuperMetroid.Core.Spatial.FixedPosition<global::SuperMetroid.Core.Spatial.RoomPixels>)(babyMetroid.Position.WithWhole(new(0x00ce, 0x00b0))));
 
         runtime.Enemies.MotherBrainBehavior.Projectiles.OnionRing.FlyMotherBrainOnionRing(ring, runtime.Player.IntroducedSamus, 0);
         AssertEqual(0x0c30, babyMetroid.Health, "the ring charges the Baby $50");

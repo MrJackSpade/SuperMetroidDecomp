@@ -33,7 +33,7 @@ public sealed class EnemyProjectile
     /// </summary>
     public int Place { get; }
     /// <summary>What the projectile is, or <see cref="RoomEnemyProjectileKind.None"/> once it is gone or has freed its place.</summary>
-    public RoomEnemyProjectileKind Kind { get; internal set; }
+    public RoomEnemyProjectileKind Kind { get; private set; }
     /// <summary>Gets whether the projectile holds its place and takes part in the projectile passes.</summary>
     public bool IsActive => Kind != RoomEnemyProjectileKind.None;
     /// <summary>
@@ -94,7 +94,7 @@ public sealed class EnemyProjectile
     /// cues and names its shot and touch animations. The spawner binds it with the kind; none until then. A projectile
     /// that ends keeps it, so the cues its animation publishes on the way out still reach their owner.
     /// </summary>
-    internal EnemyProjectileBehavior? Behavior { get; set; }
+    internal EnemyProjectileBehavior? Behavior { get; private set; }
     /// <summary>Gets the sheet and shading the projectile draws its own pictures with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; }
 

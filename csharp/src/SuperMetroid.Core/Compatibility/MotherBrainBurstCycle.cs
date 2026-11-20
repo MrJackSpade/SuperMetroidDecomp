@@ -28,7 +28,7 @@ public sealed class MotherBrainBurstCycle
     /// The place the last burst took in its effect's list of positions; the next burst takes the place before it. It may
     /// hold a place past the end of the next effect's list or below zero, as the encounter's earlier steps leave it.
     /// </summary>
-    public int Place { get; private set; }
+    private int Place { get; set; }
 
     /// <summary>The update a burst is due on, after its interval's updates have passed.</summary>
     private const int DueUpdate = 1;

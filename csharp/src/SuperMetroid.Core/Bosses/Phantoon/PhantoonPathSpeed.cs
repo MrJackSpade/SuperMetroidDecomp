@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public readonly record struct PhantoonPathSpeed
 {
     /// <summary>Keeps the speed in places an update, fraction included, at the precision the game steps it in.</summary>
-    internal PhantoonPathSpeed(SignedSixteenSixteen places) => _places = places;
+    private PhantoonPathSpeed(SignedSixteenSixteen places) => _places = places;
 
     /// <summary>The speed in places an update, fraction included.</summary>
     private readonly SignedSixteenSixteen _places;

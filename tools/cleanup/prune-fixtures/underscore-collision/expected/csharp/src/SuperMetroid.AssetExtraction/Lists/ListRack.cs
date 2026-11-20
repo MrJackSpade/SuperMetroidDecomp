@@ -29,7 +29,4 @@ internal sealed class ListRack
 
     /// <summary>How many places the rack has, which production reads under the name its catalog gives it.</summary>
     internal int places => _places.Capacity;
-
-    /// <summary>Twice the rack's places, which only checks read.</summary>
-    internal int Doubled => this._places.Capacity * 2;
 }

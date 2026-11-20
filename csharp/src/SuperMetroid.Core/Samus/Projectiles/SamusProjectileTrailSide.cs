@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public sealed class SamusProjectileTrailSide
 {
     /// <summary>
-    /// Where the sparkle stands from its trail's <see cref="SamusProjectileTrail.Origin"/>: its placement from the shot,
+    /// Where the sparkle stands from its trail's <c>Origin</c>: its placement from the shot,
     /// four pixels up and left where its picture is drawn from, and each pixel its cues have since moved it down.
     /// </summary>
     public Offset16<RoomPixels> Offset { get; internal set; }

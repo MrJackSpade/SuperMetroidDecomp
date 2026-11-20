@@ -60,15 +60,15 @@ internal static class EscapeDachoraAnimations
         Animation<P>.Looping([Segments.Repeated(P.RunningAroundLowTideLeft, LapsEachWay), Segments.Repeated(P.RunningAroundLowTideRight, LapsEachWay)]);
 
     /// <summary>Five quicker laps left then five right at high tide, each lap counted, over and over (#2061).</summary>
-    internal static Animation<P> RunningAroundHighTide { get; } =
+    private static Animation<P> RunningAroundHighTide { get; } =
         Animation<P>.Looping([Segments.Repeated(P.RunningAroundHighTideLeft, LapsEachWay), Segments.Repeated(P.RunningAroundHighTideRight, LapsEachWay)]);
 
     /// <summary>The pause, the acceleration, then the sprint at full speed for good.</summary>
-    internal static Animation<P> RunningForEscape { get; } = Animation<P>.LeadingInto(
+    private static Animation<P> RunningForEscape { get; } = Animation<P>.LeadingInto(
         [Segments.Whole(P.RunningForEscape), Segments.Whole(P.RunningForEscapeAccelerating)], [Segments.Whole(P.RunningForEscapeMaximumSpeed)]);
 
     /// <summary>The acceleration, then the sprint at full speed for good.</summary>
-    internal static Animation<P> RunningForEscapeAccelerating { get; } = Animation<P>.LeadingInto(
+    private static Animation<P> RunningForEscapeAccelerating { get; } = Animation<P>.LeadingInto(
         [Segments.Whole(P.RunningForEscapeAccelerating)], [Segments.Whole(P.RunningForEscapeMaximumSpeed)]);
 
     /// <summary>

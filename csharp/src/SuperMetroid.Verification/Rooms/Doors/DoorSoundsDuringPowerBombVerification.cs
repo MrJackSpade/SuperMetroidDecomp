@@ -35,7 +35,7 @@ internal static class DoorSoundsDuringPowerBombVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         runtime.Player.IntroducedSamus.Control.LockOutPlayer();
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         game.Step(0);
 

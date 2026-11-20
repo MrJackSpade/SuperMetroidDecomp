@@ -12,13 +12,13 @@ internal static class MaridiaElevatubeDefinitions
     internal const int SamusCenterX = 128;
 
     /// <summary>A ride entered from Oasis to the south: from room Y 2496, one pixel per update upward, gaining an eighth of a pixel per update upward each update.</summary>
-    internal static readonly MaridiaElevatubeRideStart FromSouth = new(
+    private static readonly MaridiaElevatubeRideStart FromSouth = new(
         StartingY: 2496,
         StartingVelocity: SignedEightEight.FromPixels(-1),
         Acceleration: SignedEightEight.FromPixelFraction(-1, 8));
 
     /// <summary>A ride entered from Plasma Spark to the north: from room Y 64, one pixel per update downward, gaining an eighth of a pixel per update downward each update.</summary>
-    internal static readonly MaridiaElevatubeRideStart FromNorth = new(
+    private static readonly MaridiaElevatubeRideStart FromNorth = new(
         StartingY: 64,
         StartingVelocity: SignedEightEight.FromPixels(1),
         Acceleration: SignedEightEight.FromPixelFraction(1, 8));

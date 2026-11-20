@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <summary>
 /// Bomb and Golden Torizo's body animation segments (#641, #1788, #2235, #2411): each a run of steps an animation plays
 /// whole, once or a number of times. The animations the encounter's AI, its movement, its reactions and its cues start are
-/// <see cref="TorizoAnimation"/>s, each playing the segments <see cref="TorizoAnimations.StartingAt"/> lists for it; a run
+/// <see cref="TorizoAnimation"/>s, each playing the segments <see cref="TorizoAnimations"/> lists for it; a run
 /// several animations play alike (a turn, a walk's steps, a fall's pose, a volley of orbs) is one segment each plays, and a
 /// run the Torizo holds until something changes (a jump's rise, Golden Torizo's drop, its open chest) is a segment its
 /// animation loops on.

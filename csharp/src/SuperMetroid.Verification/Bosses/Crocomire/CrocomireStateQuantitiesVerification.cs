@@ -122,7 +122,7 @@ internal static class CrocomireStateQuantitiesVerification
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemyPlace body = state.Body;
-        state.DeathStage = CrocomireDeathStages.Nth<CrocomireDeathStage.Sink>(1);
+        global::SuperMetroid.Core.PrivateState.Set(state, "DeathStage", (global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathStage>)(CrocomireDeathStages.Nth<CrocomireDeathStage.Sink>(1)));
         state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
@@ -160,7 +160,7 @@ internal static class CrocomireStateQuantitiesVerification
     {
         (_, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemyPlace body = state.Body;
-        state.DeathStage = CrocomireDeathStages.Nth<CrocomireDeathStage.Rise>(1);
+        global::SuperMetroid.Core.PrivateState.Set(state, "DeathStage", (global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathStage>)(CrocomireDeathStages.Nth<CrocomireDeathStage.Rise>(1)));
         state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
@@ -265,7 +265,7 @@ internal static class CrocomireStateQuantitiesVerification
         FixedPosition<RoomPixels> position = body.Position;
         int delay = 40;
         death.SkeletonFallWait.LastFor(delay);
-        state.DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.DelaySkeletonFall>();
+        global::SuperMetroid.Core.PrivateState.Set(state, "DeathStage", (global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathStage>)(CrocomireDeathStages.Only<CrocomireDeathStage.DelaySkeletonFall>()));
 
         // The drift right of the broken wall, while the skeleton is left of X 224.
         for (int frame = 1; frame <= delay; frame++)
@@ -375,7 +375,7 @@ internal static class CrocomireStateQuantitiesVerification
                 $"the acid's sound on update {update} of his death");
         }
 
-        state.DeathStage = CrocomireDeathStages.Nth<CrocomireDeathStage.Sink>(1);
+        global::SuperMetroid.Core.PrivateState.Set(state, "DeathStage", (global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathStage>)(CrocomireDeathStages.Nth<CrocomireDeathStage.Sink>(1)));
         body.Position = body.Position.WithWholeY(CrocomireBridgeCollapseDefinitions.SunkenY);
         enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireSink(state, default);
         AssertEqual(CrocomireDeathStages.Nth<CrocomireDeathStage.SubmergedPause>(2), state.DeathStage, "the sink ends at the acid's floor");

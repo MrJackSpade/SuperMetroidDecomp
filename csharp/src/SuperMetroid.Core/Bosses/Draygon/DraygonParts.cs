@@ -232,7 +232,7 @@ internal sealed class DraygonParts
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Runs the eye direction partition.</summary>
-    internal void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)
+    private void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)
     {
         RoomEnemyPlace eye = state.Eye;
         // The eye breathes its bubble on its cadence whether or not its gaze turns,
@@ -310,7 +310,7 @@ internal sealed class DraygonParts
         facing == HorizontalDirection.Right ? facingRight : facingRight.MirroredX();
 
     /// <summary>Spawns a goop as either of the body animation's two goop cues does.</summary>
-    internal void SpawnDraygonGoop(DraygonEnemyState state, HorizontalDirection direction)
+    private void SpawnDraygonGoop(DraygonEnemyState state, HorizontalDirection direction)
     {
         EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile();
         if (goop is null)

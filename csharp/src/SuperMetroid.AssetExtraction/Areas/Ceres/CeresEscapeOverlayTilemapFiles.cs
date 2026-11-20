@@ -37,7 +37,7 @@ internal static class CeresEscapeOverlayTilemapFiles
     /// after another, each its upper row and then its lower.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="page"/> is not one of the overlays.</exception>
-    internal static SnesAddress Source(CeresEscapeWarningPicture page)
+    private static SnesAddress Source(CeresEscapeWarningPicture page)
     {
         if (page == CeresEscapeWarningPictures.Emergency)
             return CeresSourceDefinitions.EscapeOverlay.Emergency;

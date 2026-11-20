@@ -327,7 +327,7 @@ internal sealed class IntroNarrationActors
     }
 
     /// <summary>Starts the existing caret sprite's blinking animation, whose first frame it shows on this update.</summary>
-    internal void SetCaretBlinking()
+    private void SetCaretBlinking()
     {
         // The caret-blink cue starts the existing caret sprite's blinking animation, and the sprite's update that follows
         // shows its first frame at once.

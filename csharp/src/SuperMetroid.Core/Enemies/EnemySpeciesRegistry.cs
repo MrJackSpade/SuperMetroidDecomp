@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemySpeciesRegistry
 {
     /// <summary>The factory of every definition the room can bind.</summary>
-    internal Dictionary<EnemyDefinitionId, IEnemyEntityFactory> Factories { get; } = [];
+    private Dictionary<EnemyDefinitionId, IEnemyEntityFactory> Factories { get; } = [];
 
     /// <summary>The shared participation every entity composes.</summary>
     private readonly EnemyCommonParticipation _common;
@@ -16,7 +16,7 @@ internal sealed class EnemySpeciesRegistry
     /// <param name="common">The shared participation every entity composes.</param>
     /// <param name="factories">The species' factories.</param>
     /// <exception cref="InvalidOperationException">Two factories own one definition.</exception>
-    internal EnemySpeciesRegistry(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories)
+    private EnemySpeciesRegistry(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories)
     {
         _common = Ensure.NotNull(common);
         foreach (IEnemyEntityFactory factory in Ensure.NotNull(factories))

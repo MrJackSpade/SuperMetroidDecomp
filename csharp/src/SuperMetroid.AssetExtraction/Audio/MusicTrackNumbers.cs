@@ -16,10 +16,10 @@ namespace SuperMetroid.AssetExtraction.Audio;
 internal static class MusicTrackNumbers
 {
     /// <summary>The number of each data set's first own song, which a room that keeps the loaded set plays as its area theme.</summary>
-    internal const int AreaThemeTrack = 5;
+    private const int AreaThemeTrack = 5;
 
     /// <summary>Each shared song's track number, the same in every data set.</summary>
-    internal static readonly FrozenDictionary<MusicTrack, int> SharedNumbers = new Dictionary<MusicTrack, int>
+    private static readonly FrozenDictionary<MusicTrack, int> SharedNumbers = new Dictionary<MusicTrack, int>
     {
         [MusicTrack.SamusFanfare] = 1,
         [MusicTrack.ItemFanfare] = 2,

@@ -12,7 +12,7 @@ internal readonly record struct TextureDrift
     /// The pixels across and down after which every effect overlay picture shows the same again: each picture's width and
     /// height divides it.
     /// </summary>
-    internal const int RepeatPixels = 256;
+    private const int RepeatPixels = 256;
 
     /// <summary>The drift across, its whole pixels 0 through one repeat less one.</summary>
     private readonly FixedCoordinate across;

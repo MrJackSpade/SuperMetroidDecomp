@@ -126,15 +126,16 @@ internal static class CoreAccess
     /// <summary>Reads the shooting-star array in its native update order.</summary>
     extension(EndingShootingStars shootingStars)
     {
-        /// <summary>Current private star array in its native update order.</summary>
-        internal ReadOnlySpan<EndingShootingStar> Stars => shootingStars.stars;
+        /// <summary>Current private star array in its native update order, which a check may place a star in.</summary>
+        internal Span<EndingShootingStar> Stars => PrivateState.Field<EndingShootingStars, EndingShootingStar[]>(shootingStars, "stars");
     }
 
     /// <summary>Observes canonical sample totals and source mappings after audio extraction.</summary>
     extension(ExtractedAudioAssetCatalog catalog)
     {
         /// <summary>Number of unique samples retained after canonicalization.</summary>
-        internal int CanonicalSampleCount => catalog.canonicalSampleCount;
+        internal int CanonicalSampleCount => catalog.sampleBanks.Values
+            .SelectMany(bank => bank.Samples.Values).Distinct(ReferenceEqualityComparer.Instance).Count();
         /// <summary>Total source-sample mappings across installed audio banks.</summary>
         internal int SourceMappingCount => catalog.sampleBanks
             .Values.Sum(bank => bank.Samples.Count);
@@ -158,7 +159,7 @@ internal static class CoreAccess
     extension(ColourEffectSystem fx)
     {
         /// <summary>The colour effects running.</summary>
-        internal int ActiveCount => fx.effects.Count;
+        internal int ActiveCount => fx.RunningEffects.Count;
     }
 
 
@@ -184,9 +185,9 @@ internal static class CoreAccess
     /// <summary>Rebinds enemy fixtures and inspects Kraid collision, statue requests, and pirate slot state.</summary>
     extension(RoomEnemySystem enemies)
     {
-        /// <summary>The room objects the Chozo statue has asked for and the room has still to spawn, in the order it asked.</summary>
+        /// <summary>The room objects the Chozo statue has asked for since the pass or the load began, in the order it asked (#2562).</summary>
         internal IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ChozoStatueObjectRequests =>
-            PrivateState.Field<ChozoStatueBehavior, List<RoomObjectSpawnRequest<ChozoStatueRoomObject>>>(enemies.ChozoStatueBehavior, "_objectRequests");
+            [.. enemies.PassEvents.Published.OfType<ChozoStatueObjectAsked>().Select(asked => asked.Request)];
         /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
         internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
             [.. enemies.Places.InUpdateOrder.Select(place => place.SpeciesState<ChozoStatueState>())];

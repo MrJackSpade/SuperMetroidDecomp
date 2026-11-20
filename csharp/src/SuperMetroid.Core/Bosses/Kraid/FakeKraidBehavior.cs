@@ -75,7 +75,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Sets Fake Kraid up when the room spawns it.</summary>
-    internal void InitializeFakeKraid(RoomEnemyPlace place, SamusState samus)
+    private void InitializeFakeKraid(RoomEnemyPlace place, SamusState samus)
     {
         var state = new FakeKraidEnemyState();
         place.SetSpeciesState(state);
@@ -194,7 +194,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Fake Kraid's left and right spit steps.</summary>
-    internal void SpawnFakeKraidSpitPair(
+    private void SpawnFakeKraidSpitPair(
         RoomEnemyPlace place,
         HorizontalDirection direction)
     {
@@ -207,7 +207,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Allocates one spit projectile above and just ahead of Fake Kraid's body with its authored velocity; a full enemy
     /// projectile pool spawns none.
     /// </summary>
-    internal void SpawnFakeKraidSpit(
+    private void SpawnFakeKraidSpit(
         RoomEnemyPlace source,
         int xOffset,
         PixelVelocity<RoomPixels> velocity)
@@ -229,7 +229,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Allocates a spike at an authored body row, flying the way Fake Kraid faces (#2278).</summary>
     /// <returns>False when the enemy projectile pool is full.</returns>
-    internal bool SpawnFakeKraidSpike(
+    private bool SpawnFakeKraidSpike(
         RoomEnemyPlace source,
         FakeKraidEnemyState state,
         FakeKraidSpikeRow row)
@@ -327,7 +327,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Fake Kraid's spit and spikes (#1760): their spawners start their animations.</summary>
-    internal SpitAndSpikeBehavior SpitAndSpikes { get; } = new();
+    private SpitAndSpikeBehavior SpitAndSpikes { get; } = new();
 
     /// <summary>Fake Kraid's spit, with room collision then capped gravity, or a spike flying until it strikes a wall.</summary>
     internal sealed class SpitAndSpikeBehavior : EnemyProjectileBehavior

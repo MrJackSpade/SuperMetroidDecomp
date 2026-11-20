@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Spatial;
 public readonly record struct FloorZoomStep
 {
     /// <summary>A step of <paramref name="twoHundredFiftySixths"/> 256ths of a floor pixel per screen pixel, at least one.</summary>
-    internal FloorZoomStep(int twoHundredFiftySixths) =>
+    private FloorZoomStep(int twoHundredFiftySixths) =>
         TwoHundredFiftySixths = Ensure.BetweenInclusive(1, int.MaxValue, twoHundredFiftySixths);
 
     /// <summary>The step in 256ths of a floor pixel per screen pixel, at least one.</summary>

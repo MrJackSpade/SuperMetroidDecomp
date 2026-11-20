@@ -22,7 +22,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     internal EyeDoorOrientation Orientation { get; } = orientation;
 
     /// <summary>The door the eye stands in, as its placement named it.</summary>
-    internal PlacedDoor Door { get; } = Ensure.NotNull(door);
+    private PlacedDoor Door { get; } = Ensure.NotNull(door);
 
     /// <summary>What the eye is doing.</summary>
     internal EyeDoorEyePhase Phase { get; private set; } = EyeDoorEyePhase.Placed;
@@ -31,10 +31,10 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     /// The hits counted toward the threshold. It only counts up, by one a hit or straight to the threshold on a Super
     /// Missile, and the eye is destroyed once it reaches the threshold.
     /// </summary>
-    internal int HitCounter { get; private set; }
+    private int HitCounter { get; set; }
 
     /// <summary>Whether a shot at the eye's block reaches it: from its opening until the hit that destroys it.</summary>
-    internal bool TakesShots { get; private set; }
+    private bool TakesShots { get; set; }
 
     /// <summary>
     /// The shot at the eye's block it has yet to take (#2484, #2562). A shot that arrives before the eye takes shots waits for

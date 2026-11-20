@@ -72,7 +72,7 @@ internal static class FrontendFloorSheetComposer
     /// <exception cref="InvalidDataException">
     /// The installed map or characters are shorter than the title loads, or the map shows no cell of the Baby.
     /// </exception>
-    internal static ComposedSpriteSheet Title(TitleGraphicsCharacters graphics, TitlePalettePresentation palette)
+    private static ComposedSpriteSheet Title(TitleGraphicsCharacters graphics, TitlePalettePresentation palette)
     {
         TitleGraphicsCharacters title = Ensure.NotNull(graphics);
         if (title.FloorMap.Length < TitleFloorTileDefinitions.FloorMapByteCount)
@@ -149,7 +149,7 @@ internal static class FrontendFloorSheetComposer
     /// <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
-    internal static ComposedSpriteSheet Ceres(ImportIntroCinematicArtwork intro, IPaletteFxColorSource paletteFx) =>
+    private static ComposedSpriteSheet Ceres(ImportIntroCinematicArtwork intro, IPaletteFxColorSource paletteFx) =>
         Ceres(Ensure.NotNull(intro).FlightCharacters, intro.CeresDestructionMaps,
             intro.FlightPalette, paletteFx);
 
@@ -159,7 +159,7 @@ internal static class FrontendFloorSheetComposer
     /// from <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
-    internal static ComposedSpriteSheet Ceres(CeresFlightCharacters flight, CeresDestructionMaps destruction, CeresFlightPalette colours,
+    private static ComposedSpriteSheet Ceres(CeresFlightCharacters flight, CeresDestructionMaps destruction, CeresFlightPalette colours,
         IPaletteFxColorSource paletteFx)
     {
         Ensure.NotNull(flight);

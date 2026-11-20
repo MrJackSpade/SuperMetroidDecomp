@@ -28,7 +28,7 @@ public static class BotwoonHealthBandDefinitions
     public static BotwoonHealthBand BelowQuarter { get; } = new(750, "below-quarter");
 
     /// <summary>Botwoon below 375 health: below an eighth of his health, his last colours.</summary>
-    public static BotwoonHealthBand BelowEighth { get; } = new(375, "below-eighth");
+    private static BotwoonHealthBand BelowEighth { get; } = new(375, "below-eighth");
 
     /// <summary>The bands in the order he shows them, the order his installed health colours hold them in.</summary>
     public static IReadOnlyList<BotwoonHealthBand> InOrderShown { get; } =

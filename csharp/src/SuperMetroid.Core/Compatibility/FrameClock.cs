@@ -21,7 +21,7 @@
 internal sealed class FrameClock
 {
     /// <summary>How many frames <see cref="ShortCounter"/> counts before it returns to zero.</summary>
-    internal const int ShortCounterPeriod = 256;
+    private const int ShortCounterPeriod = 256;
 
     /// <summary>How many frames <see cref="Counter"/> counts before it returns to zero.</summary>
     internal const int CounterPeriod = 65536;
@@ -70,7 +70,7 @@ internal sealed class FrameClock
     /// Takes over the counters another owner kept, such as the frontend that counted before this runtime existed or an
     /// imported snapshot. The game has one pair of counters; creating a runtime never resets them.
     /// </summary>
-    internal void Import(int shortCounter, int counter)
+    private void Import(int shortCounter, int counter)
     {
         ShortCounter = Ensure.BetweenInclusive(0, ShortCounterPeriod - 1, shortCounter);
         Counter = Ensure.BetweenInclusive(0, CounterPeriod - 1, counter);

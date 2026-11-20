@@ -24,7 +24,7 @@ public sealed class DachoraEnemyState
     public SignedSixteenSixteen Speed { get; internal set; }
 
     /// <summary>While blinking or charging: the phase's wait, which ends the phase on its last update.</summary>
-    public UpdateCountdown PhaseTimer { get; internal set; } = UpdateCountdown.Ended();
+    public UpdateCountdown PhaseTimer { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// While shinesparking: the updates before the body next places an echo on its trail, which the launch clears so the
@@ -60,7 +60,7 @@ public sealed class DachoraEnemyState
 
     /// <summary>The updates left before the glow cycle shows <see cref="GlowFrame"/>.</summary>
     [IntegerQuantity("updates left before the glow cycle advances")]
-    public int GlowTicks => _glowCycle.UpdatesLeft;
+    private int GlowTicks => _glowCycle.UpdatesLeft;
 
     /// <summary>Sets the glow cycle to <paramref name="cycle"/>, as the run, wall, launch and ceiling phases restart or clear it.</summary>
     internal void SetGlowCycle(DachoraGlowCycle cycle) => _glowCycle = cycle;

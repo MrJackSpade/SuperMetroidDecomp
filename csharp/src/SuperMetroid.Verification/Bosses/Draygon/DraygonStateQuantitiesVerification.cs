@@ -57,7 +57,7 @@ internal static class DraygonStateQuantitiesVerification
     private static EnemyProjectile AttachedGoop(RoomEnemySystem enemies)
     {
         EnemyProjectile goop = enemies.Projectiles.ProjectileInPlace(17);
-        goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
+        global::SuperMetroid.Core.PrivateState.Set(goop, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.DraygonGoop));
         goop.StartMotion(enemies.DraygonBehavior.Shots.Goop.GoopStuckToSamus);
         enemies.DraygonBehavior.Shots.Goop.Attached.Start(goop, new DraygonGoopAttachedState(stackPosition: 1));
         return goop;

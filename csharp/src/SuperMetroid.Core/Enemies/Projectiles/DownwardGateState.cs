@@ -23,5 +23,5 @@ internal sealed class DownwardGateState(Position16<RoomBlocks> roomObjectBlock, 
     /// The gate's travel to its next block, counted once for each whole pixel it moves (#2047): it reaches the next block,
     /// and starts the travel again, once it has moved a block's pixels (<see cref="RoomGridConversions.BlockPixels"/>).
     /// </summary>
-    internal UpdateCountdown BlockTravel { get; set; } = UpdateCountdown.Lasting(RoomGridConversions.BlockPixels);
+    internal UpdateCountdown BlockTravel { get; } = UpdateCountdown.Lasting(RoomGridConversions.BlockPixels);
 }

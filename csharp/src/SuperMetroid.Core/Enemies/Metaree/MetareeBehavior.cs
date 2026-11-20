@@ -76,7 +76,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts preparation within 72 horizontal pixels and takes the dive's speed from Samus's height (<see cref="MetareeDiveSpeed"/>).</summary>
-    internal static void RunMetareeIdle(
+    private static void RunMetareeIdle(
         RoomEnemyPlace place,
         MetareeEnemyState state,
         SamusState samus)
@@ -93,7 +93,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Launches the attack its preparation readied: starts the dive animation and publishes the dive sound.</summary>
-    internal void LaunchMetareeAttack(RoomEnemyPlace place, MetareeEnemyState state)
+    private void LaunchMetareeAttack(RoomEnemyPlace place, MetareeEnemyState state)
     {
         StartMetareeAnimation(place, state, SkreeMetareeSegment.MetareeDiving);
         state.Action = MetareeAction.LaunchedAttack;
@@ -145,7 +145,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts <paramref name="animation"/> unless it is the one playing, which keeps playing (#2145).</summary>
-    internal static void StartMetareeAnimation(
+    private static void StartMetareeAnimation(
         RoomEnemyPlace place,
         MetareeEnemyState state,
         SkreeMetareeSegment animation) =>

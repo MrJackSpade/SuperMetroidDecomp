@@ -27,7 +27,8 @@ internal static class RidleyMissedLungeVerification
         place.Health = 1000;
         place.Position = place.Position.WithWhole(new(160, 400));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 420)) };
-        var state = new NorfairRidleyState { Phase = NorfairRidleyPhase.GrabApproach, FightMode = RidleyFightMode.Fighting, Flight = { FacingDirection = RidleyFacing.Left, MovementMinimum = new Offset16<RoomPixels>(32, 64), MovementMaximum = new Offset16<RoomPixels>(224, 416) } };
+        var state = new NorfairRidleyState { Phase = NorfairRidleyPhase.GrabApproach, FightMode = RidleyFightMode.Fighting, Flight = { FacingDirection = RidleyFacing.Left, MovementMinimum = new Offset16<RoomPixels>(32, 64) } };
+        global::SuperMetroid.Core.PrivateState.Set(state.Flight, "MovementMaximum", new Offset16<RoomPixels>(224, 416));
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(NorfairRidleyPhase.HoverSetup, state.Phase,
             "low missed lunge exits immediately when Ridley Y + 35 reaches Samus Y");

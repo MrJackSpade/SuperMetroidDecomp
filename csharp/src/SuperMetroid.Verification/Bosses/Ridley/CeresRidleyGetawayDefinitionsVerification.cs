@@ -65,7 +65,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
                 cursor += 9;
                 checkedTransfers++;
             }
-            IReadOnlyDictionary<int, int> drawn = CeresFloorDrawings.Cells(pointer);
+            Dictionary<int, int> drawn = CeresFloorDrawings.Cells(pointer);
             AssertTrue(drawn.Count == expected.Count && expected.All(cell => drawn.TryGetValue(cell.Key, out int tile) && tile == cell.Value),
                 $"Ceres {pointer}'s picture writes exactly the cells and tiles its list writes");
         }

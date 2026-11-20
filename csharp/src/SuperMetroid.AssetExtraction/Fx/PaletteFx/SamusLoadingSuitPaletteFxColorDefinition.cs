@@ -8,7 +8,6 @@ public sealed class SamusLoadingSuitPaletteFxColorDefinition
     {
     }
 
-
     /// <summary>The mutually exclusive suit palette.</summary>
     public required SamusLoadingSuitPaletteFxProgramOwner Owner { get; init; }
 

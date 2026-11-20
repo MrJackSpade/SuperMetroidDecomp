@@ -59,7 +59,7 @@ internal sealed class MotherBrainRainbowAndDeath
     }
 
     /// <summary>Carries out what one step of her death asked of the room: explosions, fades, music, the escape and its door.</summary>
-    internal void ApplyLiveMotherBrainDeath(MotherBrainEnemyState state, MotherBrainRainbowBeamAttackStepResult step)
+    private void ApplyLiveMotherBrainDeath(MotherBrainEnemyState state, MotherBrainRainbowBeamAttackStepResult step)
     {
         foreach (var explosion in step.DeathExplosions)
         {
@@ -130,7 +130,7 @@ internal sealed class MotherBrainRainbowAndDeath
     }
 
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
-    internal void SpawnMotherBrainDeathExplosion(MotherBrainEnemyState state, MotherBrainDeathExplosionRequest request)
+    private void SpawnMotherBrainDeathExplosion(MotherBrainEnemyState state, MotherBrainDeathExplosionRequest request)
     {
         DustExplosionAnimation animation = MotherBrainDeathExplosionDefinitions.Animations[request.Animation];
         var projectile = _projectiles.AllocateEnemyProjectile();
@@ -144,7 +144,7 @@ internal sealed class MotherBrainRainbowAndDeath
     }
 
     /// <summary>Spawns the falling door fragment <paramref name="definition"/>.</summary>
-    internal void SpawnMotherBrainDoorFragment(MotherBrainDoorFragmentDefinition definition)
+    private void SpawnMotherBrainDoorFragment(MotherBrainDoorFragmentDefinition definition)
     {
         var fragment = _projectiles.AllocateEnemyProjectile();
         if (fragment is null) return;
@@ -189,7 +189,7 @@ internal sealed class MotherBrainRainbowAndDeath
     /// Carries out what one step of the late fight asked of the room: colours, the beam's sound and earthquake, Samus's
     /// cooldown, the Baby's spawn, beam explosions and her death's requests. The phases wrote her own state in place.
     /// </summary>
-    internal void ApplyLiveMotherBrainRainbowState(
+    private void ApplyLiveMotherBrainRainbowState(
         MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackSequence sequence,
         MotherBrainRainbowBeamAttackStepResult current,
@@ -244,7 +244,7 @@ internal sealed class MotherBrainRainbowAndDeath
     }
 
     /// <summary>Spawns a rainbow explosion that follows Samus at the requested offset.</summary>
-    internal void SpawnMotherBrainRainbowExplosion(
+    private void SpawnMotherBrainRainbowExplosion(
         Position16<RoomPixels> samusBeforeMovement,
         MotherBrainRainbowExplosionRequest request)
     {

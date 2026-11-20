@@ -90,7 +90,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
             AssertEqual(block, place.Block, "the statue's room object sits at its requested block");
             AssertTrue(statueObject == ChozoStatueRoomObject.LowerNorfairHand
                     ? place.Behaviour is LowerNorfairChozoHandObject { Phase: LowerNorfairChozoHandPhase.Starting }
-                    : place.Behaviour is TerrainChangeObject { Change: var started } && started == changes[statueObject]
+                    : place.Behaviour is TerrainChangeObject started && started.Starts(changes[statueObject])
                         && (place.Behaviour is ChozoSlopeAccessObject) == (statueObject == ChozoStatueRoomObject.SlopeAccessOpening || statueObject == ChozoStatueRoomObject.SlopeAccessClosing),
                 $"Chozo statue's {statueObject} starts as its typed object");
 

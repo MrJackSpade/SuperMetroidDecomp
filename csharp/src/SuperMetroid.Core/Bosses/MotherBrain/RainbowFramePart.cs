@@ -14,7 +14,7 @@ public readonly record struct RainbowFramePart
     private const int PartsPerUpdate = 3;
 
     /// <summary>Holds <paramref name="parts"/> of a frame's parts, from none up to one short of a whole frame.</summary>
-    internal RainbowFramePart(int parts) => Parts = Ensure.BetweenInclusive(0, PartsPerFrame - 1, parts);
+    private RainbowFramePart(int parts) => Parts = Ensure.BetweenInclusive(0, PartsPerFrame - 1, parts);
 
     /// <summary>The frame's parts accumulated, from none up to one short of a whole frame, which the type carries into frames.</summary>
     private int Parts { get; }

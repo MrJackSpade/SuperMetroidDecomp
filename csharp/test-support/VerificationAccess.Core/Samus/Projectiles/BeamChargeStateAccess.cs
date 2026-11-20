@@ -20,7 +20,7 @@ internal static class BeamChargeStateAccess
         internal int ChargeGlowStep
         {
             get => self.ChargePulse.Beat == AnimationPlace.NotEntered ? 0 : self.ChargePulse.Beat % PulseShades;
-            set => PrivateState.Set(self, nameof(BeamChargeState.ChargePulse),
+            set => PrivateState.Set(self, "ChargePulse",
                 new AnimationPlace(0, Ensure.BetweenInclusive(0, PulseShades - 1, value)));
         }
 

@@ -218,17 +218,17 @@ internal static class RoomObjectRoomArgumentWords
         CollectibleObject item => ArgumentWord(new CollectibleIdentity(item.Location)),
         SaveStationObject station => ArgumentWord(new SaveStationPlace(station.SavedAt)),
         MetroidRoomClearanceObject watch => ArgumentWord(new WatchedMetroidRoom(watch.Cleared)),
-        TerrainChangeObject { Change: var change } when GateTriggerDrawing(change) is { } trigger =>
+        TerrainChangeObject terrain when GateTriggerDrawing(terrain) is { } trigger =>
             ArgumentWord(new GateShotTrigger(trigger)),
         _ => null,
     };
 
-    /// <summary>The gate trigger whose shot block <paramref name="change"/> draws, or null for any other terrain change.</summary>
-    private static DownwardGateTrigger? GateTriggerDrawing(TerrainChange change)
+    /// <summary>The gate trigger whose shot block <paramref name="terrain"/> draws, or null for any other terrain change.</summary>
+    private static DownwardGateTrigger? GateTriggerDrawing(TerrainChangeObject terrain)
     {
         foreach (DownwardGateTrigger trigger in GateTriggersInTableOrder)
         {
-            if (DownwardGateTriggerDefinitions.Triggers[trigger].Change == change)
+            if (terrain.Draws(DownwardGateTriggerDefinitions.Triggers[trigger].Change))
                 return trigger;
         }
         return null;

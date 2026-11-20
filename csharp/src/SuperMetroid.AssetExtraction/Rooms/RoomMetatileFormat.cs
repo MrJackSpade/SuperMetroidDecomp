@@ -12,7 +12,7 @@ public static class RoomMetatileFormat
     /// <summary>Eight bytes per compiled 16x16 block: one little-endian 16-bit tilemap word per tile.</summary>
     public const int BytesPerBlock = TilesPerBlock * sizeof(ushort);
     /// <summary>Maximum accepted definitions in one atlas, limiting its compiled native table to $2000 bytes.</summary>
-    public const int MaximumBlockCount = 1024;
+    private const int MaximumBlockCount = 1024;
     /// <summary>Logical character-catalog columns used to split or compose the tilemap word's ten-bit character index.</summary>
     public const int TileColumns = 32;
     /// <summary>Logical character-catalog rows; together with 32 columns these address all 1024 BG character indices.</summary>

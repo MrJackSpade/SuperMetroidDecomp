@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingCreditsRollScene(CreditsScroll scroll) : EndingScene
 {
     /// <summary>The staff credits' scroll.</summary>
-    internal CreditsScroll Scroll { get; } = Ensure.NotNull(scroll);
+    private CreditsScroll Scroll { get; } = Ensure.NotNull(scroll);
 
     /// <inheritdoc/>
     internal override bool Step(EndingCreditsState ending)

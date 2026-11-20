@@ -98,7 +98,7 @@ internal sealed class CeresRidleyHits
     /// frame Ridley shows; the tiny 8x8 radius in Ridley's species definition is not his body and must never be
     /// substituted for this data.
     /// </summary>
-    internal static bool FrameHitboxesOverlapRectangle(
+    private static bool FrameHitboxesOverlapRectangle(
         RoomEnemyPlace place,
         Position16<RoomPixels> subject,
         Extent16<RoomPixels> subjectRadius)

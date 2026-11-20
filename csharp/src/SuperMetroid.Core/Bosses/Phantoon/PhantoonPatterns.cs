@@ -77,7 +77,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Moves his body along its figure-eight path by the figure-eight's speed.</summary>
-    internal static void StepPhantoonFigureEight(RoomEnemyPlace body, PhantoonFigureEightState figureEight)
+    private static void StepPhantoonFigureEight(RoomEnemyPlace body, PhantoonFigureEightState figureEight)
     {
         bool backwards = figureEight.Direction == PhantoonPathDirection.Backwards;
         if (backwards)
@@ -103,7 +103,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Changes horizontal velocity over the forward half of a figure-eight.</summary>
-    internal static void AdjustPhantoonForwardFigureEightSpeed(PhantoonFigureEightState figureEight)
+    private static void AdjustPhantoonForwardFigureEightSpeed(PhantoonFigureEightState figureEight)
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
         {
@@ -136,7 +136,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Changes horizontal velocity over the returning half of a figure-eight.</summary>
-    internal static void AdjustPhantoonReverseFigureEightSpeed(PhantoonFigureEightState figureEight)
+    private static void AdjustPhantoonReverseFigureEightSpeed(PhantoonFigureEightState figureEight)
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
         {
@@ -174,7 +174,7 @@ internal sealed class PhantoonPatterns
         figureEight.Speed += change;
 
     /// <summary>Advances the casual-flame burst while he runs his figure-eight.</summary>
-    internal void StepPhantoonCasualFlameSchedule(PhantoonEnemyState state)
+    private void StepPhantoonCasualFlameSchedule(PhantoonEnemyState state)
     {
         if (!state.CasualFlames.Hold.StepRunsOut())
             return;
@@ -680,7 +680,7 @@ internal sealed class PhantoonPatterns
     /// <summary>Initializes an enraged flame, which circles the body from its start as its circle widens.</summary>
     /// <param name="phantoon">The encounter, whose body the flame circles.</param>
     /// <param name="start">Where on its circle the flame starts and which way it circles.</param>
-    internal void SpawnPhantoonRageFlame(PhantoonEnemyState phantoon, PhantoonRageFlameStart start)
+    private void SpawnPhantoonRageFlame(PhantoonEnemyState phantoon, PhantoonRageFlameStart start)
     {
         RoomEnemyPlace body = phantoon.Body;
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
@@ -697,7 +697,7 @@ internal sealed class PhantoonPatterns
     /// <summary>Initializes a spiral flame, which circles the body clockwise from its start as its circle widens.</summary>
     /// <param name="phantoon">The encounter, whose body the flame circles.</param>
     /// <param name="start">The flame's starting angle round the body.</param>
-    internal void SpawnPhantoonSpiralFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
+    private void SpawnPhantoonSpiralFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
     {
         RoomEnemyPlace body = phantoon.Body;
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
@@ -710,9 +710,9 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Initializes a rain flame over a room column, falling after it hangs.</summary>
     /// <param name="body">Phantoon's body.</param>
-    /// <param name="columnX">The screen X of the rain column the flame falls in (<see cref="PhantoonFlameSpawns.RainXs"/>).</param>
+    /// <param name="columnX">The screen X of the rain column the flame falls in (<see cref="PhantoonFlameSpawnDefinitions.RainXs"/>).</param>
     /// <param name="hangUpdates">The updates from the flame's first to its fall, the flame hanging on every earlier one.</param>
-    internal void SpawnPhantoonRainFlame(RoomEnemyPlace body, int columnX, int hangUpdates)
+    private void SpawnPhantoonRainFlame(RoomEnemyPlace body, int columnX, int hangUpdates)
     {
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)

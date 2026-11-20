@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class ChargingSoundResumption
 {
     /// <summary>Whether the resumption is armed for the next post-draw check.</summary>
-    public bool IsArmed { get; private set; }
+    private bool IsArmed { get; set; }
 
     /// <summary>A spin's end or the hurt flash's recovery arms the resumption for the next post-draw check.</summary>
     internal void Arm() => IsArmed = true;

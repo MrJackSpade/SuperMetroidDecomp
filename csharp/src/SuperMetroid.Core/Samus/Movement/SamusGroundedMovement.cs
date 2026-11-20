@@ -25,7 +25,7 @@ public static class SamusGroundedMovement
     /// <remarks>
     /// <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/> and <see cref="SamusPoseId.ForwardFacingSuitedPose"/> share <see cref="SamusMovementType.Standing"/> movement with ordinary standing, but the game
     /// returns before horizontal movement, speed cleanup, and the one-pixel grounding probe.
-    /// It clears <see cref="SamusState.SolidVerticalCollisionResult"/> every update; while an elevator moves, it first
+    /// It clears her solid vertical collision result (<see cref="SamusState"/>) every update; while an elevator moves, it first
     /// moves her one pixel down through the downward block collision. The elevator actor remains a separate producer of the status,
     /// and of the platform art; this method holds the complete Samus-side consumer.
     /// </remarks>

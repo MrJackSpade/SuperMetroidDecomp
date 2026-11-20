@@ -27,11 +27,7 @@ public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane, PicturedPlaneL
     /// The plane line shown on the screen's top line, every line's: a displacement in the plane's space, which holds it as
     /// it holds every picture's corner and every plane layer's scroll (<see cref="Offset16{TSpace}"/>, #1627).
     /// </summary>
-    public int VerticalScroll
-    {
-        get;
-        init => field = PlaneLine(value);
-    } = PlaneLine(VerticalScroll);
+    public int VerticalScroll { get; } = PlaneLine(VerticalScroll);
 
     /// <summary>A vertical displacement in the plane's space, as the plane's offsets hold it.</summary>
     private static int PlaneLine(int line) => Offset16<PlanePixels>.Of(0, line).Y;

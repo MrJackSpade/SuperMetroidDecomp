@@ -75,7 +75,7 @@ internal static class HibashiAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<HibashiSegment, Animation<HibashiSegment>> StartingAt { get; } = new Dictionary<HibashiSegment, Animation<HibashiSegment>>
+    private static Dictionary<HibashiSegment, Animation<HibashiSegment>> StartingAt { get; } = new Dictionary<HibashiSegment, Animation<HibashiSegment>>
     {
         [P.Flame] = new([Segments.Whole(P.Flame)], AnimationEnd.Holds),
         [P.Hitbox] = new([Segments.Whole(P.Hitbox)], AnimationEnd.Holds),

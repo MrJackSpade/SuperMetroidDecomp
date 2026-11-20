@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -19,7 +20,7 @@ internal static class SamusSpritemapSourcesAccess
         /// <summary>Returns false only for an entry with no composition, which draws nothing.</summary>
         internal bool TryGet(int index, [NotNullWhen(true)] out SamusSpritemapDefinition? definition)
         {
-            definition = self.TryGetEntry(index, out SamusSpritemapId composition) ? self.definitions[composition.Ordinal] : null;
+            definition = self.TryGetEntry(index, out SamusSpritemapId composition) ? self.Definitions[composition.Ordinal] : null;
             return definition is not null;
         }
     }

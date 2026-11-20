@@ -71,7 +71,7 @@ internal sealed class EnemyProcessingWindow
     /// <remarks>
     /// The window measures across the room's axis, as <see cref="CameraPastRoomEdge.LiesBefore"/> reads it, because it tests
     /// every enemy and an enemy can lie above or left of the room's origin (#2537): a fly that has climbed through the
-    /// ceiling, or a Bull braking past Samus, as <see cref="EnemyDeathsAndDrops.TendEnemyPickup"/> records. Its centre then
+    /// ceiling, or a Bull braking past Samus, as <see cref="EnemyDeathsAndDrops"/> records. Its centre then
     /// lies at the end of the axis, and the window reads it the short way from the camera, across the axis. With the
     /// camera at or near the room's left edge, a body whose centre lies past that edge but whose radius reaches back past
     /// the camera is processed and drawn; with the camera at or near the room's top, so is a centre above that edge and no

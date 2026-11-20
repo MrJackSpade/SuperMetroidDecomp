@@ -8,9 +8,5 @@ namespace SuperMetroid.Core.Rendering;
 public sealed record PlacedFloor(FloorView View, AffineFloor Map)
 {
     /// <summary>The floor's map and pictures.</summary>
-    public AffineFloor Map
-    {
-        get;
-        init => field = Ensure.NotNull(value);
-    } = Ensure.NotNull(Map);
+    public AffineFloor Map { get; } = Ensure.NotNull(Map);
 }

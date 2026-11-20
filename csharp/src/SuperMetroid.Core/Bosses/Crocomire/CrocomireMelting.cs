@@ -75,7 +75,7 @@ internal sealed class CrocomireMelting
     /// <exception cref="InvalidOperationException">No boss body sheets are installed.</exception>
     /// <exception cref="InvalidDataException">His body sheet has no such melt image.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="illustration"/> is not one of his two melt images.</exception>
-    internal BossBodyFrame RequireCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
+    private BossBodyFrame RequireCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
         _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(CrocomireMeltingFrameNames.Of(illustration));
 
     /// <summary>Starts the selected body melting animation, which the melt image just shown on his body layer goes with.</summary>
@@ -126,7 +126,7 @@ internal sealed class CrocomireMelting
     /// skull an update after them that shows none.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="pass"/> is not a melt image.</exception>
-    internal static int BandRound(CrocomireMeltingIllustration pass) => pass switch
+    private static int BandRound(CrocomireMeltingIllustration pass) => pass switch
     {
         CrocomireMeltingIllustration.Flesh => CrocomireMeltingDefinitions.FirstPassBandRound,
         CrocomireMeltingIllustration.BareSkull => CrocomireMeltingDefinitions.SecondPassBandRound,
@@ -190,7 +190,7 @@ internal sealed class CrocomireMelting
     /// band at the new step, starting the bands over after the last, and his body shows the whole melt image as the step
     /// leaves it (#1513). Once every column is erased it shows nothing more, while the distortion runs on to its end.
     /// </summary>
-    internal void EraseNextCrocomireMeltingColumn(CrocomireDeathState death)
+    private void EraseNextCrocomireMeltingColumn(CrocomireDeathState death)
     {
         Ensure.NotNull(death);
         if (death.MeltColumnsErased == CrocomireMeltingDefinitions.ColumnCount)

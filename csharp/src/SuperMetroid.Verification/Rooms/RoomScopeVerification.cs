@@ -34,9 +34,9 @@ internal static class RoomScopeVerification
         VerificationAssertions.AssertTrue(source.Sky?.State is { Sky: SuperMetroid.Core.Rooms.Scrolling.ScrollingSky.Land, HasBands: true },
             "the Landing Site composes the land sky with the bands its setup spawns");
         ScrollBoundaryCamera previous = source.Camera;
-        previous.Position = previous.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(0, 0x1234, 0, 0x5678));
-        PrivateState.Set(previous, nameof(ScrollBoundaryCamera.IdealPosition), new Position16<RoomPixels>(0x0123, 0x0456));
-        previous.Speed = FixedVector<RoomPixels>.FromStoredParts(2, 0x8000, 0xFFFF, 0x4000);
+        global::SuperMetroid.Core.PrivateState.Set(previous, "Position", (global::SuperMetroid.Core.Spatial.FixedPosition<global::SuperMetroid.Core.Spatial.RoomPixels>)(previous.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(0, 0x1234, 0, 0x5678))));
+        PrivateState.Set(previous, "IdealPosition", new Position16<RoomPixels>(0x0123, 0x0456));
+        global::SuperMetroid.Core.PrivateState.Set(previous, "Speed", (global::SuperMetroid.Core.Spatial.FixedVector<global::SuperMetroid.Core.Spatial.RoomPixels>)(FixedVector<RoomPixels>.FromStoredParts(2, 0x8000, 0xFFFF, 0x4000)));
         previous.FinishSamusScrolling(FixedPosition<RoomPixels>.FromStoredParts(0x0300, 0x1111, 0x0400, 0x2222));
         source.Projectiles.Charge.SetFlareCount(30);
         var heatPhase = SuperMetroid.Core.Fx.ColourEffects.HeatPhase.InOrder[3];
@@ -90,7 +90,7 @@ internal static class RoomScopeVerification
         VerificationAssertions.AssertEqual(30, destination.Projectiles.Charge.UpdatesHeld, "the flare counter survives the load");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.FxOverlay, destination.FxOverlay) &&
             !ReferenceEquals(source.ColourEffects, destination.ColourEffects) &&
-            !ReferenceEquals(source.BlockAnimations, destination.BlockAnimations),
+            !ReferenceEquals(global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.World.RoomScope, global::SuperMetroid.Core.Fx.RoomBlockAnimations>(source, "BlockAnimations"), global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.World.RoomScope, global::SuperMetroid.Core.Fx.RoomBlockAnimations>(destination, "BlockAnimations")),
             "the destination builds its own FX and animated tiles");
         VerificationAssertions.AssertTrue(destination.CeresHaze is null && destination.TourianStatues is null &&
             destination.Main is null && destination.MaridiaElevatube is null && destination.CeresElevatorShaft is null,

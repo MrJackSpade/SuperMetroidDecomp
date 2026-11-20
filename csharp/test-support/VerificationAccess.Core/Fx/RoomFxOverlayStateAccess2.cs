@@ -7,6 +7,6 @@ internal static class RoomFxOverlayStateAccess2
     extension(RoomFxOverlayState self)
     {
         /// <summary>The effect overlay the room shows (#1348, #1466, #1601): its effect's liquid or atmosphere when it has one, otherwise nothing.</summary>
-        public FxOverlayPlane EffectPlane => FxOverlayPlane.Of(self.OverlayEffect);
+        public FxOverlayPlane EffectPlane => FxOverlayPlane.Of(self.IsRenderable ? self.Type : null);
     }
 }

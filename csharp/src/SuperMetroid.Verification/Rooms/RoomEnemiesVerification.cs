@@ -322,8 +322,8 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
     EnemyProjectile eyeShot = enemies.Projectiles.ProjectileInPlace(17);
-    eyeShot.Kind = RoomEnemyProjectileKind.EyeDoorProjectile;
-    eyeShot.Behavior = SuperMetroid.Core.Enemies.Projectiles.FamilyProjectileStarts.BehaviorOf(enemies, eyeShot.Kind);
+    global::SuperMetroid.Core.PrivateState.Set(eyeShot, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.EyeDoorProjectile));
+    global::SuperMetroid.Core.PrivateState.Set(eyeShot, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(SuperMetroid.Core.Enemies.Projectiles.FamilyProjectileStarts.BehaviorOf(enemies, eyeShot.Kind)));
     eyeShot.Position = eyeShot.Position.WithWhole(new(0x01b5, 0x0180));
     eyeShot.BlocksSamusProjectiles = true;
     eyeShot.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
@@ -1042,8 +1042,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
             projectiles, samusBombs),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
-        observedNormalRidleyPalette |= !state.HurtFlashShows.Body;
-        observedFlashRidleyPalette |= state.HurtFlashShows.Body;
+        observedNormalRidleyPalette |= !global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState, global::SuperMetroid.Core.Bosses.Ridley.RidleyHurtFlashShowing>(state, "HurtFlashShows").Body;
+        observedFlashRidleyPalette |= global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState, global::SuperMetroid.Core.Bosses.Ridley.RidleyHurtFlashShowing>(state, "HurtFlashShows").Body;
         if (hit == 49)
             AssertEqual(0x7000, Shown()[0xf1],
                 "Ceres Ridley 50-hit health palette");
@@ -1293,7 +1293,7 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
             WriteTestByte(bus, cursor++, checked((byte)character));
     }
 
-    Word(EscapeTypewriterExtractor.DelayCommand);
+    Word(checked((ushort)EscapeTypewriterExtractor.DelayCommand));
     Word(EscapeTypewriterDefinitions.CharacterDelayFrames);
     Word((ushort)EscapeTypewriterCommand.LineStart);
     Word(0x4905);

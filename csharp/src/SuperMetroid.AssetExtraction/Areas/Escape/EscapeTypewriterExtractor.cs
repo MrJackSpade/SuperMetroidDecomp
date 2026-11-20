@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 public static class EscapeTypewriterExtractor
 {
     /// <summary>$A6:C2D6: the control word that sets the character delay from the word that follows.</summary>
-    internal const int DelayCommand = 1;
+    private const int DelayCommand = 1;
 
     /// <summary>Imports the Ceres and Zebes escape-warning text and line destinations from their native typewriter streams.</summary>
     /// <param name="bus">Non-null cartridge address space supplying the two warning programs.</param>
@@ -118,6 +118,6 @@ public static class EscapeTypewriterExtractor
     /// <summary>Serializes both warning programs and writes their UTF-8 document bytes to the destination.</summary>
     /// <param name="output">Non-null caller-owned writable stream, written at its current position without being disposed.</param>
     /// <param name="document">Selected programs to serialize.</param>
-    public static void Write(Stream output, EscapeTypewriterDocument document) =>
+    private static void Write(Stream output, EscapeTypewriterDocument document) =>
         output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
 }

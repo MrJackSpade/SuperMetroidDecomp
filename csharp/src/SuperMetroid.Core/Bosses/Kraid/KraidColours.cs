@@ -15,16 +15,16 @@ internal sealed class KraidColours : IGameplayShadingSource
     /// The shade his body and parts show: a health band's or the hurt flash's (#2297), or null while he shows his room's own
     /// colours.
     /// </summary>
-    internal PictureShade? Shown { get; private set; }
+    private PictureShade? Shown { get; set; }
 
     /// <summary>Whether his body shows his death colours.</summary>
-    internal bool ShowsDeathArm { get; private set; }
+    private bool ShowsDeathArm { get; set; }
 
     /// <summary>The colours his band's shade shows his eyes in, which his eyes' glow replaces.</summary>
     private RgbColor[] shadedEyes = [];
 
     /// <summary>His eyes' glow, which his AI reads back: a compatibility value his colours own (#1552).</summary>
-    internal KraidEyeGlow EyeGlow { get; private set; } = KraidEyeGlow.Unlit;
+    private KraidEyeGlow EyeGlow { get; set; } = KraidEyeGlow.Unlit;
 
     /// <summary>The shading his ceiling rocks and spat rocks draw in.</summary>
     internal static PictureShading RocksShading { get; } = PictureShading.Shaded(KraidShades.Rocks);

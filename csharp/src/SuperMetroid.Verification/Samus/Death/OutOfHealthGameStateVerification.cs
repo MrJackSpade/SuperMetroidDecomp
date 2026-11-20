@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Frontend;
@@ -411,7 +412,7 @@ internal static class OutOfHealthGameStateVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(128, 96));
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         int landing = 0;
         do
@@ -443,7 +444,7 @@ internal static class OutOfHealthGameStateVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(128, 139));
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the fixture's update stays in main gameplay");
@@ -463,7 +464,7 @@ internal static class OutOfHealthGameStateVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         return (game, runtime, samus);
     }

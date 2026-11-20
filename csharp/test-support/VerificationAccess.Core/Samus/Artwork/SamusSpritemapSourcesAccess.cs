@@ -10,7 +10,7 @@ internal static class SamusSpritemapSourcesAccess
     extension(SamusSpritemapSources self)
     {
         /// <summary>The stored compositions, each at its identity's ordinal, without recreating stock art.</summary>
-        internal IReadOnlyList<SamusSpritemapDefinition> Definitions => self.definitions;
+        internal IReadOnlyList<SamusSpritemapDefinition> Definitions => PrivateState.Field<SamusSpritemapSources, SamusSpritemapDefinition[]>(self, "definitions");
 
         /// <summary>Whether <paramref name="frame"/> is an animation frame installed for its pose half.</summary>
         /// <exception cref="ArgumentOutOfRangeException">The pose has no record.</exception>

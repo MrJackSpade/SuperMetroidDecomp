@@ -23,7 +23,7 @@ public static class ZebesExplosionWhiteoutPaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes one live BGR555 color.</summary>
-    public const int ColorsPerFrame = 1;
+    private const int ColorsPerFrame = 1;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.WhiteOutSpaceDuringZebesExplosion, ColorsPerFrame);

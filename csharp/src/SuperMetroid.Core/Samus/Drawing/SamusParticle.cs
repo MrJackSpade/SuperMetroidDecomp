@@ -52,13 +52,13 @@ public sealed class SamusParticle
     public SamusParticleKind Kind { get; }
 
     /// <summary>The particle's animation: nothing shown while it waits hidden, then its pictures in turn.</summary>
-    internal AnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue> Animation { get; }
+    private AnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue> Animation { get; }
 
     /// <summary>The picture it shows, or null while it waits hidden.</summary>
     public SamusAtmosphereFrame? Shown => IsHidden ? null : Animation.Shown;
 
     /// <summary>The wait before it shows, counting the update it first shows on; over once shown.</summary>
-    public UpdateCountdown Hidden { get; private set; } = UpdateCountdown.Ended();
+    private UpdateCountdown Hidden { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// Where it is, in whole room pixels: the camera is subtracted only when drawing, a diving splash follows the live water surface and lava spray and dust drift on each update they are shown.

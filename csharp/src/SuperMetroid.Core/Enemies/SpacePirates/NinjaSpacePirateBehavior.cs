@@ -382,7 +382,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// Moves horizontally and falls by the divekick's step (<see cref="NinjaPirateDiveFallStep"/>) until the floor or the
     /// speed ends the dive.
     /// </summary>
-    internal void StepNinjaPirateDive(
+    private void StepNinjaPirateDive(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,
         RoomLevelData level,
@@ -454,7 +454,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Allocates a claw with the selected throw direction, offset, graphics, and outbound speed.</summary>
-    internal void SpawnNinjaPirateClaw(
+    private void SpawnNinjaPirateClaw(
         RoomEnemyPlace source,
         HorizontalDirection thrown,
         Offset16<RoomPixels> spawnOffset)
@@ -563,7 +563,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// A Ninja Pirate's claw (#1760): its spawner starts its animation and chooses its throw's way, and the animation throws
     /// it.
     /// </summary>
-    internal ClawBehavior Claw { get; } = new();
+    private ClawBehavior Claw { get; } = new();
 
     /// <summary>A thrown claw: it flies out and back along its throw, once its animation throws it (#2278).</summary>
     internal sealed class ClawBehavior()

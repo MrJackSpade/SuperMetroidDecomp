@@ -55,7 +55,7 @@ public sealed class SamusDrainedState
     /// first colouring moves it on at once, and each shade it moves on to shows for <see cref="RainbowGlowHold"/> as it
     /// stands then, not for its own beat.
     /// </summary>
-    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Rainbow { get; } =
+    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Rainbow { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.HyperBeamRainbow);
 
     /// <summary>
@@ -372,7 +372,7 @@ public sealed class SamusDrainedState
     internal void CompleteRelease() => Phase = DrainedSamusPhase.Inactive;
 
     /// <summary>Starts the shared left-knockback rainbow setup and locks Samus input.</summary>
-    internal void SetupForRainbowBeam(SamusState samus)
+    private void SetupForRainbowBeam(SamusState samus)
     {
         Ensure.NotNull(samus);
 

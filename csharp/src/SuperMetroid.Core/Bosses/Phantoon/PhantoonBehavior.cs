@@ -49,7 +49,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal PhantoonCombat Combat { get; }
 
     /// <summary>Phantoon's fades, health colors, wave amplitude and animations, shared by every phase of the fight.</summary>
-    internal PhantoonPresentation Presentation { get; }
+    private PhantoonPresentation Presentation { get; }
 
     /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>
     internal PhantoonPatterns Patterns { get; }
@@ -198,7 +198,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Shows his body in the colours of his health band.</summary>
-    internal static void ShowPhantoonHealthColours(PhantoonEnemyState state) =>
+    private static void ShowPhantoonHealthColours(PhantoonEnemyState state) =>
         state.Colours.Show(PhantoonBodyLook.Health(PhantoonPresentation.HealthBand(state.Body)));
 
     /// <summary>
@@ -223,7 +223,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of a Phantoon part animation.</summary>
-    internal void ApplyPhantoonPartCue(
+    private void ApplyPhantoonPartCue(
         PhantoonEnemyState state,
         PhantoonPartCue cue)
     {
@@ -255,7 +255,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the eye's Samus-tracking animation for the current attack phase.</summary>
-    internal void BeginPhantoonEyeTracking(PhantoonEnemyState state)
+    private void BeginPhantoonEyeTracking(PhantoonEnemyState state)
     {
         state.WindowEnd = PhantoonWindowEnd.EyeCloses;
         RoomEnemyPlace body = state.Body;

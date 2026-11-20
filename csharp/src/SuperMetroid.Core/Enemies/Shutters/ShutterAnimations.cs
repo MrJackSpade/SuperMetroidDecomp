@@ -40,7 +40,7 @@ internal static class ShutterAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<ShutterSegment, Animation<ShutterSegment>> StartingAt { get; } = new Dictionary<ShutterSegment, Animation<ShutterSegment>>
+    private static Dictionary<ShutterSegment, Animation<ShutterSegment>> StartingAt { get; } = new Dictionary<ShutterSegment, Animation<ShutterSegment>>
     {
         [P.QuarterGrown] = new([Segments.Whole(P.QuarterGrown)], AnimationEnd.Holds),
         [P.HalfGrown] = new([Segments.Whole(P.HalfGrown)], AnimationEnd.Holds),

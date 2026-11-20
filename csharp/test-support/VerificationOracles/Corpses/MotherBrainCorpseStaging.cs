@@ -14,7 +14,7 @@ internal static class MotherBrainCorpseStaging
     internal const int ColumnCount = 7;
 
     /// <summary>The corpse copy advances seven tiles (224 bytes) per corpse tile row.</summary>
-    internal const int RowBytes = ColumnCount * MotherBrainCorpseSheet.TileBytes;
+    internal static readonly int RowBytes = ColumnCount * MotherBrainCorpseSheet.TileBytes;
 
     /// <summary>The first four source rows end with an empty tile the initial copy leaves out.</summary>
     internal const int RowsWithEmptyFinalTile = 4;

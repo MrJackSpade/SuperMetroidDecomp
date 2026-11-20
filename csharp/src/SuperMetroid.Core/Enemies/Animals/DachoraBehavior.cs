@@ -221,7 +221,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// speed glow's cycle (DachoraGlowCycle): after frame three is reached, the game shows that brightest
     /// speed glow frame again every sixteen frames instead of wrapping to frame zero.
     /// </summary>
-    internal SignedSixteenSixteen AccelerateDachora(
+    private SignedSixteenSixteen AccelerateDachora(
         RoomEnemyPlace place,
         DachoraEnemyState state,
         RoomLevelData level)
@@ -396,7 +396,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the four-frame shine glow.</summary>
-    internal static void StepDachoraShineGlow(RoomEnemyPlace place, DachoraEnemyState state)
+    private static void StepDachoraShineGlow(RoomEnemyPlace place, DachoraEnemyState state)
     {
         ShowDachoraColours(place, DachoraColourPhase.Shine, state.GlowFrame);
         state.AdvanceShineGlow();
@@ -407,7 +407,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// glow, which the import pre-coloured its pictures in. Only the Dachora shows it (#1544).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The phase has no such frame.</exception>
-    internal static void ShowDachoraColours(
+    private static void ShowDachoraColours(
         RoomEnemyPlace place, DachoraColourPhase phase, int frame)
     {
         int lastFrame = phase == DachoraColourPhase.Default ? 0 : DachoraColorDefinitions.AnimatedFrameCount - 1;

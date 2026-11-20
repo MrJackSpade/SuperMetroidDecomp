@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 public sealed class SamusVisorShadeState
 {
     /// <summary>The steady visor cycle as the room plays it: its first shade shows on the update after it starts.</summary>
-    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Cycle { get; } =
+    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Cycle { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.VisorCycle);
 
     /// <summary>

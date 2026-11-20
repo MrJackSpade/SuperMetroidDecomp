@@ -1,4 +1,4 @@
-using SuperMetroid.Core;
+﻿using SuperMetroid.Core;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -44,7 +44,7 @@ internal static class DownwardGateProjectileBehaviorVerification
                 ? playing.PlayingSegment
                 : throw new InvalidOperationException("The gate lost its animation.");
             DownwardGateProjectileSegment stage = enemies.DownwardGateBehavior.Gate.Gates.Of(gate).Stage;
-            enemies.DownwardGateBehavior.Gate.Gates.Of(gate).BlockTravel = UpdateCountdownAccess.AtAge(RoomGridConversions.BlockPixels, RoomGridConversions.BlockPixels - 1);
+            enemies.DownwardGateBehavior.Gate.Gates.Of(gate).BlockTravel.PlaceAt(UpdateCountdownAccess.AtAge(RoomGridConversions.BlockPixels, RoomGridConversions.BlockPixels - 1));
             gate.Velocity = gate.Velocity.WithY(new SignedEightEight(256));
             DownwardGateBehavior.RunDownwardGateProjectileMovement(enemies.DownwardGateBehavior.Gate, gate);
             DownwardGateProjectileSegment resumed = DownwardGateProjectileAnimations.NextStage[stage];

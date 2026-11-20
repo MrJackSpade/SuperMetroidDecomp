@@ -34,7 +34,7 @@ internal static class TourianAccessObjectDefinitionsVerification
             RoomObjectPlaceSnapshot place = roomObjects.PopulationPlaces.Single();
             AssertEqual(0, place.UpdatePosition, "Tourian access takes the first free slot in processing order");
             AssertEqual(new Position16<RoomBlocks>(6, 12), place.Block, "Tourian access fixed block coordinate");
-            AssertTrue(place.Behaviour is TerrainChangeObject { Change: var change } && change == expected,
+            AssertTrue(place.Behaviour is TerrainChangeObject started && started.Starts(expected),
                 "Tourian access starts its terrain change");
             AssertEqual(1, expected.FirstFrameDelay, "Tourian access draws on its first update");
         }

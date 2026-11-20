@@ -22,7 +22,7 @@ public sealed class RoomObjectPopulation
     /// </param>
     /// <exception cref="ArgumentNullException">The sequence or one of its placements is null.</exception>
     /// <exception cref="InvalidDataException">One is an empty placement.</exception>
-    public RoomObjectPopulation(string name, IEnumerable<RoomObjectPlacement> placements)
+    private RoomObjectPopulation(string name, IEnumerable<RoomObjectPlacement> placements)
     {
         Ensure.NotNull(placements);
         Name = Ensure.NotNull(name);

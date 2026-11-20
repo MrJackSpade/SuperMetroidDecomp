@@ -44,7 +44,7 @@ internal static class DoorEntryRoomFxSoundVerification
         var runtime = LoadRisingTide(entry, random, game.AudioForVerification);
         var samus = runtime.Player.IntroducedSamus;
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
 
         SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(DoorDefinition door, SharedRandom random, AudioQueues? audio)

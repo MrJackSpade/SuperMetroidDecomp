@@ -43,7 +43,7 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
     /// The encounter whose body the layer shows (#2194): the one his body last began as it set up, kept for the room so
     /// the layer keeps showing after his body is deleted; none before his body sets up.
     /// </summary>
-    internal KraidEnemyState? Kraid { get; private set; }
+    private KraidEnemyState? Kraid { get; set; }
 
     /// <summary>His body sets up: the layer shows <paramref name="kraid"/>'s body from now on.</summary>
     internal void Show(KraidEnemyState kraid) => Kraid = Ensure.NotNull(kraid);
@@ -54,7 +54,7 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
     /// </summary>
     /// <exception cref="InvalidOperationException">No boss body sheets are installed.</exception>
     /// <exception cref="InvalidDataException">The sheet lacks a frame his body shows.</exception>
-    internal BossBodyLayer? CaptureBodyLayer()
+    private BossBodyLayer? CaptureBodyLayer()
     {
         if (Kraid is not { ShowsBodyLayer: true } state)
             return null;

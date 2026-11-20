@@ -110,22 +110,22 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal EnemyDrawList Drawing { get; }
 
     /// <summary>Advances each animating enemy's animation and shows the frames the bosses show on their bodies.</summary>
-    internal EnemyAnimationPlayer AnimationPlayer { get; }
+    private EnemyAnimationPlayer AnimationPlayer { get; }
 
     /// <summary>Places the room's enemy population in the room's enemy places when the room loads, with its kill quota.</summary>
     internal EnemyPopulationLoader PopulationLoader { get; }
 
     /// <summary>Chooses the enemies the enemy pass runs this update: those near enough the screen, in their places' order.</summary>
-    internal EnemyProcessingWindow ProcessingWindow { get; }
+    private EnemyProcessingWindow ProcessingWindow { get; }
 
     /// <summary>Puts populations into places and runs their AI.</summary>
     internal EnemyLifecycle Lifecycle { get; }
 
     /// <summary>Caps how fast the camera follows Samus while an enemy carries her.</summary>
-    internal SamusScrollCap ScrollCap { get; }
+    private SamusScrollCap ScrollCap { get; }
 
     /// <summary>The room's liquid, which the room's enemies raise or lower.</summary>
-    internal EnemyRoomFx RoomFx { get; }
+    private EnemyRoomFx RoomFx { get; }
 
     /// <summary>What the room's enemies tell the rest of the game: the kills, the boss present, the room's darkness and whether a door transition holds them.</summary>
     internal EnemyRoomStatus RoomStatus { get; }
@@ -134,16 +134,16 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// The encounters of the room's bosses the room itself reads (#2194), which each attaches as its body sets up: the
     /// room's main, display and colours read them here, never through a boss's species.
     /// </summary>
-    internal RoomBossEncounters BossEncounters { get; } = new();
+    private RoomBossEncounters BossEncounters { get; } = new();
 
     /// <summary>Samus's touches, shots, bombs and power bombs against the room's enemies, and the enemies' reactions to them.</summary>
     internal EnemyCollision Collision { get; }
 
     /// <summary>Enemy deaths and their drops: the death explosions, the scattered pickups and Samus collecting them.</summary>
-    internal EnemyDeathsAndDrops DeathsAndDrops { get; }
+    private EnemyDeathsAndDrops DeathsAndDrops { get; }
 
     /// <summary>What the current enemy pass reads: the random number, the frame counter and whether time is frozen.</summary>
-    internal EnemyFrameContext FrameContext { get; }
+    private EnemyFrameContext FrameContext { get; }
 
     /// <summary>How the room's enemies look: the room's appearance, the boss body layer and the shading each draw shows.</summary>
     internal EnemyPresentation Presentation { get; }
@@ -155,10 +155,10 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal RoomCameraDistance CameraDistance { get; } = new();
 
     /// <summary>The room camera's floor, which a boss's live fight holds (#2243).</summary>
-    internal RoomCameraFloor CameraFloor { get; } = new();
+    private RoomCameraFloor CameraFloor { get; } = new();
 
     /// <summary>The grapple beam's grip on enemies: which enemy its tip latches on to, and what a grappled enemy does.</summary>
-    internal GrappleBehavior GrappleBehavior { get; }
+    private GrappleBehavior GrappleBehavior { get; }
 
     /// <summary>The room's earthquake, which every enemy, room object and effect that shakes the room starts or sustains.</summary>
     internal RoomEarthquake Earthquake { get; }
@@ -167,13 +167,13 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// The room's species as their composition built them (#2571): the contracts the phases iterate and the capabilities
     /// through which the rest of the game reaches the enemies.
     /// </summary>
-    internal RoomEnemySpecies SpeciesComposition { get; }
+    private RoomEnemySpecies SpeciesComposition { get; }
 
     /// <summary>The species registry that binds each installed occupant's entity.</summary>
     internal EnemySpeciesRegistry Species => SpeciesComposition.Registry;
 
     /// <summary>The loaded room's enemy definitions, services and artwork, shared with the composed owners.</summary>
-    internal EnemyRoomBinding Room { get; }
+    private EnemyRoomBinding Room { get; }
 
     /// <summary>
     /// Rebinds the room's active escape typewriters to the host's current escape-warning text, after the host binds new
@@ -192,7 +192,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     }
 
     /// <summary>The room's effect actors.</summary>
-    internal RoomEffectActors EffectActors { get; }
+    private RoomEffectActors EffectActors { get; }
 
     /// <summary>
     /// Whether a Puyo striking a ceiling turns back: told of the room's draws, the charge flare's and the HUD's redraws,
@@ -337,7 +337,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal IGrappleTargets GrappleTargets => GrappleBehavior;
 
     /// <summary>The events the enemies have published since the current pass or the room's load began, in publication order.</summary>
-    internal EnemyPassEvents PassEvents { get; } = new();
+    private EnemyPassEvents PassEvents { get; } = new();
 
     /// <inheritdoc/>
     public EnemyFrameResult LastEnemyFrame => new(PassEvents.Published);
@@ -411,7 +411,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal BossPresentation BossPresentation { get; }
 
     /// <summary>The bosses' installed artwork, read through the session's binding.</summary>
-    internal BossArtworkBinding BossArtworkBinding { get; }
+    private BossArtworkBinding BossArtworkBinding { get; }
     /// <summary>Whether <see cref="Load"/> has loaded this room's population; a room loads it once.</summary>
     private bool _populationLoaded;
 
@@ -616,7 +616,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// Shakes the solid or frozen enemy Samus's latest wall jump launched from, as the enemy pass does before any enemy
     /// updates. While no enemy place is filled the request waits.
     /// </summary>
-    internal void ShakeWallJumpLaunchEnemy(SamusState samus)
+    private void ShakeWallJumpLaunchEnemy(SamusState samus)
     {
         if (Places.EnemyCount == 0 || samus.Kinematics.WallJumpLaunch.Take() is not { } launchedFrom)
             return;

@@ -30,7 +30,7 @@ internal sealed class DefinitionCatalog(Type type, IReadOnlyList<FieldInfo> memb
     internal IReadOnlyList<FieldInfo> Members { get; } = members;
 
     /// <summary>The index of the objects the members reach, or null until a capture or restore first needs it.</summary>
-    internal BoundObjectGraph? graph;
+    private BoundObjectGraph? graph;
 
     /// <summary>
     /// The index of every object the members reach, built breadth first over the members in name order the first time it

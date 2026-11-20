@@ -1,10 +1,23 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>One mouth-collision read at a place of Kraid's head animation: a shape, the closed mouth's missing shape, or no pose at all.</summary>
-/// <param name="Kind">What the read finds.</param>
-/// <param name="Shape">The shape found, for <see cref="KraidMouthShapeReadKind.Shape"/>.</param>
-internal readonly record struct KraidMouthShapeRead(KraidMouthShapeReadKind Kind, KraidMouthHitbox Shape)
+internal readonly record struct KraidMouthShapeRead
 {
+    /// <summary>A value of its parts; only its own operations make one.</summary>
+    /// <param name="kind">What the read finds.</param>
+    /// <param name="shape">The shape found, for <see cref="KraidMouthShapeReadKind.Shape"/>.</param>
+    private KraidMouthShapeRead(KraidMouthShapeReadKind kind, KraidMouthHitbox shape)
+    {
+        Kind = kind;
+        Shape = shape;
+    }
+
+    /// <summary>What the read finds.</summary>
+    public KraidMouthShapeReadKind Kind { get; init; }
+
+    /// <summary>The shape found, for <see cref="KraidMouthShapeReadKind.Shape"/>.</summary>
+    public KraidMouthHitbox Shape { get; init; }
+
     /// <summary>A read that finds no pose (<see cref="Compatibility.KraidMouthTrailsHead"/>).</summary>
     internal static KraidMouthShapeRead NoPose { get; } = new(KraidMouthShapeReadKind.NoPose, default);
 

@@ -47,7 +47,7 @@ internal static class RinkaAnimations
     /// The animation that starts at each segment an owner can start or restart at: each Rinka hides, fires and then spins
     /// for good (#2250).
     /// </summary>
-    internal static IReadOnlyDictionary<RinkaSegment, Animation<RinkaSegment>> StartingAt { get; } = new Dictionary<RinkaSegment, Animation<RinkaSegment>>
+    private static Dictionary<RinkaSegment, Animation<RinkaSegment>> StartingAt { get; } = new Dictionary<RinkaSegment, Animation<RinkaSegment>>
     {
         [P.Ordinary] = Animation<RinkaSegment>.LeadingInto([Segments.Whole(P.Ordinary)], [Segments.Whole(P.Spin)]),
         [P.KeptRunningOffScreen] = Animation<RinkaSegment>.LeadingInto([Segments.Whole(P.KeptRunningOffScreen)], [Segments.Whole(P.Spin)]),

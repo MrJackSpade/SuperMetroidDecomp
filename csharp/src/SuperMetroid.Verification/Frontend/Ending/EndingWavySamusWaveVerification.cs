@@ -33,8 +33,8 @@ internal static class EndingWavySamusWaveVerification
             "the plane keeps its farthest line above its origin");
         AssertThrows<OverflowException>(() => _ = new AddedPicturedPlaneLayer(plane, VerticalScroll: short.MaxValue + 1),
             "a scroll past the plane's space names no plane line");
-        AssertThrows<OverflowException>(() => _ = new AddedPicturedPlaneLayer(plane, VerticalScroll: 0) with { VerticalScroll = short.MinValue - 1 },
-            "a later scroll past the plane's space names no plane line either");
+        AssertThrows<OverflowException>(() => _ = new AddedPicturedPlaneLayer(plane, VerticalScroll: short.MinValue - 1),
+            "a scroll past the plane's space the other way names no plane line either");
         Console.WriteLine("Ending wavy Samus: the wave's phase starts short of a whole turn and turns round it frame by frame, and the plane keeps every scroll the wait reaches.");
     }
 }

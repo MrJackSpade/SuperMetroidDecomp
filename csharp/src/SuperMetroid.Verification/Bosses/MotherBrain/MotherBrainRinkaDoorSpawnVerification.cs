@@ -32,7 +32,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         var random = new SharedRandom();
         var progress = new CameraReachedLoaderProgress(0x038c);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false,
-            hostServices: SuperMetroidGameHostServices.Default with { RoomLoadProgress = progress }, random: random);
+            hostServices: global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServicesFixtures.With(roomLoadProgress: progress), random: random);
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         progress.Runtime = runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
@@ -46,7 +46,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
 
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;

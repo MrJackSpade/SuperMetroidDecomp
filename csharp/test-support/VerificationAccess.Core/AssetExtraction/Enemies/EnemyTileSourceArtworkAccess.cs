@@ -13,7 +13,7 @@ internal static class EnemyTileSourceArtworkAccess
     {
         /// <summary>Explicitly partial constructed artwork; never an installed production catalog.</summary>
         internal static EnemyTileSourceArtwork FromArtworkForVerification(EnemyTileArtworkParts parts) =>
-            new EnemyTileSourceArtwork(Ensure.NotNull(parts));
+            global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork>([typeof(global::SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkParts)], new object?[] { (global::SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkParts)(Ensure.NotNull(parts)) });
     }
 
     /// <summary>Exposes <see cref="EnemyTileSourceArtwork"/> state that only verification reads.</summary>
@@ -43,6 +43,31 @@ internal static class EnemyTileSourceArtworkAccess
                 content.AppendIdentity("DachoraColors", self.DachoraColors?.ContentIdentity);
                 content.AppendIdentity("AuxiliaryColors", self.AuxiliaryColors?.ContentIdentity);
             });
+        /// <summary>The parts this artwork was built from, as its constructor keeps them.</summary>
+        internal EnemyTileArtworkParts Parts => new()
+        {
+            Sheets = self.sheets,
+            Palettes = PrivateState.Field<EnemyTileSourceArtwork, Dictionary<EnemyDefinitionId, EnemyPaletteSheet>>(self, "palettes"),
+            UnplacedSheets = PrivateState.Field<EnemyTileSourceArtwork, Dictionary<UnplacedEnemyArtwork, RoomCharacterAtlas>>(self, "unplacedSheets"),
+            UnplacedPalettes = PrivateState.Field<EnemyTileSourceArtwork, Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet>>(self, "unplacedPalettes"),
+            MagdollitePaletteCycle = self.MagdollitePaletteCycle,
+            WorkRobotPaletteCycle = self.WorkRobotPaletteCycle,
+            ChozoAndTubeColors = self.ChozoAndTubeColors,
+            DachoraColors = self.DachoraColors,
+            AuxiliaryColors = self.AuxiliaryColors,
+            Spritemaps = self.Spritemaps,
+            ExtendedFrames = self.ExtendedFrames,
+            GunshipLiftoff = self.GunshipLiftoff,
+            ProjectileSpritemaps = self.ProjectileSpritemaps,
+        };
+
+        /// <summary>
+        /// The same artwork with <paramref name="spritemaps"/> and <paramref name="extendedFrames"/> as its compositions,
+        /// built through the constructor as the import builds it, for a fixture that authors its own frames.
+        /// </summary>
+        internal EnemyTileSourceArtwork WithFrames(EnemySpritemapCatalog? spritemaps, EnemyExtendedFrameCatalog? extendedFrames) =>
+            global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork>([typeof(global::SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkParts)], new object?[] { (global::SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkParts)(self.Parts with { Spritemaps = spritemaps, ExtendedFrames = extendedFrames }) });
+
         /// <summary>Each installed sheet with its palette, in definition order.</summary>
         internal IEnumerable<EnemyInstalledSheet> SheetsInDefinitionOrder =>
             self.sheets.OrderBy(pair => pair.Key).Select(pair => new EnemyInstalledSheet(pair.Key, pair.Value,

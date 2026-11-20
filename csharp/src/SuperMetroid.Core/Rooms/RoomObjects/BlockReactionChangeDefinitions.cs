@@ -14,25 +14,25 @@ internal static class BlockReactionChangeDefinitions
     internal const int ContactCrumbleDelay = 4;
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 1x1.</summary>
-    internal static BlockReactionChange CrumbleReveal1x1 { get; } = new(1,
+    private static BlockReactionChange CrumbleReveal1x1 { get; } = new(1,
     [
         new(BombedRevealObjectDraws.Family.Of(RoomObjectBombedRevealDraw.CrumbleSingle), 1),
     ]);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 2x1.</summary>
-    internal static BlockReactionChange CrumbleReveal2x1 { get; } = new(1,
+    private static BlockReactionChange CrumbleReveal2x1 { get; } = new(1,
     [
         new(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Horizontal)), 1),
     ]);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 1x2.</summary>
-    internal static BlockReactionChange CrumbleReveal1x2 { get; } = new(1,
+    private static BlockReactionChange CrumbleReveal1x2 { get; } = new(1,
     [
         new(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Vertical)), 1),
     ]);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 2x2.</summary>
-    internal static BlockReactionChange CrumbleReveal2x2 { get; } = new(1,
+    private static BlockReactionChange CrumbleReveal2x2 { get; } = new(1,
     [
         new(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Square)), 1),
     ]);
@@ -138,7 +138,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A respawning shot block breaking up and growing back, 1x1.</summary>
-    internal static BlockReactionChange RespawningShotBlock1x1 { get; } = new(1,
+    private static BlockReactionChange RespawningShotBlock1x1 { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Single, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(Breakup(BlockArrangement.Single, Stage.Pieces), 4),
@@ -151,7 +151,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A respawning shot block breaking up and growing back, 2x1.</summary>
-    internal static BlockReactionChange RespawningShotBlock2x1 { get; } = new(1,
+    private static BlockReactionChange RespawningShotBlock2x1 { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Horizontal, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(Breakup(BlockArrangement.Horizontal, Stage.Pieces), 4),
@@ -164,7 +164,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A respawning shot block breaking up and growing back, 1x2.</summary>
-    internal static BlockReactionChange RespawningShotBlock1x2 { get; } = new(1,
+    private static BlockReactionChange RespawningShotBlock1x2 { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Vertical, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(Breakup(BlockArrangement.Vertical, Stage.Pieces), 4),
@@ -177,7 +177,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A respawning shot block breaking up and growing back, 2x2.</summary>
-    internal static BlockReactionChange RespawningShotBlock2x2 { get; } = new(1,
+    private static BlockReactionChange RespawningShotBlock2x2 { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Square, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(Breakup(BlockArrangement.Square, Stage.Pieces), 4),
@@ -216,7 +216,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A shot block breaking up for good, 1x1.</summary>
-    internal static BlockReactionChange PermanentShotBlock1x1 { get; } = new(1,
+    private static BlockReactionChange PermanentShotBlock1x1 { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Single, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(Breakup(BlockArrangement.Single, Stage.Pieces), 4),
@@ -225,7 +225,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A shot block breaking up for good, 2x1.</summary>
-    internal static BlockReactionChange PermanentShotBlock2x1 { get; } = new(1,
+    private static BlockReactionChange PermanentShotBlock2x1 { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Horizontal, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(Breakup(BlockArrangement.Horizontal, Stage.Pieces), 4),
@@ -234,7 +234,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A shot block breaking up for good, 1x2.</summary>
-    internal static BlockReactionChange PermanentShotBlock1x2 { get; } = new(1,
+    private static BlockReactionChange PermanentShotBlock1x2 { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Vertical, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(Breakup(BlockArrangement.Vertical, Stage.Pieces), 4),
@@ -243,7 +243,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A shot block breaking up for good, 2x2.</summary>
-    internal static BlockReactionChange PermanentShotBlock2x2 { get; } = new(1,
+    private static BlockReactionChange PermanentShotBlock2x2 { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Square, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(Breakup(BlockArrangement.Square, Stage.Pieces), 4),
@@ -270,7 +270,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x1 block, growing back.</summary>
-    internal static BlockReactionChange CollisionBombBlock1x1Respawning { get; } = new(1,
+    private static BlockReactionChange CollisionBombBlock1x1Respawning { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Single, Stage.Rock), 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Single, Stage.Pieces), 4),
@@ -283,7 +283,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x1 block, growing back.</summary>
-    internal static BlockReactionChange ReactionBombBlock1x1Respawning { get; } = new(1,
+    private static BlockReactionChange ReactionBombBlock1x1Respawning { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Single, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Single, Stage.Pieces), 4),
@@ -296,7 +296,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 1x1 block, growing back.</summary>
-    internal static BlockReactionChange BombBlock1x1RespawningBreak { get; } = new(1,
+    private static BlockReactionChange BombBlock1x1RespawningBreak { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Single, Stage.Rock), 4),
         new(Breakup(BlockArrangement.Single, Stage.Pieces), 4),
@@ -309,7 +309,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x1 block, growing back.</summary>
-    internal static BlockReactionChange CollisionBombBlock2x1Respawning { get; } = new(1,
+    private static BlockReactionChange CollisionBombBlock2x1Respawning { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Horizontal, Stage.Rock), 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Horizontal, Stage.Pieces), 4),
@@ -322,7 +322,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x1 block, growing back.</summary>
-    internal static BlockReactionChange ReactionBombBlock2x1Respawning { get; } = new(1,
+    private static BlockReactionChange ReactionBombBlock2x1Respawning { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Horizontal, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Horizontal, Stage.Pieces), 4),
@@ -335,7 +335,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x1 block, growing back.</summary>
-    internal static BlockReactionChange BombBlock2x1RespawningBreak { get; } = new(1,
+    private static BlockReactionChange BombBlock2x1RespawningBreak { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Horizontal, Stage.Rock), 4),
         new(Breakup(BlockArrangement.Horizontal, Stage.Pieces), 4),
@@ -348,7 +348,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x2 block, growing back.</summary>
-    internal static BlockReactionChange CollisionBombBlock1x2Respawning { get; } = new(1,
+    private static BlockReactionChange CollisionBombBlock1x2Respawning { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Vertical, Stage.Rock), 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Vertical, Stage.Pieces), 4),
@@ -361,7 +361,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x2 block, growing back.</summary>
-    internal static BlockReactionChange ReactionBombBlock1x2Respawning { get; } = new(1,
+    private static BlockReactionChange ReactionBombBlock1x2Respawning { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Vertical, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Vertical, Stage.Pieces), 4),
@@ -374,7 +374,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 1x2 block, growing back.</summary>
-    internal static BlockReactionChange BombBlock1x2RespawningBreak { get; } = new(1,
+    private static BlockReactionChange BombBlock1x2RespawningBreak { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Vertical, Stage.Rock), 4),
         new(Breakup(BlockArrangement.Vertical, Stage.Pieces), 4),
@@ -387,7 +387,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x2 block, growing back.</summary>
-    internal static BlockReactionChange CollisionBombBlock2x2Respawning { get; } = new(1,
+    private static BlockReactionChange CollisionBombBlock2x2Respawning { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Square, Stage.Rock), 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Square, Stage.Pieces), 4),
@@ -400,7 +400,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x2 block, growing back.</summary>
-    internal static BlockReactionChange ReactionBombBlock2x2Respawning { get; } = new(1,
+    private static BlockReactionChange ReactionBombBlock2x2Respawning { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Square, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Square, Stage.Pieces), 4),
@@ -413,7 +413,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x2 block, growing back.</summary>
-    internal static BlockReactionChange BombBlock2x2RespawningBreak { get; } = new(1,
+    private static BlockReactionChange BombBlock2x2RespawningBreak { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Square, Stage.Rock), 4),
         new(Breakup(BlockArrangement.Square, Stage.Pieces), 4),
@@ -426,7 +426,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x1 block, gone for good.</summary>
-    internal static BlockReactionChange CollisionBombBlock1x1Permanent { get; } = new(1,
+    private static BlockReactionChange CollisionBombBlock1x1Permanent { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Single, Stage.Rock), 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Single, Stage.Pieces), 4),
@@ -435,7 +435,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x1 block, gone for good.</summary>
-    internal static BlockReactionChange ReactionBombBlock1x1Permanent { get; } = new(1,
+    private static BlockReactionChange ReactionBombBlock1x1Permanent { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Single, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Single, Stage.Pieces), 4),
@@ -444,7 +444,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 1x1 block, gone for good.</summary>
-    internal static BlockReactionChange BombBlock1x1PermanentBreak { get; } = new(1,
+    private static BlockReactionChange BombBlock1x1PermanentBreak { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Single, Stage.Rock), 4),
         new(Breakup(BlockArrangement.Single, Stage.Pieces), 4),
@@ -453,7 +453,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x1 block, gone for good.</summary>
-    internal static BlockReactionChange CollisionBombBlock2x1Permanent { get; } = new(1,
+    private static BlockReactionChange CollisionBombBlock2x1Permanent { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Horizontal, Stage.Rock), 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Horizontal, Stage.Pieces), 4),
@@ -462,7 +462,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x1 block, gone for good.</summary>
-    internal static BlockReactionChange ReactionBombBlock2x1Permanent { get; } = new(1,
+    private static BlockReactionChange ReactionBombBlock2x1Permanent { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Horizontal, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Horizontal, Stage.Pieces), 4),
@@ -471,7 +471,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x1 block, gone for good.</summary>
-    internal static BlockReactionChange BombBlock2x1PermanentBreak { get; } = new(1,
+    private static BlockReactionChange BombBlock2x1PermanentBreak { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Horizontal, Stage.Rock), 4),
         new(Breakup(BlockArrangement.Horizontal, Stage.Pieces), 4),
@@ -480,7 +480,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x2 block, gone for good.</summary>
-    internal static BlockReactionChange CollisionBombBlock1x2Permanent { get; } = new(1,
+    private static BlockReactionChange CollisionBombBlock1x2Permanent { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Vertical, Stage.Rock), 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Vertical, Stage.Pieces), 4),
@@ -489,7 +489,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x2 block, gone for good.</summary>
-    internal static BlockReactionChange ReactionBombBlock1x2Permanent { get; } = new(1,
+    private static BlockReactionChange ReactionBombBlock1x2Permanent { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Vertical, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Vertical, Stage.Pieces), 4),
@@ -498,7 +498,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 1x2 block, gone for good.</summary>
-    internal static BlockReactionChange BombBlock1x2PermanentBreak { get; } = new(1,
+    private static BlockReactionChange BombBlock1x2PermanentBreak { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Vertical, Stage.Rock), 4),
         new(Breakup(BlockArrangement.Vertical, Stage.Pieces), 4),
@@ -507,7 +507,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x2 block, gone for good.</summary>
-    internal static BlockReactionChange CollisionBombBlock2x2Permanent { get; } = new(1,
+    private static BlockReactionChange CollisionBombBlock2x2Permanent { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Square, Stage.Rock), 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Square, Stage.Pieces), 4),
@@ -516,7 +516,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x2 block, gone for good.</summary>
-    internal static BlockReactionChange ReactionBombBlock2x2Permanent { get; } = new(1,
+    private static BlockReactionChange ReactionBombBlock2x2Permanent { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Square, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(Breakup(BlockArrangement.Square, Stage.Pieces), 4),
@@ -525,7 +525,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x2 block, gone for good.</summary>
-    internal static BlockReactionChange BombBlock2x2PermanentBreak { get; } = new(1,
+    private static BlockReactionChange BombBlock2x2PermanentBreak { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Square, Stage.Rock), 4),
         new(Breakup(BlockArrangement.Square, Stage.Pieces), 4),

@@ -145,7 +145,7 @@ public readonly record struct ControllerBindings(
     }
 
     /// <summary>True when all seven bindings are single, distinct assignable buttons.</summary>
-    public bool IsUniquePermutation
+    private bool IsUniquePermutation
     {
         get
         {

@@ -8,7 +8,6 @@ public sealed class NorfairEnvironmentalPaletteFxColorDefinition
     {
     }
 
-
     /// <summary>The mutually exclusive environmental palette owner.</summary>
     public required NorfairEnvironmentalPaletteOwner Owner { get; init; }
 

@@ -52,8 +52,8 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
                 AssertTrue(roomObjects.PopulationPlaces.Single() is
                     {
                         Block: { X: 0, Y: 0 },
-                        Behaviour: TerrainChangeObject { Change: var change },
-                    } && change == ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak,
+                        Behaviour: TerrainChangeObject started,
+                    } && started.Starts(ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak),
                     $"production enemy spike ${behavior:X2} spawns the block's break at the block");
             AssertEqual(index == 15 ? RoomCollisionType.Air : RoomCollisionType.SpikeBlock,
                 level.GetCollisionBlock(Position16<RoomBlocks>.Zero).CollisionType,

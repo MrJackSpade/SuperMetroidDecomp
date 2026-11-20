@@ -81,7 +81,7 @@ internal static class RidleyNativeWords
     /// <summary>
     /// The bank-$A6 routine word naming each <see cref="CeresRidleyPhase"/> (#2227). Once he has got away the cartridge
     /// stores the getaway's empty routine ($AA1B), then the self-destruct's ($C04E) and the alarm's ($AA50); the port's
-    /// escape keeps those as its own stages (#2228), so <see cref="CeresRidleyPhase.Escaped"/> names the first.
+    /// escape keeps those as its own stages (#2228), so <c>Escaped</c> names the first.
     /// </summary>
     internal static readonly NativeWordIdentities<CeresRidleyPhase> CeresPhases = new(new Dictionary<CeresRidleyPhase, ushort>
     {

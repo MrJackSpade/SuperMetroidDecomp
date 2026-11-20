@@ -54,7 +54,7 @@ internal sealed class MotherBrainProjectiles
     /// A room turret's bullet (#1760): its spawner starts its animation, and a shot or Samus's touch runs the turret
     /// family's smoke, the animation its definition names for both.
     /// </summary>
-    internal TurretBulletBehavior TurretBullet { get; } = new();
+    private TurretBulletBehavior TurretBullet { get; } = new();
 
     /// <summary>
     /// A room turret's bullet: it flies, flickering its vulnerability, until it meets a solid block, and handles its turret
@@ -532,7 +532,7 @@ internal sealed class MotherBrainProjectiles
         /// Moves the onion ring. A live Baby place is tested before Samus and the room,
         /// matching the private projectile's cross-enemy collision order during phase three.
         /// </summary>
-        internal void FlyMotherBrainOnionRing(
+        private void FlyMotherBrainOnionRing(
             EnemyProjectile ring,
             SamusState samus,
             int cameraX)
@@ -663,7 +663,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>Runs turret-bullet initialization.</summary>
-        internal void SpawnMotherBrainTurretBullet(EnemyProjectile turret)
+        private void SpawnMotherBrainTurretBullet(EnemyProjectile turret)
         {
             EnemyProjectile? bullet = dependencies.Projectiles.AllocateEnemyProjectile();
             if (bullet is null)
@@ -804,7 +804,7 @@ internal sealed class MotherBrainProjectiles
     /// </summary>
     /// <param name="owner">The drool's behaviour, which carries out its splash's events.</param>
     /// <param name="drool">The falling drool.</param>
-    internal static void DropMotherBrainDrool(
+    private static void DropMotherBrainDrool(
         MotherBrainProjectileBehavior owner,
         EnemyProjectile drool)
     {
@@ -853,7 +853,7 @@ internal sealed class MotherBrainProjectiles
         OffRoomPlaces.Signed(projectile.Position.Whole);
 
     /// <summary>Turns the turret one direction the way it turns, or back the other way when that leaves its arc.</summary>
-    internal static void SelectNextMotherBrainTurretDirection(MotherBrainProjectileBehavior owner, EnemyProjectile turret)
+    private static void SelectNextMotherBrainTurretDirection(MotherBrainProjectileBehavior owner, EnemyProjectile turret)
     {
         MotherBrainTurretState state = owner.Turrets.Of(turret);
         MotherBrainTurretDirection candidate = MotherBrainTurrets.Turned(state.Direction, state.Turning);

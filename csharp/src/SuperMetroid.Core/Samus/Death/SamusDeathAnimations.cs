@@ -42,7 +42,7 @@ internal static class SamusDeathAnimations
         Animation<W>.LeadingInto([WhiteoutSegments.Whole(W.Brightening)], [WhiteoutSegments.Whole(W.Brightest)]);
 
     /// <summary>The suit explosion's pictures, each with the updates it shows for.</summary>
-    internal static AnimationSegments<SamusDeathExplosionSegment, E, NoAnimationCue> ExplosionSegments { get; } = new(
+    private static AnimationSegments<SamusDeathExplosionSegment, E, NoAnimationCue> ExplosionSegments { get; } = new(
         new Dictionary<SamusDeathExplosionSegment, AnimationBeat<E, NoAnimationCue>[]>
         {
             [SamusDeathExplosionSegment.Explosion] =

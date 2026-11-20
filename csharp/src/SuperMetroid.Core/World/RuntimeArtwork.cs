@@ -80,7 +80,6 @@ internal sealed class RuntimeArtwork
     /// <summary>The composition every frame of Samus's shots' and bombs' animations draws: the Samus artwork's, which a rebinding replaces for both.</summary>
     public InstalledProjectileFrameBindings ProjectileFrameBindings
     {
-        get => SamusArtwork.ProjectileFrames;
         set => SamusArtwork.ProjectileFrames = value;
     }
 

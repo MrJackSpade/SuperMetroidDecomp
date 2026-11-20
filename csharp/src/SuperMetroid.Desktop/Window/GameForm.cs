@@ -8,11 +8,11 @@ namespace SuperMetroid.Desktop.Window;
 internal sealed class GameForm : Form
 {
     /// <summary>Owns the playable surface and renderer for this desktop window.</summary>
-    internal readonly PlayableGameControl gameControl;
+    private readonly PlayableGameControl gameControl;
     /// <summary>Prevents a second asynchronous renderer stop while close is pending.</summary>
     private bool closingRenderer;
     /// <summary>Allows the second close request after the renderer has stopped.</summary>
-    internal bool rendererStopped;
+    private bool rendererStopped;
 
     /// <summary>The normal ROM-independent host path after asset installation.</summary>
     /// <param name="installation">The installed content and player data directory.</param>

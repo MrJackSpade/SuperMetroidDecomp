@@ -362,7 +362,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool FacesLeft(AlcoonEnemyState state) => state.WalkingDirection == HorizontalDirection.Left;
 
     /// <summary>An Alcoon fireball (#1760): it flies with vertical, then horizontal, room collision and horizontal drag.</summary>
-    internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
+    private static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
         context => FlyAlcoonFireball(context.Projectile, context.Level));
 
     /// <summary>Runs Alcoon's initialization AI.</summary>
@@ -384,7 +384,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue) => ApplyAlcoonCue(place, state, context.Level, cue));
 
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
-    internal void SpawnAlcoonFireball(RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
+    private void SpawnAlcoonFireball(RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

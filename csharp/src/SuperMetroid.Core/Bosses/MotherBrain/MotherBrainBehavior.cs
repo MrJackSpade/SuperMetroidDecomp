@@ -54,13 +54,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     internal MotherBrainFakeDeath FakeDeath { get; }
 
     /// <summary>Mother Brain rising into her second form: its graphics, brain setup, the rise and the menacing head shake.</summary>
-    internal MotherBrainAscent Ascent { get; }
+    private MotherBrainAscent Ascent { get; }
 
     /// <summary>Mother Brain's second-phase attacks: choosing one, the bomb walk, the lasers and the hand beam.</summary>
     internal MotherBrainAttacks Attacks { get; }
 
     /// <summary>Mother Brain's rainbow beam, its colours, and her death.</summary>
-    internal MotherBrainRainbowAndDeath RainbowAndDeath { get; }
+    private MotherBrainRainbowAndDeath RainbowAndDeath { get; }
 
     /// <summary>Mother Brain's hitboxes and touch, and what Samus's weapons do to her head and body.</summary>
     internal MotherBrainCombat Combat { get; }
@@ -150,7 +150,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the phase of her fake death's descent her body is in, after her first phase ends.</summary>
-    internal void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState samus)
+    private void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState samus)
     {
         switch (state.DescentPhase)
         {
@@ -237,7 +237,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs one update of Mother Brain's room flash, while it runs: it plays on through its fourteen images, each shown two
     /// updates, looping (<see cref="MotherBrainRoomFlashAnimations"/>), and her room shows the image it stands on.
     /// </summary>
-    internal static void RunMotherBrainRoomFlash(MotherBrainEnemyState state)
+    private static void RunMotherBrainRoomFlash(MotherBrainEnemyState state)
     {
         if (state.RoomFlash is not { } flash)
             return;

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectStationVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for twenty map, refill, save, and station-access draw layouts.</summary>
-    public const string VisualFileName = "stations.json";
+    private const string VisualFileName = "stations.json";
 
     /// <summary>The station as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -36,7 +36,7 @@ public static class RoomObjectStationVisualFiles
     /// its second block beside or above the first, a save pod its six two-block rows upward, and a retracted map arm its
     /// second block three across.
     /// </summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryShape(StationObjectDraws.Family, request, out RoomBlockShape? shape))
         {
@@ -64,11 +64,11 @@ public static class RoomObjectStationVisualFiles
     /// Published artwork IDs (#1994): each display's dim, lit and bright glow, and the save pod's and the access
     /// arms' states. These are identity selections, independent of the terrain. Only complete lists have IDs.
     /// </summary>
-    internal static string VisualId(RoomObjectDraw request) =>
+    private static string VisualId(RoomObjectDraw request) =>
         StationDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<StationDraw>(request, "station draw list"));
 
     /// <summary>Calculates the twenty complete station lists in published enumeration order.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {

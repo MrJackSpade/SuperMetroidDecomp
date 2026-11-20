@@ -44,25 +44,25 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         throw new InvalidOperationException($"The Kraid species creates no {place.DefinitionId}.");
     }
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
-    internal KraidBodyLayer BodyLayer { get; }
+    private KraidBodyLayer BodyLayer { get; }
 
     /// <summary>Kraid's arrival: his room setup, the rise through the floor and his growth into the second phase.</summary>
     internal KraidRise Rise { get; }
 
     /// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
-    internal KraidEncounterAccess Access { get; }
+    private KraidEncounterAccess Access { get; }
 
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     internal KraidParts Parts { get; }
 
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
-    internal KraidBackground Background { get; }
+    private KraidBackground Background { get; }
 
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health colours.</summary>
-    internal KraidHead Head { get; }
+    private KraidHead Head { get; }
 
     /// <summary>Kraid's death: the sink below the floor, hiding his body and the background fade.</summary>
-    internal KraidDeath Death { get; }
+    private KraidDeath Death { get; }
 
     /// <summary>Kraid's arm and foot: their setup, animations, lunges, retreats and walks.</summary>
     internal KraidLimbs Limbs { get; }
@@ -99,7 +99,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// killing mouth hit therefore reaches colour handling, which settles his hurt flash on his health band's colours,
     /// before the death setup runs in this same update.
     /// </summary>
-    internal void RunKraidBodyMain(
+    private void RunKraidBodyMain(
         RoomEnemyPlace body,
         KraidEnemyState state,
         SamusState samus,
@@ -129,7 +129,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     /// <param name="projectiles">Samus's shots.</param>
     /// <param name="bombs">Samus's bombs.</param>
-    internal static IReadOnlyList<KraidPassProjectile> TestedByShotPasses(
+    private static IReadOnlyList<KraidPassProjectile> TestedByShotPasses(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem bombs)
     {
@@ -202,7 +202,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Runs the phase of the stage the body is in: his rise, his fight, his growth or his death.</summary>
-    internal void RunKraidBodyStage(
+    private void RunKraidBodyStage(
         RoomEnemyPlace body,
         KraidEnemyState state,
         int cameraX,

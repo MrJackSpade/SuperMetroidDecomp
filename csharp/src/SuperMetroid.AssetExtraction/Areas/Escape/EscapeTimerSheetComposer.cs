@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 internal static class EscapeTimerSheetComposer
 {
     /// <summary>The OBJ palette row the timer is drawn with.</summary>
-    internal const int PaletteRow = 5;
+    private const int PaletteRow = 5;
 
     /// <summary>The most parts a timer spritemap may hold.</summary>
     private const int MaximumParts = 128;

@@ -19,7 +19,7 @@ public static class IntroNarrationPictures
     public const string FinalLine = "final-line";
 
     /// <summary>The row, counted in glyphs from the narration's top, the final line's picture starts at.</summary>
-    internal const int FinalLineRow = IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows;
+    private const int FinalLineRow = IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows;
 
     /// <summary>The side of one narration glyph in pixels.</summary>
     private const int GlyphPixels = ScreenGeometry.BackgroundCellSizePixels;

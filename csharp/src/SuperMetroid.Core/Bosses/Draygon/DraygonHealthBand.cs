@@ -17,7 +17,7 @@ public sealed class DraygonHealthBand
     }
 
     /// <summary>The least health in the band, or null for the lowest band, which holds all the health below the others.</summary>
-    public int? MinimumHealth { get; }
+    private int? MinimumHealth { get; }
 
     /// <summary>The band's name in its shade's name.</summary>
     public string Key { get; }

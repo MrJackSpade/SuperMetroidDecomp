@@ -22,7 +22,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SparkEntity(this, place, common));
 
     /// <summary>Owner of the falling-spark projectile emitted by one spark action.</summary>
-    internal FallingSparksBehavior FallingSparks { get; }
+    private FallingSparksBehavior FallingSparks { get; }
 
     /// <summary>Binds the spark species to its falling-spark producer.</summary>
     internal SparkBehavior(FallingSparksBehavior fallingSparksBehavior) => FallingSparks = fallingSparksBehavior;
@@ -103,7 +103,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Counts one update of the Spark's wait: whether it ends on this update, which every action follows with a new wait.</summary>
     /// <exception cref="InvalidOperationException">The wait is already over: a counting Spark's base time is zero.</exception>
-    internal static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state) => state.ActionTimer.Count();
+    private static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state) => state.ActionTimer.Count();
 
     /// <summary>
     /// Sets the Spark's action timer: its placement's wait between actions (#2450) and <paramref name="additionalTime"/>.

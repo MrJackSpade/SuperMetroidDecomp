@@ -25,7 +25,7 @@ internal sealed class PrePhantoonRoomBehavior
     }
 
     /// <summary>The room's held place (#1760): it holds still, showing nothing, until its hold runs out and frees it.</summary>
-    internal EnemyProjectileBehavior HoldingProjectile { get; }
+    private EnemyProjectileBehavior HoldingProjectile { get; }
 
     /// <summary>
     /// Runs the pre-Phantoon room's setup: takes the first free projectile place and holds it until the hold frees it or a

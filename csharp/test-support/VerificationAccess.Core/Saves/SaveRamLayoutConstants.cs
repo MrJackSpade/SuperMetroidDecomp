@@ -59,5 +59,5 @@ internal static class SaveRamLayoutConstants
         internal static int WordByteCount => SaveRamLayoutConstants.WordByteCount;
     }
     /// <summary>Number of Zebes area maps packed into SRAM; the Ceres prologue has no persisted map.</summary>
-    public const int PackedMapAreaCount = SaveRamMapPacking.PackedAreaCount;
+    public static readonly int PackedMapAreaCount = SaveRamMapPacking.PackedAreaCount;
 }

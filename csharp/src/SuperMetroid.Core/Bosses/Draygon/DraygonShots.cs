@@ -57,7 +57,7 @@ internal sealed class DraygonShots
         internal EnemyProjectileStates<AngledFlightState> Flights { get; } = new();
 
         /// <summary>Where each goop stuck to Samus sits in her stack, given as it sticks.</summary>
-        internal EnemyProjectileStates<DraygonGoopAttachedState> Attached { get; } = new();
+        private EnemyProjectileStates<DraygonGoopAttachedState> Attached { get; } = new();
 
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() => shot(this);
@@ -155,7 +155,7 @@ internal sealed class DraygonShots
         /// <param name="goop">The goop stuck to Samus.</param>
         /// <param name="samus">Samus, whom the goop follows.</param>
         /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which frees the goop's place.</param>
-        internal void RunAttachedDraygonGoop(
+        private void RunAttachedDraygonGoop(
             EnemyProjectile goop,
             SamusState samus,
             SamusPowerBombExplosionState powerBomb)

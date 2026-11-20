@@ -6,5 +6,5 @@ namespace SuperMetroid.Verification.Lists;
 internal static class ListChecks
 {
     /// <summary>The width of the wide window over a title.</summary>
-    internal static int WideWidth => ListWindows.WideWidth("Items");
+    internal static int WideWidth => ListWindowsConstants.WideWidth("Items");
 }

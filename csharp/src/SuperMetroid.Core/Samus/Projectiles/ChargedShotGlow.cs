@@ -30,10 +30,10 @@ public sealed class ChargedShotGlow
     public static ChargedShotGlow StartHyperBeamGlow() => new(ChargedShotGlowKind.HyperBeamGlow, SamusGlowSegment.HyperShotGlow);
 
     /// <summary>Which glow this is.</summary>
-    public ChargedShotGlowKind Kind { get; }
+    private ChargedShotGlowKind Kind { get; }
 
     /// <summary>The play of the glow's sequence: the shade it shows and the updates that shade has left.</summary>
-    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Play { get; }
+    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Play { get; }
 
     /// <summary>Whether the glow has played past its last shade, so the suit's own shade returns.</summary>
     internal bool HasEnded => Play.HasStopped;

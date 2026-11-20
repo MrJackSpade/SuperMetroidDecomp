@@ -24,7 +24,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomDoorBlockFiles
 {
     /// <summary>The document's file name in the room-level family's directory.</summary>
-    internal const string FileName = "room-door-blocks.json";
+    private const string FileName = "room-door-blocks.json";
 
     /// <summary>Document schema version this loader accepts.</summary>
     private const int FormatVersion = 1;

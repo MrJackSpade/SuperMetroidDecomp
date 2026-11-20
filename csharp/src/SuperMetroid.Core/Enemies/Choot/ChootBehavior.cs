@@ -71,7 +71,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Waits out the jump delay, then starts the jumping animation.</summary>
-    internal static void PrepareChootJump(RoomEnemyPlace place, ChootEnemyState state)
+    private static void PrepareChootJump(RoomEnemyPlace place, ChootEnemyState state)
     {
         if (!state.JumpDelayTimer.Step())
             return;
@@ -81,7 +81,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies quadratic ascent without room collision and snaps whole coordinates to the calculated falling origin at the apex.</summary>
-    internal static void RunChootJump(RoomEnemyPlace place, ChootEnemyState state)
+    private static void RunChootJump(RoomEnemyPlace place, ChootEnemyState state)
     {
         // The Choot rises at its place's speed on the curve, passing through the room's blocks during this leap.
         SignedSixteenSixteen upwardDisplacement = state.YSpeedCurvePlace.Speed.Negative;
@@ -103,7 +103,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Follows authored path offsets, advancing its origin at each loop's end and restoring the exact spawn state after the final loop.</summary>
-    internal static void RunChootFall(RoomEnemyPlace place, ChootEnemyState state)
+    private static void RunChootFall(RoomEnemyPlace place, ChootEnemyState state)
     {
         ChootFallingPath fallingPath = place.SpawnSettings<ChootSpawnSettings>().FallingPath;
         if (state.FallingLoop.IsOver)

@@ -39,7 +39,7 @@ internal static class BoulderAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<BoulderSegment, Animation<BoulderSegment>> StartingAt { get; } = new Dictionary<BoulderSegment, Animation<BoulderSegment>>
+    private static Dictionary<BoulderSegment, Animation<BoulderSegment>> StartingAt { get; } = new Dictionary<BoulderSegment, Animation<BoulderSegment>>
     {
         [P.Left] = Animation<BoulderSegment>.Looping([Segments.Whole(P.Left)]),
         [P.Right] = Animation<BoulderSegment>.Looping([Segments.Whole(P.Right)]),

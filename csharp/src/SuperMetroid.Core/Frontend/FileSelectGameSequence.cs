@@ -57,8 +57,6 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
             case FileSelectStep.AreaMap:
                 RunAreaMap(controllerInput);
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(FileSelectStep)} {session.FileSelectStep}.");
         }
     }
 

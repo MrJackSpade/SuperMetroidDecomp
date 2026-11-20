@@ -444,8 +444,6 @@ public sealed class SamusHorizontalSpeedState
                 break;
             case SpeedEchoPhase.Departing:
                 throw new InvalidOperationException("Departing echoes are not captured.");
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SpeedEchoPhase)} {SpeedEchoPhase}.");
         }
 
         return true;

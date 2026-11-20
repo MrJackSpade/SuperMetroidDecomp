@@ -217,8 +217,6 @@ internal sealed class CeresEscape : IGameplayShadingSource
                 return;
             case CeresEscapeStage.AwaitingGetaway:
                 throw new InvalidOperationException("Ceres Ridley handed his step to an escape that has not begun.");
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresEscapeStage)} {Stage}.");
         }
     }
 

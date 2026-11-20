@@ -97,9 +97,6 @@ internal sealed class MotherBrainHead
                 head.Position = head.Position.WithWhole(state.Neck.BrainAnchor.Position + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
                 state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainOnNeck;
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Mother Brain has no behaviour for brain action {state.BrainAction}.");
         }
     }
 

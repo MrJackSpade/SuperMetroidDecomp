@@ -49,8 +49,6 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
             case EndingStep.Credits:
                 RunCredits();
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingStep)} {session.EndingStep}.");
         }
     }
 

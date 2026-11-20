@@ -90,8 +90,6 @@ internal sealed class MotherBrainProjectiles
             case MotherBrainTurretCue.Delete:
                 projectile.Delete();
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(MotherBrainTurretCue)} {cue}.");
         }
     }
 
@@ -215,8 +213,6 @@ internal sealed class MotherBrainProjectiles
                 case MotherBrainProjectileMotion.SubtitleHeld:
                     PinMotherBrainEscapeSubtitle(projectile);
                     break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainProjectileMotion)} {motion}.");
             }
         }
 
@@ -231,8 +227,6 @@ internal sealed class MotherBrainProjectiles
                 case MotherBrainGlassCue.Delete:
                     context.Projectile.Delete();
                     return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainGlassCue)} {cue}.");
             }
         }
 
@@ -251,8 +245,6 @@ internal sealed class MotherBrainProjectiles
                 case MotherBrainHandBeamCue.Delete:
                     context.Projectile.Delete();
                     return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainHandBeamCue)} {cue}.");
             }
         }
 
@@ -280,8 +272,6 @@ internal sealed class MotherBrainProjectiles
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.Delete }:
                     projectile.Delete();
                     break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainEffectCueKind)} {cue}.");
             }
         }
 

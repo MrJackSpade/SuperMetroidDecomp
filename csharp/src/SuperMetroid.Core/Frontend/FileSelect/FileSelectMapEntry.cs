@@ -47,8 +47,6 @@ public sealed class FileSelectMapEntry
                 break;
             case FileSelectMapEntryPhase.Complete:
                 break;
-            default:
-                throw new InvalidOperationException($"Unknown file-select entry phase {Phase}.");
         }
     }
 }

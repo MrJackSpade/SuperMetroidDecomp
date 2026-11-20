@@ -48,8 +48,6 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             case HopperCue.Signal { Kind: HopperCueKind.ReadyToHop }:
                 state.ReadyToHop = true;
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined hopper cue {cue}.");
         }
     }
 

@@ -77,8 +77,6 @@ internal sealed class IntroRinkaSystem
             case IntroRinkaCue.StartMoving:
                 rinka.StartMoving();
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroRinkaCue)} {cue}.");
         }
     }
 
@@ -129,9 +127,6 @@ internal sealed class IntroRinkaSystem
                 if (y < IntroRinkaDefinitions.MissTopY || y >= IntroRinkaDefinitions.MissBottomY || motherBrainExploding)
                     sprite.Delete();
                 return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroRinkaFlight)} {rinka.Flight}.");
         }
     }
 

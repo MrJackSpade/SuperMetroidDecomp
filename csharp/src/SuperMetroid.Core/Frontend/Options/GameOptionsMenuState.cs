@@ -210,9 +210,6 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 if (fade.Darken())
                     Outcome = GameOptionsMenuOutcome.FileSelect;
                 break;
-
-            default:
-                throw new InvalidOperationException($"Unknown options phase {Phase}.");
         }
     }
 
@@ -288,8 +285,6 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             case GameOptionsPrimaryRow.SpecialSettings:
                 BeginDissolveTo(GameOptionsPage.Special);
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined GameOptionsPrimaryRow {primaryRow}.");
         }
     }
 
@@ -351,8 +346,6 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
             case GameOptionsControllerRow.AssignsAction:
                 throw new InvalidOperationException("Controller action rows are handled before navigation rows.");
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(GameOptionsControllerRow)} {controllerRow}.");
         }
     }
 
@@ -391,8 +384,6 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             case GameOptionsSpecialRow.Exit:
                 BeginDissolveTo(GameOptionsPage.Primary);
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(GameOptionsSpecialRow)} {specialRow}.");
         }
         LoadVisiblePage();
     }
@@ -411,8 +402,6 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             case GameOptionsPage.Special:
                 specialRow = GameOptionsPageRows.Special.Top;
                 break;
-            default:
-                throw new InvalidOperationException($"Unknown options page {shown}.");
         }
     }
 

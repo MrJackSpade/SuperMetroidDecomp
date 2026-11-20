@@ -204,8 +204,6 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                             return MessageBoxStep.NothingAsked.Instance;
                         case SaveChoiceInputCadence.Update.ReadsController:
                             break;
-                        default:
-                            throw new InvalidOperationException("Undefined save-choice update.");
                     }
                     _controller.Latch(controllerInput);
                     // A confirms the highlighted choice, then B cancels; only a press with

@@ -155,8 +155,6 @@ public sealed class SamusProjectileSystem
                 break;
             case SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave:
                 throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no beam shade.");
-            default:
-                throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination.");
         }
     }
 

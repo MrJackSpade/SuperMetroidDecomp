@@ -143,9 +143,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             case PolypRockMovement.Falling:
                 StepFallingPolypRock(projectile);
                 break;
-            default:
-                throw new InvalidDataException(
-                    $"Undefined {nameof(PolypRockMovement)} {phase}.");
         }
 
         EnemyView.DeleteOutside(projectile, camera);

@@ -77,8 +77,6 @@ public sealed class PuyoEnemyState
                 return;
             case PuyoAction.Grounded:
                 throw new InvalidOperationException("A grounded Puyo has no airborne place to step.");
-            default:
-                throw new InvalidDataException($"Undefined {nameof(PuyoAction)} {Action}.");
         }
     }
 }

@@ -76,8 +76,6 @@ internal sealed class EndingTypewriter
             case EndingTypewriterCue.Complete:
                 Completed = true;
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined ending typewriter cue {cue}.");
         }
     }
 

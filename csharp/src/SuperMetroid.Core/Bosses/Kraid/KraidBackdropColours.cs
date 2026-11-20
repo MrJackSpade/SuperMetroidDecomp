@@ -84,8 +84,6 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
             case KraidBackdropShown.Fading fading:
                 frame.Shade(GameplayPictures.Room, FadeOf(fading));
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined Kraid backdrop colours {Shows}.");
         }
     }
 

@@ -54,8 +54,6 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
             case TimeUpStep.FadingToBlack:
                 FadeToBlack(controllerInput);
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {session.TimeUpStep}.");
         }
     }
 

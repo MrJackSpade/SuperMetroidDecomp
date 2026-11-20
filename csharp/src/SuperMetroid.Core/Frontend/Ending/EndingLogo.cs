@@ -80,8 +80,6 @@ internal sealed class EndingLogo
             case EndingLogoCue.GreyOut:
                 CrossfadeStarted = true;
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingLogoCue)} {cue}.");
         }
     }
 

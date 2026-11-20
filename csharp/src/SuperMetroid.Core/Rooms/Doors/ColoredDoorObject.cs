@@ -111,8 +111,6 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
             case ColoredDoorPhase.Opening:
                 context.RoomObjects.DeleteObject(place);
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ColoredDoorPhase)} {Phase}.");
         }
     }
 

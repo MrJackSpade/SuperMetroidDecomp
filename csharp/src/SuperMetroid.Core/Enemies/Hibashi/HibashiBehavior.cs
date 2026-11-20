@@ -42,8 +42,6 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             case HibashiCue.Signal { Kind: HibashiCueKind.FinishActivity }:
                 FinishHibashiActivity(place);
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined Hibashi cue {cue}.");
         }
     }
 

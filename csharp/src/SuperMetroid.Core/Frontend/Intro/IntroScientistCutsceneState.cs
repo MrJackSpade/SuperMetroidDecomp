@@ -96,8 +96,6 @@ internal sealed class IntroScientistCutsceneState
                 // The Baby's last pulse ends by selecting the next page.
                 NextPageRequested = true;
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroLaboratoryCue)} {cue}.");
         }
     }
 }

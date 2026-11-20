@@ -184,9 +184,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.ReleaseSamus }:
                 FinishWreckedShipChozoSequence();
                 return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ChozoStatueCueKind)} {cue}.");
         }
     }
 

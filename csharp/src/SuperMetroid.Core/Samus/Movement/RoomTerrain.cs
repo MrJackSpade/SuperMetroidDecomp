@@ -15,4 +15,8 @@ internal sealed class RoomTerrain : SamusTerrain
 
     /// <summary>The room's room objects, which the touched blocks' reactions reach.</summary>
     internal ISamusRoomObjects RoomObjects { get; }
+
+    /// <summary>A room's block reaches its room objects: the met block carries its reaction.</summary>
+    /// <param name="standing">The block a met cell stands for.</param>
+    private protected override MetBlock Met(StandingBlock standing) => new(standing, new ReactingBlock(this, standing));
 }

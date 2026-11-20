@@ -809,32 +809,29 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// Reacts to a bombed cell: on a room's terrain, the block it stands for reacts; a plain terrain's air, solid blocks
-    /// and slopes do nothing when bombed.
+    /// Reacts to a bombed cell: a room's block it stands for (<see cref="ContinuedBlocks"/>) reacts; a cell that stands for
+    /// nothing is air, and a plain terrain's air, solid blocks and slopes reach nothing.
     /// </summary>
     private static void ReactToBombedBlock(
         SamusTerrain terrain,
         Position16<RoomBlocks> bombedBlock,
         SamusProjectileType projectileType)
     {
-        if (terrain is RoomTerrain room)
-            ReactToBombedRoomBlock(room, bombedBlock, projectileType);
+        if (terrain.MeetAt(bombedBlock) is { Reacting: { } reacting })
+            ReactToBombedRoomBlock(reacting, projectileType);
     }
 
     /// <summary>
-    /// Reacts to the block a bombed cell of a room stands for (<see cref="ContinuedBlocks"/>): its item, door,
-    /// special-block or ordinary reaction, including synchronous room-object changes.
+    /// Reacts to the block <paramref name="bombed"/> of a room a bombed cell stands for: its item, door, special-block or
+    /// ordinary reaction, including synchronous room-object changes.
     /// </summary>
     private static void ReactToBombedRoomBlock(
-        RoomTerrain terrain,
-        Position16<RoomBlocks> bombedBlock,
+        ReactingBlock bombed,
         SamusProjectileType projectileType)
     {
-        // A bombed cell reacts as the block it stands for, at that block; one that stands for nothing is air.
-        if (terrain.Level.StandingBlockFor(terrain.Level.GetCollisionBlock(bombedBlock)) is not { } standing)
-            return;
-        RoomCollisionBlock block = standing.Block;
-        StandingCollisionType type = standing.CollisionType;
+        RoomTerrain terrain = bombed.Room;
+        RoomCollisionBlock block = bombed.Block;
+        StandingCollisionType type = bombed.CollisionType;
 
         // A bombed item block, special or shootable, tells the item room object at it of the hit, and no other reaction
         // runs.

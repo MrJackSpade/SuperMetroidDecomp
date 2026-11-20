@@ -26,6 +26,10 @@ internal sealed class PlainTerrain : SamusTerrain
     {
     }
 
+    /// <summary>A plain block, air, solid or a slope, reaches nothing: the met block carries no reaction.</summary>
+    /// <param name="standing">The block a met cell stands for.</param>
+    private protected override MetBlock Met(StandingBlock standing) => new(standing, null);
+
     /// <summary>The room collision of <paramref name="blocks"/>, block by block.</summary>
     private static RoomCollisionType[] CollisionOf(ReadOnlySpan<PlainTerrainBlock> blocks)
     {

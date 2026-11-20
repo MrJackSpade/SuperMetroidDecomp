@@ -124,9 +124,9 @@ public static class SamusBlockCollision
 
             for (int rowOffset = 0; rowOffset <= verticalSpan; rowOffset++)
             {
-                if (terrain.Level.StandingBlockFor(terrain.Level.GetCollisionBlockOrEdgeSolid(
-                    new(TerrainScanEdges.Block(blockX), TerrainScanEdges.Block(topBlockY + rowOffset)))) is not { } standing)
+                if (terrain.MeetAtOrEdgeSolid(new(TerrainScanEdges.Block(blockX), TerrainScanEdges.Block(topBlockY + rowOffset))) is not { } met)
                     continue;
+                StandingBlock standing = met.Standing;
                 RoomCollisionBlock block = standing.Block;
                 MeetHorizontalBlock();
 
@@ -180,10 +180,10 @@ public static class SamusBlockCollision
                             leadingBoundary);
                         collided = true;
                     }
-                    // Every other block a scan meets passes as air on a plain terrain, which holds only air, solid blocks
-                    // and slopes; a room's reacting blocks reach its room objects.
-                    else if (terrain is RoomTerrain room)
-                        MeetReactingBlock(room);
+                    // Every other block a scan meets is a room's, whose reaction reaches its room objects; a plain terrain
+                    // holds only air, solid blocks and slopes.
+                    else if (met.Reacting is { } reacting)
+                        MeetReactingBlock(reacting.Room);
                 }
 
                 void MeetReactingBlock(RoomTerrain room)
@@ -445,9 +445,9 @@ public static class SamusBlockCollision
         for (int offset = 0; offset <= horizontalSpan; offset++)
         {
             int blockX = move.ScanLeftToRight ? firstBlockX + offset : firstBlockX - offset;
-            if (terrain.Level.StandingBlockFor(terrain.Level.GetCollisionBlockOrEdgeSolid(
-                new(TerrainScanEdges.Block(blockX), TerrainScanEdges.Block(blockY)))) is not { } standing)
+            if (terrain.MeetAtOrEdgeSolid(new(TerrainScanEdges.Block(blockX), TerrainScanEdges.Block(blockY))) is not { } met)
                 continue;
+            StandingBlock standing = met.Standing;
             RoomCollisionBlock block = standing.Block;
             MeetVerticalBlock();
 
@@ -514,10 +514,10 @@ public static class SamusBlockCollision
                         leadingBoundary);
                     collided = true;
                 }
-                // Every other block passes as air on a plain terrain, which holds only air, solid blocks and slopes; a
-                // room's reacting blocks reach its room objects.
-                else if (terrain is RoomTerrain room)
-                    MeetReactingBlock(room);
+                // Every other block is a room's, whose reaction reaches its room objects; a plain terrain holds only air,
+                // solid blocks and slopes.
+                else if (met.Reacting is { } reacting)
+                    MeetReactingBlock(reacting.Room);
             }
 
             void MeetReactingBlock(RoomTerrain room)

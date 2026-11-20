@@ -439,10 +439,10 @@ internal sealed class ProjectileMotion
             return false;
 
         // An extension block reacts as the block it leads to, as it does for Samus's body; one that leads nowhere is air.
-        if (terrain.Level.StandingBlockFor(terrain.Level.GetCollisionBlock(new(blockX, blockY))) is not { } standing)
+        if (terrain.MeetAt(new(blockX, blockY)) is not { } met)
             return false;
-        StandingCollisionType type = standing.CollisionType;
-        RoomCollisionBlock block = standing.Block;
+        StandingCollisionType type = met.CollisionType;
+        RoomCollisionBlock block = met.Block;
         // The point reaction treats air, spike air, special air and unrevealed air as transparent, and a bombable block
         // answers only bombs and Power Bombs, so a missile leaves it as it was: bombable air lets the missile pass.
         if (type is StandingCollisionType.Air or StandingCollisionType.SpikeAir or StandingCollisionType.SpecialAir or
@@ -453,8 +453,8 @@ internal sealed class ProjectileMotion
         if (type == StandingCollisionType.Slope)
             return MissileSlopePointReaction(block, held);
         // Shootable blocks, which only a room's terrain holds, react through its room objects.
-        if (type is StandingCollisionType.ShootableAir or StandingCollisionType.ShootableBlock && terrain is RoomTerrain room)
-            return MissileShootableReaction(room, held, block);
+        if (type is StandingCollisionType.ShootableAir or StandingCollisionType.ShootableBlock && met.Reacting is { } reacting)
+            return MissileShootableReaction(reacting.Room, held, block);
         // The remaining members, the solid, door, spike, special, grapple and bombable blocks, stop the missile at once and
         // therefore kill it.
         return true;

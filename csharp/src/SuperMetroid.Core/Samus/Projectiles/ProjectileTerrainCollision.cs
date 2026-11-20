@@ -281,8 +281,9 @@ internal sealed class ProjectileTerrainCollision
         // A shot reacts to the block its cell stands for, as bombs, missiles and Samus's body do (ContinuedBlocks); one that
         // stands for nothing lets the shot pass. A door cap is a shootable block at one end with continuing cells
         // across its other three, so a beam striking the cap's middle reaches the blue door's reaction through them.
-        if (!terrain.Level.TryReachBlockStoodFor(ref block))
+        if (terrain.Meet(block) is not { } met)
             return false;
+        block = met.Block;
         if (block.CollisionType == RoomCollisionType.Slope && !block.Behavior.Slope.IsNonSquare)
             return SquareSlopeShotReaction(held, block, span, axis == Axis.Horizontal);
         if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.Slope.IsNonSquare)
@@ -302,10 +303,11 @@ internal sealed class ProjectileTerrainCollision
             return hit;
         }
 
-        // A plain terrain holds only air, solid blocks and slopes; a room's item, trigger and shootable blocks reach its
-        // room objects.
-        if (terrain is RoomTerrain room)
+        // A room's item, trigger and shootable blocks reach its room objects; a plain terrain holds only air, solid blocks
+        // and slopes.
+        if (met.Reacting is { } reacting)
         {
+            RoomTerrain room = reacting.Room;
             // Chozo orbs and concealed item blocks are shootable blocks of the item-trigger behaviour. Their special
             // reaction is none of the ordinary shot-block reactions: it
             // finds and triggers the already-loaded permanent-item room object at this origin.

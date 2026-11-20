@@ -63,8 +63,8 @@ internal static class EndingScreenImage
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the latter reuses the waiting-scene sheet.
         ReadOnlySpan<byte> reward = artwork.Reward == EndingReward.Suitless ? objects.SuitlessSamus.Characters.Span : waiting;
         ending.RewardCharacters.Load(reward[..EndingArtworkExtentDefinitions.FloorBytes]);
-        ending.PostCreditsFragmentA.Load(objects.PostCreditsFragmentA.Characters.Span[..EndingTransferExtentDefinitions.PostCreditsFragmentABytes]);
-        ending.PostCreditsFragmentB.Load(MapBytes(objects.PostCreditsFragmentB).AsSpan(0, EndingTransferExtentDefinitions.ObjectFragmentBytes));
+        ending.TransformationCharacters.Load(objects.TransformationCharacters.Characters.Span[..EndingTransferExtentDefinitions.TransformationCharacterBytes]);
+        ending.TransformationMap.Load(MapBytes(objects.TransformationMap).AsSpan(0, EndingTransferExtentDefinitions.ObjectFragmentBytes));
     }
 
     /// <summary>One post-shot subtitle, logo-tile or logo-map part at its native word.</summary>

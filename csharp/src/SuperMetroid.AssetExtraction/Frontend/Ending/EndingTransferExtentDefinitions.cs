@@ -25,5 +25,5 @@ internal static class EndingTransferExtentDefinitions
     internal const int WaitingTilemapBytes = 2048;
 
     /// <summary>The bytes of the small post-credits transformation characters.</summary>
-    internal const int PostCreditsFragmentABytes = 256;
+    internal const int TransformationCharacterBytes = 256;
 }

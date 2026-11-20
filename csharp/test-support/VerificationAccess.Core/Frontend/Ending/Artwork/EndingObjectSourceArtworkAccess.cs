@@ -18,7 +18,7 @@ internal static class EndingObjectSourceArtworkAccess
         public string ContentIdentity => SelectedPresentationHash.Create("EndingObjectArtworkCatalog-v2", content =>
         {
             content.AppendTiles("waiting-map", self.WaitingTilemap.Tiles.Span);
-            content.AppendTiles("post-credits-fragment-b", self.PostCreditsFragmentB.Tiles.Span);
+            content.AppendTiles("post-credits-fragment-b", self.TransformationMap.Tiles.Span);
             content.AppendTiles("logo-map", self.PostShotLogoMap.Tiles.Span);
             content.Append("fragment-count", self.Fragments.Count);
             foreach (RoomBackgroundTilemapAtlas fragment in self.Fragments)

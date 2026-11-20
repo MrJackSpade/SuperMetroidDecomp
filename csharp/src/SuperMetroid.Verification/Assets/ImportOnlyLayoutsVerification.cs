@@ -72,10 +72,10 @@ internal static class ImportOnlyLayoutsVerification
         // The map manifest lists the import data's hashes, and only the import's read opens it (#1693).
         yield return (GameInstallationLayout.MapDirectoryName, AreaMapCatalogFormat.ManifestFile);
         string ending = GameInstallationLayout.EndingObjectDirectoryName;
-        for (int fragment = 0; fragment < SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.FragmentCount; fragment++)
-            yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.FragmentFileName(fragment));
+        foreach (EndingExplosionPicture picture in SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.ExplosionPictures)
+            yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.FragmentFileName(picture));
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.WaitingTilemapFileName);
-        yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.PostCreditsFragmentBFileName);
+        yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.TransformationMapFileName);
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.PostShotLogoMapFileName);
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCloudSpriteFormat.FileName);
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingExplosionSpriteFormat.FileName);

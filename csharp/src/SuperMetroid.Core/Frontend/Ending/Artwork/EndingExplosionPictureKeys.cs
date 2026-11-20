@@ -12,6 +12,6 @@ internal static class EndingExplosionPictureKeys
         [EndingExplosionPicture.WideExplosion] = "WideExplosion",
         [EndingExplosionPicture.ConcentricExplosion] = "ConcentricExplosion",
         [EndingExplosionPicture.Eclipse] = "Eclipse",
-        [EndingExplosionPicture.Blank] = "Blank",
+        [EndingExplosionPicture.BurstGlow] = "Blank",
     });
 }

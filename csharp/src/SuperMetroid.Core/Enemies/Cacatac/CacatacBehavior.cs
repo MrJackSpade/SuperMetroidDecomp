@@ -75,7 +75,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         SetCacatacAnimation(place, state, onFloor ? CacatacSegment.OnFloorIdle : CacatacSegment.OnCeilingIdle);
     }
 
-    /// <summary>Runs a Cacatac for one update through its three actions.</summary>
+    /// <summary>Runs a Cacatac for one update: its patrol, or it stays stopped.</summary>
     private void RunCacatacMain(RoomEnemyPlace place, CacatacEnemyState state)
     {
         switch (state.Action)

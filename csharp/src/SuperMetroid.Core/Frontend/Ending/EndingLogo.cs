@@ -85,7 +85,7 @@ internal sealed class EndingLogo
         }
     }
 
-    /// <summary>Places active logo actors as the supplied sprite entries.</summary>
+    /// <summary>Draws the logo's actors among the screen's sprites until the logo completes.</summary>
     public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation installedArt)
     {
         Ensure.NotNull(destination);

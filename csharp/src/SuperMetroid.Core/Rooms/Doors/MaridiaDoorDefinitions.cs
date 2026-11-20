@@ -312,7 +312,7 @@ public static class MaridiaDoorDefinitions
     /// <summary>The door from the Colosseum room to the Draygon Save room.</summary>
     public static DoorDefinition ColosseumToDraygonSave { get; } = new("ColosseumToDraygonSave", RoomDefinitions.DraygonSave, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
-    /// <summary>The door from the Colosseum room to the The Precious room.</summary>
+    /// <summary>The door from the Colosseum room to the Precious room.</summary>
     public static DoorDefinition ColosseumToThePrecious { get; } = new("ColosseumToThePrecious", RoomDefinitions.ThePrecious, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door into the Precious room a Maridia load station enters through.</summary>
@@ -321,10 +321,10 @@ public static class MaridiaDoorDefinitions
     /// <summary>The door from the Aqueduct Save room to the Aqueduct room.</summary>
     public static DoorDefinition AqueductSaveToAqueduct { get; } = new("AqueductSaveToAqueduct", RoomDefinitions.Aqueduct, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 38), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
-    /// <summary>The door from the The Precious room to the Colosseum room.</summary>
+    /// <summary>The door from the Precious room to the Colosseum room.</summary>
     public static DoorDefinition ThePreciousToColosseum { get; } = new("ThePreciousToColosseum", RoomDefinitions.Colosseum, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(110, 22), new(6, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
-    /// <summary>The door from the The Precious room to the Draygon room.</summary>
+    /// <summary>The door from the Precious room to the Draygon room.</summary>
     public static DoorDefinition ThePreciousToDraygon { get; } = new("ThePreciousToDraygon", RoomDefinitions.Draygon, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(30, 6), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Botwoon Energy Tank room to the Botwoon room.</summary>
@@ -399,7 +399,7 @@ public static class MaridiaDoorDefinitions
     /// <summary>The door from the East Cactus Alley room to the Halfie Climb room.</summary>
     public static DoorDefinition EastCactusAlleyToHalfieClimb { get; } = new("EastCactusAlleyToHalfieClimb", RoomDefinitions.HalfieClimb, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
-    /// <summary>The door from the Draygon room to the The Precious room.</summary>
+    /// <summary>The door from the Draygon room to the Precious room.</summary>
     public static DoorDefinition DraygonToThePrecious { get; } = new("DraygonToThePrecious", RoomDefinitions.ThePrecious, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 38), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.ThePreciousOpensScreens0x0And0x1);
 
     /// <summary>The door from the Draygon room to the Space Jump room.</summary>

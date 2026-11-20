@@ -5,8 +5,8 @@ internal enum BoyonCueKind
 {
     /// <summary>Keeps processing the enemy while it is off screen.</summary>
     ProcessOffScreen,
-    /// <summary>Plays the bounce sound and lets main AI start the bounce arc.</summary>
-    StartBounce,
+    /// <summary>Plays the bounce sound.</summary>
+    PlayBounceSound,
     /// <summary>Stops processing the enemy while it is off screen.</summary>
     StopProcessingOffScreen,
 }

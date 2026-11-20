@@ -25,7 +25,7 @@ internal static class EndingArtworkSources
         EndingExplosionPicture.WideExplosion => EndingSourceDefinitions.Artwork.WideExplosionTilemap,
         EndingExplosionPicture.ConcentricExplosion => EndingSourceDefinitions.Artwork.ConcentricExplosionTilemap,
         EndingExplosionPicture.Eclipse => EndingSourceDefinitions.Artwork.EclipseTilemap,
-        EndingExplosionPicture.Blank => EndingSourceDefinitions.Artwork.BlankTilemap,
+        EndingExplosionPicture.BurstGlow => EndingSourceDefinitions.Artwork.BlankTilemap,
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 }

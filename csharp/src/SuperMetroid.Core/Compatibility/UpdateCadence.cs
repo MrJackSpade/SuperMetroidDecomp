@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// A counter read here may count up or down, and may run below zero: the remainder is the counter's position in its
 /// period counted from below, so a counter at -1 sits at the period's last place. Tested at every paced action, through
 /// the named cadence its family's catalog gives for what happens on those updates. Evidence: the game paced these
-/// actions by testing its counters' low bits, reading a negative counter in two's complement; each action's original test of its counter's low bits, which a cadence reproduces update for update; the
-/// SMV replays compare the counters and the outcomes they pace on every update.
+/// actions by testing its counters' low bits, reading a negative counter in two's complement, and a cadence reproduces
+/// each action's test update for update; the SMV replays compare the counters and the outcomes they pace on every update.
 /// </remarks>
 [EncodingOwner("update counter cadences")]
 [CompatibilityService("on which updates a counter-paced action happens, exactly as the game paced it")]

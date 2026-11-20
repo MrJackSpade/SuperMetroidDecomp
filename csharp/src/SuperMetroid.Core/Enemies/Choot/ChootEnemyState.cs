@@ -7,10 +7,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// </summary>
 public sealed class ChootEnemyState
 {
-    /// <summary>
-    /// Starts the state in <paramref name="action"/>. The Choot falls along its spawn settings' falling path after each
-    /// apex, which it reads where it falls (#2476), with the path's loop distance (#2531).
-    /// </summary>
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal ChootEnemyState(ChootAction action) => Action = action;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>

@@ -609,7 +609,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         LoadFinalExplosionMaps();
     }
 
-    /// <summary>Creates a small blast at a camera-relative authored offset with its initial animation delay.</summary>
+    /// <summary>Creates a wave's blast, small or large, at a camera-relative authored offset with its initial animation delay.</summary>
     private void SpawnCeresExplosion(
         CinematicActorDefinition<CeresAnimation> definition,
         CeresExplosionPlacement placement)

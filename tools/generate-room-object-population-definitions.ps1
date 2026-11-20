@@ -124,7 +124,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $statePhrases = @{}
     $roomPhrases = @{}
     foreach ($stateFile in Get-ChildItem (Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/World/RoomStates') -Filter '*RoomStateDefinitions.cs') {
-        foreach ($match in [regex]::Matches([IO.File]::ReadAllText($stateFile.FullName), '/// <summary>The ([^<]+?)''s ([^<]+)\.</summary>\s*public static RoomStateSettings (\w+) \{ get; \} =\s*new\("\3"[^;]*?RoomObjectPopulationDefinitions\.(\w+)')) {
+        foreach ($match in [regex]::Matches([IO.File]::ReadAllText($stateFile.FullName), '/// <summary>The ([^<]+?)''s ([^<]+)\.</summary>\s*public static RoomStateSettings (\w+) \{ get; \} =\s*new\("\w+"[^;]*?RoomObjectPopulationDefinitions\.(\w+)')) {
             $statePopulations[$match.Groups[3].Value] = $match.Groups[4].Value
             $statePhrases[$match.Groups[3].Value] = [pscustomobject]@{ Room = 'the ' + $match.Groups[1].Value; State = $match.Groups[2].Value }
         }

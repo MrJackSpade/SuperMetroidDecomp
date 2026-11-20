@@ -133,7 +133,7 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var burst = Live();
                     var sub = burst.LayersOf<AddedPicturedPlaneLayer>().Single();
-                    AssertTrue(ShowsOnly(legacy, sub.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingExplosionPicture.Blank)),
+                    AssertTrue(ShowsOnly(legacy, sub.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingExplosionPicture.BurstGlow)),
                         "F2B7 selects burst BG2 map");
                     AssertTrue(ShowsOnly(legacy, (sub.GlowsOver ?? throw new InvalidOperationException("Verification requires sub.GlowsOver.")).Plane,
                             SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingExplosionPicture.WideExplosion)),

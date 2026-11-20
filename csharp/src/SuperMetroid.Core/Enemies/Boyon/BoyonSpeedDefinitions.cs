@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Enemies.Boyon;
 
-/// <summary>How far down the Boyon bounce curve rises before it saturates, and the bounces its arcs allow.</summary>
+/// <summary>The samples of the Boyon's bounce curve, and how far down it rises before it saturates.</summary>
 public static class BoyonSpeedDefinitions
 {
     /// <summary>

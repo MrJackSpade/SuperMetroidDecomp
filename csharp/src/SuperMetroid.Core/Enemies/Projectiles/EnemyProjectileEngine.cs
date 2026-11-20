@@ -427,8 +427,7 @@ internal sealed class EnemyProjectileEngine
             : projectile.Radius.X;
 
         // The block scan checks every room block crossed by the projectile's perpendicular
-        // diameter (EnemyProjectileBlockScan). The positive edge is inclusive, hence radius - 1; using +radius made
-        // right/down projectiles collide one pixel earlier than their counterparts.
+        // diameter (EnemyProjectileBlockScan). The positive edge is the radius's last pixel, hence radius - 1.
         // The edge wraps past the room coordinates' 65535, as the probe's block bounds check expects.
         int movementEdge = TerrainScanEdges.Edge(nextPosition +
             (movingNegative ? -movementRadius : movementRadius - 1));
@@ -442,8 +441,6 @@ internal sealed class EnemyProjectileEngine
             // The horizontal and vertical block scans do not merely reject the
             // attempted movement. They clear the fraction of a pixel and place the
             // projectile flush against the 16-pixel block boundary it reached.
-            // Without this correction a fast downward projectile retains its last
-            // pre-collision coordinate and visibly hovers above the floor.
             int snappedPosition = alignedPosition ?? (movingNegative
                 ? TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(movementEdge) + movementRadius + 1)
                 : TerrainScanEdges.Edge(RoomGridConversions.BlockStart(movementEdge) - movementRadius));

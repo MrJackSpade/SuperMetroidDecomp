@@ -23,8 +23,7 @@ public sealed class HoltzEnemyState
     public RioAnimationFinish Finish { get; } = new();
 
     /// <summary>
-    /// Whether the enemy listed after it, its follower, shows its lower sprite; the hide
-    /// and show cues clear and set it.
+    /// Whether its flames, the enemy listed after it, show; the hide and show cues clear and set it.
     /// </summary>
     public bool FollowerVisible { get; internal set; }
 

@@ -9,6 +9,6 @@ public enum EndingExplosionPicture
     ConcentricExplosion,
     /// <summary>The eclipse.</summary>
     Eclipse,
-    /// <summary>The blank picture, which shows nothing.</summary>
-    Blank,
+    /// <summary>The glow the burst adds over the planet's explosion and its debris.</summary>
+    BurstGlow,
 }

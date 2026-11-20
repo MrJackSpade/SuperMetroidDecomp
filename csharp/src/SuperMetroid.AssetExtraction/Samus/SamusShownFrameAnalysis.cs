@@ -81,7 +81,7 @@ internal sealed class SamusShownFrameAnalysis
         SamusMovementType.WallJumping,
         SamusMovementType.RanIntoWall,
         SamusMovementType.Grappling,
-        SamusMovementType.TurningWhileJumping,
+        SamusMovementType.TurningRisingOrAimedCrouched,
         SamusMovementType.TurningWhileFalling,
         SamusMovementType.DamageBoost,
         SamusMovementType.DraygonHeld,

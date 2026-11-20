@@ -56,7 +56,10 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
             base.Update(place, context);
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// What a pending shot does to the eye while it takes shots: a missile or Super Missile hits it, a Super Missile
+    /// destroying it at once, and any other shot is rejected with its sound. Returns whether the eye was hit.
+    /// </summary>
     private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (!TakesShots || _strike.Take() is not { Family: var family })

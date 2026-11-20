@@ -216,7 +216,7 @@ internal static class RoomPaletteFxPresentationVerification
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
         foreach (PaletteFxHeatProgramDefinition definition in
-                 PaletteFxHeatProgramMechanicsDefinitions.All)
+                 PaletteFxHeatPulseColorDefinitions.All)
         {
             var forbidden = new HashSet<int>();
             foreach (var frame in definition.Frames)

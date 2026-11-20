@@ -9,7 +9,6 @@ internal static class FileSelectDataNavigation
     /// <summary>Moves among occupied save slots and Exit, without wrapping.</summary>
     /// <remarks>
     /// Exit is always selectable, even when no slot is occupied.
-    /// No ordinal lookup or generated list is required.
     /// </remarks>
     internal static FileSelectItem MoveSourceOrClear(FileSelectItem selected, IReadOnlySet<SaveSlot> occupiedSlots, ControllerButton pressed) =>
         Move(selected, Ensure.NotNull(occupiedSlots), pressed);

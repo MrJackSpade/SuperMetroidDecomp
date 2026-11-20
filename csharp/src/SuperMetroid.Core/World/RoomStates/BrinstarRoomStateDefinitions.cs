@@ -162,7 +162,7 @@ public static class BrinstarRoomStateDefinitions
         new("HopperEnergyTank", RoomLevelDefinitions.HopperEnergyTank, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.HopperEnergyTank, RoomEnemyPopulationDefinitions.HopperEnergyTank, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.HopperEnergyTank, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Big Pink Save Room room's state.</summary>
+    /// <summary>The Big Pink Save Room's state.</summary>
     public static RoomStateSettings BigPinkSaveRoom { get; } =
         new("BigPinkSaveRoom", RoomLevelDefinitions.CrateriaSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.GreenBrinstar, RoomMusicTrack.Plays(MusicTrack.GreenBrinstar)), SuperMetroid.Core.Fx.RoomFxDefinitions.BigPinkSaveRoom, RoomEnemyPopulationDefinitions.BigPinkSaveRoom, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BigPinkSaveRoom, null, RoomSetupBehavior.None);
 

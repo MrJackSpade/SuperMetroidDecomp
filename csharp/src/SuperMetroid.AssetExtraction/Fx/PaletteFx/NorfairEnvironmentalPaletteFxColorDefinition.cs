@@ -1,6 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One complete Norfair environmental palette control program.</summary>
+/// <summary>One Norfair environmental effect's records and the colours each writes.</summary>
 public sealed class NorfairEnvironmentalPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>

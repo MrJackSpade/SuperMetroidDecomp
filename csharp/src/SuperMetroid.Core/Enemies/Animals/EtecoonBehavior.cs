@@ -175,7 +175,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.HopCrouch);
     }
 
-    /// <summary>Expires the wake pause, installs the first jump speed, and gates its sound by Samus's X.</summary>
+    /// <summary>Waits out the hop crouch, then starts the hop: its first jump speed, and its sound gated by Samus's X.</summary>
     private void RunEtecoonPreJumpCountdown(
         RoomEnemyPlace place,
         EtecoonEnemyState state,

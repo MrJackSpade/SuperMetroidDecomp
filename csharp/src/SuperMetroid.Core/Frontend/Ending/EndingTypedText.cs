@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
 /// The ending's typed texts (#1513, #2195), each typed one letter at a time after the planet explodes. Installed artwork
-/// names each text's letters by these names; their values are arbitrary.
+/// names each text by its key in <see cref="EndingTypedTextKeys"/>; the values are arbitrary.
 /// </summary>
 public enum EndingTypedText
 {

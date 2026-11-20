@@ -41,7 +41,7 @@ internal static class PaletteFxSamusShades
     ];
 
     /// <summary>Every record of her suit's groups, shaded from <paramref name="colours"/> over her sheets' suit inks.</summary>
-    /// <exception cref="InvalidDataException">A record has no installed colour, or writes past her suit's colours.</exception>
+    /// <exception cref="InvalidDataException">A record has no colour in the import's palette-effect colours, or writes past her suit's colours.</exception>
     internal static IReadOnlyList<SheetShade> Of(IPaletteFxColorSource colours)
     {
         Ensure.NotNull(colours);

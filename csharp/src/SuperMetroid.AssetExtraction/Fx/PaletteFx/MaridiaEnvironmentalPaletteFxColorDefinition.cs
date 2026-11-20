@@ -1,7 +1,7 @@
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One complete Maridia environmental palette control program.</summary>
+/// <summary>One Maridia environmental effect's records and the colours each writes.</summary>
 public sealed class MaridiaEnvironmentalPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>

@@ -137,7 +137,7 @@ internal static class RidleySamusDrawReference
                 SamusMovementType.Moonwalking or
                 SamusMovementType.RanIntoWall or
                 SamusMovementType.Grappling or
-                SamusMovementType.TurningWhileJumping or
+                SamusMovementType.TurningRisingOrAimedCrouched or
                 SamusMovementType.TurningWhileFalling or
                 SamusMovementType.DraygonHeld => throw new InvalidDataException($"Unknown native body movement type {movement}"),
             _ => throw new InvalidDataException($"Unknown native body movement type {movement}"),

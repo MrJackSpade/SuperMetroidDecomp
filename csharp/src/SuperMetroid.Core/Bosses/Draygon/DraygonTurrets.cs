@@ -35,7 +35,7 @@ internal sealed class DraygonTurrets
         _shots = shots;
     }
 
-    /// <summary>Checks Draygon's frame cadence for turret and eye direction updates.</summary>
+    /// <summary>Fires a wall turret on the turrets' cadence, drawing a random number each time.</summary>
     internal void ObserveDraygonTurretCadence(
         SamusState samus,
         int frameCounter)

@@ -3,7 +3,10 @@ using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
-/// <summary>File identity and schema names of the installed <c>game-over.json</c>.</summary>
+/// <summary>
+/// File names of the installed game-over layout (<see cref="FileName"/>) and of the import-data artwork document
+/// (<see cref="ArtworkFileName"/>), and the artwork document's sprite and palette names.
+/// </summary>
 public static class GameOverPresentationFormat
 {
     /// <summary>Supported game-over presentation JSON schema version.</summary>

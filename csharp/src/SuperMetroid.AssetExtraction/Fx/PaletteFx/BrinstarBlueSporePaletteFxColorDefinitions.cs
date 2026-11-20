@@ -2,17 +2,9 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>Immutable control words for the two Brinstar blue-spore palette loops.</summary>
+/// <summary>The records of the two Brinstar blue-spore effects and the colours each writes, for the import.</summary>
 /// <remarks>
-/// The two palette-FX definitions contain the same presentation BGR555
-/// sequence. The Spore Spawn variant additionally installs the area-mini-boss death
-/// frame behaviour. This catalog owns setup, timing, waits, and loop control only.
-/// Both select the same colour index.
-/// Each valid i=0..13 lasts ten frames, writes three presentation colors, and
-/// ends in a wait. Their gotos return to
-/// the respective first records, giving 140-frame cycles; i=14 reaches
-/// loop control. All 66 control words across both programs match the
-/// original programs.
+/// Both effects show the same colours; the Spore Spawn room's deletes itself once the area's mini-boss dies.
 /// </remarks>
 public static class BrinstarBlueSporePaletteFxColorDefinitions
 {

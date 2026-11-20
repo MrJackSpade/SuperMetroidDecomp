@@ -1,7 +1,7 @@
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One complete cinematic PLANET ZEBES text-fade control program.</summary>
+/// <summary>One PLANET ZEBES text fade's records and the colours each writes.</summary>
 public sealed class PlanetZebesTextPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>

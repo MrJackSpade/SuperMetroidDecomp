@@ -52,7 +52,7 @@ public static class SamusDeathSequenceDefinitions
         [SamusMovementType.WallJumping] = UprightStart,
         [SamusMovementType.RanIntoWall] = UprightStart,
         [SamusMovementType.Grappling] = UprightStart,
-        [SamusMovementType.TurningWhileJumping] = UprightStart,
+        [SamusMovementType.TurningRisingOrAimedCrouched] = UprightStart,
         [SamusMovementType.TurningWhileFalling] = UprightStart,
         [SamusMovementType.DamageBoost] = UprightStart,
         [SamusMovementType.DraygonHeld] = UprightStart,

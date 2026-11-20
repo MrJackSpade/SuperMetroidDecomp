@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("a game, demo or continued game starts its first room's camera from the fractions of a pixel the previous one's camera left, which decide on which update the camera following Samus reaches each next whole pixel")]
 public sealed class CameraFractionsKeptAcrossGames
 {
-    /// <summary>The kept fractions, on a position of zero whole pixels; none until a game leaves its camera's.</summary>
+    /// <summary>The kept fractions, on a position of zero whole pixels; zero until a game leaves its camera's.</summary>
     public FixedPosition<RoomPixels> Fractions { get; private set; }
 
     /// <summary>Keeps the fractions of a released game's camera; its whole pixels are not kept.</summary>

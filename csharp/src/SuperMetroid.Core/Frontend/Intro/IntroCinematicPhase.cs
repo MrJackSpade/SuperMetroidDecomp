@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Ordered phases of the opening narration, flashbacks, laboratory scenes, and Ceres flight.</summary>
+/// <summary>The phases of the opening narration, flashbacks, laboratory scenes, and Ceres flight.</summary>
 public enum IntroCinematicPhase
 {
     /// <summary>Waits for the initial opening music requests to finish queuing.</summary>

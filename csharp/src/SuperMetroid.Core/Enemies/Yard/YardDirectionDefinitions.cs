@@ -7,8 +7,8 @@ internal static class YardDirectionDefinitions
 {
     /// <summary>
     /// Each of the eight surface orientations' crawling and hiding animations, airborne
-    /// facing, opposite direction and the crawl turning around into it begins, by direction: right-side wall moving up and
-    /// down, left-side wall moving up and down, ceiling moving left and right, floor moving left and right. Direction
+    /// facing, opposite direction and the crawl turning around into it begins, by direction: on a wall to its left moving
+    /// up and down, on a wall to its right moving up and down, ceiling moving left and right, floor moving left and right. Direction
     /// pairs reverse motion on the same surface. Each names the side of its block a landing crawl takes its signs from.
     /// </summary>
     internal static readonly Dictionary<YardDirection, YardDirectionDefinition> Directions = new()

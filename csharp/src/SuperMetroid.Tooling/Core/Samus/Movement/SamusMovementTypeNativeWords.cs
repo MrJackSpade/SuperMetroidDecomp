@@ -32,7 +32,7 @@ internal static class SamusMovementTypeNativeWords
         [SamusMovementType.WallJumping] = 0x14,
         [SamusMovementType.RanIntoWall] = 0x15,
         [SamusMovementType.Grappling] = 0x16,
-        [SamusMovementType.TurningWhileJumping] = 0x17,
+        [SamusMovementType.TurningRisingOrAimedCrouched] = 0x17,
         [SamusMovementType.TurningWhileFalling] = 0x18,
         [SamusMovementType.DamageBoost] = 0x19,
         [SamusMovementType.DraygonHeld] = 0x1a,

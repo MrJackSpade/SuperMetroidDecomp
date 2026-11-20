@@ -36,7 +36,7 @@ internal readonly struct EndingVram(SnesVram vram)
         EndingExplosionPicture.WideExplosion => EndingVramLayout.Fragment70,
         EndingExplosionPicture.ConcentricExplosion => EndingVramLayout.Fragment74,
         EndingExplosionPicture.Eclipse => EndingVramLayout.Fragment78,
-        EndingExplosionPicture.Blank => EndingVramLayout.Fragment7C,
+        EndingExplosionPicture.BurstGlow => EndingVramLayout.Fragment7C,
         _ => throw new ArgumentOutOfRangeException(nameof(fragment), fragment, "Not an explosion OBJ fragment."),
     });
 }

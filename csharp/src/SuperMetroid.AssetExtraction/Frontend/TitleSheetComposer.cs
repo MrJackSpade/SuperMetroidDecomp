@@ -38,7 +38,7 @@ internal static class TitleSheetComposer
     /// What the title sheet composes from <paramref name="graphics"/>, coloured with <paramref name="palette"/>, its fades'
     /// records coloured from <paramref name="paletteFx"/>.
     /// </summary>
-    /// <exception cref="InvalidDataException">A fade's record has no installed colour, or writes past its colours.</exception>
+    /// <exception cref="InvalidDataException">A fade's record has no colour in the import's palette-effect colours, or writes past its colours.</exception>
     private static SpriteSheetSources Sources(TitleGraphicsCharacters graphics, TitlePalettePresentation palette, IPaletteFxColorSource paletteFx)
     {
         TitleGraphicsCharacters characters = Ensure.NotNull(graphics);

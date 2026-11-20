@@ -64,7 +64,7 @@ internal sealed class ActiveRoomState
     private T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
         _construction is { } construction ? building(construction) : Scope is { } scope ? loaded(scope) : null;
 
-    /// <summary>The selected room/state definition for a generic backed room.</summary>
+    /// <summary>The selected room and state of the room loading or loaded.</summary>
     public SelectedRoom? ActiveRoom => View(c => c.Room, s => s.Room);
     /// <summary>The loaded room's definition; gameplay runs only in a loaded room.</summary>
     public SelectedRoom LoadedRoom => ActiveRoom ??

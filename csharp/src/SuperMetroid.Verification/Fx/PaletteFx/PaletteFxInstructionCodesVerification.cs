@@ -1155,7 +1155,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             foreach (PaletteFxHeatProgramDefinition definition in
-                     PaletteFxHeatProgramMechanicsDefinitions.All)
+                     PaletteFxHeatPulseColorDefinitions.All)
             {
                 foreach (var frame in definition.Frames)
                 {

@@ -102,7 +102,7 @@ internal sealed class PhantoonPatterns
         }
     }
 
-    /// <summary>Changes horizontal velocity over the forward half of a figure-eight.</summary>
+    /// <summary>Changes Phantoon's speed along the figure-eight path over its forward run.</summary>
     private static void AdjustPhantoonForwardFigureEightSpeed(PhantoonFigureEightState figureEight)
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
@@ -135,7 +135,7 @@ internal sealed class PhantoonPatterns
         }
     }
 
-    /// <summary>Changes horizontal velocity over the returning half of a figure-eight.</summary>
+    /// <summary>Changes Phantoon's speed along the figure-eight path over its returning run.</summary>
     private static void AdjustPhantoonReverseFigureEightSpeed(PhantoonFigureEightState figureEight)
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)

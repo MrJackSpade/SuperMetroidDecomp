@@ -6,12 +6,12 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
-/// Immutable wireframe artwork, kept as installed (#1615): every variant's 136 cells. It cannot change which equipment
-/// selects a visual.
+/// Immutable wireframe artwork, which the import reads to picture the equipment page (#1615): every variant's 136 cells.
+/// It cannot change which equipment selects a visual.
 /// </summary>
 public sealed class PauseWireframePresentation
 {
-    /// <summary>Four named equipment wireframe variants' installed cells, in eight-column row order.</summary>
+    /// <summary>Four named equipment wireframe variants' cells as the import reads them, in eight-column row order.</summary>
     private readonly Dictionary<PauseWireframeKind, BackgroundTile[]> frames;
     /// <summary>Stores the validated variants without changing equipment selection rules.</summary>
     private PauseWireframePresentation(Dictionary<PauseWireframeKind, BackgroundTile[]> frames) => this.frames = frames;
@@ -30,7 +30,7 @@ public sealed class PauseWireframePresentation
 
     /// <summary>Loads all four named wireframe variants at the supported version, requiring 136 row-major cells per variant and validating each cell's atlas, tile coordinates, and palette before compiling native tilemap words.</summary>
     /// <param name="json">Caller-owned UTF-8 JSON stream containing the complete wireframe document.</param>
-    /// <returns>The immutable wireframe presentation holding every installed cell.</returns>
+    /// <returns>The immutable wireframe presentation holding every cell the import reads.</returns>
     public static PauseWireframePresentation Load(Stream json)
     {
         PauseWireframeDocument document;

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 public static class RoomFxLiquidTilemapDefinitions
 {
     /// <summary>
-    /// Returns cell0..1055 of a 32x33 lava, acid or water page. Lava's first row
+    /// Returns the cell at <paramref name="index"/> of a 32x33 lava, acid or water page. Lava's first row
     /// repeats three surface characters; its remaining rows are solid body tiles.
     /// Acid adds a blank row above that surface. Water adds the same blank row,
     /// four surface rows repeated across four columns, then a repeating 4x4 body.

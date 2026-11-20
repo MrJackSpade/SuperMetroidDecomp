@@ -18,8 +18,7 @@ internal static class CrocomireReactions
     internal static EnemyReaction AbsorbedShot { get; } = EnemyReaction.OfSpecies("Crocomire.AbsorbedShot");
 
     /// <summary>
-    /// The shot reaction of his body and his corpse, which raises dust where the shot strikes (#1939: the two dust
-    /// reactions his frames named are one).
+    /// The shot reaction of his body and his corpse, which raises dust where the shot strikes.
     /// </summary>
     internal static EnemyReaction DustShot { get; } = EnemyReaction.OfSpecies("Crocomire.DustShot");
 

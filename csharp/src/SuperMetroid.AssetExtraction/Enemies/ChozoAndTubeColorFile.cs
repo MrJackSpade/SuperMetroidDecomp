@@ -29,7 +29,7 @@ public static class ChozoAndTubeColorFile
     public static byte[] Write(ChozoAndTubeColorDocument document) =>
         JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
-    /// <summary>Validates exactly 32 five-bit RGB triples and converts them to packed CGRAM colors.</summary>
+    /// <summary>Validates exactly 32 five-bit RGB triples and converts them to the installed RGB colours.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != ChozoAndTubeColorDefinitions.ColorCount)

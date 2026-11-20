@@ -43,7 +43,7 @@ internal static class PaletteFxProgramLayoutAccess
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="suit"/> names no heat program's suit, or <paramref name="phase"/> no phase.</exception>
         internal static ushort Resolve(ColourEffectHeatSuit suit, ushort phase)
         {
-            PaletteFxHeatProgramDefinition program = PaletteFxHeatProgramMechanicsDefinitions.All.SingleOrDefault(item => item.Suit == suit)
+            PaletteFxHeatProgramDefinition program = PaletteFxHeatPulseColorDefinitions.All.SingleOrDefault(item => item.Suit == suit)
                 ?? throw new ArgumentOutOfRangeException(nameof(suit), suit, "No heat program belongs to this suit.");
             return PaletteFxColorLayoutAccess.RecordAddress(program.ColorFrames.Frame(phase));
         }

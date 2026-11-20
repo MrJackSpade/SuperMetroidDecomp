@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Owned collision for Mother Brain's body frames and her brain, read by the shot and contact frame-hitbox tests for
-/// the body and the head. Each root lists component offsets, each with the hitbox list holding its rectangles; the
-/// sprite and body-layer art the same roots reference is replaceable.
+/// the body and the head. Each body frame lists its hit areas, each placed against her body with the hitbox list holding
+/// its rectangles.
 /// </summary>
 internal static class MotherBrainCollisionDefinitions
 {

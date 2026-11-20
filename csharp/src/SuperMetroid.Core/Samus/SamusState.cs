@@ -176,8 +176,6 @@ public sealed class SamusState
 
     /// <summary>
     /// Stored-shine colouring countdown and the shinespark's hold on her movement.
-    /// Its fields are the values documented on
-    /// <see cref="SamusShinesparkState"/> and keep their individual values.
     /// </summary>
     public SamusShinesparkState Shinespark { get; }
 
@@ -250,7 +248,7 @@ public sealed class SamusState
     public int Health { get; set; } = SamusEnergyDefinitions.StartingEnergy;
 
     /// <summary>
-    /// The previous energy for the hurt check: initialized from Energy when Samus is initialized,
+    /// The previous energy for the hurt check: initialized from <see cref="Health"/> when Samus is initialized,
     /// then compared and refreshed after Samus/projectile drawing by the post-draw input filter.
     /// </summary>
     public int PreviousHealthForHurtCheck { get; set; } = SamusEnergyDefinitions.StartingEnergy;

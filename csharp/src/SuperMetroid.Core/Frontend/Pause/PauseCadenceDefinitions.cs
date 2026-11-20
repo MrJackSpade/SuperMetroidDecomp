@@ -2,7 +2,10 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 
-/// <summary>The counter phases of the pause screen's reserve tank display (#1606): the AUTO arrow's pulse and the flickering fill step.</summary>
+/// <summary>
+/// The pause screen's held-button repeat delay and the counter phases of its reserve tank display (#1606): the AUTO
+/// arrow's pulse and the flickering fill step.
+/// </summary>
 internal static class PauseCadenceDefinitions
 {
     /// <summary>

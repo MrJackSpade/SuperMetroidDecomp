@@ -210,7 +210,7 @@ internal sealed class CeresRidleyFlight
         }
     }
 
-    /// <summary>Runs the swoop arc and publishes the one-frame tail-fling request at its bottom.</summary>
+    /// <summary>Turns his swoop toward its aim and moves to the swoop's next stage when the stage's timer runs out.</summary>
     internal static void TickCeresRidleySwoopPhase(
         CeresRidleyState state,
         TurnStep turn,

@@ -1,6 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One complete cinematic glow control program.</summary>
+/// <summary>One cinematic glow's records and the colours each writes.</summary>
 public sealed class CinematicGlowPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>

@@ -11,11 +11,11 @@ namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 /// </summary>
 public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
 {
-    /// <summary>Every installed colour, by the record colour it is.</summary>
+    /// <summary>Every record colour the import read, by the record colour it is.</summary>
     internal readonly Dictionary<PaletteFxColorKey, RgbColor> colors;
 
-    /// <summary>Keeps the complete installed colour set.</summary>
-    /// <param name="colors">Every record colour of every palette-effect family, as installed.</param>
+    /// <summary>Keeps the complete extracted colour set.</summary>
+    /// <param name="colors">Every record colour of every palette-effect family, as extracted.</param>
     internal RoomPaletteFxPresentation(Dictionary<PaletteFxColorKey, RgbColor> colors) => this.colors = colors;
 
     /// <inheritdoc />

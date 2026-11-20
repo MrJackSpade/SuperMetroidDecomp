@@ -25,7 +25,7 @@ internal static class SamusPoseMovementTypeVerification
 
         AllOf(SamusPoseMetadata.IsForwardFacingPose, SamusMovementType.Standing, 2, "the forward-facing poses");
         AllOf(SamusPoseMetadata.IsLandingPose, SamusMovementType.Standing, 12, "the landings");
-        AllOf(SamusPoseMetadata.IsAimedCrouchingTurnPose, SamusMovementType.TurningWhileJumping, 6, "the aimed crouched turns");
+        AllOf(SamusPoseMetadata.IsAimedCrouchingTurnPose, SamusMovementType.TurningRisingOrAimedCrouched, 6, "the aimed crouched turns");
         AllOf(SamusPoseMetadata.IsMorphTransitionPose, SamusMovementType.PostureTransition, 4, "the morph transitions");
         AllOf(pose => pose == SamusPoseId.DraygonHeldStandingUpLeftPose, SamusMovementType.PostureTransition, 1,
             "the Draygon-held stand-up");

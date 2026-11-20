@@ -86,7 +86,7 @@ internal static class BossSpriteEntriesVerification
         AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.ByteCounts[EnemyDefinitionId.Evir], evirTiles.Length,
             "Evir's installed sheet is its whole tile set");
         EncounterArtworkUpload upload = EncounterLookUploads.Uploads(ComposedEncounter.DraygonEvirs,
-            EncounterLookUploads.IndexOf(ComposedEncounter.DraygonEvirs, EncounterLookUploads.DraygonEvirsLook), resolver).Single();
+            EncounterLookUploads.DraygonEvirsLook, resolver).Single();
         AssertTrue(upload.Characters.Span.SequenceEqual(evirTiles.Span), "Draygon's Evirs look copies Evir's installed sheet");
         Console.WriteLine("Boss sprite entries stage 2: Draygon's Evirs look copies Evir's installed tiles.");
     }

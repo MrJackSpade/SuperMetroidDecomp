@@ -338,14 +338,13 @@ internal static class RoomBlockUploads
             if (EncounterLookUploads.ShownAs(encounter) is not EncounterArtwork shownAs || !EncounterLookUploads.ShownIn(encounter, state))
                 continue;
             EncounterLookSteps steps = EncounterLookUploads.Steps(encounter, inputs.Objects);
-            IReadOnlyList<ComposedLook> looks = EncounterLookUploads.Looks(encounter);
-            for (int look = 1; look < looks.Count; look++)
+            foreach (ComposedLook look in steps.Looks.Where(look => !look.IsLoaded))
             {
-                var appearance = new EncounterLookAppearance(new EncounterLook(shownAs, looks[look].Name));
-                EncounterArtworkUpload[] copies = [.. steps.Looks.Take(look + 1).SelectMany(earlier => earlier)];
+                var appearance = new EncounterLookAppearance(new EncounterLook(shownAs, look.Name));
+                EncounterArtworkUpload[] copies = [.. steps.CopiesThrough(look)];
                 for (int copy = 0; copy < copies.Length; copy++)
                     yield return new AppearanceOption(appearance, RoomAppearanceValues.Shown,
-                        new BgCharacterUpload(new BgArtworkIdentity($"{encounter} look {looks[look].Name} copy {copy}"), BgCharacterSet.Tiles,
+                        new BgCharacterUpload(new BgArtworkIdentity($"{encounter} look {look.Name} copy {copy}"), BgCharacterSet.Tiles,
                             copies[copy].FirstCharacter, copies[copy].Characters));
             }
         }

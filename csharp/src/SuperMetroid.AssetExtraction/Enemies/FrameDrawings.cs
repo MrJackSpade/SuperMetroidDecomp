@@ -44,7 +44,7 @@ internal sealed class FrameDrawings
         bool[] own = [.. drawn.Select(entry => entry.ArtworkOfLook).Distinct()];
         if (own.Length != 1)
             throw new InvalidDataException($"Entries listing a frame for {encounter} disagree on whether its artwork is its look's own.");
-        return new FrameDrawnLooks([.. drawn.SelectMany(entry => entry.Looks).Select(look => EncounterLookUploads.IndexOf(encounter, look)).Distinct().Order()],
+        return new FrameDrawnLooks([.. drawn.SelectMany(entry => entry.Looks).Distinct().OrderBy(look => EncounterLookUploads.IndexOf(encounter, look))],
             own[0]);
     }
 

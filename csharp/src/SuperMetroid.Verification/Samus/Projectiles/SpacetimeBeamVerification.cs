@@ -84,7 +84,6 @@ internal static class SpacetimeBeamVerification
         var projectiles = CreateProjectileFixture();
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
         projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, system);
-        SamusProjectileFrameResult held = projectiles.LastFrameResult;
         AssertEqual(0, slotsBeforeHeld.FiredSlot(projectiles),
             "SpaceTime initial shot allocation");
         AssertEqual(0x9137, projectiles.Shots[0].InstructionPointer,
@@ -92,7 +91,6 @@ internal static class SpacetimeBeamVerification
 
         SamusProjectileSlotObservation slotsBeforeRelease = projectiles.ObserveSlots();
         projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, system);
-        SamusProjectileFrameResult released = projectiles.LastFrameResult;
         AssertEqual(1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
         // The overwrite writes word $0880, which the dispatcher does not name, so it resumes the main game (#1523).

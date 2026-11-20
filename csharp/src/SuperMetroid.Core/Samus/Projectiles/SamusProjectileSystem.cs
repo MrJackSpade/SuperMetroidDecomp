@@ -252,7 +252,7 @@ public sealed class SamusProjectileSystem
     /// <summary>
     /// Runs the power-beam HUD producer, the beam and missile share of Samus's HUD item step, which the game runs before it
     /// handles any projectile: the producer fires and queues its firing sound as it fires (#1620), so the sound is tested
-    /// against the power bomb as it stood before the update's bombs ran. The pass's result reports the firing sound.
+    /// against the power bomb as it stood before the update's bombs ran.
     /// </summary>
     /// <param name="terrain">The room terrain the shots collide with and react to.</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
@@ -327,8 +327,6 @@ public sealed class SamusProjectileSystem
             AudioRequests.QueueSound(firingSound,
                 queuedSoundPriority ?? throw new InvalidDataException("A projectile sound was queued without its priority."));
         }
-
-        _ = new SamusProjectileFrameResult(queuedSound, queuedSoundPriority);
     }
 
     /// <summary>

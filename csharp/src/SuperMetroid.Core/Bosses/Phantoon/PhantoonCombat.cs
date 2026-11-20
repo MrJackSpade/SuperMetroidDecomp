@@ -100,7 +100,7 @@ internal sealed class PhantoonCombat
             context => RunPhantoonStartingFlameWaiting(context.Projectile));
 
         /// <summary>An intro flame orbiting Phantoon's body as its orbit closes.</summary>
-        internal EnemyProjectileOwnedMotion IntroOrbiting => field ??= new(nameof(IntroOrbiting),
+        private EnemyProjectileOwnedMotion IntroOrbiting => field ??= new(nameof(IntroOrbiting),
             context => RunPhantoonStartingFlameOrbit(context.Projectile, context.FrameCounter));
 
         /// <summary>A casual flame falling to the floor.</summary>

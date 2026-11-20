@@ -24,8 +24,9 @@ internal static class GpuTimingTests
                 renderer.Render(frame);
                 timer.End();
             }
-            if (timer.TryBegin(new(100, 1)) || timer.PendingSamples != 2 || timer.SkippedSamples != batch + 1)
-                throw new InvalidOperationException("Full timestamp ring did not bound/record skipped telemetry.");
+            // A full ring refuses the interval, which its caller counts as skipped, and keeps its pending samples.
+            if (timer.TryBegin(new(100, 1)) || timer.PendingSamples != 2)
+                throw new InvalidOperationException("Full timestamp ring did not refuse the interval and keep its pending samples.");
             // Only this diagnostic waits via readback. Production TryRead uses DoNotFlush
             // and returns immediately if the GPU has not finished the oldest sample.
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.Readback(), "timed GPU composition");

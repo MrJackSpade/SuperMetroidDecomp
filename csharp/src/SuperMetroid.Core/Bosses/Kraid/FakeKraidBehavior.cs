@@ -343,11 +343,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         };
 
         /// <summary>The spit flying through the room's blocks, then falling under capped gravity.</summary>
-        internal EnemyProjectileOwnedMotion SpitFlying { get; } = new(nameof(SpitFlying),
+        private EnemyProjectileOwnedMotion SpitFlying { get; } = new(nameof(SpitFlying),
             context => FlyFakeKraidSpit(context.Projectile, context.Level));
 
         /// <summary>A spike flying along its heading until it strikes a wall.</summary>
-        internal EnemyProjectileOwnedMotion SpikeFlying { get; } = new(nameof(SpikeFlying),
+        private EnemyProjectileOwnedMotion SpikeFlying { get; } = new(nameof(SpikeFlying),
             context => FlyFakeKraidSpike(context.Projectile, context.Level));
 
         /// <inheritdoc/>

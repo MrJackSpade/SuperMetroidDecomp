@@ -11,6 +11,8 @@ public static class MapTileAtlasFormat
     public const int Width = TileColumns * 8;
     /// <summary>Required PNG height of 64 pixels, covering eight character rows.</summary>
     public const int Height = 64;
+    /// <summary>The eight 8-pixel character rows the atlas's height covers.</summary>
+    public const int TileRows = Height / 8;
     /// <summary>The sixteen colour numbers the atlas's characters hold, which the import pre-colours the screen sheets from.</summary>
     public const int ColorCount = 16;
     /// <summary>8192 compiled bytes: 256 characters with 32 planar bytes per 8-by-8 4-bpp character.</summary>

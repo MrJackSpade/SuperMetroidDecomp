@@ -236,16 +236,7 @@ public static class IntroCinematicArtworkFiles
             for (int index = 0; index < cells.Length; index++)
             {
                 int source = IntroCinematicSourceDefinitions.FinalTextLine + index * sizeof(ushort);
-                var word = new SnesBgTilemapWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(source));
-                cells[index] = new RoomBackgroundTilemapCell
-                {
-                    TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
-                    TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
-                    Palette = word.PaletteIndex,
-                    Priority = word.HasPriority,
-                    FlipX = word.FlipHorizontally,
-                    FlipY = word.FlipVertically,
-                };
+                cells[index] = RoomBackgroundTilemapCell.Of(CartridgeImportSource.Require(bus).ReadCartridgeWord(source));
             }
             using var json = new MemoryStream();
             IntroFinalLineTilemap.Write(json, new IntroFinalLineTilemapDocument
@@ -278,16 +269,7 @@ public static class IntroCinematicArtworkFiles
                 for (int cellIndex = 0; cellIndex < cells.Length; cellIndex++)
                 {
                     int wordSource = source + 4 + cellIndex * sizeof(ushort);
-                    var word = new SnesBgTilemapWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(wordSource));
-                    cells[cellIndex] = new RoomBackgroundTilemapCell
-                    {
-                        TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
-                        TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
-                        Palette = word.PaletteIndex,
-                        Priority = word.HasPriority,
-                        FlipX = word.FlipHorizontally,
-                        FlipY = word.FlipVertically,
-                    };
+                    cells[cellIndex] = RoomBackgroundTilemapCell.Of(CartridgeImportSource.Require(bus).ReadCartridgeWord(wordSource));
                 }
                 frames[place] = new IntroEyeTilemapFrame
                 {

@@ -37,18 +37,7 @@ public static class GameOverPresentationExtractor
 
         var cells = new MapPresentationCell[tilemap.Length];
         for (int index = 0; index < tilemap.Length; index++)
-        {
-            var word = new SnesBgTilemapWord(tilemap[index]);
-            cells[index] = new()
-            {
-                TileColumn = word.CharacterIndex % MapTileAtlasFormat.TileColumns,
-                TileRow = word.CharacterIndex / MapTileAtlasFormat.TileColumns,
-                Palette = word.PaletteIndex,
-                Priority = word.HasPriority,
-                FlipX = word.FlipHorizontally,
-                FlipY = word.FlipVertically,
-            };
-        }
+            cells[index] = MapPresentationCell.Of(BackgroundTileWords.ToTile(tilemap[index]), MapTileAtlasFormat.TileColumns);
 
         var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
         {

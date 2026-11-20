@@ -1,8 +1,36 @@
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
-/// <summary>Editable artwork and display attributes for one map cell; these fields compile to a packed tile word but do not define exploration or map-station rules.</summary>
+/// <summary>
+/// One tile of a menu or map page as the import's extracted documents hold it (#2556): the character a page's character
+/// sheet places there by its column and row on the sheet, its colour variant, priority and mirroring. Only the import reads
+/// these documents, to picture each page once (#1467); this is the only place a placed tile meets the cell that stores it.
+/// </summary>
+[EncodingOwner("import-data menu and map page cell")]
 public sealed record MapPresentationCell
 {
+    /// <summary>The cell that stores <paramref name="tile"/>, placed from a character sheet <paramref name="columns"/> characters wide.</summary>
+    internal static MapPresentationCell Of(BackgroundTile tile, int columns) => new()
+    {
+        TileColumn = tile.Tile % columns,
+        TileRow = tile.Tile / columns,
+        Palette = tile.ColourVariant,
+        Priority = tile.HighPriority,
+        FlipX = tile.FlipHorizontally,
+        FlipY = tile.FlipVertically,
+    };
+
+    /// <summary>
+    /// The tile this cell places from a character sheet <paramref name="columns"/> characters wide and <paramref name="rows"/>
+    /// high, or null when its character lies off the sheet or its colour variant is none.
+    /// </summary>
+    internal BackgroundTile? Placement(int columns, int rows) =>
+        (uint)TileColumn < (uint)columns && (uint)TileRow < (uint)rows && (uint)Palette < BackgroundTile.ColourVariants
+            ? new BackgroundTile(TileRow * columns + TileColumn, Palette, FlipX, FlipY, Priority)
+            : null;
+
     /// <summary>Zero-based 8-pixel character column from 0 through 31 in <c>map-tiles.png</c>; combined with the atlas row to form the character index.</summary>
     public required int TileColumn { get; init; }
     /// <summary>Zero-based 8-pixel character row from 0 through 7 in the 256-by-64-pixel <c>map-tiles.png</c> atlas.</summary>

@@ -322,15 +322,8 @@ public sealed class GameOptionsSourcePresentation
         var tiles = new BackgroundTile[cells.Length];
         for (int index = 0; index < cells.Length; index++)
         {
-            MapPresentationCell? cell = cells[index];
-            if (cell is null ||
-                (uint)cell.TileColumn >= MapTileAtlasFormat.TileColumns ||
-                (uint)cell.TileRow >= GameOptionsPageDefinitions.CharacterRows ||
-                (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
-                throw new InvalidDataException(
-                    $"{owner} cell {index} has an invalid atlas coordinate or palette.");
-            tiles[index] = new BackgroundTile(cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn, cell.Palette,
-                cell.FlipX, cell.FlipY, cell.Priority);
+            tiles[index] = cells[index]?.Placement(MapTileAtlasFormat.TileColumns, GameOptionsPageDefinitions.CharacterRows)
+                ?? throw new InvalidDataException($"{owner} cell {index} has an invalid atlas coordinate or palette.");
         }
         return tiles;
     }
@@ -366,7 +359,7 @@ public sealed class GameOptionsSourcePresentation
     /// <summary>Requires an authored BG or OBJ palette index in the SNES range zero through seven.</summary>
     private static void ValidatePalette(int palette, string owner)
     {
-        if ((uint)palette >= MapPresentationFormat.PaletteCount)
+        if ((uint)palette >= BackgroundTile.ColourVariants)
             throw new InvalidDataException($"Options {owner} must be 0..7.");
     }
 

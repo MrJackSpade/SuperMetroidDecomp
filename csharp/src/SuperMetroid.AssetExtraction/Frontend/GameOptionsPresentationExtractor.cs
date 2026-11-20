@@ -152,17 +152,8 @@ public static class GameOptionsPresentationExtractor
         var cells = new MapPresentationCell[bytes.Length / sizeof(ushort)];
         for (int index = 0; index < cells.Length; index++)
         {
-            var word = new SnesBgTilemapWord(unchecked(
-                LittleEndianBytes.Word(bytes[index * 2], bytes[index * 2 + 1])));
-            cells[index] = new()
-            {
-                TileColumn = word.CharacterIndex % MapTileAtlasFormat.TileColumns,
-                TileRow = word.CharacterIndex / MapTileAtlasFormat.TileColumns,
-                Palette = word.PaletteIndex,
-                Priority = word.HasPriority,
-                FlipX = word.FlipHorizontally,
-                FlipY = word.FlipVertically,
-            };
+            cells[index] = MapPresentationCell.Of(BackgroundTileWords.ToTile(
+                LittleEndianBytes.Word(bytes[index * 2], bytes[index * 2 + 1])), MapTileAtlasFormat.TileColumns);
         }
         return cells;
     }

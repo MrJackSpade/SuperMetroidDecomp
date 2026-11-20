@@ -45,16 +45,8 @@ public sealed class RoomBackgroundTilemapAtlas
                     $"{RoomBackgroundTilemapFormat.CellsPerPage} ordered cells.");
             for (int cell = 0; cell < cells.Length; cell++)
             {
-                RoomBackgroundTilemapCell? definition = cells[cell];
-                if (definition is null ||
-                    (uint)definition.TileColumn >= RoomBackgroundTilemapFormat.TileColumns ||
-                    (uint)definition.TileRow >= RoomBackgroundTilemapFormat.TileRows ||
-                    (uint)definition.Palette >= RoomBackgroundTilemapFormat.PaletteCount)
-                    throw new InvalidDataException(
-                        $"Room background page {page} cell {cell} has an invalid tile or palette.");
-                tiles[page * RoomBackgroundTilemapFormat.CellsPerPage + cell] = new BackgroundTile(
-                    definition.TileRow * RoomBackgroundTilemapFormat.TileColumns + definition.TileColumn,
-                    definition.Palette, definition.FlipX, definition.FlipY, definition.Priority);
+                tiles[page * RoomBackgroundTilemapFormat.CellsPerPage + cell] = cells[cell]?.Placement() ?? throw new InvalidDataException(
+                    $"Room background page {page} cell {cell} has an invalid tile or palette.");
             }
         }
         return new RoomBackgroundTilemapAtlas(tiles);

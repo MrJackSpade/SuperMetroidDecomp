@@ -42,16 +42,8 @@ public sealed class IntroEyeTilemapPresentation
             frames.Add(frame, tiles);
             for (int cellIndex = 0; cellIndex < tiles.Length; cellIndex++)
             {
-                RoomBackgroundTilemapCell? cell = source.Cells[cellIndex];
-                if (cell is null ||
-                    (uint)cell.TileColumn >= RoomBackgroundTilemapFormat.TileColumns ||
-                    (uint)cell.TileRow >= RoomBackgroundTilemapFormat.TileRows ||
-                    (uint)cell.Palette >= RoomBackgroundTilemapFormat.PaletteCount)
-                    throw new InvalidDataException(
-                        $"Opening eye frame {frame} cell {cellIndex} has an invalid tile or palette.");
-                tiles[cellIndex] = new BackgroundTile(
-                    cell.TileRow * RoomBackgroundTilemapFormat.TileColumns + cell.TileColumn,
-                    cell.Palette, cell.FlipX, cell.FlipY, cell.Priority);
+                tiles[cellIndex] = source.Cells[cellIndex]?.Placement() ?? throw new InvalidDataException(
+                    $"Opening eye frame {frame} cell {cellIndex} has an invalid tile or palette.");
             }
         }
         return new IntroEyeTilemapPresentation(frames);

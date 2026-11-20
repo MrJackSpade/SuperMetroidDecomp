@@ -327,19 +327,8 @@ public static class FileSelectPresentationExtractor
     }
 
     /// <summary>Splits one SNES BG tile word into atlas position, palette, priority, and flip fields.</summary>
-    private static MapPresentationCell Cell(int raw)
-    {
-        var word = new SnesBgTilemapWord(checked((ushort)raw));
-        return new()
-        {
-            TileColumn = word.CharacterIndex % FileSelectPresentationFormat.CharacterColumns,
-            TileRow = word.CharacterIndex / FileSelectPresentationFormat.CharacterColumns,
-            Palette = word.PaletteIndex,
-            Priority = word.HasPriority,
-            FlipX = word.FlipHorizontally,
-            FlipY = word.FlipVertically,
-        };
-    }
+    private static MapPresentationCell Cell(int raw) =>
+        MapPresentationCell.Of(BackgroundTileWords.ToTile(checked((ushort)raw)), FileSelectPresentationFormat.CharacterColumns);
 
     /// <summary>Maps a tilemap byte offset to column and row within the file-select page width.</summary>
     private static Position16<CharacterCells> Point(int byteOffset)

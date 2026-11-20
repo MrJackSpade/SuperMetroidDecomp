@@ -154,7 +154,7 @@ internal static class TestOnlyMembers
                 case SimpleNameSyntax name when names.Contains(name.Identifier.ValueText) && !InNameOf(name):
                     SymbolInfo info = Info(compilation, tree, name);
                     RecordAll(info, name, Access(AccessExpression(name)));
-                    if (check && info.Symbol is null)
+                    if (check)
                         RecordUnbound(name, info);
                     break;
                 case BaseObjectCreationExpressionSyntax or ConstructorInitializerSyntax or PrimaryConstructorBaseTypeSyntax or AttributeSyntax:
@@ -202,7 +202,7 @@ internal static class TestOnlyMembers
                 return;
             SemanticModel model = SemanticModels.At(compilation, tree, receiver);
             ITypeSymbol? type = model.GetSymbolInfo(receiver).Symbol as INamedTypeSymbol ?? model.GetTypeInfo(receiver).Type;
-            if (type is not INamedTypeSymbol { TypeKind: not TypeKind.Error } named)
+            if (type is not INamedTypeSymbol { TypeKind: not TypeKind.Error } named || info.Symbol is not null && !Unrelated(info.Symbol, named))
                 return;
             string way = Access(AccessExpression(name));
             for (INamedTypeSymbol? owner = named; owner is not null; owner = owner.BaseType)
@@ -245,6 +245,22 @@ internal static class TestOnlyMembers
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Whether <paramref name="bound"/> is an extension member for a receiver <paramref name="receiver"/> is not: what C#
+    /// reports in place of the receiver's inaccessible member when another type's extension of the same name exists.
+    /// </summary>
+    private static bool Unrelated(ISymbol bound, INamedTypeSymbol receiver)
+    {
+        if (bound.ContainingType is not { TypeKind: TypeKind.Extension, ExtensionParameter.Type: INamedTypeSymbol extended })
+            return false;
+        for (INamedTypeSymbol? type = receiver; type is not null; type = type.BaseType)
+        {
+            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, extended.OriginalDefinition))
+                return false;
+        }
+        return !receiver.AllInterfaces.Any(contract => SymbolEqualityComparer.Default.Equals(contract.OriginalDefinition, extended.OriginalDefinition));
     }
 
     /// <summary>The bound symbol of <paramref name="node"/>, from the model that bound it.</summary>

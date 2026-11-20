@@ -24,4 +24,12 @@ internal static class CeresCinematicPictureSheetComposerPrivateAccess
         /// <summary>The private field <c>JapaneseWidth</c>, reached by name.</summary>
         internal static int JapaneseWidth => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresCinematicPictureSheetComposer), "JapaneseWidth");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresCinematicPictureSheetComposer)
+    {
+        /// <summary>The private method <c>Compose</c>, invoked by name.</summary>
+        internal static global::SuperMetroid.AssetExtraction.Artwork.ComposedSpriteSheet Compose(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightCharacters ceresFlight, global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.ImportIntroCinematicArtwork intro) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Artwork.ComposedSpriteSheet>(typeof(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresCinematicPictureSheetComposer), "Compose", [typeof(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightCharacters), typeof(global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.ImportIntroCinematicArtwork)], new object?[] { ceresFlight, intro });
+    }
 }

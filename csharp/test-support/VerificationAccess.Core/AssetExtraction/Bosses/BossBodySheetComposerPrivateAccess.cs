@@ -21,4 +21,12 @@ internal static class BossBodySheetComposerPrivateAccess
         internal static global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Bosses.BossBodyFrameSource> Frames(global::SuperMetroid.AssetExtraction.Enemies.BossSourceArtwork bosses, global::SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner owner) =>
             PrivateState.InvokeStatic<global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Bosses.BossBodyFrameSource>>(typeof(global::SuperMetroid.AssetExtraction.Bosses.BossBodySheetComposer), "Frames", [typeof(global::SuperMetroid.AssetExtraction.Enemies.BossSourceArtwork), typeof(global::SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner)], new object?[] { bosses, owner });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Bosses.BossBodySheetComposer)
+    {
+        /// <summary>The private method <c>Compose</c>, invoked by name.</summary>
+        internal static global::SuperMetroid.AssetExtraction.Bosses.ComposedBossBodySheet Compose(global::SuperMetroid.AssetExtraction.Rooms.RoomBlockSheetInputs inputs, global::SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner owner) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Bosses.ComposedBossBodySheet>(typeof(global::SuperMetroid.AssetExtraction.Bosses.BossBodySheetComposer), "Compose", [typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomBlockSheetInputs), typeof(global::SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner)], new object?[] { inputs, owner });
+    }
 }

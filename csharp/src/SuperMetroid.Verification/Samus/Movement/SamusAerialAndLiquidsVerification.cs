@@ -381,7 +381,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedItems = gravity ? SamusEquipmentFlags.GravitySuit : 0,
         };
-        ordinary.LiquidPhysics.WaterSurfaceY = submerged ? 0 : null;
+        global::SuperMetroid.Core.PrivateState.Set(ordinary.LiquidPhysics, "WaterSurfaceY", (int?)(submerged ? 0 : null));
         if (cinematic)
             ordinary.Presentation.PresentInCinematic();
         SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(ordinary, SamusPoseId.SpinJumpRightPose);
@@ -1353,7 +1353,7 @@ internal static void VerifySamusAtmosphericEffects()
     // effects did; particles already shown run out on their own. Zero vertical speed returns even earlier and therefore
     // ends nothing.
     landing.Ground = SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Ceres));
-    landing.LiquidPhysics.WaterSurfaceY = null;
+    global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "WaterSurfaceY", (int?)(null));
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(landing.Kinematics.VerticalVelocity.Speed.WithWhole(1));
     int beforeCeres = landingParticles.Count;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -1373,7 +1373,7 @@ internal static void VerifySamusAtmosphericEffects()
     SeedLandingSiteInlineRoomByte(bus);
     landing.Ground = SamusGround.Of(RoomDefinitions.LandingSite);
     PrivateState.Set(landing.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Rain);
-    landing.LiquidPhysics.WaterSurfaceY = null;
+    global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "WaterSurfaceY", (int?)(null));
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(landing.Kinematics.VerticalVelocity.Speed.WithFraction(1));
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,

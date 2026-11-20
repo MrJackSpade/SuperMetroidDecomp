@@ -19,4 +19,12 @@ internal static class FileSelectHelmetSpritemapsPrivateAccess
             get => PrivateState.StaticGet<int>(typeof(global::SuperMetroid.AssetExtraction.Frontend.FileSelect.FileSelectHelmetSpritemaps), "EntryCount");
         }
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Frontend.FileSelect.FileSelectHelmetSpritemaps)
+    {
+        /// <summary>The private method <c>SpritemapId</c>, invoked by name.</summary>
+        internal static int SpritemapId(int frame) =>
+            PrivateState.InvokeStatic<int>(typeof(global::SuperMetroid.AssetExtraction.Frontend.FileSelect.FileSelectHelmetSpritemaps), "SpritemapId", [typeof(int)], new object?[] { frame });
+    }
 }

@@ -110,11 +110,9 @@ internal static class RoomBlockInventoryVerification
 
     /// <summary>A Zebes or Ceres room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/>, its terrain one block of <paramref name="terrain"/>, placing <paramref name="headers"/>.</summary>
     private static InventoriedRoomState State(TilesetDefinition tileset, AreaId area, RoomTerrainReaction terrain, params RoomObjectKind[] headers) =>
-        Inventoried() with
-        {
-            Tileset = tileset, Area = area, Placed = new HashSet<int> { PlacedBlock }, Terrain = new HashSet<RoomTerrainReaction> { terrain },
-            StraddledShots = new HashSet<RoomTerrainReaction>(), Headers = headers.ToHashSet(),
-        };
+        new(tileset, area, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction> { terrain }, new HashSet<RoomTerrainReaction>(),
+            headers.ToHashSet(), Array.Empty<RoomObjectPlacementSetup>(), new HashSet<EnemyDefinitionId>(), RoomSetupBehavior.None, RoomMainBehavior.None, RoomTurningFloor.None,
+            new HashSet<DoorDefinition>(), null);
 
     /// <summary>
     /// A Brinstar room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/> and holding nothing else that
@@ -122,30 +120,9 @@ internal static class RoomBlockInventoryVerification
     /// alone, as Kraid's room, which places no shot block and is two screens wide, holds none.
     /// </summary>
     private static InventoriedRoomState Quiet(TilesetDefinition tileset, params RoomTerrainReaction[] straddledShots) =>
-        Inventoried() with
-        {
-            Tileset = tileset, Area = AreaId.Brinstar, Placed = new HashSet<int> { PlacedBlock }, Terrain = new HashSet<RoomTerrainReaction>(),
-            StraddledShots = straddledShots.ToHashSet(), Headers = new HashSet<RoomObjectKind>(),
-        };
-
-    /// <summary>
-    /// A room state inventoried as the import inventories one (#2570): the Landing Site's first state over a one-block level
-    /// showing nothing, entered through no door, its placements, enemies, setup, main, turning floor and X-ray overlay then
-    /// replaced by none, so that a case states only what it varies.
-    /// </summary>
-    private static InventoriedRoomState Inventoried()
-    {
-        RoomDefinition room = RoomDefinitions.LandingSite;
-        RoomStateSettings state = RoomStateLists.GetStates(room)[0];
-        var size = new Extent16<RoomBlocks>(1, 1);
-        var level = new RoomLevelArtwork(state.Level, size, [default(RoomBlockAppearance)], [default(RoomBlockAppearance)]);
-        var terrain = new InstalledRoomLevel(size, [default(RoomTerrainBlock)], [RoomBlockBehavior.None], [default(RoomBlockAppearance)], [], 0);
-        return InventoriedRoomState.Of(room, state, level, terrain, new HashSet<RoomTerrainReaction>(), []) with
-        {
-            Setups = Array.Empty<RoomObjectPlacementSetup>(), Enemies = new HashSet<EnemyDefinitionId>(), SetupBehavior = RoomSetupBehavior.None,
-            MainBehavior = RoomMainBehavior.None, TurningFloor = RoomTurningFloor.None, Entrances = new HashSet<DoorDefinition>(), XrayOverlay = null,
-        };
-    }
+        new(tileset, AreaId.Brinstar, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction>(), straddledShots.ToHashSet(),
+            new HashSet<RoomObjectKind>(), Array.Empty<RoomObjectPlacementSetup>(), new HashSet<EnemyDefinitionId>(), RoomSetupBehavior.None, RoomMainBehavior.None,
+            RoomTurningFloor.None, new HashSet<DoorDefinition>(), null);
 
     /// <summary>
     /// The installation's real writers, from its installed room-object catalogs and X-ray reveal (#1650): a room state

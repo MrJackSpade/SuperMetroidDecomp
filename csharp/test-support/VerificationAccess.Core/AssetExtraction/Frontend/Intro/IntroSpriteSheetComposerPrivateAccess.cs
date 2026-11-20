@@ -17,4 +17,12 @@ internal static class IntroSpriteSheetComposerPrivateAccess
         internal static global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Artwork.SheetFrameSource> Frames(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.ICinematicSpriteFrames> families, global::SuperMetroid.AssetExtraction.Artwork.SpriteArtwork page, global::SuperMetroid.AssetExtraction.Artwork.ScreenObjectSizes sizes, global::System.Func<global::SuperMetroid.Core.Frontend.Intro.Artwork.CinematicSpriteFamily, global::SuperMetroid.Core.Frontend.Intro.CinematicSpritePose, int> set) =>
             PrivateState.InvokeStatic<global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Artwork.SheetFrameSource>>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroSpriteSheetComposer), "Frames", [typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.ICinematicSpriteFrames>), typeof(global::SuperMetroid.AssetExtraction.Artwork.SpriteArtwork), typeof(global::SuperMetroid.AssetExtraction.Artwork.ScreenObjectSizes), typeof(global::System.Func<global::SuperMetroid.Core.Frontend.Intro.Artwork.CinematicSpriteFamily, global::SuperMetroid.Core.Frontend.Intro.CinematicSpritePose, int>)], new object?[] { families, page, sizes, set });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroSpriteSheetComposer)
+    {
+        /// <summary>The private method <c>Sources</c>, invoked by name.</summary>
+        internal static global::SuperMetroid.AssetExtraction.Artwork.SpriteSheetSources Sources(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.ICinematicSpriteFrames> families, global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.ImportIntroCinematicArtwork intro) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Artwork.SpriteSheetSources>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroSpriteSheetComposer), "Sources", [typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.ICinematicSpriteFrames>), typeof(global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.ImportIntroCinematicArtwork)], new object?[] { families, intro });
+    }
 }

@@ -16,4 +16,12 @@ internal static class AudioClipExporterPrivateAccess
         /// <summary>The private field <c>ClipDirectory</c>, reached by name.</summary>
         internal static string ClipDirectory => PrivateState.StaticField<string>(typeof(global::SuperMetroid.AssetExtraction.Audio.AudioClipExporter), "ClipDirectory");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Audio.AudioClipExporter)
+    {
+        /// <summary>The private method <c>Export</c>, invoked by name.</summary>
+        internal static global::SuperMetroid.AssetExtraction.Audio.AudioClipManifest Export(global::SuperMetroid.AssetExtraction.Audio.Synthesis.ExtractedAudioAssetCatalog catalog, string audioDirectory, global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Audio.AudioClipExporter.MusicKey> tracks, global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Audio.AudioClipExporter.SoundEffectKey> effects) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Audio.AudioClipManifest>(typeof(global::SuperMetroid.AssetExtraction.Audio.AudioClipExporter), "Export", [typeof(global::SuperMetroid.AssetExtraction.Audio.Synthesis.ExtractedAudioAssetCatalog), typeof(string), typeof(global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Audio.AudioClipExporter.MusicKey>), typeof(global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Audio.AudioClipExporter.SoundEffectKey>)], new object?[] { catalog, audioDirectory, tracks, effects });
+    }
 }

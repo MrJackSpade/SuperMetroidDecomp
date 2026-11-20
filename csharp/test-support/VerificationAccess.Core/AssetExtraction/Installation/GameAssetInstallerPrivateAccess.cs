@@ -24,4 +24,16 @@ internal static class GameAssetInstallerPrivateAccess
         /// <summary>The private field <c>Components</c>, reached by name.</summary>
         internal static global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallerComponent[] Components => PrivateState.StaticField<global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallerComponent[]>(typeof(global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller), "Components");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller)
+    {
+        /// <summary>The private method <c>EnsureInstalled</c>, invoked by name.</summary>
+        internal static global::SuperMetroid.AssetExtraction.Installation.GameInstallation? EnsureInstalled(string root, global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallerComponent> components, global::System.Threading.CancellationToken cancellationToken, global::System.IProgress<string>? progress) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Installation.GameInstallation?>(typeof(global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller), "EnsureInstalled", [typeof(string), typeof(global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallerComponent>), typeof(global::System.Threading.CancellationToken), typeof(global::System.IProgress<string>)], new object?[] { root, components, cancellationToken, progress });
+
+        /// <summary>The private method <c>Install</c>, invoked by name.</summary>
+        internal static global::SuperMetroid.AssetExtraction.Installation.GameInstallation Install(string sourcePath, string root, global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallerComponent> components, global::System.Threading.CancellationToken cancellationToken, global::System.IProgress<string>? progress) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Installation.GameInstallation>(typeof(global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller), "Install", [typeof(string), typeof(string), typeof(global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallerComponent>), typeof(global::System.Threading.CancellationToken), typeof(global::System.IProgress<string>)], new object?[] { sourcePath, root, components, cancellationToken, progress });
+    }
 }

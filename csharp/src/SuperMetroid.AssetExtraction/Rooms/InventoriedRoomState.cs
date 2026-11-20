@@ -20,60 +20,32 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// doors that lead into it and its X-ray overlay. A writer counts for the state only when one of these holds what starts
 /// it; nothing here follows what a writer goes on to trigger.
 /// </summary>
-internal sealed record InventoriedRoomState
+/// <param name="Tileset">The tileset the state loads, whose block sheet pictures the blocks it shows.</param>
+/// <param name="Area">The area the state's room lies in.</param>
+/// <param name="Placed">
+/// Every block the state's level data places where the room shows it: in its foreground, and in its background where the
+/// state's background shows its level data.
+/// </param>
+/// <param name="Terrain">How each block of the state's installed terrain collides and the reaction it selects, each once.</param>
+/// <param name="StraddledShots">
+/// The shootable collision kinds and reactions a Wave shot's scan past the room's ceiling sets off in the state's installed
+/// terrain where it reads halfway through a block (<see cref="StraddledShotReactions"/>), each once. The shot is a beam, so
+/// a block among them that rejects a beam starts nothing.
+/// </param>
+/// <param name="Headers">The room objects the state's population places.</param>
+/// <param name="Setups">What each of the state's placements sets up: the doors, items and stations it places among it (#2481).</param>
+/// <param name="Enemies">The enemies the state's population places.</param>
+/// <param name="SetupBehavior">The behaviour the state runs when its room loads.</param>
+/// <param name="MainBehavior">The room behaviour the state runs each frame.</param>
+/// <param name="TurningFloor">The turning floor the state shows.</param>
+/// <param name="Entrances">The doors that lead into the state's room.</param>
+/// <param name="XrayOverlay">The X-ray reveal's overlay of the state, or null where it has none.</param>
+internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Area, IReadOnlySet<int> Placed,
+    IReadOnlySet<RoomTerrainReaction> Terrain, IReadOnlySet<RoomTerrainReaction> StraddledShots, IReadOnlySet<RoomObjectKind> Headers,
+    IReadOnlyList<RoomObjectPlacementSetup> Setups,
+    IReadOnlySet<EnemyDefinitionId> Enemies, RoomSetupBehavior SetupBehavior, RoomMainBehavior MainBehavior,
+    RoomTurningFloor TurningFloor, IReadOnlySet<DoorDefinition> Entrances, XrayRoomOverlayDefinition? XrayOverlay)
 {
-    /// <summary>Only <see cref="Of"/> builds a state, from the room state it inventories.</summary>
-    private InventoriedRoomState()
-    {
-    }
-
-    /// <summary>The tileset the state loads, whose block sheet pictures the blocks it shows.</summary>
-    public required TilesetDefinition Tileset { get; init; }
-
-    /// <summary>The area the state's room lies in.</summary>
-    public required AreaId Area { get; init; }
-
-    /// <summary>
-    /// Every block the state's level data places where the room shows it: in its foreground, and in its background where the
-    /// state's background shows its level data.
-    /// </summary>
-    public required IReadOnlySet<int> Placed { get; init; }
-
-    /// <summary>How each block of the state's installed terrain collides and the reaction it selects, each once.</summary>
-    public required IReadOnlySet<RoomTerrainReaction> Terrain { get; init; }
-
-    /// <summary>
-    /// The shootable collision kinds and reactions a Wave shot's scan past the room's ceiling sets off in the state's installed
-    /// terrain where it reads halfway through a block (<see cref="StraddledShotReactions"/>), each once. The shot is a beam, so
-    /// a block among them that rejects a beam starts nothing.
-    /// </summary>
-    public required IReadOnlySet<RoomTerrainReaction> StraddledShots { get; init; }
-
-    /// <summary>The room objects the state's population places.</summary>
-    public required IReadOnlySet<RoomObjectKind> Headers { get; init; }
-
-    /// <summary>What each of the state's placements sets up: the doors, items and stations it places among it (#2481).</summary>
-    public required IReadOnlyList<RoomObjectPlacementSetup> Setups { get; init; }
-
-    /// <summary>The enemies the state's population places.</summary>
-    public required IReadOnlySet<EnemyDefinitionId> Enemies { get; init; }
-
-    /// <summary>The behaviour the state runs when its room loads.</summary>
-    public required RoomSetupBehavior SetupBehavior { get; init; }
-
-    /// <summary>The room behaviour the state runs each frame.</summary>
-    public required RoomMainBehavior MainBehavior { get; init; }
-
-    /// <summary>The turning floor the state shows.</summary>
-    public required RoomTurningFloor TurningFloor { get; init; }
-
-    /// <summary>The doors that lead into the state's room.</summary>
-    public required IReadOnlySet<DoorDefinition> Entrances { get; init; }
-
-    /// <summary>The X-ray reveal's overlay of the state, or null where it has none.</summary>
-    public required XrayRoomOverlayDefinition? XrayOverlay { get; init; }
-
-
     /// <summary>The shot-block reactions whose blocks any weapon breaks and that grow back.</summary>
     private static readonly HashSet<ShotBlockReaction> RespawningShotBreaks = [ShotBlockReaction.RespawningBreak];
 
@@ -274,21 +246,7 @@ internal sealed record InventoriedRoomState
         var enemies = new HashSet<EnemyDefinitionId>();
         foreach (RoomEnemyPlacement record in state.EnemyPopulation.Placements.Span)
             enemies.Add(record.DefinitionId);
-        return new InventoriedRoomState
-        {
-            Tileset = RoomTilesets.Get(state.GraphicsSet),
-            Area = room.Area,
-            Placed = placed,
-            Terrain = reactions,
-            StraddledShots = straddledShots,
-            Headers = headers,
-            Setups = setups,
-            Enemies = enemies,
-            SetupBehavior = state.SetupBehavior,
-            MainBehavior = state.MainBehavior,
-            TurningFloor = state.TurningFloor,
-            Entrances = entrances.ToHashSet(),
-            XrayOverlay = state.XrayOverlay,
-        };
+        return new InventoriedRoomState(RoomTilesets.Get(state.GraphicsSet), room.Area, placed, reactions, straddledShots, headers, setups, enemies,
+            state.SetupBehavior, state.MainBehavior, state.TurningFloor, entrances.ToHashSet(), state.XrayOverlay);
     }
 }

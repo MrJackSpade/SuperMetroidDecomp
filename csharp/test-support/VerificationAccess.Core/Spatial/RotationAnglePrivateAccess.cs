@@ -28,4 +28,12 @@ internal static class RotationAnglePrivateAccess
         /// <summary>The private field <c>FractionsPerStep</c>, reached by name.</summary>
         internal static int FractionsPerStep => PrivateState.StaticField<int>(typeof(global::SuperMetroid.Core.Spatial.RotationAngle), "FractionsPerStep");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Spatial.RotationAngle)
+    {
+        /// <summary>The private method <c>FromSteps</c>, invoked by name.</summary>
+        internal static global::SuperMetroid.Core.Spatial.RotationAngle FromSteps(int steps, int fraction) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.Spatial.RotationAngle>(typeof(global::SuperMetroid.Core.Spatial.RotationAngle), "FromSteps", [typeof(int), typeof(int)], new object?[] { steps, fraction });
+    }
 }

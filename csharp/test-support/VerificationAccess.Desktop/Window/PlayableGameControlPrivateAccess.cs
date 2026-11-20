@@ -54,4 +54,12 @@ internal static class PlayableGameControlPrivateAccess
         /// <summary>The private field <c>rendererStopping</c>, reached by name.</summary>
         internal bool rendererStopping => PrivateState.Field<global::SuperMetroid.Desktop.Window.PlayableGameControl, bool>(self, "rendererStopping");
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Desktop.Window.PlayableGameControl self)
+    {
+        /// <summary>The private method <c>InitializeRendererAsync</c>, invoked by name.</summary>
+        internal global::System.Threading.Tasks.Task InitializeRendererAsync(global::System.Func<nint, global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>, long, global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker> createWorker) =>
+            PrivateState.Invoke<global::SuperMetroid.Desktop.Window.PlayableGameControl, global::System.Threading.Tasks.Task>(self, "InitializeRendererAsync", [typeof(global::System.Func<nint, global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>, long, global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>)], new object?[] { createWorker });
+    }
 }

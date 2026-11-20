@@ -35,4 +35,12 @@ internal static class SamusProjectileSystemPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem, global::SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollision>(self, "TerrainCollision");
         }
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem)
+    {
+        /// <summary>The private method <c>ShowBeamShade</c>, invoked by name.</summary>
+        internal static void ShowBeamShade(global::SuperMetroid.Core.Samus.Colours.SamusColours colours, global::SuperMetroid.Core.Progression.SamusBeamCombination selection) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem), "ShowBeamShade", [typeof(global::SuperMetroid.Core.Samus.Colours.SamusColours), typeof(global::SuperMetroid.Core.Progression.SamusBeamCombination)], new object?[] { colours, selection });
+    }
 }

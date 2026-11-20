@@ -35,8 +35,8 @@ internal static class YardSurfaceLossVerification
                 Crawl = YardDirection.OnFloorMovingRight,
                 Behavior = YardBehavior.NormalCrawling,
                 CrawlingVelocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256)),
-                ConsecutiveTurnCounter = counted,
             };
+            global::SuperMetroid.Core.PrivateState.Set(state, nameof(YardEnemyState.ConsecutiveTurnCounter), counted);
 
             enemies.YardBehavior.RunYardCrawlingMovement(place, state, air);
 

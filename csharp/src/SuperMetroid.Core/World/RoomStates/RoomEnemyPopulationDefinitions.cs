@@ -4,15 +4,15 @@ namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Application-owned ordered enemy placements selected by all room states, grouped by the area of the rooms that load them.</summary>
 /// <remarks>
-/// The populations and their placements (<see cref="ListCount"/>, <see cref="PlacementCount"/>) are the ones the room states select. Placement order governs
+/// The populations and their placements are the ones the room states select. Placement order governs
 /// linked place allocation; each list states the kills that clear its room as its death quota. This is gameplay data,
 /// not an editable visual asset.
 /// </remarks>
 [NumberedIdentities("Each numbered member is the enemy population of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes the populations by number.")]
 public static class RoomEnemyPopulationDefinitions
 {
-    /// <summary>The rooms' enemy populations in their authored list order, checked complete before gameplay can use them.</summary>
-    internal static readonly RoomEnemyPopulationDefinition[] Definitions = RoomEnemyPopulations.Complete(
+    /// <summary>The rooms' enemy populations in their authored list order.</summary>
+    internal static readonly RoomEnemyPopulationDefinition[] Definitions =
     [
         ..CrateriaRoomEnemyPopulationDefinitions.Lists,
         ..BrinstarRoomEnemyPopulationDefinitions.Lists,
@@ -21,12 +21,7 @@ public static class RoomEnemyPopulationDefinitions
         ..MaridiaRoomEnemyPopulationDefinitions.Lists,
         ..TourianRoomEnemyPopulationDefinitions.Lists,
         ..CeresRoomEnemyPopulationDefinitions.Lists,
-    ], ListCount, PlacementCount);
-
-    /// <summary>Number of distinct populations the room states select, empty ones included.</summary>
-    private const int ListCount = 301;
-    /// <summary>Total placements across the distinct populations, a population that several room states select counted once.</summary>
-    private const int PlacementCount = 1658;
+    ];
 
     /// <summary>The enemy population shared by the Draygon room and the Mother Brain room once each area's boss is dead.</summary>
     public static RoomEnemyPopulationDefinition DraygonOrMotherBrainWhenAreaBossDead => MaridiaRoomEnemyPopulationDefinitions.DraygonOrMotherBrainWhenAreaBossDead;

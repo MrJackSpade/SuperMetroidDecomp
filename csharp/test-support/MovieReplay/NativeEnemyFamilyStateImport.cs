@@ -473,7 +473,9 @@ internal static class NativeEnemyFamilyStateImport
                 1 => HorizontalDirection.Right,
                 _ => throw new InvalidDataException($"Native Yard airborne facing {words.C:X4} is neither left nor right."),
             };
-            yardRecord.ConsecutiveTurnCounter = words.E;
+            if (words.E > YardEnemyState.MissedProbesBeforeFalling)
+                throw new InvalidDataException($"Recorded Yard missed-probe count {words.E} lies past the {YardEnemyState.MissedProbesBeforeFalling} that drop it.");
+            global::SuperMetroid.Core.PrivateState.Set(yardRecord, nameof(YardEnemyState.ConsecutiveTurnCounter), (int)words.E);
             yardRecord.Movement = YardNativeWords.YardMovements.Decode(words.F, "recorded YardMovement");
             // A crawl's routine names its way (#2278).
             if (yardRecord.Movement == YardMovement.Crawling)
@@ -811,9 +813,15 @@ internal static class NativeEnemyFamilyStateImport
             choot.Action = ChootNativeWords.ChootActions.Decode(words.A, "recorded ChootAction");
             // The ascent cursor is 8.8 and moves by whole records, so its signed high byte is the record index.
             choot.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(unchecked((short)words.B) >> 8);
-            choot.FallingLoop = (words.C & 0xff) == 0
-                ? UpdateCountdownAccess.AtAge(ChootFalls.LoopUpdates(enemy.SpawnSettings<ChootSpawnSettings>().FallingPath), words.C >> 8)
-                : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
+            if ((words.C & 0xff) != 0)
+                throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
+            ChootFallLoop recordedLoop = ChootFallLoop.Of(enemy.SpawnSettings<ChootSpawnSettings>().FallingPath);
+            for (int shown = 0; shown < words.C >> 8; shown++)
+            {
+                if (!recordedLoop.TryShowNext(out _))
+                    throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} lies past its path's loop.");
+            }
+            choot.FallingLoop = recordedLoop;
             choot.FallingPatternLoopCounter = TrueDuration(words.D);
             // The Choot falls along its placement's path (#2476), which the recording's must be.
             ChootFallingPath chootPath = ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern");

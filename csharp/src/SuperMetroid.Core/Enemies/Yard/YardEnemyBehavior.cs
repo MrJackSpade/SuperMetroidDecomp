@@ -303,8 +303,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!surfaceCollision)
         {
-            state.ConsecutiveTurnCounter++;
-            if (state.ConsecutiveTurnCounter >= YardEnemyState.MissedProbesBeforeFalling)
+            if (state.MissedSurfaceTooOften())
             {
                 DropYard(place, state);
                 return;
@@ -321,7 +320,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.ConsecutiveTurnCounter = 0;
+        state.ResetMissedProbes();
         if (movesVertically)
         {
             bool slopeAdjusted = EnemyTerrain.AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, place);
@@ -432,7 +431,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void LandYard(RoomEnemyPlace place, YardEnemyState state, SamusState samus)
     {
         state.AirborneVelocity = FixedVector<RoomPixels>.Zero;
-        state.ConsecutiveTurnCounter = 0;
+        state.ResetMissedProbes();
         state.SuppressTurns();
 
         if (state.Behavior == YardBehavior.Dropped)

@@ -31,11 +31,11 @@ internal static class ChootPatternDefinitionsVerification
                 $"Choot pattern distance {patternIndex}");
 
             int pathAddress = 0xa20000 | ChootNativeWords.ChootFallingPaths.Word(fallingPath);
+            ReadOnlyMemory<Offset16<RoomPixels>> loop = ChootFalls.LoopOf(fallingPath);
+            AssertEqual(frameCounts[patternIndex] - 1, loop.Length, $"Choot path {patternIndex} loop updates");
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
-                Offset16<RoomPixels> point = ChootFalls.At(
-                    fallingPath,
-                    frameIndex) ?? throw new InvalidDataException($"Choot path {patternIndex} ends early at {frameIndex}.");
+                Offset16<RoomPixels> point = loop.Span[frameIndex];
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4)),
                     unchecked((ushort)point.X),
                     $"Choot path X {patternIndex}/{frameIndex}");
@@ -50,13 +50,6 @@ internal static class ChootPatternDefinitionsVerification
                 $"Choot path {patternIndex} native loop end X");
             AssertEqual((ushort)0x8000, CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + endFrame * 4 + 2)),
                 $"Choot path {patternIndex} native loop end Y");
-            AssertTrue(ChootFalls.At(fallingPath, endFrame) is null, $"Choot path {patternIndex} ends its loop at the native end frame");
-
-            AssertThrows<InvalidDataException>(
-                () => ChootFalls.At(
-                    fallingPath,
-                    frameCounts[patternIndex]),
-                $"Choot path {patternIndex} rejects the frame after its loop's end");
 
             foreach (byte loopCount in new byte[] { 0, 1, 2, 3 })
             {
@@ -89,14 +82,12 @@ internal static class ChootPatternDefinitionsVerification
             initializeFall(fallPlace);
             ChootEnemyState fallState = (fallEnemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires fallEnemies.ChootStates[0]."));
             fallState.FallingOrigin = new(0x4000, 0x5000);
-            fallState.FallingLoop = UpdateCountdown.Lasting(ChootFalls.LoopUpdates(fallingPath));
+            fallState.FallingLoop = ChootFallLoop.Of(fallingPath);
             fallState.FallingPatternLoopCounter = 2;
 
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
-                Offset16<RoomPixels> point = ChootFalls.At(
-                    fallingPath,
-                    frameIndex) ?? throw new InvalidDataException($"Choot path {patternIndex} ends early at {frameIndex}.");
+                Offset16<RoomPixels> point = loop.Span[frameIndex];
                 runFall(fallPlace, fallState);
                 AssertEqual(unchecked((ushort)(0x4000 + point.X)),
                     fallPlace.Position.X.Whole,
@@ -118,7 +109,9 @@ internal static class ChootPatternDefinitionsVerification
                 fallState.FallingOrigin.Y,
                 $"Choot production loop Y advance {patternIndex}");
 
-            fallState.FallingLoop = UpdateCountdownAccess.AtAge(ChootFalls.LoopUpdates(fallingPath), frameCounts[patternIndex] - 1);
+            fallState.FallingLoop = ChootFallLoop.Of(fallingPath);
+            for (int shown = 0; shown < loop.Length; shown++)
+                AssertTrue(fallState.FallingLoop.TryShowNext(out _), $"Choot production loop {patternIndex} shows offset {shown}");
             runFall(fallPlace, fallState);
             AssertEqual((ushort)0x3456, fallPlace.Position.X.Whole,
                 $"Choot production final spawn X {patternIndex}");
@@ -137,7 +130,7 @@ internal static class ChootPatternDefinitionsVerification
             () => DecodedFallingPath(byte.MaxValue),
             "the import rejects a Choot pattern selector that does not wrap into the catalog");
         AssertThrows<InvalidDataException>(
-            () => ChootFallingPathDefinitionsConstants.At(0xffff, 0),
+            () => ChootFallingPathDefinitionsConstants.LoopOf(0xffff),
             "restored Choot falling pointer does not read arbitrary bank-A2 data");
         Console.WriteLine(
             "Choot pattern definitions: five selectors/distances, all 450 physical path frames, twenty initializers, and five complete fall loops pass with every source read forbidden.");

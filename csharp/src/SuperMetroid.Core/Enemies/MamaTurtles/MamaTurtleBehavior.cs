@@ -208,14 +208,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         mama.Radius = mama.Radius.WithY(0);
-        int signedDifference = mama.Position.X.Whole - samus.Position.X.Whole;
-        int distance = Math.Abs(signedDifference);
-        if (distance >= MamaTurtleShellContourDefinitions.HalfWidth)
-            return;
-
         // The shell's contour on Samus's left differs from its contour on her right; the asymmetry is visible
         // around the dormant shell's lip.
-        int contourOffset = MamaTurtleShell.GetOffset(signedDifference);
+        if (!MamaTurtleShell.TryGetSurface(mama.Position.X.Whole - samus.Position.X.Whole, out int contourOffset))
+            return;
+
         mama.Radius = mama.Radius.WithY(-contourOffset);
         mama.Contact = mama.Contact.With(EnemyContact.SolidToSamus);
 
@@ -563,11 +560,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!parent.LiesInShell)
             return;
 
-        int signedDifference = parentPlace.Position.X.Whole - baby.Position.X.Whole;
-        int distance = Math.Abs(signedDifference);
-        int contourOffset = distance >= MamaTurtleShellContourDefinitions.HalfWidth
-            ? MamaTurtleMotionDefinitions.BabySinkClearOfShell
-            : MamaTurtleShell.GetOffset(signedDifference);
+        int contourOffset = MamaTurtleShell.TryGetSurface(parentPlace.Position.X.Whole - baby.Position.X.Whole, out int surface)
+            ? surface
+            : MamaTurtleMotionDefinitions.BabySinkClearOfShell;
         _terrain.MoveEnemyVertically(level, baby, SignedSixteenSixteen.FromWholePixels(contourOffset));
 
         if (carryingSamus)

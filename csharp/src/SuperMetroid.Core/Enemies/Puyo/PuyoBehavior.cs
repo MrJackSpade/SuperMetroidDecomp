@@ -129,15 +129,13 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Finds where the hop's rise starts on the speed curve: stepping from the curve's start by the hop's launch search step,
     /// the first place at which the coarse speeds (<see cref="QuadraticCurveSpeed"/>) of the places passed sum past the hop's
-    /// height. The rise's half and three-quarter places, which pace its poses, are shares of that place. A search that steps
-    /// nowhere is refused, and one that runs off the curve fails when its speed is read.
+    /// height. The rise's half and three-quarter places, which pace its poses, are shares of that place. Every hop's search
+    /// steps past the curve's start, as its definition requires; one that runs off the curve fails when its speed is read.
     /// </summary>
-    /// <exception cref="InvalidDataException">The hop's search steps nowhere or runs off the curve.</exception>
+    /// <exception cref="InvalidDataException">The hop's search runs off the curve.</exception>
     private static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
     {
         PuyoHopDefinition hop = Hop(state);
-        if (hop.LaunchSearchStep <= QuadraticSpeedCurvePlace.Start)
-            throw new InvalidDataException($"Puyo hop {state.CurrentHop} has no launch search step.");
         SignedSixteenSixteen height = SignedSixteenSixteen.FromWholePixels(hop.JumpHeight);
         QuadraticSpeedCurvePlace place = QuadraticSpeedCurvePlace.Start;
         SignedSixteenSixteen risen = SignedSixteenSixteen.Zero;

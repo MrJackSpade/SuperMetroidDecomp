@@ -24,8 +24,11 @@ internal static class EnemyRoomListsVerification
             .Select(state => RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation)).Distinct().Order().ToArray();
         ushort[] graphicsPointers = RoomStateDefinitions.All
             .Select(state => RoomEnemyGraphicsSetDefinitions.PointerOf(RoomEnemyGraphicsSetLists.Of(state))).Distinct().Order().ToArray();
-        AssertEqual(RoomEnemyPopulationDefinitions.ListCount, populationPointers.Length,
+        AssertEqual(RoomEnemyPopulationDefinitions.Definitions.Length, populationPointers.Length,
             "all retail population identities are compiled");
+        AssertEqual(RoomEnemyPopulationDefinitions.Definitions.Length,
+            RoomEnemyPopulationDefinitions.Definitions.Select(list => list.Name).Distinct().Count(),
+            "every compiled population has its own name");
         AssertEqual(RoomEnemyGraphicsSetLists.ListCount, graphicsPointers.Length,
             "all retail graphics-set identities are compiled");
         AssertTrue(populationPointers.SequenceEqual(RoomEnemyPopulationDefinitions.Pointers),
@@ -62,7 +65,7 @@ internal static class EnemyRoomListsVerification
                 $"population $A1:{pointer:X4} death quota follows its terminator");
             populationRecords += records.Length;
         }
-        AssertEqual(RoomEnemyPopulationDefinitions.PlacementCount, populationRecords,
+        AssertEqual(RoomEnemyPopulationDefinitions.Definitions.Sum(list => list.Placements.Length), populationRecords,
             "every ordered retail enemy placement is compiled");
 
         int graphicsRecords = 0;

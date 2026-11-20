@@ -89,7 +89,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // where it lies within a pixel stays until the final spawn reset, just as in the game.
         place.Position = place.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
-        state.FallingLoop = UpdateCountdown.Lasting(ChootFalls.LoopUpdates(place.SpawnSettings<ChootSpawnSettings>().FallingPath));
+        state.FallingLoop = ChootFallLoop.Of(place.SpawnSettings<ChootSpawnSettings>().FallingPath);
         // A population loop count of zero falls one loop, as a count of one does.
         state.FallingPatternLoopCounter = Math.Max(1, place.SpawnSettings<ChootSpawnSettings>().PatternLoops);
         SetChootAnimation(place, state, ChootSegment.Falling);
@@ -100,10 +100,10 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunChootFall(RoomEnemyPlace place, ChootEnemyState state)
     {
         ChootFallingPath fallingPath = place.SpawnSettings<ChootSpawnSettings>().FallingPath;
-        if (state.FallingLoop.IsOver)
+        if (!state.FallingLoop.TryShowNext(out Offset16<RoomPixels> pathOffset))
         {
             state.FallingOrigin = state.FallingOrigin.WithY(state.FallingOrigin.Y + ChootFalls.LoopYDistance(fallingPath));
-            state.FallingLoop = UpdateCountdown.Lasting(ChootFalls.LoopUpdates(fallingPath));
+            state.FallingLoop = ChootFallLoop.Of(fallingPath);
             if (--state.FallingPatternLoopCounter > 0)
                 return;
 
@@ -116,10 +116,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        Offset16<RoomPixels> pathOffset = ChootFalls.At(fallingPath, state.FallingLoop.Age)
-            ?? throw new InvalidDataException($"Choot falling path {fallingPath} ends before its loop's {state.FallingLoop.Length} updates.");
         place.Position = place.Position.WithWhole(state.FallingOrigin + pathOffset);
-        state.FallingLoop.Count();
     }
 
     /// <summary>

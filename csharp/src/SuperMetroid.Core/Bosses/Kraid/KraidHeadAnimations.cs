@@ -151,7 +151,10 @@ internal static class KraidHeadAnimations
         [P.Death] = KraidHeadFrame.Closed,
     };
 
-    /// <summary>What collision and growth read where <paramref name="playback"/> stands; a head that never started has no pose to read.</summary>
+    /// <summary>
+    /// What collision and growth read where <paramref name="playback"/> stands; a head that never started has no pose to read.
+    /// The place's step lies within the animation's steps or at its end, as <see cref="PlaceOf"/> counts it.
+    /// </summary>
     internal static KraidHeadAnimationReads ReadsAt(AnimationPlayback<KraidHeadSegment>? playback)
     {
         AnimationPlayback<KraidHeadSegment> started = playback ?? throw new InvalidDataException(
@@ -160,8 +163,6 @@ internal static class KraidHeadAnimations
         KraidHeadFrame?[] steps = [.. started.Animation.Phases
             .SelectMany(phase => Segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
             .Select(beat => beat.ShownFrame)];
-        if (place.Step < 0 || place.Step > steps.Length)
-            throw new InvalidOperationException($"Kraid head place {place} is outside its animation.");
         KraidMouthTrailsHead.MouthShapes<KraidHeadFrame> shapes =
             KraidMouthTrailsHead.ShapesAt(steps, place.Step, PoseBeforeStart[place.Animation]);
         return new(Read(shapes.Outer), Read(shapes.Inner), GrowthResumeBefore(place.Step < steps.Length ? steps[place.Step] : null));

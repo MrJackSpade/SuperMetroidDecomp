@@ -29,14 +29,24 @@ public sealed class YardEnemyState
     internal const int MissedProbesBeforeFalling = 4;
 
     /// <summary>
-    /// Consecutive missing-surface probe count, reset on surface contact and landing; the failure past
-    /// <see cref="MissedProbesBeforeFalling"/> drops Yard instead of installing another outside-corner turn.
+    /// Consecutive missing-surface probe count, 0 through <see cref="MissedProbesBeforeFalling"/>: only a missed probe
+    /// counts it, and the miss that reaches that count drops Yard instead of installing another outside-corner turn, while
+    /// surface contact and landing reset it.
     /// </summary>
-    public int ConsecutiveTurnCounter
+    public int ConsecutiveTurnCounter { get; private set; }
+
+    /// <summary>
+    /// Counts one more missed surface probe and reports whether Yard has now missed enough in a row to drop instead of
+    /// turning the outside corner.
+    /// </summary>
+    internal bool MissedSurfaceTooOften()
     {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, MissedProbesBeforeFalling, value);
+        ConsecutiveTurnCounter++;
+        return ConsecutiveTurnCounter >= MissedProbesBeforeFalling;
     }
+
+    /// <summary>Resets the missed-probe count, as surface contact and landing do.</summary>
+    internal void ResetMissedProbes() => ConsecutiveTurnCounter = 0;
 
     /// <summary>
     /// The Yard's movement step, which may lag a direction cue by one update and so is chosen independently of

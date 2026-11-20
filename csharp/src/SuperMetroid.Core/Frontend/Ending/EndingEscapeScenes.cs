@@ -187,10 +187,11 @@ internal sealed class EndingEscapeScenes
             EndingSpriteRole.ClearTimeDigit);
     }
 
-    /// <summary>The animation showing clear-time <paramref name="digit"/>.</summary>
-    private static EndingSceneAnimation ClearTimeDigitAnimation(int digit) => (uint)digit < (uint)EndingCreditsState.ClearTimeDigitAnimations.Length
-        ? EndingCreditsState.ClearTimeDigitAnimations[digit]
-        : throw new ArgumentOutOfRangeException(nameof(digit), digit, "A clear-time digit is 0..9.");
+    /// <summary>
+    /// The animation showing clear-time <paramref name="digit"/>, 0 through 9: a digit of the setup's hours or minutes,
+    /// which their setup bounds to two digits.
+    /// </summary>
+    private static EndingSceneAnimation ClearTimeDigitAnimation(int digit) => EndingCreditsState.ClearTimeDigitAnimations[digit];
 
     /// <summary>Installs the two-piece Samus reward art selected by clear-time thresholds.</summary>
     internal void SpawnEndingRewardActors()

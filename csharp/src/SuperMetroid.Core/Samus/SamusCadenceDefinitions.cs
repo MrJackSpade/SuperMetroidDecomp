@@ -50,8 +50,8 @@ internal static class SamusCadenceDefinitions
     internal static readonly UpdateCadence SpeedEchoCapture = new(4, 0);
 
     /// <summary>
-    /// The phase of the frame counter on which invincible Samus, and her arm cannon with her, is hidden: set on odd
-    /// updates, so she flickers, unless knockback or a stored shine keeps her shown.
+    /// The phase of the frame counter on which invincible Samus, and her arm cannon with her, is hidden, alternating with
+    /// the updates she shows, so she flickers, unless knockback or a stored shine keeps her shown.
     /// </summary>
     internal static readonly UpdateCounterField InvincibilityFlickerHidden = new(0, 1);
 
@@ -62,8 +62,8 @@ internal static class SamusCadenceDefinitions
     internal static readonly UpdateCadence CrashEchoesDrawn = new(2, 1);
 
     /// <summary>
-    /// The phase of the hurt flash's count on which Samus's suit shows the hurt colours: set on its odd counts, so they
-    /// alternate with her own colours each update until the count reaches seven.
+    /// The phase of the hurt flash's count on which Samus's suit shows the hurt colours, so they alternate with her own
+    /// colours each update until the flash's coloured stretch ends.
     /// </summary>
     internal static readonly UpdateCounterField HurtColoursShown = new(0, 1);
 

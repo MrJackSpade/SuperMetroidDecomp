@@ -20,10 +20,8 @@ internal sealed class IntroJapaneseSubtitles
     /// <summary>Frames the second subtitle holds a page's input wait.</summary>
     public const int SecondSubtitleHoldFrames = 60;
 
-    /// <summary>The page whose subtitle is showing, or null while <see cref="stage"/> is <see cref="SubtitleStage.None"/>.</summary>
-    private IntroNarrationPageId? page;
-    /// <summary>What the showing subtitle does on its next update, or <see cref="SubtitleStage.None"/> when no subtitle is showing.</summary>
-    private SubtitleStage stage;
+    /// <summary>The subtitle showing (#2554): its page and what it does on its next update; none while no subtitle shows.</summary>
+    private ShowingSubtitle? showing;
 
     /// <summary>Selects Japanese subtitle handling from the opening's alternate-text setting.</summary>
     public IntroJapaneseSubtitles(bool enabled) => Enabled = enabled;
@@ -80,37 +78,32 @@ internal sealed class IntroJapaneseSubtitles
     /// <param name="startInputWait">Receives the page whose second subtitle has started its input wait.</param>
     public void Step(ControllerButton newlyPressed, Action<IntroNarrationPageId> startInputWait)
     {
-        if (stage == SubtitleStage.None)
+        if (showing is not { } shown)
             return;
-        if (stage == SubtitleStage.AwaitSecondSubtitleInput && newlyPressed != ControllerButton.None)
+        SubtitleStage step = shown.Stage;
+        if (step == SubtitleStage.AwaitSecondSubtitleInput && newlyPressed != ControllerButton.None)
         {
             // The press shows the second subtitle, holds the input wait it will start, and moves to starting that
             // wait on this same frame.
-            stage = SubtitleStage.StartInputWait;
+            step = SubtitleStage.StartInputWait;
             inputWaitHold = UpdateCountdown.Lasting(SecondSubtitleHoldFrames);
         }
-        switch (stage)
+        switch (step)
         {
             case SubtitleStage.ShowFirstSubtitle:
-                stage = SubtitleStage.FinishFirstSubtitle;
+                showing = shown with { Stage = SubtitleStage.FinishFirstSubtitle };
                 return;
             case SubtitleStage.AwaitSecondSubtitleInput:
                 return;
             case SubtitleStage.FinishFirstSubtitle:
-                stage = SubtitleStage.None;
-                page = null;
+                showing = null;
                 return;
             case SubtitleStage.StartInputWait:
-                IntroNarrationPageId waitingPage = page
-                    ?? throw new InvalidOperationException("A subtitle starting an input wait has no page.");
-                stage = SubtitleStage.None;
-                page = null;
-                startInputWait(waitingPage);
+                showing = null;
+                startInputWait(shown.Page);
                 return;
-            case SubtitleStage.None:
-                throw new InvalidOperationException("The intro advanced a subtitle that is not showing.");
             default:
-                throw new InvalidOperationException($"Unknown intro subtitle stage {stage}.");
+                throw new InvalidOperationException($"Unknown intro subtitle stage {step}.");
         }
     }
 
@@ -118,18 +111,20 @@ internal sealed class IntroJapaneseSubtitles
     /// <exception cref="InvalidOperationException">Another subtitle is still showing; the intro never shows two.</exception>
     private void Show(IntroNarrationPageId shownPage, SubtitleStage firstStage)
     {
-        if (stage != SubtitleStage.None)
+        if (showing is { } other)
             throw new InvalidOperationException(
-                $"The intro began page {shownPage}'s subtitle while page {page}'s subtitle was still showing.");
-        page = shownPage;
-        stage = firstStage;
+                $"The intro began page {shownPage}'s subtitle while page {other.Page}'s subtitle was still showing.");
+        showing = new ShowingSubtitle(shownPage, firstStage);
     }
+
+    /// <summary>A subtitle showing: its page and what it does on its next update.</summary>
+    /// <param name="Page">The page whose subtitle shows.</param>
+    /// <param name="Stage">What the subtitle does on its next update.</param>
+    private sealed record ShowingSubtitle(IntroNarrationPageId Page, SubtitleStage Stage);
 
     /// <summary>The steps of a page's subtitles.</summary>
     private enum SubtitleStage
     {
-        /// <summary>No subtitle is showing.</summary>
-        None,
         /// <summary>The page has begun: show its first subtitle.</summary>
         ShowFirstSubtitle,
         /// <summary>The first subtitle is shown: let the page's text continue, then stop showing.</summary>

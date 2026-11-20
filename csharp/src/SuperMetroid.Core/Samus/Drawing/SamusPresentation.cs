@@ -207,7 +207,7 @@ internal sealed class SamusPresentation
                 SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running
                 ? samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster)
                     ? samus.HorizontalSpeed.SpeedBoosterDelay(samus.UnauthoredBoostCadence, samus.RunStrideFrame.Frame)
-                    : SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, samus.RunStrideFrame.Frame)
+                    : SamusRunningCadences.OrdinaryDelay(samus.RunStrideFrame.Frame)
                 : delay.Ticks;
             samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(runningOrPoseDelay);
             return;
@@ -251,7 +251,7 @@ internal sealed class SamusPresentation
             {
                 samus.RestartAnimation();
                 samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(
-                    SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, frame: 0));
+                    SamusRunningCadences.OrdinaryDelay(frame: 0));
                 return;
             }
         }

@@ -26,10 +26,10 @@ public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings S
     public Extent16<RoomScreens> Size => Definition.Size;
 
     /// <summary>How many pixels above Samus the camera aims its top while she moves any way but up, leading the view below her as she falls.</summary>
-    public int FallingCameraOffset => Definition.FallingCameraOffset;
+    public int FallingCameraOffset => Definition.CameraLead.FallingOffset;
 
     /// <summary>How many pixels above Samus the camera aims its top while she moves up, leading the view above her as she rises.</summary>
-    public int RisingCameraOffset => Definition.RisingCameraOffset;
+    public int RisingCameraOffset => Definition.CameraLead.RisingOffset;
 
     /// <summary>Whether door transitions into or out of this room hide the foreground and drop the colours of the door, item and block pictures every room shares.</summary>
     public bool UsesIsolatedDoorTransition => Definition.UsesIsolatedDoorTransition;

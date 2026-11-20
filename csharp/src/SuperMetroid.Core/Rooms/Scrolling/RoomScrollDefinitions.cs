@@ -14,6 +14,33 @@ public static class RoomScrollDefinitions
     /// <summary>A screen open to the camera.</summary>
     private const RoomScrollState Open = RoomScrollState.Open;
 
+    /// <summary>The layout of every room of two screens both open with the camera aligned to the screen's top.</summary>
+    private static readonly RoomScrollState[] BothTop = [Top, Top];
+
+    /// <summary>The layout of every room of two screens whose first is open with the camera aligned to its top and whose second is closed.</summary>
+    private static readonly RoomScrollState[] TopThenClosed = [Top, Closed];
+
+    /// <summary>The layout of every room of four screens whose first two are open with the camera aligned to the screen's top and whose last two are closed.</summary>
+    private static readonly RoomScrollState[] TwoTopThenTwoClosed = [Top, Top, Closed, Closed];
+
+    /// <summary>The layout of every room of four screens whose first two are closed and whose last two are open with the camera aligned to the screen's top.</summary>
+    private static readonly RoomScrollState[] TwoClosedThenTwoTop = [Closed, Closed, Top, Top];
+
+    /// <summary>The layout of every room of four screens whose first two are open and whose last two are open with the camera aligned to the screen's top.</summary>
+    private static readonly RoomScrollState[] TwoOpenThenTwoTop = [Open, Open, Top, Top];
+
+    /// <summary>The layout of every room of three screens whose first two are open and whose last is open with the camera aligned to its top.</summary>
+    private static readonly RoomScrollState[] TwoOpenThenTop = [Open, Open, Top];
+
+    /// <summary>The layout of every room of two screens whose first is closed and whose second is open with the camera aligned to its top.</summary>
+    private static readonly RoomScrollState[] ClosedThenTop = [Closed, Top];
+
+    /// <summary>The layout of every room of two screens both open.</summary>
+    private static readonly RoomScrollState[] BothOpen = [Open, Open];
+
+    /// <summary>The layout of every room of two screens whose first is open and whose second is open with the camera aligned to its top.</summary>
+    private static readonly RoomScrollState[] OpenThenTop = [Open, Top];
+
     /// <summary>The implicit layout whose bottom row is open with the camera aligned to the screen's top, and every other row open.</summary>
     public static RoomScrollDefinition OpenWithTopAlignedBottomRow { get; } = RoomScrollDefinition.Implicit("OpenWithTopAlignedBottomRow", RoomScrollState.OpenAlignedToTop);
 
@@ -37,10 +64,7 @@ public static class RoomScrollDefinitions
         Closed, Open, .. Repeated(Closed, 4), Open, .. Repeated(Closed, 3),
     ]);
     /// <summary>The Crateria Power Bomb room's screen scroll layout.</summary>
-    public static RoomScrollDefinition CrateriaPowerBombs { get; } = new("CrateriaPowerBombs",
-    [
-        Top, Top,
-    ]);
+    public static RoomScrollDefinition CrateriaPowerBombs { get; } = new("CrateriaPowerBombs", BothTop);
     /// <summary>The West Ocean room's screen scroll layout.</summary>
     public static RoomScrollDefinition WestOcean { get; } = new("WestOcean",
     [
@@ -133,10 +157,7 @@ public static class RoomScrollDefinitions
         .. Repeated(Top, 4),
     ]);
     /// <summary>The Final Missile Bombway room's screen scroll layout.</summary>
-    public static RoomScrollDefinition FinalMissileBombway { get; } = new("FinalMissileBombway",
-    [
-        Top, Top,
-    ]);
+    public static RoomScrollDefinition FinalMissileBombway { get; } = new("FinalMissileBombway", BothTop);
     /// <summary>The Final Missile room's screen scroll layout.</summary>
     public static RoomScrollDefinition FinalMissile { get; } = new("FinalMissile",
     [
@@ -176,10 +197,7 @@ public static class RoomScrollDefinitions
         .. Repeated(Top, 3),
     ]);
     /// <summary>The Brinstar Reserve Tank room's screen scroll layout.</summary>
-    public static RoomScrollDefinition BrinstarReserveTank { get; } = new("BrinstarReserveTank",
-    [
-        Top, Closed,
-    ]);
+    public static RoomScrollDefinition BrinstarReserveTank { get; } = new("BrinstarReserveTank", TopThenClosed);
     /// <summary>The Green Brinstar Missile Refill room's screen scroll layout.</summary>
     public static RoomScrollDefinition GreenBrinstarMissileRefill { get; } = new("GreenBrinstarMissileRefill",
     [
@@ -201,11 +219,7 @@ public static class RoomScrollDefinitions
         Open, .. Repeated(Closed, 4),
     ]);
     /// <summary>The Pink Brinstar Power Bombs room's screen scroll layout.</summary>
-    public static RoomScrollDefinition PinkBrinstarPowerBombs { get; } = new("PinkBrinstarPowerBombs",
-    [
-        Top, Top,
-        Closed, Closed,
-    ]);
+    public static RoomScrollDefinition PinkBrinstarPowerBombs { get; } = new("PinkBrinstarPowerBombs", TwoTopThenTwoClosed);
     /// <summary>The Green Hill Zone room's screen scroll layout.</summary>
     public static RoomScrollDefinition GreenHillZone { get; } = new("GreenHillZone",
     [
@@ -221,11 +235,7 @@ public static class RoomScrollDefinitions
         .. Repeated(Top, 8),
     ]);
     /// <summary>The Construction Zone room's screen scroll layout.</summary>
-    public static RoomScrollDefinition ConstructionZone { get; } = new("ConstructionZone",
-    [
-        Top,
-        Closed,
-    ]);
+    public static RoomScrollDefinition ConstructionZone { get; } = new("ConstructionZone", TopThenClosed);
     /// <summary>The Blue Brinstar Energy Tank room's screen scroll layout.</summary>
     public static RoomScrollDefinition BlueBrinstarEnergyTank { get; } = new("BlueBrinstarEnergyTank",
     [
@@ -284,22 +294,14 @@ public static class RoomScrollDefinitions
         Open, Closed, Closed,
     ]);
     /// <summary>The Beta Power Bomb room's screen scroll layout.</summary>
-    public static RoomScrollDefinition BetaPowerBomb { get; } = new("BetaPowerBomb",
-    [
-        Top, Top,
-        Closed, Closed,
-    ]);
+    public static RoomScrollDefinition BetaPowerBomb { get; } = new("BetaPowerBomb", TwoTopThenTwoClosed);
     /// <summary>The Alpha Power Bomb room's screen scroll layout.</summary>
     public static RoomScrollDefinition AlphaPowerBomb { get; } = new("AlphaPowerBomb",
     [
         Closed, Top, Top,
     ]);
     /// <summary>The Below Spazer room's screen scroll layout.</summary>
-    public static RoomScrollDefinition BelowSpazer { get; } = new("BelowSpazer",
-    [
-        Closed, Closed,
-        Top, Top,
-    ]);
+    public static RoomScrollDefinition BelowSpazer { get; } = new("BelowSpazer", TwoClosedThenTwoTop);
     /// <summary>The Spazer room's screen scroll layout.</summary>
     public static RoomScrollDefinition Spazer { get; } = new("Spazer",
     [
@@ -318,23 +320,11 @@ public static class RoomScrollDefinitions
         Closed, Top, Closed, Closed,
     ]);
     /// <summary>The Kraid Eye Door room's screen scroll layout.</summary>
-    public static RoomScrollDefinition KraidEyeDoor { get; } = new("KraidEyeDoor",
-    [
-        Closed, Closed,
-        Top, Top,
-    ]);
+    public static RoomScrollDefinition KraidEyeDoor { get; } = new("KraidEyeDoor", TwoClosedThenTwoTop);
     /// <summary>The Kraid room's screen scroll layout.</summary>
-    public static RoomScrollDefinition Kraid { get; } = new("Kraid",
-    [
-        Open, Open,
-        Top, Top,
-    ]);
+    public static RoomScrollDefinition Kraid { get; } = new("Kraid", TwoOpenThenTwoTop);
     /// <summary>The Statues room's screen scroll layout.</summary>
-    public static RoomScrollDefinition Statues { get; } = new("Statues",
-    [
-        Top,
-        Closed,
-    ]);
+    public static RoomScrollDefinition Statues { get; } = new("Statues", TopThenClosed);
     /// <summary>The Warehouse Entrance room's screen scroll layout.</summary>
     public static RoomScrollDefinition WarehouseEntrance { get; } = new("WarehouseEntrance",
     [
@@ -395,12 +385,7 @@ public static class RoomScrollDefinitions
         .. Repeated(Top, 8),
     ]);
     /// <summary>The Grapple Tutorial 2 room's screen scroll layout.</summary>
-    public static RoomScrollDefinition GrappleTutorial2 { get; } = new("GrappleTutorial2",
-    [
-        Open,
-        Open,
-        Top,
-    ]);
+    public static RoomScrollDefinition GrappleTutorial2 { get; } = new("GrappleTutorial2", TwoOpenThenTop);
     /// <summary>The Grapple Beam room's screen scroll layout.</summary>
     public static RoomScrollDefinition GrappleBeam { get; } = new("GrappleBeam",
     [
@@ -410,10 +395,7 @@ public static class RoomScrollDefinitions
         Closed,
     ]);
     /// <summary>The Green Bubbles Missiles room's screen scroll layout.</summary>
-    public static RoomScrollDefinition GreenBubblesMissiles { get; } = new("GreenBubblesMissiles",
-    [
-        Closed, Top,
-    ]);
+    public static RoomScrollDefinition GreenBubblesMissiles { get; } = new("GreenBubblesMissiles", ClosedThenTop);
     /// <summary>The Bubble Mountain room's screen scroll layout.</summary>
     public static RoomScrollDefinition BubbleMountain { get; } = new("BubbleMountain",
     [
@@ -447,29 +429,16 @@ public static class RoomScrollDefinitions
         Closed, Top,
     ]);
     /// <summary>The Purple Shaft room's screen scroll layout.</summary>
-    public static RoomScrollDefinition PurpleShaft { get; } = new("PurpleShaft",
-    [
-        Open,
-        Open,
-        Top,
-    ]);
+    public static RoomScrollDefinition PurpleShaft { get; } = new("PurpleShaft", TwoOpenThenTop);
     /// <summary>The Lower Norfair Elevator room's screen scroll layout.</summary>
     public static RoomScrollDefinition LowerNorfairElevator { get; } = new("LowerNorfairElevator",
     [
         Top,
     ]);
     /// <summary>The Upper Norfair Farming room's screen scroll layout.</summary>
-    public static RoomScrollDefinition UpperNorfairFarming { get; } = new("UpperNorfairFarming",
-    [
-        Open, Open,
-        Top, Top,
-    ]);
+    public static RoomScrollDefinition UpperNorfairFarming { get; } = new("UpperNorfairFarming", TwoOpenThenTwoTop);
     /// <summary>The Bat Cave room's screen scroll layout.</summary>
-    public static RoomScrollDefinition BatCave { get; } = new("BatCave",
-    [
-        Closed,
-        Top,
-    ]);
+    public static RoomScrollDefinition BatCave { get; } = new("BatCave", ClosedThenTop);
     /// <summary>The Frog Speedway room's screen scroll layout.</summary>
     public static RoomScrollDefinition FrogSpeedway { get; } = new("FrogSpeedway",
     [
@@ -498,17 +467,9 @@ public static class RoomScrollDefinitions
         .. Repeated(Top, 8),
     ]);
     /// <summary>The Golden Torizo room's screen scroll layout.</summary>
-    public static RoomScrollDefinition GoldenTorizo { get; } = new("GoldenTorizo",
-    [
-        Open, Open,
-        Top, Top,
-    ]);
+    public static RoomScrollDefinition GoldenTorizo { get; } = new("GoldenTorizo", TwoOpenThenTwoTop);
     /// <summary>The Ridley room's screen scroll layout.</summary>
-    public static RoomScrollDefinition Ridley { get; } = new("Ridley",
-    [
-        Open,
-        Open,
-    ]);
+    public static RoomScrollDefinition Ridley { get; } = new("Ridley", BothOpen);
     /// <summary>The Fast Pillars Setup room's screen scroll layout.</summary>
     public static RoomScrollDefinition FastPillarsSetup { get; } = new("FastPillarsSetup",
     [
@@ -601,10 +562,7 @@ public static class RoomScrollDefinitions
         Top,
     ]);
     /// <summary>The Sponge Bath room's screen scroll layout.</summary>
-    public static RoomScrollDefinition SpongeBath { get; } = new("SpongeBath",
-    [
-        Top, Top,
-    ]);
+    public static RoomScrollDefinition SpongeBath { get; } = new("SpongeBath", BothTop);
     /// <summary>The Wrecked Ship West Super room's screen scroll layout.</summary>
     public static RoomScrollDefinition WreckedShipWestSuper { get; } = new("WreckedShipWestSuper",
     [
@@ -698,11 +656,7 @@ public static class RoomScrollDefinitions
         .. Repeated(Open, 10), Closed, Closed,
     ]);
     /// <summary>The Crab Hole room's screen scroll layout.</summary>
-    public static RoomScrollDefinition CrabHole { get; } = new("CrabHole",
-    [
-        Top,
-        Closed,
-    ]);
+    public static RoomScrollDefinition CrabHole { get; } = new("CrabHole", TopThenClosed);
     /// <summary>The West Sand Hall Tunnel room's screen scroll layout.</summary>
     public static RoomScrollDefinition WestSandHallTunnel { get; } = new("WestSandHallTunnel",
     [
@@ -751,11 +705,7 @@ public static class RoomScrollDefinitions
         Open,
     ]);
     /// <summary>The Oasis room's screen scroll layout.</summary>
-    public static RoomScrollDefinition Oasis { get; } = new("Oasis",
-    [
-        Closed,
-        Top,
-    ]);
+    public static RoomScrollDefinition Oasis { get; } = new("Oasis", ClosedThenTop);
     /// <summary>The West Sand Hole room's screen scroll layout.</summary>
     public static RoomScrollDefinition WestSandHole { get; } = new("WestSandHole",
     [
@@ -767,17 +717,9 @@ public static class RoomScrollDefinitions
         .. Repeated(Open, 4),
     ]);
     /// <summary>The West Aqueduct Quicksand room's screen scroll layout.</summary>
-    public static RoomScrollDefinition WestAqueductQuicksand { get; } = new("WestAqueductQuicksand",
-    [
-        Open,
-        Open,
-    ]);
+    public static RoomScrollDefinition WestAqueductQuicksand { get; } = new("WestAqueductQuicksand", BothOpen);
     /// <summary>The East Aqueduct Quicksand room's screen scroll layout.</summary>
-    public static RoomScrollDefinition EastAqueductQuicksand { get; } = new("EastAqueductQuicksand",
-    [
-        Open,
-        Open,
-    ]);
+    public static RoomScrollDefinition EastAqueductQuicksand { get; } = new("EastAqueductQuicksand", BothOpen);
     /// <summary>The Aqueduct room's screen scroll layout.</summary>
     public static RoomScrollDefinition Aqueduct { get; } = new("Aqueduct",
     [
@@ -841,10 +783,7 @@ public static class RoomScrollDefinitions
         Open,
     ]);
     /// <summary>The Botwoon Quicksand room's screen scroll layout.</summary>
-    public static RoomScrollDefinition BotwoonQuicksand { get; } = new("BotwoonQuicksand",
-    [
-        Open, Open,
-    ]);
+    public static RoomScrollDefinition BotwoonQuicksand { get; } = new("BotwoonQuicksand", BothOpen);
     /// <summary>The Shaktool room's screen scroll layout.</summary>
     public static RoomScrollDefinition Shaktool { get; } = new("Shaktool",
     [
@@ -858,10 +797,7 @@ public static class RoomScrollDefinitions
         Top, Closed, .. Repeated(Top, 3),
     ]);
     /// <summary>The Botwoon room's screen scroll layout.</summary>
-    public static RoomScrollDefinition Botwoon { get; } = new("Botwoon",
-    [
-        Top, Closed,
-    ]);
+    public static RoomScrollDefinition Botwoon { get; } = new("Botwoon", TopThenClosed);
     /// <summary>The Space Jump room's screen scroll layout.</summary>
     public static RoomScrollDefinition SpaceJump { get; } = new("SpaceJump",
     [
@@ -873,11 +809,7 @@ public static class RoomScrollDefinitions
         Top,
     ]);
     /// <summary>The West Cactus Alley room's screen scroll layout.</summary>
-    public static RoomScrollDefinition WestCactusAlley { get; } = new("WestCactusAlley",
-    [
-        Open,
-        Top,
-    ]);
+    public static RoomScrollDefinition WestCactusAlley { get; } = new("WestCactusAlley", OpenThenTop);
     /// <summary>The East Cactus Alley room's screen scroll layout.</summary>
     public static RoomScrollDefinition EastCactusAlley { get; } = new("EastCactusAlley",
     [
@@ -885,11 +817,7 @@ public static class RoomScrollDefinitions
         .. Repeated(Top, 5),
     ]);
     /// <summary>The Draygon room's screen scroll layout.</summary>
-    public static RoomScrollDefinition Draygon { get; } = new("Draygon",
-    [
-        Open, Open,
-        Top, Top,
-    ]);
+    public static RoomScrollDefinition Draygon { get; } = new("Draygon", TwoOpenThenTwoTop);
     /// <summary>The Tourian First room's screen scroll layout.</summary>
     public static RoomScrollDefinition TourianFirst { get; } = new("TourianFirst",
     [
@@ -902,43 +830,25 @@ public static class RoomScrollDefinitions
         .. Repeated(Top, 6),
     ]);
     /// <summary>The Metroids 2 room's screen scroll layout.</summary>
-    public static RoomScrollDefinition Metroids2 { get; } = new("Metroids2",
-    [
-        Open,
-        Open,
-    ]);
+    public static RoomScrollDefinition Metroids2 { get; } = new("Metroids2", BothOpen);
     /// <summary>The Metroids 3 room's screen scroll layout.</summary>
     public static RoomScrollDefinition Metroids3 { get; } = new("Metroids3",
     [
         .. Repeated(Top, 6),
     ]);
     /// <summary>The Metroids 4 room's screen scroll layout.</summary>
-    public static RoomScrollDefinition Metroids4 { get; } = new("Metroids4",
-    [
-        Open,
-        Open,
-    ]);
+    public static RoomScrollDefinition Metroids4 { get; } = new("Metroids4", BothOpen);
     /// <summary>The Blue Hopper room's screen scroll layout.</summary>
-    public static RoomScrollDefinition BlueHopper { get; } = new("BlueHopper",
-    [
-        Top, Top,
-    ]);
+    public static RoomScrollDefinition BlueHopper { get; } = new("BlueHopper", BothTop);
     /// <summary>The Dust Torizo room's screen scroll layout.</summary>
-    public static RoomScrollDefinition DustTorizo { get; } = new("DustTorizo",
-    [
-        Top, Top,
-    ]);
+    public static RoomScrollDefinition DustTorizo { get; } = new("DustTorizo", BothTop);
     /// <summary>The Big Boy room's screen scroll layout.</summary>
     public static RoomScrollDefinition BigBoy { get; } = new("BigBoy",
     [
         .. Repeated(Top, 4),
     ]);
     /// <summary>The Seaweed room's screen scroll layout.</summary>
-    public static RoomScrollDefinition Seaweed { get; } = new("Seaweed",
-    [
-        Open,
-        Open,
-    ]);
+    public static RoomScrollDefinition Seaweed { get; } = new("Seaweed", BothOpen);
     /// <summary>The Tourian Recharge room's screen scroll layout.</summary>
     public static RoomScrollDefinition TourianRecharge { get; } = new("TourianRecharge",
     [
@@ -965,16 +875,9 @@ public static class RoomScrollDefinitions
         Top,
     ]);
     /// <summary>The Tourian Escape 1 room's screen scroll layout.</summary>
-    public static RoomScrollDefinition TourianEscape1 { get; } = new("TourianEscape1",
-    [
-        Open, Open,
-    ]);
+    public static RoomScrollDefinition TourianEscape1 { get; } = new("TourianEscape1", BothOpen);
     /// <summary>The Tourian Escape 2 room's screen scroll layout.</summary>
-    public static RoomScrollDefinition TourianEscape2 { get; } = new("TourianEscape2",
-    [
-        Open,
-        Top,
-    ]);
+    public static RoomScrollDefinition TourianEscape2 { get; } = new("TourianEscape2", OpenThenTop);
     /// <summary>The Tourian Escape 3 room's screen scroll layout.</summary>
     public static RoomScrollDefinition TourianEscape3 { get; } = new("TourianEscape3",
     [

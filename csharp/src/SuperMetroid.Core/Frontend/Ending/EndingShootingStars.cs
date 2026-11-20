@@ -77,7 +77,7 @@ internal sealed class EndingShootingStars
         Definition = definition,
         Position = FixedVector<ScreenPixels>.FromWholePixels(
             Offset16<ScreenPixels>.Of(EndingShootingStarDefinitions.Origin, EndingShootingStarDefinitions.Origin)),
-        Flight = AnimationPlayer<EndingShootingStarPace, EndingShootingStarLook, NoAnimationCue>.StartShowing(
+        Flight = ShowingAnimationPlayer<EndingShootingStarPace, EndingShootingStarLook, NoAnimationCue>.StartShowing(
             EndingShootingStarAnimations.Segments, EndingShootingStarAnimations.Flight(Pace(definition)), EndingShootingStarDefinitions.LeadInDuration),
     };
 }

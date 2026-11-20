@@ -53,6 +53,23 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// <summary>The beats of <paramref name="segment"/>.</summary>
     internal IReadOnlyList<AnimationBeat<TFrame, TEvent>> Beats(TSegment segment) => beats[segment];
 
+    /// <summary>The frames <paramref name="segment"/>'s beats show, in order, for a segment every beat of which shows one.</summary>
+    /// <exception cref="InvalidDataException">A beat of the segment pauses, showing no frame.</exception>
+    internal IReadOnlyList<TFrame> FramesShownBy(TSegment segment) =>
+        [.. Enumerable.Range(0, beats[segment].Count()).Select(beat => FrameShownAt(segment, beat))];
+
+    /// <summary>The frame beat <paramref name="beat"/> of <paramref name="segment"/> shows, a beat that shows one.</summary>
+    /// <exception cref="InvalidDataException">The beat pauses, showing no frame.</exception>
+    internal TFrame FrameShownAt(TSegment segment, int beat) => beats[segment][beat] switch
+    {
+        AnimationBeat<TFrame, TEvent>.Frame frame => frame.Shown,
+        AnimationBeat<TFrame, TEvent>.HeldFrame held => held.Shown,
+        var other => throw new InvalidDataException($"Beat {beat} of animation segment {segment} shows no frame: {other}."),
+    };
+
+    /// <summary>Whether a beat of any segment hides the frame shown, which a player that always shows a frame cannot play.</summary>
+    internal bool HidesAFrame => beats.Values.Any(segment => segment.Any(beat => beat is AnimationBeat<TFrame, TEvent>.Hidden));
+
     /// <summary>The phase that plays every beat of <paramref name="segment"/> once (#2358), its length read from the segment.</summary>
     internal AnimationPhase<TSegment> Whole(TSegment segment) => Repeated(segment, 1);
 
@@ -82,6 +99,20 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
             return false;
         AnimationPhase<TSegment> opening = animation.Phases[0];
         return beats[opening.Segment][opening.FirstBeat] is AnimationBeat<TFrame, TEvent>.Frame or AnimationBeat<TFrame, TEvent>.HeldFrame;
+    }
+
+    /// <summary>The first frame one play of <paramref name="animation"/> shows from its start, after any events it opens with.</summary>
+    /// <exception cref="InvalidDataException">The animation shows no frame in its play.</exception>
+    internal TFrame FirstFrameShown(Animation<TSegment> animation)
+    {
+        foreach (AnimationBeat<TFrame, TEvent> beat in PlayedBeats(animation))
+        {
+            if (beat is AnimationBeat<TFrame, TEvent>.Frame frame)
+                return frame.Shown;
+            if (beat is AnimationBeat<TFrame, TEvent>.HeldFrame held)
+                return held.Shown;
+        }
+        throw new InvalidDataException($"Animation {animation} shows no frame in its play.");
     }
 
     /// <summary>Every frame a segment shows, each once: a set, since no order of the segments is stated (#2567).</summary>

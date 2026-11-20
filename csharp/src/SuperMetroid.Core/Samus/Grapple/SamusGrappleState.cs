@@ -197,8 +197,8 @@ public sealed class SamusGrappleState
     /// The endpoint's animation (#1627, #2388): its pictures, over and over; a fresh beam starts
     /// it on its first.
     /// </summary>
-    internal AnimationPlayer<GrappleEndpointSegment, GrappleEndpointFrame, NoAnimationCue> Endpoint { get; } =
-        AnimationPlayer<GrappleEndpointSegment, GrappleEndpointFrame, NoAnimationCue>.StartShowing(
+    internal ShowingAnimationPlayer<GrappleEndpointSegment, GrappleEndpointFrame, NoAnimationCue> Endpoint { get; } =
+        ShowingAnimationPlayer<GrappleEndpointSegment, GrappleEndpointFrame, NoAnimationCue>.StartShowing(
             GrappleAnimations.EndpointSegments, GrappleAnimations.Endpoint);
 
     /// <summary>
@@ -207,7 +207,7 @@ public sealed class SamusGrappleState
     /// <see cref="GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay"/>. Each segment further along the rope
     /// shows the picture before its neighbour's (<see cref="GrappleAnimations.RopePictureBefore"/>).
     /// </summary>
-    internal AnimationPlayer<GrappleRopeSegment, GrappleRopePicture, NoAnimationCue> Rope { get; } =
-        AnimationPlayer<GrappleRopeSegment, GrappleRopePicture, NoAnimationCue>.StartShowing(
+    internal ShowingAnimationPlayer<GrappleRopeSegment, GrappleRopePicture, NoAnimationCue> Rope { get; } =
+        ShowingAnimationPlayer<GrappleRopeSegment, GrappleRopePicture, NoAnimationCue>.StartShowing(
             GrappleAnimations.RopeSegments, GrappleAnimations.Rope, GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay);
 }

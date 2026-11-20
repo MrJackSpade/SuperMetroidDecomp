@@ -31,7 +31,8 @@ internal static class SamusGlowPlay
     /// Starts <paramref name="player"/> on <paramref name="sequence"/> again on its first shade, which shows at once for
     /// <paramref name="updates"/> updates (#2447).
     /// </summary>
-    internal static void RestartShowing(AnimationPlayer<G, PictureShade, NoAnimationCue> player, G sequence, int updates) =>
+    /// <returns>The first shade, which the player now shows.</returns>
+    internal static PictureShade RestartShowing(AnimationPlayer<G, PictureShade, NoAnimationCue> player, G sequence, int updates) =>
         Ensure.NotNull(player).Show(SamusGlowAnimationDefinitions.Animations[sequence], updates);
 
     /// <summary>
@@ -49,8 +50,9 @@ internal static class SamusGlowPlay
     {
         AnimationShown<G, PictureShade> next = SamusGlowAnimationDefinitions.Segments.PlayToNextFrame(
             SamusGlowAnimationDefinitions.Animations[sequence], ref place, static _ => { });
-        return next as AnimationShown<G, PictureShade>.Frame
-            ?? throw new InvalidOperationException($"The {sequence} sequence reached {next}; it only shows shades.");
+        return next is AnimationShown<G, PictureShade>.Frame frame
+            ? frame
+            : throw new InvalidOperationException($"The {sequence} sequence reached {next}; it only shows shades.");
     }
 
     /// <summary>

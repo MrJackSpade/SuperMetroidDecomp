@@ -56,8 +56,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     /// The room's lava glow (#2439): the frame every Magdollite and its lava show, and the updates it has left. A room
     /// starts it on its first frame, stopped.
     /// </summary>
-    private readonly AnimationPlayer<MagdolliteGlowSegment, MagdolliteGlow, NoAnimationCue> _glow =
-        AnimationPlayer<MagdolliteGlowSegment, MagdolliteGlow, NoAnimationCue>.StartShowing(MagdolliteGlowAnimations.Segments, MagdolliteGlowAnimations.Glowing);
+    private readonly ShowingAnimationPlayer<MagdolliteGlowSegment, MagdolliteGlow, NoAnimationCue> _glow =
+        ShowingAnimationPlayer<MagdolliteGlowSegment, MagdolliteGlow, NoAnimationCue>.StartShowing(MagdolliteGlowAnimations.Segments, MagdolliteGlowAnimations.Glowing);
 
     /// <summary>Whether the room's lava glow runs: a Magdollite part's placement starts it, and until one has, it does not step.</summary>
     internal bool GlowRuns { get; private set; }

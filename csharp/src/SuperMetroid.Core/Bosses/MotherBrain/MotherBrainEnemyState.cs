@@ -209,7 +209,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// Her room's flash playing (#641, #2259, #2404): the shared animation player looping its images, or null while
     /// no flash runs.
     /// </summary>
-    internal AnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>? RoomFlash { get; set; }
+    internal ShowingAnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>? RoomFlash { get; set; }
 
     /// <summary>Where the tube collapse stands, or null until her fake-death flash starts the collapse.</summary>
     internal MotherBrainTubeCollapseProgress? TubeCollapse { get; set; }

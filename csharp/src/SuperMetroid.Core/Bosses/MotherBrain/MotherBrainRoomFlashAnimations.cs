@@ -24,7 +24,7 @@ internal static class MotherBrainRoomFlashAnimations
     /// The flash started on its first image for its whole hold, the update that starts it counting as the first: her room
     /// shows the first image on the flash's first run alone, then each image for its hold.
     /// </summary>
-    internal static AnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue> Starting() =>
-        AnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>.StartShowing(
+    internal static ShowingAnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue> Starting() =>
+        ShowingAnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>.StartShowing(
             Segments, Flash, MotherBrainRoomFlashDefinitions.FlashImageTicks);
 }

@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal sealed class MapIndicatorPulse
 {
     /// <summary>The pulse as it plays.</summary>
-    private readonly AnimationPlayer<MapIndicatorSegment, MapSpriteId, MapIndicatorCue> player =
-        AnimationPlayer<MapIndicatorSegment, MapSpriteId, MapIndicatorCue>.StartShowing(
+    private readonly ShowingAnimationPlayer<MapIndicatorSegment, MapSpriteId, MapIndicatorCue> player =
+        ShowingAnimationPlayer<MapIndicatorSegment, MapSpriteId, MapIndicatorCue>.StartShowing(
             PauseMapIndicatorAnimation.Segments, PauseMapIndicatorAnimation.Pulsing, 1);
 
     /// <summary>The marker's picture.</summary>

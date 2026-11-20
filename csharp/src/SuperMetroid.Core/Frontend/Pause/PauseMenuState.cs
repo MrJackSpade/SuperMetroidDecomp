@@ -100,7 +100,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>The map-position marker's pulse.</summary>
     private readonly MapIndicatorPulse mapIndicator = new();
     /// <summary>The equipment selector's installed animation, which restarts on each equipment-page entry.</summary>
-    private readonly AnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue> itemSelector;
+    private readonly ShowingAnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue> itemSelector;
 
     /// <summary>Creates the pause screen and its map and equipment state from live gameplay.</summary>
     public PauseMenuState(PauseMenuEntry entry)
@@ -115,7 +115,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         MapArrows = new FileSelectMapAnimations(screenContent.Maps.Arrows, screenContent.Maps.HighlightCycle);
         mapHighlight = new MapHighlightAnimation(screenContent.Maps.HighlightCycle);
         PauseSelectorPresentation selectors = screenContent.PauseSelectors;
-        itemSelector = AnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue>.StartShowing(
+        itemSelector = ShowingAnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue>.StartShowing(
             selectors.Segments, selectors.Cycling, selectors.InitialDurationTicks);
         area = entry.Area;
         _ = AreaIds.Require(entry.Area);

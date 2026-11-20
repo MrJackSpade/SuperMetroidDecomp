@@ -5,15 +5,17 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the top hull occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class GunshipTopEntity(GunshipBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation
+/// <param name="surroundings">The room, Samus, controller and camera the population load sets the ship up in.</param>
+internal sealed class GunshipTopEntity(GunshipBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    EnemyPopulationSurroundings surroundings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeGunshipTop(Place, surroundings.Samus);
+    /// <summary>The ship the top hull holds from its setup (#2554).</summary>
+    internal GunshipTop State { get; } = species.InitializeGunshipTop(place, surroundings.Samus);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunGunshipMainAi(Place, Place.RequireSpeciesState<GunshipState>(), Place.RequireSpeciesState<GunshipPieces>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunGunshipMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place, Place.RequireSpeciesState<GunshipPieceState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place, State.Hull);
 }

@@ -36,7 +36,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates lasers from the common enemy projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>The places of the powered robots the room has set up, in the order they were placed; all show the shared glow (#2306).</summary>
+    /// <summary>
+    /// The places of the powered robots the room has set up and that still hold them, in the order they were placed; all
+    /// show the shared glow (#2306).
+    /// </summary>
     private readonly List<RoomEnemyPlace> _poweredRobots = [];
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
@@ -287,13 +290,17 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
             return;
 
         PictureShading glow = Glow;
+        // A robot that leaves its place removes the place from the list as it leaves, so no place it left,
+        // nor any enemy that took the place since, shows the glow.
         foreach (RoomEnemyPlace robot in _poweredRobots)
-        {
-            // A place whose robot has left it, and any enemy that took the place since, shows no glow.
-            if (robot.SpeciesState<WorkRobotEnemyState>() is not null)
-                robot.Shading = glow;
-        }
+            robot.Shading = glow;
     }
+
+    /// <summary>
+    /// Removes the place a powered robot has left, deleted, killed or replaced, from the robots the glow shows on: the
+    /// place shows no glow from then on unless a powered robot sets up there again.
+    /// </summary>
+    internal void RemovePoweredRobot(RoomEnemyPlace place) => _poweredRobots.Remove(Ensure.NotNull(place));
 
     /// <summary>Applies a powered robot's recoil after the bomb damage it takes, which it never rejects once powered.</summary>
     internal EnemyBombReaction PoweredWorkRobotBombReaction { get; } = new()

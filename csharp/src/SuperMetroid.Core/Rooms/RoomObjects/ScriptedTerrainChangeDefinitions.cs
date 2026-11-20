@@ -42,7 +42,7 @@ internal static class ScriptedTerrainChangeDefinitions
         new(EscapeAnimalWalls.Family.Of(EscapeAnimalDraw.Blank), 1),
     ]);
 
-    /// <summary>Crateria's main-street escape passage: its first pair of blocks clears, then, an update later, the pair four blocks right.</summary>
+    /// <summary>Crateria's main-street escape passage: its first pair of blocks clears, then, an update later, the pair beside it (<see cref="SecondPassagePair"/>).</summary>
     internal static TerrainChange CrateriaEscapePassage { get; } = new(1,
     [
         new(CrateriaMainstreetEscapePassageObjectDefinitions.ClearPairDraw, 1),

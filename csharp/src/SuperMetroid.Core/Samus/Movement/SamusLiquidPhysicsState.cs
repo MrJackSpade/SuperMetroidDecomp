@@ -475,7 +475,7 @@ public sealed class SamusLiquidPhysicsState
         int secondX = firstX - pair.Separation;
         int y = bottom + pair.Right.Y;
 
-        // Both begin immediately on their first step, which shows for three updates.
+        // Both begin immediately on their first step, which shows for its start's updates.
         EffectWaits.HoldBubbles(SpawnParticle(kind, Position16<RoomPixels>.Of(firstX, y), SamusLiquidParticleDefinitions.AtOnce));
         _particles.Spawn(kind, Position16<RoomPixels>.Of(secondX, y), SamusLiquidParticleDefinitions.AtOnce);
     }
@@ -515,7 +515,7 @@ public sealed class SamusLiquidPhysicsState
         EffectWaits.ReleaseSpray();
     }
 
-    /// <summary>Creates a bubble every 128 frames only when Samus's mouth is underwater and nothing holds bubbles up.</summary>
+    /// <summary>Creates a bubble at the breath cadence only when Samus's mouth is underwater and nothing holds bubbles up.</summary>
     private void TrySpawnAirBubbles(
         SamusState samus,
         int frameCounter,

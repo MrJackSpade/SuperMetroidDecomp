@@ -12,7 +12,7 @@ public enum SaveStationPhase
     Touched,
     /// <summary>A floor trigger has published the YES/NO request and waits for the frontend's confirmation result.</summary>
     AwaitingConfirmation,
-    /// <summary>Accepted confirmation has centered and locked Samus; alternating four-tick pod frames run for the authored loop count.</summary>
+    /// <summary>Accepted confirmation has centered and locked Samus; the pod's alternating frames run for the authored loop count.</summary>
     Animating,
     /// <summary>Animation has published the save-completed message and waits for its closing cue to unlock input and install the room-entry lockout.</summary>
     AwaitingCompletionMessageClose,

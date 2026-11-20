@@ -5,7 +5,7 @@ public enum SamusDeathSequencePhase
 {
     /// <summary>Normal gameplay owns Samus; no death sequence is active.</summary>
     Inactive,
-    /// <summary>The first death game state advances the fatal pose for sixteen updates before flashing.</summary>
+    /// <summary>The first death game state advances the fatal pose for <see cref="SamusDeathSequenceDefinitions.PreFlashFrameCount"/> before flashing.</summary>
     PreFlashing,
     /// <summary>The flashing game state alternates death shades before the suit explodes.</summary>
     Flashing,

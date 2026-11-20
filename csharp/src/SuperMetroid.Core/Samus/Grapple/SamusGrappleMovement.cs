@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// The grapple's swing is not the grappling movement type's own movement: the grapple beam's step swings the
 /// pendulum before the normal movement phase, and the swing's block collision advances its angle as it tests the room's
 /// blocks. Firing, persistent and breakable
-/// grapple blocks, enemy anchors, per-pixel rope adjustment, and the six-point angular terrain sweep are
+/// grapple blocks, enemy anchors, per-pixel rope adjustment, and the angular terrain sweep over the body's points are
 /// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and asks the next enemy
 /// pass to shake the enemy launched from. The firing-only Draygon-turret damage and the swing's spike damage, which
 /// depends on the kind of spike block, are applied through the shared periodic damage.
@@ -456,7 +456,7 @@ public static class SamusGrappleMovement
             grapple.Phase);
     }
 
-    /// <summary>During the release window, accepts a fresh Jump only when a 16-pixel probe finds a wall or solid enemy.</summary>
+    /// <summary>During the release window, accepts a fresh Jump only when the wall-jump probe finds a wall or solid enemy.</summary>
     private static GrappleMovementResult StepWallGrabRelease(
         SamusTerrain terrain,
         SamusState samus,
@@ -464,7 +464,7 @@ public static class SamusGrappleMovement
     {
         SamusGrappleState grapple = samus.Grapple;
 
-        // The window gives thirty eligible checks. The update that finds none left queues dropped and deliberately
+        // The window gives its eligible checks. The update that finds none left queues dropped and deliberately
         // performs no wall probe.
         if (grapple.WallJumpTimer.IsOver)
         {
@@ -478,7 +478,7 @@ public static class SamusGrappleMovement
         // Each eligible check first withdraws an earlier launch's enemy shake.
         samus.Kinematics.WallJumpLaunch.Withdraw();
 
-        // The wall-jump probe tests solid/frozen enemies first, then 16 pixels of room blocks toward
+        // The wall-jump probe tests solid/frozen enemies first, then its reach of room blocks toward
         // the wall named by the contact pose's facing. The shared probe preserves
         // square slopes, block behaviour, available distance, and enemy identity.
         SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromWholePixels(GrappleBeamDefinitions.WallGrab.WallJumpProbePixels.Toward(
@@ -613,13 +613,13 @@ public static class SamusGrappleMovement
         return false;
     }
 
-    /// <summary>Bounds the prior camera position to twelve pixels per axis after a special-angle snap.</summary>
+    /// <summary>Bounds the prior camera position on each axis after a special-angle snap (<see cref="GrappleBeamDefinitions.Connection.MostSnapPreviousLag"/>).</summary>
     private static Position16<RoomPixels> ClampPreviousPosition(
         Position16<RoomPixels> current, Position16<RoomPixels> previous) =>
         new(ClampPreviousAxis(current.X, previous.X), ClampPreviousAxis(current.Y, previous.Y));
 
     /// <summary>
-    /// Limits one axis of the previous position to twelve pixels from the current one. Both are Samus's positions in the
+    /// Limits one axis of the previous position to the snap's largest lag from the current one. Both are Samus's positions in the
     /// room, before and after the snap, so a limited previous position lies between them.
     /// </summary>
     private static int ClampPreviousAxis(int current, int previous)
@@ -829,7 +829,7 @@ public static class SamusGrappleMovement
             grapple.Phase = GrapplePhase.ConnectedLocked;
             grapple.ValidatedAnchor = anchor;
             grapple.CancelFromConnectedPose = false;
-            // Connecting clears the delta, then the firing immediately sets it to -8.
+            // Connecting clears the delta, then the firing immediately sets it to the connection's retraction.
             grapple.RopeLengthDelta = GrappleBeamDefinitions.Physics.InitialConnectionRetraction;
             return new GrappleMovementResult(grapple.Phase, OwnsMovement: false);
         }
@@ -976,8 +976,8 @@ public static class SamusGrappleMovement
 
     /// <summary>
     /// The direction of <paramref name="delta"/> as an angle, worked out in whole numbers one octant at a time.
-    /// The returned angle is measured clockwise from negative Y: zero up, 64 right, 128 down,
-    /// and 192 left. Each octant's steps are truncated toward zero, as the game's are.
+    /// The returned angle is measured clockwise from negative Y: zero up, a quarter turn right, a half turn down and three
+    /// quarters left. Each octant's steps are truncated toward zero, as the game's are.
     /// </summary>
     internal static RotationAngle CalculateAngleFromXY(Offset16<RoomPixels> delta)
     {

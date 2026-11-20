@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>Fatal-damage pose entry and state boundaries.</summary>
 public static class SamusDeathSequenceDefinitions
 {
-    /// <summary>Sixteen updates display the ordinary death pose before flashing.</summary>
+    /// <summary>The updates the ordinary death pose displays before flashing.</summary>
     public const int PreFlashFrameCount = 16;
-    /// <summary>Sixty updates alternate shades before the suit explodes.</summary>
+    /// <summary>The updates that alternate shades before the suit explodes.</summary>
     public const int FlashFrameCount = 60;
     /// <summary>Updates the flash holds its first death shade, and waits before its first change of shade.</summary>
     public const int FirstFlashShadeUpdates = 3;

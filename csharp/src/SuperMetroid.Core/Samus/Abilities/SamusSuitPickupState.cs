@@ -51,7 +51,7 @@ public sealed class SamusSuitPickupState
     /// <summary>
     /// Screen rows the beam has covered from each screen edge while it appears, or wiped while it shrinks: zero at
     /// setup and again from the end of the curved widening until the shrinking stage starts, and always fewer than the
-    /// beam's <see cref="SuitPickupBeamDefinitions.BeamLines"/>: each stage stops once it reaches 128, one update's
+    /// beam's <see cref="SuitPickupBeamDefinitions.BeamLines"/>: each stage stops once it reaches <see cref="SuitPickupBeamDefinitions.CoveredLines"/>, one update's
     /// growth past it at most.
     /// </summary>
     private int _lightBeamLines;
@@ -70,9 +70,9 @@ public sealed class SamusSuitPickupState
     /// <summary>
     /// The speed, in screen pixels per update, at which the beam's edges move apart or its wipe advances. It starts at
     /// one pixel, accelerates during the curved widening, is halved at the reveal and decelerates to a one-pixel minimum
-    /// while the beam shrinks. It stays positive and small: the curved widening moves the left edge from column 108 by at
-    /// least one pixel an update, so it accelerates for at most 108 updates, and the speed stays below one pixel plus
-    /// 108 updates of acceleration.
+    /// while the beam shrinks. It stays positive and small: the curved widening moves the left edge from its starting
+    /// column by at least one pixel an update, so it accelerates for no more updates than that column lies from the
+    /// screen's edge, and the speed stays below one pixel plus that much acceleration.
     /// </summary>
     private SignedEightEight _lightBeamSpeed;
 
@@ -311,7 +311,7 @@ public sealed class SamusSuitPickupState
         else
             AdvanceColorTowardOrange();
 
-        // The wipe grows from zero by the speed's whole pixels and stops once it reaches 128.
+        // The wipe grows from zero by the speed's whole pixels and stops once it reaches the covered lines.
         _lightBeamLines += _lightBeamSpeed.WholePixels;
         // The final curved column is wiped by this many rows from the top and one row fewer from the bottom.
         Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = _lightBeamLines };

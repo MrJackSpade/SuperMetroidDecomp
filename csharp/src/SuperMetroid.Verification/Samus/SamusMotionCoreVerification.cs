@@ -566,7 +566,7 @@ internal static void VerifySamusExtraDisplacement()
     {
         Pose = SamusPoseId.MorphBallFallingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
-        MorphBallBounceState = SamusBallBounceState.FirstRebound,
+        MorphBallBounceState = SamusBallBounce.MorphBallFirst,
         KnockbackDirection = SamusKnockbackDirection.None,
     };
     bouncingBall.Kinematics.Radius = new(5, 7);

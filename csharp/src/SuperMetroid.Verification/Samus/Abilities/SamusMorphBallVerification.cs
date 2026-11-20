@@ -381,7 +381,7 @@ floor, samus, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectF
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
     SamusPosturePoseTransitions.ApplyMorphBallLanding(samus);
     AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseSpeed.RawValue, "first rebound retains horizontal momentum");
-    AssertEqual(SamusBallBounceState.FirstRebound, samus.MorphBallBounceState, "first rebound state");
+    AssertEqual(SamusBallBounce.MorphBallFirst, samus.MorphBallBounceState, "first rebound state");
     AssertEqual(1, samus.Kinematics.VerticalVelocity.Speed.Whole, "first rebound whole speed from ROM");
     AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Fraction, "first rebound subspeed matches pinned NTSC ROM");
     AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.VerticalVelocity.Direction, "first rebound moves upward");
@@ -392,7 +392,7 @@ floor, samus, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectF
     samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Down);
     SamusPosturePoseTransitions.ApplyMorphBallLanding(samus);
     AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseSpeed.RawValue, "second rebound retains horizontal momentum");
-    AssertEqual(SamusBallBounceState.SecondRebound, samus.MorphBallBounceState, "second rebound state");
+    AssertEqual(SamusBallBounce.MorphBallSecond, samus.MorphBallBounceState, "second rebound state");
     AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "second rebound decrements whole constant");
 
     samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(1), SamusVerticalDirection.Down);
@@ -400,7 +400,7 @@ floor, samus, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectF
     AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "final ball landing clears both base-speed words");
     AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode, "final ball landing clears acceleration mode");
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, samus.Pose, "bounce recovery uses facing-left ground pose");
-    AssertEqual(SamusBallBounceState.None, samus.MorphBallBounceState, "grounding clears bounce state");
+    AssertEqual((SamusBallBounce?)null, samus.MorphBallBounceState, "grounding clears bounce state");
 
     // Unmorphing against only the floor succeeds and moves center up nine, preserving the
     // target body's bottom boundary. The live radius changes in the next alpha pass.
@@ -532,10 +532,10 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(spring, SamusPoseId.SpringBallFallingRightPose);
     spring.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0), SamusVerticalDirection.Down);
     SamusPosturePoseTransitions.ApplySpringBallLanding(spring, controllerInput: 0);
-    AssertEqual(SamusBallBounceState.SpringBallFirstRebound, spring.MorphBallBounceState, "Spring Ball first bounce state");
+    AssertEqual(SamusBallBounce.SpringBallFirst, spring.MorphBallBounceState, "Spring Ball first bounce state");
     var springLandingAnimation = new AnimationResult(spring.AnimationNumber, spring.AnimationFrameTimer.RawValue);
     SamusPosturePoseTransitions.ApplySpringBallLanding(spring, GameplayAction.Jump);
-    AssertEqual(SamusBallBounceState.None, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
+    AssertEqual((SamusBallBounce?)null, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
     AssertEqual(SamusPoseId.SpringBallFallingRightPose, spring.Pose, "held-Jump landing retains its existing airborne pose");
     AssertEqual(springLandingAnimation, new AnimationResult(spring.AnimationNumber, spring.AnimationFrameTimer.RawValue),
         "held-Jump landing does not restart the rolling animation");
@@ -562,8 +562,8 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         else
             SamusPosturePoseTransitions.ApplyMorphBallLanding(impact);
         AssertEqual(rebounds
-            ? springEquipped ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound
-            : SamusBallBounceState.None, impact.MorphBallBounceState,
+            ? springEquipped ? SamusBallBounce.SpringBallFirst : SamusBallBounce.MorphBallFirst
+            : (SamusBallBounce?)null, impact.MorphBallBounceState,
             "signed threshold preserves the selected bounce family");
         AssertEqual(rebounds ? 0x00018000u : 0u, impact.HorizontalSpeed.BaseSpeed.RawValue,
             "Only settled ball landing clears both base-speed words");
@@ -1596,7 +1596,7 @@ ceiling, straightBombJump, frameCounter: 0, RoomObjectFixtures.Unbound());
 floor, straightBombJump, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertTrue(bombLanding.Landed, "post-bomb-jump grounded art collides with floor");
     SamusPosturePoseTransitions.ApplyMorphBallLanding(straightBombJump);
-    AssertEqual(SamusBallBounceState.FirstRebound, straightBombJump.MorphBallBounceState, "post-bomb-jump landing enters bounce one");
+    AssertEqual(SamusBallBounce.MorphBallFirst, straightBombJump.MorphBallBounceState, "post-bomb-jump landing enters bounce one");
 
     Console.WriteLine("  Morph Ball: entry, bomb spread, bomb jump, reaction PLMs, bounce, and tunnel collision agree.");
 }

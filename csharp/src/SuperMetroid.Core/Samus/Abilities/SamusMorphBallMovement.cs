@@ -172,7 +172,7 @@ public static class SamusMorphBallMovement
         BlockMoveResult vertical;
         bool landed;
         bool hitCeiling;
-        if (samus.MorphBallBounceState != SamusBallBounceState.None &&
+        if (samus.MorphBallBounceState is not null &&
             samus.KnockbackDirection == Movement.SamusKnockbackDirection.None &&
             samus.Kinematics.ExtraDisplacement.Y != SignedSixteenSixteen.Zero)
         {
@@ -220,7 +220,7 @@ public static class SamusMorphBallMovement
 
         // A ball that is bouncing takes the bouncing step instead of the
         // powered jump, so a rebound's upward speed survives a released Jump button.
-        if (samus.MorphBallBounceState != SamusBallBounceState.None)
+        if (samus.MorphBallBounceState is not null)
         {
             return StepMorphedFallingOrBouncing(
                 level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.SpringBallInAir);
@@ -331,7 +331,7 @@ public static class SamusMorphBallMovement
                 // The transition movement recognizes the ordinary landed result and cancels every value
                 // which could make the item-and-airborne transition cue choose the airborne endpoint afterward.
                 samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
-                samus.MorphBallBounceState = SamusBallBounceState.None;
+                samus.MorphBallBounceState = null;
             }
         }
 

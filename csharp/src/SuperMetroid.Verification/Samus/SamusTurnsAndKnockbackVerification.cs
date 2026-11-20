@@ -772,7 +772,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
             Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
             BombJump = SamusBombJump.FromBlast(SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Straight).Arm(),
-            MorphBallBounceState = SamusBallBounceState.SpringBallSecondRebound,
+            MorphBallBounceState = SamusBallBounce.SpringBallSecond,
         };
         SamusPoseMetadata.RefreshCollisionRadii(ball);
         SamusPresentation.InitializeAnimation(ball, ball.PoseFrameNumbered(3));
@@ -795,7 +795,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} start clears pending bomb jump");
         AssertEqual(SamusBodyAttack.None, ball.HorizontalSpeed.BodyAttack,
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} start clears contact damage");
-        AssertEqual(SamusBallBounceState.SpringBallSecondRebound, ball.MorphBallBounceState,
+        AssertEqual(SamusBallBounce.SpringBallSecond, ball.MorphBallBounceState,
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} start leaves bounce state until completion");
 
         // Native ball rows accelerate at 0.C000, not the humanoid hurt row's 1.8000.
@@ -812,7 +812,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
-        MorphBallBounceState = SamusBallBounceState.SecondRebound,
+        MorphBallBounceState = SamusBallBounce.MorphBallSecond,
     };
     SamusPoseMetadata.RefreshCollisionRadii(ballExpires);
     SamusPresentation.InitializeAnimation(ballExpires, ballExpires.PoseFrameNumbered(3));
@@ -838,7 +838,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
         "expired morphed knockback retains rolling frame");
     AssertEqual(retainedBallTimer, ballExpires.AnimationFrameTimer.RawValue,
         "expired morphed knockback retains rolling timer");
-    AssertEqual(SamusBallBounceState.None, ballExpires.MorphBallBounceState,
+    AssertEqual((SamusBallBounce?)null, ballExpires.MorphBallBounceState,
         "expired morphed knockback clears bounce state");
     AssertEqual(0, ballExpires.Kinematics.VerticalVelocity.Speed.Whole,
         "expired morphed knockback clears whole Y speed");

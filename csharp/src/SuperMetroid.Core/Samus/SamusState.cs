@@ -390,8 +390,8 @@ public sealed class SamusState
     /// </summary>
     public SamusMetroidAttachmentShade MetroidAttachmentShade { get; internal set; }
 
-    /// <summary>How far a landing Morph Ball or Spring Ball has bounced; see <see cref="SamusBallBounceState"/>.</summary>
-    public SamusBallBounceState MorphBallBounceState { get; set; }
+    /// <summary>How far a landing Morph Ball or Spring Ball has bounced, or null while it is not bouncing; see <see cref="SamusBallBounce"/>.</summary>
+    public SamusBallBounce? MorphBallBounceState { get; set; }
 
     /// <summary>
     /// Samus's bomb jump, from the blast that starts it until her pose handling rejects it, an input transition to another

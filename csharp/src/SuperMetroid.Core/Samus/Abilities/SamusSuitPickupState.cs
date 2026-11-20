@@ -125,7 +125,7 @@ public sealed class SamusSuitPickupState
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
-        samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.MorphBallBounceState = null;
 
         // The first pose tests whether the other suit is equipped. Acquiring Varia while Gravity is already
         // equipped (or vice versa) therefore starts in the suited front pose; an ordinary

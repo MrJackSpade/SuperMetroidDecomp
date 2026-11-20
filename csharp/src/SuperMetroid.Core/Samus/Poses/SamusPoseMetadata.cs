@@ -207,7 +207,7 @@ internal static class SamusPoseMetadata
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
-        samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.MorphBallBounceState = null;
     }
 
     /// <summary>

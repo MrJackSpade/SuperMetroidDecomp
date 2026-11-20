@@ -12,6 +12,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -91,6 +92,15 @@ internal static class RightFacingGateGlitchVerification
         // when it unlocks, so each position clears it first and starts from a new state's progress. Once the columns have run,
         // each column's state, that event cleared, is compared with a new one, so a position that wrote anything else fails.
         var gameStateByColumn = new SharedGameState[gateX - firstX];
+        // The shots of a column's positions read one progression, which only a Spacetime shot's overwrite would change; a
+        // new one per shot step built forty kilobytes thirty times per position, most of the suite's allocation. Once the
+        // columns have run, each is compared with a new state with the columns' own, so a shot that changed anything in it,
+        // its random numbers included, fails, and sharing it shows exactly what a new one per step would.
+        var shotProgressionByColumn = new SharedGameState[gateX - firstX];
+        // Every room-object step of a column's positions reads one scroll grid, which the gate and its shot block never
+        // change: a new grid per step built a power-on set of explored maps each time, most of the suite's time. Once the
+        // columns have run, each column's grid is compared with a new one, so a step that changed it fails.
+        var scrollsByColumn = new RoomScrollGrid[gateX - firstX];
         // The shared installed fixtures every position's Samus, shots and bombs are built from load here, on the suite's
         // own thread, as timed shared fixture loads; the workers then only read them.
         SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SamusAnimationName, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> framesBeyondAnimation = InstalledFixtures.FramesBeyondAnimation;
@@ -106,6 +116,10 @@ internal static class RightFacingGateGlitchVerification
             var populationVram = new SnesVram();
             var gameState = new SharedGameState(new SharedRandom());
             gameStateByColumn[x - firstX] = gameState;
+            var shotProgression = new SharedGameState(new SharedRandom());
+            shotProgressionByColumn[x - firstX] = shotProgression;
+            RoomScrollGrid scrolls = RoomObjectFixtures.UnreadScrolls();
+            scrollsByColumn[x - firstX] = scrolls;
             // One pristine level and one working level restored from it per position. The
             // field-by-field check proves no state from the previous position survives.
             RoomLevelData NewLevel() => new RoomLevelData(original.Size, new RoomLevelPlanes(original.TerrainGrid, original.BehaviorGrid, background), RoomLevelData.NothingBeyondGrid(), []);
@@ -128,7 +142,7 @@ internal static class RightFacingGateGlitchVerification
                 gameState.ClearEvent(StoryEvent.ZebesAwake);
                 RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, gameState, area), population, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
                 for (int warm = 0; warm < 2; warm++)
-                    roomObjects.Step(level);
+                    roomObjects.Step(level, scrolls);
                 roomObjects.Gates.TakeDownwardGateProjectileRequests();
                 // The gate's own slot, found once per position: snapshotting every slot to find it each frame allocated
                 // over half a gigabyte across the matrix (#1680). Each frame still requires the slot to hold the gate.
@@ -141,7 +155,7 @@ internal static class RightFacingGateGlitchVerification
                 {
                     GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
                     bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
-                    shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)cameraX, (ushort)cameraY), bombs, new SharedGameState(new SharedRandom()));
+                    shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)cameraX, (ushort)cameraY), bombs, shotProgression);
                     if (!gatePlace.Active || gatePlace.Behaviour is not DownwardGateObject)
                         throw new InvalidOperationException($"The Pink Brinstar gate left its slot at ({x}, {y}), frame {frame}.");
                     if (gatePlace.Behaviour is DownwardGateObject { Triggered: true })
@@ -150,7 +164,7 @@ internal static class RightFacingGateGlitchVerification
                         columnActivations.Add($"{x},{y},{frame},{shot.Position.X.Whole},{shot.Position.Y.Whole}");
                         break;
                     }
-                    roomObjects.Step(level);
+                    roomObjects.Step(level, scrolls);
                 }
             }
             activationsByColumn[x - firstX] = columnActivations;
@@ -169,6 +183,18 @@ internal static class RightFacingGateGlitchVerification
             columnUnchanged[column] = MatchesGraph(gameStateByColumn[column], newStateGraph));
         AssertTrue(columnUnchanged.All(unchanged => unchanged),
             "No gate-glitch position writes any other part of the game state its column's positions share");
+        var shotProgressionUnchanged = new bool[shotProgressionByColumn.Length];
+        ParallelSweep.For(0, shotProgressionByColumn.Length, column =>
+            shotProgressionUnchanged[column] = MatchesGraph(shotProgressionByColumn[column], newStateGraph));
+        AssertTrue(shotProgressionUnchanged.All(unchanged => unchanged),
+            "No gate-glitch shot changes the progression its column's shots share");
+        byte[] newScrollsGraph = SerializeGraph(RoomObjectFixtures.UnreadScrolls());
+        var scrollsUnchanged = new bool[scrollsByColumn.Length];
+        scrollsUnchanged[0] = MatchesGraph(scrollsByColumn[0], newScrollsGraph);
+        ParallelSweep.For(1, scrollsByColumn.Length, column =>
+            scrollsUnchanged[column] = MatchesGraph(scrollsByColumn[column], newScrollsGraph));
+        AssertTrue(scrollsUnchanged.All(unchanged => unchanged),
+            "No gate-glitch room-object step changes the scroll grid its column's steps share");
         // Column by column and row by row within a column, the order the native matrix lists its positives in.
         List<string> actual = [.. activationsByColumn.SelectMany(column => column)];
 

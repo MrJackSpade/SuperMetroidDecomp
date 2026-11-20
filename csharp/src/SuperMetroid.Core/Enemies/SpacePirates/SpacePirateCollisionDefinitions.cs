@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <summary>Fixed walking/wall/ninja-Pirate collision data, separate from editable sprite art.</summary>
 /// <remarks>
 /// Each of the Pirates' frames lists its own hitboxes, placed from the Pirate's origin and drawn per frame: no frame's
-/// hitboxes mirror another's facing, and frames whose hitboxes repeat another's keep their own. A Pirate's touch and shots
+/// hitboxes mirror another's facing, and frames that show the same hitboxes name one shared list (#2557). A Pirate's touch and shots
 /// take the reaction of the first hitbox they overlap, in each frame's listed order.
 /// </remarks>
 internal static class SpacePirateCollisionDefinitions
@@ -21,6 +21,72 @@ internal static class SpacePirateCollisionDefinitions
     private static readonly EnemyReaction GoldVulnerableShot = SpacePirateReactions.GoldNinjaVulnerableHitboxShot;
     /// <summary>A shot at a gold ninja where it cannot be hurt.</summary>
     private static readonly EnemyReaction GoldInvincibleShot = SpacePirateReactions.GoldNinjaInvincibleHitboxShot;
+
+    /// <summary>The hitboxes a Pirate facing left shows while a leg passes the other: head and legs.</summary>
+    private static readonly EnemyCollisionHitbox[] LeftLegPassingHitboxes =
+    [
+        new(-12, -16, 1, 3, Touch, Shot), new(-7, 0, 6, 30, Touch, Shot),
+    ];
+
+    /// <summary>The hitboxes a walking Pirate facing left shows while planting its far leg or swinging its near leg back.</summary>
+    private static readonly EnemyCollisionHitbox[] LeftLegPlantingHitboxes =
+    [
+        new(-12, -16, 1, 3, Touch, GoldInvincibleShot), new(-5, 0, 8, 30, Touch, Shot),
+    ];
+
+    /// <summary>The hitboxes a Pirate facing left shows while lifting its near leg.</summary>
+    private static readonly EnemyCollisionHitbox[] LeftLegLiftingHitboxes =
+    [
+        new(-12, -16, 1, 3, Touch, Shot), new(-5, 0, 8, 30, Touch, Shot),
+    ];
+
+    /// <summary>The hitboxes a ninja shows crouched or with its claws low, in either facing.</summary>
+    private static readonly EnemyCollisionHitbox[] CrouchHitboxes =
+    [
+        new(-7, -14, 6, 5, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot),
+    ];
+
+    /// <summary>The hitboxes a ninja shows with a claw raised high, in either facing.</summary>
+    private static readonly EnemyCollisionHitbox[] ClawRaisedHighHitboxes =
+    [
+        new(-7, -15, 6, 4, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot),
+    ];
+
+    /// <summary>The hitboxes a ninja shows with a claw overhead or standing, in either facing.</summary>
+    private static readonly EnemyCollisionHitbox[] ClawOverheadHitboxes =
+    [
+        new(-7, -16, 6, 3, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot),
+    ];
+
+    /// <summary>The hitboxes a ninja shows upright with its claws lowered, in either facing.</summary>
+    private static readonly EnemyCollisionHitbox[] UprightClawsLoweredHitboxes =
+    [
+        new(-7, -12, 6, 7, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot),
+    ];
+
+    /// <summary>The hitboxes a Pirate facing right shows through most of its stride.</summary>
+    private static readonly EnemyCollisionHitbox[] RightStrideHitboxes =
+    [
+        new(-2, -16, 11, 3, Touch, GoldVulnerableShot), new(-7, 0, 6, 30, Touch, Shot),
+    ];
+
+    /// <summary>The hitboxes a Pirate facing right shows while its near leg passes the other.</summary>
+    private static readonly EnemyCollisionHitbox[] RightLegPassingHitboxes =
+    [
+        new(-2, -16, 11, 3, Touch, GoldVulnerableShot), new(-6, 0, 7, 30, Touch, Shot),
+    ];
+
+    /// <summary>The hitboxes a walking Pirate shows standing or with its claws raised, in either facing.</summary>
+    private static readonly EnemyCollisionHitbox[] ClawsUpHitboxes =
+    [
+        new(-7, -16, 6, 3, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot),
+    ];
+
+    /// <summary>The hitboxes a ninja shows crouched to leap, in either facing.</summary>
+    private static readonly EnemyCollisionHitbox[] LeapCrouchHitboxes =
+    [
+        new(-7, -14, 6, 5, Touch, Shot), new(-7, 3, 6, 33, Touch, Shot),
+    ];
 
     /// <summary>The walking, wall and ninja frames' hitboxes, and the common empty frame's point hitbox.</summary>
     internal static EnemyFrameCollision<EnemyCollisionHitbox> Frames { get; } = new()
@@ -46,46 +112,46 @@ internal static class SpacePirateCollisionDefinitions
         { EnemyFrameId.WallPirateCurledLeapingLeft, [new(-20, -19, 6, 16, Touch, Shot)] },
         { EnemyFrameId.WalkingPirateWalkingLeftFarLegBack, [new(-12, -16, 1, 3, Touch, GoldVulnerableShot), new(-11, 0, 8, 30, Touch, Shot)] },
         { EnemyFrameId.WalkingPirateWalkingLeftFarLegLifting, [new(-12, -16, 1, 3, Touch, Shot), new(-11, 0, 8, 30, Touch, Shot)] },
-        { EnemyFrameId.WalkingPirateWalkingLeftFarLegPassing, [new(-12, -16, 1, 3, Touch, Shot), new(-7, 0, 6, 30, Touch, Shot)] },
-        { EnemyFrameId.WalkingPirateWalkingLeftFarLegPlanting, [new(-12, -16, 1, 3, Touch, GoldInvincibleShot), new(-5, 0, 8, 30, Touch, Shot)] },
-        { EnemyFrameId.WalkingPirateWalkingLeftNearLegBack, [new(-12, -16, 1, 3, Touch, GoldInvincibleShot), new(-5, 0, 8, 30, Touch, Shot)] },
-        { EnemyFrameId.WalkingPirateWalkingLeftNearLegLifting, [new(-12, -16, 1, 3, Touch, Shot), new(-5, 0, 8, 30, Touch, Shot)] },
-        { EnemyFrameId.WalkingPirateWalkingLeftNearLegPassing, [new(-12, -16, 1, 3, Touch, Shot), new(-7, 0, 6, 30, Touch, Shot)] },
+        { EnemyFrameId.WalkingPirateWalkingLeftFarLegPassing, LeftLegPassingHitboxes },
+        { EnemyFrameId.WalkingPirateWalkingLeftFarLegPlanting, LeftLegPlantingHitboxes },
+        { EnemyFrameId.WalkingPirateWalkingLeftNearLegBack, LeftLegPlantingHitboxes },
+        { EnemyFrameId.WalkingPirateWalkingLeftNearLegLifting, LeftLegLiftingHitboxes },
+        { EnemyFrameId.WalkingPirateWalkingLeftNearLegPassing, LeftLegPassingHitboxes },
         { EnemyFrameId.WalkingPirateWalkingLeftNearLegPlanting, [new(-12, -16, 1, 3, Touch, GoldVulnerableShot), new(-7, 0, 6, 30, Touch, Shot)] },
-        { EnemyFrameId.NinjaPirateCrouchFacingLeft, [new(-7, -14, 6, 5, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateClawsReadyFacingLeft, [new(-7, -14, 6, 5, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateClawDrawnBackFacingLeft, [new(-7, -14, 6, 5, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateClawRaisedHighFacingLeft, [new(-7, -15, 6, 4, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateClawRaisedOverheadFacingLeft, [new(-7, -16, 6, 3, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateClawSwungForwardFacingLeft, [new(-7, -14, 6, 5, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
+        { EnemyFrameId.NinjaPirateCrouchFacingLeft, CrouchHitboxes },
+        { EnemyFrameId.NinjaPirateClawsReadyFacingLeft, CrouchHitboxes },
+        { EnemyFrameId.NinjaPirateClawDrawnBackFacingLeft, CrouchHitboxes },
+        { EnemyFrameId.NinjaPirateClawRaisedHighFacingLeft, ClawRaisedHighHitboxes },
+        { EnemyFrameId.NinjaPirateClawRaisedOverheadFacingLeft, ClawOverheadHitboxes },
+        { EnemyFrameId.NinjaPirateClawSwungForwardFacingLeft, CrouchHitboxes },
         { EnemyFrameId.NinjaPirateClawsSweptDownFacingLeft, [new(-7, -13, 6, 6, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateUprightClawsLoweredFacingLeft, [new(-7, -12, 6, 7, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.WalkingPirateWalkingRightFarLegBack, [new(-2, -16, 11, 3, Touch, GoldVulnerableShot), new(-7, 0, 6, 30, Touch, Shot)] },
-        { EnemyFrameId.WalkingPirateWalkingRightFarLegLifting, [new(-2, -16, 11, 3, Touch, GoldVulnerableShot), new(-7, 0, 6, 30, Touch, Shot)] },
-        { EnemyFrameId.WalkingPirateWalkingRightFarLegPassing, [new(-2, -16, 11, 3, Touch, GoldVulnerableShot), new(-7, 0, 6, 30, Touch, Shot)] },
-        { EnemyFrameId.WalkingPirateWalkingRightFarLegPlanting, [new(-2, -16, 11, 3, Touch, GoldVulnerableShot), new(-7, 0, 6, 30, Touch, Shot)] },
+        { EnemyFrameId.NinjaPirateUprightClawsLoweredFacingLeft, UprightClawsLoweredHitboxes },
+        { EnemyFrameId.WalkingPirateWalkingRightFarLegBack, RightStrideHitboxes },
+        { EnemyFrameId.WalkingPirateWalkingRightFarLegLifting, RightStrideHitboxes },
+        { EnemyFrameId.WalkingPirateWalkingRightFarLegPassing, RightStrideHitboxes },
+        { EnemyFrameId.WalkingPirateWalkingRightFarLegPlanting, RightStrideHitboxes },
         { EnemyFrameId.WalkingPirateWalkingRightNearLegBack, [new(-2, -16, 11, 3, Touch, GoldVulnerableShot), new(-8, -1, 5, 30, Touch, Shot)] },
-        { EnemyFrameId.WalkingPirateWalkingRightNearLegLifting, [new(-2, -16, 11, 3, Touch, GoldVulnerableShot), new(-7, 0, 6, 30, Touch, Shot)] },
-        { EnemyFrameId.WalkingPirateWalkingRightNearLegPassing, [new(-2, -16, 11, 3, Touch, GoldVulnerableShot), new(-6, 0, 7, 30, Touch, Shot)] },
-        { EnemyFrameId.WalkingPirateWalkingRightNearLegPlanting, [new(-2, -16, 11, 3, Touch, GoldVulnerableShot), new(-6, 0, 7, 30, Touch, Shot)] },
-        { EnemyFrameId.NinjaPirateCrouchFacingRight, [new(-7, -14, 6, 5, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateClawsReadyFacingRight, [new(-7, -14, 6, 5, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateClawDrawnBackFacingRight, [new(-7, -14, 6, 5, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateClawRaisedHighFacingRight, [new(-7, -15, 6, 4, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateClawRaisedOverheadFacingRight, [new(-7, -16, 6, 3, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateClawSwungForwardFacingRight, [new(-7, -14, 6, 5, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
+        { EnemyFrameId.WalkingPirateWalkingRightNearLegLifting, RightStrideHitboxes },
+        { EnemyFrameId.WalkingPirateWalkingRightNearLegPassing, RightLegPassingHitboxes },
+        { EnemyFrameId.WalkingPirateWalkingRightNearLegPlanting, RightLegPassingHitboxes },
+        { EnemyFrameId.NinjaPirateCrouchFacingRight, CrouchHitboxes },
+        { EnemyFrameId.NinjaPirateClawsReadyFacingRight, CrouchHitboxes },
+        { EnemyFrameId.NinjaPirateClawDrawnBackFacingRight, CrouchHitboxes },
+        { EnemyFrameId.NinjaPirateClawRaisedHighFacingRight, ClawRaisedHighHitboxes },
+        { EnemyFrameId.NinjaPirateClawRaisedOverheadFacingRight, ClawOverheadHitboxes },
+        { EnemyFrameId.NinjaPirateClawSwungForwardFacingRight, CrouchHitboxes },
         { EnemyFrameId.NinjaPirateClawsSweptDownFacingRight, [new(-7, -14, 6, 5, Touch, GoldVulnerableShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateUprightClawsLoweredFacingRight, [new(-7, -12, 6, 7, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.WalkingPirateStandingFacingLeft, [new(-7, -16, 6, 3, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.WalkingPirateClawsLiftingFacingLeft, [new(-7, -16, 6, 3, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.WalkingPirateClawsForwardFacingLeft, [new(-7, -16, 6, 3, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.WalkingPirateClawsRaisedFacingLeft, [new(-7, -16, 6, 3, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
+        { EnemyFrameId.NinjaPirateUprightClawsLoweredFacingRight, UprightClawsLoweredHitboxes },
+        { EnemyFrameId.WalkingPirateStandingFacingLeft, ClawsUpHitboxes },
+        { EnemyFrameId.WalkingPirateClawsLiftingFacingLeft, ClawsUpHitboxes },
+        { EnemyFrameId.WalkingPirateClawsForwardFacingLeft, ClawsUpHitboxes },
+        { EnemyFrameId.WalkingPirateClawsRaisedFacingLeft, ClawsUpHitboxes },
         { EnemyFrameId.WalkingPirateClawsRaisedLeaningFacingLeft, [new(-8, -15, 5, 4, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.WalkingPirateFiringFacingLeft, [new(-9, -13, 4, 6, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.WalkingPirateStandingFacingRight, [new(-7, -16, 6, 3, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.WalkingPirateClawsLiftingFacingRight, [new(-7, -16, 6, 3, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.WalkingPirateClawsForwardFacingRight, [new(-7, -16, 6, 3, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.WalkingPirateClawsRaisedFacingRight, [new(-7, -16, 6, 3, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
+        { EnemyFrameId.WalkingPirateStandingFacingRight, ClawsUpHitboxes },
+        { EnemyFrameId.WalkingPirateClawsLiftingFacingRight, ClawsUpHitboxes },
+        { EnemyFrameId.WalkingPirateClawsForwardFacingRight, ClawsUpHitboxes },
+        { EnemyFrameId.WalkingPirateClawsRaisedFacingRight, ClawsUpHitboxes },
         { EnemyFrameId.WalkingPirateClawsRaisedLeaningFacingRight, [new(-6, -15, 7, 4, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.WalkingPirateFiringFacingRight, [new(-5, -13, 8, 6, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.WalkingPirateLookingAtViewerFacingLeft, [new(-12, -31, 1, -12, Touch, Shot), new(-7, -16, 6, 3, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
@@ -114,16 +180,16 @@ internal static class SpacePirateCollisionDefinitions
         { EnemyFrameId.NinjaPirateRunningLeftFarLegPassing, [new(-12, -15, 1, 4, Touch, Shot), new(-7, 0, 6, 30, Touch, Shot)] },
         { EnemyFrameId.NinjaPirateRunningLeftFarLegPlanting, [new(-12, -17, 1, 2, Touch, GoldInvincibleShot), new(-8, 0, 5, 30, Touch, Shot)] },
         { EnemyFrameId.NinjaPirateRunningLeftNearLegBack, [new(-12, -18, 1, 1, Touch, GoldInvincibleShot), new(-5, -2, 8, 28, Touch, Shot)] },
-        { EnemyFrameId.NinjaPirateRunningLeftNearLegLifting, [new(-12, -16, 1, 3, Touch, Shot), new(-5, 0, 8, 30, Touch, Shot)] },
-        { EnemyFrameId.NinjaPirateRunningLeftNearLegPassing, [new(-12, -16, 1, 3, Touch, Shot), new(-7, 0, 6, 30, Touch, Shot)] },
+        { EnemyFrameId.NinjaPirateRunningLeftNearLegLifting, LeftLegLiftingHitboxes },
+        { EnemyFrameId.NinjaPirateRunningLeftNearLegPassing, LeftLegPassingHitboxes },
         { EnemyFrameId.NinjaPirateRunningLeftNearLegPlanting, [new(-12, -18, 1, 1, Touch, GoldVulnerableShot), new(-7, 0, 6, 30, Touch, Shot)] },
         { EnemyFrameId.NinjaPirateRunningRightFarLegBack, [new(-2, -18, 11, 1, Touch, GoldVulnerableShot), new(-7, -2, 6, 28, Touch, Shot)] },
-        { EnemyFrameId.NinjaPirateRunningRightFarLegLifting, [new(-2, -16, 11, 3, Touch, GoldVulnerableShot), new(-7, 0, 6, 30, Touch, Shot)] },
+        { EnemyFrameId.NinjaPirateRunningRightFarLegLifting, RightStrideHitboxes },
         { EnemyFrameId.NinjaPirateRunningRightFarLegPassing, [new(-2, -15, 11, 4, Touch, GoldVulnerableShot), new(-7, 0, 6, 30, Touch, Shot)] },
         { EnemyFrameId.NinjaPirateRunningRightFarLegPlanting, [new(-2, -17, 11, 2, Touch, GoldVulnerableShot), new(-7, 0, 6, 30, Touch, Shot)] },
         { EnemyFrameId.NinjaPirateRunningRightNearLegBack, [new(-2, -18, 11, 1, Touch, GoldVulnerableShot), new(-8, -1, 5, 29, Touch, Shot)] },
-        { EnemyFrameId.NinjaPirateRunningRightNearLegLifting, [new(-2, -16, 11, 3, Touch, GoldVulnerableShot), new(-7, 0, 6, 30, Touch, Shot)] },
-        { EnemyFrameId.NinjaPirateRunningRightNearLegPassing, [new(-2, -16, 11, 3, Touch, GoldVulnerableShot), new(-6, 0, 7, 30, Touch, Shot)] },
+        { EnemyFrameId.NinjaPirateRunningRightNearLegLifting, RightStrideHitboxes },
+        { EnemyFrameId.NinjaPirateRunningRightNearLegPassing, RightLegPassingHitboxes },
         { EnemyFrameId.NinjaPirateRunningRightNearLegPlanting, [new(-2, -18, 11, 1, Touch, GoldVulnerableShot), new(-6, 0, 7, 30, Touch, Shot)] },
         { EnemyFrameId.NinjaPirateReadyFacingLeftFeetClose, [new(-7, -16, 6, 33, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.NinjaPirateReadyFacingLeftFeetApart, [new(-7, -16, 6, 33, Touch, GoldInvincibleShot)] },
@@ -143,15 +209,15 @@ internal static class SpacePirateCollisionDefinitions
         { EnemyFrameId.NinjaPirateKickExtendedFacingLeft, [new(-12, -18, 1, 31, Touch, GoldInvincibleShot), new(-39, -4, -2, 31, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.NinjaPirateKickChamberedFacingRight, [new(-12, -19, 1, 30, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.NinjaPirateKickExtendedFacingRight, [new(-2, -18, 11, 31, Touch, GoldInvincibleShot), new(11, -5, 37, 31, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateLeapCrouchFacingLeft, [new(-7, -14, 6, 5, Touch, Shot), new(-7, 3, 6, 33, Touch, Shot)] },
-        { EnemyFrameId.NinjaPirateLeapCrouchFacingRight, [new(-7, -14, 6, 5, Touch, Shot), new(-7, 3, 6, 33, Touch, Shot)] },
+        { EnemyFrameId.NinjaPirateLeapCrouchFacingLeft, LeapCrouchHitboxes },
+        { EnemyFrameId.NinjaPirateLeapCrouchFacingRight, LeapCrouchHitboxes },
         { EnemyFrameId.NinjaPirateKickExtendingFacingLeft, [new(-5, -19, 8, 30, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.NinjaPirateKickExtendingFacingRight, [new(-9, -19, 4, 30, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.NinjaPirateLookingAtViewerFacingLeft, [new(-12, -31, 1, -12, Touch, GoldInvincibleShot), new(-7, -16, 6, 3, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateStandingFacingLeft, [new(-7, -16, 6, 3, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
+        { EnemyFrameId.NinjaPirateStandingFacingLeft, ClawOverheadHitboxes },
         { EnemyFrameId.NinjaPirateLookingAwayFacingLeft, [new(-12, -30, 1, -11, Touch, GoldInvincibleShot), new(-7, -16, 6, 3, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.NinjaPirateLookingAtViewerFacingRight, [new(-2, -31, 11, -12, Touch, GoldInvincibleShot), new(-7, -16, 6, 3, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateStandingFacingRight, [new(-7, -16, 6, 3, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
+        { EnemyFrameId.NinjaPirateStandingFacingRight, ClawOverheadHitboxes },
         { EnemyFrameId.NinjaPirateLookingAwayFacingRight, [new(-2, -30, 11, -11, Touch, GoldInvincibleShot), new(-7, -16, 6, 3, Touch, GoldInvincibleShot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.NinjaPirateFacingViewer, [new(-7, -18, 6, 31, Touch, GoldInvincibleShot)] },
     };

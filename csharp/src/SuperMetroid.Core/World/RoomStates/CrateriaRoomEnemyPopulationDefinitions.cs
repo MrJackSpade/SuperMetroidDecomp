@@ -25,6 +25,17 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// <summary>The enemy placement lists of the Crateria rooms.</summary>
 internal static class CrateriaRoomEnemyPopulationDefinitions
 {
+    /// <summary>The face blocks of the Final Missile Bombway room, which it places alike in its default state and once Zebes is awake.</summary>
+    private static readonly RoomEnemyPlacement[] FinalMissileBombwayFaceBlocks =
+    [
+        new(EnemyDefinitionId.FaceBlock, new(256, 72), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(128, 72), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(384, 72), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(128, 184), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(256, 184), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(384, 184), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+    ];
+
     /// <summary>The enemy population of the East Ocean room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition EastOcean { get; } = new("EastOcean",
     [
@@ -66,26 +77,10 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 9);
 
     /// <summary>The enemy population of the Final Missile Bombway room once Zebes is awake.</summary>
-    internal static PlacedRoomEnemyPopulationDefinition FinalMissileBombwayWhenZebesAwake { get; } = new("FinalMissileBombwayWhenZebesAwake",
-    [
-        new(EnemyDefinitionId.FaceBlock, new(256, 72), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, new(128, 72), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, new(384, 72), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, new(128, 184), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, new(256, 184), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, new(384, 184), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-    ], 0);
+    internal static PlacedRoomEnemyPopulationDefinition FinalMissileBombwayWhenZebesAwake { get; } = new("FinalMissileBombwayWhenZebesAwake", FinalMissileBombwayFaceBlocks, 0);
 
     /// <summary>The enemy population of the Final Missile Bombway room in its default state.</summary>
-    internal static PlacedRoomEnemyPopulationDefinition FinalMissileBombwayDefault { get; } = new("FinalMissileBombwayDefault",
-    [
-        new(EnemyDefinitionId.FaceBlock, new(256, 72), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, new(128, 72), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, new(384, 72), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, new(128, 184), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, new(256, 184), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.FaceBlock, new(384, 184), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-    ], 0);
+    internal static PlacedRoomEnemyPopulationDefinition FinalMissileBombwayDefault { get; } = new("FinalMissileBombwayDefault", FinalMissileBombwayFaceBlocks, 0);
 
     /// <summary>The enemy population of the Parlor room once Zebes is awake.</summary>
     internal static PlacedRoomEnemyPopulationDefinition ParlorWhenZebesAwake { get; } = new("ParlorWhenZebesAwake",

@@ -4,6 +4,12 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>The graphics sets of the Brinstar room-header region, in table order. It holds the Tourian statue rooms, whose headers lie in this region.</summary>
 internal static class BrinstarRoomEnemyGraphicsSetDefinitions
 {
+    /// <summary>The members of every set here that loads a morph ball eye and a face block, in record order.</summary>
+    private static readonly RoomEnemyGraphicsSetMember[] MorphBallEyeAndFaceBlock =
+    [
+        new(EnemyDefinitionId.MorphBallEye), new(EnemyDefinitionId.FaceBlock),
+    ];
+
     /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetMembers[] Build() =>
     [
@@ -62,10 +68,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
         ]),
         new(RoomEnemyGraphicsSetDefinitions.WarehouseSave, [
         ]),
-        new(RoomEnemyGraphicsSetDefinitions.MorphBallDefault, [
-            new(EnemyDefinitionId.MorphBallEye),
-            new(EnemyDefinitionId.FaceBlock),
-        ]),
+        new(RoomEnemyGraphicsSetDefinitions.MorphBallDefault, MorphBallEyeAndFaceBlock),
         new(RoomEnemyGraphicsSetDefinitions.WarehouseZeela, [
             new(EnemyDefinitionId.Zeela),
         ]),
@@ -109,10 +112,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
         ]),
         new(RoomEnemyGraphicsSetDefinitions.RedBrinstarSave, [
         ]),
-        new(RoomEnemyGraphicsSetDefinitions.BlueBrinstarEnergyTankDefault, [
-            new(EnemyDefinitionId.MorphBallEye),
-            new(EnemyDefinitionId.FaceBlock),
-        ]),
+        new(RoomEnemyGraphicsSetDefinitions.BlueBrinstarEnergyTankDefault, MorphBallEyeAndFaceBlock),
         new(RoomEnemyGraphicsSetDefinitions.GreenBrinstarFirefleas, [
             new(EnemyDefinitionId.Fireflea),
         ]),

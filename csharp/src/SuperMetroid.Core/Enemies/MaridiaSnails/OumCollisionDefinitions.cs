@@ -17,6 +17,12 @@ internal static class OumCollisionDefinitions
     /// <summary>The reaction of the Oum hitboxes that do not react to shots: nothing happens.</summary>
     private static readonly EnemyReaction NoShot = EnemyReaction.Ignore;
 
+    /// <summary>The hitboxes an Oum shows turned side-on, its shell above and its shot-taking underside below, in either facing.</summary>
+    private static readonly EnemyCollisionHitbox[] TurnedSideOnHitboxes =
+    [
+        new(-15, -17, 15, 0, SafeTouch, NoShot), new(-15, 0, 15, 16, SafeTouch, Shot),
+    ];
+
     /// <summary>
     /// Each of the 30 Oum frames with its own hitboxes, about the Oum's origin; the rectangles are fitted to the
     /// drawings.
@@ -32,7 +38,7 @@ internal static class OumCollisionDefinitions
         { EnemyFrameId.OumFacingLeftJetLong, [new(-24, -8, 0, 9, DamageTouch, Shot), new(0, -18, 15, 16, DamageTouch, NoShot)] },
         { EnemyFrameId.OumFacingLeftJetLongest, [new(-27, -8, 0, 8, DamageTouch, Shot), new(0, -18, 15, 16, DamageTouch, NoShot)] },
         { EnemyFrameId.OumFacingLeftTurned45, [new(-16, 0, 0, 16, SafeTouch, Shot), new(-16, -16, 0, 0, SafeTouch, NoShot), new(0, -16, 14, 16, SafeTouch, NoShot)] },
-        { EnemyFrameId.OumFacingLeftTurned90, [new(-15, -17, 15, 0, SafeTouch, NoShot), new(-15, 0, 15, 16, SafeTouch, Shot)] },
+        { EnemyFrameId.OumFacingLeftTurned90, TurnedSideOnHitboxes },
         { EnemyFrameId.OumFacingLeftTurned135, [new(-15, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 15, 0, SafeTouch, NoShot), new(0, 0, 15, 16, SafeTouch, Shot)] },
         { EnemyFrameId.OumFacingLeftTurned180, [new(-16, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 15, 16, SafeTouch, Shot)] },
         { EnemyFrameId.OumFacingLeftTurned225, [new(-15, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 15, 0, SafeTouch, Shot), new(0, 0, 15, 16, SafeTouch, NoShot)] },
@@ -47,7 +53,7 @@ internal static class OumCollisionDefinitions
         { EnemyFrameId.OumFacingRightJetLong, [new(-15, -17, 0, 16, DamageTouch, NoShot), new(0, -8, 24, 8, DamageTouch, Shot)] },
         { EnemyFrameId.OumFacingRightJetLongest, [new(-16, -17, 0, 16, DamageTouch, NoShot), new(0, -8, 25, 8, DamageTouch, Shot)] },
         { EnemyFrameId.OumFacingRightTurned45, [new(-15, -16, 0, 16, SafeTouch, NoShot), new(0, -16, 16, 0, SafeTouch, NoShot), new(0, 0, 16, 16, SafeTouch, Shot)] },
-        { EnemyFrameId.OumFacingRightTurned90, [new(-15, -17, 15, 0, SafeTouch, NoShot), new(-15, 0, 15, 16, SafeTouch, Shot)] },
+        { EnemyFrameId.OumFacingRightTurned90, TurnedSideOnHitboxes },
         { EnemyFrameId.OumFacingRightTurned135, [new(-16, 0, 0, 17, SafeTouch, Shot), new(-16, -17, 0, 0, SafeTouch, NoShot), new(0, -17, 14, 17, SafeTouch, NoShot)] },
         { EnemyFrameId.OumFacingRightTurned180, [new(-16, -17, 0, 16, SafeTouch, Shot), new(0, -17, 14, 16, SafeTouch, NoShot)] },
         { EnemyFrameId.OumFacingRightTurned225, [new(-16, -17, 0, 0, SafeTouch, Shot), new(-16, 0, 0, 16, SafeTouch, NoShot), new(0, -17, 14, 16, SafeTouch, NoShot)] },

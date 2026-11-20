@@ -78,6 +78,13 @@ internal static class MotherBrainCollisionDefinitions
         new(28, -41, 58, -31, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
     ];
 
+    /// <summary>The components she shows standing, which her walk shows again with her legs together.</summary>
+    private static readonly EnemyCollisionComponent[] StandingComponents =
+    [
+        new(new(18, 58), RightLegHitboxes), new(new(0, 0), TorsoHitboxes), new(new(0, 0), UpperBodyHitboxes),
+        new(new(-10, 56), LeftLegHitboxes),
+    ];
+
     /// <summary>
     /// Each Mother Brain body frame's components: each places one of the hitbox lists at an offset (#2211). Only the
     /// components that hold rectangles are listed: the collision tests walk the rectangles, so a component without one
@@ -86,12 +93,7 @@ internal static class MotherBrainCollisionDefinitions
     internal static readonly Dictionary<EnemyFrameId, EnemyCollisionComponent[]> FrameComponents = new()
     {
         [EnemyFrameId.MotherBrainBodyStanding] =
-        [
-            new(new(18, 58), RightLegHitboxes),
-            new(new(0, 0), TorsoHitboxes),
-            new(new(0, 0), UpperBodyHitboxes),
-            new(new(-10, 56), LeftLegHitboxes),
-        ],
+        StandingComponents,
         [EnemyFrameId.MotherBrainBodyWalkingNearLegLifting] =
         [
             new(new(28, 47), RightLegHitboxes),
@@ -142,12 +144,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(-8, 47), LeftLegHitboxes),
         ],
         [EnemyFrameId.MotherBrainBodyWalkingLegsTogether] =
-        [
-            new(new(18, 58), RightLegHitboxes),
-            new(new(0, 0), TorsoHitboxes),
-            new(new(0, 0), UpperBodyHitboxes),
-            new(new(-10, 56), LeftLegHitboxes),
-        ],
+        StandingComponents,
         [EnemyFrameId.MotherBrainBodyCrouched] =
         [
             new(new(18, 20), RightLegHitboxes),

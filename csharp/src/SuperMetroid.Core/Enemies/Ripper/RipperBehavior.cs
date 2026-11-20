@@ -16,14 +16,14 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no Ripper definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
         if (definition == EnemyDefinitionId.GrappleRipper)
             return new GrappleRipperEntity(this, place, common);
         if (definition == EnemyDefinitionId.JetRipper)
             return new JetRipperEntity(this, place, common);
         if (definition == EnemyDefinitionId.Ripper)
             return new OrdinaryRipperEntity(this, place, common);
-        throw new InvalidOperationException($"The Ripper species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Ripper species creates no {place.Occupant?.DefinitionId}.");
     }
 
     /// <summary>Resolves horizontal wall collisions for all three Ripper variants.</summary>

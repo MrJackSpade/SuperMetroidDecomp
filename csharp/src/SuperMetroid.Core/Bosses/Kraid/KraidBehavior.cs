@@ -24,7 +24,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no Kraid definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
         if (definition == EnemyDefinitionId.Kraid)
             return new KraidBodyEntity(this, place, common);
         if (definition == EnemyDefinitionId.KraidArm)
@@ -41,7 +41,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return new KraidNailEntity(this, place, common, Parts.FirstNailReference, KraidNailPart.First);
         if (definition == EnemyDefinitionId.KraidSecondNail)
             return new KraidNailEntity(this, place, common, Parts.SecondNailReference, KraidNailPart.Second);
-        throw new InvalidOperationException($"The Kraid species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Kraid species creates no {place.Occupant?.DefinitionId}.");
     }
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
     internal KraidBodyLayer BodyLayer { get; }

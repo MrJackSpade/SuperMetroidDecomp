@@ -42,7 +42,7 @@ public readonly record struct SpriteGraphics
     /// its pictures in now.
     /// </summary>
     internal static SpriteGraphics SpawnedBy(RoomEnemyPlace spawner) =>
-        new(SpawnedObjectOwner.Of(Ensure.NotNull(spawner).DefinitionId), spawner.Shading);
+        new(SpawnedObjectOwner.Of(Ensure.NotNull(spawner).RequireOccupant().DefinitionId), spawner.Shading);
 
     /// <summary>The same sheet under <paramref name="shading"/>.</summary>
     internal SpriteGraphics In(PictureShading shading) => this with { Shading = shading };

@@ -182,7 +182,6 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.Gamet:
                 enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place);
                 break;
-            case EnemyDefinitionId.None:
             case EnemyDefinitionId.Boyon:
             case EnemyDefinitionId.MamaTurtle:
             case EnemyDefinitionId.BabyTurtle:

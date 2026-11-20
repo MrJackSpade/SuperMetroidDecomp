@@ -43,7 +43,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
             // reaction.
             enemy.AiStates = EnemyAiStates.Grappled;
             GrappleEnemyReaction reaction = enemy.Definition.GrappleResponse ?? throw new InvalidDataException(
-                $"Enemy {enemy.DefinitionId} names no reaction to the grapple beam.");
+                $"Enemy {enemy.Occupant?.DefinitionId} names no reaction to the grapple beam.");
             return new GrappleEnemyCollision(
                 reaction,
                 enemy.Position.Whole,
@@ -115,10 +115,10 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 return true;
 
             case null:
-                throw new InvalidDataException($"Enemy {enemy.DefinitionId} names no reaction to the grapple beam.");
+                throw new InvalidDataException($"Enemy {enemy.Occupant?.DefinitionId} names no reaction to the grapple beam.");
             default:
                 throw new InvalidDataException(
-                    $"Enemy {enemy.DefinitionId} has no response to grapple reaction {enemy.Definition.GrappleResponse}.");
+                    $"Enemy {enemy.Occupant?.DefinitionId} has no response to grapple reaction {enemy.Definition.GrappleResponse}.");
         }
     }
 }

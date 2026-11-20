@@ -15,14 +15,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no Pipe Bugs definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
         if (definition is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo)
             return new BrinstarPipeBugEntity(place, common);
         if (definition == EnemyDefinitionId.Gamet)
             return new NorfairPipeBugEntity(this, place, common);
         if (definition == EnemyDefinitionId.Geega)
             return new YellowPipeBugEntity(place, common);
-        throw new InvalidOperationException($"The Pipe Bugs species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Pipe Bugs species creates no {place.Occupant?.DefinitionId}.");
     }
 
     /// <summary>The room's enemy places, where each Norfair formation leader finds its formation when it is placed.</summary>
@@ -419,10 +419,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 continue;
             foreach (NorfairPipeBugMember member in formation.Members)
             {
-                if (member.Place.Entity is not NorfairPipeBugEntity && member.Place.DefinitionId != EnemyDefinitionId.None)
+                if (member.Place.Entity is not NorfairPipeBugEntity && member.Place.Occupant is { } found)
                 {
                     throw new InvalidDataException(
-                        $"Norfair Pipe Bug formation place {member.Place.Ordinal} holds {member.Place.DefinitionId}, " +
+                        $"Norfair Pipe Bug formation place {member.Place.Ordinal} holds {found.DefinitionId}, " +
                         $"not a {EnemyDefinitionId.Gamet}.");
                 }
             }

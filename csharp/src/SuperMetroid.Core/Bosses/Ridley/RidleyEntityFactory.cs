@@ -20,13 +20,13 @@ internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRi
     /// <exception cref="InvalidOperationException">The place holds no Ridley definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
         if (definition == EnemyDefinitionId.Ridley)
             return new NorfairRidleyEntity(norfair, place, common);
         if (definition == EnemyDefinitionId.RidleyCeres)
             return new CeresRidleyEntity(ceres, escape, place, common);
         if (definition == EnemyDefinitionId.RidleyBreakupPiece)
             return new RidleyBreakupPieceEntity(norfair, place, common);
-        throw new InvalidOperationException($"The Ridley factory creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Ridley factory creates no {place.Occupant?.DefinitionId}.");
     }
 }

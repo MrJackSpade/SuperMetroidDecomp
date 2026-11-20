@@ -20,7 +20,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no Phantoon definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
         if (definition == EnemyDefinitionId.PhantoonBody)
             return new PhantoonBodyEntity(this, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.PhantoonEye)
@@ -29,7 +29,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return new PhantoonTentaclesEntity(this, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.PhantoonMouth)
             return new PhantoonMouthEntity(this, place, common, _bossArtwork);
-        throw new InvalidOperationException($"The Phantoon species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Phantoon species creates no {place.Occupant?.DefinitionId}.");
     }
 
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>

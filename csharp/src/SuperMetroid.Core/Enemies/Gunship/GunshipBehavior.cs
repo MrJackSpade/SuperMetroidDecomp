@@ -27,12 +27,12 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no gunship definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
         if (definition == EnemyDefinitionId.ShipTop)
             return new GunshipTopEntity(this, place, common);
         if (definition == EnemyDefinitionId.ShipBottomEntrance)
             return new GunshipBottomEntity(this, place, common);
-        throw new InvalidOperationException($"The gunship species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The gunship species creates no {place.Occupant?.DefinitionId}.");
     }
 
     /// <summary>Queues engine and entrance-pad sounds at the frame boundaries.</summary>

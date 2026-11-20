@@ -508,7 +508,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " identity", actor.AwaitsRespawn
                     ? SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWordsConstants.AwaitingRespawnHeader
                     : SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address);
-                if (actor.DefinitionId == EnemyDefinitionId.None || W(address) == 0) continue;
+                if (actor.Occupant is null || W(address) == 0) continue;
                 Check(owner + " X", actor.Position.X.Whole, address + 2);
                 Check(owner + " X fraction", actor.Position.X.Fraction, address + 4);
                 Check(owner + " Y", actor.Position.Y.Whole, address + 6);
@@ -1019,7 +1019,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     // again. Their retained per-slot word is not a live source identity, and the port's explosion drops
                     // it once it has rolled its drop (#2455).
                     if (projectile.State is EnemyDeathExplosionState explosion)
-                        Check(owner + " source enemy header", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(explosion.DropDefinitionId), NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
+                        Check(owner + " source enemy header", explosion.Dropper is { } dropper ? SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(dropper.DefinitionId) : 0, NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
                     // The native word holds the killed slot's table offset, bit 15 for a respawn, $FFFF for none; a
                     // cleared projectile's names the first slot. Only a direct drop is made a pickup from the start: a
                     // death's pickup is its explosion's.

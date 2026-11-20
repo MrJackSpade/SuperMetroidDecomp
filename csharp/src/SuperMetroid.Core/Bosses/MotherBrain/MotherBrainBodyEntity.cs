@@ -51,7 +51,7 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     /// </summary>
     /// <exception cref="InvalidDataException">The body's definition leaves the blast to the species.</exception>
     public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies
-        ? throw new InvalidDataException($"Enemy {Place.DefinitionId} has no response to its own Power Bomb reaction.")
+        ? throw new InvalidDataException($"Enemy {Place.Occupant?.DefinitionId} has no response to its own Power Bomb reaction.")
         : base.PowerBombReaction;
 
     /// <inheritdoc/>

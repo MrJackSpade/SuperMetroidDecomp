@@ -65,8 +65,8 @@ internal sealed class EnemySpeciesRegistry
     internal IEnemyEntity Create(RoomEnemyPlace place)
     {
         Ensure.NotNull(place);
-        if (!_factories.TryGetValue(place.DefinitionId, out IEnemyEntityFactory? factory))
-            throw new InvalidOperationException($"No enemy species owns definition {place.DefinitionId}.");
+        if (!_factories.TryGetValue(place.RequireOccupant().DefinitionId, out IEnemyEntityFactory? factory))
+            throw new InvalidOperationException($"No enemy species owns definition {place.Occupant?.DefinitionId}.");
         return factory.Create(place, _common);
     }
 }

@@ -20,12 +20,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no mama turtle definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
         if (definition == EnemyDefinitionId.MamaTurtle)
             return new MamaTurtleEntity(this, place, common);
         if (definition == EnemyDefinitionId.BabyTurtle)
             return new BabyTurtleEntity(this, place, common);
-        throw new InvalidOperationException($"The mama turtle species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The mama turtle species creates no {place.Occupant?.DefinitionId}.");
     }
 
     /// <summary>Moves parent and children against room blocks during hover, fall, and crawling.</summary>
@@ -152,11 +152,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         foreach (RoomEnemyPlace child in babies)
         {
-            if (child.Entity is not BabyTurtleEntity && child.DefinitionId != EnemyDefinitionId.None)
+            if (child.Entity is not BabyTurtleEntity && child.Occupant is { } found)
             {
                 throw new InvalidDataException(
                     $"Mama Turtle place {mama.Ordinal} expected Baby Turtle in following " +
-                    $"place {child.Ordinal}, found {child.DefinitionId}.");
+                    $"place {child.Ordinal}, found {found.DefinitionId}.");
             }
         }
     }

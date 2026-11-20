@@ -39,7 +39,7 @@ internal static class PowampDeathSequenceVerification
         AssertEqual(8, projectiles.Count(p => p.Kind == RoomEnemyProjectileKind.PowampSpike), "the eight spikes fire");
         AssertEqual(1, projectiles.Count(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion),
             "EnemyDeath spawns the death explosion in the same frame");
-        AssertEqual(EnemyDefinitionId.None, body.DefinitionId, "EnemyDeath clears the body slot at once");
+        AssertTrue(body.Occupant is null, "EnemyDeath clears the body slot at once");
         Console.WriteLine("  Powamp death sequence: the countdown ends in EnemyDeath with spikes and an explosion.");
     }
 

@@ -36,10 +36,19 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     [IntegerQuantity("place among the room's enemy places")]
     public int Ordinal { get; }
     /// <summary>
-    /// The occupant's enemy identity; <see cref="EnemyDefinitionId.None"/> when the place holds no enemy, whether it is
-    /// free or <see cref="AwaitsRespawn"/>.
+    /// The enemy holding the place (#2558), which carries its identity; null while the place holds no enemy, whether it is
+    /// free or <see cref="AwaitsRespawn"/>. Each binding installs a new occupant.
     /// </summary>
-    public EnemyDefinitionId DefinitionId { get; private set; }
+    public RoomEnemyOccupant? Occupant { get; private set; }
+
+    /// <summary>Whether the place holds an enemy of <paramref name="definition"/>; false while it holds none.</summary>
+    /// <param name="definition">The enemy asked about.</param>
+    public bool Holds(EnemyDefinitionId definition) => Occupant is { } occupant && occupant.DefinitionId == definition;
+
+    /// <summary>The enemy holding the place, which the caller knows holds one.</summary>
+    /// <exception cref="InvalidOperationException">The place holds no enemy.</exception>
+    public RoomEnemyOccupant RequireOccupant() =>
+        Occupant ?? throw new InvalidOperationException($"Enemy place {Ordinal} holds no enemy.");
 
     /// <summary>
     /// Whether the place holds no enemy but stays taken until the death explosion of the respawning enemy killed in it
@@ -53,7 +62,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// Whether the place is free for a spawn: it holds no enemy and does not await one's respawn. A place's earlier
     /// occupant's partners read it as gone only once it is free.
     /// </summary>
-    internal bool IsFree => DefinitionId == EnemyDefinitionId.None && !AwaitsRespawn;
+    internal bool IsFree => Occupant is null && !AwaitsRespawn;
     /// <summary>Immutable resolved definition for the current enemy identity, supplying initialization, collision, and AI definitions.</summary>
     public RoomEnemyDefinition Definition { get; private set; }
 
@@ -89,7 +98,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// nothing unless a neighbour wrote it (<see cref="FoundOrClearedState{T}"/>), or held none.
     /// </summary>
     internal T? FoundState<T>() where T : class =>
-        _leftovers.Found(Occupant)?.Find<T>();
+        _leftovers.Found(HeldStates)?.Find<T>();
 
     /// <summary>
     /// The <typeparamref name="T"/> a neighbour that writes to this place finds there, which it does without testing what
@@ -102,7 +111,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     {
         if (FoundState<T>() is { } found)
             return found;
-        if (_leftovers.ClearedByKill(Occupant) is not { } cleared)
+        if (_leftovers.ClearedByKill(HeldStates) is not { } cleared)
             return null;
         var emptied = new T();
         cleared.Install(emptied);
@@ -110,7 +119,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     }
 
     /// <summary>The species states of the enemy holding the place, or null while it holds none.</summary>
-    private EnemyOccupantStates? Occupant => DefinitionId == EnemyDefinitionId.None ? null : OccupantStates;
+    private EnemyOccupantStates? HeldStates => Occupant is null ? null : OccupantStates;
 
     /// <summary>
     /// Installs a new occupant's identity and binds the entity its species creates. Every identity change goes through
@@ -121,12 +130,12 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     internal void Bind(EnemyDefinitionId definitionId, RoomEnemyDefinition definition)
     {
         ReleaseEntity();
-        DefinitionId = definitionId;
+        Occupant = new RoomEnemyOccupant(definitionId);
         Definition = definition;
         AwaitsRespawn = false;
         OccupantStates = new();
         AnimationClock = new();
-        Entity = definitionId == EnemyDefinitionId.None ? null : _registry.Create(this);
+        Entity = _registry.Create(this);
     }
 
     /// <summary>
@@ -148,8 +157,8 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// <exception cref="InvalidOperationException">The place still holds an enemy.</exception>
     internal void AwaitRespawn()
     {
-        if (DefinitionId != EnemyDefinitionId.None)
-            throw new InvalidOperationException($"Enemy place {Ordinal} still holds {DefinitionId}; only a killed enemy's place awaits its respawn.");
+        if (Occupant is { } held)
+            throw new InvalidOperationException($"Enemy place {Ordinal} still holds {held.DefinitionId}; only a killed enemy's place awaits its respawn.");
         AwaitsRespawn = true;
     }
 
@@ -164,10 +173,13 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         Vacate();
     }
 
-    /// <summary>Empties the place's identity, entity and species states.</summary>
-    private void Vacate()
+    /// <summary>
+    /// Empties the place of its occupant, its entity and its species states, leaving its other values and what earlier
+    /// occupants left: a deletion and a kill go on from here, and a recorded state's free place is imported by it.
+    /// </summary>
+    internal void Vacate()
     {
-        DefinitionId = EnemyDefinitionId.None;
+        Occupant = null;
         ReleaseEntity();
         OccupantStates = new();
     }

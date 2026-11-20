@@ -72,7 +72,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no Shutters definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
         if (definition == EnemyDefinitionId.ShutterGrowing)
             return new GrowingShutterEntity(this, place, common);
         if (definition == EnemyDefinitionId.ShutterShootable)
@@ -81,7 +81,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             return new KamerEntity(this, place, common);
         if (definition == EnemyDefinitionId.ShutterDestroyable)
             return new DestroyableShutterEntity(this, place, common);
-        throw new InvalidOperationException($"The Shutters species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Shutters species creates no {place.Occupant?.DefinitionId}.");
     }
 
     /// <summary>Initializes the growing shutter.</summary>

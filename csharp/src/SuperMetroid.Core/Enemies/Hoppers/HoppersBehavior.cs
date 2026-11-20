@@ -56,7 +56,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Hopper.</summary>
     internal void InitializeHopper(RoomEnemyPlace place)
     {
-        HopperKind kind = HopperAnimationChoices.KindOf(place.DefinitionId);
+        HopperKind kind = HopperAnimationChoices.KindOf(place.Occupant?.DefinitionId);
         // The placement's reseed is followed by a draw it never reads, which later consumers observe.
         _room.Random.Reseed(SpeciesRandomReseed.HopperPlacement);
         _room.Random.Generate();

@@ -855,11 +855,11 @@ internal static class LookupStream2Verification
         //60,120,180,185,245,255 when all resources are eligible.
         ushort[] randomValues = [1, 61, 121, 181, 186, 246];
         // The roll weighs the minor drops, then the major drops, in the native probability columns' order.
-        EnemyPickupKind[] weighed = [.. EnemyDropSelectionDefinitions.MinorDrops, .. EnemyDropSelectionDefinitions.MajorDrops];
+        EnemyDropRoll[] weighed = [.. EnemyDropSelectionDefinitions.MinorDrops, .. EnemyDropSelectionDefinitions.MajorDrops];
         AssertEqual(6, weighed.Length, "The roll weighs the six native probability columns");
         for (int column = 0; column < 6; column++)
         {
-            EnemyPickupKind expected = EnemyPickupNativeWords.Selectors.Decode(rom.ReadCartridgeByte(0x86f25e + column), "probability-column pickup");
+            EnemyDropRoll expected = EnemyPickupNativeWords.Outcome(rom.ReadCartridgeByte(0x86f25e + column));
             AssertEqual(expected, weighed[column],
                 "Native probability-column pickup identity, minor drops then major drops");
             var samus = CreateDropTestSamus();

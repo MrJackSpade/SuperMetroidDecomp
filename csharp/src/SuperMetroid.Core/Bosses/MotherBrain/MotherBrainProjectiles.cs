@@ -311,7 +311,7 @@ internal sealed class MotherBrainProjectiles
                 dependencies.Projectiles.SpawnDustOrExplosion(position, DustExplosionAnimation.SmallDustCloud);
                 dependencies.DeathsAndDrops.SpawnEnemyDropFromDefinition(
                     position,
-                    state.Head.DefinitionId,
+                    state.Head.RequireOccupant().DefinitionId,
                     samus);
                 return true;
             }

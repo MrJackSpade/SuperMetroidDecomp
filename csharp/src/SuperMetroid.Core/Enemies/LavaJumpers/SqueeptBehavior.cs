@@ -193,7 +193,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Norfair lava-jumping follower in place {follower.Ordinal} must immediately follow " +
                 "a parent of the same definition. " +
-                $"Preceding place: definition={parent.DefinitionId}, " +
+                $"Preceding place: definition={parent.Occupant?.DefinitionId}, " +
                 $"health={parent.Health}, spawn={parent.Spawn.Population.SpawnSettings}, contact={parent.Contact}, processing={parent.Processing}, presence={parent.Presence}.");
         }
     }

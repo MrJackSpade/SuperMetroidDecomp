@@ -104,7 +104,7 @@ internal static class MovieDesyncComparison
             Console.WriteLine("  eproj native " + string.Join(" ", nativeProjectiles));
             Console.WriteLine($"  ceres port={traceEnemies.RidleyEncounter.CeresStatus} native={Native(0x093f)} " +
                 $"nmi port={game.GameplayRuntimeForVerification.Clock.Counter:X4} native-raw={Native(0x05b6)}");
-            foreach (var actor in traceEnemies.Places.InUpdateOrder.Where(place => place.DefinitionId != EnemyDefinitionId.None))
+            foreach (var actor in traceEnemies.Places.InUpdateOrder.Where(place => place.Occupant is not null))
             {
                 // $0F86 properties, $0F92 instruction list pointer, $0F94 instruction timer.
                 int slotBase = MovieDesyncMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.Ordinal);
@@ -257,7 +257,7 @@ internal static class MovieDesyncComparison
             Check(owner + " identity", actor.AwaitsRespawn
                 ? SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWordsConstants.AwaitingRespawnHeader
                 : SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address + MovieDesyncMemory.EnemyIdentityOffset);
-            if (actor.DefinitionId == EnemyDefinitionId.None) continue;
+            if (actor.Occupant is null) continue;
             Position16<RoomPixels> whole = NativeWholePosition(actor);
             Check(owner + " X", whole.X, address + MovieDesyncMemory.EnemyXOffset);
             Check(owner + " X fraction", actor.Position.X.Fraction, address + MovieDesyncMemory.EnemyXFractionOffset);

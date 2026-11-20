@@ -22,12 +22,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no Ki-Hunter definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
         if (definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterYellow)
             return new KiHunterBodyEntity(this, place, common);
         if (definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterRedWings or EnemyDefinitionId.KihunterYellowWings)
             return new KiHunterWingsEntity(this, place, common);
-        throw new InvalidOperationException($"The Ki-Hunter species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Ki-Hunter species creates no {place.Occupant?.DefinitionId}.");
     }
 
     /// <summary>Provides the active room state used by Ki-Hunter movement.</summary>

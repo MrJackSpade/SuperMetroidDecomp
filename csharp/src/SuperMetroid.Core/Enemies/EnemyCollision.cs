@@ -689,7 +689,7 @@ internal sealed class EnemyCollision
             // the sweep; the vertical reach is unchanged.
             horizontalRadius = _powerBombRadius.HorizontalRadius(horizontalRadius);
             // A place with no enemy, a place awaiting its enemy's respawn among them, is passed.
-            if (enemy.DefinitionId == EnemyDefinitionId.None ||
+            if (enemy.Occupant is null ||
                 enemy.Invincibility.IsRunning ||
                 enemy.Presence.HasAny(EnemyPresence.Deleted))
             {
@@ -891,7 +891,7 @@ internal sealed class EnemyCollision
             return owned;
 
         throw new InvalidDataException(
-            $"Enemy {enemy.DefinitionId} extended collision frame " +
+            $"Enemy {enemy.Occupant?.DefinitionId} extended collision frame " +
             $"{enemy.Frame} has no collision geometry.");
     }
 

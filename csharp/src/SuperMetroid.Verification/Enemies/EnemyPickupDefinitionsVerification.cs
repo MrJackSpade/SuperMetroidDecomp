@@ -32,7 +32,8 @@ internal static class EnemyPickupDefinitionsVerification
             EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
             var projectile = new EnemyProjectile(index, default)
             {
-                FrameHold = WrappingCountdown.Start(0xffff),
+                FrameHold = WrappingCountdown.Start(0xffff),
+
                 PersistsOnSamusContact = true,
             };
             EnemyDeathsAndDropsConstants.BeginEnemyPickup(projectile, kind);
@@ -52,9 +53,6 @@ internal static class EnemyPickupDefinitionsVerification
                 $"production pickup contact persistence {kind}");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => EnemyPickups.Animation(EnemyPickupKind.NoDrop),
-            "no-drop pickup has no animation entry");
         Console.WriteLine(
             "Enemy pickup definitions: six native selectors and all five live pickup initialization paths pass without the pointer table.");
     }

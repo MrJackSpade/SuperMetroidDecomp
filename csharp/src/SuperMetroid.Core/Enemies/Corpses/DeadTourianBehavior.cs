@@ -49,7 +49,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes a Tourian corpse, checking its corpse is one of its species' before registering state and starting its rot.</summary>
     internal static void InitializeDeadTourianCorpse(RoomEnemyPlace place)
     {
-        DeadTourianCorpseSpecies species = SpeciesOf(place.DefinitionId);
+        DeadTourianCorpseSpecies species = SpeciesOf(place.Occupant?.DefinitionId);
         DeadTourianCorpseDefinition definition = place.SpawnSettings<CorpseSpawnSettings>().Corpse;
         if (definition.Species != species)
         {

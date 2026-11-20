@@ -87,7 +87,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
                 break;
             case IEnemySurroundingsInitialization:
                 throw new InvalidDataException(
-                    $"Enemy {place.DefinitionId} initializes from a population load's surroundings, but was spawned on another enemy's behalf.");
+                    $"Enemy {place.Occupant?.DefinitionId} initializes from a population load's surroundings, but was spawned on another enemy's behalf.");
             default:
                 throw NoInitialization(place);
         }
@@ -95,7 +95,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
 
     /// <summary>The failure for a place whose species has no initialization behaviour.</summary>
     private static InvalidDataException NoInitialization(RoomEnemyPlace place) =>
-        new($"Enemy {place.DefinitionId} has no initialization behaviour.");
+        new($"Enemy {place.Occupant?.DefinitionId} has no initialization behaviour.");
 
     /// <summary>Exposes setting up a listed enemy from its population entry to the enemy loader.</summary>
     void IEnemyLifecycle.InitializePlaceFromDefinition(
@@ -146,7 +146,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         if (place.AwaitsRespawn)
             return;
         if (place.Entity is not IEnemyAi entity)
-            throw new InvalidDataException($"Enemy {place.DefinitionId} has no main behaviour.");
+            throw new InvalidDataException($"Enemy {place.Occupant?.DefinitionId} has no main behaviour.");
         entity.RunMainAi(frame);
     }
 }

@@ -26,7 +26,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no crawler definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
         if (definition == EnemyDefinitionId.Sciser)
             return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Sciser);
         if (definition == EnemyDefinitionId.Zero)
@@ -37,7 +37,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Shared);
         if (definition == EnemyDefinitionId.OrangeZoomer)
             return new OrangeZoomerEntity(this, place, common);
-        throw new InvalidOperationException($"The crawler species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The crawler species creates no {place.Occupant?.DefinitionId}.");
     }
 
     /// <summary>Performs wall, floor, and slope probes for attached crawlers and falling Zoomers.</summary>

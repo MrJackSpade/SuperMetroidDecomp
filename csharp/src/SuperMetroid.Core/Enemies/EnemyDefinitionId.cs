@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public enum EnemyDefinitionId
 {
-    /// <summary>No enemy: a cleared or inactive place.</summary>
-    None,
     /// <summary>A Boyon, the jelly that bounces in place.</summary>
     Boyon,
     /// <summary>The Mama Turtle, the giant Maridia turtle whose shell Samus can ride.</summary>

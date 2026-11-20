@@ -19,7 +19,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no Draygon definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
         if (definition == EnemyDefinitionId.DraygonBody)
             return new DraygonBodyEntity(this, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.DraygonEye)
@@ -28,7 +28,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             return new DraygonTailEntity(this, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.DraygonArms)
             return new DraygonArmsEntity(this, place, common, _bossArtwork);
-        throw new InvalidOperationException($"The Draygon species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Draygon species creates no {place.Occupant?.DefinitionId}.");
     }
 
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>

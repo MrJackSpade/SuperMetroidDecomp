@@ -61,7 +61,7 @@ internal sealed class EnemyProcessingWindow
         foreach (RoomEnemyPlace place in _places.InUpdateOrder)
         {
             // A place with no enemy, one awaiting its enemy's respawn among them, is not processed.
-            if (place.DefinitionId == EnemyDefinitionId.None)
+            if (place.Occupant is null)
                 continue;
             if (place.Presence.HasAny(EnemyPresence.Deleted))
             {

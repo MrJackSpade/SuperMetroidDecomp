@@ -18,7 +18,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no Evir definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
         if (definition == EnemyDefinitionId.Evir)
         {
             return place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
@@ -27,7 +27,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         if (definition == EnemyDefinitionId.EvirProjectile)
             return new EvirSpitEntity(this, place, common);
-        throw new InvalidOperationException($"The Evir species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Evir species creates no {place.Occupant?.DefinitionId}.");
     }
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>
@@ -125,7 +125,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         public int DirectionChangePeriod(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod;
 
         /// <inheritdoc/>
-        public bool IsEvirSpit(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).DefinitionId == EnemyDefinitionId.EvirProjectile;
+        public bool IsEvirSpit(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).Holds(EnemyDefinitionId.EvirProjectile);
     }
 
     /// <summary>Initializes the Evir's spit.</summary>
@@ -154,7 +154,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RequirePlacedBody(RoomEnemyPlace body, RoomEnemyPlace part, string partName)
     {
         if (body.SpeciesState<EvirBodyState>() is null)
-            throw new InvalidDataException($"Evir {partName} of enemy {part.Ordinal} follows {body.DefinitionId}, not an Evir body.");
+            throw new InvalidDataException($"Evir {partName} of enemy {part.Ordinal} follows {body.Occupant?.DefinitionId}, not an Evir body.");
     }
 
     /// <summary>Tracks Samus while the spit is present and alternates the body's timed vertical travel.</summary>

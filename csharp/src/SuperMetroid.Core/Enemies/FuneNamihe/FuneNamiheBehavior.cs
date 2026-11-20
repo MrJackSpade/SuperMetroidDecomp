@@ -17,7 +17,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).DefinitionId == EnemyDefinitionId.Namihe
+        Ensure.NotNull(place).Holds(EnemyDefinitionId.Namihe)
             ? new NamiheEntity(this, place, common)
             : new FuneEntity(this, place, common);
 

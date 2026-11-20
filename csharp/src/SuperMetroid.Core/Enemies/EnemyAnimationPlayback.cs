@@ -177,7 +177,7 @@ internal static class EnemyAnimationPlayback
                 enemy.AnimationClock.Stop();
                 return;
             default:
-                throw new InvalidOperationException($"Enemy {enemy.DefinitionId}'s animation reached an undefined {shown}.");
+                throw new InvalidOperationException($"Enemy {enemy.Occupant?.DefinitionId}'s animation reached an undefined {shown}.");
         }
     }
 

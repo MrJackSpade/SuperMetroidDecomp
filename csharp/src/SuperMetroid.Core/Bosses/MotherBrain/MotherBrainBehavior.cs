@@ -22,14 +22,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no Mother Brain definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
         if (definition == EnemyDefinitionId.MotherBrainBody)
             return new MotherBrainBodyEntity(this, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.MotherBrainHead)
             return new MotherBrainHeadEntity(this, place, common);
         if (definition == EnemyDefinitionId.MotherBrainTubes)
             return new MotherBrainTubesEntity(this, place, common);
-        throw new InvalidOperationException($"The Mother Brain species creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Mother Brain species creates no {place.Occupant?.DefinitionId}.");
     }
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;

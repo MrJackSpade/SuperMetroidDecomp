@@ -362,12 +362,20 @@ internal static class NativeSnapshotImport
             var enemy = runtime.Enemies.Places.InUpdateOrder[index];
             int address = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(index);
             if (W(address) != 0)
-                VerificationAssertions.AssertTrue(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(enemy.DefinitionId) == W(address), "initial enemy species agrees with room population");
+                VerificationAssertions.AssertTrue(enemy.Occupant is { } loaded && SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(loaded.DefinitionId) == W(address), "initial enemy species agrees with room population");
             // A recorded occupant is the one the room load placed, which keeps its species state; a slot the recording
             // holds free loses its loaded occupant with that occupant's state (#1543).
-            EnemyDefinitionId recordedOccupant = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionSlotWords.FromSlotWord(W(address));
-            if (recordedOccupant != enemy.DefinitionId)
-                enemy.Bind(recordedOccupant, enemy.Definition);
+            if (W(address) == 0)
+            {
+                if (enemy.Occupant is not null)
+                    enemy.Vacate();
+            }
+            else
+            {
+                EnemyDefinitionId recordedOccupant = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIdsConstants.FromHeaderPointer(W(address));
+                if (!enemy.Holds(recordedOccupant))
+                    enemy.Bind(recordedOccupant, enemy.Definition);
+            }
             enemy.Position = FixedPosition<RoomPixels>.FromStoredParts(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
             enemy.Radius = new(W(address + 10), W(address + 12));
             // The species bits of the property words are the entry's spawn settings, which the population already holds.

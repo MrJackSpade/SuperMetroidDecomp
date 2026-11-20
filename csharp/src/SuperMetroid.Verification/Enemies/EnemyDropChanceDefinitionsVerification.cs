@@ -37,8 +37,9 @@ internal static class EnemyDropChanceDefinitionsVerification
             AssertEqual(new EnemyDropChances(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]), chances,
                 $"enemy drop table ${word:X4} chances in column order");
 
-            EnemyPickupKind selected = fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(chances, fixture.Samus);
-            AssertTrue(Enum.IsDefined(selected), $"production enemy drop table ${word:X4} returns a defined kind");
+            EnemyDropRoll selected = fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(chances, fixture.Samus);
+            AssertTrue(selected is EnemyDropRoll.NothingDrops or EnemyDropRoll.PickupDrops { Kind: var kind } && Enum.IsDefined(kind),
+                $"production enemy drop table ${word:X4} returns a defined outcome");
         }
 
         AssertEqual<EnemyDropChances?>(null, EnemyHeaderTables.DropChances(cartridge, 0), "a zero word drops nothing");

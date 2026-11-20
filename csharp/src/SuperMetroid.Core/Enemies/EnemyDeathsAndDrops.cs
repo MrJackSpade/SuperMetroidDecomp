@@ -116,7 +116,7 @@ internal sealed class EnemyDeathsAndDrops
                 ExplosionsAndPickups,
                 graphics: SpriteGraphics.SharedStandard);
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
-            explosion.State = new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.DefinitionId);
+            explosion.State = new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.Occupant);
             explosion.StartAnimation(new EnemyDeathAndDropAnimation(EnemyDeathExplosions.Animation(deathAnimation)));
         }
 
@@ -260,14 +260,14 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     private void InitializeDirectEnemyPickup(EnemyProjectile pickup, EnemyDropChances? dropChances, SamusState samus)
     {
-        EnemyPickupKind kind = SelectRandomEnemyDrop(dropChances, samus);
+        EnemyDropRoll roll = SelectRandomEnemyDrop(dropChances, samus);
 
         // Unlike a finished death explosion, a direct drop becomes a pickup in any place for
         // an enemy projectile, the first included. The roll reads the drop's definition straight back from
         // the pickup that holds it.
-        pickup.StartAnimation(new EnemyDeathAndDropAnimation(kind == EnemyPickupKind.NoDrop
-            ? ConfigureDormantPickup(pickup)
-            : ConfigurePickup(pickup, kind)));
+        pickup.StartAnimation(new EnemyDeathAndDropAnimation(roll is EnemyDropRoll.PickupDrops drop
+            ? ConfigurePickup(pickup, drop.Kind)
+            : ConfigureDormantPickup(pickup)));
     }
 
     /// <summary>
@@ -280,10 +280,11 @@ internal sealed class EnemyDeathsAndDrops
     internal EnemyDeathAndDropSegment ConvertEnemyDeathExplosionToPickup(EnemyProjectile projectile, SamusState samus)
     {
         EnemyDeathExplosionState explosion = Ensure.NotNull(projectile).StateOf<EnemyDeathExplosionState>();
-        EnemyPickupKind kind = SelectRandomEnemyDrop(DropChancesOf(explosion.DropDefinitionId), samus);
-        return !FirstPlaceExplosionLeavesNoPickup.BecomesPickup(projectile.Place) || kind == EnemyPickupKind.NoDrop
-            ? ConfigureDormantPickup(projectile)
-            : ConfigurePickup(projectile, kind, explosion.KilledEnemy);
+        EnemyDropRoll roll = SelectRandomEnemyDrop(
+            explosion.Dropper is { } dropper ? _room.Definitions.ReadEnemyDefinition(dropper.DefinitionId).DropChances : null, samus);
+        return FirstPlaceExplosionLeavesNoPickup.BecomesPickup(projectile.Place) && roll is EnemyDropRoll.PickupDrops drop
+            ? ConfigurePickup(projectile, drop.Kind, explosion.KilledEnemy)
+            : ConfigureDormantPickup(projectile);
     }
 
     /// <summary>
@@ -335,11 +336,11 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     /// <param name="dropChances">The chances rolled; none when the drop's enemy drops nothing.</param>
     /// <param name="samus">Samus, whose energy and ammunition decide which drops are offered.</param>
-    internal EnemyPickupKind SelectRandomEnemyDrop(EnemyDropChances? dropChances, SamusState samus)
+    internal EnemyDropRoll SelectRandomEnemyDrop(EnemyDropChances? dropChances, SamusState samus)
     {
         Ensure.NotNull(samus);
         if (dropChances is not { } table)
-            return EnemyPickupKind.NoDrop;
+            return EnemyDropRoll.Nothing;
         // Every authored table's chances sum to the whole budget, so the pooled weights and the budget left for the major
         // drops stay within it (#1620).
         if (table.Total > EnemyDropSelectionDefinitions.FullWeightBudget)
@@ -364,76 +365,69 @@ internal sealed class EnemyDeathsAndDrops
         // hysteresis/grace period, not an omitted assignment.
 
         int pooledMinorWeight;
-        var offered = new HashSet<EnemyPickupKind>();
+        var offered = new HashSet<EnemyDropRoll>();
         if (_room.Session.CriticalEnergyDropBias)
         {
             pooledMinorWeight = table.SmallEnergy + table.BigEnergy;
-            offered.Add(EnemyPickupKind.SmallEnergy);
-            offered.Add(EnemyPickupKind.BigEnergy);
+            offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.SmallEnergy));
+            offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.BigEnergy));
         }
         else
         {
             pooledMinorWeight = table.Nothing;
-            offered.Add(EnemyPickupKind.NoDrop);
+            offered.Add(EnemyDropRoll.Nothing);
             if (samus.Health != samus.MaxHealth ||
                 samus.ReserveEnergy != samus.MaxReserveEnergy)
             {
                 pooledMinorWeight += table.SmallEnergy + table.BigEnergy;
-                offered.Add(EnemyPickupKind.SmallEnergy);
-                offered.Add(EnemyPickupKind.BigEnergy);
+                offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.SmallEnergy));
+                offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.BigEnergy));
             }
             if (samus.Missiles != samus.MaxMissiles)
             {
                 pooledMinorWeight += table.Missile;
-                offered.Add(EnemyPickupKind.Missile);
+                offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.Missile));
             }
             if (samus.SuperMissiles != samus.MaxSuperMissiles)
             {
                 majorAdjustedBudget -= table.SuperMissile;
-                offered.Add(EnemyPickupKind.SuperMissile);
+                offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.SuperMissile));
             }
             if (samus.PowerBombs != samus.MaxPowerBombs)
             {
                 majorAdjustedBudget -= table.PowerBomb;
-                offered.Add(EnemyPickupKind.PowerBomb);
+                offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.PowerBomb));
             }
         }
 
         // With no pooled minor weight the minor drops are passed over and the major drops are offered alone.
         if (pooledMinorWeight != 0)
         {
-            foreach (EnemyPickupKind kind in EnemyDropSelectionDefinitions.MinorDrops)
+            foreach (EnemyDropRoll outcome in EnemyDropSelectionDefinitions.MinorDrops)
             {
-                if (!offered.Contains(kind))
+                if (!offered.Contains(outcome))
                     continue;
 
                 // A minor drop's share of the budget the major drops leave, rounded down; the shares and the major chances
                 // sum to at most the whole budget twice over.
-                accumulated += majorAdjustedBudget * table.Of(kind) / pooledMinorWeight;
+                accumulated += majorAdjustedBudget * table.Of(outcome) / pooledMinorWeight;
                 if (accumulated >= random)
-                    return kind;
+                    return outcome;
             }
         }
 
-        foreach (EnemyPickupKind kind in EnemyDropSelectionDefinitions.MajorDrops)
+        foreach (EnemyDropRoll outcome in EnemyDropSelectionDefinitions.MajorDrops)
         {
-            if (!offered.Contains(kind))
+            if (!offered.Contains(outcome))
                 continue;
 
-            accumulated += table.Of(kind);
+            accumulated += table.Of(outcome);
             if (accumulated >= random)
-                return kind;
+                return outcome;
         }
 
-        return EnemyPickupKind.NoDrop;
+        return EnemyDropRoll.Nothing;
     }
-
-    /// <summary>
-    /// The drop chances of <paramref name="definitionId"/>'s definition, none when it drops nothing; a death explosion from
-    /// a cleared enemy place names no enemy and drops nothing.
-    /// </summary>
-    private EnemyDropChances? DropChancesOf(EnemyDefinitionId definitionId) =>
-        definitionId == EnemyDefinitionId.None ? null : _room.Definitions.ReadEnemyDefinition(definitionId).DropChances;
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>
     internal void TendEnemyPickup(
@@ -504,7 +498,6 @@ internal sealed class EnemyDeathsAndDrops
                 RestoreEnemyDropSuperMissiles(samus, EnemyPickupDefinitions.SuperMissileAmount);
                 RequestPickupSound(EnemySound.SuperMissilePickup);
                 break;
-            case EnemyPickupKind.NoDrop:
             default:
                 throw new InvalidDataException(
                     $"The enemy pickup in place {projectile.Place} holds no restorable pickup ({kind}).");
@@ -563,12 +556,6 @@ internal sealed class EnemyDeathsAndDrops
     internal void RespawnEnemyFromSnapshot(RoomEnemyPlace place)
     {
         RoomEnemySpawnSnapshot spawn = place.Spawn;
-        if (spawn.Population.DefinitionId == EnemyDefinitionId.None)
-        {
-            throw new InvalidDataException(
-                $"Enemy place {place.Ordinal} has no surviving population snapshot to respawn.");
-        }
-
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
         // Unlike the room's enemy setup and an ordinary enemy spawn, a respawn
         // never sets the frame: the actor keeps the empty frame its death left,

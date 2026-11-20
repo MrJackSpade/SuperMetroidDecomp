@@ -66,7 +66,7 @@ internal static class EnemyDropsVerification
 
             fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, EnemyDeathExplosion.Small, fixture.Samus);
 
-            AssertEqual(EnemyDefinitionId.None, killed.DefinitionId, $"respawns {respawns}: the killed enemy leaves its place");
+            AssertTrue(killed.Occupant is null, $"respawns {respawns}: the killed enemy leaves its place");
             AssertEqual(respawns, killed.AwaitsRespawn, $"respawns {respawns}: the place awaits the enemy's respawn");
             AssertTrue(killed.Entity is null, $"respawns {respawns}: no behaviour runs in the place");
             AssertEqual(respawns ? places[1] : places[0], EnemyPlaceOrder.FirstFree(places),
@@ -196,7 +196,6 @@ internal static class EnemyDropsVerification
             EnemyPickupKind.Missile => 1,
             EnemyPickupKind.SuperMissile => 196,
             EnemyPickupKind.PowerBomb => 246,
-            EnemyPickupKind.NoDrop => throw new ArgumentOutOfRangeException(nameof(kind)),
             _ => throw new ArgumentOutOfRangeException(nameof(kind)),
         };
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [random]);
@@ -390,7 +389,7 @@ internal static class EnemyDropsVerification
         EnemyProjectile explosion = fixture.System.Projectiles.ProjectileInPlace(17);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "generic death allocates projectile definition F345");
-        AssertEqual(EnemyPlaceFixtures.StandIn, explosion.StateOf<EnemyDeathExplosionState>().DropDefinitionId,
+        AssertEqual(EnemyPlaceFixtures.StandIn, explosion.StateOf<EnemyDeathExplosionState>().Dropper?.DefinitionId,
             "death actor retains killed enemy header for later chance lookup");
         AssertEqual((ushort)321, explosion.Position.X.Whole,
             "death actor retains killed enemy X position");

@@ -181,7 +181,6 @@ internal static class EnemySpeciesCapabilitiesVerification
             .Concat(RoomEnemyAuxiliaryDefinitionCatalog.Definitions.Keys)
             .Concat(capabilities.Keys)
             .Concat(privateReactions.Keys)
-            .Where(definition => definition != EnemyDefinitionId.None)
             .Distinct();
 
         var enemies = EnemySystemFixtures.PlacingAnyEnemy(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),

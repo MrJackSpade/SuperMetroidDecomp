@@ -45,9 +45,17 @@ internal static class XrayControlsVerification
             runtime.StepFrame(0);
             runtime.StepFrame(runtime.Options.ControllerBindings.ItemSelect);
             AssertEqual(HudItem.XRay, samus.SelectedHudItem, "ordinary input selects X-ray");
-            runtime.StepFrame(runtime.Options.ControllerBindings.Shoot);
+            // A fired beam is observed as its firing sound among the update's sound requests: the power beam's, as no other
+            // beam is equipped.
+            int BeamShotsDuring(Action step)
+            {
+                runtime.Projectiles.AudioRequests.BeginRecordedUpdate();
+                step();
+                return runtime.Projectiles.AudioRequests.CountOf(SamusSound.UnchargedPowerBeam);
+            }
+            int inactiveShots = BeamShotsDuring(() => runtime.StepFrame(runtime.Options.ControllerBindings.Shoot));
             AssertTrue(!samus.Xray.IsActive, "Shoot alone does not activate selected X-ray");
-            AssertTrue(runtime.Projectiles.LastFrameResult.QueuedSoundEffect is not null,
+            AssertTrue(inactiveShots == 1,
                 "selected inactive X-ray falls through to ordinary beam producer when Run is released");
             for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
             _ = samus.PoseHistory.PreviousPose;
@@ -61,7 +69,7 @@ internal static class XrayControlsVerification
             pendingBomb.SpritemapPointer = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.GameArtwork.ProjectileFrameBindings
                 .Resolve(checked((ushort)pendingBomb.InstructionPointer));
             pendingBomb.Fuse = UpdateCountdown.For(60);
-            runtime.StepFrame((runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
+            int activationShots = BeamShotsDuring(() => runtime.StepFrame((runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot)));
             AssertEqual(60, pendingBomb.Fuse.UpdatesLeft, "X-ray activation freezes an existing bomb fuse immediately");
             AssertEqual(100, pendingBomb.Animation!.UpdatesLeft, "X-ray activation skips existing bomb animation immediately");
             pendingBomb.End();
@@ -72,12 +80,11 @@ internal static class XrayControlsVerification
                 samus.PoseHistory.PreviousMovement, "X-ray activation commits interrupted metadata");
             AssertEqual(metadataBeforeActivation, samus.PoseHistory.MovementBeforePrevious,
                 "X-ray activation shifts prior metadata exactly once");
-            AssertTrue(runtime.Projectiles.LastFrameResult.QueuedSoundEffect is null,
+            AssertTrue(activationShots == 0,
                 "Run+Shoot does not allocate a beam on the activation frame");
             for (int frame = 0; frame < 90; frame++)
             {
-                runtime.StepFrame((runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
-                AssertTrue(runtime.Projectiles.LastFrameResult.QueuedSoundEffect is null,
+                AssertTrue(BeamShotsDuring(() => runtime.StepFrame((runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot))) == 0,
                     "active scanning does not fire ordinary beams");
                 AssertEqual(metadataBeforeActivation, samus.PoseHistory.MovementBeforePrevious,
                     "holding X-ray retains prior transition metadata");
@@ -93,8 +100,7 @@ internal static class XrayControlsVerification
             while (runtime.BombProjectiles.CooldownTimer != 0 && cooldownFrames++ <= 0x20)
                 runtime.StepFrame(0);
             AssertEqual(0, runtime.BombProjectiles.CooldownTimer, "frozen-time cooldown drains after scan release");
-            runtime.StepFrame(runtime.Options.ControllerBindings.Shoot);
-            AssertTrue(runtime.Projectiles.LastFrameResult.QueuedSoundEffect is not null,
+            AssertTrue(BeamShotsDuring(() => runtime.StepFrame(runtime.Options.ControllerBindings.Shoot)) == 1,
                 "Shoot resumes actual beam firing after scan release without deselecting scope");
             Console.WriteLine($"X-ray controls ({(remapped ? "swapped Run/Shoot" : "default")}): inactive shot, active suppression, release and resumed shot pass.");
         }

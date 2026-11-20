@@ -31,10 +31,10 @@ internal static class RenderingAccess
         }
     }
 
-    /// <summary>Snapshots mailbox publication counters and pending-frame state under its synchronization lock.</summary>
+    /// <summary>Snapshots the mailbox's generation, replacements and pending-frame state under its synchronization lock.</summary>
     extension(LatestRenderFrameMailbox self)
     {
-        /// <summary>Reads every private counter under the mailbox's own lock.</summary>
+        /// <summary>Reads the generation, replacements and pending frame under the mailbox's own lock.</summary>
         internal RenderMailboxCounterView VerificationCounters
         {
             get
@@ -43,10 +43,7 @@ internal static class RenderingAccess
                 {
                     return new RenderMailboxCounterView(
                         self.Generation,
-                        self.Published,
-                        self.Taken,
                         self.Replaced,
-                        self.Invalidated,
                         self.Pending is not null);
                 }
             }

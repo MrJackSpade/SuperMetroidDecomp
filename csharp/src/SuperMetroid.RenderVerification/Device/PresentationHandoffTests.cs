@@ -28,8 +28,9 @@ internal static class PresentationHandoffTests
         mailbox.Publish(Frame(2, 1, 0));
         mailbox.Publish(Frame(3, 1, 1));
         AssertEqual(1L, mailbox.Metrics.Replaced, "superseded visuals counted");
+        AssertTrue(mailbox.VerificationCounters.HasPendingFrame, "the newer old-generation frame waits before the reset");
         mailbox.AdvanceGeneration(2);
-        AssertEqual(1L, mailbox.VerificationCounters.Invalidated, "queued old generation discarded");
+        AssertTrue(!mailbox.VerificationCounters.HasPendingFrame, "queued old generation discarded");
         AssertTrue(!mailbox.IsCurrent(first), "consumer-held old packet invalidated");
         AssertTrue(mailbox.TakeLatest() is null, "old generation cannot be acquired after reset");
         AssertThrows<InvalidOperationException>(() => mailbox.Publish(first), "old publication generation rejected");
@@ -43,6 +44,7 @@ internal static class PresentationHandoffTests
         // This is a mailbox component test, not a gameplay/audio throughput claim.
         using var acquired = new ManualResetEventSlim();
         using var release = new ManualResetEventSlim();
+        long replacedBeforeBurst = mailbox.Metrics.Replaced;
         mailbox.Publish(Frame(5, 2, 1));
         Task consumer = Task.Run(() =>
         {
@@ -64,8 +66,9 @@ internal static class PresentationHandoffTests
             Task.Delay(250).GetAwaiter().GetResult();
             AssertTrue(!consumer.IsCompleted, "producer finished while consumer remained blocked");
             AssertEqual(1005L, (mailbox.TakeLatest() ?? throw new InvalidOperationException("Verification requires mailbox.TakeLatest().")).Identity.Sequence, "resumption sees only newest frame");
+            // Of the 1001 publications, the consumer took the first and the last; each between was replaced by the next.
             RenderMailboxCounterView metrics = mailbox.VerificationCounters;
-            AssertEqual(metrics.Published, metrics.Taken + metrics.Replaced + metrics.Invalidated,
+            AssertEqual(999L, metrics.Replaced - replacedBeforeBurst,
                 "every visual publication accounted for with bounded pending storage");
             AssertTrue(!metrics.HasPendingFrame, "latest acquisition drains single pending slot");
         }

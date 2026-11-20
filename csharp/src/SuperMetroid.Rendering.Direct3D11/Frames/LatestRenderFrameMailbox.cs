@@ -60,7 +60,6 @@ public sealed class LatestRenderFrameMailbox
         {
             RenderFrame? frame = Pending;
             Pending = null;
-            if (frame is not null) { }
             return frame;
         }
     }
@@ -75,7 +74,6 @@ public sealed class LatestRenderFrameMailbox
         lock (sync)
         {
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(nextGeneration, Generation);
-            if (Pending is not null) { }
             Pending = null;
             Generation = nextGeneration;
         }

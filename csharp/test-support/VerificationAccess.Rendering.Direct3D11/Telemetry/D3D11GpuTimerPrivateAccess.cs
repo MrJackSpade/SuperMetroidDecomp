@@ -13,11 +13,6 @@ internal static class D3D11GpuTimerPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Rendering.Direct3D11.Telemetry.D3D11GpuTimer self)
     {
-        /// <summary>The private property <c>SkippedSamples</c>, reached by name.</summary>
-        internal long SkippedSamples
-        {
-            get => PrivateState.Get<global::SuperMetroid.Rendering.Direct3D11.Telemetry.D3D11GpuTimer, long>(self, "SkippedSamples");
-        }
 
         /// <summary>The private field <c>pending</c>, reached by name.</summary>
         internal int pending => PrivateState.Field<global::SuperMetroid.Rendering.Direct3D11.Telemetry.D3D11GpuTimer, int>(self, "pending");

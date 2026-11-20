@@ -27,7 +27,7 @@ internal sealed class EnemyPopulationLoader
     }
     /// <summary>
     /// The kills that clear the room for its grey doors and clearance watches: the room population's own quota
-    /// (<see cref="RoomEnemyPopulationDefinition.DeathQuota"/>) when the room places enemies; a room that places none
+    /// (<see cref="PlacedRoomEnemyPopulationDefinition.DeathQuota"/>) when the room places enemies; a room that places none
     /// keeps the quota of the last room that did.
     /// </summary>
     public int DeathQuota
@@ -69,11 +69,11 @@ internal sealed class EnemyPopulationLoader
 
         }
 
-        // An empty population leaves the enemy count at zero and keeps the previous room's
-        // death quota. A nonempty one publishes both after every initialization has run.
-        if (placements.IsEmpty)
+        // An empty population has no quota: it leaves the enemy count at zero and keeps the previous room's
+        // death quota. One that places enemies publishes both after every initialization has run.
+        if (populationDefinition is not PlacedRoomEnemyPopulationDefinition placed)
             return;
-        DeathQuota = populationDefinition.DeathQuota;
+        DeathQuota = placed.DeathQuota;
         _places.EnemyCount = placements.Length;
     }
 }

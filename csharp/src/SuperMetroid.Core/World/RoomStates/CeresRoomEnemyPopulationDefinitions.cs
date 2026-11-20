@@ -7,49 +7,49 @@ namespace SuperMetroid.Core.World.RoomStates;
 internal static class CeresRoomEnemyPopulationDefinitions
 {
     /// <summary>The enemy population of the Ceres Elevator room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition CeresElevatorDefault { get; } = new("CeresElevatorDefault",
+    internal static PlacedRoomEnemyPopulationDefinition CeresElevatorDefault { get; } = new("CeresElevatorDefault",
     [
         new(EnemyDefinitionId.CeresElevatorDoor, new(232, 631), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.CeresDoor, new(224, 639), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
     ], 0);
 
     /// <summary>The enemy population of the Falling Tile room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition FallingTileDefault { get; } = new("FallingTileDefault",
+    internal static PlacedRoomEnemyPopulationDefinition FallingTileDefault { get; } = new("FallingTileDefault",
     [
         new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
         new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
     ], 0);
 
     /// <summary>The enemy population of the Magnet Stairs room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition MagnetStairsDefault { get; } = new("MagnetStairsDefault",
+    internal static PlacedRoomEnemyPopulationDefinition MagnetStairsDefault { get; } = new("MagnetStairsDefault",
     [
         new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
         new(EnemyDefinitionId.CeresDoor, new(224, 383), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
     ], 0);
 
     /// <summary>The enemy population of the Dead Scientist room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition DeadScientistDefault { get; } = new("DeadScientistDefault",
+    internal static PlacedRoomEnemyPopulationDefinition DeadScientistDefault { get; } = new("DeadScientistDefault",
     [
         new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
         new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
     ], 0);
 
     /// <summary>The enemy population of the Ceres Ridley hallway in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition CeresRidleyHallwayDefault { get; } = new("CeresRidleyHallwayDefault",
+    internal static PlacedRoomEnemyPopulationDefinition CeresRidleyHallwayDefault { get; } = new("CeresRidleyHallwayDefault",
     [
         new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
         new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
     ], 0);
 
     /// <summary>The enemy population of the Ceres Ridley room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition CeresRidleyDefault { get; } = new("CeresRidleyDefault",
+    internal static PlacedRoomEnemyPopulationDefinition CeresRidleyDefault { get; } = new("CeresRidleyDefault",
     [
         new(EnemyDefinitionId.RidleyCeres, new(186, 171), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.CeresRidleyRoomDoor, new(16, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
     ], 0);
 
     /// <summary>The enemy population of the Ceres Elevator room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition CeresElevatorWhenAreaBossDead { get; } = new("CeresElevatorWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition CeresElevatorWhenAreaBossDead { get; } = new("CeresElevatorWhenAreaBossDead",
     [
         new(EnemyDefinitionId.CeresElevatorDoor, new(232, 631), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.CeresElevatorRoomWall, new(224, 639), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -67,7 +67,7 @@ internal static class CeresRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Falling Tile room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition FallingTileWhenAreaBossDead { get; } = new("FallingTileWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition FallingTileWhenAreaBossDead { get; } = new("FallingTileWhenAreaBossDead",
     [
         new(EnemyDefinitionId.CeresSteam, new(160, 204), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
         new(EnemyDefinitionId.CeresSteam, new(224, 188), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
@@ -85,7 +85,7 @@ internal static class CeresRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Magnet Stairs room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition MagnetStairsWhenAreaBossDead { get; } = new("MagnetStairsWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition MagnetStairsWhenAreaBossDead { get; } = new("MagnetStairsWhenAreaBossDead",
     [
         new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
         new(EnemyDefinitionId.CeresDoor, new(224, 383), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
@@ -97,21 +97,21 @@ internal static class CeresRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Dead Scientist room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition DeadScientistWhenAreaBossDead { get; } = new("DeadScientistWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition DeadScientistWhenAreaBossDead { get; } = new("DeadScientistWhenAreaBossDead",
     [
         new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
         new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
     ], 0);
 
     /// <summary>The enemy population of the Ceres Ridley hallway once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition CeresRidleyHallwayWhenAreaBossDead { get; } = new("CeresRidleyHallwayWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition CeresRidleyHallwayWhenAreaBossDead { get; } = new("CeresRidleyHallwayWhenAreaBossDead",
     [
         new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Right)),
         new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
     ], 0);
 
     /// <summary>The enemy population of the Ceres Ridley room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition CeresRidleyWhenAreaBossDead { get; } = new("CeresRidleyWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition CeresRidleyWhenAreaBossDead { get; } = new("CeresRidleyWhenAreaBossDead",
     [
         new(EnemyDefinitionId.CeresRidleyRoomDoor, new(16, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
     ], 0);

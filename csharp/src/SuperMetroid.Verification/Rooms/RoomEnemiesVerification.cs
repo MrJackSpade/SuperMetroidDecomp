@@ -236,7 +236,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0, enemies.Places.EnemyCount, "empty population clears enemy count");
     AssertTrue(enemies.Presentation.DrawnPopulation is null, "an empty population loads no enemy artwork");
     AssertEqual(enemies.Places.InUpdateOrder[0], enemies.Places.FindFreePlace(), "an empty population leaves the first slot free");
-    AssertEqual(1, enemies.PopulationLoader.DeathQuota, "empty population preserves native death-quota quirk");
+    AssertEqual(1, enemies.PopulationLoader.DeathQuota, "an empty population, which has no quota, keeps the previous room's death quota");
     AssertEqual<AreaBoss?>(null, enemies.RoomStatus.Boss, "room load clears the boss before an empty population");
     AssertEqual(0x5a, vram.ReadByte(0xe000), "empty population leaves enemy VRAM untouched");
     AssertTrue(enemies.Presentation.DrawnPopulation is null,

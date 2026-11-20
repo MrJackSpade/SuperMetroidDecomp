@@ -277,6 +277,4 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
             }
         }
     }
-
-    /// <summary>The typed animation a shard's flicker cue runs in.</summary>
 }

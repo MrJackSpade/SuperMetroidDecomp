@@ -34,6 +34,7 @@ internal abstract class EnemyProjectileCueRunner<TSegment, TEvent>
     private sealed class ByOwner(IEnemyProjectileCues<TEvent> owner) : EnemyProjectileCueRunner<TSegment, TEvent>
     {
         /// <inheritdoc/>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6426", Justification = "A cue runner overrides the one shared step the runner of every family takes; the branching runners read the engine and the playback past the cue, this one runs on without them.")]
         internal override AnimationContinuation<TSegment>? Run(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles,
             TEvent cue, AnimationPlayback<TSegment> pastCue)
         {

@@ -16,6 +16,6 @@ public sealed class InstalledPhantoonDoorFrames : IRoomObjectFamilyPictures
     internal RoomObjectFrameImages<PhantoonDoorDraw> Images { get; }
 
     /// <inheritdoc/>
-    IEnumerable<KeyValuePair<RoomObjectDraw, RoomObjectFrameImage>> IRoomObjectFamilyPictures.Pictures =>
-        Images.All.Select(picture => KeyValuePair.Create<RoomObjectDraw, RoomObjectFrameImage>(PhantoonDoorDraws.Family.Of(picture.Key), picture.Value));
+    IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
+        Images.All.ToDictionary(RoomObjectDraw (picture) => PhantoonDoorDraws.Family.Of(picture.Key), picture => picture.Value);
 }

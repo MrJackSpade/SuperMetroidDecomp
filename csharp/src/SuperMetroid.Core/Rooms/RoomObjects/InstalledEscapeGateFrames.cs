@@ -15,6 +15,6 @@ public sealed class InstalledEscapeGateFrames : IRoomObjectFamilyPictures
     internal RoomObjectFrameImages<MotherBrainEscapeGateDraw> Images { get; }
 
     /// <inheritdoc/>
-    IEnumerable<KeyValuePair<RoomObjectDraw, RoomObjectFrameImage>> IRoomObjectFamilyPictures.Pictures =>
-        Images.All.Select(picture => KeyValuePair.Create<RoomObjectDraw, RoomObjectFrameImage>(MotherBrainEscapeGateDraws.Family.Of(picture.Key), picture.Value));
+    IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
+        Images.All.ToDictionary(RoomObjectDraw (picture) => MotherBrainEscapeGateDraws.Family.Of(picture.Key), picture => picture.Value);
 }

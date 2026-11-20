@@ -9,5 +9,5 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal interface IRoomObjectFamilyPictures
 {
     /// <summary>Each picture of the catalog's families, under the draw that shows it.</summary>
-    IEnumerable<KeyValuePair<RoomObjectDraw, RoomObjectFrameImage>> Pictures { get; }
+    IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> Pictures { get; }
 }

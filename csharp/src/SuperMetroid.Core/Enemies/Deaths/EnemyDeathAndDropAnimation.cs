@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 /// explosion's, started by the explosion (<see cref="EnemyDeathAndDropAnimations.Explosions"/>, #2061).
 /// </summary>
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
+/// <param name="animation">The animation it plays.</param>
 internal sealed class EnemyDeathAndDropAnimation(IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> owner, Animation<EnemyDeathAndDropSegment> animation)
     : EnemyProjectileFrameAnimation<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>(animation, EnemyProjectileCueRunner<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>.By(owner))
 {

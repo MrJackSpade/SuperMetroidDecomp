@@ -19,6 +19,7 @@ internal abstract class EnemyProjectileSilentAnimation<TSegment, TFrame> : Enemy
     }
 
     /// <inheritdoc/>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6426", Justification = "Every projectile animation takes its next frame through this shared step; a silent timeline raises no events, so it needs neither the cue context nor the engine the timelines that raise events hand their cues.")]
     private protected sealed override AnimationShown<TSegment, TFrame> PlayToNextFrame(EnemyProjectileCueContext context,
         EnemyProjectileEngine projectiles, ref Animation<TSegment> animation, ref AnimationPlace place) =>
         Segments.PlayToNextFrame(ref animation, ref place, static (_, _) => null);

@@ -16,7 +16,7 @@ public sealed class InstalledRoomObjectBombTorizoHandVisuals : IRoomObjectFamily
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
     /// <inheritdoc/>
-    IEnumerable<KeyValuePair<RoomObjectDraw, RoomObjectFrameImage>> IRoomObjectFamilyPictures.Pictures =>
+    IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
         Images.All;
 
     /// <summary>The picture <paramref name="draw"/> shows.</summary>

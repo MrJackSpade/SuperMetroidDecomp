@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
 /// <summary>The old Tourian escape-shaft fake-wall explosion's typed animation.</summary>
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
+/// <param name="segment">Where the animation starts.</param>
 internal sealed class OldTourianWallExplosionAnimation(IEnemyProjectileCues<OldTourianWallExplosionCue> owner, OldTourianWallExplosionSegment segment)
     : EnemyProjectileTypedAnimation<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue>(AllAnimations[segment], EnemyProjectileCueRunner<OldTourianWallExplosionSegment, OldTourianWallExplosionCue>.By(owner))
 {

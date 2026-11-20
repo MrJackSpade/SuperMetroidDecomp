@@ -16,6 +16,6 @@ public sealed class InstalledMotherBrainGlassFrames : IRoomObjectFamilyPictures
     internal RoomObjectFrameImages<MotherBrainGlassDraw> Images { get; }
 
     /// <inheritdoc/>
-    IEnumerable<KeyValuePair<RoomObjectDraw, RoomObjectFrameImage>> IRoomObjectFamilyPictures.Pictures =>
-        Images.All.Select(picture => KeyValuePair.Create<RoomObjectDraw, RoomObjectFrameImage>(MotherBrainGlassDraws.Family.Of(picture.Key), picture.Value));
+    IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
+        Images.All.ToDictionary(RoomObjectDraw (picture) => MotherBrainGlassDraws.Family.Of(picture.Key), picture => picture.Value);
 }

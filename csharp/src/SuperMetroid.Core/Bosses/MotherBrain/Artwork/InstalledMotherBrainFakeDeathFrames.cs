@@ -17,6 +17,6 @@ public sealed class InstalledMotherBrainFakeDeathFrames : IRoomObjectFamilyPictu
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
     /// <inheritdoc/>
-    IEnumerable<KeyValuePair<RoomObjectDraw, RoomObjectFrameImage>> IRoomObjectFamilyPictures.Pictures =>
+    IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
         Images.All;
 }

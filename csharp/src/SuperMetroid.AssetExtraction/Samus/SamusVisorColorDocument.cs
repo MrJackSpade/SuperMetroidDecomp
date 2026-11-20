@@ -7,6 +7,12 @@ public sealed record SamusVisorColorDocument
 {
     /// <summary>Schema revision; loading requires version one from <see cref="SamusVisorColorFile.Version"/>.</summary>
     public required int Version { get; init; }
-    /// <summary>Six nonnull RGB5 colors with channels 0..31 in $9B:A3C0 word order: three widening colors followed by three full-X-ray/room-cycle colors.</summary>
-    public required PaletteRgb5[] Colors { get; init; }
+    /// <summary>The visor's three colours as the X-ray beam widens, in the order it shows them; RGB5 channels 0..31.</summary>
+    public required PaletteRgb5[] Widening { get; init; }
+
+    /// <summary>The visor's three colours as the full X-ray and an animated room cycle them, in the order they show them; RGB5 channels 0..31.</summary>
+    public required PaletteRgb5[] Cycle { get; init; }
+
+    /// <summary>All six colours, the widening's then the cycle's, as the visor's colour reader lists them.</summary>
+    internal PaletteRgb5[] InReaderOrder() => [.. Widening, .. Cycle];
 }

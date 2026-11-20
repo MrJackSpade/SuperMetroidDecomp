@@ -16,7 +16,8 @@ internal static class InstalledSamusFullBodyCycleColorsAccess
         /// <exception cref="ArgumentOutOfRangeException">The palette is not catalogued or the colour is outside it.</exception>
         public RgbColor Resolve(SamusFullBodyCycleShade palette, int colorIndex)
         {
-            RgbColor[] colours = self.palettes[SamusFullBodyCycleColorFormat.PaletteIndex(palette)];
+            RgbColor[] colours = self.palettes.TryGetValue(palette, out RgbColor[]? found) ? found
+                : throw new ArgumentOutOfRangeException(nameof(palette), palette, "Uncatalogued full-body palette.");
             if ((uint)colorIndex >= colours.Length)
                 throw new ArgumentOutOfRangeException(nameof(colorIndex));
             return colours[colorIndex];

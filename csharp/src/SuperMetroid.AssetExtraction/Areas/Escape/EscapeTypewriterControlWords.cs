@@ -32,10 +32,4 @@ internal static class EscapeTypewriterControlWords
 
     /// <summary>The command <paramref name="word"/> is, if it is one that ends a line's characters.</summary>
     internal static bool TryDecode(int word, out EscapeTypewriterCommand command) => Commands.TryGetValue(word, out command);
-
-    /// <summary>The control word the cartridge writes <paramref name="command"/> as.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="command"/> is not a command.</exception>
-    internal static int Word(EscapeTypewriterCommand command) => Words.TryGetValue(command, out int word)
-        ? word
-        : throw new ArgumentOutOfRangeException(nameof(command), command, "Undefined escape typewriter command.");
 }

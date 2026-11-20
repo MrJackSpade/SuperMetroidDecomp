@@ -1213,7 +1213,7 @@ internal static class LookupStream4Verification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + color * 2)), shown[color], "Beam paint preserves native selected rows");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Colours(SamusBeamCombinationTableOrder.FromTableIndex(invalid)), "Installed beam colors preserve selection bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Colours(SamusBeamCombinationTableOrderConstants.FromTableIndex(invalid)), "Installed beam colors preserve selection bounds");
         Console.WriteLine("Beam paint:192 native selected words and12 actual masked-selection producers pass.");
     }
 
@@ -2188,8 +2188,8 @@ internal static class LookupStream4Verification
         {
             int sourceAddress = 0x9a0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + selection * 2));
             byte[] native = Enumerable.Range(0, 256).Select(offset => rom.ReadCartridgeByte(sourceAddress + offset)).ToArray();
-            byte[] png = files[BeamTileAtlasDefinitions.FileName(SamusBeamCombinationTableOrder.FromTableIndex(selection))];
-            var atlas = BeamTileAtlas.Load(new MemoryStream(png), SamusBeamCombinationTableOrder.FromTableIndex(selection));
+            byte[] png = files[BeamTileAtlasDefinitions.FileName(SamusBeamCombinationTableOrderConstants.FromTableIndex(selection))];
+            var atlas = BeamTileAtlas.Load(new MemoryStream(png), SamusBeamCombinationTableOrderConstants.FromTableIndex(selection));
             AssertTrue(native.SequenceEqual(atlas.Characters.Span), "Installed DMA view matches all256 original bytes per beam selection");
             var directVram = new SnesVram();
             atlas.LoadTo(directVram);
@@ -2197,7 +2197,7 @@ internal static class LookupStream4Verification
             VerifyQueued(catalog, selection, native);
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => BeamTileAtlas.Load(new MemoryStream(), SamusBeamCombinationTableOrder.FromTableIndex(invalid)), "Beam atlas rejects unsupported selection before decoding PNG");
+            AssertThrows<ArgumentOutOfRangeException>(() => BeamTileAtlas.Load(new MemoryStream(), SamusBeamCombinationTableOrderConstants.FromTableIndex(invalid)), "Beam atlas rejects unsupported selection before decoding PNG");
         Console.WriteLine("Beam tiles: twelve native256-byte uploads and the bound projectile page pass.");
 
         // The projectile page the selection binds shows the calculated characters where `$90:AC8D`'s DMA put them

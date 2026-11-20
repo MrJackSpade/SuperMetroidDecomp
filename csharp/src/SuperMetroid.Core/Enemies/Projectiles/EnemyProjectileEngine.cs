@@ -100,10 +100,6 @@ internal sealed class EnemyProjectileEngine
     /// <summary>How many places neither a live projectile nor the room's hold holds: the free places a spawn can take.</summary>
     public int FreePlaceCount => Enumerable.Range(0, EnemyProjectilePlaces.Capacity).Count(IsFree);
 
-    /// <summary>The latest projectile of <paramref name="place"/>, live or gone, or null while the room has spawned none into it.</summary>
-    /// <param name="place">The zero-based enemy-projectile place, zero for the last place spawns search.</param>
-    public EnemyProjectile? LatestInPlace(int place) => _places[Ensure.BetweenInclusive(0, EnemyProjectilePlaces.Capacity - 1, place)];
-
     /// <summary>
     /// The latest projectile of the place spawns search last, live or gone, or null while the room has spawned none into it:
     /// the one a falling statue piece's acceleration reads (<see cref="FirstPlaceFallAcceleration"/>, #2556).

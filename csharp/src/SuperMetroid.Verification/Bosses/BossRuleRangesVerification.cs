@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Powamp;
 
 namespace SuperMetroid.Verification.Bosses;
 

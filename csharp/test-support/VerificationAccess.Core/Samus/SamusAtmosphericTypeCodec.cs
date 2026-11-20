@@ -1,4 +1,4 @@
-namespace SuperMetroid.AssetExtraction.Samus;
+﻿namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// The cartridge's numbering of Samus's atmospheric effect types, decoded to the pictures each draws (#2556): type 1 the

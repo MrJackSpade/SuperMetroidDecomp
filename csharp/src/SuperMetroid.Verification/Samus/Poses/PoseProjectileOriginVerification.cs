@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Samus.SamusContentIdentityVerification;
 using static SuperMetroid.Verification.Hardware.WordSamplesVerification;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;

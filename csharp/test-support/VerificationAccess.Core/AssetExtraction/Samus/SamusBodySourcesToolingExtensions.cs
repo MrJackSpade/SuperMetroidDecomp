@@ -1,4 +1,4 @@
-namespace SuperMetroid.AssetExtraction.Samus;
+﻿namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Development-tool members of <see cref="SamusBodySources"/>, which audits and checks read (#1585).</summary>
 internal static class SamusBodySourcesToolingExtensions

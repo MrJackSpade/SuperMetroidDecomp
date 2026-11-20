@@ -12,12 +12,6 @@ internal static class FileSelectCursorPositions
     /// <summary>The save slots, A-C, each file-select page lists.</summary>
     internal const int SaveSlotCount = 3;
 
-    /// <summary>Slots A-C followed by Copy, Clear and Exit.</summary>
-    internal const int MainSelectionCount = 6;
-
-    /// <summary>Slots A-C followed by Exit.</summary>
-    internal const int DataSelectionCount = 4;
-
     /// <summary>The main-page cursor's X, the same for every choice.</summary>
     internal const int MainCursorX = 14;
 

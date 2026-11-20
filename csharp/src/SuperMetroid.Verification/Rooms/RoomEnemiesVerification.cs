@@ -1291,13 +1291,13 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
 
     Word(EscapeTypewriterControlWords.Delay);
     Word(EscapeTypewriterDefinitions.CharacterDelayFrames);
-    Word(checked((ushort)EscapeTypewriterControlWords.Word(EscapeTypewriterCommand.LineStart)));
+    Word(checked((ushort)EscapeTypewriterControlWordsConstants.Word(EscapeTypewriterCommand.LineStart)));
     Word(0x4905);
     Text("TIME BOMB SET!");
-    Word(checked((ushort)EscapeTypewriterControlWords.Word(EscapeTypewriterCommand.LineStart)));
+    Word(checked((ushort)EscapeTypewriterControlWordsConstants.Word(EscapeTypewriterCommand.LineStart)));
     Word(0x4945);
     Text("ESCAPE IMMEDIATELY!");
-    Word(checked((ushort)EscapeTypewriterControlWords.Word(EscapeTypewriterCommand.End)));
+    Word(checked((ushort)EscapeTypewriterControlWordsConstants.Word(EscapeTypewriterCommand.End)));
 }
 
 /// <summary>Seeds Ripper's literal four-frame right- and left-facing bank-$A2 instruction lists.</summary>

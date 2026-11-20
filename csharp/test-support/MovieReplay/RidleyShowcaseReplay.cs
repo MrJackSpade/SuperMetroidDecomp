@@ -4,7 +4,6 @@ using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using static SuperMetroid.TestSupport.MovieReplay.RidleySamusDrawReference;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;

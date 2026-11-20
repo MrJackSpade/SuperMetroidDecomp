@@ -34,7 +34,7 @@ internal static class FileSelectGeometryLookupsVerification
     /// <summary>Compares six main-menu cursor rows with native records and extracted positions.</summary>
     private static void VerifyFileSelectMainCursorY(ISnesAddressSpace rom, FileSelectPresentation presentation)
     {
-        AssertEqual(6, FileSelectCursorPositions.MainSelectionCount, "main selection count");
+        AssertEqual(6, FileSelectCursorPositionsConstants.MainSelectionCount, "main selection count");
         for (int row = 0; row < 6; row++)
         {
             ushort expected = ReadVerificationWord(rom, 0x81a312 + row * 4);
@@ -48,8 +48,8 @@ internal static class FileSelectGeometryLookupsVerification
     /// <summary>Compares four data-menu cursor rows from both native views with extracted positions.</summary>
     private static void VerifyFileSelectDataCursorY(ISnesAddressSpace rom, FileSelectPresentation presentation)
     {
-        AssertEqual(4, FileSelectCursorPositions.DataSelectionCount, "data selection count");
-        AssertEqual(FileSelectCursorPositions.DataSelectionCount, FileSelectItemRows.Data.Count, "the data pages show one row per cursor anchor");
+        AssertEqual(4, FileSelectCursorPositionsConstants.DataSelectionCount, "data selection count");
+        AssertEqual(FileSelectCursorPositionsConstants.DataSelectionCount, FileSelectItemRows.Data.Count, "the data pages show one row per cursor anchor");
         foreach (int address in new[] { 0x819772, 0x819c03 })
         for (int row = 0; row < 4; row++)
         {

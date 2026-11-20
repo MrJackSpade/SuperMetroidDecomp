@@ -32,8 +32,8 @@ internal static class ProjectileFileContractsVerification
         AssertTrue(ReferenceEquals(compiledBeams.Palettes, InstalledFixtures.ImportProjectiles.BeamPalettes),
             "the beam catalog and the import's read share the beam colours read from the import data");
         for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
-            AssertTrue(compiledBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrder.FromTableIndex(selection))).Span.SequenceEqual(
-                expectedBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrder.FromTableIndex(selection))).Span),
+            AssertTrue(compiledBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrderConstants.FromTableIndex(selection))).Span.SequenceEqual(
+                expectedBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrderConstants.FromTableIndex(selection))).Span),
                 "file-context beam assembly retains every transfer byte and selection");
         Dictionary<SuperMetroid.Core.Progression.SamusBeamCombination, BeamTileAtlas> sheets = BeamTileAtlasDefinitions.Pictured.ToDictionary(index => index, index =>
         {

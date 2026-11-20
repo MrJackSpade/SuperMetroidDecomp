@@ -13,7 +13,4 @@ internal static class BabyMetroidReactions
 
     /// <summary>The reaction of the Baby Metroid's own to her shots and bombs, which its entity answers.</summary>
     internal static EnemyReaction Shot => SpeciesOwnReactions.BabyMetroidShot;
-
-    /// <summary>The reaction of the Baby Metroid's own to Samus's touch in Mother Brain's cutscene, which its entity answers.</summary>
-    internal static EnemyReaction CutsceneTouch => SpeciesOwnReactions.BabyMetroidCutsceneTouch;
 }

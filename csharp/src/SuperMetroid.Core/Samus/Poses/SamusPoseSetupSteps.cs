@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
 
@@ -193,13 +194,13 @@ internal sealed class SamusPoseSetupSteps
             terrain.RoomObjects);
     }
 
-    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.AimShinespark"/> setup.</summary>
-    internal static void SetUpAimShinespark(SamusState samus, SamusPoseId targetPose)
+    /// <summary>Runs a shinespark windup's direction setup, launching the spark <paramref name="direction"/> names the way the target faces.</summary>
+    internal static void SetUpAimShinespark(SamusState samus, SamusPoseId targetPose, ShinesparkLaunchDirection direction)
     {
         // These are ordinary held/new input transitions, but
         // their transition hands her movement to a special owner instead of
         // invoking a normal movement-type setup.
-        SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus, targetPose);
+        SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus, direction.For(SamusPoseMetadata.ReadFacingDirection(targetPose)));
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeDraygonGrabbedPose"/> setup.</summary>

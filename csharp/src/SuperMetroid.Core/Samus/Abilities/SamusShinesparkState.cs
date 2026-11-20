@@ -193,23 +193,31 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Starts the shinespark windup after Samus's pose handling has
-    /// selected windup <see cref="SamusPoseId.ShinesparkWindupRightPose"/> and <see cref="SamusPoseId.ShinesparkWindupLeftPose"/>.
+    /// Starts the shinespark windup from a live stored shine, in <see cref="SamusPoseId.ShinesparkWindupRightPose"/> facing
+    /// right and <see cref="SamusPoseId.ShinesparkWindupLeftPose"/> otherwise; without one nothing changes.
     /// </summary>
-    public void BeginWindup(SamusState samus)
+    /// <param name="samus">Samus, whose pose handling chose a normal jump that begins a shinespark from a stored shine.</param>
+    /// <param name="facing">The way the chosen jump faces.</param>
+    /// <returns>Whether a stored shine started the windup.</returns>
+    public bool TryBeginWindup(SamusState samus, SamusFacingDirection facing)
     {
         Ensure.NotNull(samus);
         if (!SamusInputSnapshot.HoldsShine(samus))
-            throw new InvalidOperationException("Shinespark windup requires a live stored shine.");
+            return false;
 
+        samus.Pose = facing == SamusFacingDirection.Right
+            ? SamusPoseId.ShinesparkWindupRightPose
+            : SamusPoseId.ShinesparkWindupLeftPose;
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         InitializeWindup(samus);
+        return true;
     }
 
     /// <summary>The two shinespark demos start the windup without a stored shine.</summary>
-    internal void BeginDemoLaunch(SamusState samus, SamusPoseId targetPose)
+    internal void BeginDemoLaunch(SamusState samus, ShinesparkLaunch launch)
     {
         InitializeWindup(samus);
-        BeginDirectionalLaunch(samus, targetPose);
+        BeginDirectionalLaunch(samus, launch);
     }
 
     /// <summary>Cancels beam charge and installs the spark windup, shade and boost state.</summary>
@@ -253,32 +261,25 @@ public sealed class SamusShinesparkState
         samus.HurtFlash.Clear();
     }
 
-    /// <summary>
-    /// Starts the launch the shinespark's direction selects for a horizontal, vertical or diagonal shinespark pose,
-    /// taking its pose at once.
-    /// </summary>
-    public void BeginDirectionalLaunch(SamusState samus, SamusPoseId targetPose)
+    /// <summary>Starts <paramref name="launch"/>'s horizontal, vertical or diagonal spark, taking its pose at once.</summary>
+    public void BeginDirectionalLaunch(SamusState samus, ShinesparkLaunch launch)
     {
-        BeginLaunchAwaitingPose(samus, targetPose);
-        ApplyDirectionalLaunchPose(samus, targetPose);
+        Ensure.NotNull(launch);
+        BeginLaunchAwaitingPose(samus, launch);
+        ApplyDirectionalLaunchPose(samus, launch.Pose);
     }
 
     /// <summary>
-    /// Starts the launch <paramref name="targetPose"/> selects, leaving the pose itself for the frame's pose update
+    /// Starts <paramref name="launch"/>'s spark, leaving its pose for the frame's pose update
     /// (<see cref="ApplyDirectionalLaunchPose"/>).
     /// </summary>
-    private void BeginLaunchAwaitingPose(SamusState samus, SamusPoseId targetPose)
+    private void BeginLaunchAwaitingPose(SamusState samus, ShinesparkLaunch launch)
     {
         Ensure.NotNull(samus);
         // The launch takes Samus's movement from whoever holds it. A windup whose hold
         // her pose's movement took back (a knockback ending in a windup pose) keeps its
         // pose and the windup's speeds, and a direction still launches from it.
-        // Only the six directional shinespark poses launch a spark; any other pose is a broken contract, not another
-        // launch the game has.
-        Phase = ShinesparkDefinitions.LaunchPhases.TryGetValue(targetPose, out ShinesparkPhase launch)
-            ? launch
-            : throw new ArgumentOutOfRangeException(nameof(targetPose), targetPose,
-                "Only the six directional shinespark poses launch a spark.");
+        Phase = launch.Phase;
 
         samus.InputSnapshot.ShinesparkPoseInputLocked = true;
         samus.InputSnapshot.AutoJump.Reinstate();
@@ -313,12 +314,10 @@ public sealed class SamusShinesparkState
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
             {
-                SamusPoseId verticalPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
-                    ? SamusPoseId.ShinesparkVerticalLeftPose
-                    : SamusPoseId.ShinesparkVerticalRightPose;
+                ShinesparkLaunch verticalLaunch = ShinesparkLaunchDirection.Vertical.For(SamusPoseMetadata.ReadFacingDirection(samus));
                 // The launch's pose waits for the frame's pose update, so Samus's animation still sees the windup body.
-                BeginLaunchAwaitingPose(samus, verticalPose);
-                pendingLaunchPose = verticalPose;
+                BeginLaunchAwaitingPose(samus, verticalLaunch);
+                pendingLaunchPose = verticalLaunch.Pose;
             }
 
             return new ShinesparkMovementResult(

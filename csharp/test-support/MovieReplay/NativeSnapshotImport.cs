@@ -199,12 +199,11 @@ internal static class NativeSnapshotImport
             ?? throw new InvalidDataException("The native Ridley checkpoint names no top body picture.");
         PrivateState.Set(samus.Presentation, "DrawnFrame", new SamusBodyFrame(drawnTop.Pose, SamusAnimationNumbers.Frame(drawnTop.Pose, drawnTop.AnimationFrame)));
         PrivateState.Set(samus.Presentation, "DrawOrigin", Offset16<ScreenPixels>.Wrapped(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY)));
-        PrivateState.Set(samus.ArmCannon, "Frame", SamusArmCannonCoverNativeCodec.FromNative(W(NativeSnapshotMemory.CannonFrame)));
         PrivateState.SetField(samus.ArmCannon, "stability",
             UpdateCountdownAccess.AtAge(SamusArmCannonDefinitions.StableSelectionUpdates, W(NativeSnapshotMemory.CannonToggle)));
         PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.DrawOrder), SuperMetroid.AssetExtraction.Samus.SamusArmCannonDrawOrderCodec.FromDrawingMode(W(NativeSnapshotMemory.CannonDrawingMode)));
-        PrivateState.Set(samus.ArmCannon, "IsOpen", memory[NativeSnapshotMemory.CannonFlags] != 0);
-        PrivateState.Set(samus.ArmCannon, "IsTransitioning", memory[NativeSnapshotMemory.CannonFlags + 1] != 0);
+        ImportArmCannonCover(samus, memory[NativeSnapshotMemory.CannonFlags] != 0, memory[NativeSnapshotMemory.CannonFlags + 1] != 0,
+            SamusArmCannonCoverNativeCodec.FromNative(W(NativeSnapshotMemory.CannonFrame)));
         new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,
             NativeSnapshotMemory.SamusSlopeAdjusted - NativeSnapshotMemory.ProjectileInheritancePrefix));
         global::SuperMetroid.Core.PrivateState.Set(samus.Kinematics, "PositionAdjustedBySlope", W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0);
@@ -457,6 +456,25 @@ internal static class NativeSnapshotImport
     /// pass. Native colour memory already holds those frames' records at the checkpoint, while the imported slots only
     /// resume their programs, which show their next frame later.
     /// </summary>
+    /// <summary>
+    /// Imports the arm cannon cover's recorded state: whether it is open or opening, and the picture shown, which is where
+    /// it stands in its opening's or its closing's pictures. A recorded transition flag that disagrees with that place is no
+    /// state the game reaches.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The recorded picture or transition flag is no place in the cover's opening or closing.</exception>
+    private static void ImportArmCannonCover(SamusState samus, bool open, bool transitioning, SamusArmCannonCoverFrame? frame)
+    {
+        SamusArmCannonCoverFrame?[] pictures = open
+            ? [SamusArmCannonCoverFrame.SlightlyOpen, SamusArmCannonCoverFrame.HalfOpen, SamusArmCannonCoverFrame.FullyOpen]
+            : [SamusArmCannonCoverFrame.FullyOpen, SamusArmCannonCoverFrame.HalfOpen, SamusArmCannonCoverFrame.SlightlyOpen, null];
+        int step = Array.IndexOf(pictures, frame);
+        if (step < 0 || transitioning != step < pictures.Length - 1)
+            throw new InvalidDataException(
+                $"The recorded arm cannon cover (open {open}, transitioning {transitioning}, picture {frame}) is no place in its opening or closing.");
+        PrivateState.Set(samus.ArmCannon, "IsOpen", open);
+        PrivateState.Set(samus.ArmCannon, "ShownStep", step);
+    }
+
     /// <exception cref="InvalidOperationException">A live object's frame lies in colours no gameplay picture shows.</exception>
     private static void ImportShownPaletteFxFrames(SuperMetroidRuntime runtime)
     {

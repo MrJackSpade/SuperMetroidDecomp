@@ -371,6 +371,13 @@ internal static class SamusPoseMetadata
     public static bool IsLeftFacingCrouchingPose(SamusPoseId pose) => IsRightFacingCrouchingPose(SamusPoseMirror.Of(pose));
 
     /// <summary>
+    /// True for the X-ray scope's two crouching poses, which have the <see cref="SamusMovementType.Crouching"/> movement
+    /// type outside the crouching family.
+    /// </summary>
+    public static bool IsXrayCrouchingPose(SamusPoseId pose) => pose is
+        SamusPoseId.XrayingCrouchingRightPose or SamusPoseId.XrayingCrouchingLeftPose;
+
+    /// <summary>
     /// True for the grounded poses that start a fall when their movement finds no floor below: standing, landing,
     /// running, moonwalking, knockback, ran-into-wall and crouching, facing either way. The X-ray, death-sequence and
     /// forward-facing bodies share some of these movement types but are not among them, and a turn finishes into its

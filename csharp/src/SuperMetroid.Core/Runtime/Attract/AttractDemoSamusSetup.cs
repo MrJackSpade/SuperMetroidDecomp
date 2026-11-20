@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Runtime.Attract;
@@ -50,10 +51,10 @@ public abstract record AttractDemoSamusSetup
     }
 
     /// <summary>Samus starts already launched into a shinespark.</summary>
-    /// <param name="LaunchPose">The shinespark pose the launch starts her in.</param>
-    public sealed record Shinespark(SamusPoseId LaunchPose) : AttractDemoSamusSetup
+    /// <param name="Launch">The shinespark launch she starts in.</param>
+    public sealed record Shinespark(ShinesparkLaunch Launch) : AttractDemoSamusSetup
     {
         /// <inheritdoc />
-        internal override void Apply(SamusState samus) => samus.Shinespark.BeginDemoLaunch(samus, LaunchPose);
+        internal override void Apply(SamusState samus) => samus.Shinespark.BeginDemoLaunch(samus, Launch);
     }
 }

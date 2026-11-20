@@ -27,11 +27,13 @@ internal interface ISamusPoseMovementSteps
     /// <summary>The turn in the air.</summary>
     void StepTurningInAir();
 
-    /// <summary>The Morph Ball's and the Spring Ball's movement on the ground.</summary>
-    void StepMorphBallGrounded();
+    /// <summary>The Morph Ball's or the Spring Ball's movement on the ground, the one <paramref name="movement"/> is.</summary>
+    /// <param name="movement">The grounded ball's movement its movement type selects.</param>
+    void StepBallGrounded(SamusMovement.GroundedBallMovement movement);
 
-    /// <summary>The Morph Ball's and the Spring Ball's fall.</summary>
-    void StepMorphBallFalling();
+    /// <summary>The Morph Ball's or the Spring Ball's fall, the one <paramref name="movement"/> is.</summary>
+    /// <param name="movement">The falling ball's movement its movement type selects.</param>
+    void StepBallFalling(SamusMovement.FallingBallMovement movement);
 
     /// <summary>The Spring Ball's jump.</summary>
     void StepSpringBallInAir();

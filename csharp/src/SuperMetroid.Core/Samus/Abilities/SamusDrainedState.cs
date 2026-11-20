@@ -220,20 +220,17 @@ public sealed class SamusDrainedState
         // The game raises her center by the drained pose's radius less her previous one before changing the
         // pose. This preserves the previous bottom boundary even when the source body did
         // not already have the drained pose's radius.
-        int sourceRadius = samus.Kinematics.Radius.Y;
-        samus.Position = samus.Position.WithWholeY(
-            samus.Position.Y.Whole - (SamusDrainedAnimationDefinitions.CrouchingYRadius - sourceRadius));
-
         // A left-facing pose chooses the left-facing drained pose; every other facing chooses the right-facing one.
         // Read it before replacing the pose, exactly as the drained setup does.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        samus.Pose = facingLeft
+        SamusPoseId drainedPose = facingLeft
             ? SamusPoseId.DrainedCrouchingLeftPose
             : SamusPoseId.DrainedCrouchingRightPose;
+        int sourceRadius = samus.Kinematics.Radius.Y;
+        samus.Position = samus.Position.WithWholeY(
+            samus.Position.Y.Whole - (SamusPoseMetadata.ReadPoseYRadius(drainedPose) - sourceRadius));
+        samus.Pose = drainedPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Special ||
-            samus.Kinematics.Radius.Y != SamusDrainedAnimationDefinitions.CrouchingYRadius)
-            throw new InvalidDataException("The drained crouching poses' metadata changed unexpectedly.");
 
         // The new pose starts on the collapse's third frame. The animation is initialized here,
         // but the special movement type keeps her still until the drained-fall

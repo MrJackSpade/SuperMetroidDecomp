@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Grapple;
@@ -459,16 +460,11 @@ internal static class SamusAerialPoseTransitions
         SamusPoseId targetPose,
         SamusMovementType previousMovementType)
     {
-        if (!SamusPoseMetadata.BeginsShinesparkFromStoredShine(targetPose) || !SamusInputSnapshot.HoldsShine(samus))
+        if (!SamusPoseMetadata.BeginsShinesparkFromStoredShine(targetPose) ||
+            !samus.Shinespark.TryBeginWindup(samus, SamusPoseMetadata.ReadFacingDirection(targetPose)))
         {
             return false;
         }
-
-        samus.Pose = SamusPoseMetadata.ReadFacingDirection(targetPose) == SamusFacingDirection.Right
-            ? SamusPoseId.ShinesparkWindupRightPose
-            : SamusPoseId.ShinesparkWindupLeftPose;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        samus.Shinespark.BeginWindup(samus);
 
         // From a normal jump (the PREVIOUS movement type), Samus is lifted one pixel and
         // the result becomes both current and previous Y, so this frame's vertical scroll sees no motion.
@@ -483,18 +479,12 @@ internal static class SamusAerialPoseTransitions
     }
 
     /// <summary>
-    /// Applies a shinespark windup's directional input-transition match and installs its exact special
-    /// movement owner. No ordinary jump velocity or grounded momentum step runs.
+    /// Applies a shinespark windup's directional input-transition match, whose launch only the windup's input lists
+    /// choose, and installs its exact special movement owner. No ordinary jump velocity or grounded momentum step runs.
     /// </summary>
-    public static void ApplyShinesparkDirectionTransition(SamusState samus, SamusPoseId targetPose)
+    public static void ApplyShinesparkDirectionTransition(SamusState samus, ShinesparkLaunch launch)
     {
-        if (samus.Pose is not (SamusPoseId.ShinesparkWindupRightPose or SamusPoseId.ShinesparkWindupLeftPose))
-        {
-            throw new InvalidOperationException(
-                $"Directional shinespark transition requires windup pose, not {samus.Pose}.");
-        }
-
-        samus.Shinespark.BeginDirectionalLaunch(samus, targetPose);
+        samus.Shinespark.BeginDirectionalLaunch(samus, launch);
     }
 
     /// <summary>

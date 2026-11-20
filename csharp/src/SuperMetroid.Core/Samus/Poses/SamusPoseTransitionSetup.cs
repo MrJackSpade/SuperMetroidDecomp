@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Poses;
@@ -107,9 +108,17 @@ public sealed class SamusPoseTransitionSetup
     internal static SamusPoseTransitionSetup ChangeCompactAerialPose { get; } = new(nameof(ChangeCompactAerialPose),
         (owner, _, samus, targetPose, terrain) => owner.SetUpChangeCompactAerialPose(samus, targetPose, terrain));
 
-    /// <summary>A shinespark windup's direction launches the shinespark.</summary>
-    internal static SamusPoseTransitionSetup AimShinespark { get; } = new(nameof(AimShinespark),
-        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpAimShinespark(samus, targetPose));
+    /// <summary>A shinespark windup's direction launches the horizontal shinespark.</summary>
+    internal static SamusPoseTransitionSetup AimShinesparkHorizontal { get; } = new(nameof(AimShinesparkHorizontal),
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpAimShinespark(samus, targetPose, ShinesparkLaunchDirection.Horizontal));
+
+    /// <summary>A shinespark windup's direction launches the vertical shinespark.</summary>
+    internal static SamusPoseTransitionSetup AimShinesparkVertical { get; } = new(nameof(AimShinesparkVertical),
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpAimShinespark(samus, targetPose, ShinesparkLaunchDirection.Vertical));
+
+    /// <summary>A shinespark windup's direction launches the diagonal shinespark.</summary>
+    internal static SamusPoseTransitionSetup AimShinesparkDiagonal { get; } = new(nameof(AimShinesparkDiagonal),
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpAimShinespark(samus, targetPose, ShinesparkLaunchDirection.Diagonal));
 
     /// <summary>She aims, fires or struggles differently while Draygon holds her.</summary>
     internal static SamusPoseTransitionSetup ChangeDraygonGrabbedPose { get; } = new(nameof(ChangeDraygonGrabbedPose),

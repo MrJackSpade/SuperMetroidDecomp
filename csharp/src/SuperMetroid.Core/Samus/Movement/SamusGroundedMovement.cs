@@ -45,12 +45,6 @@ public static class SamusGroundedMovement
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
-        if (!SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
-        {
-            throw new InvalidOperationException(
-                $"Forward-facing movement requires a forward-facing pose, not {samus.Pose}.");
-        }
-
         if (elevatorIsMoving)
         {
             // A moving elevator carries Samus down one whole pixel through the downward mover; the collision direction
@@ -67,9 +61,16 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Runs the movement-relevant portion of standing movement for either facing:
-    /// the right-facing standing family or the left-facing one, unaimed or aimed.
+    /// Runs standing movement for every pose of the standing movement type that does not face forward: the standing
+    /// poses, unaimed or aimed, the X-ray scope's standing poses, and every landing, the ordinary and spin landings plus
+    /// the aimed and horizontally firing ones. As the game's standing movement does, it reads only the way the pose faces.
     /// </summary>
+    /// <remarks>
+    /// Landing animation is cosmetic with respect to movement: a landing moves as standing does until the animation cue's
+    /// pose transition returns to <see cref="SamusPoseId.FacingRightNormalPose"/> and <see cref="SamusPoseId.FacingLeftNormalPose"/>.
+    /// It does not reset Y values: settling the accepted landing owns its cleanup, and a later hurt expiry may write a
+    /// downward direction while a landing pose remains, which must survive.
+    /// </remarks>
     internal static GroundedMovementResult StepStanding(
         RoomLevelData level,
         SamusState samus,
@@ -79,13 +80,6 @@ public static class SamusGroundedMovement
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
-        bool facingLeft = SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose);
-        if (!facingLeft && !SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose))
-        {
-            throw new InvalidOperationException(
-                $"Standing movement requires a standing pose, not {samus.Pose}.");
-        }
-
         ResetStandingShotAnimation(samus, controllerInput);
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
@@ -95,7 +89,7 @@ public static class SamusGroundedMovement
         // a freshly spawned standing Samus normally has zero base/extra speed. A left-facing
         // pose's direction is left, so the displacement is leftward even though its
         // base speed is zero, which matters once extra displacement contributes.
-        var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed: default);
+        var requestedHorizontal = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -122,7 +116,8 @@ public static class SamusGroundedMovement
 
     /// <summary>
     /// Runs running movement in dry air, including ordinary Dash, for either
-    /// facing: the right-moving running family or the left-moving one, unaimed or aimed.
+    /// facing: the right-moving running family or the left-moving one, unaimed or aimed. As the game's running movement
+    /// does, it reads only the way the pose faces.
     /// </summary>
     internal static GroundedMovementResult StepRunning(
         RoomLevelData level,
@@ -133,13 +128,7 @@ public static class SamusGroundedMovement
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
-        bool facingLeft = SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose);
-        if (!facingLeft && !SamusPoseMetadata.IsRightFacingRunningPose(samus.Pose))
-        {
-            throw new InvalidOperationException(
-                $"Running movement requires a pose of the running families, not {samus.Pose}.");
-        }
-
+        bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // The liquid Samus's bottom boundary lies in can replace her ordinary speeds with the water or lava
@@ -188,7 +177,13 @@ public static class SamusGroundedMovement
     /// The latter is misleading for the aimed crouching turns: crouched entry leaves no vertical
     /// direction, so the game runs its no-speed grounding probe rather than airborne gravity.
     /// </summary>
+    /// <param name="movement">The turn on the ground the movement dispatch selected, whose movement type the turn reads.</param>
+    /// <param name="level">The room's level data the turn collides with.</param>
+    /// <param name="samus">Samus, turning.</param>
+    /// <param name="frameCounter">The update's frame counter, whose parity picks the scan's column order.</param>
+    /// <param name="roomObjects">The room's room objects her scans reach.</param>
     internal static GroundedMovementResult StepTurningOnGround(
+        SamusMovement.GroundTurnMovement movement,
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -196,28 +191,7 @@ public static class SamusGroundedMovement
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
-        bool turnsLeft = SamusPoseMetadata.IsRightToLeftGroundTurnPose(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkTurnJumpLeftPose(samus.Pose);
-        bool turnsRight = SamusPoseMetadata.IsLeftToRightGroundTurnPose(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkTurnJumpRightPose(samus.Pose);
-        if (!turnsLeft && !turnsRight)
-        {
-            throw new InvalidOperationException(
-                $"Grounded-turn movement requires a standing, crouched, or moonwalk turn pose, not {samus.Pose}.");
-        }
-
-        SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
-        if (movementType is not (SamusMovementType.TurningOnGround or SamusMovementType.TurningRisingOrAimedCrouched))
-            throw new InvalidOperationException(
-                $"Grounded turn pose {samus.Pose} has movement type {movementType}.");
-        if (movementType == SamusMovementType.TurningRisingOrAimedCrouched && !SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose))
-            throw new InvalidOperationException($"A grounded rising-or-aimed-crouched turn requires an aimed crouched turn, not {samus.Pose}.");
-        if (movementType == SamusMovementType.TurningRisingOrAimedCrouched && !samus.Kinematics.VerticalVelocity.HasNoDirection)
-        {
-            throw new InvalidOperationException(
-                $"Airborne rising-or-aimed-crouched turn pose {samus.Pose} must execute through SamusAerialMovement.StepTurningInAir.");
-        }
-
+        SamusMovementType movementType = movement.Type;
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectSpeedsFor(liquidMedium);
@@ -308,7 +282,8 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Runs ran-into-wall movement for the ran-into-wall poses, unaimed or aimed.
+    /// Runs ran-into-wall movement for the ran-into-wall poses, unaimed or aimed. As the game's movement does, it reads only
+    /// the way the pose faces.
     /// </summary>
     internal static GroundedMovementResult StepRanIntoWall(
         RoomLevelData level,
@@ -318,13 +293,6 @@ public static class SamusGroundedMovement
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
-        if (!SamusPoseMetadata.IsRanIntoWallPose(samus.Pose) ||
-            SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.RanIntoWall)
-        {
-            throw new InvalidOperationException(
-                $"Ran-into-wall movement requires a ran-into-wall pose, not {samus.Pose}.");
-        }
-
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // Ran-into-wall movement uses the same no-base-speed X movement as standing. Direction still
@@ -347,50 +315,6 @@ public static class SamusGroundedMovement
         // Ran-into-wall movement then cancels the speed boost and clears both run/base components plus
         // acceleration mode on every frame.
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-        return new GroundedMovementResult(horizontal, vertical);
-    }
-
-    /// <summary>
-    /// Runs standing movement for every landing pose: the ordinary
-    /// and spin landings, plus the aimed and horizontally firing landings.
-    /// Landing animation is cosmetic with respect to movement: every member uses standing's
-    /// zero-base-speed horizontal pass, grounding probe, and momentum cleanup until the animation
-    /// cue's pose transition returns to <see cref="SamusPoseId.FacingRightNormalPose"/> and <see cref="SamusPoseId.FacingLeftNormalPose"/>.
-    /// </summary>
-    internal static GroundedMovementResult StepLanding(
-        RoomLevelData level,
-        SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
-    {
-        Ensure.NotNull(level);
-        Ensure.NotNull(samus);
-        // Do not duplicate the pose list here. The predicates are the single audited definition
-        // of the standing movement type's landing family and deliberately include the two firing
-        // landings. Keeping the movement selection and this defensive guard on the same predicates prevents a
-        // landing the selection admits from being rejected here.
-        if (!SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose) &&
-            !SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose))
-        {
-            throw new InvalidOperationException(
-                $"Landing movement requires a landing pose, not {samus.Pose}.");
-        }
-
-        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        var requestedHorizontal = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
-        if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-
-        BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            level,
-            samus,
-            frameCounter,
-            roomObjects);
-        speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-        // Landing art still uses standing movement: it does not reset Y values.
-        // Settling the accepted landing owns its cleanup; a later hurt expiry may write
-        // a downward direction while this pose remains active, and that value must survive.
         return new GroundedMovementResult(horizontal, vertical);
     }
 

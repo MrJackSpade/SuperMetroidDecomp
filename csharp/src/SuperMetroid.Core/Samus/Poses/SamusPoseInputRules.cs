@@ -809,11 +809,11 @@ internal static class SamusPoseInputRules
     internal static SamusPoseInputMatch MatchShinesparkWindupRight(GameplayAction held)
     {
         if (Has(held, Jump | Up))
-            return Accept(SamusPoseId.ShinesparkVerticalRightPose, AimShinespark);
+            return Accept(SamusPoseId.ShinesparkVerticalRightPose, AimShinesparkVertical);
         if (Has(held, AimUp | Jump))
-            return Accept(SamusPoseId.ShinesparkDiagonalRightPose, AimShinespark);
+            return Accept(SamusPoseId.ShinesparkDiagonalRightPose, AimShinesparkDiagonal);
         if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.ShinesparkHorizontalRightPose, AimShinespark);
+            return Accept(SamusPoseId.ShinesparkHorizontalRightPose, AimShinesparkHorizontal);
         return new(null, HasConditions: true);
     }
 

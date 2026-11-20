@@ -718,7 +718,7 @@ internal sealed class SamusFramePhases
         public void StepRanIntoWall() => _move.Frame.Record(SamusGroundedMovement.StepRanIntoWall(_move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
 
         /// <inheritdoc/>
-        public void StepTurningOnGround() => _phases.StepTurningOnGround(_move);
+        public void StepTurningOnGround() => _phases.StepTurningOnGround(_move, SamusMovement.TurningOnGround);
 
         /// <inheritdoc/>
         public void StepTurningWhileJumping() => _phases.StepTurningWhileJumpingPose(_move);
@@ -727,13 +727,13 @@ internal sealed class SamusFramePhases
         public void StepTurningInAir() => _phases.StepTurningInAir(_move, SamusMovement.TurningWhileFalling);
 
         /// <inheritdoc/>
-        public void StepMorphBallGrounded() => _phases.StepMorphBallGrounded(_move);
+        public void StepBallGrounded(SamusMovement.GroundedBallMovement movement) => _move.Frame.Record(SamusMorphBallMovement.StepGrounded(movement, _move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
 
         /// <inheritdoc/>
-        public void StepMorphBallFalling() => _phases.StepMorphBallFalling(_move);
+        public void StepBallFalling(SamusMovement.FallingBallMovement movement) => _move.Frame.Record(SamusMorphBallMovement.StepFalling(movement, _move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
 
         /// <inheritdoc/>
-        public void StepSpringBallInAir() => _move.Frame.Record(SamusMorphBallMovement.StepSpringBallInAir(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+        public void StepSpringBallInAir() => _move.Frame.Record(SamusMorphBallMovement.StepSpringBallInAir(SamusMovement.SpringBallInAir, _move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
 
         /// <inheritdoc/>
         public void StepNormalJump() => _move.Frame.Record(SamusAerialMovement.StepNormalJump(SamusMovement.NormalJumping, _move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
@@ -751,7 +751,9 @@ internal sealed class SamusFramePhases
         public void StepFalling() => _move.Frame.Record(SamusAerialMovement.StepFalling(SamusMovement.Falling, _move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
 
         /// <inheritdoc/>
-        public void StepCrouching() => _move.Frame.Record(SamusPostureMovement.StepCrouching(_move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
+        public void StepCrouching() => _move.Frame.Record(SamusPostureMovement.StepCrouching(
+            SamusPoseMetadata.IsXrayCrouchingPose(_move.Samus.Pose) ? SamusMovement.XrayCrouching : SamusMovement.Crouching,
+            _move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
 
         /// <inheritdoc/>
         public void StepKnockbackEnding() => _phases.StepKnockbackEndingMovement(_move);
@@ -771,13 +773,11 @@ internal sealed class SamusFramePhases
         }
     }
 
-    /// <summary>The standing movement type's movement: the forward-facing poses' and the landings' own steps, otherwise standing's.</summary>
+    /// <summary>The standing movement type's movement, as the game's: the forward-facing poses' own step, otherwise standing's.</summary>
     private void StepStandingPose(PoseMove move)
     {
         if (SamusPoseMetadata.IsForwardFacingPose(move.Samus.Pose))
             StepForwardFacingMovement(move.Samus, move.Room);
-        else if (SamusPoseMetadata.IsLandingPose(move.Samus.Pose))
-            move.Frame.Record(SamusGroundedMovement.StepLanding(move.Level, move.Samus, _clock.Counter, move.RoomObjects));
         else
             move.Frame.Record(SamusGroundedMovement.StepStanding(move.Level, move.Samus, _clock.Counter, _playerActions.Current, move.RoomObjects));
     }
@@ -793,22 +793,16 @@ internal sealed class SamusFramePhases
         // ground.
         if (SamusPoseMetadata.IsAimedCrouchingTurnPose(move.Samus.Pose) &&
             move.Samus.Kinematics.VerticalVelocity.HasNoDirection)
-            StepTurningOnGround(move);
+            StepTurningOnGround(move, SamusMovement.AimedCrouchedTurningOnGround);
         else
             StepTurningInAir(move, SamusMovement.TurningRisingOrAimedCrouched);
     }
 
-    /// <summary>The turn on the ground.</summary>
-    private void StepTurningOnGround(PoseMove move) => move.Frame.Record(SamusGroundedMovement.StepTurningOnGround(move.Level, move.Samus, _clock.Counter, move.RoomObjects));
+    /// <summary>The turn on the ground, by the turning movement type that turns it there.</summary>
+    private void StepTurningOnGround(PoseMove move, SamusMovement.GroundTurnMovement movement) => move.Frame.Record(SamusGroundedMovement.StepTurningOnGround(movement, move.Level, move.Samus, _clock.Counter, move.RoomObjects));
 
     /// <summary>The turn in the air, by the turning movement type that turns it there.</summary>
     private void StepTurningInAir(PoseMove move, SamusMovement.AerialTurnMovement movement) => move.Frame.Record(SamusAerialMovement.StepTurningInAir(movement, move.Level, move.Samus, _clock.Counter, move.RoomObjects));
-
-    /// <summary>The Morph Ball's and the Spring Ball's movement on the ground.</summary>
-    private void StepMorphBallGrounded(PoseMove move) => move.Frame.Record(SamusMorphBallMovement.StepGrounded(move.Level, move.Samus, _clock.Counter, move.RoomObjects));
-
-    /// <summary>The Morph Ball's and the Spring Ball's fall.</summary>
-    private void StepMorphBallFalling(PoseMove move) => move.Frame.Record(SamusMorphBallMovement.StepFalling(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects));
 
     /// <summary>
     /// The posture transition movement type's movement: the morph transitions' own step, the Draygon-held stand-up's hold,

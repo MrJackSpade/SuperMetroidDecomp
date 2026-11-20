@@ -26,14 +26,31 @@ public sealed class SamusArmCannonState
     /// <summary>Starts a closed cover placed by <paramref name="artwork"/>'s arm-cannon placements.</summary>
     internal SamusArmCannonState(SamusArtworkBinding artwork) => _artwork = Ensure.NotNull(artwork);
 
+    /// <summary>The cover's pictures as it opens: slightly, half, then fully open.</summary>
+    private static readonly IReadOnlyList<SamusArmCannonCoverFrame?> OpeningFrames =
+        [SamusArmCannonCoverFrame.SlightlyOpen, SamusArmCannonCoverFrame.HalfOpen, SamusArmCannonCoverFrame.FullyOpen];
+
+    /// <summary>The cover's pictures as it closes: fully, half, then slightly open, then closed with none.</summary>
+    private static readonly IReadOnlyList<SamusArmCannonCoverFrame?> ClosingFrames =
+        [SamusArmCannonCoverFrame.FullyOpen, SamusArmCannonCoverFrame.HalfOpen, SamusArmCannonCoverFrame.SlightlyOpen, null];
+
     /// <summary>Whether the cover is open or opening; false while closed or closing.</summary>
     private bool IsOpen { get; set; }
 
+    /// <summary>
+    /// How far through its opening's or its closing's pictures the cover is; the last picture ends the transition. A new
+    /// cover is closed.
+    /// </summary>
+    private int ShownStep { get; set; } = ClosingFrames.Count - 1;
+
+    /// <summary>The pictures the cover opens or closes through.</summary>
+    private IReadOnlyList<SamusArmCannonCoverFrame?> TransitionFrames => IsOpen ? OpeningFrames : ClosingFrames;
+
     /// <summary>Whether an opening or closing is still under way.</summary>
-    private bool IsTransitioning { get; set; }
+    private bool IsTransitioning => ShownStep < TransitionFrames.Count - 1;
 
     /// <summary>The cover picture shown, or null while the cover is closed.</summary>
-    private SamusArmCannonCoverFrame? Frame { get; set; }
+    private SamusArmCannonCoverFrame? Frame => TransitionFrames[ShownStep];
 
     /// <summary>
     /// The HUD selection's stability wait, lasting <see cref="SamusArmCannonDefinitions.StableSelectionUpdates"/>: a
@@ -119,9 +136,8 @@ public sealed class SamusArmCannonState
         if (IsOpen == opens)
             return;
 
-        Frame = opens ? SamusArmCannonCoverFrame.SlightlyOpen : SamusArmCannonCoverFrame.FullyOpen;
         IsOpen = opens;
-        IsTransitioning = true;
+        ShownStep = 0;
     }
 
     /// <summary>Where the installed artwork places the cover for <paramref name="pose"/>.</summary>
@@ -132,30 +148,6 @@ public sealed class SamusArmCannonState
     /// Moves the cover one picture toward fully open or closed; reaching either ends the transition while keeping the
     /// open state.
     /// </summary>
-    private void AdvanceFrame()
-    {
-        if (IsOpen)
-        {
-            Frame = Frame switch
-            {
-                null => SamusArmCannonCoverFrame.SlightlyOpen,
-                SamusArmCannonCoverFrame.SlightlyOpen => SamusArmCannonCoverFrame.HalfOpen,
-                SamusArmCannonCoverFrame.HalfOpen or SamusArmCannonCoverFrame.FullyOpen => SamusArmCannonCoverFrame.FullyOpen,
-                _ => throw new InvalidOperationException($"Undefined arm cannon cover frame {Frame}."),
-            };
-            IsTransitioning = Frame != SamusArmCannonCoverFrame.FullyOpen;
-        }
-        else
-        {
-            Frame = Frame switch
-            {
-                SamusArmCannonCoverFrame.FullyOpen => SamusArmCannonCoverFrame.HalfOpen,
-                SamusArmCannonCoverFrame.HalfOpen => SamusArmCannonCoverFrame.SlightlyOpen,
-                SamusArmCannonCoverFrame.SlightlyOpen or null => null,
-                _ => throw new InvalidOperationException($"Undefined arm cannon cover frame {Frame}."),
-            };
-            IsTransitioning = Frame is not null;
-        }
-    }
+    private void AdvanceFrame() => ShownStep++;
 
 }

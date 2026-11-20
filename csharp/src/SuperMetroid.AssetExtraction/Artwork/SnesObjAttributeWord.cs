@@ -31,12 +31,14 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     /// <summary>Gets the two-bit OBJ priority tier, from 0 through 3.</summary>
     private int Priority => (Raw >> PriorityShift) & TwoBitMask;
     /// <summary>
-    /// Where the object draws among the room's layers: tiers zero and one behind the whole room, tier two between its back
-    /// and front tiles, tier three in front of it.
+    /// Where the object draws among the room's layers: tiers zero and one behind the whole room, tier zero behind a turning
+    /// floor and tier one in front of it (#2583), tier two between the room's back and front tiles, tier three in front of
+    /// the room.
     /// </summary>
     public ActorDepth Depth => Priority switch
     {
-        0 or 1 => ActorDepth.BehindRoom,
+        0 => ActorDepth.BehindRoom,
+        1 => ActorDepth.BehindRoomInFrontOfFloor,
         2 => ActorDepth.BehindFrontParts,
         _ => ActorDepth.InFront,
     };
@@ -76,13 +78,12 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
             FlipBits(flips))));
     }
 
-    /// <summary>
-    /// Encodes a word whose object draws at <paramref name="depth"/>, written with the lowest tier that draws there.
-    /// </summary>
+    /// <summary>Encodes a word whose object draws at <paramref name="depth"/>, written with the one tier that draws there.</summary>
     private static SnesObjAttributeWord Create(int tileNumber, int paletteIndex, ActorDepth depth, PictureFlip flips = PictureFlip.None) =>
         Create(tileNumber, paletteIndex, depth switch
         {
             ActorDepth.BehindRoom => 0,
+            ActorDepth.BehindRoomInFrontOfFloor => 1,
             ActorDepth.BehindFrontParts => 2,
             ActorDepth.InFront => 3,
             _ => throw new ArgumentOutOfRangeException(nameof(depth)),

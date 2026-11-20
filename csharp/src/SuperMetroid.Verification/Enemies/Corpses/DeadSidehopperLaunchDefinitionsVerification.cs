@@ -20,7 +20,6 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemyPlace, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.RunDeadSidehopperState;
         var place = enemies.Places.InUpdateOrder[0];
-        var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.PostLandingDelay);
         for (ushort phase = 0; phase < 4; phase++)
         {
             ushort vx = rom.ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords + phase * 2));
@@ -32,9 +31,11 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
             // step. Every count it can hold is swept.
             for (int raw = 0; raw <= DeadSidehopperVictimDefinitions.PostLandingPause; raw++)
             {
-                state.Action = DeadSidehopperAction.PostLandingDelay;
+                SidehopperDrain drain = SidehopperDrain.ForVictim();
+                if (drainStage == SidehopperDrainStage.LatchedOn)
+                    drain.LatchOn();
+                var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.PostLandingDelay, drain);
                 state.PostLandingPause = UpdateCountdown.For(raw);
-                state.DrainStage = drainStage;
                 state.NextHop = CyclingSequence<PixelVelocity<RoomPixels>>.At(DeadSidehopperLaunchDefinitions.Launches, phase);
                 state.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4660), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4660));
                 state.Playback = new(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation);

@@ -84,10 +84,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         place.Position = place.Position.WithWhole(DeadSidehopperVictimDefinitions.StartPosition);
         place.Radius = place.Radius.WithY(DeadSidehopperVictimDefinitions.LivingHalfHeight);
 
-        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(DeadSidehopperAction.AliveWaitForCamera);
+        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(DeadSidehopperAction.AliveWaitForCamera,
+            _babyMetroidFeeding.DrainOf(place));
         SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperIdle);
         // The victim shows the colours the Baby Metroid's entry gives it, the target the room's colours fade to (#1512).
-        state.DrainStage = SidehopperDrainStage.Untouched;
         place.Shading = state.Shading;
         state.Velocity = DeadSidehopperLaunchDefinitions.FirstHop;
         return state;
@@ -96,17 +96,16 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Lays out a Sidehopper corpse placed already dead, drained from the start and waiting for Samus to touch it.</summary>
     private static DeadSidehopperEnemyState InitializeAlreadyDeadSidehopper(RoomEnemyPlace place)
     {
-        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(DeadSidehopperAction.WaitForSamusCollision);
+        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(DeadSidehopperAction.WaitForSamusCollision, SidehopperDrain.PlacedDead());
         SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperInitiallyDead);
-        state.DrainStage = null;
         place.Shading = state.Shading;
         return state;
     }
 
-    /// <summary>Allocates place state with the corpse's own rot schedule, its own rows and its first action.</summary>
-    private static DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(DeadSidehopperAction action)
+    /// <summary>Allocates place state with the corpse's own rot schedule, its own rows, its first action and its drain.</summary>
+    private static DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(DeadSidehopperAction action, SidehopperDrain drain)
     {
-        return new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), action);
+        return new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), action, drain);
     }
 
     /// <summary>Runs the dead Sidehopper's main AI.</summary>
@@ -276,7 +275,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         state.DrainStageWait.Restart(DeadSidehopperVictimDefinitions.DrainUpdatesPerStage);
 
         // Only the victim drains: a corpse placed already dead never reaches its drain.
-        state.DrainStage = (state.DrainStage ?? throw new InvalidOperationException("A Sidehopper corpse placed already dead never drains.")).Next;
+        state.Drain.Step();
         place.Shading = state.Shading;
         if (!state.IsDrained)
             return;
@@ -298,10 +297,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             ? DeadSidehopperAction.Draining
             : DeadSidehopperAction.BeginPostLandingDelay;
     }
-
-    /// <summary>Begins Baby Metroid's drain of its victim, when the Baby Metroid latches on to feed.</summary>
-    internal static void ActivateDeadSidehopperVictim(DeadSidehopperEnemyState state) =>
-        state.DrainStage = SidehopperDrainStage.LatchedOn;
 
     /// <summary>Resolves a shot hitting the dead Sidehopper.</summary>
     private static void ResolveDeadSidehopperShot(RoomEnemyPlace place, DeadSidehopperEnemyState state)

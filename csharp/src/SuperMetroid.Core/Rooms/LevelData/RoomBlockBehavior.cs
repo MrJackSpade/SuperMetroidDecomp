@@ -73,11 +73,11 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>Writes behaviours as slopes.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, SlopeGeometry> SlopeWrites =
-        new(Kept, static readings => readings.Slope);
+        new(Kept.Select(static readings => (readings, readings.Slope)));
 
     /// <summary>Writes behaviours as extension offsets.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, int> ExtensionWrites =
-        new(Kept, static readings => readings.ExtensionOffset);
+        new(Kept.Select(static readings => (readings, readings.ExtensionOffset)));
 
     /// <summary>
     /// Writes behaviours as one reacting kind's reactions: the kept behaviours that give the kind a reaction, read as it. A
@@ -85,8 +85,9 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// </summary>
     private static BlockParameterCarryOver<RoomBlockReadings, TReaction> ReactionWrites<TReaction>(Func<RoomBlockReadings, TReaction?> read)
         where TReaction : struct, Enum =>
-        new(Kept.Where(readings => read(readings) is not null),
-            readings => read(readings) ?? throw new InvalidOperationException("A kept behaviour lost its reaction."));
+        new(Kept.SelectMany(readings => read(readings) is { } reaction
+            ? [(readings, reaction)]
+            : Array.Empty<(RoomBlockReadings, TReaction)>()));
 
     /// <summary>The kept behaviours in order: each of the catalog's, followed by its resolutions in the areas.</summary>
     private static List<RoomBlockReadings> KeptInOrder()

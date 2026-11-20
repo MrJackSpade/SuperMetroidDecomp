@@ -166,8 +166,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BabyMetroidAction.ActivateSidehopperCorpse:
-                RoomEnemyPlace fed = RequireBabyMetroidVictim(place);
-                DeadSidehopperBehavior.ActivateDeadSidehopperVictim(EnemyPartners.Listed<DeadSidehopperEntity>(fed).State);
+                state.VictimDrain.LatchOn();
                 state.Action = BabyMetroidAction.RiseAfterFeeding;
                 state.StateTimer.LastFor(BabyMetroidFightDefinitions.RiseUpdates);
                 goto case BabyMetroidAction.RiseAfterFeeding;

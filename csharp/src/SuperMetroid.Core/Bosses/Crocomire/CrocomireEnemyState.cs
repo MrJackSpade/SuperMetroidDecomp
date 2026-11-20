@@ -79,10 +79,11 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     /// </summary>
     internal ListStep<CrocomireDeathStage> DeathStage { get; set; } = ListStep<CrocomireDeathStage>.FirstOf(CrocomireDeathStageDefinitions.Stages);
 
-    /// <summary>Hands his death over to the stage after the one he is at.</summary>
-    /// <exception cref="InvalidOperationException">He is at his inert corpse, which hands over to no stage.</exception>
-    internal void AdvanceDeathStage() =>
-        DeathStage = DeathStage.Following ?? throw new InvalidOperationException($"Crocomire's death stage {DeathStage} hands over to no other stage.");
+    /// <summary>
+    /// Hands his death over to the stage after the one he is at. His course ends at his inert corpse, which rests there:
+    /// its own step never hands over.
+    /// </summary>
+    internal void AdvanceDeathStage() => DeathStage = DeathStage.OnToEnd;
 
     /// <summary>His course stands at his inert corpse from now on, as an already-defeated room's setup leaves him.</summary>
     internal void RestAsCorpse() =>

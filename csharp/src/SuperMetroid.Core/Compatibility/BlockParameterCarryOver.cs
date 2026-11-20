@@ -36,16 +36,16 @@ public sealed class BlockParameterCarryOver<TBehavior, TReading>
     /// <summary>The first kept behaviour holding each reading.</summary>
     private readonly Dictionary<TReading, TBehavior> carrying = [];
 
-    /// <summary>Indexes the kept behaviours by the reading <paramref name="read"/> takes of each, the first winning.</summary>
-    /// <param name="kept">Every behaviour a block can keep, in the order the game numbers them.</param>
-    /// <param name="read">The reading the converter writes behaviours as.</param>
+    /// <summary>Indexes the kept behaviours by the reading each is written as, the first winning.</summary>
+    /// <param name="kept">
+    /// Each behaviour a block can keep that the converter writes, in the order the game numbers them, with the reading it is
+    /// written as.
+    /// </param>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>
-    public BlockParameterCarryOver(IEnumerable<TBehavior> kept, Func<TBehavior, TReading> read)
+    public BlockParameterCarryOver(IEnumerable<(TBehavior Behavior, TReading Reading)> kept)
     {
-        Ensure.NotNull(kept);
-        Ensure.NotNull(read);
-        foreach (TBehavior behavior in kept)
-            carrying.TryAdd(read(Ensure.NotNull(behavior)), behavior);
+        foreach ((TBehavior behavior, TReading reading) in Ensure.NotNull(kept))
+            carrying.TryAdd(reading, Ensure.NotNull(behavior));
     }
 
     /// <summary>The behaviour a write of <paramref name="reading"/> keeps: the first kept behaviour holding it.</summary>

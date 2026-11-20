@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Animation;
 
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Corpses;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Baby Metroid's own state: its animation, motion, colours and what it does next.</summary>
@@ -9,6 +10,12 @@ public sealed class BabyMetroidEnemyState
 {
     /// <summary>The Baby Metroid's animation and where it stands (#641, #1600).</summary>
     internal AnimationPlayback<BabyMetroidSegment> Playback { get; set; }
+
+    /// <summary>
+    /// The drain of its victim, the dead Sidehopper placed directly after it (#2554): the Baby owns it and latches it on as
+    /// it feeds; the victim holds it from its own setup and steps it as it drains.
+    /// </summary>
+    internal SidehopperDrain VictimDrain { get; } = SidehopperDrain.ForVictim();
 
     /// <summary>Starts the state in <paramref name="action"/>, playing the animation starting at <paramref name="animation"/> (#2319).</summary>
     internal BabyMetroidEnemyState(BabyMetroidAction action, BabyMetroidSegment animation)

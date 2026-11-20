@@ -18,7 +18,7 @@ internal static class DeadCorpseCounterVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.PreRotDelay);
+        var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.PreRotDelay, SidehopperDrain.PlacedDead());
 
         state.Action = DeadSidehopperAction.PreRotDelay;
         for (int call = 1; call < 16; call++)

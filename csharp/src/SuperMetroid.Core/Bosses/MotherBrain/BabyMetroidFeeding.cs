@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 
+using SuperMetroid.Core.Enemies.Corpses;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
@@ -17,4 +19,10 @@ internal sealed class BabyMetroidFeeding(EnemyPlaces enemies) : IBabyMetroidFeed
     public bool HasAlreadyFedOn(RoomEnemyPlace victim) =>
         BabyMetroidVictim.FeederOf(enemies.InUpdateOrder, Ensure.NotNull(victim).Ordinal)?.Entity
             is BabyMetroidEntity { State.Action: BabyMetroidAction.Dormant };
+
+    /// <inheritdoc/>
+    public SidehopperDrain DrainOf(RoomEnemyPlace victim) =>
+        BabyMetroidVictim.FeederOf(enemies.InUpdateOrder, Ensure.NotNull(victim).Ordinal)?.Entity is BabyMetroidEntity feeder
+            ? feeder.State.VictimDrain
+            : throw new InvalidDataException($"The Baby Metroid's victim in place {victim.Ordinal} is placed directly after no Baby Metroid.");
 }

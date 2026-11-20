@@ -149,8 +149,8 @@ internal static class CorpseRotDrawingVerification
     private static void VerifyCorpsesOfOneKindRotApart()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var rotting = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.WaitForSamusCollision);
-        var intact = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.WaitForSamusCollision);
+        var rotting = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.WaitForSamusCollision, SidehopperDrain.PlacedDead());
+        var intact = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.WaitForSamusCollision, SidehopperDrain.PlacedDead());
         while (rotting.Rot.Step(rotting.Rows.MoveRow, _ => { }))
         {
         }

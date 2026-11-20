@@ -18,7 +18,7 @@ internal static class RoomFxSelectionAreas
     /// <exception cref="InvalidDataException">No retail room state loads <paramref name="fx"/>.</exception>
     internal static AreaId Of(RoomFxSelection fx) =>
         Areas.TryGetValue(Ensure.NotNull(fx), out AreaId area) ? area
-            : throw new InvalidDataException($"No retail room state loads room FX {fx.Name}, so its area is unknown.");
+            : throw new InvalidDataException("No retail room state loads this room FX selection, so its area is unknown.");
 
     /// <summary>Gives each selection loaded by a retail room state the area of the rooms that load it.</summary>
     /// <exception cref="InvalidDataException">Rooms of two areas load one selection.</exception>
@@ -36,7 +36,7 @@ internal static class RoomFxSelectionAreas
                 if (!areas.TryAdd(fx, room.Area) && areas[fx] != room.Area)
                 {
                     throw new InvalidDataException(
-                        $"Room FX {fx.Name} is loaded by rooms of {areas[fx]} and {room.Area}; its records' effects would differ.");
+                        $"A room FX selection is loaded by rooms of {areas[fx]} and {room.Area}; its records' effects would differ.");
                 }
             }
         }

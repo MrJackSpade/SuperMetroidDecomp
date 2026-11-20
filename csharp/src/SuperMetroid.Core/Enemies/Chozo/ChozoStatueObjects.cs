@@ -82,19 +82,18 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     /// Spawns the statue's room object <paramref name="request"/> names at its block, at the first free place in the
     /// update order, and runs its setup.
     /// </summary>
-    /// <returns>False when the room is full; nothing is spawned or changed then (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
-    public bool TrySpawnChozoStatueObject(RoomLevelData level, RoomObjectSpawnRequest<ChozoStatueRoomObject> request)
+    /// <remarks>When the room is full nothing is spawned or changed (<see cref="Compatibility.RoomObjectPlaces"/>).</remarks>
+    public void SpawnChozoStatueObject(RoomLevelData level, RoomObjectSpawnRequest<ChozoStatueRoomObject> request)
     {
         Ensure.NotNull(level);
         var spawn = new ChozoStatueObjectSpawn(this, level, level.GridBlock(request.Block));
         RoomObjectBehaviour roomObject = request.RoomObject.Create(spawn);
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = spawn.Block;
         place.Become(roomObject);
         request.RoomObject.SetUp(spawn);
-        return true;
     }
 
     /// <summary>

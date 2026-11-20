@@ -27,7 +27,7 @@ internal static class PowampDeathSequenceVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MtEverest);
         RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Powamp &&
-            place.SpawnSettings<PowampSpawnSettings>().Part == PowampPart.Body);
+            place.SpawnSettings<PowampSpawnSettings>() is PowampBodySpawnSettings);
         var state = body.RequireSpeciesState<PowampBodyState>();
 
         body.Health = 0;

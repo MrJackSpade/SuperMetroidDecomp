@@ -14,7 +14,7 @@ internal static class CrocomireTongueFixtures
         /// </summary>
         internal void JoinFixtureTongue(RoomEnemyPlace tongue)
         {
-            tongue.SetSpeciesState(new CrocomireTongueState(state) { BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset });
+            tongue.SetSpeciesState(new CrocomireTongueState(state));
             state.JoinTongue(tongue);
         }
     }

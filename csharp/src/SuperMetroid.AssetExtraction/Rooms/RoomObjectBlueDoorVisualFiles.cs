@@ -35,11 +35,15 @@ public static class RoomObjectBlueDoorVisualFiles
             for (int orientation = 0; orientation < 4; orientation++)
                 foreach (DoorCapLook look in DoorCaps.OpeningLooks)
                 {
-                    TryGet(BlueDoorCaps.Family.Of(new BlueDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), look)), out var draw);
-                    yield return draw;
+                    yield return DrawListOf(BlueDoorCaps.Family.Of(new BlueDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), look)));
                 }
         }
     }
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the blue door cap draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a blue door cap draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a blue door cap draw.");
 
     /// <summary>Builds the draw list of a recognized blue cap from how its cells collide.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)

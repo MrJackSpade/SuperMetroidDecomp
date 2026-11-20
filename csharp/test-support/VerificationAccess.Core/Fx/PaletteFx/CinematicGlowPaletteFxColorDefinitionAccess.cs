@@ -12,6 +12,10 @@ internal static class CinematicGlowPaletteFxColorDefinitionAccess
         /// <summary>The complete loop duration in frames.</summary>
         internal int CycleFrames =>
             CinematicGlowPaletteFxColorDefinitionsConstants.FrameCount * self.FrameDuration;
+        /// <summary>The native duration of each timed record: six updates for the lights, five for the gunship.</summary>
+        internal int FrameDuration => self.Owner == CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights ? 6 : 5;
+        /// <summary>The live colours each timed record writes.</summary>
+        internal int ColorsPerFrame => self.ColorFrames.ColorsPerFrame;
         /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
         public PaletteFxColorKey Color(int frame, int color) => self.ColorFrames.Color(frame, color);
     }

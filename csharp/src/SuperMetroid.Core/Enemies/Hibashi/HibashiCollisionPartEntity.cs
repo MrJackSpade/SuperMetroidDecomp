@@ -7,16 +7,10 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// <param name="place">The place the collision part occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class HibashiCollisionPartEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize() => HibashiBehavior.InitializeHibashiCollisionPart(Place);
-
-    /// <summary>The collision part takes no action of its own; the flame moves it.</summary>
-    /// <param name="frame">The enemy frame.</param>
-    public void RunMainAi(IEnemyAiFrame frame)
-    {
-    }
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => HibashiBehavior.AdvanceHibashiCollisionPartTypedAnimation(Place);

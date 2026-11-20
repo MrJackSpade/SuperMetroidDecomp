@@ -362,10 +362,12 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>The seven segments of the chain a segment found when it was placed, each validated as initialized.</summary>
+    /// <summary>
+    /// The seven segments of the chain a segment found when it was placed, <paramref name="anySegment"/> among them, each
+    /// validated as initialized.
+    /// </summary>
     private IReadOnlyList<ShaktoolChainSegment> GetShaktoolGroup(RoomEnemyPlace anySegment)
     {
-        _ = RequireShaktoolState(anySegment);
         IReadOnlyList<ShaktoolChainSegment> group = ChainOf(anySegment).Segments;
         foreach (ShaktoolChainSegment segment in group)
         {
@@ -467,7 +469,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Advances Shaktool's typed animation. The head's clock stays stopped while its chain orients it, so its animation
     /// takes no step and the picture its facing chose stays shown.
     /// </summary>
-    internal void AdvanceShaktoolTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal void AdvanceShaktoolTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;

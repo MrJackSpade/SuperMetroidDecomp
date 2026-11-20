@@ -157,15 +157,13 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Choot's typed animation.</summary>
-    internal static void AdvanceChootTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, ChootAnimations.Segments,
+    internal static void AdvanceChootTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, ChootAnimations.Segments,
             static (ChootEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyChootCue(place, cue) is { } target
-                ? new AnimationContinuation<ChootSegment>(ChootAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+            (ChootEnemyState _, ChootCue cue) => ApplyChootCue(place, cue));
 
     /// <summary>Carries out one cue of Choot's animation: each switches off-screen processing on or off.</summary>
-    private static ChootSegment? ApplyChootCue(RoomEnemyPlace place, ChootCue cue)
+    private static void ApplyChootCue(RoomEnemyPlace place, ChootCue cue)
     {
         place.Processing = cue.Kind switch
         {
@@ -173,7 +171,6 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             ChootCueKind.StopProcessingOffScreen => place.Processing.Without(EnemyProcessing.OffScreen),
             _ => throw new InvalidOperationException($"Undefined {nameof(ChootCueKind)} {cue.Kind}."),
         };
-        return null;
     }
 
     /// <summary>Runs Choot's main AI.</summary>

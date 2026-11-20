@@ -73,3 +73,4 @@ SME6470 | Design | Error | OneUpdateRequestAnalyzer
 SME6471 | Design | Error | MagnitudeAndSignAnalyzer
 SME6473 | Design | Error | SharedPhaseContractAnalyzer
 SME6472 | Design | Error | InlineDefinitionDataAnalyzer
+SME6474 | Design | Error | UnreadResultAnalyzer

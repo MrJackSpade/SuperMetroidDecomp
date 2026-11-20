@@ -10,8 +10,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The Hibashi's flame, or the collision part its placement names (#2342).</summary>
     public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<HibashiSpawnSettings>().Part == HibashiPart.CollisionPart
-            ? EnemyOccupant.Of(new HibashiCollisionPartEntity(place, common))
+        Ensure.NotNull(place).SpawnSettings<HibashiSpawnSettings>() is HibashiCollisionPartSpawnSettings
+            ? EnemyOccupant.WithoutMainAi(new HibashiCollisionPartEntity(place, common))
             : EnemyOccupant.Of(new HibashiEntity(this, place, common));
 
     /// <summary>The room's enemy places, where each visible geyser finds its hitbox when it is placed.</summary>
@@ -117,7 +117,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void RestHibashi(RoomEnemyPlace flame, HibashiEnemyState state)
     {
-        state.InactiveTimer = UpdateCountdown.For(flame.SpawnSettings<HibashiSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
+        state.InactiveTimer = UpdateCountdown.For(flame.SpawnSettings<HibashiFlameSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = HibashiAction.Inactive;
     }
 
@@ -165,7 +165,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     private RoomEnemyPlace GetFollowingHibashiPart(RoomEnemyPlace flame) => _hitboxes.Of(flame);
 
     /// <summary>Runs the flame's main AI.</summary>
-    internal void RunHibashiMainAi(RoomEnemyPlace place, IEnemyAiFrame _) =>
+    internal void RunHibashiMainAi(RoomEnemyPlace place) =>
         RunHibashiMain(place, place.RequireSpeciesState<HibashiEnemyState>());
 
     /// <summary>Advances the collision part's hitbox hold.</summary>
@@ -175,7 +175,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"The Hibashi collision part's animation raised {cue}."));
 
     /// <summary>Advances the flame's eruption animation.</summary>
-    internal void AdvanceHibashiTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal void AdvanceHibashiTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, HibashiAnimations.Segments,
             static (HibashiEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>

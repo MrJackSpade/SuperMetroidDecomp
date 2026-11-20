@@ -68,15 +68,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ElevatorStatus == ElevatorActorStatus.Departing ||
         (ElevatorStatus != ElevatorActorStatus.Inactive && ElevatorTravel == ElevatorTravelDirection.Down);
 
-    /// <summary>The room's elevator that a ride arriving in the room started on, with Samus on it, once its setup has run.</summary>
-    private RoomEnemyPlace? _arrivedOn;
-
     /// <summary>
     /// The elevator whose setup placed Samus on it as the room loaded for an arriving ride, while that arrival is still
     /// beginning, before the elevator's first update starts its return (#2562); null in any other room or once it has
     /// started. The door loader asks for it on the room's loading update.
     /// </summary>
-    public RoomEnemyPlace? ArrivalElevator => ElevatorStatus == ElevatorActorStatus.BeginArrivalReturn ? _arrivedOn : null;
+    public RoomEnemyPlace? ArrivalElevator { get => ElevatorStatus == ElevatorActorStatus.BeginArrivalReturn ? field : null; private set; }
 
     /// <summary>
     /// Publishes the elevator's pseudo-door collision before the next enemy pass.
@@ -129,7 +126,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
         place.Position = place.Position.WithWholeY(place.SpawnSettings<ElevatorSpawnSettings>().ArrivalY);
         PinSamusToElevator(place, samus);
-        _arrivedOn = place;
+        ArrivalElevator = place;
     }
 
     /// <summary>Runs the elevator's main behaviour and its four phases.</summary>
@@ -265,7 +262,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Advances Elevator's typed animation.</summary>
-    internal static void AdvanceElevatorTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceElevatorTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, ElevatorAnimations.Segments,
             static (ElevatorEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Elevator animation raised {cue}."));

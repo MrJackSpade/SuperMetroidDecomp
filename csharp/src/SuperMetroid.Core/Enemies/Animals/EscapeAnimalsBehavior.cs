@@ -22,7 +22,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (definition == EnemyDefinitionId.EtecoonEscape)
             return EnemyOccupant.Of(new EscapeEtecoonEntity(this, place, common));
         if (definition == EnemyDefinitionId.DachoraEscape)
-            return EnemyOccupant.Of(new EscapeDachoraEntity(this, place, common));
+            return EnemyOccupant.WithoutMainAi(new EscapeDachoraEntity(this, place, common));
         throw new InvalidOperationException($"The escape animals species creates no {place.DefinitionId}.");
     }
 

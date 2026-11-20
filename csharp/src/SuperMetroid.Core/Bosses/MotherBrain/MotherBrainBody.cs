@@ -208,7 +208,7 @@ internal sealed class MotherBrainBody
     /// ordinary enemy radius. Phase one enables only the brain list; later phases also
     /// admit the body and three independently positioned neck segments.
     /// </summary>
-    internal static bool ResolveMotherBrainSamusCollision(
+    internal static void ResolveMotherBrainSamusCollision(
         MotherBrainEnemyState state,
         SamusState samus)
     {
@@ -219,7 +219,7 @@ internal sealed class MotherBrainBody
                 MotherBrainContactPart.Body,
                 state.Body.Position.Whole))
         {
-            return true;
+            return;
         }
 
         RoomEnemyPlace head = state.Head;
@@ -229,7 +229,7 @@ internal sealed class MotherBrainBody
                 MotherBrainContactPart.Brain,
                 head.Position.Whole))
         {
-            return true;
+            return;
         }
 
         if ((enabled & MotherBrainHitboxParts.Neck) != MotherBrainHitboxParts.None)
@@ -242,11 +242,10 @@ internal sealed class MotherBrainBody
                         MotherBrainContactPart.Neck,
                         joint.Position))
                 {
-                    return true;
+                    return;
                 }
             }
         }
-        return false;
     }
 
     /// <summary>Checks a single head or body contact region and applies the phase-specific collision response.</summary>

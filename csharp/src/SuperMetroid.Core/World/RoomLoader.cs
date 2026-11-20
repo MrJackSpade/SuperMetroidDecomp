@@ -898,7 +898,7 @@ internal sealed class RoomLoader
             // The door's closing object spawns after the destination's room objects, the door's and the room's setup
             // and the room's effects, and before the enemies initialize: every room object the room lists exists before
             // the closer takes the next free place, and no enemy's room object has run yet.
-            roomObjects.DoorObjects.TrySpawnDoorClosingObject(assets.LevelData, door);
+            roomObjects.DoorObjects.SpawnDoorClosingObject(assets.LevelData, door);
         }
 
         // Loading shows the entering beams' colours before it initializes enemies. Golden Torizo's code changes the

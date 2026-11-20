@@ -247,7 +247,7 @@ internal sealed class PhantoonCombat
     /// Tests Samus's beams and missiles against the body of <paramref name="state"/>'s Phantoon, which his body's entity
     /// resolves, and runs the reaction of the hitbox the first one meets. One projectile resolves per pass.
     /// </summary>
-    public int ResolvePhantoonProjectileHits(
+    public void ResolvePhantoonProjectileHits(
         PhantoonEnemyState state,
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem samusBombs)
@@ -262,7 +262,7 @@ internal sealed class PhantoonCombat
             body.Presence.HasAny(EnemyPresence.Deleted) ||
             body.Contact.HasAny(EnemyContact.IgnoresSamus))
         {
-            return 0;
+            return;
         }
 
         foreach (SamusProjectile projectile in projectiles.Shots)
@@ -305,7 +305,7 @@ internal sealed class PhantoonCombat
                     projectile,
                     body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                         !projectile.Type.HasAnyBeam(SamusBeamFlags.Plasma));
-                return 1;
+                return;
             }
 
             if (hitboxShot != PhantoonReactions.Shot)
@@ -321,21 +321,17 @@ internal sealed class PhantoonCombat
                 body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.HasAnyBeam(SamusBeamFlags.Plasma));
 
-            int healthBefore = body.Health;
             // Phantoon's shot reaction runs common normal-shot damage (#2255), including its charged-beam override, a
             // zero-damage shot's dud, and no death of its own; his own stage follows it. A special attack's particles
             // count as a charged beam, so the Wave Beam's shield attack damages him.
-            _ = _collision.ApplyNormalShotDamage(body, projectile, projectileType, projectileDamage, _room.Area);
-            int appliedDamage = healthBefore - body.Health;
+            int appliedDamage = _collision.ApplyNormalShotDamage(body, projectile, projectileType, projectileDamage, _room.Area).HealthLost;
             ResolvePhantoonShotReaction(
                 body,
                 state,
                 projectileType,
                 appliedDamage);
-            return 1;
+            return;
         }
-
-        return 0;
     }
 
     /// <summary>Runs the boss-owned tail of Phantoon's hitbox reaction after common vulnerability damage.</summary>
@@ -390,7 +386,7 @@ internal sealed class PhantoonCombat
             {
                 // A vulnerable hit draws a random number whose only effect is to advance the shared random
                 // sequence.
-                _ = _room.Random.Generate();
+                _room.Random.Advance();
                 state.Round.RearmHurtFlash();
                 if (state.WindowEnd != PhantoonWindowEnd.Swoop)
                 {

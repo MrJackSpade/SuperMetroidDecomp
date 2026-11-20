@@ -31,7 +31,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Moves the Atomic one step toward Samus on each axis at its spawn settings' speed. It ignores terrain and chooses both
     /// directions again every update.
     /// </summary>
-    private static void RunAtomicMain(
+    internal static void MoveAtomicTowardSamus(
         RoomEnemyPlace place,
         SamusState samus)
     {
@@ -46,14 +46,8 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Atomic's typed animation.</summary>
-    internal static void AdvanceAtomicTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceAtomicTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, AtomicAnimations.Segments,
             static (AtomicEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Atomic animation raised {cue}."));
-
-    /// <summary>Runs Atomic's main AI.</summary>
-    internal static void RunAtomicMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        RunAtomicMain(place, frame.Samus);
-    }
 }

@@ -103,8 +103,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     }
 
     /// <summary>Initializes an unpowered robot.</summary>
-    /// <returns>The robot's state, holding the pose its placement names.</returns>
-    internal UnpoweredWorkRobotEnemyState InitializeUnpoweredWorkRobot(RoomEnemyPlace place)
+    internal void InitializeUnpoweredWorkRobot(RoomEnemyPlace place)
     {
         // The placement names the unpowered pose the robot holds.
         var state = new UnpoweredWorkRobotEnemyState(
@@ -116,7 +115,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
         // An unpowered robot stops the room's glow, an earlier powered robot's too: in a room placing both, the order
         // they are placed in decides whether the glow runs.
         GlowRuns = false;
-        return state;
     }
 
     /// <summary>

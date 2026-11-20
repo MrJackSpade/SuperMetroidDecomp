@@ -78,21 +78,21 @@ internal static class CacatacBehaviorVerification
         // The Cacatac walks at its spawn settings' speed, which it reads where it moves (#2476).
         place.SetSpawnSettings(place.SpawnSettings<CacatacSpawnSettings>() with { Speed = oneAndAHalfPixels });
         place.Position = place.Position.WithFractionX(checked(halfPixel));
-        enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
+        enemies.CacatacBehavior.RunCacatacMainAi(place);
         AssertEqual(new FixedCoordinate(39, 0), place.Position.X, "Cacatac leftward step borrows its fraction");
         AssertEqual(HorizontalDirection.Left, state.PatrolDirection, "Cacatac keeps walking left while right of its left limit");
         AssertEqual(CacatacAction.Patrolling, state.Action, "Cacatac keeps its leftward patrol");
 
         // One pixel right of the left limit: the step lands half a pixel past it and turns.
         place.Position = place.Position.WithWholeX(state.LeftPatrolX + 1);
-        enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
+        enemies.CacatacBehavior.RunCacatacMainAi(place);
         AssertEqual(new FixedCoordinate(state.LeftPatrolX - 1, checked(halfPixel)), place.Position.X,
             "Cacatac steps past its left limit");
         AssertEqual(HorizontalDirection.Right, state.PatrolDirection, "Cacatac turns right once past its left limit");
         AssertEqual(CacatacAction.Patrolling, state.Action, "Cacatac patrols right after the turn");
 
         place.Position = place.Position.WithX(new FixedCoordinate(54, checked(halfPixel)));
-        enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
+        enemies.CacatacBehavior.RunCacatacMainAi(place);
         AssertEqual(new FixedCoordinate(56, 0), place.Position.X, "Cacatac rightward step carries its fraction into the whole X");
         AssertEqual(HorizontalDirection.Left, state.PatrolDirection, "Cacatac turns left on reaching its right limit");
         AssertEqual(CacatacAction.Patrolling, state.Action, "Cacatac patrols left after the turn");

@@ -57,8 +57,7 @@ internal static class CrocomireArenaVisualsVerification
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), width * 16).ToArray();
         RoomLevelData level = CreateRoom(new(width, 16), terrain, new RoomBlockBehavior[terrain.Length]);
         var roomObjects = RoomObjectFixtures.Unbound(RoomObjectFixtures.Installed with { RoomObjectCrocomireVisuals = visuals });
-        AssertTrue(roomObjects.BossRoomMutations.CrocomireArena.TrySpawn(level, new(new(5, 3), mutation)),
-            $"Crocomire visual mutation {mutation} allocates");
+        roomObjects.BossRoomMutations.CrocomireArena.Spawn(level, new(new(5, 3), mutation));
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         roomObjects.Step(level);
         Position16<RoomBlocks> block = new Position16<RoomBlocks>(5, 3) + blockOffset;

@@ -10,6 +10,13 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// </summary>
 internal static class PaletteFxColorLayoutAccess
 {
+    /// <summary>The effect a colour family's records show.</summary>
+    extension(PaletteFxColorFrames self)
+    {
+        /// <summary>The effect whose frames the family's records are.</summary>
+        internal ColourEffectId Effect => self.Frame(0).Frame.Effect;
+    }
+
     /// <summary>The bank-$8D address of <paramref name="record"/>'s timer word.</summary>
     internal static ushort RecordAddress(PaletteFxRecord record) => PaletteFxRecordSources.Address(record);
 

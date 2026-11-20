@@ -31,9 +31,8 @@ internal sealed class ProjectileAnimation
     /// Plays timed frames, still pictures and deletion: each frame the animation shows anew publishes its picture and
     /// radius, and an animation that ends deletes the projectile. A shot showing a still picture keeps it.
     /// </summary>
-    /// <returns>Whether the animation ended and deleted the projectile.</returns>
     /// <exception cref="InvalidOperationException">The projectile has ended and has no animation to play.</exception>
-    internal bool AdvanceProjectileAnimation(
+    internal void AdvanceProjectileAnimation(
         SamusProjectile shot)
     {
         AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation = shot.Animation
@@ -42,12 +41,10 @@ internal sealed class ProjectileAnimation
         {
             shot.Sprite = _artwork.ProjectileFrames.Resolve(frame);
             shot.Radius = SamusProjectileFrameDefinitions.Radius(frame);
-            return false;
+            return;
         }
-        if (!animation.HasStopped)
-            return false;
-        ClearProjectile(shot);
-        return true;
+        if (animation.HasStopped)
+            ClearProjectile(shot);
     }
 
 

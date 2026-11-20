@@ -22,8 +22,6 @@ internal static class EnemyEffectResourcesVerification
             "missing melt art fails the installation");
         CrocomireMeltingArtwork art = MeltEffectArtwork();
         CheckCrocomireResourceFailure(art, fixture => fixture.InitializeMap((CrocomireMeltingIllustration)(-1)), "unknown melt image");
-        CheckCrocomireResourceFailure(art, fixture => fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, (CrocomireMeltingIllustration)(-1))),
-            "unknown melt pass");
         Console.WriteLine("  Enemy effect resources: missing/unknown art fails before changing WRAM, phases, actors, graphics or VRAM.");
     }
 

@@ -69,8 +69,7 @@ internal static class CrocomireArenaObjectsVerification
         RoomTerrainBlock[] terrain = Enumerable.Repeat(Untouched, width * height).ToArray();
         RoomLevelData level = CreateRoom(new(width, height), terrain, new RoomBlockBehavior[terrain.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.BossRoomMutations.CrocomireArena.TrySpawn(level, new(new(5, 3), mutation)),
-            $"Crocomire mutation {mutation} allocates");
+        roomObjects.BossRoomMutations.CrocomireArena.Spawn(level, new(new(5, 3), mutation));
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         roomObjects.Step(level);
         AssertEqual(1, roomObjects.Places.ActiveCount,

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -313,10 +312,9 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>
     /// Runs the Speed Booster's share of the Screw Attack and Speed Booster glow when she is out of liquid.
     /// </summary>
-    /// <returns>True when this update copied an authored shade into Samus's colours.</returns>
     /// <param name="colours">Samus's colours, which the copied shade replaces.</param>
     /// <param name="frame">What this update's suit colouring reads of Samus.</param>
-    internal bool UpdateSpeedBoosterGlow(SamusColours colours, SpeedBoosterGlowFrame frame)
+    internal void UpdateSpeedBoosterGlow(SamusColours colours, SpeedBoosterGlowFrame frame)
     {
         Ensure.NotNull(colours);
 
@@ -327,7 +325,7 @@ public sealed class SamusHorizontalSpeedState
         // immediate normal colours above still show, but the ordinary colouring must not advance
         // its hidden four-frame Speed Booster cycle beneath the stored shine's or the shinespark's.
         if (frame.SuppressActiveSpeedBoosterGlow)
-            return shadeCopied;
+            return;
 
         // The glow tests for the Gravity Suit before it asks whether
         // Samus's *bottom* boundary lies under water or lava/acid. Power and Varia Samus
@@ -339,7 +337,7 @@ public sealed class SamusHorizontalSpeedState
         // movement does.
         bool gravitySuitEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
         if (!gravitySuitEquipped && frame.BottomBoundarySubmerged)
-            return shadeCopied;
+            return;
 
         bool screwAttackEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack);
         if (frame.MovementType == SamusMovementType.SpinJumping && screwAttackEquipped)
@@ -349,7 +347,7 @@ public sealed class SamusHorizontalSpeedState
                 // The spin's first frame restarts only the colour cycle's step. That frame keeps the normal suit colours
                 // already shown; it shows no Screw Attack shade.
                 FullBodyGlow.GoOnFrom(SamusGlowPlay.Before(FullBodyGlowStart));
-                return shadeCopied;
+                return;
             }
 
             if (frame.AnimationPastScrewAttackSpin)
@@ -357,39 +355,38 @@ public sealed class SamusHorizontalSpeedState
                 // From the spin's first wall-jump-ready frame onward Samus shows her normal suit colours; the spin's
                 // frames between its first and that one cycle below. Her colours are what the next shown frame displays.
                 SamusSuitShade.Show(colours, frame.EquippedItems);
-                return true;
+                return;
             }
 
             ShowNextScrewAttackShade(colours, suit);
-            return true;
+            return;
         }
 
         if (frame.MovementType == SamusMovementType.WallJumping)
         {
             if (!screwAttackEquipped)
-                return shadeCopied;
+                return;
 
             if (frame.AnimationBeforeWallJumpSpin)
             {
                 // The wall-jump animation keeps the normal suit colours until its spin starts; its spin frames
                 // share the same six colour steps.
                 FullBodyGlow.GoOnFrom(SamusGlowPlay.Before(FullBodyGlowStart));
-                return shadeCopied;
+                return;
             }
 
             ShowNextScrewAttackShade(colours, suit);
-            return true;
+            return;
         }
 
         if (!IsActivelySpeedBoosting)
-            return shadeCopied;
+            return;
 
         // The Speed Booster goes on from where the shared glow stands once its hold runs out: a Screw Attack spin that stood
         // past the Speed Booster's four shades leaves it on its brightest, which it rests on as every boosted run does.
         if (SamusGlowPlay.StepToNextShadeGoingOnIn(FullBodyGlow, SamusGlowAnimationDefinitions.SpeedBooster[suit]) is not { } shown)
-            return shadeCopied;
+            return;
         colours.ShowSuit(shown);
-        return true;
     }
 
     /// <summary>

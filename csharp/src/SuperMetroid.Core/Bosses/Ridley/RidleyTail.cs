@@ -318,23 +318,22 @@ internal sealed class RidleyTail
     /// <param name="body">Ridley's body, whose contact decides whether the tail meets Samus.</param>
     /// <param name="state">Ridley's encounter.</param>
     /// <param name="samus">Samus.</param>
-    internal static bool ResolveRidleyTailSamusContact(RoomEnemyPlace body, RidleyEncounterState state, SamusState samus)
+    internal static void ResolveRidleyTailSamusContact(RoomEnemyPlace body, RidleyEncounterState state, SamusState samus)
     {
         // The tail composition checks the newly solved tail, independently of the earlier
         // extended-body contact pass, and never damages Samus while carrying her.
         if (state.CarriesSamus || !samus.InvincibilityTimer.IsZero ||
             body.Contact.HasAny(EnemyContact.IgnoresSamus) ||
             !state.MovementAnimationEnabled)
-            return false;
+            return;
         RidleyTailLink tip = state.Tail.Tip;
         // Ceres Ridley's retreat carries his tail above his chamber, so the tip is measured by its displacement from Samus.
         Offset16<RoomPixels> fromTip = samus.Position.Whole - tip.Position;
         int dx = Math.Abs(fromTip.X);
         int dy = Math.Abs(fromTip.Y);
         if (dx >= samus.Kinematics.Radius.X + RidleyTailDefinitions.TipTouchReach || dy >= samus.Kinematics.Radius.Y + RidleyTailDefinitions.TipTouchReach)
-            return false;
+            return;
         EnemyCollision.ApplyOrdinaryTouchDamage(samus, state.Tail.Damage, tip.Position.X);
-        return true;
     }
 
     /// <summary>

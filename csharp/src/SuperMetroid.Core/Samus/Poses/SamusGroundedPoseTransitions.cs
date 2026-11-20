@@ -149,11 +149,9 @@ internal static class SamusGroundedPoseTransitions
         RoomLevelData level,
         SamusPoseId? prospectivePose,
         bool currentXSpeedKilledByBlock,
-        out BlockMoveResult? onePixelProbe,
         ISamusRoomObjects roomObjects)
     {
         Ensure.NotNull(level);
-        onePixelProbe = null;
 
         if (currentXSpeedKilledByBlock && SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running)
             return SelectRanIntoWallPose(samus.Pose);
@@ -178,8 +176,8 @@ internal static class SamusGroundedPoseTransitions
         }
 
         SignedSixteenSixteen onePixelForward = SignedSixteenSixteen.OnePixel.Toward(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
-        onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
-        return onePixelProbe.Value.Collided
+        BlockMoveResult onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
+        return onePixelProbe.Collided
             ? SelectRanIntoWallPose(target)
             : null;
     }

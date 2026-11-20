@@ -452,13 +452,13 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static SignedSixteenSixteen SamusGravity(SamusState samus) => samus.Kinematics.YAcceleration.AsDisplacement();
 
     /// <summary>Advances the Dachora body's cue-free typed animation.</summary>
-    internal static void AdvanceDachoraTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceDachoraTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, DachoraAnimations.Segments,
             static (DachoraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora animation raised {cue}."));
 
     /// <summary>Advances a speed-boost echo's cue-free typed animation.</summary>
-    internal static void AdvanceDachoraEchoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceDachoraEchoTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, DachoraAnimations.Segments,
             static (DachoraEchoState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora echo animation raised {cue}."));

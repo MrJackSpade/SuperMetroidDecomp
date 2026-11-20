@@ -31,7 +31,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (definition == EnemyDefinitionId.ShipTop)
             return EnemyOccupant.FromSurroundings(new GunshipTopEntity(this, place, common));
         if (definition == EnemyDefinitionId.ShipBottomEntrance)
-            return EnemyOccupant.FromSurroundings(new GunshipBottomEntity(this, place, common));
+            return EnemyOccupant.WithoutMainAi(new GunshipBottomEntity(this, place, common));
         throw new InvalidOperationException($"The gunship species creates no {place.DefinitionId}.");
     }
 

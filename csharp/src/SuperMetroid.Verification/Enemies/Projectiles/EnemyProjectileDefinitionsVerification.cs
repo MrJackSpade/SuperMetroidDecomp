@@ -145,10 +145,10 @@ internal static class EnemyProjectileDefinitionsVerification
             shot.Damage = 1;
             shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
-            int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
+            enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
                 shots,
                 new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
-            AssertEqual(1, hits, $"{kind} production shot admitted");
+            AssertTrue(shot.IsSpent, $"{kind} production shot admitted: the Wave shot is spent");
             if (kind == RoomEnemyProjectileKind.DraygonGoop)
             {
                 AssertTrue(projectile.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileSegment.GoopShot },

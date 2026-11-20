@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -62,9 +61,6 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     /// it; a later shot before the cap takes it replaces it.
     /// </summary>
     private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> _strike = new();
-
-    /// <summary>The shot at the cap's block it has yet to take, or null for none.</summary>
-    internal ResidentObjectProjectileHit? AwaitingStrike => _strike.Awaiting;
 
     /// <inheritdoc/>
     public void Strike(ResidentObjectProjectileHit hit) => _strike.Land(hit);

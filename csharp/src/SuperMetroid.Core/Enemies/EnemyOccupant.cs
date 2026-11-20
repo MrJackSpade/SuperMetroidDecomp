@@ -58,6 +58,22 @@ internal sealed class EnemyOccupant
     internal static EnemyOccupant FromSurroundings<TEntity>(TEntity entity) where TEntity : class, IEnemySurroundingsInitialization, IEnemyAi =>
         new(Ensure.NotNull(entity), initialization: null, entity, entity);
 
+    /// <summary>
+    /// An occupant whose setup is <paramref name="entity"/>'s own initialization and which has no main AI of its own: a part
+    /// another part moves, or one that only animates.
+    /// </summary>
+    /// <param name="entity">The entity, which sets itself up.</param>
+    internal static EnemyOccupant WithoutMainAi(IEnemyInitialization entity) =>
+        new(Ensure.NotNull(entity), entity, surroundingsInitialization: null, mainAi: null);
+
+    /// <summary>
+    /// An occupant whose setup is <paramref name="entity"/>'s initialization from a population load's surroundings and
+    /// which has no main AI of its own: a part another part moves, or one that only animates.
+    /// </summary>
+    /// <param name="entity">The entity, which sets itself up from its surroundings.</param>
+    internal static EnemyOccupant WithoutMainAi(IEnemySurroundingsInitialization entity) =>
+        new(Ensure.NotNull(entity), initialization: null, entity, mainAi: null);
+
     /// <summary>An occupant with no setup and no main AI: placing it is all it does.</summary>
     /// <param name="entity">The entity, which keeps no state its placement does not already give it.</param>
     internal static EnemyOccupant PlacedOnly(IEnemyEntity entity) =>

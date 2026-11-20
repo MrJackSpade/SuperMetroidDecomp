@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
@@ -163,7 +164,7 @@ internal static class FrontendSheetColouringsVerification
         foreach ((MapSpriteId id, MapSpriteColouring[] colourings) in MapSpriteDraws)
         {
             foreach (MapSpriteColouring colouring in colourings)
-                Add(sets, MapSpriteNames.Name(id), MapSpriteColouringSets.SpriteSet(colouring));
+                Add(sets, Ensure.Listed(MapSpriteDefinitions.Names, id), MapSpriteColouringSets.SpriteSet(colouring));
         }
         return sets;
     }

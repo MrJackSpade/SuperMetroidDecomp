@@ -84,9 +84,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
             var block = new Position16<RoomBlocks>(3, 4);
             RoomTerrainBlock before = level.GetCollisionBlock(block).Terrain;
 
-            AssertTrue(
-                roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level, new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, statueObject)),
-                $"Chozo statue's {statueObject} spawns");
+            roomObjects.ChozoStatue.SpawnChozoStatueObject(level, new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, statueObject));
             RoomObjectPlaceSnapshot place = roomObjects.PopulationPlaces.Single();
             AssertEqual(0, place.UpdatePosition, "the statue's room object takes the first free place in the update order");
             AssertEqual(block, place.Block, "the statue's room object sits at its requested block");
@@ -145,9 +143,8 @@ internal static class ChozoStatueObjectDefinitionsVerification
             new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Norfair),
             RoomObjectServiceFixtures.Uninstalled with { Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } },
             RoomObjectFixtures.Unbound());
-        AssertTrue(roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level,
-                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(ChozoStatueRoomDefinitions.LowerNorfairHandBlock, ChozoStatueRoomObject.LowerNorfairHand)),
-            "Lower Norfair hand allocates");
+        roomObjects.ChozoStatue.SpawnChozoStatueObject(level,
+                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(ChozoStatueRoomDefinitions.LowerNorfairHandBlock, ChozoStatueRoomObject.LowerNorfairHand));
 
         // The hand starts on its first update and waits from its second while the trigger block stands intact.
         const int updatesBeforeBreak = 3;

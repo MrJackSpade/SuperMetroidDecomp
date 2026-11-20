@@ -34,12 +34,15 @@ public static class RoomObjectBombTorizoHandVisualFiles
     {
         get
         {
-            TryGet(BombTorizoHandDraws.Family.Of(BombTorizoHandDraw.Intact), out var intact);
-            yield return intact;
-            TryGet(BombTorizoHandDraws.Family.Of(BombTorizoHandDraw.Cleared), out var cleared);
-            yield return cleared;
+            yield return DrawListOf(BombTorizoHandDraws.Family.Of(BombTorizoHandDraw.Intact));
+            yield return DrawListOf(BombTorizoHandDraws.Family.Of(BombTorizoHandDraw.Cleared));
         }
     }
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the Bomb Torizo hand draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Bomb Torizo hand draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a Bomb Torizo hand draw.");
 
     /// <summary>
     /// The draw list of the intact or cleared hand as the cartridge writes it: its horizontal strips in write order, each

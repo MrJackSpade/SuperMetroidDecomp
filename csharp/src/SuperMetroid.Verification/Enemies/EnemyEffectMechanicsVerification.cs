@@ -67,7 +67,7 @@ internal static class EnemyEffectMechanicsVerification
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             fixture.InitializeMap(pass);
-            fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
+            fixture.Call(_ => state => CrocomireMelting.BeginCrocomireMeltPass(state, pass));
             int bands = CrocomireMelting.BandRound(pass);
             ListStep<CrocomireDeathStage> phase = fixture.Actor.DeathStage;
             for (int band = 0; band <= bands; band++)

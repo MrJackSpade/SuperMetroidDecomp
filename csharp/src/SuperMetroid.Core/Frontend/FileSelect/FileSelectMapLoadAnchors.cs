@@ -19,7 +19,8 @@ public static class FileSelectMapLoadAnchors
     /// </remarks>
     public static Position16<MapPixels> Get(LoadStation station)
     {
-        _ = MapSaveMarkers.Id(station);
+        if (!MapSaveMarkers.IsMarked(station))
+            throw new ArgumentOutOfRangeException(nameof(station), station, "The station has no save-map marker.");
         LoadStationPlacement placement = station.Placement;
         RoomDefinition room = placement.Door.DestinationRoom;
         Position16<RoomPixels> samus = placement.SamusPosition;

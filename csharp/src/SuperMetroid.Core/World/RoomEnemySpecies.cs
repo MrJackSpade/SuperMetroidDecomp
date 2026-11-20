@@ -616,7 +616,7 @@ internal sealed class RoomEnemySpecies
             motherBrain.Projectiles.SpawnMotherBrainGlassProjectile(request);
 
         /// <inheritdoc/>
-        public EnemyProjectile? SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request) =>
+        public void SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request) =>
             bombTorizo.Attacks.SpawnBombTorizoStatueBreakingProjectile(request);
 
         /// <inheritdoc/>

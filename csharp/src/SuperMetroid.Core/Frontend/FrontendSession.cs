@@ -16,7 +16,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.Frontend;

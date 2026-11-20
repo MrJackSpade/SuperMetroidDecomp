@@ -334,7 +334,7 @@ internal static class CrocomireStateQuantitiesVerification
     {
         var fixture = new EnemyEffectsFixtureVerification.CrocomireEffectFixture(EnemyEffectsFixtureVerification.MeltEffectArtwork());
         fixture.InitializeMap(CrocomireMeltingIllustration.Flesh);
-        fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.Flesh));
+        fixture.Call(_ => state => CrocomireMelting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.Flesh));
         for (int band = 0; band <= CrocomireMeltingDefinitions.FirstPassBandRound; band++)
             fixture.Call(_ => CrocomireMelting.ShowNextCrocomireMeltBand);
         fixture.Call(_ => CrocomireMelting.BeginCrocomireMelting);

@@ -20,13 +20,11 @@ public static class OldTourianEscapeAccentPaletteFxColorDefinitions
         new()
         {
             Owner = OldTourianEscapeAccentPaletteOwner.OrangeRailings,
-            Object = ColourEffectId.OldTourianBackgroundRailingsFlashYellow,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.OldTourianBackgroundRailingsFlashYellow, ColorsPerFrame),
         },
         new()
         {
             Owner = OldTourianEscapeAccentPaletteOwner.YellowPanels,
-            Object = ColourEffectId.OldTourianBackgroundPanelsFlashYellow,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.OldTourianBackgroundPanelsFlashYellow, ColorsPerFrame),
         },
     ];

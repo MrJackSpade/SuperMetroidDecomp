@@ -14,7 +14,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing
-            ? EnemyOccupant.Of(new DragonWingEntity(this, place, common))
+            ? EnemyOccupant.WithoutMainAi(new DragonWingEntity(this, place, common))
             : EnemyOccupant.Of(new DragonEntity(this, place, common));
 
     /// <summary>Allocates Dragon's three-shot fireball volleys from the room projectile pool.</summary>

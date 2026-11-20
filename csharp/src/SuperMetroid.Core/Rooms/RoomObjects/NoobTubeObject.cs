@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
@@ -24,13 +23,10 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObjec
     internal NoobTubePhase Phase { get; private set; } = NoobTubePhase.Starting;
 
     /// <summary>The strike on the tube's block it has yet to take (#2562).</summary>
-    private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> _strike = new();
-
-    /// <summary>The strike on the tube's block it has yet to take, or null for none.</summary>
-    internal ResidentObjectProjectileHit? AwaitingStrike => _strike.Awaiting;
+    internal readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> strike = new();
 
     /// <inheritdoc/>
-    public void Strike(ResidentObjectProjectileHit hit) => _strike.Land(hit);
+    public void Strike(ResidentObjectProjectileHit hit) => strike.Land(hit);
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -89,7 +85,7 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObjec
         switch (Phase)
         {
             case NoobTubePhase.WaitingForPowerBomb:
-                ResidentObjectProjectileHit? hit = _strike.Take();
+                ResidentObjectProjectileHit? hit = strike.Take();
                 if (hit?.Family == SamusProjectileFamily.PowerBomb)
                 {
                     Phase = NoobTubePhase.WaitingForInput;

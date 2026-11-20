@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -28,8 +27,6 @@ internal sealed class EnemyFramePhase
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Supplies frame counters consumed by enemy AI and animation.</summary>
     private readonly FrameClock _clock;
-    /// <summary>Receives Ceres Ridley's immediate Baby and door sprites before queued enemy layers.</summary>
-    private readonly SpriteFrameBuffer _sprites;
     /// <summary>Exposes Samus's pose, motion, and collision handoffs around the enemy pass.</summary>
     private readonly SamusFrameState _player;
 
@@ -42,7 +39,6 @@ internal sealed class EnemyFramePhase
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _freeze = dependencies.Freeze;
         _clock = dependencies.Clock;
-        _sprites = dependencies.Sprites;
         _player = dependencies.Player;
 
     }

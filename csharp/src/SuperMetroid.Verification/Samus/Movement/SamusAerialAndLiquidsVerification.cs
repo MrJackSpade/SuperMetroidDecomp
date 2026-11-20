@@ -477,12 +477,12 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         },
     };
     spinFire.HorizontalSpeed.ExtraRunSpeed = spinFire.HorizontalSpeed.ExtraRunSpeed.WithFraction(1);
-    AssertTrue(spinFire.TryApplySpinToNormalJumpFireTransition(
+    // The spin Fire body expansion fits the empty room: the pose below shows it taken.
+    spinFire.ApplySpinToNormalJumpFireTransition(
         empty,
         SamusPoseId.NormalJumpGunExtendedRightPose,
         frameCounter: 0,
-        controllerNewInput: GameplayAction.Shoot),
-        "spin Fire body expansion fits empty room");
+        controllerNewInput: GameplayAction.Shoot);
     AssertEqual(SamusPoseId.NormalJumpGunExtendedRightPose, spinFire.Pose,
         "spin Fire selects gun-extended normal jump");
     AssertEqual(12, spinFire.Kinematics.Radius.Y,
@@ -516,13 +516,12 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
             VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(4, 0x2345), SamusVerticalDirection.Up),
         },
     };
-    AssertTrue(SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(wallFire, 
+    SamusAerialPoseTransitions.ApplySpinOrWallJumpToNormalJumpTransition(wallFire, 
 
         empty,
         SamusPoseId.NormalJumpGunExtendedRightPose,
         frameCounter: 0,
-        controllerNewInput: GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-        "wall-jump Shot body expansion fits empty room");
+        controllerNewInput: GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.NormalJumpGunExtendedRightPose, wallFire.Pose,
         "wall-jump Shot selects cartridge target $13");
     AssertEqual(19, wallFire.Kinematics.Radius.Y,
@@ -549,13 +548,12 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
             VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(2, 0x3456), SamusVerticalDirection.Up),
         },
     };
-    AssertTrue(SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(spinAimDown, 
+    SamusAerialPoseTransitions.ApplySpinOrWallJumpToNormalJumpTransition(spinAimDown, 
 
         empty,
         SamusPoseId.NormalJumpAimDownLeftPose,
         frameCounter: 0,
-        controllerNewInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-        "spin Down body contraction fits empty room");
+        controllerNewInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.NormalJumpAimDownLeftPose, spinAimDown.Pose,
         "spin Down selects compact left normal jump");
     AssertEqual(12, spinAimDown.Kinematics.Radius.Y,
@@ -716,13 +714,11 @@ empty, screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump, roomObjects: Sa
     // Samus names shades (#1512); the import resolves them from the seeded suits and cycles.
     var aerialSources = InstalledFixtures.SamusShadeSources with { Suits = suitColors, FullBodyCycles = cycleColors.ToColours() };
     var samusColours = new SamusColours();
-    AssertTrue(palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (0x1b) == 0, AnimationPastScrewAttackSpin = (0x1b) >= 27, AnimationBeforeWallJumpSpin = (0x1b) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
-        "ending Screw frame copies normal suit palette");
+    palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (0x1b) == 0, AnimationPastScrewAttackSpin = (0x1b) >= 27, AnimationBeforeWallJumpSpin = (0x1b) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
     AssertEqual(0x0111, samusColours.ShownSuit(aerialSources)[0], "ending Screw frame normal palette");
     for (int frame = 0; frame < 6; frame++)
     {
-        AssertTrue(palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
-            $"Screw palette frame {frame} copies");
+        palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
         AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), samusColours.ShownSuit(aerialSources)[0],
             $"Screw palette frame {frame} ROM color");
     }

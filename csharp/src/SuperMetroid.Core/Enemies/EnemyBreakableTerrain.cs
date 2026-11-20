@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// Tells which enemy spike blocks an enemy breaks rather than meets as solid: the enemy's spike reaction reads a spike's
 /// reaction from either its common or its area's list alike, and spawns the block's break
-/// (<see cref="EnemyBreakableTerrainObjects.TrySpawnEnemyBreakableBlock"/>) for the enemy-breakable reaction alone.
+/// (<see cref="EnemyBreakableTerrainObjects.SpawnEnemyBreakableBlock"/>) for the enemy-breakable reaction alone.
 /// </summary>
 public static class EnemyBreakableTerrain
 {

@@ -449,7 +449,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         {
             // Each actor starts at its role's installed placement (#1596).
             CeresDestructionActorDefinition definition = CeresDestructionActors.InitialActor(role);
-            ceresActors.Add(new CeresDestructionActor(role, definition,
+            ceresActors.Add(new CeresDestructionActor(definition,
                 CreateActor(definition, content.CeresDestruction.DestructionActors[role].Place)));
         }
         Phase = CeresDestructionPhase.WaitForMusicQueue;
@@ -533,7 +533,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private ZebesRevealActor CreateZebesActor(ZebesRevealActorRole role)
     {
         CeresDestructionActorDefinition definition = CeresDestructionActors.ZebesActor(role);
-        return new ZebesRevealActor(role, definition, CreateActor(definition, Artwork.CeresDestruction.RevealActors[role].Place));
+        return new ZebesRevealActor(definition, CreateActor(definition, Artwork.CeresDestruction.RevealActors[role].Place));
     }
 
 

@@ -203,7 +203,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         TriggerDeadTorizoRotting(c.Enemy);
 
     /// <summary>Advances the dead Torizo's typed animation.</summary>
-    internal static void AdvanceDeadTorizoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceDeadTorizoTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;

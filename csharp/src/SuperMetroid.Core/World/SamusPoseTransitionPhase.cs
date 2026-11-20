@@ -317,7 +317,6 @@ internal sealed class SamusPoseTransitionPhase
                     terrain.Level,
                     prospectiveRunningPose,
                     currentRunHitWall,
-                    out _,
                     terrain.RoomObjects);
         }
 
@@ -389,7 +388,7 @@ internal sealed class SamusPoseTransitionPhase
         {
             if (SamusPoseMetadata.IsCompactAerialPose(frame.PoseAtFrameStart))
             {
-                SamusPoseTransitions.TryApplyCompactAerialLanding(samus,
+                SamusPoseTransitions.ApplyCompactAerialLanding(samus,
                     terrain.Level,
                     _clock.Counter,
                     terrain.RoomObjects);
@@ -398,7 +397,7 @@ internal sealed class SamusPoseTransitionPhase
             {
                 bool wasSpinning = SamusPoseMetadata.IsSpinJumpPose(frame.PoseAtFrameStart) ||
                     SamusPoseMetadata.IsWallJumpPose(frame.PoseAtFrameStart);
-                SamusPoseTransitions.TryApplyAerialLanding(samus,
+                SamusPoseTransitions.ApplyAerialLandingInRoom(samus,
                     terrain.Level,
                     wasSpinning,
                     _playerActions.Current,

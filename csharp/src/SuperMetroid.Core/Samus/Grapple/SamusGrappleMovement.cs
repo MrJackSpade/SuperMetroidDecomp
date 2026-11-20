@@ -752,9 +752,9 @@ public static class SamusGrappleMovement
                 // blue door setup's power-bomb rejection; the ordinary opening owner
                 // supplies all four cap blocks, timing, collision changes, and sound.
                 if (block.Behavior.TryGetDownwardGateTrigger(out _))
-                    roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
+                    roomObjects.Gates.SpawnDownwardGateTrigger(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
                 else if (block.Behavior.TryGetBlueDoorOrientation(out _))
-                    roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
+                    roomObjects.DoorObjects.SpawnBlueDoorOpening(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
                 else if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
                 {
                     // A shot-triggered block also reacts to the grapple: its resident actor hears of a hit with no
@@ -764,7 +764,7 @@ public static class SamusGrappleMovement
                             $"Grapple trigger block {block.Position} has no resident room-object owner.");
                 }
                 else if (block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
-                    roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
+                    roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
                 else
                 {
                     try

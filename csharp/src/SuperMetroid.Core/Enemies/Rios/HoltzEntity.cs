@@ -17,5 +17,5 @@ internal sealed class HoltzEntity(HoltzBehavior species, RoomEnemyPlace place, E
     public void RunMainAi(IEnemyAiFrame frame) => species.RunHoltzMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => HoltzBehavior.AdvanceHoltzTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => HoltzBehavior.AdvanceHoltzTypedAnimation(Place);
 }

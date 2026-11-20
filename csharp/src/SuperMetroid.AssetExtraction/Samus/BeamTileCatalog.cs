@@ -8,14 +8,14 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>The installed beam characters by combination, with the beam palettes; the projectile sheets are composed from them.</summary>
 public sealed class BeamTileCatalog : IInstalledArtworkContent
 {
-    /// <summary>Every combination's installed 256-byte beam atlas, by artwork ordinal.</summary>
-    private readonly BeamTileAtlas[] sheets;
+    /// <summary>Every pictured combination's installed 256-byte beam atlas.</summary>
+    private readonly IReadOnlyDictionary<SamusBeamCombination, BeamTileAtlas> sheets;
     /// <summary>Gets the optional installed beam and grapple palette catalog paired with these tile sheets.</summary>
     public InstalledBeamPalettes? Palettes { get; }
     /// <summary>Gets the optional installed fixed-color cycle used by the Hyper Beam visual effect.</summary>
     public HyperBeamFxColours? HyperBeamFxColors { get; }
     /// <summary>Keeps every combination's installed atlas, each read as installed.</summary>
-    private BeamTileCatalog(BeamTileAtlas[] sheets, InstalledBeamPalettes? palettes,
+    private BeamTileCatalog(IReadOnlyDictionary<SamusBeamCombination, BeamTileAtlas> sheets, InstalledBeamPalettes? palettes,
         HyperBeamFxColours? hyperBeamFxColors)
     {
         this.sheets = sheets;
@@ -24,18 +24,19 @@ public sealed class BeamTileCatalog : IInstalledArtworkContent
     }
 
     /// <summary>Builds a catalog from file-context-validated atlases without decoding PNGs twice.</summary>
-    internal static BeamTileCatalog FromAtlases(BeamTileAtlas[] sheets, InstalledBeamPalettes palettes,
+    internal static BeamTileCatalog FromAtlases(IReadOnlyDictionary<SamusBeamCombination, BeamTileAtlas> sheets, InstalledBeamPalettes palettes,
         HyperBeamFxColours hyperBeamFxColors)
     {
         Ensure.NotNull(sheets);
-        if (sheets.Length != BeamTileAtlasDefinitions.ArtworkCount || sheets.Any(sheet => sheet is null))
+        if (sheets.Count != BeamTileAtlasDefinitions.Pictured.Count ||
+            BeamTileAtlasDefinitions.Pictured.Any(selection => !sheets.TryGetValue(selection, out BeamTileAtlas? sheet) || sheet is null))
             throw new ArgumentException("Every beam selection needs a compiled atlas.", nameof(sheets));
-        return new((BeamTileAtlas[])sheets.Clone(), palettes, hyperBeamFxColors);
+        return new(sheets.ToDictionary(entry => entry.Key, entry => entry.Value), palettes, hyperBeamFxColors);
     }
 
     /// <summary>Resolves a supported typed beam-tile identity to its immutable 256-byte planar transfer.</summary>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
-        sheets[BeamTileAtlasDefinitions.ArtworkOrdinal(SelectionFor(asset))].Characters;
+        Ensure.Listed(sheets, SelectionFor(asset)).Characters;
 
     /// <summary>Maps a supported native equipped-beam selection to its queued VRAM asset identity.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no artwork ($0C or $0F).</exception>

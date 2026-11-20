@@ -26,14 +26,14 @@ public static class BeamPaletteFile
     /// <summary>Asset filename for the ordinary beam-combination RGB5 palettes.</summary>
     public const string FileName = "beam-palettes.json";
 
-    /// <summary>Returns the canonical JSON key for an ordinary beam combination using its uppercase two-digit hexadecimal selection index.</summary>
+    /// <summary>Returns the canonical JSON key for an ordinary beam combination: the combination's written-out installed key.</summary>
     /// <param name="selection">Retail beam combination; simultaneous Spazer/Plasma selections are outside this catalog.</param>
-    /// <returns>A key from <c>beam-00</c> through <c>beam-0B</c>.</returns>
+    /// <returns><c>beam-{key}</c>.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The selection is not a retail combination.</exception>
     public static string Key(SamusBeamCombination selection)
     {
         if (!selection.CanBeEquipped) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
-        return $"beam-{selection.TableIndex:X2}";
+        return $"beam-{SamusBeamCombinationKeys.Installed.Of(selection)}";
     }
 
     /// <summary>Strict camel-case JSON settings shared by beam palette loading and writing.</summary>
@@ -61,10 +61,10 @@ public static class BeamPaletteFile
         if (document.Version != Version || document.Palettes is null ||
             document.Palettes.Count != BeamTileAtlasDefinitions.SelectionCount)
             throw new InvalidDataException("Beam palettes require version 1 and all twelve selections.");
-        var compiled = new RgbColor[BeamTileAtlasDefinitions.SelectionCount][];
-        for (int selection = 0; selection < compiled.Length; selection++)
+        var compiled = new Dictionary<SamusBeamCombination, RgbColor[]>();
+        foreach (SamusBeamCombination selection in BeamTileAtlasDefinitions.Equippable)
         {
-            if (!document.Palettes.TryGetValue(BeamPaletteFile.Key(SamusBeamCombinationTableOrder.FromTableIndex(selection)), out var colors) ||
+            if (!document.Palettes.TryGetValue(BeamPaletteFile.Key(selection), out var colors) ||
                 colors is null || colors.Length != BeamPaletteDefinitions.ColorCount)
                 throw new InvalidDataException($"Missing or incomplete beam palette {selection}.");
             compiled[selection] = new RgbColor[colors.Length];

@@ -77,6 +77,19 @@ public sealed class SpriteSheet
         if (behind is null && before is null && !showsNothing)
             throw new InvalidDataException(
                 $"Sprite sheet {Image.Name} has no picture {name}: it installs neither {name} nor {inFront} and does not name it as showing nothing.");
-        return new LayeredPicture(behind, before);
+        return LayeredPicture.Of(behind, before);
     }
+
+    /// <summary>
+    /// The picture named <paramref name="name"/>, which the installed sheet must show something of: its part behind, its
+    /// part in front or both (<see cref="Picture"/>).
+    /// </summary>
+    /// <exception cref="ArgumentException">The name is empty.</exception>
+    /// <exception cref="InvalidDataException">The sheet installs no such picture, or names it as one that shows nothing.</exception>
+    public ShownLayeredPicture ShownPicture([InstalledKey] string name) => Picture(name) switch
+    {
+        ShownLayeredPicture shown => shown,
+        BlankPicture => throw new InvalidDataException($"Sprite sheet {Image.Name} names picture {name} as showing nothing, where a picture must show."),
+        var other => throw new InvalidOperationException($"Undefined layered picture {other}."),
+    };
 }

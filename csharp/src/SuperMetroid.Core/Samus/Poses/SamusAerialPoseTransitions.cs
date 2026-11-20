@@ -106,8 +106,8 @@ internal static class SamusAerialPoseTransitions
 
         // The newly installed pose's shot direction is published on the exact Fire
         // edge that selected this pose. The projectile producer consumes it in the input phase.
-        if ((controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
-            samus.TransitionShot.Hand(SamusTransitionShot.FromPose(samus));
+        if ((controllerNewInput & GameplayAction.Shoot) != GameplayAction.None && SamusTransitionShot.OfPose(samus) is { } shot)
+            samus.TransitionShot.Hand(shot);
 
         SamusPresentation.InitializeAnimation(samus);
         return true;
@@ -569,8 +569,8 @@ internal static class SamusAerialPoseTransitions
     internal static void ArmNormalJumpTransitionShot(SamusState samus, GameplayAction controllerNewInput)
     {
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
-            (controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
-            samus.TransitionShot.Hand(SamusTransitionShot.FromPose(samus));
+            (controllerNewInput & GameplayAction.Shoot) != GameplayAction.None && SamusTransitionShot.OfPose(samus) is { } shot)
+            samus.TransitionShot.Hand(shot);
     }
 
     /// <summary>

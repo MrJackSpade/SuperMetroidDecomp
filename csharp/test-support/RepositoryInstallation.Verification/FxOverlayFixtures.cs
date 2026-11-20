@@ -60,7 +60,7 @@ internal static class FxOverlayFixtures
         SpriteSheet sheet = Sheet(transfer[..((cut.BodyFirstRow + cut.BodyRows) * columns)], image, palette, characterWord,
             [("surface", 0, cut.BodyFirstRow, new Offset16<ImagePixels>(0, RoomEffectTransferCuts.SurfaceRow)),
              ("body", cut.BodyFirstRow, cut.BodyRows, default)]);
-        return new FxOverlayArtwork(new LiquidArtwork(sheet.Picture("surface"), sheet.Picture("body")));
+        return new FxOverlayArtwork(new LiquidArtwork(sheet.ShownPicture("surface"), sheet.ShownPicture("body")));
     }
 
     /// <summary>
@@ -112,7 +112,7 @@ internal static class FxOverlayFixtures
             throw new ArgumentOutOfRangeException(nameof(rows), $"Rows {firstRow} through {firstRow + rows - 1} leave the {pictured.Y / TilePixels}-row plane.");
         SpriteSheetFrame? Cut(SpriteSheetFrame? part) => part is null ? null
             : new SpriteSheetFrame(part.Sheet, part.Corner + offset, size, default) { Depth = part.Depth, Blends = part.Blends };
-        return new AtmosphereArtwork(new LayeredPicture(Cut(plane.Behind), Cut(plane.InFront)));
+        return new AtmosphereArtwork((ShownLayeredPicture)LayeredPicture.Of(Cut(plane.Behind), Cut(plane.InFront)));
     }
 
     /// <summary>

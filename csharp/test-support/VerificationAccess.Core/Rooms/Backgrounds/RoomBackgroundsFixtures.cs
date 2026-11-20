@@ -144,7 +144,7 @@ internal static class RoomBackgroundsFixtures
             int first = cell, row = cell / BodyColumns;
             while (cell < words.Length && cell / BodyColumns == row && words[cell] == words[first])
                 cell++;
-            var picture = new LayeredPicture(painted[Array.IndexOf(distinct, words[first])], InFront: null);
+            var picture = LayeredPicture.Of(painted[Array.IndexOf(distinct, words[first])], inFront: null);
             Tile(parts, picture, CellCorner(row, first % BodyColumns, area), (cell - first) * BodyCellPixels, BodyCellPixels);
         }
         return new ShownBossBody([.. parts]);
@@ -160,7 +160,7 @@ internal static class RoomBackgroundsFixtures
     {
         var definition = new BackgroundTile[BlockTiles];
         definition.AsSpan().Fill(BackgroundTileWordBytes.Tile(word.Raw));
-        var block = new LayeredPicture(RoomBlockFixtures.WholePictures(definition, image, palette, characterWord)[0], InFront: null);
+        var block = LayeredPicture.Of(RoomBlockFixtures.WholePictures(definition, image, palette, characterWord)[0], inFront: null);
         var parts = new List<ShownBossBodyPart>();
         Tile(parts, block, default, area.X, area.Y);
         return new ShownBossBody([.. parts]);
@@ -241,7 +241,7 @@ internal static class RoomBackgroundsFixtures
         SpriteSheet sheet = SeededSheet(random, scene, new Extent16<ImagePixels>(size.X, checked((ushort)(2 * size.Y))),
             new Dictionary<string, Position16<ImagePixels>> { ["overlay"] = default, ["overlay in front"] = new(0, size.Y) }, size,
             "seeded overlay", SpriteImageColours.TwoBppBackground);
-        return new AtmosphereArtwork(new LayeredPicture(sheet.Frame("overlay"), sheet.Frame("overlay in front")));
+        return new AtmosphereArtwork(new TwoPartPicture(sheet.Frame("overlay"), sheet.Frame("overlay in front")));
     }
 
     /// <summary>
@@ -304,7 +304,7 @@ internal static class RoomBackgroundsFixtures
         for (int definition = 0; definition < shown.Length; definition++)
         {
             SpriteSheetFrame behind = sheet.Frame($"{random.Next(SeededPictureCount)}");
-            shown[definition] = new LayeredPicture(behind, random.Next(2) == 0 ? sheet.Frame($"{random.Next(SeededPictureCount)}") : null);
+            shown[definition] = LayeredPicture.Of(behind, random.Next(2) == 0 ? sheet.Frame($"{random.Next(SeededPictureCount)}") : null);
         }
         return new RoomBlockPictureTable(shown, new Dictionary<CollectiblePicture, LayeredPicture>());
     }

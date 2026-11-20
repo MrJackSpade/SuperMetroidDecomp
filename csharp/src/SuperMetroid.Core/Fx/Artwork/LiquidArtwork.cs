@@ -8,26 +8,26 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </summary>
 public sealed record LiquidArtwork : RoomEffectArtwork
 {
-    /// <summary>Checks that both pictures install a part and that the strip's two parts place the surface alike.</summary>
+    /// <summary>Checks that the strip's two parts place the surface alike.</summary>
     /// <param name="surface">The surface strip, its origin on the surface line.</param>
     /// <param name="body">The body, which repeats down below the strip.</param>
-    /// <exception cref="InvalidDataException">A picture installs neither part, or the strip's parts place the surface differently.</exception>
-    public LiquidArtwork(LayeredPicture surface, LayeredPicture body)
+    /// <exception cref="InvalidDataException">The strip's parts place the surface differently.</exception>
+    public LiquidArtwork(ShownLayeredPicture surface, ShownLayeredPicture body)
     {
         Surface = Ensure.NotNull(surface);
         Body = Ensure.NotNull(body);
-        SurfaceSize = surface.Size ?? throw new InvalidDataException("A liquid's surface strip installs neither of its parts.");
-        BodySize = body.Size ?? throw new InvalidDataException("A liquid's body installs neither of its parts.");
-        if (surface.Behind is { } behind && surface.InFront is { } inFront && behind.Origin != inFront.Origin)
+        SurfaceSize = surface.Size;
+        BodySize = body.Size;
+        if (surface is TwoPartPicture both && both.BehindPart.Origin != both.InFrontPart.Origin)
             throw new InvalidDataException("A liquid's surface strip places its surface differently in its two parts.");
-        SurfaceRow = (surface.Behind ?? surface.InFront ?? throw new InvalidDataException("A liquid's surface strip installs neither of its parts.")).Origin.Y;
+        SurfaceRow = surface.FirstPart.Origin.Y;
     }
 
     /// <summary>The surface strip, its origin on the surface line.</summary>
-    public LayeredPicture Surface { get; }
+    public ShownLayeredPicture Surface { get; }
 
     /// <summary>The body, which repeats down below the strip.</summary>
-    public LayeredPicture Body { get; }
+    public ShownLayeredPicture Body { get; }
 
     /// <summary>The strip's width and height.</summary>
     public Extent16<ImagePixels> SurfaceSize { get; }

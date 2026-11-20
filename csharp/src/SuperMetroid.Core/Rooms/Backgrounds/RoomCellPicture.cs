@@ -51,10 +51,8 @@ public readonly record struct RoomCellPicture
     public int Block => collectible is null && !ShowsNothing ? block
         : throw new InvalidOperationException($"The cell shows {this}, not a block.");
 
-    /// <summary>The collectible picture shown.</summary>
-    /// <exception cref="InvalidOperationException">The cell shows a block of the tileset or nothing.</exception>
-    public CollectiblePicture Collectible => collectible
-        ?? throw new InvalidOperationException($"The cell shows {this}, not a collectible's picture.");
+    /// <summary>The collectible picture shown, or none where the cell shows a block of the tileset or nothing.</summary>
+    public CollectiblePicture? Collectible => collectible;
 
     /// <summary>A cell showing block <paramref name="block"/> of the room tileset's block set.</summary>
     /// <param name="block">The block's number in the tileset's block set, zero or more; the tileset's sheet bounds it.</param>

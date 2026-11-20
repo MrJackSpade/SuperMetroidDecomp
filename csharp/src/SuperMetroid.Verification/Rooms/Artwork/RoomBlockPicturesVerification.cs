@@ -732,7 +732,7 @@ internal static class RoomBlockPicturesVerification
             bool collectible = block.ShowsCollectible;
             bool overUpload = !collectible && scope.Assets.BlockSheet.Inputs.Of(block.Block)
                 .Any(input => appearance.ValueOf(input) != RoomAppearanceValues.Loaded);
-            ushort[] blockWords = collectible ? CollectibleWords(block.Collectible)
+            ushort[] blockWords = collectible ? CollectibleWords(block.Collectible!.Value)
                 : stock[(block.Block * BlockTiles)..((block.Block + 1) * BlockTiles)];
             for (int tile = 0; tile < BlockTiles; tile++)
             {
@@ -740,7 +740,7 @@ internal static class RoomBlockPicturesVerification
                 // A character an animation paints shows the frame it selected (#1406), which the composed VRAM never holds.
                 bool animated = false;
                 ReadOnlySpan<byte> bytes = collectible
-                    ? DynamicCollectibleGraphics.Get(block.Collectible.Kind).Tiles.Span[(word.CharacterIndex * BgCharacterSet.Tiles.CharacterBytes())..]
+                    ? DynamicCollectibleGraphics.Get(block.Collectible!.Value.Kind).Tiles.Span[(word.CharacterIndex * BgCharacterSet.Tiles.CharacterBytes())..]
                     : sprites ? tiles.AsSpan(word.CharacterIndex * BgCharacterSet.Tiles.CharacterBytes())
                     : tileAnimations.Bytes(latched, word.CharacterIndex, tiles, out animated);
                 for (int y = 0; y < CharacterPixels; y++)

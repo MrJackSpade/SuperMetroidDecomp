@@ -15,7 +15,7 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
     private RoomWarningText? source;
 
     /// <summary>The picture each written picture showed when last resolved.</summary>
-    private LayeredPicture[] shown = [];
+    private ShownLayeredPicture[] shown = [];
 
     /// <summary>The written pictures as last resolved for an overlay.</summary>
     private ImmutableArray<PlacedWrittenPicture> placedPictures;
@@ -34,7 +34,7 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
         Ensure.NotNull(overlay);
         if (Sheet.Layer != WrittenPictureLayer.WrittenOverRoom)
             throw new InvalidOperationException($"{Sheet.Name} pictures nothing written over the room's layers.");
-        LayeredPicture[] frames = Frames(overlay.Pictures, appearance);
+        ShownLayeredPicture[] frames = Frames(overlay.Pictures, appearance);
         if (Unchanged(overlay, frames))
             return placedPictures;
         var placed = ImmutableArray.CreateBuilder<PlacedWrittenPicture>(frames.Length);
@@ -47,16 +47,16 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
     }
 
     /// <summary>The pictures each of <paramref name="placed"/> shows now.</summary>
-    private LayeredPicture[] Frames(IReadOnlyList<WrittenPicture> placed, RoomAppearanceView appearance)
+    private ShownLayeredPicture[] Frames(IReadOnlyList<WrittenPicture> placed, RoomAppearanceView appearance)
     {
-        var frames = new LayeredPicture[placed.Count];
+        var frames = new ShownLayeredPicture[placed.Count];
         for (int index = 0; index < placed.Count; index++)
             frames[index] = Sheet.Picture(placed[index].Picture, appearance);
         return frames;
     }
 
     /// <summary>Whether <paramref name="overlay"/> was last resolved and showed <paramref name="frames"/>.</summary>
-    private bool Unchanged(RoomWarningText overlay, LayeredPicture[] frames)
+    private bool Unchanged(RoomWarningText overlay, ShownLayeredPicture[] frames)
     {
         bool unchanged = ReferenceEquals(overlay, source) && shown.Length == frames.Length;
         for (int index = 0; unchanged && index < frames.Length; index++)

@@ -5,8 +5,5 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// requests as it made them; the firing sound is also reported here for a cinematic that plays its projectiles' firing
 /// sound itself.
 /// </summary>
-/// <param name="QueuedSoundEffect">The firing sound queued during the pass, if any.</param>
-/// <param name="QueuedSoundPriority">The priority of the firing sound's request, or none with no request.</param>
-public readonly record struct SamusProjectileFrameResult(
-    SoundEffectId? QueuedSoundEffect,
-    SoundRequestPriority? QueuedSoundPriority);
+/// <param name="FiringSound">The firing sound's request queued during the pass, with its priority, or none with no request.</param>
+public readonly record struct SamusProjectileFrameResult(SoundRequest? FiringSound);

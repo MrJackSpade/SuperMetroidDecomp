@@ -167,7 +167,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         AssertEqual(0, beforeShot.FiredSlot(projectiles), $"power beam direction {direction} allocates slot zero");
         AssertEqual(
             (SoundEffectId?)SamusSound.UnchargedPowerBeam,
-            result.QueuedSoundEffect,
+            result.FiringSound?.SoundEffect,
             $"power beam direction {direction} queues ROM sound");
         AssertEqual(1, projectiles.Pool.ShotCount.Count,
             $"power beam direction {direction} increments counter");
@@ -223,7 +223,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             (SoundEffectId?)SoundEffectCommands.Decode(
                 SoundEffectLibrary.Samus,
                 nativeUnchargedSounds[beamType]),
-            combinedResult.QueuedSoundEffect,
+            combinedResult.FiringSound?.SoundEffect,
             $"beam combination {beamType} indexes uncharged sound");
         AssertEqual(10, combinedProjectiles.Firing.InteractionImmunity.UpdatesLeft,
             $"beam combination {beamType} publishes native invincibility timer");
@@ -311,14 +311,14 @@ internal static void VerifySamusPowerBeamProjectiles()
         {
             AssertEqual(
                 (SoundEffectId?)SamusSound.ChargingBeam,
-                chargeFrame.QueuedSoundEffect,
+                chargeFrame.FiringSound?.SoundEffect,
                 "charge counter sixteen queues the cartridge startup sound");
-            AssertEqual<SoundRequestPriority?>(SoundRequestPriority.High, chargeFrame.QueuedSoundPriority,
+            AssertEqual<SoundRequestPriority?>(SoundRequestPriority.High, chargeFrame.FiringSound?.Priority,
                 "charge startup is requested at high priority");
         }
         else
         {
-            AssertEqual(null, chargeFrame.QueuedSoundEffect,
+            AssertEqual(null, chargeFrame.FiringSound?.SoundEffect,
                 $"charge held frame {frame + 1} does not restart its sustained sound");
         }
 
@@ -363,9 +363,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(null, beforeRejectedRelease.FiredSlot(rejectedReleaseProjectiles),
         "cooldown gate rejects charged-audio release fixture");
     AssertEqual((SoundEffectId?)SamusSound.Silence,
-        rejectedRelease.QueuedSoundEffect,
+        rejectedRelease.FiringSound?.SoundEffect,
         "rejected post-sound charge release queues cartridge cancellation");
-    AssertEqual<SoundRequestPriority?>(SoundRequestPriority.Essential, rejectedRelease.QueuedSoundPriority,
+    AssertEqual<SoundRequestPriority?>(SoundRequestPriority.Essential, rejectedRelease.FiringSound?.Priority,
         "rejected charge release requests its cancellation at essential priority");
 
     // Build two identical fifteen-call charge states so their central flare frame and
@@ -484,7 +484,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "charged release fires a charged beam");
     AssertEqual(
         (SoundEffectId?)SamusSound.ChargedPowerBeam,
-        chargedRelease.QueuedSoundEffect,
+        chargedRelease.FiringSound?.SoundEffect,
         "charged power beam queues ROM sound");
     AssertEqual(0x001e, chargeBombs.CooldownTimer,
         "charged power beam installs charged cooldown");
@@ -610,7 +610,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             (SoundEffectId?)SoundEffectCommands.Decode(
                 SoundEffectLibrary.Samus,
                 nativeChargedSounds[beamType]),
-            combinedChargedRelease.QueuedSoundEffect,
+            combinedChargedRelease.FiringSound?.SoundEffect,
             $"charged beam combination {beamType} indexes charged sound");
         AssertEqual(
             (beamType & 1) == 0
@@ -647,7 +647,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(
         (SoundEffectId?)SoundEffectCommands.Decode(
             SoundEffectLibrary.Samus, nativeChargedSounds[8]),
-        hyperResult.QueuedSoundEffect,
+        hyperResult.FiringSound?.SoundEffect,
         "Hyper Beam indexes charged sound entry eight");
     AssertEqual(ChargedShotGlowKind.HyperBeamGlow, hyperProjectiles.Charge.ChargedShotGlow?.Kind,
         "Hyper Beam starts its own glow");
@@ -1006,7 +1006,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0, beforeMissile.FiredSlot(missileProjectiles), "missile fresh press allocates slot zero");
     AssertEqual(
         (SoundEffectId?)SamusSound.Missile,
-        missileFired.QueuedSoundEffect,
+        missileFired.FiringSound?.SoundEffect,
         "missile producer queues library-one effect three");
     AssertEqual(2, missileSamus.Missiles, "missile producer consumes exactly one ammo");
     AssertEqual(HudItem.Missile, missileSamus.SelectedHudItem,
@@ -1493,7 +1493,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0, beforeSuper.FiredSlot(superProjectiles), "super fresh press allocates owner slot zero");
     AssertEqual(
         (SoundEffectId?)SamusSound.SuperMissile,
-        superFired.QueuedSoundEffect,
+        superFired.FiringSound?.SoundEffect,
         "super producer queues library-one effect four");
     AssertEqual(2, superSamus.SuperMissiles,
         "super producer consumes exactly one ammo");

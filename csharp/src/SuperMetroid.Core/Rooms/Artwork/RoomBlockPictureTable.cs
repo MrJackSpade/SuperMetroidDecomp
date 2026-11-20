@@ -43,5 +43,5 @@ public sealed class RoomBlockPictureTable
     /// block whose picture shows nothing has neither part.
     /// </summary>
     public LayeredPicture? Picture(RoomCellPicture shown) =>
-        shown.ShowsNothing ? null : shown.ShowsCollectible ? collectibles.GetValueOrDefault(shown.Collectible) : blocks[shown.Block];
+        shown.ShowsNothing ? null : shown.Collectible is { } collectible ? collectibles.GetValueOrDefault(collectible) : blocks[shown.Block];
 }

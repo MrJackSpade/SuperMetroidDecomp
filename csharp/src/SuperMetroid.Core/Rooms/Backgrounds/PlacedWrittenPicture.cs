@@ -8,9 +8,8 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// </summary>
 /// <param name="Picture">The picture for the values the room's appearance inputs take now.</param>
 /// <param name="Corner">The layer pixel, from the layer's top-left, the picture's corner lies on.</param>
-public readonly record struct PlacedWrittenPicture(LayeredPicture Picture, Position16<PlanePixels> Corner)
+public readonly record struct PlacedWrittenPicture(ShownLayeredPicture Picture, Position16<PlanePixels> Corner)
 {
     /// <summary>The width and height the picture covers the layer over.</summary>
-    /// <exception cref="InvalidDataException">Neither part of the picture is installed, so it has no size.</exception>
-    public Extent16<ImagePixels> Size => Picture.Size ?? throw new InvalidDataException("A written picture installs neither of its parts.");
+    public Extent16<ImagePixels> Size => Picture.Size;
 }

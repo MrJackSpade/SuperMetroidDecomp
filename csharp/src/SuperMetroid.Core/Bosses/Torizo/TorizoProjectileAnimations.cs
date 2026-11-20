@@ -18,6 +18,26 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal static class TorizoProjectileAnimations
 {
+    /// <summary>A low-health explosion's flare burst pictures (#2557).</summary>
+    private static FlareBurst ExplosionBurst { get; } = new(EnemyProjectileFrameId.TorizoExplosionSpark, EnemyProjectileFrameId.TorizoExplosionFlareBall, EnemyProjectileFrameId.TorizoExplosionFlareRingCored,
+        EnemyProjectileFrameId.TorizoExplosionFlareRing, EnemyProjectileFrameId.TorizoExplosionFlareRingFading);
+
+    /// <summary>A sonic boom's flare burst pictures, where it strikes a wall (#2557).</summary>
+    private static FlareBurst SonicBoomBurst { get; } = new(EnemyProjectileFrameId.TorizoSonicBoomSpark, EnemyProjectileFrameId.TorizoSonicBoomFlareBall, EnemyProjectileFrameId.TorizoSonicBoomFlareRingCored,
+        EnemyProjectileFrameId.TorizoSonicBoomFlareRing, EnemyProjectileFrameId.TorizoSonicBoomFlareRingFading);
+
+    /// <summary>An explosive swipe's flare burst pictures (#2557).</summary>
+    private static FlareBurst SwipeBurst { get; } = new(EnemyProjectileFrameId.TorizoSwipeSpark, EnemyProjectileFrameId.TorizoSwipeFlareBall, EnemyProjectileFrameId.TorizoSwipeFlareRingCored,
+        EnemyProjectileFrameId.TorizoSwipeFlareRing, EnemyProjectileFrameId.TorizoSwipeFlareRingFading);
+
+    /// <summary>The Golden Torizo's eye beam's flare burst pictures (#2557): its impact bursts them and its beam shows them gathering.</summary>
+    private static FlareBurst EyeBeamBurst { get; } = new(EnemyProjectileFrameId.GoldenTorizoEyeBeamSpark, EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareBall, EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRingCored,
+        EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRing, EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRingFading);
+
+    /// <summary>A Chozo orb's flare burst pictures (#2557).</summary>
+    private static FlareBurst ChozoOrbBurst { get; } = new(EnemyProjectileFrameId.TorizoChozoOrbSpark, EnemyProjectileFrameId.TorizoChozoOrbFlareBall, EnemyProjectileFrameId.TorizoChozoOrbFlareRingCored,
+        EnemyProjectileFrameId.TorizoChozoOrbFlareRing, EnemyProjectileFrameId.TorizoChozoOrbFlareRingFading);
+
     /// <summary>Every animation's steps.</summary>
     internal static AnimationSegments<TorizoProjectileSegment, EnemyProjectileFrameId, TorizoProjectileCue> Segments { get; } = new(
         new Dictionary<TorizoProjectileSegment, AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[]>
@@ -32,11 +52,7 @@ internal static class TorizoProjectileAnimations
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
             Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 4), Center: new(0, 0)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
-            Show(EnemyProjectileFrameId.TorizoExplosionSpark, 2),
-            Show(EnemyProjectileFrameId.TorizoExplosionFlareBall, 2),
-            Show(EnemyProjectileFrameId.TorizoExplosionFlareRingCored, 3),
-            Show(EnemyProjectileFrameId.TorizoExplosionFlareRing, 3),
-            Show(EnemyProjectileFrameId.TorizoExplosionFlareRingFading, 2),
+            .. QuickBurst(ExplosionBurst),
         ],
         [P.DeathExplosion] =
         [
@@ -91,11 +107,7 @@ internal static class TorizoProjectileAnimations
         [P.ExplosiveSwipe] =
         [
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.BombTorizoSwipe, Priority: SoundRequestPriority.WhenIdle)),
-            Show(EnemyProjectileFrameId.TorizoSwipeSpark, 5),
-            Show(EnemyProjectileFrameId.TorizoSwipeFlareBall, 5),
-            Show(EnemyProjectileFrameId.TorizoSwipeFlareRingCored, 5),
-            Show(EnemyProjectileFrameId.TorizoSwipeFlareRing, 5),
-            Show(EnemyProjectileFrameId.TorizoSwipeFlareRingFading, 5),
+            .. FlareBurst.Steady<TorizoProjectileCue>(SwipeBurst, 5),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.StatueFragmentTopMiddle] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueMossClump, restUpdates: 128),
@@ -148,11 +160,7 @@ internal static class TorizoProjectileAnimations
         [
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
             Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 5), Center: new(0, 0)))),
-            Show(EnemyProjectileFrameId.TorizoSonicBoomSpark, 2),
-            Show(EnemyProjectileFrameId.TorizoSonicBoomFlareBall, 2),
-            Show(EnemyProjectileFrameId.TorizoSonicBoomFlareRingCored, 3),
-            Show(EnemyProjectileFrameId.TorizoSonicBoomFlareRing, 3),
-            Show(EnemyProjectileFrameId.TorizoSonicBoomFlareRingFading, 2),
+            .. QuickBurst(SonicBoomBurst),
         ],
         [P.LandingDustRightFoot] = LandingDust(Right),
         [P.LandingDustLeftFoot] = LandingDust(Left),
@@ -188,11 +196,7 @@ internal static class TorizoProjectileAnimations
         [P.EyeBeamWallImpact] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamSpark, 4),
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareBall, 4),
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRingCored, 4),
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRing, 4),
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRingFading, 4),
+            .. FlareBurst.Steady<TorizoProjectileCue>(EyeBeamBurst, 4),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.EyeBeamFloorImpact] =
@@ -218,11 +222,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EyeBeam] =
         [
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRingFading, 1),
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRing, 1),
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRingCored, 1),
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareBall, 1),
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamSpark, 1),
+            .. FlareBurst.Gathering<TorizoProjectileCue>(EyeBeamBurst, 1),
         ],
         [P.EggHatch] =
         [
@@ -289,11 +289,7 @@ internal static class TorizoProjectileAnimations
     [
         Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
         Cue(new TorizoProjectileCue.Signal(K.PersistOnContactAndDrawInFront)),
-        Show(EnemyProjectileFrameId.TorizoChozoOrbSpark, 4),
-        Show(EnemyProjectileFrameId.TorizoChozoOrbFlareBall, 4),
-        Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingCored, 4),
-        Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRing, 4),
-        Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingFading, 4),
+        .. FlareBurst.Steady<TorizoProjectileCue>(ChozoOrbBurst, 4),
     ];
 
     /// <summary>A sonic boom thrown toward <paramref name="side"/>: its sound and its two growing poses.</summary>
@@ -409,6 +405,13 @@ internal static class TorizoProjectileAnimations
         Show(fragment, BombTorizoStatueFragmentDefinitions.FallUpdates),
         Cue(new TorizoProjectileCue.Signal(K.Delete)),
     ];
+
+    /// <summary>
+    /// <paramref name="pictures"/> burst at the quick pace a scattered explosion's burst plays (#2557): two updates for the spark
+    /// and the flare ball, three for each ring with its core and open, and two for the fading ring.
+    /// </summary>
+    private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[] QuickBurst(FlareBurst pictures) =>
+        FlareBurst.Paced<TorizoProjectileCue>(pictures, 2, 2, 3, 3, 2);
 
     /// <summary>Shows <paramref name="frame"/> for good: a still picture (#2235).</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue> Hold(EnemyProjectileFrameId frame) =>

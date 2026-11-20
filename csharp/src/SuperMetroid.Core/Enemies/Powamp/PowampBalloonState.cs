@@ -15,4 +15,10 @@ public sealed class PowampBalloonState
 
     /// <summary>The balloon's original room position: X is both halves' horizontal wiggle center and Y feeds the body's resting and rise-target calculations.</summary>
     public Position16<RoomPixels> Spawn { get; internal set; }
+
+    /// <summary>
+    /// Whether the balloon refuses Samus's touch and shots (#2474): as its placement says from its setup, and for good once
+    /// a hit it accepted leaves it no health, as the Powamp's shot routine marks the half it struck.
+    /// </summary>
+    internal bool RefusesContact { get; set; }
 }

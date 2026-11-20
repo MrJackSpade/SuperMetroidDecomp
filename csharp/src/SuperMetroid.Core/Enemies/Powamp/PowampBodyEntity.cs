@@ -15,17 +15,23 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal PowampBodySpawnSettings Settings { get; } = settings;
 
+    /// <summary>The balloon the room lists right before the body, which the body receives as it is built (#2554).</summary>
+    internal PowampBalloonEntity Balloon { get; } = species.PlacedBalloon(place);
+
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal PowampBodyState State { get; } = species.InitializePowampBody(place);
 
-    /// <summary>The body's own shot reaction, built for this occupant with its state.</summary>
-    private EnemyShotReaction OwnShot => field ??= species.PowampBodyShotReaction(Occupant, Settings, State);
+    /// <summary>The body's own shot reaction, built for this occupant with its state and balloon.</summary>
+    private EnemyShotReaction OwnShot => field ??= PowampBehavior.PowampBodyShotReaction(Occupant, Settings, State, Balloon.Place);
 
-    /// <summary>The body's own bomb reaction, built for this occupant with its state.</summary>
-    private EnemyBombReaction OwnBomb => field ??= species.PowampBodyBombReaction(State);
+    /// <summary>The body's own bomb reaction, built for this occupant with its state and balloon.</summary>
+    private EnemyBombReaction OwnBomb => field ??= PowampBehavior.PowampBodyBombReaction(State, Balloon.Place);
+
+    /// <summary>The body's own Power Bomb reaction, built for this occupant with its balloon.</summary>
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= PowampBehavior.PowampBodyPowerBombReaction(Balloon.Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Occupant, Place, State, frame.Level, frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Occupant, Place, State, Balloon, frame.Level, frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBodyTypedAnimation(Place, State);
@@ -38,7 +44,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == PowampReactions.Touch)
-            species.ReactToPowampBodyTouch(Occupant, Settings, context, context.State);
+            species.ReactToPowampBodyTouch(Occupant, Settings, context, context.State, Balloon.Place);
         else
             base.ReactToTouch(context);
     }
@@ -52,7 +58,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
         context.SelectedShot == PowampReactions.Shot ? OwnBomb : base.CommonBombDamageReaction(context);
 
     /// <summary>The body's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? species.PowampBodyPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? OwnPowerBomb : base.PowerBombReaction;
 
     /// <summary>The Powamp's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

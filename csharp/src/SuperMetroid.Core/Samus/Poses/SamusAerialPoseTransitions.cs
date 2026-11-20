@@ -637,7 +637,7 @@ internal static class SamusAerialPoseTransitions
     /// Tries to enlarge Samus from her compact pose into <paramref name="targetPose"/> (#2557): the larger pose's collision is
     /// resolved; blocked above and below she takes the ordinary crouch, its pose change seeing <paramref name="sourcePose"/>
     /// as the pose she came from; blocked otherwise she keeps her pose. Only an allowed expansion leaves the pose change to
-    /// the caller, which moves her by <paramref name="centerAdjustment"/>.
+    /// the enlarging transition, which moves her by <paramref name="centerAdjustment"/>.
     /// </summary>
     private static LargerPoseCollisionOutcome TryEnlargeInto(SamusState samus, RoomLevelData level, SamusPoseId targetPose,
         SamusPoseId sourcePose, int frameCounter, ISamusRoomObjects roomObjects, out int centerAdjustment)

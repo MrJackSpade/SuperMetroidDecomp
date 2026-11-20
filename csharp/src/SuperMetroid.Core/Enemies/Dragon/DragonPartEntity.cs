@@ -13,7 +13,7 @@ internal abstract class DragonPartEntity(DragonBehavior species, RoomEnemyOccupa
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyPrivateShotReaction
 {
     /// <summary>The Dragon species owner.</summary>
-    private protected DragonBehavior Species { get; } = species;
+    private protected DragonBehavior Species => species;
 
     /// <summary>Whether the part's definition leaves Samus's touch to the species.</summary>
     private bool LeavesTouchToDragon => Occupant.Definition.Touch == DragonReactions.Touch;

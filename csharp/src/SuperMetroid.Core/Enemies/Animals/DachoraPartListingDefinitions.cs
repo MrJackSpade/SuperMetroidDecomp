@@ -4,5 +4,8 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal static class DachoraPartListingDefinitions
 {
     /// <summary>The Dachora, then its four echoes.</summary>
-    internal static EnemyComposite<DachoraRole> Listing { get; } = new([DachoraRole.Runner, DachoraRole.SpeedBoostEcho, DachoraRole.SpeedBoostEcho, DachoraRole.SpeedBoostEcho, DachoraRole.SpeedBoostEcho]);
+    internal static EnemyComposite<DachoraRole> Listing { get; } = new([DachoraRole.Runner, .. DefinitionRun.Repeated(DachoraRole.SpeedBoostEcho, EchoCount)]);
+
+    /// <summary>The speed-boost echoes that trail a Dachora, listed right after it (#2557).</summary>
+    internal const int EchoCount = 4;
 }

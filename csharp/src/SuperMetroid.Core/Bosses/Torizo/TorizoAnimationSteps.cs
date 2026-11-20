@@ -58,37 +58,43 @@ internal static class TorizoAnimationSteps
     ];
 
     /// <summary>
-    /// A Torizo facing <paramref name="side"/>'s way standing up from its seat: each pose from the seat up shows for its
-    /// entry of <paramref name="poseUpdates"/>, as many poses as there are entries, and then the posture's move stands it into
-    /// the next.
+    /// A Torizo facing <paramref name="side"/>'s way standing up from its seat: each pose from the seat up to its stepping
+    /// stance shows for its updates, and then the posture's move stands it into the next.
     /// </summary>
-    internal static AnimationBeat<EnemyFrameId, TorizoCue>[] StandingUp(TorizoSide side, params int[] poseUpdates)
-    {
-        (EnemyFrameId Pose, Offset16<RoomPixels> Rise)[] rising =
-        [
-            (side.Seated, TorizoPostureDefinitions.SeatedToRising), (side.RisingFromSeat, TorizoPostureDefinitions.RisingToCrouched),
-            (side.Crouched, TorizoPostureDefinitions.CrouchedToHalfRisen), (side.HalfRisen, TorizoPostureDefinitions.HalfRisenToNearlyUpright),
-            (side.NearlyUpright, TorizoPostureDefinitions.NearlyUprightToStepping), (side.UprightStepping, TorizoPostureDefinitions.SteppingToWideStance),
-        ];
-        return [.. rising.Zip(poseUpdates, (step, updates) => new[] { Show(step.Pose, updates), StandUp(side, step.Rise) }).SelectMany(beats => beats)];
-    }
+    internal static AnimationBeat<EnemyFrameId, TorizoCue>[] StandingUp(TorizoSide side, int seated, int rising, int crouched, int halfRisen,
+        int nearlyUpright, int stepping) =>
+    [
+        Show(side.Seated, seated), StandUp(side, TorizoPostureDefinitions.SeatedToRising),
+        Show(side.RisingFromSeat, rising), StandUp(side, TorizoPostureDefinitions.RisingToCrouched),
+        Show(side.Crouched, crouched), StandUp(side, TorizoPostureDefinitions.CrouchedToHalfRisen),
+        Show(side.HalfRisen, halfRisen), StandUp(side, TorizoPostureDefinitions.HalfRisenToNearlyUpright),
+        Show(side.NearlyUpright, nearlyUpright), StandUp(side, TorizoPostureDefinitions.NearlyUprightToStepping),
+        Show(side.UprightStepping, stepping), StandUp(side, TorizoPostureDefinitions.SteppingToWideStance),
+    ];
 
     /// <summary>
-    /// A Torizo facing <paramref name="side"/>'s way sitting down to its seat: the last poses above the seat, as many as
-    /// there are entries of <paramref name="poseUpdates"/>, each show for its entry and then the posture's move sits it into
-    /// the next lower.
+    /// A Torizo facing <paramref name="side"/>'s way sitting down to its seat from its wide stance: each pose shows for its
+    /// updates, and then the posture's move sits it into the next lower, the last three as <see cref="SittingDownFromHalfRisen"/>.
     /// </summary>
-    internal static AnimationBeat<EnemyFrameId, TorizoCue>[] SittingDown(TorizoSide side, params int[] poseUpdates)
-    {
-        (EnemyFrameId Pose, Offset16<RoomPixels> Drop)[] sitting =
-        [
-            (side.UprightWideStance, TorizoPostureDefinitions.SteppingToWideStance), (side.UprightStepping, TorizoPostureDefinitions.NearlyUprightToStepping),
-            (side.NearlyUpright, TorizoPostureDefinitions.HalfRisenToNearlyUpright), (side.HalfRisen, TorizoPostureDefinitions.CrouchedToHalfRisen),
-            (side.Crouched, TorizoPostureDefinitions.RisingToCrouched), (side.RisingFromSeat, TorizoPostureDefinitions.SeatedToRising),
-        ];
-        return [.. sitting.TakeLast(poseUpdates.Length).Zip(poseUpdates, (step, updates) => new[] { Show(step.Pose, updates), SitDown(side, step.Drop) })
-            .SelectMany(beats => beats)];
-    }
+    internal static AnimationBeat<EnemyFrameId, TorizoCue>[] SittingDown(TorizoSide side, int wideStance, int stepping, int nearlyUpright,
+        int halfRisen, int crouched, int rising) =>
+    [
+        Show(side.UprightWideStance, wideStance), SitDown(side, TorizoPostureDefinitions.SteppingToWideStance),
+        Show(side.UprightStepping, stepping), SitDown(side, TorizoPostureDefinitions.NearlyUprightToStepping),
+        Show(side.NearlyUpright, nearlyUpright), SitDown(side, TorizoPostureDefinitions.HalfRisenToNearlyUpright),
+        .. SittingDownFromHalfRisen(side, halfRisen, crouched, rising),
+    ];
+
+    /// <summary>
+    /// A Torizo facing <paramref name="side"/>'s way sitting down to its seat from half risen: its half-risen, crouched and
+    /// rising poses each show for their updates, and then the posture's move sits it into the next lower.
+    /// </summary>
+    internal static AnimationBeat<EnemyFrameId, TorizoCue>[] SittingDownFromHalfRisen(TorizoSide side, int halfRisen, int crouched, int rising) =>
+    [
+        Show(side.HalfRisen, halfRisen), SitDown(side, TorizoPostureDefinitions.CrouchedToHalfRisen),
+        Show(side.Crouched, crouched), SitDown(side, TorizoPostureDefinitions.RisingToCrouched),
+        Show(side.RisingFromSeat, rising), SitDown(side, TorizoPostureDefinitions.SeatedToRising),
+    ];
 
     /// <summary>Moves a Torizo walking as <paramref name="walker"/> <paramref name="pace"/> pixels forward the way <paramref name="side"/> faces.</summary>
     internal static AnimationBeat<EnemyFrameId, TorizoCue> Walk(TorizoWalker walker, TorizoSide side, int pace) =>

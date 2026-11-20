@@ -12,23 +12,23 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal static class MagdolliteAnimations
 {
     /// <summary>The still pictures: each pillar stack by its height and the pillar's cap, each segment with the picture it holds.</summary>
-    private static readonly (MagdolliteSegment Segment, EnemyFrameId Picture)[] StillPictures =
+    private static readonly KeyValuePair<MagdolliteSegment, EnemyFrameId>[] StillPictures =
     [
-        (P.OneSegmentPillar, EnemyFrameId.MagdolliteOneSegmentPillar),
-        (P.TwoSegmentPillar, EnemyFrameId.MagdolliteTwoSegmentPillar),
-        (P.ThreeSegmentPillar, EnemyFrameId.MagdolliteThreeSegmentPillar),
-        (P.FourSegmentPillar, EnemyFrameId.MagdolliteFourSegmentPillar),
-        (P.FiveSegmentPillar, EnemyFrameId.MagdolliteFiveSegmentPillar),
-        (P.SixSegmentPillar, EnemyFrameId.MagdolliteSixSegmentPillar),
-        (P.SevenSegmentPillar, EnemyFrameId.MagdolliteSevenSegmentPillar),
-        (P.EightSegmentPillar, EnemyFrameId.MagdolliteEightSegmentPillar),
-        (P.PillarCap, EnemyFrameId.MagdollitePillarCap),
+        new(P.OneSegmentPillar, EnemyFrameId.MagdolliteOneSegmentPillar),
+        new(P.TwoSegmentPillar, EnemyFrameId.MagdolliteTwoSegmentPillar),
+        new(P.ThreeSegmentPillar, EnemyFrameId.MagdolliteThreeSegmentPillar),
+        new(P.FourSegmentPillar, EnemyFrameId.MagdolliteFourSegmentPillar),
+        new(P.FiveSegmentPillar, EnemyFrameId.MagdolliteFiveSegmentPillar),
+        new(P.SixSegmentPillar, EnemyFrameId.MagdolliteSixSegmentPillar),
+        new(P.SevenSegmentPillar, EnemyFrameId.MagdolliteSevenSegmentPillar),
+        new(P.EightSegmentPillar, EnemyFrameId.MagdolliteEightSegmentPillar),
+        new(P.PillarCap, EnemyFrameId.MagdollitePillarCap),
     ];
 
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<MagdolliteSegment, EnemyFrameId, MagdolliteCue> Segments { get; } = new(
         new Dictionary<MagdolliteSegment, AnimationBeat<EnemyFrameId, MagdolliteCue>[]>(
-            StillPictures.ToDictionary(still => still.Segment, still => new[] { Hold(still.Picture) }))
+            StillPictures.ToDictionary(still => still.Key, still => new[] { Hold(still.Value) }))
     {
         [P.LeftIdle] = Idle(EnemyFrameId.MagdolliteHeadFacingLeftHigh, EnemyFrameId.MagdolliteHeadFacingLeftMid, EnemyFrameId.MagdolliteHeadFacingLeftLow),
         [P.LeftThrow] = Throw(EnemyFrameId.MagdolliteRearingFacingLeft, EnemyFrameId.MagdolliteLeaningFacingLeft, -8),
@@ -67,26 +67,32 @@ internal static class MagdolliteAnimations
     private static Dictionary<MagdolliteSegment, Animation<MagdolliteSegment>> StartingAt { get; } = Segments.StartsEnding(
         new[]
         {
-            FacingStarts(P.LeftIdle, P.LeftThrow, P.LeftLavaFling, P.LeftThrowFinish, P.LeftSubmerge, P.LeftRaisePillar, P.LeftPillarRaised,
-                P.LeftEmerge, P.LeftLowerPillar, P.LeftSurfacing),
-            FacingStarts(P.RightIdle, P.RightThrow, P.RightLavaFling, P.RightThrowFinish, P.RightSubmerge, P.RightRaisePillar, P.RightPillarRaised,
-                P.RightEmerge, P.RightLowerPillar, P.RightSurfacing),
+            FacingStarts(new()
+            {
+                Idle = P.LeftIdle, Throw = P.LeftThrow, LavaFling = P.LeftLavaFling, ThrowFinish = P.LeftThrowFinish, Submerge = P.LeftSubmerge,
+                RaisePillar = P.LeftRaisePillar, PillarRaised = P.LeftPillarRaised, Emerge = P.LeftEmerge, LowerPillar = P.LeftLowerPillar,
+                Surfacing = P.LeftSurfacing,
+            }),
+            FacingStarts(new()
+            {
+                Idle = P.RightIdle, Throw = P.RightThrow, LavaFling = P.RightLavaFling, ThrowFinish = P.RightThrowFinish, Submerge = P.RightSubmerge,
+                RaisePillar = P.RightRaisePillar, PillarRaised = P.RightPillarRaised, Emerge = P.RightEmerge, LowerPillar = P.RightLowerPillar,
+                Surfacing = P.RightSurfacing,
+            }),
         }.SelectMany(starts => starts).ToDictionary(),
-        AnimationEnd.Holds, [.. StillPictures.Select(still => still.Segment)]);
+        AnimationEnd.Holds, [.. StillPictures.Select(still => still.Key)]);
 
     /// <summary>
     /// The animations one facing's segments start: its idle loops, its throw rears, flings <see cref="LavaFlings"/> gobs of
     /// lava and finishes, its submerge sinks the head and raises the pillar <see cref="PillarTravel"/> pixels, and its emerge
     /// lowers the pillar as far and surfaces the head.
     /// </summary>
-    private static KeyValuePair<MagdolliteSegment, Animation<MagdolliteSegment>>[] FacingStarts(MagdolliteSegment idle, MagdolliteSegment throwing,
-        MagdolliteSegment lavaFling, MagdolliteSegment throwFinish, MagdolliteSegment submerge, MagdolliteSegment raisePillar,
-        MagdolliteSegment pillarRaised, MagdolliteSegment emerge, MagdolliteSegment lowerPillar, MagdolliteSegment surfacing) =>
+    private static KeyValuePair<MagdolliteSegment, Animation<MagdolliteSegment>>[] FacingStarts(MagdolliteFacingSegments facing) =>
     [
-        new(idle, Animation<MagdolliteSegment>.Looping([Segments.Whole(idle)])),
-        new(throwing, new([Segments.Whole(throwing), Segments.Repeated(lavaFling, LavaFlings), Segments.Whole(throwFinish)], AnimationEnd.Holds)),
-        new(submerge, new([Segments.Whole(submerge), Segments.Repeated(raisePillar, PillarTravel), Segments.Whole(pillarRaised)], AnimationEnd.Holds)),
-        new(emerge, new([Segments.Whole(emerge), Segments.Repeated(lowerPillar, PillarTravel), Segments.Whole(surfacing)], AnimationEnd.Holds)),
+        new(facing.Idle, Animation<MagdolliteSegment>.Looping([Segments.Whole(facing.Idle)])),
+        new(facing.Throw, new([Segments.Whole(facing.Throw), Segments.Repeated(facing.LavaFling, LavaFlings), Segments.Whole(facing.ThrowFinish)], AnimationEnd.Holds)),
+        new(facing.Submerge, new([Segments.Whole(facing.Submerge), Segments.Repeated(facing.RaisePillar, PillarTravel), Segments.Whole(facing.PillarRaised)], AnimationEnd.Holds)),
+        new(facing.Emerge, new([Segments.Whole(facing.Emerge), Segments.Repeated(facing.LowerPillar, PillarTravel), Segments.Whole(facing.Surfacing)], AnimationEnd.Holds)),
     ];
 
     /// <summary>The pillar raised, the submerge finishing: the same in either facing.</summary>

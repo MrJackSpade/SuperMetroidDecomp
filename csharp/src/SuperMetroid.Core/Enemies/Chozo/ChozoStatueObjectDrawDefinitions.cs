@@ -16,12 +16,12 @@ internal static class ChozoStatueObjectDrawDefinitions
     /// The Wrecked Ship slope access's blocks, each run along its row with how it collides opened and closed: the ledge's
     /// thirteen blocks and its right end, the shelf below and its right end, and the shaft down from the shelf.
     /// </summary>
-    private static readonly (Offset16<RoomBlocks> From, int Length, RoomCollisionType Opened, RoomCollisionType Closed)[] SlopeAccessRuns =
+    private static readonly ChozoSlopeAccessRun[] SlopeAccessRuns =
     [
-        (new(0, 0), 13, RoomCollisionType.Air, RoomCollisionType.SpikeBlock), (new(13, 0), 1, RoomCollisionType.Slope, RoomCollisionType.SolidBlock),
-        (new(0, 5), 8, RoomCollisionType.Air, RoomCollisionType.SolidBlock), (new(8, 5), 1, RoomCollisionType.Slope, RoomCollisionType.SolidBlock),
-        (new(5, 6), 2, RoomCollisionType.Air, RoomCollisionType.SolidBlock), (new(5, 7), 1, RoomCollisionType.Air, RoomCollisionType.SolidBlock),
-        (new(5, 8), 1, RoomCollisionType.Slope, RoomCollisionType.SolidBlock),
+        new(new(0, 0), 13, RoomCollisionType.Air, RoomCollisionType.SpikeBlock), new(new(13, 0), 1, RoomCollisionType.Slope, RoomCollisionType.SolidBlock),
+        new(new(0, 5), 8, RoomCollisionType.Air, RoomCollisionType.SolidBlock), new(new(8, 5), 1, RoomCollisionType.Slope, RoomCollisionType.SolidBlock),
+        new(new(5, 6), 2, RoomCollisionType.Air, RoomCollisionType.SolidBlock), new(new(5, 7), 1, RoomCollisionType.Air, RoomCollisionType.SolidBlock),
+        new(new(5, 8), 1, RoomCollisionType.Slope, RoomCollisionType.SolidBlock),
     ];
 
     /// <summary>
@@ -46,6 +46,6 @@ internal static class ChozoStatueObjectDrawDefinitions
     };
 
     /// <summary>The slope access's blocks, each run colliding as <paramref name="collision"/> picks from its two states.</summary>
-    private static RoomBlockShape SlopeAccess(Func<(Offset16<RoomBlocks> From, int Length, RoomCollisionType Opened, RoomCollisionType Closed), RoomCollisionType> collision) =>
-        RoomBlockShapes.Joined([.. SlopeAccessRuns.Select(run => RoomBlockShapes.Moved(RoomBlockShapes.Line(down: false, run.Length, collision(run)), run.From))]);
+    private static RoomBlockShape SlopeAccess(Func<ChozoSlopeAccessRun, RoomCollisionType> collision) =>
+        RoomBlockShapes.Joined([.. SlopeAccessRuns.Select(run => RoomBlockShapes.Moved(RoomBlockShapes.Row(run.Length, collision(run)), run.From))]);
 }

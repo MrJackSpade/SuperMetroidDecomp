@@ -129,5 +129,5 @@ public static class LoadStationDefinitions
     /// The stations Samus uses, which the used-station record keeps: every station but the arrival on Zebes, where only
     /// the gunship's landing loads her.
     /// </summary>
-    public static IReadOnlyList<LoadStation> Usable { get; } = [.. All.Where(station => station != ZebesArrival)];
+    public static IReadOnlyList<LoadStation> Usable { get; } = [.. All.Except([ZebesArrival])];
 }

@@ -35,10 +35,10 @@ internal static class MotherBrainFakeDeathObjectDrawDefinitions
     private const int MuralWidth = 13;
 
     /// <summary>The mural's top or bottom row: <see cref="MuralWidth"/> slope blocks rightward from the origin.</summary>
-    internal static readonly RoomBlockShape MuralBorderRow = RoomBlockShapes.Line(down: false, MuralWidth, RoomCollisionType.Slope);
+    internal static readonly RoomBlockShape MuralBorderRow = RoomBlockShapes.Row(MuralWidth, RoomCollisionType.Slope);
 
     /// <summary>A row inside the mural: <see cref="MuralWidth"/> empty blocks rightward from the origin.</summary>
-    internal static readonly RoomBlockShape MuralInteriorRow = RoomBlockShapes.Line(down: false, MuralWidth, RoomCollisionType.Air);
+    internal static readonly RoomBlockShape MuralInteriorRow = RoomBlockShapes.Row(MuralWidth, RoomCollisionType.Air);
 
     /// <summary>A cleared ceiling block: the restored ceiling slope over one emptied block.</summary>
     private static readonly RoomBlockShape ClearedCeilingBlock = new(

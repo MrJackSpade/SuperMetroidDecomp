@@ -62,18 +62,9 @@ internal static class SpacePirateProjectileAnimations
     /// <summary>A claw thrown <paramref name="facing"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[] Claw(HorizontalDirection facing) => [Cue(SpacePirateProjectileCueKind.ThrowClaw, facing)];
 
-    /// <summary>A thrown claw's spin over its side's turns, <paramref name="turned0"/>, <paramref name="turned45"/>, <paramref name="turned90"/>, <paramref name="turned135"/>, <paramref name="turned180"/>, <paramref name="turned225"/>, <paramref name="turned270"/>, <paramref name="turned315"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[] ClawSpin(EnemyProjectileFrameId turned0, EnemyProjectileFrameId turned45, EnemyProjectileFrameId turned90, EnemyProjectileFrameId turned135, EnemyProjectileFrameId turned180, EnemyProjectileFrameId turned225, EnemyProjectileFrameId turned270, EnemyProjectileFrameId turned315) =>
-    [
-        Show(turned0, 1),
-        Show(turned45, 1),
-        Show(turned90, 1),
-        Show(turned135, 1),
-        Show(turned180, 1),
-        Show(turned225, 1),
-        Show(turned270, 1),
-        Show(turned315, 1),
-    ];
+    /// <summary>A thrown claw's spin over its side's <paramref name="turns"/>, turned by 0 degrees through to 315, one update each.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[] ClawSpin(params ReadOnlySpan<EnemyProjectileFrameId> turns) =>
+        AnimationBeats<EnemyProjectileFrameId, SpacePirateProjectileCue>.Steady(1, turns);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue> Show(EnemyProjectileFrameId frame, int duration) =>

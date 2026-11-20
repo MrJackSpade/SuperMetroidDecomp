@@ -13,14 +13,11 @@ internal static class GunshipDustAnimations
     internal static AnimationSegments<GunshipDustSegment, EnemyProjectileFrameId, GunshipDustCue> Segments { get; } = new(
         new Dictionary<GunshipDustSegment, AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>[]>
     {
-        [P.RightInner] = Cloud(EnemyProjectileFrameId.GunshipDustRightInnerPuff, 8, EnemyProjectileFrameId.GunshipDustRightInnerBillowing, EnemyProjectileFrameId.GunshipDustRightInnerSpreading, 9, EnemyProjectileFrameId.GunshipDustRightInnerDrifting, EnemyProjectileFrameId.GunshipDustRightInnerThinning, 10, EnemyProjectileFrameId.GunshipDustRightInnerFading, EnemyProjectileFrameId.GunshipDustRightInnerWisps, EnemyProjectileFrameId.GunshipDustRightInnerFaint),
-        [P.RightMiddle] = Cloud(EnemyProjectileFrameId.GunshipDustRightMiddlePuff, 6, EnemyProjectileFrameId.GunshipDustRightMiddleBillowing, EnemyProjectileFrameId.GunshipDustRightMiddleSpreading, 7, EnemyProjectileFrameId.GunshipDustRightMiddleDrifting, EnemyProjectileFrameId.GunshipDustRightMiddleThinning, 8, EnemyProjectileFrameId.GunshipDustRightMiddleFading, EnemyProjectileFrameId.GunshipDustRightMiddleWisps, EnemyProjectileFrameId.GunshipDustRightMiddleFaint),
+        [P.RightInner] = Cloud(8, 9, 10, EnemyProjectileFrameId.GunshipDustRightInnerPuff, EnemyProjectileFrameId.GunshipDustRightInnerBillowing, EnemyProjectileFrameId.GunshipDustRightInnerSpreading, EnemyProjectileFrameId.GunshipDustRightInnerDrifting, EnemyProjectileFrameId.GunshipDustRightInnerThinning, EnemyProjectileFrameId.GunshipDustRightInnerFading, EnemyProjectileFrameId.GunshipDustRightInnerWisps, EnemyProjectileFrameId.GunshipDustRightInnerFaint),
+        [P.RightMiddle] = Cloud(6, 7, 8, EnemyProjectileFrameId.GunshipDustRightMiddlePuff, EnemyProjectileFrameId.GunshipDustRightMiddleBillowing, EnemyProjectileFrameId.GunshipDustRightMiddleSpreading, EnemyProjectileFrameId.GunshipDustRightMiddleDrifting, EnemyProjectileFrameId.GunshipDustRightMiddleThinning, EnemyProjectileFrameId.GunshipDustRightMiddleFading, EnemyProjectileFrameId.GunshipDustRightMiddleWisps, EnemyProjectileFrameId.GunshipDustRightMiddleFaint),
         [P.RightOuter] = OuterCloud(EnemyProjectileFrameId.GunshipDustRightOuterPuff, EnemyProjectileFrameId.GunshipDustRightOuterBillowing, EnemyProjectileFrameId.GunshipDustRightOuterSpreading, EnemyProjectileFrameId.GunshipDustRightOuterDrifting, EnemyProjectileFrameId.GunshipDustRightOuterThinning, EnemyProjectileFrameId.GunshipDustRightOuterFading, EnemyProjectileFrameId.GunshipDustRightOuterFaint),
-        [P.LeftInner] =
-        [
-            Show(EnemyProjectileFrameId.GunshipDustLeftInnerPuff, 8),
-            Show(EnemyProjectileFrameId.GunshipDustLeftInnerBillowing, 8),
-            Show(EnemyProjectileFr        [P.LeftInner] = Cloud(EnemyProjectileFrameId.GunshipDustLeftInnerPuff, 8, EnemyProjectileFrameId.GunshipDustLeftInnerBillowing, EnemyProjectileFrameId.GunshipDustLeftInnerSpreading, 9, EnemyProjectileFrameId.GunshipDustLeftInnerDrifting, EnemyProjectileFrameId.GunshipDustLeftInnerThinning, 10, EnemyProjectileFrameId.GunshipDustLeftInnerFading, EnemyProjectileFrameId.GunshipDustLeftInnerWisps, EnemyProjectileFrameId.GunshipDustLeftInnerFaint),FrameId.GunshipDustLeftMiddleDrifting, EnemyProjectileFrameId.GunshipDustLeftMiddleThinning, 8, EnemyProjectileFrameId.GunshipDustLeftMiddleFading, EnemyProjectileFrameId.GunshipDustLeftMiddleWisps, EnemyProjectileFrameId.GunshipDustLeftMiddleFaint),
+        [P.LeftInner] = Cloud(8, 9, 10, EnemyProjectileFrameId.GunshipDustLeftInnerPuff, EnemyProjectileFrameId.GunshipDustLeftInnerBillowing, EnemyProjectileFrameId.GunshipDustLeftInnerSpreading, EnemyProjectileFrameId.GunshipDustLeftInnerDrifting, EnemyProjectileFrameId.GunshipDustLeftInnerThinning, EnemyProjectileFrameId.GunshipDustLeftInnerFading, EnemyProjectileFrameId.GunshipDustLeftInnerWisps, EnemyProjectileFrameId.GunshipDustLeftInnerFaint),
+        [P.LeftMiddle] = Cloud(6, 7, 8, EnemyProjectileFrameId.GunshipDustLeftMiddlePuff, EnemyProjectileFrameId.GunshipDustLeftMiddleBillowing, EnemyProjectileFrameId.GunshipDustLeftMiddleSpreading, EnemyProjectileFrameId.GunshipDustLeftMiddleDrifting, EnemyProjectileFrameId.GunshipDustLeftMiddleThinning, EnemyProjectileFrameId.GunshipDustLeftMiddleFading, EnemyProjectileFrameId.GunshipDustLeftMiddleWisps, EnemyProjectileFrameId.GunshipDustLeftMiddleFaint),
         [P.LeftOuter] = OuterCloud(EnemyProjectileFrameId.GunshipDustLeftOuterPuff, EnemyProjectileFrameId.GunshipDustLeftOuterBillowing, EnemyProjectileFrameId.GunshipDustLeftOuterSpreading, EnemyProjectileFrameId.GunshipDustLeftOuterDrifting, EnemyProjectileFrameId.GunshipDustLeftOuterThinning, EnemyProjectileFrameId.GunshipDustLeftOuterFading, EnemyProjectileFrameId.GunshipDustLeftOuterFaint),
     });
 
@@ -42,17 +39,17 @@ internal static class GunshipDustAnimations
     private static Animation<GunshipDustSegment> Once(GunshipDustSegment segment) =>
         new([Segments.Whole(segment)], AnimationEnd.Holds);
 
-    /// <summary>A dust cloud over its side's pictures, <paramref name="puff"/>, <paramref name="firstUpdates"/>, <paramref name="billowing"/>, <paramref name="spreading"/>, <paramref name="secondUpdates"/>, <paramref name="drifting"/>, <paramref name="thinning"/>, <paramref name="thirdUpdates"/>, <paramref name="fading"/>, <paramref name="wisps"/>, <paramref name="faint"/>: each pair of pictures lasts the updates given for it, and then the cloud is deleted.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>[] Cloud(EnemyProjectileFrameId puff, int firstUpdates, EnemyProjectileFrameId billowing, EnemyProjectileFrameId spreading, int secondUpdates, EnemyProjectileFrameId drifting, EnemyProjectileFrameId thinning, int thirdUpdates, EnemyProjectileFrameId fading, EnemyProjectileFrameId wisps, EnemyProjectileFrameId faint) =>
+    /// <summary>
+    /// A dust cloud over its side's eight <paramref name="poses"/>, puff to faint: the first two each for
+    /// <paramref name="firstUpdates"/>, the next two each for <paramref name="secondUpdates"/> and the last four each for
+    /// <paramref name="thirdUpdates"/>, then the cloud deletes itself.
+    /// </summary>
+    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>[] Cloud(int firstUpdates, int secondUpdates, int thirdUpdates,
+        params ReadOnlySpan<EnemyProjectileFrameId> poses) =>
     [
-        Show(puff, firstUpdates),
-        Show(billowing, firstUpdates),
-        Show(spreading, secondUpdates),
-        Show(drifting, secondUpdates),
-        Show(thinning, thirdUpdates),
-        Show(fading, thirdUpdates),
-        Show(wisps, thirdUpdates),
-        Show(faint, thirdUpdates),
+        .. AnimationBeats<EnemyProjectileFrameId, GunshipDustCue>.Steady(firstUpdates, poses[..2]),
+        .. AnimationBeats<EnemyProjectileFrameId, GunshipDustCue>.Steady(secondUpdates, poses[2..4]),
+        .. AnimationBeats<EnemyProjectileFrameId, GunshipDustCue>.Steady(thirdUpdates, poses[4..]),
         Cue(GunshipDustCue.Delete),
     ];
 

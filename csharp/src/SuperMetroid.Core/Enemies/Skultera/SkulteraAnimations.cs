@@ -41,19 +41,12 @@ internal static class SkulteraAnimations
         Show(tailFlicking, 14),
     ];
 
-    /// <summary>A Skultera turning over a side's poses, <paramref name="by22"/>, <paramref name="by45"/>, <paramref name="by67"/>, <paramref name="by90"/>, <paramref name="by112"/>, <paramref name="by135"/>, <paramref name="by157"/>, <paramref name="by180"/>.</summary>
-    private static AnimationBeat<EnemyFrameId, SkulteraCue>[] Turning(EnemyFrameId by22, EnemyFrameId by45, EnemyFrameId by67, EnemyFrameId by90, EnemyFrameId by112, EnemyFrameId by135, EnemyFrameId by157, EnemyFrameId by180) =>
-    [
-        Show(by22, 13),
-        Show(by45, 10),
-        Show(by67, 8),
-        Show(by90, 6),
-        Show(by112, 6),
-        Show(by135, 8),
-        Show(by157, 10),
-        Show(by180, 13),
-        Cue(new(K.FinishTurn)),
-    ];
+    /// <summary>The updates each of a turn's poses shows, from its first to its last: slow at either end, quick through the middle.</summary>
+    private static readonly int[] TurnPoseUpdates = [13, 10, 8, 6, 6, 8, 10, 13];
+
+    /// <summary>A Skultera turning over a side's <paramref name="poses"/>, turned by 22 degrees through to 180, each as <see cref="TurnPoseUpdates"/> paces it.</summary>
+    private static AnimationBeat<EnemyFrameId, SkulteraCue>[] Turning(params EnemyFrameId[] poses) =>
+        [.. poses.Zip(TurnPoseUpdates, Show), Cue(new(K.FinishTurn))];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, SkulteraCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, SkulteraCue>.Frame(frame, duration);

@@ -217,7 +217,7 @@ internal static class KraidAnimations
     /// The foot's forward step (#2557): its poses, placements and cues in order, each beat lasting the duration
     /// <paramref name="durations"/> gives it, the walk's or the lunge's.
     /// </summary>
-    private static AnimationBeat<KraidPartPose, KraidPartCue>[] ForwardStep(IReadOnlyList<int> durations) =>
+    private static AnimationBeat<KraidPartPose, KraidPartCue>[] ForwardStep(int[] durations) =>
     [
         Show(F.KraidFootPlanted, durations[0]),
         Step(F.KraidFootPlanted, new(-2, -1), durations[1]),

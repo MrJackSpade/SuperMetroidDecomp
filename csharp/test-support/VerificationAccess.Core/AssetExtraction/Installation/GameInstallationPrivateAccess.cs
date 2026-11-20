@@ -76,16 +76,16 @@ internal static class GameInstallationPrivateAccess
             PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures>(self, "LoadRoomObjectBlueDoorVisuals", [], new object?[] {  });
 
         /// <summary>The private method <c>LoadRoomObjectBombTorizoHandVisuals</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Torizo.Artwork.InstalledRoomObjectPictures LoadRoomObjectBombTorizoHandVisuals() =>
-            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Bosses.Torizo.Artwork.InstalledRoomObjectPictures>(self, "LoadRoomObjectBombTorizoHandVisuals", [], new object?[] {  });
+        internal global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures LoadRoomObjectBombTorizoHandVisuals() =>
+            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures>(self, "LoadRoomObjectBombTorizoHandVisuals", [], new object?[] {  });
 
         /// <summary>The private method <c>LoadRoomObjectBotwoonWallVisuals</c>, invoked by name.</summary>
         internal global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures LoadRoomObjectBotwoonWallVisuals() =>
             PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures>(self, "LoadRoomObjectBotwoonWallVisuals", [], new object?[] {  });
 
         /// <summary>The private method <c>LoadRoomObjectChozoStatueVisuals</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Chozo.Artwork.InstalledRoomObjectPictures LoadRoomObjectChozoStatueVisuals() =>
-            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Enemies.Chozo.Artwork.InstalledRoomObjectPictures>(self, "LoadRoomObjectChozoStatueVisuals", [], new object?[] {  });
+        internal global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures LoadRoomObjectChozoStatueVisuals() =>
+            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures>(self, "LoadRoomObjectChozoStatueVisuals", [], new object?[] {  });
 
         /// <summary>The private method <c>LoadRoomObjectCollectibleVisuals</c>, invoked by name.</summary>
         internal global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures LoadRoomObjectCollectibleVisuals() =>
@@ -96,8 +96,8 @@ internal static class GameInstallationPrivateAccess
             PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures>(self, "LoadRoomObjectColoredDoorVisuals", [], new object?[] {  });
 
         /// <summary>The private method <c>LoadRoomObjectCrocomireVisuals</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Crocomire.Artwork.InstalledRoomObjectPictures LoadRoomObjectCrocomireVisuals() =>
-            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Bosses.Crocomire.Artwork.InstalledRoomObjectPictures>(self, "LoadRoomObjectCrocomireVisuals", [], new object?[] {  });
+        internal global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures LoadRoomObjectCrocomireVisuals() =>
+            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures>(self, "LoadRoomObjectCrocomireVisuals", [], new object?[] {  });
 
         /// <summary>The private method <c>LoadRoomObjectDownwardGateVisuals</c>, invoked by name.</summary>
         internal global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures LoadRoomObjectDownwardGateVisuals() =>
@@ -176,8 +176,8 @@ internal static class GameInstallationPrivateAccess
             PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures>(self, "LoadRoomObjectSpeedBoosterVisuals", [], new object?[] {  });
 
         /// <summary>The private method <c>LoadRoomObjectSporeSpawnCeilingVisuals</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.SporeSpawn.Artwork.InstalledRoomObjectPictures LoadRoomObjectSporeSpawnCeilingVisuals() =>
-            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Bosses.SporeSpawn.Artwork.InstalledRoomObjectPictures>(self, "LoadRoomObjectSporeSpawnCeilingVisuals", [], new object?[] {  });
+        internal global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures LoadRoomObjectSporeSpawnCeilingVisuals() =>
+            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Installation.GameInstallation, global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures>(self, "LoadRoomObjectSporeSpawnCeilingVisuals", [], new object?[] {  });
 
         /// <summary>The private method <c>LoadRoomObjectStationVisuals</c>, invoked by name.</summary>
         internal global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures LoadRoomObjectStationVisuals() =>

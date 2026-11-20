@@ -47,7 +47,7 @@ internal static class BotwoonAnimations
     /// What a body link and a tail cap show in each facing (#2557): the link's four ripples in the order it cycles them, and
     /// the tail cap's one frame. Every facing's body segments are built from this.
     /// </summary>
-    private static readonly IReadOnlyDictionary<CompassDirection, BotwoonBodyLook> BodyLooks = new Dictionary<CompassDirection, BotwoonBodyLook>
+    private static readonly Dictionary<CompassDirection, BotwoonBodyLook> BodyLooks = new()
     {
         [CompassDirection.Up] = new([F.BotwoonBodyUpRipple0, F.BotwoonBodyUpRipple90, F.BotwoonBodyUpRipple180, F.BotwoonBodyUpRipple270], F.BotwoonTailUp),
         [CompassDirection.UpRight] = new([F.BotwoonBodyUpRightRipple0, F.BotwoonBodyUpRightRipple90, F.BotwoonBodyUpRightRipple180, F.BotwoonBodyUpRightRipple270], F.BotwoonTailUpRight),

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </remarks>
 internal static class SamusAnimationDelayDefinitions
 {
-    /// <summary>The segments the aiming poses that hold still share: a two-update lead, then one picture held sixteen updates, repeating.</summary>
+    /// <summary>The segments the aiming poses that hold still share: a two-update lead, then one picture shown for sixteen updates, repeating.</summary>
     private static readonly SamusAnimationSegment[] AimHeldSegments =
     [
         new(SamusAnimationSegmentName.Main, [2]),

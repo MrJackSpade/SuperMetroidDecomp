@@ -11,11 +11,11 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal static class PhantoonDoorObjectDrawDefinitions
 {
     /// <summary>The restored door frame: the door's transition column, four door blocks down from its top block.</summary>
-    private static readonly RoomBlockShape RestoredDoor = RoomBlockShapes.Line(down: true, 4, RoomCollisionType.DoorBlock);
+    private static readonly RoomBlockShape RestoredDoor = RoomBlockShapes.Column(4, RoomCollisionType.DoorBlock);
 
     /// <summary>The fight's door: the door's transition column, and the shootable cap over its extensions beside it.</summary>
     private static readonly RoomBlockShape FightDoor = RoomBlockShapes.Joined(RestoredDoor, RoomBlockShapes.Moved(RoomBlockShapes.Line(down: true,
-        [RoomCollisionType.ShootableBlock, RoomCollisionType.VerticalExtension, RoomCollisionType.VerticalExtension, RoomCollisionType.VerticalExtension]),
+        [RoomCollisionType.ShootableBlock, .. DefinitionRun.Repeated(RoomCollisionType.VerticalExtension, 3)]),
         new(1, 0)));
 
     /// <summary>The block shape each of Phantoon's door frames draws.</summary>

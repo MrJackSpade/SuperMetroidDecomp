@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
 /// A Dachora and the speed-boost echoes that trail it (#2283): a room places one Dachora, and the Dachora brings its
-/// <see cref="DachoraTimingDefinitions.EchoCount"/> echoes, listed right after it where its behaviour finds them.
+/// <see cref="DachoraPartListingDefinitions.EchoCount"/> echoes, listed right after it where its behaviour finds them.
 /// </summary>
 internal static class DachoraTrail
 {
@@ -16,6 +16,6 @@ internal static class DachoraTrail
         DachoraSpawnSettings settings = runner.SpawnSettingsOf<DachoraSpawnSettings>();
         RoomEnemyPlacement echo = new(runner.DefinitionId, runner.Placing, runner.Contact, runner.Processing, EnemyPresence.Hidden,
             runner.CollidesByFrameHitboxes, settings with { Role = DachoraRole.SpeedBoostEcho });
-        return [runner, .. DefinitionRun.Repeated(echo, DachoraTimingDefinitions.EchoCount)];
+        return [runner, .. DefinitionRun.Repeated(echo, DachoraPartListingDefinitions.EchoCount)];
     }
 }

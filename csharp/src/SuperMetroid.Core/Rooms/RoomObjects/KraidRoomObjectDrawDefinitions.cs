@@ -14,10 +14,10 @@ internal static class KraidRoomObjectDrawDefinitions
     private static readonly RoomBlockShape OpenBlock = new([new(new(0, 0), RoomCollisionType.Air)]);
 
     /// <summary>The cleared ceiling of an already-defeated room: fifteen open blocks along the row from the object's block.</summary>
-    private static readonly RoomBlockShape ClearedCeiling = RoomBlockShapes.Line(down: false, 15, RoomCollisionType.Air);
+    private static readonly RoomBlockShape ClearedCeiling = RoomBlockShapes.Row(15, RoomCollisionType.Air);
 
     /// <summary>The cleared spikes of an already-defeated room: twenty-two open blocks along the row from the object's block.</summary>
-    private static readonly RoomBlockShape ClearedSpikes = RoomBlockShapes.Line(down: false, 22, RoomCollisionType.Air);
+    private static readonly RoomBlockShape ClearedSpikes = RoomBlockShapes.Row(22, RoomCollisionType.Air);
 
     /// <summary>The block shape each stage of a crumbling block's breakup draws; its last stage is the picture its draw leaves.</summary>
     internal static readonly Dictionary<BlockBreakupStage, RoomBlockShape> CrumbleShapes = new()

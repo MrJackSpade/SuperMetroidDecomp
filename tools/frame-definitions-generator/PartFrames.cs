@@ -940,7 +940,14 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     /// <param name="Semantic">The caller's semantic model.</param>
     /// <param name="Argument">The argument passed.</param>
     /// <param name="Outer">The caller's bindings, which the argument's own parameter names read.</param>
-    private sealed record BoundArgument(SemanticModel Semantic, ExpressionSyntax Argument, IReadOnlyDictionary<IParameterSymbol, BoundArgument> Outer);
+    private sealed record BoundArgument(SemanticModel Semantic, ExpressionSyntax Argument, IReadOnlyDictionary<IParameterSymbol, BoundArgument> Outer)
+    {
+        /// <summary>
+        /// The elements a params parameter is handed one by one (#2557), none where the call passes none; null for a parameter
+        /// handed one argument of its own type.
+        /// </summary>
+        public IReadOnlyList<ExpressionSyntax>? ParamsElements { get; init; }
+    }
 
     /// <summary>No bindings: an initializer read outside any helper.</summary>
     private static readonly IReadOnlyDictionary<IParameterSymbol, BoundArgument> Unbound = new Dictionary<IParameterSymbol, BoundArgument>(SymbolEqualityComparer.Default);
@@ -995,6 +1002,8 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         }
         switch (semantic.GetSymbolInfo(beats).Symbol)
         {
+            case IParameterSymbol parameter when bindings.TryGetValue(parameter, out BoundArgument? bound) && bound.ParamsElements is { } elements:
+                return [.. elements.Select(element => (bound.Semantic, element, bound.Outer))];
             case IParameterSymbol parameter when bindings.TryGetValue(parameter, out BoundArgument? bound):
                 return BeatsOf(bound.Semantic, bound.Argument, bound.Outer, depth + 1);
             case IFieldSymbol or IPropertySymbol when semantic.GetTypeInfo(beats).Type is IArrayTypeSymbol:
@@ -1018,7 +1027,9 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
 
     /// <summary>The expression <paramref name="body"/> returns when its only other statements are local functions.</summary>
     private static ExpressionSyntax? Returned(BlockSyntax? body) =>
-        body is { Statements: [.. var preceding, ReturnStatementSyntax { Expression: { } returned }] } && preceding.All(statement => statement is LocalFunctionStatementSyntax)
+        body is { Statements: { Count: > 0 } statements }
+            && statements[statements.Count - 1] is ReturnStatementSyntax { Expression: { } returned }
+            && statements.Take(statements.Count - 1).All(statement => statement is LocalFunctionStatementSyntax)
             ? returned
             : null;
 
@@ -1027,15 +1038,30 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         IReadOnlyDictionary<IParameterSymbol, BoundArgument> callerBindings)
     {
         var bound = new Dictionary<IParameterSymbol, BoundArgument>(SymbolEqualityComparer.Default);
-        for (int index = 0; index < invocation.ArgumentList.Arguments.Count; index++)
+        SeparatedSyntaxList<ArgumentSyntax> arguments = invocation.ArgumentList.Arguments;
+        for (int index = 0; index < arguments.Count; index++)
         {
-            ArgumentSyntax argument = invocation.ArgumentList.Arguments[index];
+            ArgumentSyntax argument = arguments[index];
             IParameterSymbol? parameter = argument.NameColon is { } named
                 ? helper.Parameters.FirstOrDefault(candidate => candidate.Name == named.Name.Identifier.Text)
                 : index < helper.Parameters.Length ? helper.Parameters[index] : null;
-            if (parameter is not null)
-                bound[parameter.OriginalDefinition] = new BoundArgument(caller, argument.Expression, callerBindings);
+            if (parameter is null)
+                continue;
+            // A params parameter handed its elements one by one binds them all, read as the beats they are.
+            if (parameter.IsParams && argument.NameColon is null
+                && (arguments.Count != helper.Parameters.Length || !SymbolEqualityComparer.Default.Equals(caller.GetTypeInfo(argument.Expression).Type, parameter.Type)))
+            {
+                bound[parameter.OriginalDefinition] = new BoundArgument(caller, argument.Expression, callerBindings)
+                {
+                    ParamsElements = [.. arguments.Skip(index).Select(element => element.Expression)],
+                };
+                break;
+            }
+            bound[parameter.OriginalDefinition] = new BoundArgument(caller, argument.Expression, callerBindings);
         }
+        // A params parameter the call hands nothing binds no elements.
+        foreach (IParameterSymbol parameter in helper.Parameters.Where(parameter => parameter.IsParams && !bound.ContainsKey(parameter.OriginalDefinition)))
+            bound[parameter.OriginalDefinition] = new BoundArgument(caller, invocation, callerBindings) { ParamsElements = [] };
         return bound;
     }
 
@@ -1128,6 +1154,11 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     /// <summary>The argument <paramref name="creation"/> passes its constructor's parameter <paramref name="name"/>: a positional record's member's value.</summary>
     private static ExpressionSyntax? ConstructionArgument(SemanticModel semantic, BaseObjectCreationExpressionSyntax creation, string name)
     {
+        // A record set in its initializer names the member there (#2557).
+        if (creation.Initializer is { } initializer
+            && initializer.Expressions.OfType<AssignmentExpressionSyntax>()
+                .FirstOrDefault(assignment => assignment.Left is IdentifierNameSyntax { Identifier.Text: var member } && member == name) is { } set)
+            return set.Right;
         if (semantic.GetSymbolInfo(creation).Symbol is not IMethodSymbol { MethodKind: MethodKind.Constructor } constructor || creation.ArgumentList is not { } arguments)
             return null;
         for (int index = 0; index < arguments.Arguments.Count; index++)
@@ -1146,8 +1177,19 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
 
     /// <summary>Every initializer the segments and animations are read from, the animations held by name (#2399) included.</summary>
     private List<ExpressionSyntax> AnimationInitializers() => configuration.Sided is { } sided
-        ? [.. SegmentInitializers(), Initializer(configuration.AnimationsType!, sided.StartingAt), .. SideBodies(sided.StartingAt, []).Select(read => read.Body)]
+        ? [.. SegmentInitializers(), Initializer(configuration.AnimationsType!, sided.StartingAt),
+            .. SideBodies(sided.StartingAt, []).SelectMany(read => (IEnumerable<ExpressionSyntax>)[read.Body, .. LocalFunctionBodies(read.Body)])]
         : [.. SegmentInitializers(), StartingAtInitializer(), .. NamedAnimations().Select(CoreModel.InitializerOf)];
+
+    /// <summary>
+    /// The expression bodies of the local functions declared beside <paramref name="body"/> when it is the expression a
+    /// helper's block returns (#2557): a side's animations written over a local function, as <c>RunningOn</c>, name their
+    /// segments there.
+    /// </summary>
+    private static IEnumerable<ExpressionSyntax> LocalFunctionBodies(ExpressionSyntax body) =>
+        body.Parent is ReturnStatementSyntax { Parent: BlockSyntax block }
+            ? block.Statements.OfType<LocalFunctionStatementSyntax>().Select(local => local.ExpressionBody?.Expression).OfType<ExpressionSyntax>()
+            : [];
 
     /// <summary>
     /// Reads the <c>[P.X] = [beats]</c> entries of <paramref name="initializer"/> into <paramref name="programs"/>, and
@@ -1172,8 +1214,8 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             }
             programType ??= identity.ContainingType;
             var program = new PartProgram(new HashSet<string>(StringComparer.Ordinal), [], []);
-            foreach ((SemanticModel beatSemantic, ExpressionSyntax beat, IReadOnlyDictionary<IParameterSymbol, BoundArgument> bindings) in read)
-                ReadBeat(beatSemantic, beat, bindings, startType ?? identity.ContainingType, program, problems);
+            foreach ((SemanticModel beatSemantic, ExpressionSyntax beat, IReadOnlyDictionary<IParameterSymbol, BoundArgument> beatBindings) in read)
+                ReadBeat(beatSemantic, beat, beatBindings, startType ?? identity.ContainingType, program, problems);
             if (!programs.TryAdd(AnimationNode.Segment(identity.Name), program))
                 problems.Add($"segment {identity.Name} is listed twice");
         }
@@ -1206,8 +1248,66 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             if (!programs.TryAdd(AnimationNode.Start(identity.Name), animation))
                 problems.Add($"the animation starting at {identity.Name} is listed twice");
         }
+        // A helper written once over a facing's or a species' segments (#2557) returns that one's starts, each a key and the
+        // animation starting there, read with its call's bindings.
+        foreach (InvocationExpressionSyntax call in initializer.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>())
+        {
+            if (semantic.GetSymbolInfo(call).Symbol is not IMethodSymbol helper || helper.ContainingType.Name != configuration.AnimationsType
+                || helper.ReturnType is not IArrayTypeSymbol { ElementType: INamedTypeSymbol { Name: "KeyValuePair" } }
+                || HelperBody(helper) is not CollectionExpressionSyntax body)
+                continue;
+            Dictionary<IParameterSymbol, BoundArgument> helperBindings = Bind(semantic, call, helper, Unbound);
+            SemanticModel helperSemantic = model.ModelOf(body.SyntaxTree);
+            foreach (ExpressionElementSyntax element in body.Elements.OfType<ExpressionElementSyntax>())
+            {
+                if (element.Expression is not BaseObjectCreationExpressionSyntax { ArgumentList.Arguments: [var key, var played] })
+                {
+                    problems.Add($"{helper.Name}'s start {element} is no new(key, animation)");
+                    continue;
+                }
+                IFieldSymbol[] keys = [.. ValueMembers(helperSemantic, key.Expression, helperBindings, depth: 0)];
+                if (keys is not [var identity] || !SymbolEqualityComparer.Default.Equals(identity.ContainingType, startType))
+                {
+                    problems.Add($"{helper.Name}'s start {key} names no one {startType.Name} member");
+                    continue;
+                }
+                read++;
+                var animation = new PartProgram(new HashSet<string>(StringComparer.Ordinal), [], []);
+                foreach (IFieldSymbol segment in NamedIn(helperSemantic, played.Expression, depth: 0)
+                             .Concat(BoundMembers(helperSemantic, played.Expression, helperBindings)))
+                {
+                    if (SymbolEqualityComparer.Default.Equals(segment.ContainingType, programType))
+                        animation.Continuations.Add(AnimationNode.Segment(segment.Name));
+                }
+                if (!programs.TryAdd(AnimationNode.Start(identity.Name), animation))
+                    problems.Add($"the animation starting at {identity.Name} is listed twice");
+            }
+        }
+        // The segments' own builders (#2557) start, at each segment handed to them, an animation playing that segment whole.
+        foreach (InvocationExpressionSyntax call in initializer.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>())
+        {
+            if (semantic.GetSymbolInfo(call).Symbol is not IMethodSymbol
+                {
+                    ContainingType.Name: "AnimationSegments", Name: "Starts" or "EachLooping" or "StartsEnding" or "EachEnding",
+                })
+            {
+                continue;
+            }
+            foreach (ArgumentSyntax argument in call.ArgumentList.Arguments)
+            {
+                if (semantic.GetSymbolInfo(argument.Expression).Symbol is not IFieldSymbol identity
+                    || !SymbolEqualityComparer.Default.Equals(identity.ContainingType, startType))
+                    continue;
+                read++;
+                var animation = new PartProgram(new HashSet<string>(StringComparer.Ordinal), [], []);
+                if (SymbolEqualityComparer.Default.Equals(identity.ContainingType, programType))
+                    animation.Continuations.Add(AnimationNode.Segment(identity.Name));
+                if (!programs.TryAdd(AnimationNode.Start(identity.Name), animation))
+                    problems.Add($"the animation starting at {identity.Name} is listed twice");
+            }
+        }
         if (read == 0)
-            problems.Add($"{configuration.AnimationsType}.StartingAt has no [Segment] = new(...) entries");
+            problems.Add($"{configuration.AnimationsType}.StartingAt has no [Segment] = new(...) entries and builds no start from a segment");
     }
 
     /// <summary>

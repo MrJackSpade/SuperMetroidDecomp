@@ -67,18 +67,18 @@ public static class XrayScopeDefinitions
     {
         [SamusFacingDirection.Right] = new(
             [
-                (AnimationAngles.RightRaisedFrom, Aims.Up),
-                (AnimationAngles.RightLevelFrom, Aims.Raised),
-                (AnimationAngles.RightLoweredFrom, Aims.Level),
-                (AnimationAngles.RightDownFrom, Aims.Lowered),
+                new(AnimationAngles.RightRaisedFrom, Aims.Up),
+                new(AnimationAngles.RightLevelFrom, Aims.Raised),
+                new(AnimationAngles.RightLoweredFrom, Aims.Level),
+                new(AnimationAngles.RightDownFrom, Aims.Lowered),
             ],
             AtAndPast: Aims.Down),
         [SamusFacingDirection.Left] = new(
             [
-                (AnimationAngles.LeftDownBelow, Aims.Down),
-                (AnimationAngles.LeftLoweredBelow, Aims.Lowered),
-                (AnimationAngles.LeftLevelBelow, Aims.Level),
-                (AnimationAngles.LeftRaisedBelow, Aims.Raised),
+                new(AnimationAngles.LeftDownBelow, Aims.Down),
+                new(AnimationAngles.LeftLoweredBelow, Aims.Lowered),
+                new(AnimationAngles.LeftLevelBelow, Aims.Level),
+                new(AnimationAngles.LeftRaisedBelow, Aims.Raised),
             ],
             AtAndPast: Aims.Up),
     };

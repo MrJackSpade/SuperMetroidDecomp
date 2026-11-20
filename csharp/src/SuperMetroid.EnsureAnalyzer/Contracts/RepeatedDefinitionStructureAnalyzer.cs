@@ -23,7 +23,7 @@ public sealed class RepeatedDefinitionStructureAnalyzer : DiagnosticAnalyzer
     public const string RepeatedDefinitionStructureId = "SME6483";
 
     /// <summary>The import pipeline's assembly, whose definition files hold data as Core's do.</summary>
-    internal const string AssetExtractionAssembly = "SuperMetroid.AssetExtraction";
+    public const string AssetExtractionAssembly = "SuperMetroid.AssetExtraction";
 
     /// <summary>How many times in a row one entry may be written before the run is a repeated structure.</summary>
     private const int RepeatedRun = 3;

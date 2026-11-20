@@ -559,7 +559,7 @@ internal static class SamusPoseInputRules
 
     /// <summary>
     /// The left-facing aimed-down normal jump's input list read as the right-facing one (#2557), its buttons and poses to be
-    /// mirrored by the caller: the right-facing list without its forward Shoot-and-Jump chord.
+    /// mirrored for the left-facing jump: the right-facing list without its forward Shoot-and-Jump chord.
     /// </summary>
     internal static SamusPoseInputMatch MatchNormalJumpAimDownLeftOfRight(GameplayAction held, GameplayAction newlyPressed) =>
         AimedDownJumpOpening(held, newlyPressed) ?? AimedDownJumpClosing(held);

@@ -75,8 +75,8 @@ internal static class EyeDoorSequenceDefinitions
         new Dictionary<EyeDoorPartSegment, AnimationBeat<EyeDoorPartPose, NoAnimationCue>[]>
         {
             [EyeDoorPartSegment.Still] = [Pose(EyeDoorPartPose.Resting, 8)],
-            [EyeDoorPartSegment.LeftPulse] = Pulse(8),
-            [EyeDoorPartSegment.RightPulse] = Pulse(6),
+            [EyeDoorPartSegment.LeftPulse] = PulseBeats(8),
+            [EyeDoorPartSegment.RightPulse] = PulseBeats(6),
         });
 
     /// <summary>The closed eye, held for its beat before it looks for Samus again.</summary>
@@ -119,7 +119,7 @@ internal static class EyeDoorSequenceDefinitions
         new AnimationBeat<EyeDoorPartPose, NoAnimationCue>.Frame(pose, updates);
 
     /// <summary>One pulse of the body: resting, swelling, swollen and swelling again, each pose for <paramref name="poseUpdates"/>, as its facing paces it.</summary>
-    private static AnimationBeat<EyeDoorPartPose, NoAnimationCue>[] Pulse(int poseUpdates) =>
+    private static AnimationBeat<EyeDoorPartPose, NoAnimationCue>[] PulseBeats(int poseUpdates) =>
     [
         Pose(EyeDoorPartPose.Resting, poseUpdates), Pose(EyeDoorPartPose.Swelling, poseUpdates), Pose(EyeDoorPartPose.Swollen, poseUpdates),
         Pose(EyeDoorPartPose.Swelling, poseUpdates),

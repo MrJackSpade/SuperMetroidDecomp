@@ -78,11 +78,12 @@ internal static class DoorCapSequenceDefinitions
     /// A cap closing: its cleared image for <paramref name="clearedUpdates"/>, then its nearly open, half-open and ajar images
     /// for two updates each, its sound after the first <paramref name="imagesBeforeSound"/> of them.
     /// </summary>
-    private static AnimationBeat<DoorCapFrame, SoundEffectId>[] Closing(int clearedUpdates, int imagesBeforeSound)
-    {
-        AnimationBeat<DoorCapFrame, SoundEffectId>[] images = [Show(F.Clear, clearedUpdates), Show(F.NearlyOpen, 2), Show(F.HalfOpen, 2), Show(F.Ajar, 2)];
-        return [.. images[..imagesBeforeSound], Sound(CloseSound), .. images[imagesBeforeSound..]];
-    }
+    private static AnimationBeat<DoorCapFrame, SoundEffectId>[] Closing(int clearedUpdates, int imagesBeforeSound) =>
+        [.. ClosingImages(clearedUpdates)[..imagesBeforeSound], Sound(CloseSound), .. ClosingImages(clearedUpdates)[imagesBeforeSound..]];
+
+    /// <summary>A cap's closing images: its cleared image for <paramref name="clearedUpdates"/>, then its nearly open, half-open and ajar images for two updates each.</summary>
+    private static AnimationBeat<DoorCapFrame, SoundEffectId>[] ClosingImages(int clearedUpdates) =>
+        [Show(F.Clear, clearedUpdates), Show(F.NearlyOpen, 2), Show(F.HalfOpen, 2), Show(F.Ajar, 2)];
 
     /// <summary>Draws <paramref name="frame"/> for <paramref name="updates"/> updates.</summary>
     private static AnimationBeat<DoorCapFrame, SoundEffectId> Show(DoorCapFrame frame, int updates) =>

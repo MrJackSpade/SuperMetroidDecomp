@@ -55,12 +55,17 @@ internal static class RoomBlockShapes
     internal static RoomBlockShape Rectangle(Offset16<RoomBlocks> corner, Extent16<RoomBlocks> size, RoomCollisionType collision) =>
         Moved(Rectangle(size, collision), corner);
 
-    /// <summary>A line of <paramref name="length"/> blocks from the object's block, each colliding as <paramref name="collision"/> (#2557).</summary>
-    /// <param name="down">Whether the line runs down the column rather than rightward along the row.</param>
-    /// <param name="length">How many blocks the line covers.</param>
+    /// <summary>A row of <paramref name="length"/> blocks rightward from the object's block, each colliding as <paramref name="collision"/> (#2557).</summary>
+    /// <param name="length">How many blocks the row covers.</param>
     /// <param name="collision">How every block collides.</param>
-    internal static RoomBlockShape Line(bool down, int length, RoomCollisionType collision) =>
-        Line(down, DefinitionRun.Repeated(collision, length));
+    internal static RoomBlockShape Row(int length, RoomCollisionType collision) =>
+        Line(down: false, DefinitionRun.Repeated(collision, length));
+
+    /// <summary>A column of <paramref name="length"/> blocks down from the object's block, each colliding as <paramref name="collision"/> (#2557).</summary>
+    /// <param name="length">How many blocks the column covers.</param>
+    /// <param name="collision">How every block collides.</param>
+    internal static RoomBlockShape Column(int length, RoomCollisionType collision) =>
+        Line(down: true, DefinitionRun.Repeated(collision, length));
 
     /// <summary><paramref name="shape"/> with every cell moved <paramref name="by"/> blocks (#2557).</summary>
     /// <param name="shape">The shape moved.</param>

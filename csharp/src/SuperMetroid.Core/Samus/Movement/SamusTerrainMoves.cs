@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -5,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <summary>
 /// The block moves Samus's movements share (#2557): a sideways move that a wall stops, a vertical move in the update's scan
 /// order, and the grounding probe a movement with no vertical speed runs. Grounded, knockback, posture and Morph Ball
-/// movement each call them with the terrain their update moves through.
+/// movement each move Samus through them over the terrain their update moves through.
 /// </summary>
 internal static class SamusTerrainMoves
 {

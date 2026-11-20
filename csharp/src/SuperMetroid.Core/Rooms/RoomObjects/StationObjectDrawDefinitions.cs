@@ -25,7 +25,7 @@ internal static class StationObjectDrawDefinitions
 
     /// <summary>The active save pod: its floor solid, under the shaft and cap.</summary>
     private static readonly RoomBlockShape SavePodActive = RoomBlockShapes.Joined(
-        RoomBlockShapes.Line(down: false, 2, RoomCollisionType.SolidBlock), SavePodShaft, SavePodCap);
+        RoomBlockShapes.Row(2, RoomCollisionType.SolidBlock), SavePodShaft, SavePodCap);
 
     /// <summary>A retracted map access arm on its station's right: its block and the one three left of it, both solid.</summary>
     private static readonly RoomBlockShape MapRightRetracted = new([new(new(0, 0), RoomCollisionType.SolidBlock), new(new(-3, 0), RoomCollisionType.SolidBlock)]);

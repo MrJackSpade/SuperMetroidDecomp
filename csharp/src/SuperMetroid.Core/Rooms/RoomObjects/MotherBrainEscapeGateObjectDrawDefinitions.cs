@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class MotherBrainEscapeGateObjectDrawDefinitions
 {
     /// <summary>The gate: four solid blocks down its column from the origin, in every frame, the visually open one included.</summary>
-    private static readonly RoomBlockShape Gate = RoomBlockShapes.Line(down: true, 4, RoomCollisionType.SolidBlock);
+    private static readonly RoomBlockShape Gate = RoomBlockShapes.Column(4, RoomCollisionType.SolidBlock);
 
     /// <summary>The block shape each of the three gate frames draws.</summary>
     internal static readonly Dictionary<MotherBrainEscapeGateDraw, RoomBlockShape> Shapes = new()

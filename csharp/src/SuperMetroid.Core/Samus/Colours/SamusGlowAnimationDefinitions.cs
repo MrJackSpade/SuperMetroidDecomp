@@ -23,6 +23,9 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// </summary>
 internal static class SamusGlowAnimationDefinitions
 {
+    /// <summary>The suits in the order their sequences are listed: Power, Varia, Gravity.</summary>
+    private static readonly IReadOnlyList<S> Suits = Ensure.EveryMemberOnce<S>([S.Power, S.Varia, S.Gravity]);
+
     /// <summary>
     /// Every sequence's shades, each with the updates it shows for. A charged shot's flash paints its yellow anew on each
     /// of its updates, over any colouring laid on the suit after it on the update before, so it is a beat of one update for
@@ -41,7 +44,7 @@ internal static class SamusGlowAnimationDefinitions
                 [G.Of(W.XrayVisorWidening)] = Each(SamusShades.XrayWideningVisor.SkipLast(1), 5),
                 [G.Of(W.XrayVisorWidest)] = [Show(SamusShades.XrayWideningVisor[^1], 5)],
                 [G.Of(W.VisorCycle)] = Each(SamusShades.VisorCycle, 5),
-            }.Concat(Enum.GetValues<S>().SelectMany(InSuit))));
+            }.Concat(Suits.SelectMany(InSuit))));
 
     /// <summary>
     /// Each sequence's animation: a pulse, the Hyper Beam's cycle, the Crystal Flash's pulse and bubble, the rainbow, the
@@ -55,11 +58,11 @@ internal static class SamusGlowAnimationDefinitions
                 [G.Of(W.ChargedShotFlash)] = new([Segments.Whole(G.Of(W.ChargedShotFlash))], AnimationEnd.Stops),
                 [G.Of(W.HyperShotGlow)] = new([Segments.Whole(G.Of(W.HyperShotGlow))], AnimationEnd.Stops),
                 [G.Of(W.XrayVisorWidening)] = Animation<G>.LeadingInto([Segments.Whole(G.Of(W.XrayVisorWidening))], [Segments.Whole(G.Of(W.XrayVisorWidest))]),
-            }.Concat(Enum.GetValues<S>().Select(suit => KeyValuePair.Create(G.In(W.SpeedBoosterRising, suit), Animation<G>.LeadingInto(
+            }.Concat(Suits.Select(suit => KeyValuePair.Create(G.In(W.SpeedBoosterRising, suit), Animation<G>.LeadingInto(
                 [Segments.Whole(G.In(W.SpeedBoosterRising, suit))], [Segments.Whole(G.In(W.SpeedBoosterBrightest, suit))]))))),
         [
             G.Of(W.HyperBeamCycle), G.Of(W.CrystalFlashBody), G.Of(W.CrystalFlashBubble), G.Of(W.HyperBeamRainbow), G.Of(W.VisorCycle),
-            .. Enum.GetValues<S>().SelectMany(suit => SuitLooping.Select(glow => G.In(glow, suit))),
+            .. Suits.SelectMany(suit => SuitLooping.Select(glow => G.In(glow, suit))),
         ]);
 
     /// <summary>

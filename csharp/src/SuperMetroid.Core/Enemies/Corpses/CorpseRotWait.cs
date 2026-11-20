@@ -25,6 +25,8 @@ internal static class CorpseRotWait
                     return phase;
                 place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
                 return CorpsePhase.Rotting;
+            case CorpsePhase.Rotting:
+            case CorpsePhase.Finished:
             default:
                 throw new ArgumentOutOfRangeException(nameof(phase), phase, "The corpse is no longer waiting to rot.");
         }

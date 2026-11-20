@@ -234,12 +234,13 @@ internal static class GameSaveJsonVerification
         var store = new SaveSlotStore(maps);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
         var system = new SharedGameState(new SharedRandom());
-        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system,
-            SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.DraygonSave)) with
+        SuperMetroidSaveSnapshot captured = SuperMetroidSaveSnapshot.Capture(samus, system,
+            SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.DraygonSave));
+        SuperMetroidSaveSnapshot snapshot = captured with
         {
             StartupRoute = SaveStartupRoute.CeresDestruction,
             HudItem = HudItem.XRay,
-            ReserveMode = ReserveTankMode.Manual,
+            Inventory = captured.Inventory with { ReserveMode = ReserveTankMode.Manual },
         };
         store.SaveSlot(SaveSlot.A, snapshot);
         byte[] sram = SaveRamCodec.Encode(store, maps);
@@ -247,7 +248,7 @@ internal static class GameSaveJsonVerification
         GameSaveJsonDocument document = GameSaveJsonCodec.Capture(store);
         GameSaveSlotJsonDocument slot = document.Slots[0] ?? throw new InvalidOperationException("JSON capture lost slot 0.");
         AssertEqual(HudItem.XRay, slot.HudItem, "JSON carries the last selection of the HUD ring");
-        AssertEqual(ReserveTankMode.Manual, slot.Inventory.ReserveMode, "JSON carries the manual reserve-tank mode");
+        AssertEqual(ReserveTankMode.Manual, slot.ReserveMode, "JSON carries the manual reserve-tank mode");
         AssertEqual(SaveStartupRoute.CeresDestruction, slot.StartupRoute, "JSON names the save's startup route");
         AssertEqual(nameof(LoadStationDefinitions.DraygonSave), slot.Checkpoint, "JSON names the checkpoint's load station");
 

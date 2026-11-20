@@ -42,7 +42,7 @@ internal static class GoldenTorizoAnimations
         [S.GoldenTorizoSettling] =
         [
             Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
-            .. SittingDown(Left, 3, 4, 5),
+            .. SittingDownFromHalfRisen(Left, 3, 4, 5),
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Idle)),
             .. SeatedEyesLightingUp,
         ],

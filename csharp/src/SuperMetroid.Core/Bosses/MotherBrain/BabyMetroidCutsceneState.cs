@@ -868,9 +868,9 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Accelerates Y toward its target at no more than the approach's fastest speed and zeroes velocity on crossing.</summary>
     private bool AccelerateTowardsYPosition(int targetY, SignedEightEight acceleration)
     {
-        (bool arrived, SignedEightEight speed) = Approach(SignedPlace.Y, targetY, Velocity.Y, acceleration, exactMatchArrives: true);
-        Velocity = Velocity.WithY(speed);
-        return arrived;
+        BabyMetroidAxisApproach approach = Approach(SignedPlace.Y, targetY, Velocity.Y, acceleration, BabyMetroidOnTarget.Arrives);
+        Velocity = Velocity.WithY(approach.Speed);
+        return approach.Arrived;
     }
 
     /// <summary>
@@ -878,38 +878,38 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     private bool AccelerateTowardsXPosition(int targetX, SignedEightEight acceleration)
     {
-        (bool arrived, SignedEightEight speed) = Approach(SignedPlace.X, targetX, Velocity.X, acceleration, exactMatchArrives: false);
-        Velocity = Velocity.WithX(speed);
-        return arrived;
+        BabyMetroidAxisApproach approach = Approach(SignedPlace.X, targetX, Velocity.X, acceleration, BabyMetroidOnTarget.KeepsAccelerating);
+        Velocity = Velocity.WithX(approach.Speed);
+        return approach.Arrived;
     }
 
     /// <summary>
     /// One axis of an approach: the speed along it gains <paramref name="acceleration"/> towards <paramref name="target"/>,
     /// up to <see cref="BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed"/>, and the Baby has arrived, its speed
-    /// zeroed, once its next move would reach or cross the target. A Baby standing exactly on the target has arrived when
-    /// <paramref name="exactMatchArrives"/> says so, its speed kept; otherwise it still accelerates towards the lesser side.
+    /// zeroed, once its next move would reach or cross the target. A Baby standing exactly on the target does as
+    /// <paramref name="onTarget"/> says: it has arrived, its speed kept, or it still accelerates towards the lesser side.
     /// </summary>
-    private static (bool Arrived, SignedEightEight Speed) Approach(int place, int target, SignedEightEight speed, SignedEightEight acceleration,
-        bool exactMatchArrives)
+    private static BabyMetroidAxisApproach Approach(int place, int target, SignedEightEight speed, SignedEightEight acceleration,
+        BabyMetroidOnTarget onTarget)
     {
         int difference = place - target;
-        if (difference == 0 && exactMatchArrives)
-            return (true, speed);
+        if (difference == 0 && onTarget == BabyMetroidOnTarget.Arrives)
+            return new(BabyMetroidAxisProgress.Arrived, speed);
 
         if (difference < 0)
         {
             speed = SignedEightEight.Min(speed + acceleration, BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed);
             if (place + speed.WholePixels < target)
-                return (false, speed);
+                return new(BabyMetroidAxisProgress.Approaching, speed);
         }
         else
         {
             speed = SignedEightEight.Max(speed - acceleration, -BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed);
             if (place + speed.WholePixels - target > 0)
-                return (false, speed);
+                return new(BabyMetroidAxisProgress.Approaching, speed);
         }
 
-        return (true, default);
+        return new(BabyMetroidAxisProgress.Arrived, default);
     }
 
 }

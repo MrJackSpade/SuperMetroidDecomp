@@ -14,14 +14,14 @@ internal static class GerutaAnimations
     /// The wing poses of a swoop's start from level to swept up, each with where its flames sit and which way they burn: a
     /// descent sweeps the wings up through them, and an ascent sweeps them back down.
     /// </summary>
-    private static readonly (EnemyFrameId Wings, int FlameOffset, GerutaFlames Flames)[] SwoopWings =
+    private static readonly GerutaSwoopWing[] SwoopWings =
     [
-        (EnemyFrameId.GerutaWingsLevel, 8, GerutaFlames.Ascending),
-        (EnemyFrameId.GerutaWingsFlattening, 4, GerutaFlames.Ascending),
-        (EnemyFrameId.GerutaWingsTilting, 0, GerutaFlames.Ascending),
-        (EnemyFrameId.GerutaWingsLifting, -4, GerutaFlames.Descending),
-        (EnemyFrameId.GerutaWingsRaising, -12, GerutaFlames.Descending),
-        (EnemyFrameId.GerutaWingsSweptUp, -16, GerutaFlames.Descending),
+        new(EnemyFrameId.GerutaWingsLevel, 8, GerutaFlames.Ascending),
+        new(EnemyFrameId.GerutaWingsFlattening, 4, GerutaFlames.Ascending),
+        new(EnemyFrameId.GerutaWingsTilting, 0, GerutaFlames.Ascending),
+        new(EnemyFrameId.GerutaWingsLifting, -4, GerutaFlames.Descending),
+        new(EnemyFrameId.GerutaWingsRaising, -12, GerutaFlames.Descending),
+        new(EnemyFrameId.GerutaWingsSweptUp, -16, GerutaFlames.Descending),
     ];
 
     /// <summary>Every segment's beats.</summary>
@@ -91,7 +91,7 @@ internal static class GerutaAnimations
     internal static Animation<GerutaSegment> StartingWith(GerutaSegment segment) => StartingAt[segment];
 
     /// <summary>One wing pose of a swoop's start, for one update, its flames placed as the pose places them.</summary>
-    private static AnimationBeat<EnemyFrameId, GerutaCue>[] Swept((EnemyFrameId Wings, int FlameOffset, GerutaFlames Flames) pose) =>
+    private static AnimationBeat<EnemyFrameId, GerutaCue>[] Swept(GerutaSwoopWing pose) =>
         [Cue(new GerutaCue.PlaceFlames(pose.FlameOffset, pose.Flames)), Show(pose.Wings, 1)];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>

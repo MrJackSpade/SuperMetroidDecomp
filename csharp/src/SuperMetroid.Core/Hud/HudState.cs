@@ -203,14 +203,14 @@ public sealed class HudState
             images.Add(art.EnergyTank(tank, tank < fullTanks ? HudEnergyTank.Full : HudEnergyTank.Empty));
         images.AddRange(art.EnergyCount(values.Health % SamusEnergyDefinitions.EnergyPerTank));
         // Each ammunition counter shows its digits once Samus can carry any of it.
-        foreach ((HudAmmoCounter counter, int count, int maximum) in (ReadOnlySpan<(HudAmmoCounter, int, int)>)[
-            (HudAmmoCounter.Missiles, values.Missiles, values.MaxMissiles),
-            (HudAmmoCounter.SuperMissiles, values.SuperMissiles, values.MaxSuperMissiles),
-            (HudAmmoCounter.PowerBombs, values.PowerBombs, values.MaxPowerBombs)])
+        void Ammo(HudAmmoCounter counter, int count, int maximum)
         {
             if (maximum != 0)
                 images.AddRange(art.Ammo(counter, count));
         }
+        Ammo(HudAmmoCounter.Missiles, values.Missiles, values.MaxMissiles);
+        Ammo(HudAmmoCounter.SuperMissiles, values.SuperMissiles, values.MaxSuperMissiles);
+        Ammo(HudAmmoCounter.PowerBombs, values.PowerBombs, values.MaxPowerBombs);
         // AUTO shows its arrows filled or empty; the pause screen's switch to manual (the only way manual is reached)
         // clears its place; before the first reserve tank the template shows.
         HudReserveIndicator? reserve = values.ReserveMode switch

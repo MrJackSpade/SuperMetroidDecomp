@@ -536,7 +536,7 @@ internal sealed class FrontendSession
         GameplayRuntime.HudSetup.InitializeHud(SavedGameHud(slot));
 
     /// <summary>
-    /// The HUD a saved game shows (#2557): the slot's counters, equipment and reserve, with the selection cleared, as loading
+    /// The HUD a saved game shows (#2557): the saved game's counters, equipment and reserve, with the selection cleared, as loading
     /// clears it before the visible HUD is built.
     /// </summary>
     private static HudSnapshot SavedGameHud(SuperMetroidSaveSlot slot) => new(

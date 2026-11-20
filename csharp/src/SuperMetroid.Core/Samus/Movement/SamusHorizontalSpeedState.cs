@@ -199,7 +199,7 @@ public sealed class SamusHorizontalSpeedState
                 // Showing the colours remains drawing work, but their
                 // frame/timer state is movement-visible and therefore retained here.
                 HasRunningMomentum = true;
-                StartBoost(firstShadeWait: SamusShadeDefinitions.FullBodyCycles.SpeedBoosterFirstStepWait);
+                StartBoost();
             }
 
             if (SamusSpeedMagnitude.ReadsAtCap(ExtraRunSpeed, SamusHorizontalSpeedDefinitions.BoostedExtraRunSpeedCap))
@@ -461,11 +461,12 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Starts the speed boost (#2557): the shared full-body glow over from its start, its first shade after
-    /// <paramref name="firstShadeWait"/> updates, and the boost's counter at its first stage with that stage's countdown.
+    /// <see cref="SamusShadeDefinitions.FullBodyCycles.SpeedBoosterFirstStepWait"/> updates, and the boost's counter at its
+    /// first stage with that stage's countdown.
     /// </summary>
-    private void StartBoost(int firstShadeWait)
+    private void StartBoost()
     {
-        SamusGlowPlay.RestartAfter(FullBodyGlow, FullBodyGlowStart, firstShadeWait);
+        SamusGlowPlay.RestartAfter(FullBodyGlow, FullBodyGlowStart, SamusShadeDefinitions.FullBodyCycles.SpeedBoosterFirstStepWait);
         SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage0));
     }
 
@@ -517,9 +518,8 @@ public sealed class SamusHorizontalSpeedState
     {
         if (speedBoosterEquipped)
         {
-            // The glow shows its first shade on the next update, as a restart does.
             if (HasRunningMomentum && !SpeedBoostCounter.IsBuilding)
-                StartBoost(firstShadeWait: 1);
+                StartBoost();
             return;
         }
 

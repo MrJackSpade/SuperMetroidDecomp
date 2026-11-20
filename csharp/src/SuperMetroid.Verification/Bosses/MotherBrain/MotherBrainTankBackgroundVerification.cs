@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -60,7 +61,7 @@ internal static class MotherBrainTankBackgroundVerification
         return 0;
         bool RoomShowsPipeBackground() => runtime.Room.Scope is { BackgroundImage: RoomLibraryBackgroundPicture.Drawn { Image: { } shown } } scope
             && scope.Room.State.Background == LibraryBackgroundProgramDefinitions.Get(0xe48a).Background
-            && shown.Image.Name == RoomBackgroundImage.NameOf(LibraryBackgroundProgramDefinitions.Get(0xe48a).Background, null, scope.Assets.Tileset);
+            && shown.Image.Name == RoomBackgroundImage.NameOf(LibraryBackgroundProgramDefinitions.Get(0xe48a).Background, LibraryBackgroundPicture.Ordinary, scope.Assets.Tileset);
     }
 
     /// <summary>Runs the ascent mask capture using the initialized Mother Brain room.</summary>

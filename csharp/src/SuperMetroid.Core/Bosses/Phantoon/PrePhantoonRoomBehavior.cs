@@ -33,7 +33,8 @@ internal sealed class PrePhantoonRoomBehavior
     /// </summary>
     public void SpawnPrePhantoonRoomProjectile()
     {
-        EnemyProjectile projectile = _projectiles.AllocateEnemyProjectileWithRoom("The pre-Phantoon room's held place");
+        if (_projectiles.AllocateEnemyProjectile() is not { } projectile)
+            return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace, HoldingProjectile, graphics: default);
         _heldPlace.Take();
         projectile.StartAnimation(new PrePhantoonRoomAnimation());

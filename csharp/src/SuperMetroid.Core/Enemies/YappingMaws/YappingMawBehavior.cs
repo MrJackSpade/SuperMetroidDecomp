@@ -62,10 +62,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The body links are spawned mouth end first, link 3 down to link 0, so each takes the projectile place the pool
         // gives it in that order; the Maw keeps them in root-to-mouth order.
-        var bodies = new EnemyProjectile[YappingMawAttackDefinitions.TongueLinks];
+        var bodies = new EnemyProjectile?[YappingMawAttackDefinitions.TongueLinks];
         for (int link = bodies.Length - 1; link >= 0; link--)
         {
-            EnemyProjectile body = _projectiles.AllocateEnemyProjectileWithRoom($"Yapping Maw place {place.Ordinal}'s body");
+            // A full pool spawns no body, and the link shows nothing.
+            if (_projectiles.AllocateEnemyProjectile() is not { } body)
+                continue;
 
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 body,
@@ -379,7 +381,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         foreach (YappingMawLink link in state.Links)
-            link.Body.Delete();
+            link.Body?.Delete();
         state.RootEffectActor.End();
         ReleaseSamusFromYappingMaw(state, samus);
     }
@@ -403,7 +405,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             place.Shading,
             place.Freeze.UpdatesLeft);
         foreach (YappingMawLink link in state.Links)
-            link.Body.Graphics = link.Body.Graphics.In(shading);
+            if (link.Body is { } body)
+                body.Graphics = body.Graphics.In(shading);
 
         state.RootEffectActor.Graphics = state.RootEffectActor.Graphics.In(shading);
     }
@@ -440,7 +443,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Moves one tongue link's body projectile to its solved point.</summary>
     private static void PositionYappingMawBodyProjectile(YappingMawLink link, Position16<RoomPixels> position) =>
-        link.Body.Position = link.Body.Position.WithWhole(position);
+        if (link.Body is { } body)
+            body.Position = body.Position.WithWhole(position);
 
     /// <summary>The root plus one solved link's signed far-end offset, wrapping around the coordinate range.</summary>
     private static Position16<RoomPixels> YappingMawLinkPosition(YappingMawEnemyState state, int segment) =>

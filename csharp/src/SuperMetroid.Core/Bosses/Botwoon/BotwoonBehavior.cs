@@ -805,23 +805,26 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// index; both orders are kept.
     /// </summary>
     /// <param name="head">Botwoon's head, whose position and graphics the segments start with.</param>
-    /// <returns>The segments from the tail to the segment behind the head.</returns>
+    /// <returns>The segments from the tail to the segment behind the head; a segment the pool had no place for is not in it.</returns>
     internal IReadOnlyList<BotwoonSegmentState> SpawnBotwoonBody(RoomEnemyPlace head)
     {
-        var body = new BotwoonSegmentState[BotwoonFightDefinitions.BodySegments];
-        for (int segmentIndex = body.Length - 1; segmentIndex >= 0; segmentIndex--)
-            body[segmentIndex] = SpawnBotwoonBodySegment(head, segmentIndex);
+        var body = new List<BotwoonSegmentState>(BotwoonFightDefinitions.BodySegments);
+        for (int segmentIndex = BotwoonFightDefinitions.BodySegments - 1; segmentIndex >= 0; segmentIndex--)
+        {
+            if (SpawnBotwoonBodySegment(head, segmentIndex) is { } segment)
+                body.Insert(0, segment);
+        }
         return body;
     }
 
     /// <summary>Spawns one of Botwoon's body segments.</summary>
     /// <param name="head">Botwoon's head, whose position and graphics the segment starts with.</param>
     /// <param name="segmentIndex">The segment's place in the body, zero (the tail) through twelve (behind the head).</param>
-    /// <returns>The segment, alive and inside the wall.</returns>
-    internal BotwoonSegmentState SpawnBotwoonBodySegment(RoomEnemyPlace head, int segmentIndex)
+    /// <returns>The segment, alive and inside the wall, or none when the pool is full.</returns>
+    internal BotwoonSegmentState? SpawnBotwoonBodySegment(RoomEnemyPlace head, int segmentIndex)
     {
-        // Botwoon's room load spawns his thirteen segments into the pool it has just cleared.
-        EnemyProjectile projectile = _projectiles.AllocateEnemyProjectileWithRoom("Botwoon's body segment");
+        if (_projectiles.AllocateEnemyProjectile() is not { } projectile)
+            return null;
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,

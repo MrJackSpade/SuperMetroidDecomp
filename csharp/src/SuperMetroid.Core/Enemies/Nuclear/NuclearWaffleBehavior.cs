@@ -129,11 +129,12 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Each of the four links is spawned for its own place along the waffle's arm, in the order the update later
         // walks them from the last.
-        var links = new NuclearWaffleLink<EnemyProjectile>[NuclearWaffleDefinitions.ProjectileLinks];
-        for (int segmentIndex = 0; segmentIndex < links.Length; segmentIndex++)
+        // A link the pool has no place for is not spawned, and the arm goes on without it.
+        var links = new List<NuclearWaffleLink<EnemyProjectile>>(NuclearWaffleDefinitions.ProjectileLinks);
+        for (int segmentIndex = 0; segmentIndex < NuclearWaffleDefinitions.ProjectileLinks; segmentIndex++)
         {
-            // The waffle's room load spawns its links into the pool it has just cleared.
-            EnemyProjectile segment = _projectiles.AllocateEnemyProjectileWithRoom("Nuclear Waffle's body link");
+            if (_projectiles.AllocateEnemyProjectile() is not { } segment)
+                continue;
 
             // The link starts as its definition has it: its twelve-frame animation, an 8 by 8 pixel size and 64
             // damage. It then starts at the head as one link of the body, which shots cannot destroy.
@@ -147,9 +148,9 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             // The four links stop shots without being destroyed: a beam that strikes one is a dud, and the link
             // stays rather than playing its definition's destruction.
             segment.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
-            links[segmentIndex] = new NuclearWaffleLink<EnemyProjectile>(segment);
+            links.Add(new NuclearWaffleLink<EnemyProjectile>(segment));
         }
-        return links;
+        return [.. links];
     }
 
     /// <summary>Allocates the noncolliding sprite links that interleave with projectile links, each at the head.</summary>

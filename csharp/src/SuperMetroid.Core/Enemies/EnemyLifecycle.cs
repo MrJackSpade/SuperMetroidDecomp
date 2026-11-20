@@ -113,10 +113,6 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     RoomEnemyPlace? IEnemyLifecycle.SpawnEnemyJoining<TEncounter>(RoomEnemyPlacement population, TEncounter encounter) =>
         Spawn(population, place => place.SetSpeciesState(Ensure.NotNull(encounter)));
 
-    /// <inheritdoc/>
-    void IEnemyLifecycle.SpawnEnemyJoiningWithRoom<TEncounter>(RoomEnemyPlacement population, TEncounter encounter, string spawn) =>
-        SpawnAt(_places.FreePlaceWithRoom(spawn), population, place => place.SetSpeciesState(Ensure.NotNull(encounter)));
-
     /// <summary>
     /// Installs <paramref name="population"/> in the first free place, gives it what <paramref name="joining"/> installs (nothing for a plain spawn),
     /// runs its initialization AI, starts its animation when it runs one and extends the live enemy range.

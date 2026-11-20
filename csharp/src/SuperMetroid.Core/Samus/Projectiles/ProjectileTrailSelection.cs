@@ -19,7 +19,7 @@ public static class ProjectileTrailSelection
         SamusProjectileFamily.Beam => trailing.Echo switch
         {
             null => (trailing.IsChargedBeam ? ProjectileTrailDefinitions.ChargedBeamTrails : ProjectileTrailDefinitions.UnchargedBeamTrails)
-                .TryGetValue(trailing.BeamCombination, out ProjectileTrailAnimations? beamTrail)
+                .TryGetValue(trailing.BeamCombination, out ProjectileTrailAnimations beamTrail)
                     ? beamTrail
                     : throw new ArgumentOutOfRangeException(nameof(trailing), trailing, "Undefined beam combination."),
             SamusBeamEcho.SpazerComboTrail => ProjectileTrailDefinitions.SpazerAttackTrail,

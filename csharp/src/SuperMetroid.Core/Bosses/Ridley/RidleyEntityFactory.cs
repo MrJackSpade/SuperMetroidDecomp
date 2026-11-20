@@ -16,13 +16,18 @@ internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRi
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
         [EnemyDefinitionId.Ridley, EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.RidleyBreakupPiece];
 
-    /// <summary>Lower Norfair Ridley, Ceres Ridley, or a piece of the breakup explosion (#2146).</summary>
+    /// <summary>Lower Norfair Ridley, Ceres Ridley, or a piece of the breakup explosion (#2146); a defeated room's Lower Norfair Ridley is deleted before any setup (#2554).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Ridley definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.Ridley)
-            return new NorfairRidleyEntity(norfair, place, common);
+        {
+            if (!norfair.Combat.IsDeletedAtOnce)
+                return new NorfairRidleyEntity(norfair, place, common);
+            NorfairRidleyCombat.DeleteDefeatedRidley(place);
+            return new DefeatedNorfairRidleyEntity(place, common);
+        }
         if (definition == EnemyDefinitionId.RidleyCeres)
             return new CeresRidleyEntity(ceres, escape, place, common);
         if (definition == EnemyDefinitionId.RidleyBreakupPiece)

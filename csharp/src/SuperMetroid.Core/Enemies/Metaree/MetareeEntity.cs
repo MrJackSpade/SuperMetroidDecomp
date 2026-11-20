@@ -8,7 +8,7 @@ internal sealed class MetareeEntity(MetareeBehavior species, RoomEnemyPlace plac
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal MetareeEnemyState State { get; } = MetareeBehavior.InitializeMetaree(place);
+    internal MetareeEnemyState State { get; } = MetareeBehavior.InitializeMetaree();
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Place, State, frame);

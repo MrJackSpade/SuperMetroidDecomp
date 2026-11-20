@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Enemies;
-
-namespace SuperMetroid.Core.Compatibility;
+namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// What an enemy removed from its place leaves there for the enemies that read it (#2130): a deleted enemy leaves its
@@ -26,15 +24,14 @@ namespace SuperMetroid.Core.Compatibility;
 /// once per launch; a formation's leader on every update it waits, once per member; a destroyable shutter's reaction
 /// after a hit's damage; and a Shaktool segment whenever it reaches another segment of its chain. Evidence: the followers'
 /// routines, the Evir arms' and spit's routines, the fingernail launch, the formation leader, the destroyable shutter's
-/// shot reaction and the Shaktool chain's routines read the other enemy's record, or their own after the common shot
-/// damage, without testing whether an enemy still occupies it; a deletion clears only the record's identity, while a
-/// kill clears the whole record, which a respawned enemy's setup writes again, and which the Shaktool chain writes to.
+/// shot reaction and the Shaktool chain's routines read the other enemy's values, or their own after the common shot
+/// damage, without testing whether an enemy still occupies it; a deletion clears only the enemy's identity, while a
+/// kill empties all it leaves, which a respawned enemy's setup writes again, and which the Shaktool chain writes to.
 /// </remarks>
-[CompatibilityService("an enemy removed from its place leaves its state there for its neighbours: as it left it after a deletion, cleared after a kill")]
 internal sealed class RemovedEnemyLeftovers
 {
     /// <summary>
-    /// What the place's last removed enemy left: the deleted enemy as it left, the record a kill cleared, or nothing while
+    /// What the place's last removed enemy left: the deleted enemy as it left, the remains a kill emptied, or nothing while
     /// no enemy has left the place.
     /// </summary>
     private EnemyPlaceFinding _left = new EnemyPlaceFinding.Nothing();
@@ -47,8 +44,8 @@ internal sealed class RemovedEnemyLeftovers
     internal void Deleted(IEnemyEntity? enemy) =>
         _left = enemy is null ? new EnemyPlaceFinding.Nothing() : new EnemyPlaceFinding.Enemy(enemy);
 
-    /// <summary>The place's enemy is killed: the kill clears what it leaves, to a record that holds no state.</summary>
-    internal void Killed() => _left = new EnemyPlaceFinding.Cleared(new ClearedEnemyRecord());
+    /// <summary>The place's enemy is killed: the kill empties what it leaves, to remains that hold no state.</summary>
+    internal void Killed() => _left = new EnemyPlaceFinding.Killed(new KilledEnemyRemains());
 
     /// <summary>
     /// What a neighbour finds in the place: <paramref name="occupant"/> while an enemy holds it, otherwise what the last

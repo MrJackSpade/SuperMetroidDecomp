@@ -64,7 +64,7 @@ internal static class HoltzInstructionProgramDefinitionsVerification
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
         parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
-        HoltzBehavior.InitializeHoltz(parent);
+        HoltzBehavior.InitializeHoltz();
         AssertEqual(new AnimationPlayback<HoltzSegment>(HoltzAnimations.StartingWith(HoltzSegment.Idle), AnimationPlace.StartOfAnimation), enemies.Places.InUpdateOrder[0].EntityState<HoltzEntity, HoltzEnemyState>()?.Playback,
             "Lower Norfair Rio parent initializer selects idle");
 
@@ -102,7 +102,7 @@ internal static class HoltzInstructionProgramDefinitionsVerification
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
-        HoltzBehavior.InitializeHoltz(parent);
+        HoltzBehavior.InitializeHoltz();
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, EnemyParameterMasks.FollowerBit);
         follower.Bind(EnemyDefinitionId.Holtz, follower.Definition);

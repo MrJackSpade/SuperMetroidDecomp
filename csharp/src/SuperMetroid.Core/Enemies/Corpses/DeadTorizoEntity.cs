@@ -15,7 +15,7 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyPlac
     private EnemyShotReaction OwnDeadTorizoShotReaction => field ??= species.DeadTorizoShotReactionOf(State);
 
     /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(Place, State);
+    public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal DeadTorizoEnemyState State { get; } = species.InitializeDeadTorizo(place);

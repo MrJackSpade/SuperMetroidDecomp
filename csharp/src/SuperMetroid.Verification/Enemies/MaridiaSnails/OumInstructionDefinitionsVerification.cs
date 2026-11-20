@@ -129,7 +129,7 @@ internal static class OumInstructionDefinitionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Oum, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        OumBehavior.InitializeOum(place);
+        OumBehavior.InitializeOum();
         return new OumInstructionDefinitionsCreateResult(enemies, place, enemies.OumStates[0] ?? throw new InvalidOperationException("Oum has no state."));
     }
 

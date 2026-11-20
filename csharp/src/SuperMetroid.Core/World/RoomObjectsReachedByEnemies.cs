@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.World;
 /// <summary>
 /// The room objects one room's enemies reach (#2554): the terrain enemies break, the Bomb Torizo's hand and Mother Brain's
 /// glass, with the room-object places and sounds they share with every room object. They are built before the room's
-/// enemies and its room-object system both, so the enemies are built before the room objects that call on them.
+/// enemies and its room-object system both, so the enemies are built before the room objects that act on them.
 /// </summary>
 [RoomLifetime]
 internal sealed class RoomObjectsReachedByEnemies

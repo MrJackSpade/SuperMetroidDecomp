@@ -101,7 +101,7 @@ internal sealed class TorizoChoices
         }
 
         state.DecisionCounter = 0;
-        StartGoldenTorizoForwardJump(torizo, state);
+        StartGoldenTorizoForwardJump(state);
         return TorizoAnimations.ContinueWith(target);
     }
 
@@ -120,7 +120,7 @@ internal sealed class TorizoChoices
         }
 
         state.DecisionCounter = 0;
-        StartBackwardJump(torizo, state);
+        StartBackwardJump(state);
         return TorizoAnimations.ContinueWith(target);
     }
 
@@ -151,9 +151,7 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Sets the facing-dependent forward leap velocity; the leap's crouch, which the decision continues in, times its frame.</summary>
-    private static void StartGoldenTorizoForwardJump(
-        RoomEnemyPlace torizo,
-        TorizoEnemyState state)
+    private static void StartGoldenTorizoForwardJump(TorizoEnemyState state)
     {
         SignedEightEight side = TorizoMotionDefinitions.ForwardLeapSideSpeed;
         state.Velocity = new(side.Toward(state.Posture.Facing), TorizoMotionDefinitions.ForwardLeapRise);
@@ -164,9 +162,7 @@ internal sealed class TorizoChoices
     /// Launches a jump back, away from the way the Torizo faces (#2472): Bomb Torizo's from a Samus close in front and Golden
     /// Torizo's repeated jump alike.
     /// </summary>
-    private static void StartBackwardJump(
-        RoomEnemyPlace torizo,
-        TorizoEnemyState state)
+    private static void StartBackwardJump(TorizoEnemyState state)
     {
         SignedEightEight side = TorizoMotionDefinitions.BackwardJumpSideSpeed;
         state.Velocity = new(side.Toward(state.Posture.Facing.Reversed()), TorizoMotionDefinitions.BackwardJumpRise);
@@ -202,7 +198,7 @@ internal sealed class TorizoChoices
             return null;
         }
 
-        StartBackwardJump(torizo, state);
+        StartBackwardJump(state);
         return TorizoAnimations.ContinueWith(target);
     }
 

@@ -28,7 +28,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Carries out one cue of the platforms' animations: each publishes the horizontal direction main AI moves in.</summary>
     private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformEnemyState state, PlatformCue cue) =>
-        SetPlatformHorizontalMovementFromCue(place, state, cue.Movement);
+        SetPlatformHorizontalMovementFromCue(state, cue.Movement);
 
     /// <summary>
     /// Sets up a Tripper or a suspensor platform: its direction and speed from its spawn settings, its first rise and the
@@ -249,8 +249,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Sets the direction main AI moves the platform, <paramref name="movement"/>, as a movement cue asks.</summary>
-    private static void SetPlatformHorizontalMovementFromCue(
-        RoomEnemyPlace place, PlatformEnemyState state,
+    private static void SetPlatformHorizontalMovementFromCue(PlatformEnemyState state,
         HorizontalDirection movement)
     {
         state.XMovement = movement;

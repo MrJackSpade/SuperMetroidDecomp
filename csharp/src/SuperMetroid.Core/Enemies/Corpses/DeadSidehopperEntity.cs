@@ -15,7 +15,7 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     private EnemyShotReaction OwnDeadSidehopperShotReaction => field ??= DeadSidehopperBehavior.DeadSidehopperShotReactionOf(State);
 
     /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(Place, State);
+    public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal DeadSidehopperEnemyState State { get; } = species.InitializeDeadSidehopper(place);

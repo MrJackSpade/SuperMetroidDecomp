@@ -24,7 +24,7 @@ internal static class MetareeBurrowVerification
         place.Bind(EnemyDefinitionId.Metaree, place.Definition);
         place.Radius = new(8, 8);
         place.Position = place.Position.WithWhole(new(64, 100));
-        MetareeBehavior.InitializeMetaree(place);
+        MetareeBehavior.InitializeMetaree();
         MetareeEnemyState state = enemies.MetareeStates[0] ?? throw new InvalidOperationException("The Metaree has no state.");
         state.Action = MetareeAction.LaunchedAttack;
         state.YVelocity = 8;

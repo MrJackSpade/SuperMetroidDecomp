@@ -165,7 +165,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The body rows the dead Torizo in <paramref name="place"/> shows: its own, as its rot has left them (#1539).</summary>
-    internal static CorpseRotRows ShownDeadTorizoRows(RoomEnemyPlace place, DeadTorizoEnemyState state) => state.Rows.Shown;
+    internal static CorpseRotRows ShownDeadTorizoRows(DeadTorizoEnemyState state) => state.Rows.Shown;
 
     /// <summary>
     /// The sand rows <paramref name="state"/>'s sand heap shows (#1539): only the rows its heap has formed into, as the corpse's

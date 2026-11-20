@@ -51,7 +51,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a Holtz parent, idle with its flames hidden.</summary>
-    internal static HoltzEnemyState InitializeHoltz(RoomEnemyPlace place)
+    internal static HoltzEnemyState InitializeHoltz()
     {
         var state = new HoltzEnemyState(HoltzAction.WaitForAttackOpportunity)
         {

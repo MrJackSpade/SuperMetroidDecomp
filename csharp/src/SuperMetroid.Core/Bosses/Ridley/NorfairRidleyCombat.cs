@@ -45,21 +45,27 @@ internal sealed class NorfairRidleyCombat
         _presentation = dependencies.Presentation;
     }
 
+    /// <summary>Whether Lower Norfair Ridley is already defeated, so his room's Ridley is deleted before any setup.</summary>
+    internal bool IsDeletedAtOnce => _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss);
+
     /// <summary>
-    /// Sets Lower Norfair Ridley up and begins his encounter, which his body holds from then on
-    /// (#2231). A defeated Ridley is deleted before any encounter, workspace or colour side effects, matching the
-    /// defeated-boss gate, and begins none: he holds the encounter he would have begun, which nothing reads before his
-    /// deletion. A live fight begins with Ridley below the visible arena.
+    /// Deletes a defeated room's Ridley as he is placed, before any encounter, workspace or colour side effects, matching
+    /// the defeated-boss gate (#2231, #2554).
+    /// </summary>
+    /// <param name="place">Ridley's place.</param>
+    internal static void DeleteDefeatedRidley(RoomEnemyPlace place)
+    {
+        place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+        place.Presence = place.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
+    }
+
+    /// <summary>
+    /// Sets a living room's Lower Norfair Ridley up and begins his encounter, which his body holds from then on (#2231).
+    /// The fight begins with Ridley below the visible arena.
     /// </summary>
     internal NorfairRidleyState InitializeNorfairRidley(RoomEnemyPlace place)
     {
         var ridley = new NorfairRidleyState { MovementAnimationEnabled = true };
-        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
-        {
-            place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-            place.Presence = place.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
-            return ridley;
-        }
         place.CollidesByFrameHitboxes = true;
 
         // Ridley's body stops a Plasma Beam from passing through him.

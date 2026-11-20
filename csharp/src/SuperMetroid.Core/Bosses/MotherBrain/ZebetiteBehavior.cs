@@ -156,7 +156,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Regenerates living halves and advances the primary generation when its health reaches zero.</summary>
     private void RunZebetiteActive(RoomEnemyPlace place, ZebetiteEnemyState state)
     {
-        CycleZebetiteColours(place, state);
+        CycleZebetiteColours(state);
         // Every Zebetite shows the shared pulse; each primary half steps it as it runs (#1512).
         place.Shading = PulseShading;
         ChooseZebetiteHealthPicture(place, state);
@@ -185,7 +185,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Steps the shared pulse, which holds while the shared fade count is past a fade's start: the room's enemies run
     /// between a door fade's steps, and the pulse waits for the fade.
     /// </summary>
-    internal void CycleZebetiteColours(RoomEnemyPlace place, ZebetiteEnemyState state)
+    internal void CycleZebetiteColours(ZebetiteEnemyState state)
     {
         if (_fadeStepCount.IsPastStart || state.Half == ZebetiteHalf.Linked)
             return;

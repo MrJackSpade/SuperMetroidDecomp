@@ -62,7 +62,7 @@ public sealed class SaveSlotStore
     }
 
     /// <summary>
-    /// A detached copy of the save in <paramref name="slot"/>, which the caller's game was chosen from or has just written
+    /// A detached copy of the save in <paramref name="slot"/>, which the game was chosen from or has just written
     /// (#2554): the file select's existing save, the copy it made, or the save a continue resumes.
     /// </summary>
     /// <param name="slot">A slot holding a valid save.</param>

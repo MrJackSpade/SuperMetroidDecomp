@@ -370,7 +370,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         foreach (ShaktoolChainSegment segment in group)
         {
             // The chain keeps moving through the rest of the update that kills a segment, reaching the killed segment's cleared state.
-            if (segment.Place.Found is not (EnemyPlaceFinding.Enemy { Entity: ShaktoolEntity } or EnemyPlaceFinding.Cleared))
+            if (segment.Place.Found is not (EnemyPlaceFinding.Enemy { Entity: ShaktoolEntity } or EnemyPlaceFinding.Killed))
             {
                 throw new InvalidDataException(
                     $"Shaktool group rooted at place {group[0].Place.Ordinal} is missing its segment at place {segment.Place.Ordinal}.");

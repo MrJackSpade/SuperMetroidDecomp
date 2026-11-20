@@ -25,7 +25,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
 
     /// <summary>
     /// What the place's last removed occupant left there for the enemies that read it: the enemy with its state as it left
-    /// after a deletion, and the record a kill cleared (<see cref="RemovedEnemyLeftovers"/>).
+    /// after a deletion, and the remains a kill emptied (<see cref="RemovedEnemyLeftovers"/>).
     /// </summary>
     private readonly RemovedEnemyLeftovers _leftovers;
 

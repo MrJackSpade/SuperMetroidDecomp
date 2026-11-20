@@ -32,7 +32,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the idle animation directly and initializes the place's dive, burrow, and animation-change state.</summary>
-    internal static MetareeEnemyState InitializeMetaree(RoomEnemyPlace place)
+    internal static MetareeEnemyState InitializeMetaree()
     {
         var state = new MetareeEnemyState(MetareeAction.Idling);
 

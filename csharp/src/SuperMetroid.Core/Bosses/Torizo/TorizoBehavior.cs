@@ -182,7 +182,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Replaces Torizo's posture, keeping the rest of its state.</summary>
-    private static void SetPosture(RoomEnemyPlace torizo, TorizoEnemyState state, TorizoPosture posture) =>
+    private static void SetPosture(TorizoEnemyState state, TorizoPosture posture) =>
         state.Posture = posture;
 
     /// <summary>Queues <paramref name="sound"/> through the shared enemy queue.</summary>
@@ -360,12 +360,12 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SetTurningAround }:
-                SetPosture(torizo, state, state.Posture.TurningAround);
+                SetPosture(state, state.Posture.TurningAround);
                 return null;
 
             case TorizoCue.Stepped stepped:
                 // The step replaces the whole posture: the way it faces, the foot it leads with, and any turn.
-                SetPosture(torizo, state, TorizoPosture.AfterStep(stepped.Direction, stepped.Foot));
+                SetPosture(state, TorizoPosture.AfterStep(stepped.Direction, stepped.Foot));
                 state.CountDecisionStep();
                 return null;
 

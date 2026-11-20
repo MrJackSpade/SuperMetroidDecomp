@@ -8,7 +8,7 @@ internal sealed class SkreeEntity(SkreeBehavior species, RoomEnemyPlace place, E
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal SkreeEnemyState State { get; } = SkreeBehavior.InitializeSkree(place);
+    internal SkreeEnemyState State { get; } = SkreeBehavior.InitializeSkree();
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSkreeMainAi(Place, State, frame);

@@ -38,7 +38,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the grapple Ripper.</summary>
     internal static RipperEnemyState InitializeGrappleRipper(RoomEnemyPlace place)
     {
-        RipperEnemyState state = CreateRipperState(place);
+        RipperEnemyState state = CreateRipperState();
 
         // The population entry names the starting direction; the patrol speed and bounds are read where they are used.
         state.Heading = place.SpawnSettings<GrappleRipperSpawnSettings>().Direction;
@@ -80,7 +80,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the jet Ripper.</summary>
     internal static RipperEnemyState InitializeJetRipper(RoomEnemyPlace place)
     {
-        RipperEnemyState state = CreateRipperState(place);
+        RipperEnemyState state = CreateRipperState();
 
         // The jet Ripper shows the grapple Ripper's animations, facing the way it flies (#1842).
         state.Heading = place.SpawnSettings<RipperSpawnSettings>().Direction;
@@ -104,7 +104,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // The spawn's direction chooses the positive speed and the right-facing animation, or the negative speed and the
         // left-facing animation. Unlike a reversal, initialization keeps the population's frame timer.
         HorizontalDirection heading = place.SpawnSettings<RipperSpawnSettings>().Direction;
-        RipperEnemyState state = CreateRipperState(place);
+        RipperEnemyState state = CreateRipperState();
         state.Playback = new(RipperAnimations.StartingWith(
             heading == HorizontalDirection.Right ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft), AnimationPlace.StartOfAnimation);
 
@@ -151,7 +151,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts a Ripper-family enemy's state.</summary>
-    private static RipperEnemyState CreateRipperState(RoomEnemyPlace place)
+    private static RipperEnemyState CreateRipperState()
     {
         return new RipperEnemyState();
     }

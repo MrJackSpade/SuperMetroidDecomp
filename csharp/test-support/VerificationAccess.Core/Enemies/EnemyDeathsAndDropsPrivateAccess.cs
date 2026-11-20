@@ -43,9 +43,6 @@ internal static class EnemyDeathsAndDropsPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Enemies.EnemyDeathsAndDrops, global::SuperMetroid.Core.Enemies.EnemyDeathsAndDrops>(self, "ExplosionsAndPickups");
         }
 
-        /// <summary>The private method <c>KilledEnemyOf</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.KilledEnemy KilledEnemyOf(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.EnemyDeathsAndDrops, global::SuperMetroid.Core.Enemies.KilledEnemy>(self, "KilledEnemyOf", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { projectile });
 
         /// <summary>The private property <c>Pickups</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileStates<global::SuperMetroid.Core.Enemies.EnemyPickupState> Pickups

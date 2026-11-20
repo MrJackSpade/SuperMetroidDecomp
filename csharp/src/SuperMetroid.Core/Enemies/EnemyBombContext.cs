@@ -14,6 +14,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Camera">The camera's position as the bomb pass runs.</param>
 /// <remarks>The stages around common damage receive it as an <see cref="EnemyBombHitContext"/>, which adds the sampled health.</remarks>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
+[ArchitectureReview("context-bag", "One bomb's hit on one enemy (#2558): every member is a fact of that hit (the struck occupant, the bomb holding its place, the reaction it selects, the pass's camera) that the hit's reaction stages read while the hit runs.")]
 internal record EnemyBombContext(
     RoomEnemyOccupant Occupant,
     SamusBombOccupant PlacedBomb,

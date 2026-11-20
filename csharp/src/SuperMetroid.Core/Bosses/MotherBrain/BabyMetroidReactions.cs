@@ -9,11 +9,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class BabyMetroidReactions
 {
     /// <summary>The reaction of the Baby Metroid's own to Samus's touch, which its entity answers.</summary>
-    internal static EnemyReaction Touch { get; } = EnemyReaction.OfSpecies("BabyMetroid.Touch");
+    internal static EnemyReaction Touch => SpeciesOwnReactions.BabyMetroidTouch;
 
     /// <summary>The reaction of the Baby Metroid's own to her shots and bombs, which its entity answers.</summary>
-    internal static EnemyReaction Shot { get; } = EnemyReaction.OfSpecies("BabyMetroid.Shot");
+    internal static EnemyReaction Shot => SpeciesOwnReactions.BabyMetroidShot;
 
     /// <summary>The reaction of the Baby Metroid's own to Samus's touch in Mother Brain's cutscene, which its entity answers.</summary>
-    internal static EnemyReaction CutsceneTouch { get; } = EnemyReaction.OfSpecies("BabyMetroid.CutsceneTouch");
+    internal static EnemyReaction CutsceneTouch => SpeciesOwnReactions.BabyMetroidCutsceneTouch;
 }

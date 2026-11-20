@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// the occupant leaves; a place that holds no enemy holds no occupant, so no identity and no population entry stands for
 /// an empty place. Only an occupant is killed, so a kill always names the enemy it acts on.
 /// </summary>
+[ArchitectureReview("back-reference", "An enemy and the history of the place it holds (#2558): the history creates the occupant and keeps it as its latest, and the occupant reads that history to kill itself and await its respawn, so the two share the place's lifetime.")]
 public sealed class RoomEnemyOccupant
 {
     /// <summary>Creates the occupant <paramref name="history"/>'s place is populated with from <paramref name="spawn"/>.</summary>

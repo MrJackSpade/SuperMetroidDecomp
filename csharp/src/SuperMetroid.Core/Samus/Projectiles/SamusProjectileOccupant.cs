@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// occupant, so no projectile type or damage stands for an empty place. A shot's later changes, its explosion, an enemy's
 /// reflection and the Super Missile's link among them, change the type and damage it holds.
 /// </summary>
+[ArchitectureReview("back-reference", "The shot holding a place and the place it holds (#2558): the place's taking creates the occupant, and the occupant reads the place's position, motion and animation it moves by, so the two share the shot's lifetime.")]
 public sealed class SamusProjectileOccupant
 {
     /// <summary>The projectile of <paramref name="type"/> dealing <paramref name="damage"/> taking <paramref name="projectile"/>'s place.</summary>

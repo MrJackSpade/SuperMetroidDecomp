@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 internal static class BotwoonReactions
 {
     /// <summary>The reaction of Botwoon's own to Samus's touch, which its entity answers.</summary>
-    internal static EnemyReaction Touch { get; } = EnemyReaction.OfSpecies("Botwoon.Touch");
+    internal static EnemyReaction Touch => SpeciesOwnReactions.BotwoonTouch;
 
     /// <summary>The reaction of Botwoon's own to her shots and bombs, which its entity answers.</summary>
-    internal static EnemyReaction Shot { get; } = EnemyReaction.OfSpecies("Botwoon.Shot");
+    internal static EnemyReaction Shot => SpeciesOwnReactions.BotwoonShot;
 }

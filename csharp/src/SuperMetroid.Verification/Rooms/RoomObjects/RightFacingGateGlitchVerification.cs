@@ -266,8 +266,9 @@ internal static class RightFacingGateGlitchVerification
             boyon.Holds(EnemyDefinitionId.Boyon));
         foreach (RoomEnemyPlace enemy in runtime.Enemies.Places.InUpdateOrder)
         {
-            if (!ReferenceEquals(enemy, frozen))
-                enemy.Vacate();
+            // Every other enemy leaves the room, as one killed there would.
+            if (!ReferenceEquals(enemy, frozen) && enemy.Occupant is { } other)
+                _ = other.Kill(respawns: false);
         }
         frozen.Position = frozen.Position.WithWhole(new(checked((ushort)frozenEnemyX), 139));
         frozen.Freeze.Restart(1000);

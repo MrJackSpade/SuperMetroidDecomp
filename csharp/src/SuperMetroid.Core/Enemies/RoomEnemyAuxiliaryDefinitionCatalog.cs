@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies;
@@ -21,7 +20,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         HurtResponse: EnemyHurtResponse.Inert,
         DeathExplosion: EnemyDeathExplosion.Small,
         PowerBombReaction: EnemyReaction.CommonPowerBomb,
-        Touch: BabyMetroidReactions.CutsceneTouch,
+        Touch: SpeciesOwnReactions.BabyMetroidCutsceneTouch,
         Shot: EnemyReaction.Ignore,
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Withheld,

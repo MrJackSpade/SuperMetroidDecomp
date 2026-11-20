@@ -9,5 +9,5 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresSteamReactions
 {
     /// <summary>The steam's touch reaction, which every visible steam frame's hitbox names.</summary>
-    internal static EnemyReaction Touch { get; } = EnemyReaction.OfSpecies("CeresSteam.Touch");
+    internal static EnemyReaction Touch => SpeciesOwnReactions.CeresSteamTouch;
 }

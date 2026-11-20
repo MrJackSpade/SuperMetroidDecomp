@@ -29,5 +29,5 @@ internal static class CrocomireReactions
     /// The shot reaction his definition names (#2558): his parts collide by their frames' hitboxes, whose reactions
     /// run, so a shot or bomb that meets him by his radius has no response of his.
     /// </summary>
-    internal static EnemyReaction Shot { get; } = EnemyReaction.OfSpecies("Crocomire.Shot");
+    internal static EnemyReaction Shot => SpeciesOwnReactions.CrocomireShot;
 }

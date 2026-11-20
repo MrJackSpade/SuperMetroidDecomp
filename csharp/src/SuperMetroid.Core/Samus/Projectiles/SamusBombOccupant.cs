@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The bomb holding one of Samus's bomb places (#2558): what it is and the damage it deals, from its placing until it ends.
 /// Only a held place has an occupant, so no projectile type or damage stands for an empty place.
 /// </summary>
+[ArchitectureReview("back-reference", "The bomb holding a place and the place it holds (#2558): the place's taking creates the occupant, and the occupant reads the place's position, motion and animation it moves by, so the two share the bomb's lifetime.")]
 public sealed class SamusBombOccupant
 {
     /// <summary>The bomb of <paramref name="type"/> dealing <paramref name="damage"/> taking <paramref name="bomb"/>'s place.</summary>

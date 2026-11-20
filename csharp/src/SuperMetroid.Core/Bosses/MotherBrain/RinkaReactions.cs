@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class RinkaReactions
 {
     /// <summary>The reaction of a Rinka's own to Samus's touch, which its entity answers.</summary>
-    internal static EnemyReaction Touch { get; } = EnemyReaction.OfSpecies("Rinka.Touch");
+    internal static EnemyReaction Touch => SpeciesOwnReactions.RinkaTouch;
 
     /// <summary>The reaction of a Rinka's own to her shots and bombs, which its entity answers.</summary>
-    internal static EnemyReaction Shot { get; } = EnemyReaction.OfSpecies("Rinka.Shot");
+    internal static EnemyReaction Shot => SpeciesOwnReactions.RinkaShot;
 }

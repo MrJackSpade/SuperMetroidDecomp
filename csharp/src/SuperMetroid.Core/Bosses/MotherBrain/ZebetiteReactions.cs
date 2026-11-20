@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class ZebetiteReactions
 {
     /// <summary>The reaction of a Zebetite's own to Samus's touch, which its entity answers.</summary>
-    internal static EnemyReaction Touch { get; } = EnemyReaction.OfSpecies("Zebetite.Touch");
+    internal static EnemyReaction Touch => SpeciesOwnReactions.ZebetiteTouch;
 
     /// <summary>The reaction of a Zebetite's own to her shots and bombs, which its entity answers.</summary>
-    internal static EnemyReaction Shot { get; } = EnemyReaction.OfSpecies("Zebetite.Shot");
+    internal static EnemyReaction Shot => SpeciesOwnReactions.ZebetiteShot;
 }

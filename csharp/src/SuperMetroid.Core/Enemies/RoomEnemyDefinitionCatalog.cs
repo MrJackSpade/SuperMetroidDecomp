@@ -11,6 +11,12 @@ namespace SuperMetroid.Core.Enemies;
 /// </remarks>
 public static class RoomEnemyDefinitionCatalog
 {
+    /// <summary>
+    /// Every Ceres door's and wall's definition (#1989): each door, the elevator room's wall and Ridley's getaway chamber wall
+    /// share these fields.
+    /// </summary>
+    internal static readonly RoomEnemyDefinition CeresDoorAndWall = new(40, 15, new(8, 32), 4, EnemySound.RidleyRoar, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, null, null);
+
     /// <summary>The referenced enemy definitions.</summary>
     internal static readonly RoomEnemyDefinitionEntry[] Definitions =
     [
@@ -85,10 +91,10 @@ public static class RoomEnemyDefinitionCatalog
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.Ridley, new(18000, 160, new(8, 8), 8, null, AreaBoss.Ridley, GrappleEnemyReaction.Cancel, EnemyHurtResponse.SpeciesOwn, EnemyDeathExplosion.Small, null, EnemyReaction.OrdinaryTouch, null, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, new EnemyDropChances(50, 50, 50, 0, 50, 55), EnemyVulnerabilityDefinitions.Ridley)),
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.RidleyBreakupPiece, new(18000, 160, new(8, 8), 4, null, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyHitboxScan.Withheld, EnemyHitboxScan.Withheld, null, EnemyVulnerabilityDefinitions.Invulnerable)),
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.CeresSteam, new(32767, 0, new(8, 8), 4, null, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, null, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Withheld, new EnemyDropChances(0, 0, 0, 255, 0, 0), EnemyVulnerabilityDefinitions.Invulnerable)),
-        new RoomEnemyDefinitionEntry(EnemyDefinitionId.CeresDoor, new(40, 15, new(8, 32), 4, EnemySound.RidleyRoar, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, null, null)),
-        new RoomEnemyDefinitionEntry(EnemyDefinitionId.CeresRidleyRoomDoor, new(40, 15, new(8, 32), 4, EnemySound.RidleyRoar, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, null, null)),
-        new RoomEnemyDefinitionEntry(EnemyDefinitionId.CeresElevatorDoor, new(40, 15, new(8, 32), 4, EnemySound.RidleyRoar, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, null, null)),
-        new RoomEnemyDefinitionEntry(EnemyDefinitionId.CeresElevatorRoomWall, new(40, 15, new(8, 32), 4, EnemySound.RidleyRoar, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, null, null)),
+        new RoomEnemyDefinitionEntry(EnemyDefinitionId.CeresDoor, CeresDoorAndWall),
+        new RoomEnemyDefinitionEntry(EnemyDefinitionId.CeresRidleyRoomDoor, CeresDoorAndWall),
+        new RoomEnemyDefinitionEntry(EnemyDefinitionId.CeresElevatorDoor, CeresDoorAndWall),
+        new RoomEnemyDefinitionEntry(EnemyDefinitionId.CeresElevatorRoomWall, CeresDoorAndWall),
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.Zebetite, new(1000, 0, new(8, 24), 4, null, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, null, null, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, null, EnemyVulnerabilityDefinitions.Zebetite)),
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.Kraid, new(1000, 20, new(56, 144), 4, null, AreaBoss.Kraid, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, null, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Withheld, new EnemyDropChances(50, 50, 50, 0, 50, 55), EnemyVulnerabilityDefinitions.Kraid)),
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.KraidArm, new(1000, 20, new(48, 48), 4, null, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, null, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, null, EnemyVulnerabilityDefinitions.InvulnerableUnfreezable)),

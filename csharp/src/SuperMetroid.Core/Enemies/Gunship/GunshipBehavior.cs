@@ -101,8 +101,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             return;
         GunshipPieceState piece = place.RequireSpeciesState<GunshipPieceState>();
         AnimationPlayback<GunshipSegment> playback = piece.Playback;
-        EnemyAnimationPlayback.Play(place, GunshipAnimations.Segments, ref playback,
-            cue => throw new InvalidOperationException($"The gunship's animations publish no cue; got {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, GunshipAnimations.Segments, ref playback);
         piece.Playback = playback;
     }
 

@@ -72,8 +72,7 @@ public sealed class RoomEffectActor
         Animation<RoomEffectActorSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
         AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture> shown = RoomEffectActorAnimations.Segments.PlayToNextFrame(
-            ref animation, ref place,
-            raised => throw new InvalidOperationException($"Effect actor {Kind}'s event-free animation raised {raised}."));
+            ref animation, ref place);
         switch (shown)
         {
             case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Frame frame:

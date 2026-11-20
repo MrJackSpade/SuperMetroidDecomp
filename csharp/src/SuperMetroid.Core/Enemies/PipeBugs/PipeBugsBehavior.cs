@@ -606,22 +606,19 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances a Brinstar Pipe Bug's typed animation.</summary>
     internal static void AdvanceBrinstarPipeBugTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
-            static (BrinstarPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
+        EnemyAnimationPlayback.AdvanceSilently(place, PipeBugAnimations.Segments,
+            static (BrinstarPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Advances a Norfair Pipe Bug's typed animation.</summary>
     internal static void AdvanceNorfairPipeBugTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
-            static (NorfairPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
+        EnemyAnimationPlayback.AdvanceSilently(place, PipeBugAnimations.Segments,
+            static (NorfairPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Advances a yellow Pipe Bug's typed animation.</summary>
     internal static void AdvanceYellowPipeBugTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
-            static (YellowPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
+        EnemyAnimationPlayback.AdvanceSilently(place, PipeBugAnimations.Segments,
+            static (YellowPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
-    /// <summary>Rejects a cue: no Pipe Bug animation raises one.</summary>
-    private static AnimationContinuation<PipeBugSegment>? RaisesNoCues(NoAnimationCue cue) =>
-        throw new InvalidOperationException($"A Pipe Bug animation raised {cue}, though no Pipe Bug animation has a cue.");
 
     /// <summary>Runs a Brinstar Pipe Bug's main AI.</summary>
     internal static void RunBrinstarPipeBugMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>

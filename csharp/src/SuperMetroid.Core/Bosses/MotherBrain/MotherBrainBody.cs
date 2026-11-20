@@ -65,8 +65,7 @@ internal sealed class MotherBrainBody
             return;
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         AnimationPlayback<MotherBrainTubePiece> playback = tubeState.Playback;
-        EnemyAnimationPlayback.Play(tube, MotherBrainTubeAnimations.Segments, ref playback,
-            cue => throw new InvalidOperationException($"Falling-tube animations raise no event {cue}."));
+        EnemyAnimationPlayback.PlaySilently(tube, MotherBrainTubeAnimations.Segments, ref playback);
         tubeState.Playback = playback;
     }
 

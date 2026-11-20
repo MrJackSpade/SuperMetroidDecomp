@@ -193,9 +193,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Mochtroid's typed animation.</summary>
     internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, MochtroidAnimations.Segments,
-            static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (state, cue) => throw new InvalidOperationException($"Mochtroid's cue-free animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, MochtroidAnimations.Segments,
+            static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Mochtroid's main AI.</summary>
     internal void RunMochtroidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

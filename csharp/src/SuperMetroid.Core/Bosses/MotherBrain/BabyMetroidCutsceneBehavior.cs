@@ -236,8 +236,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<MotherBrainBabySegment> playback = baby.Playback;
-        EnemyAnimationPlayback.Play(place, MotherBrainBabyAnimations.Segments, ref playback, BabyMetroidVisualDefinitions.ShownFrames.Of,
-            cue => throw new InvalidOperationException($"The cutscene Baby's animations raise no event {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, MotherBrainBabyAnimations.Segments, ref playback, BabyMetroidVisualDefinitions.ShownFrames.Of);
         baby.Playback = playback;
     }
 }

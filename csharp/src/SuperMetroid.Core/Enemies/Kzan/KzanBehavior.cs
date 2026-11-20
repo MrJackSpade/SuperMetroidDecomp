@@ -194,9 +194,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Kzan's typed animation.</summary>
     internal static void AdvanceKzanTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, KzanAnimations.Segments,
-            static (KzanEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Kzan animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, KzanAnimations.Segments,
+            static (KzanEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs KzanTop's main AI.</summary>
     internal void RunKzanTopMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

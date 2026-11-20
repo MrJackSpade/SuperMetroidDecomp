@@ -151,8 +151,7 @@ internal sealed class CrocomireFight
 
         AnimationPlace place = state.TonguePlayback.Place;
         AnimationShown<CrocomireTongueSegment, EnemyFrameId> outcome = CrocomireAnimations.TongueSegments.PlayToNextFrame(
-            state.TonguePlayback.Animation, ref place,
-            cue => throw new InvalidOperationException($"A Crocomire tongue animation raised event {cue}."));
+            state.TonguePlayback.Animation, ref place);
         state.TonguePlayback = state.TonguePlayback with { Place = place };
         // A hold rests the animation: the last frame stays and the clock stops (#2454).
         if (outcome is AnimationShown<CrocomireTongueSegment, EnemyFrameId>.Held)

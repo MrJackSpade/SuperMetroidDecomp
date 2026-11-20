@@ -280,8 +280,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         KagoEnemyState state = place.RequireSpeciesState<KagoEnemyState>();
         AnimationPlayback<KagoSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, KagoAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"A cue-free Kago animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, KagoAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 

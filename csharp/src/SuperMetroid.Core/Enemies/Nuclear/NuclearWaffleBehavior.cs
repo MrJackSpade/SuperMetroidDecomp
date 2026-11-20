@@ -300,8 +300,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         NuclearWaffleEnemyState state = place.SpeciesState<NuclearWaffleEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy place {place.Ordinal} has no initialized Nuclear Waffle state.");
         AnimationPlayback<NuclearWaffleSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, NuclearWaffleAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"Nuclear Waffle's cue-free animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, NuclearWaffleAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 

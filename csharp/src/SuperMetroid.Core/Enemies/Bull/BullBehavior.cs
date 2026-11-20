@@ -191,9 +191,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Bull's idle and immune-shot animations (#641).</summary>
     internal static void AdvanceBullAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, BullAnimations.Segments,
-            static (BullEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Bull animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, BullAnimations.Segments,
+            static (BullEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>
     /// Applies Bull's immune-hit recoil after common bomb damage handling: a bomb that leaves the Bull's health alone kicks

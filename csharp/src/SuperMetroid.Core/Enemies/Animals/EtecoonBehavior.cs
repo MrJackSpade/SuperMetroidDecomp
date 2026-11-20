@@ -690,9 +690,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Etecoon's typed animation.</summary>
     internal static void AdvanceEtecoonTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, EtecoonAnimations.Segments,
-            static (EtecoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Etecoon animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, EtecoonAnimations.Segments,
+            static (EtecoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Etecoon's main AI.</summary>
     internal void RunEtecoonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

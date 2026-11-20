@@ -209,8 +209,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         DeadTorizoEnemyState state = place.RequireSpeciesState<DeadTorizoEnemyState>();
         AnimationPlayback<DeadTorizoSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, DeadTorizoAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"A cue-free dead Torizo animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, DeadTorizoAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 

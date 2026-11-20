@@ -315,8 +315,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     /// <summary>Plays a shutter's cue-free animation on to its next frame after its frame expired.</summary>
     private static AnimationPlayback<ShutterSegment> PlayShutterAnimation(RoomEnemyPlace place, AnimationPlayback<ShutterSegment> playback)
     {
-        EnemyAnimationPlayback.Play(place, ShutterAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"A shutter's cue-free animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, ShutterAnimations.Segments, ref playback);
         return playback;
     }
 

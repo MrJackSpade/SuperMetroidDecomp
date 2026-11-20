@@ -453,15 +453,13 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances the Dachora body's cue-free typed animation.</summary>
     internal static void AdvanceDachoraTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, DachoraAnimations.Segments,
-            static (DachoraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, DachoraAnimations.Segments,
+            static (DachoraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Advances a speed-boost echo's cue-free typed animation.</summary>
     internal static void AdvanceDachoraEchoTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, DachoraAnimations.Segments,
-            static (DachoraEchoState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora echo animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, DachoraAnimations.Segments,
+            static (DachoraEchoState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs a speed-boost echo's main AI, which needs only the frame counter's parity.</summary>
     internal static void RunDachoraEchoMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>

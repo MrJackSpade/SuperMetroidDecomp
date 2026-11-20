@@ -490,9 +490,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances the body's pulse.</summary>
     internal static void AdvancePowampBodyTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PowampAnimations.Segments,
-            static (PowampBodyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => RaisesNoCues(cue));
+        EnemyAnimationPlayback.AdvanceSilently(place, PowampAnimations.Segments,
+            static (PowampBodyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Advances the balloon's inflate or sink animation and the poses it shows.</summary>
     internal static void AdvancePowampBalloonTypedAnimation(RoomEnemyPlace place)
@@ -502,17 +501,14 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampBalloonState balloon = place.RequireSpeciesState<PowampBalloonState>();
         AnimationPlayback<PowampSegment> playback = balloon.Playback;
         // Every frame of the balloon's animations is one of its poses, so each frame shown records the next pose.
-        EnemyAnimationPlayback.Play(place, PowampAnimations.Segments, ref playback, pose =>
+        EnemyAnimationPlayback.PlaySilently(place, PowampAnimations.Segments, ref playback, pose =>
         {
             balloon.Inflation = balloon.Inflation.AfterShowingPose();
             return pose;
-        }, static cue => RaisesNoCues(cue));
+        });
         balloon.Playback = playback;
     }
 
-    /// <summary>Rejects a cue: no Powamp animation raises one.</summary>
-    private static AnimationContinuation<PowampSegment>? RaisesNoCues(NoAnimationCue cue) =>
-        throw new InvalidOperationException($"Powamp's cue-free animation raised {cue}.");
 
     /// <summary>Propagates power-bomb reaction state from the body to its balloon.</summary>
     internal EnemyPowerBombReaction PowampBodyPowerBombReaction => field ??= new()

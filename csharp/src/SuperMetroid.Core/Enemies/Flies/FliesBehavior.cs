@@ -168,8 +168,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         FlyEnemyState state = place.RequireSpeciesState<FlyEnemyState>();
         AnimationPlayback<FlySegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, FlyAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"A cue-free fly animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, FlyAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 

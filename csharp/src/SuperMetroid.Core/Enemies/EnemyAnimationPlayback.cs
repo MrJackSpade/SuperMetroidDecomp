@@ -146,6 +146,47 @@ internal static class EnemyAnimationPlayback
         where TEvent : notnull =>
         Play(place, segments, ref playback, Shown, react);
 
+    /// <summary>
+    /// One typed-animation step of a species whose animations raise no event (#2553): frames, holds and repeats only, as
+    /// <see cref="Advance{TState, TSegment, TEvent}(RoomEnemyPlace, AnimationSegments{TSegment, EnemyFrameId, TEvent}, Func{TState, AnimationPlayback{TSegment}}, Action{TState, AnimationPlayback{TSegment}}, Func{TState, TEvent, AnimationContinuation{TSegment}?})"/>
+    /// steps one with events. <see cref="NoAnimationCue"/> has no member, so the step takes no reaction to carry one out.
+    /// </summary>
+    internal static void AdvanceSilently<TState, TSegment>(
+        RoomEnemyPlace place,
+        AnimationSegments<TSegment, EnemyFrameId, NoAnimationCue> segments,
+        Func<TState, AnimationPlayback<TSegment>> read,
+        Action<TState, AnimationPlayback<TSegment>> write)
+        where TState : class
+        where TSegment : struct =>
+        Advance(place, segments, read, write, static (TState _, NoAnimationCue _) => null);
+
+    /// <summary>
+    /// Plays an animation that raises no event and shows the species' installed frames directly (#2553), as
+    /// <see cref="Play{TSegment, TEvent}(RoomEnemyPlace, AnimationSegments{TSegment, EnemyFrameId, TEvent}, ref AnimationPlayback{TSegment}, Func{TEvent, AnimationContinuation{TSegment}?})"/>
+    /// plays one with events.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    internal static void PlaySilently<TSegment>(
+        RoomEnemyPlace place,
+        AnimationSegments<TSegment, EnemyFrameId, NoAnimationCue> segments,
+        ref AnimationPlayback<TSegment> playback)
+        where TSegment : struct =>
+        Play(place, segments, ref playback, Shown, static (NoAnimationCue _) => null);
+
+    /// <summary>
+    /// Plays an animation that raises no event and shows its frames through <paramref name="frame"/> (#2553), as the other
+    /// overload plays one that shows the installed frames directly.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    internal static void PlaySilently<TSegment, TFrame>(
+        RoomEnemyPlace place,
+        AnimationSegments<TSegment, TFrame, NoAnimationCue> segments,
+        ref AnimationPlayback<TSegment> playback,
+        Func<TFrame, EnemyFrameId> frame)
+        where TSegment : struct
+        where TFrame : struct =>
+        Play(place, segments, ref playback, frame, static (NoAnimationCue _) => null);
+
     /// <summary>An installed frame an animation names outright, which it shows as it is.</summary>
     private static EnemyFrameId Shown(EnemyFrameId frame) => frame;
 

@@ -374,6 +374,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         if (!population.Placements.IsEmpty)
             Presentation.DrawPopulation(population);
         PopulationLoader.LoadPopulation(
+            Species,
             definitions,
             population,
             new EnemyPopulationSurroundings(request.Level, request.Samus, request.ControllerInput, request.Camera));

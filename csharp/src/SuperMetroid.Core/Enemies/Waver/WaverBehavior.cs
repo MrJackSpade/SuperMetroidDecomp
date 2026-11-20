@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
 
@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>The Waver species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class WaverBehavior : IEnemySpecies, IEnemySpawnFactory<WaverSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Waver];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WaverEntity(this, occupant, place, common, occupant.SpawnSettings<WaverSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, WaverSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WaverEntity(this, occupant, place, common, settings));
 
     /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;

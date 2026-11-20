@@ -11,14 +11,15 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 [RoomLifetime]
 internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fune, EnemyDefinitionId.Namihe];
-
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(occupant).DefinitionId == EnemyDefinitionId.Namihe
-            ? EnemyOccupant.Running(new NamiheEntity(this, occupant, place, common, occupant.SpawnSettings<NamiheSpawnSettings>()))
-            : EnemyOccupant.Running(new FuneEntity(this, occupant, place, common, occupant.SpawnSettings<FuneSpawnSettings>()));
+    /// <summary>A Fune or a Namihe, each from its own settings.</summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
+    {
+        Ensure.NotNull(registrar).Spawns<NamiheSpawnSettings>([EnemyDefinitionId.Namihe], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new NamiheEntity(this, occupant, place, common, settings)));
+        registrar.Spawns<FuneSpawnSettings>([EnemyDefinitionId.Fune], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new FuneEntity(this, occupant, place, common, settings)));
+    }
 
     /// <summary>Allocates the shared directional fireball fired by either species' animation.</summary>
     private readonly EnemyProjectileEngine _projectiles;

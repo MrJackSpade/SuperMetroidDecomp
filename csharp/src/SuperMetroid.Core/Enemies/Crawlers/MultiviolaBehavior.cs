@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>The Multiviola species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySpawnFactory<MultiviolaSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Multiviola];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MultiviolaEntity(this, occupant, place, common, occupant.SpawnSettings<MultiviolaSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, MultiviolaSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MultiviolaEntity(this, occupant, place, common, settings));
 
     /// <summary>Room collision mover used after each attempted Multiviola velocity component.</summary>
     private readonly EnemyTerrain _terrain;

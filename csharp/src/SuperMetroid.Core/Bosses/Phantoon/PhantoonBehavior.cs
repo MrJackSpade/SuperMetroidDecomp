@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The Phantoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
@@ -18,7 +18,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Phantoon's body, eye, tentacles or mouth (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Phantoon definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.PhantoonBody)

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -9,18 +9,18 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The escape animals species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemySpawnFactory<EscapeEtecoonSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.EtecoonEscape, EnemyDefinitionId.DachoraEscape];
 
     /// <summary>An escaping Etecoon, or the escaping Dachora (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no escape animals definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EscapeEtecoonSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.EtecoonEscape)
-            return EnemyOccupant.Running(new EscapeEtecoonEntity(this, occupant, place, common, occupant.SpawnSettings<EscapeEtecoonSpawnSettings>()));
+            return EnemyOccupant.Running(new EscapeEtecoonEntity(this, occupant, place, common, settings));
         if (definition == EnemyDefinitionId.DachoraEscape)
             return EnemyOccupant.PlacedOnly(new EscapeDachoraEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The escape animals species creates no {occupant.DefinitionId}.");

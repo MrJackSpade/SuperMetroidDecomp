@@ -4,23 +4,27 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// A piece of Lower Norfair Ridley's breakup explosion (#2146): it flies apart by its own AI and animation, answers
-/// Ridley's hitboxes, and takes the shared reactions its definition names.
+/// Ridley's hitboxes, and takes the shared reactions its definition names. It joins the breakup that spawned it as it is
+/// built, and holds the state its setup builds from it (#2554).
 /// </summary>
-/// <param name="ridley">The Lower Norfair Ridley owner.</param>
+/// <param name="death">Lower Norfair Ridley's death, which spawns the breakup.</param>
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the piece occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class RidleyBreakupPieceEntity(NorfairRidleyBehavior ridley, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
+/// <param name="settings">The part of Ridley the piece is.</param>
+/// <param name="breakup">The breakup the piece joins.</param>
+internal sealed class RidleyBreakupPieceEntity(NorfairRidleyDeath death, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    RidleyExplosionSpawnSettings settings, RidleyBreakupSource breakup)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
-    /// <inheritdoc/>
-    public void Initialize() => ridley.Death.InitializeNorfairRidleyExplosion(Occupant, Occupant.SpawnSettings<RidleyExplosionSpawnSettings>(), Place, Place.RequireSpeciesState<RidleyBreakupSource>());
+    /// <summary>The piece's flight, which its setup builds from the breakup it joins.</summary>
+    private RidleyExplosionFragmentState Fragment { get; } = death.InitializeNorfairRidleyExplosion(occupant, settings, place, breakup);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ridley.Death.RunNorfairRidleyExplosionMain(Occupant, Occupant.Place.RequireSpeciesState<RidleyExplosionFragmentState>(), frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => death.RunNorfairRidleyExplosionMain(Occupant, Fragment, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(Place, Place.RequireSpeciesState<RidleyExplosionFragmentState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(Place, Fragment);
 
     /// <summary>None: the game defines no hitboxes for a breakup piece's frames (#2335).</summary>
     /// <param name="probe">The colliding edges and walker.</param>

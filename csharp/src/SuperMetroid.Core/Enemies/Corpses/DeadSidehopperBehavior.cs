@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The dead sidehopper species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory<DeadSidehopperSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseSidehopper];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new DeadSidehopperEntity(this, occupant, place, common, occupant.SpawnSettings<DeadSidehopperSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, DeadSidehopperSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new DeadSidehopperEntity(this, occupant, place, common, settings));
 
     /// <summary>Provides installed artwork and the room random source for corpse decomposition.</summary>
     private readonly EnemyRoomBinding _room;

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>The Atomic species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class AtomicBehavior : IEnemySpecies, IEnemySpawnFactory<AtomicSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Atomic];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new AtomicEntity(occupant, place, common, occupant.SpawnSettings<AtomicSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, AtomicSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new AtomicEntity(occupant, place, common, settings));
 
 
     /// <summary>Initializes the Atomic.</summary>

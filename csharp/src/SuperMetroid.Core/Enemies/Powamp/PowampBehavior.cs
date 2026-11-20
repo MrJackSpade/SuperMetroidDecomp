@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>The Powamp species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Powamp];
@@ -20,10 +20,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// A Powamp's body or balloon, as the placement's settings name the part it is (#2163). The balloon shares the body's
     /// definition; only its placement tells them apart.
     /// </summary>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        occupant.SpawnSettings<PowampSpawnSettings>() is PowampBalloonSpawnSettings
-            ? EnemyOccupant.PlacedOnly(new PowampBalloonEntity(this, occupant, place, common, occupant.SpawnSettings<PowampSpawnSettings>()))
-            : EnemyOccupant.Running(new PowampBodyEntity(this, occupant, place, common, occupant.SpawnSettings<PowampSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, PowampSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        settings is PowampBalloonSpawnSettings
+            ? EnemyOccupant.PlacedOnly(new PowampBalloonEntity(this, occupant, place, common, settings))
+            : EnemyOccupant.Running(new PowampBodyEntity(this, occupant, place, common, settings));
 
     /// <summary>Clips body rise and sink motion against room collision.</summary>
     private readonly EnemyTerrain _terrain;

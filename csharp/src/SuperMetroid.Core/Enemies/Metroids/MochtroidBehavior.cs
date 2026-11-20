@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The Mochtroid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class MochtroidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mochtroid];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MochtroidEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MochtroidEntity(this, occupant, place, common));
 
     /// <summary>Resolves axis movement against terrain in the order for each flight mode.</summary>
     private readonly EnemyTerrain _terrain;

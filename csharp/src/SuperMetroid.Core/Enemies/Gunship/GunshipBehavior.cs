@@ -20,24 +20,17 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
 
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.ShipBottomEntrance, EnemyDefinitionId.ShipTop];
-
-    /// <summary>The gunship's top hull, which moves the ship, or its bottom hull with the entrance pad (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no gunship definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
-
-    /// <inheritdoc/>
-    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-        EnemyPopulationSurroundings surroundings)
+    /// <summary>
+    /// The gunship's top hull, which moves the ship, and its bottom hull with the entrance pad (#2146): only the room's
+    /// population load places them, as each reads the load's surroundings.
+    /// </summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.ShipTop)
-            return EnemyOccupant.Running(new GunshipTopEntity(this, occupant, place, common, surroundings));
-        if (definition == EnemyDefinitionId.ShipBottomEntrance)
-            return EnemyOccupant.PlacedOnly(new GunshipBottomEntity(this, occupant, place, common, surroundings, occupant.SpawnSettings<GunshipSpawnSettings>()));
-        throw new InvalidOperationException($"The gunship species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Loads<EnemySpawnSettings>([EnemyDefinitionId.ShipTop], (occupant, _, place, common, surroundings) =>
+            EnemyOccupant.Running(new GunshipTopEntity(this, occupant, place, common, surroundings)));
+        registrar.Loads<GunshipSpawnSettings>([EnemyDefinitionId.ShipBottomEntrance], (occupant, settings, place, common, surroundings) =>
+            EnemyOccupant.PlacedOnly(new GunshipBottomEntity(this, occupant, place, common, surroundings, settings)));
     }
 
     /// <summary>Queues engine and entrance-pad sounds at the frame boundaries.</summary>

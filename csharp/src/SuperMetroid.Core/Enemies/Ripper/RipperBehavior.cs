@@ -9,21 +9,16 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 [RoomLifetime]
 internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.GrappleRipper, EnemyDefinitionId.Ripper, EnemyDefinitionId.JetRipper];
-
     /// <summary>The grapple Ripper, the ordinary Ripper or the jet Ripper (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Ripper definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.GrappleRipper)
-            return EnemyOccupant.Running(new GrappleRipperEntity(this, occupant, place, common, occupant.SpawnSettings<GrappleRipperSpawnSettings>()));
-        if (definition == EnemyDefinitionId.JetRipper)
-            return EnemyOccupant.Running(new JetRipperEntity(this, occupant, place, common, occupant.SpawnSettings<RipperSpawnSettings>()));
-        if (definition == EnemyDefinitionId.Ripper)
-            return EnemyOccupant.Running(new OrdinaryRipperEntity(this, occupant, place, common, occupant.SpawnSettings<RipperSpawnSettings>()));
-        throw new InvalidOperationException($"The Ripper species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<GrappleRipperSpawnSettings>([EnemyDefinitionId.GrappleRipper], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new GrappleRipperEntity(this, occupant, place, common, settings)));
+        registrar.Spawns<RipperSpawnSettings>([EnemyDefinitionId.JetRipper], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new JetRipperEntity(this, occupant, place, common, settings)));
+        registrar.Spawns<RipperSpawnSettings>([EnemyDefinitionId.Ripper], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new OrdinaryRipperEntity(this, occupant, place, common, settings)));
     }
 
     /// <summary>Resolves horizontal wall collisions for all three Ripper variants.</summary>

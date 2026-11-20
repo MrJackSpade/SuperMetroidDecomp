@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The walking space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactory<WalkingSpacePirateSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWalking, EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionId.PirateGreyWalking, EnemyDefinitionId.PirateMagentaWalking, EnemyDefinitionId.PirateRedWalking, EnemyDefinitionId.PirateSilverWalking];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WalkingSpacePirateEntity(this, occupant, place, common, occupant.SpawnSettings<WalkingSpacePirateSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, WalkingSpacePirateSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WalkingSpacePirateEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies solid-ground and ledge probes for the patrol AI.</summary>
     private readonly EnemyTerrain _terrain;

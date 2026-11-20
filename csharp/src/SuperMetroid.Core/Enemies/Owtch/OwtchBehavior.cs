@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>The Owtch species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new OwtchEntity(this, occupant, place, common, occupant.SpawnSettings<OwtchSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, OwtchSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new OwtchEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies the shared room random sequence used for burial and emergence.</summary>
     private readonly EnemyRoomBinding _room;

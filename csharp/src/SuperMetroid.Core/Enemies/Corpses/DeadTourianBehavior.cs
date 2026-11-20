@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The dead Tourian corpse species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFactory<CorpseSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DeadTourianCorpseSpeciesDefinitions.Species.Keys];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new DeadTourianEntity(this, occupant, place, common, occupant.SpawnSettings<CorpseSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, CorpseSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new DeadTourianEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies the room RNG used during decomposition.</summary>
     private readonly EnemyRoomBinding _room;

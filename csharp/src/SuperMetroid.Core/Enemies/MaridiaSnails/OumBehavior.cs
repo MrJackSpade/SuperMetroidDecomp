@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>The Oum species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class OumBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Oum];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new OumEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new OumEntity(this, occupant, place, common));
 
     /// <summary>Resolves floor, ledge, and wall contact during bounce and roll phases.</summary>
     private readonly EnemyTerrain _terrain;

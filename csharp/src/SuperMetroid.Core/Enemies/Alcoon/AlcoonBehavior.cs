@@ -8,17 +8,13 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>The Alcoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Alcoon];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
-
-    /// <inheritdoc/>
-    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new AlcoonEntity(this, occupant, place, common, surroundings));
 
     /// <summary>Provides RNG for the randomized post-volley walk count.</summary>

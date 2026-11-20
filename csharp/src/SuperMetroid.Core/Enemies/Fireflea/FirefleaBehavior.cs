@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>The Fireflea species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class FirefleaBehavior : IEnemySpecies, IEnemySpawnFactory<FirefleaSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fireflea];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new FirefleaEntity(this, occupant, place, common, occupant.SpawnSettings<FirefleaSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, FirefleaSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new FirefleaEntity(this, occupant, place, common, settings));
 
     /// <summary>Runs the common touch, after which the Fireflea always dies.</summary>
     private readonly EnemyCollision _collision;

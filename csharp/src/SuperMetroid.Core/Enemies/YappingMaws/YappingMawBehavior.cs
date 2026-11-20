@@ -14,13 +14,13 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>The Yapping Maw species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<YappingMawSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.YappingMaw];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new YappingMawEntity(this, occupant, place, common, occupant.SpawnSettings<YappingMawSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, YappingMawSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new YappingMawEntity(this, occupant, place, common, settings));
 
     /// <summary>Creates the four auxiliary body-link projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;

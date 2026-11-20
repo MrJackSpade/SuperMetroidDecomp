@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>The Polyp species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class PolypBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Polyp];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new PolypEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new PolypEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared room RNG and enemy state used by all Polyp actors.</summary>
     private readonly EnemyRoomBinding _room;

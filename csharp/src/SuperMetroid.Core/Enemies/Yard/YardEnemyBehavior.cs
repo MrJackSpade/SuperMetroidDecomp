@@ -14,13 +14,13 @@ namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>The Yard species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<YardSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Yard];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new YardEntity(this, occupant, place, common, occupant.SpawnSettings<YardSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, YardSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new YardEntity(this, occupant, place, common, settings));
 
     /// <summary>Provides active room context for Yard initialization and main AI.</summary>
     private readonly EnemyRoomBinding _room;

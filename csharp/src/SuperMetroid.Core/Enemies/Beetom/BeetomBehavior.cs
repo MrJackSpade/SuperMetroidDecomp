@@ -8,17 +8,13 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>The Beetom species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class BeetomBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Beetom];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
-
-    /// <inheritdoc/>
-    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new BeetomEntity(this, occupant, place, common, surroundings));
 
     /// <summary>Supplies the shared RNG seed and generation used by Beetom action choice.</summary>

@@ -65,23 +65,18 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         place.Shading = shown.With(flash);
     }
 
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kamer, EnemyDefinitionId.ShutterDestroyable, EnemyDefinitionId.ShutterGrowing, EnemyDefinitionId.ShutterShootable];
-
     /// <summary>The growing shutter, a shootable vertical shutter, the Kamer that reuses it, or a destroyable vertical shutter (#2146, #2179).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Shutters definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.ShutterGrowing)
-            return EnemyOccupant.Running(new GrowingShutterEntity(this, occupant, place, common, occupant.SpawnSettings<GrowingShutterSpawnSettings>()));
-        if (definition == EnemyDefinitionId.ShutterShootable)
-            return EnemyOccupant.Running(new ShootableShutterEntity(this, occupant, place, common, occupant.SpawnSettings<ShutterSpawnSettings>(), ShutterSegment.FullyGrown));
-        if (definition == EnemyDefinitionId.Kamer)
-            return EnemyOccupant.Running(new KamerEntity(this, occupant, place, common, occupant.SpawnSettings<ShutterSpawnSettings>()));
-        if (definition == EnemyDefinitionId.ShutterDestroyable)
-            return EnemyOccupant.Of(new DestroyableShutterEntity(this, occupant, place, common, occupant.SpawnSettings<ShutterSpawnSettings>()));
-        throw new InvalidOperationException($"The Shutters species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<GrowingShutterSpawnSettings>([EnemyDefinitionId.ShutterGrowing], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new GrowingShutterEntity(this, occupant, place, common, settings)));
+        registrar.Spawns<ShutterSpawnSettings>([EnemyDefinitionId.ShutterShootable], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new ShootableShutterEntity(this, occupant, place, common, settings, ShutterSegment.FullyGrown)));
+        registrar.Spawns<ShutterSpawnSettings>([EnemyDefinitionId.Kamer], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new KamerEntity(this, occupant, place, common, settings)));
+        registrar.Spawns<ShutterSpawnSettings>([EnemyDefinitionId.ShutterDestroyable], (occupant, settings, place, common) =>
+            EnemyOccupant.Of(new DestroyableShutterEntity(this, occupant, place, common, settings)));
     }
 
     /// <summary>Initializes the growing shutter.</summary>

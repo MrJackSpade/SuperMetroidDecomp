@@ -544,11 +544,15 @@ internal sealed class EnemyDeathsAndDrops
     internal void RespawnEnemyFromSnapshot(PopulatedEnemyPlace killedIn)
     {
         RoomEnemyPlace place = killedIn.Place;
-        RoomEnemyPlacement spawn = killedIn.LastSpawn;
-        RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(spawn.DefinitionId);
+        // The place keeps the entry of its latest occupant, bound to the creation that built it (#2554). Only an entry whose
+        // species a respawn builds lets its enemy respawn, as its binding checks.
+        EnemySpawn spawn = killedIn.LatestOccupant.Entry;
+        if (spawn.Respawn is not { } rebuild)
+            return;
+        RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(spawn.Placement.DefinitionId);
         // A respawned enemy keeps the empty frame its death left unless its setup chooses one, until its first cue. An
         // empty frame also keeps the respawned enemy from touching Samus before then.
-        _lifecycle.SetUpSpawnedEnemy(_lifecycle.InitializePlaceFromDefinition(place, spawn, definition));
+        _lifecycle.SetUpSpawnedEnemy(_lifecycle.InitializePlaceFromDefinition(place, spawn, definition), rebuild);
     }
 
     /// <summary>

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>The Boyon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class BoyonBehavior : IEnemySpecies, IEnemySpawnFactory<BoyonSpawnSettings>
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -18,7 +18,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boyon];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BoyonEntity(this, occupant, place, common, occupant.SpawnSettings<BoyonSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, BoyonSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BoyonEntity(this, occupant, place, common, settings));
 
     /// <summary>Carries out one cue of Boyon's animations.</summary>
     private void ApplyBoyonCue(RoomEnemyPlace place, BoyonEnemyState state, BoyonCue cue)

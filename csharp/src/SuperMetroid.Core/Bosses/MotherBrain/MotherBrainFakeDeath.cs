@@ -26,6 +26,8 @@ internal sealed class MotherBrainFakeDeath
     private readonly MotherBrainEncounterAccess _access;
     /// <summary>Mother Brain's projectiles, whose ceiling tubes the collapse drops.</summary>
     private readonly MotherBrainProjectiles _projectileAttacks;
+    /// <summary>Builds the falling tubes, which join the encounter whose fake death drops them.</summary>
+    private readonly IEnemyJoiningFactory<MotherBrainEnemyState, MotherBrainTubeSpawnSettings> _tubes;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainFakeDeath(MotherBrainFakeDeathDependencies dependencies)
@@ -39,6 +41,7 @@ internal sealed class MotherBrainFakeDeath
 
         _access = dependencies.Access;
         _projectileAttacks = dependencies.ProjectileAttacks;
+        _tubes = dependencies.Tubes;
     }
 
     /// <summary>
@@ -164,11 +167,13 @@ internal sealed class MotherBrainFakeDeath
 
         // A spawn quietly does nothing when every enemy place is occupied.
         // Each tube holds the encounter that spawned it from its setup (#2218).
-        _ = _lifecycle.SpawnEnemyJoining(population, state);
+        _ = _lifecycle.SpawnEnemy(new JoiningEnemySpawn<MotherBrainEnemyState, MotherBrainTubeSpawnSettings>(
+            population, new MotherBrainTubeSpawnSettings(piece), _tubes, state));
     }
 
     /// <summary>Initializes a falling tube.</summary>
-    internal static void InitializeMotherBrainFallingTube(RoomEnemyOccupant occupant, MotherBrainTubeSpawnSettings settings, RoomEnemyPlace tube)
+    /// <returns>The state the tube holds from its setup.</returns>
+    internal static MotherBrainFallingTubeState InitializeMotherBrainFallingTube(RoomEnemyOccupant occupant, MotherBrainTubeSpawnSettings settings, RoomEnemyPlace tube)
     {
         MotherBrainTubePiece piece = settings.Piece;
         MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(piece);
@@ -181,7 +186,7 @@ internal sealed class MotherBrainFakeDeath
         // Only the main tube waits before it falls; the side tubes fall from their first update.
         if (main)
             state.FallDelay.LastFor(MotherBrainFallingTubePopulationDefinitions.MainFallWaitUpdates);
-        tube.SetSpeciesState(state);
+        return state;
     }
 
     /// <summary>Runs the actions of the falling tubes.</summary>

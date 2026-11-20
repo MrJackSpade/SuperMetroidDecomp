@@ -6,8 +6,9 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="place">The place the head occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="surroundings">The room, Samus, controller and camera the population load sets the head up in.</param>
+/// <param name="settings">What the head's population entry tells it: its speed and range.</param>
 internal sealed class MagdolliteHeadEntity(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    EnemyPopulationSurroundings surroundings)
+    EnemyPopulationSurroundings surroundings, MagdolliteHeadSpawnSettings settings)
     : MagdollitePartEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>
@@ -16,9 +17,12 @@ internal sealed class MagdolliteHeadEntity(MagdolliteBehavior species, RoomEnemy
     /// <summary>The head's state, which its setup builds as the enemy is built (#2554).</summary>
     private MagdolliteHeadState Head { get; } = species.InitializeMagdolliteHead(occupant, place, Ensure.NotNull(surroundings).Samus);
 
+    /// <summary>What the head's population entry tells it.</summary>
+    private MagdolliteHeadSpawnSettings Settings { get; } = Ensure.NotNull(settings);
+
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) =>
-        Species.RunMagdolliteHead(Occupant, Occupant.SpawnSettings<MagdolliteHeadSpawnSettings>(), Place, Head, Ensure.NotNull(frame).Samus);
+        Species.RunMagdolliteHead(Occupant, Settings, Place, Head, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) =>

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>The Evir species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class EvirBehavior : IEnemySpecies, IEnemySpawnFactory<EvirSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Evir, EnemyDefinitionId.EvirProjectile];
@@ -16,14 +16,14 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// body's definition; only their placement tells them apart.
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no Evir definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EvirSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Evir)
         {
-            return occupant.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
+            return settings.Part == EvirBodyPart.Arms
                 ? EnemyOccupant.Running(new EvirArmsEntity(this, occupant, place, common))
-                : EnemyOccupant.Running(new EvirBodyEntity(this, occupant, place, common, surroundings, occupant.SpawnSettings<EvirSpawnSettings>()));
+                : EnemyOccupant.Running(new EvirBodyEntity(this, occupant, place, common, surroundings, settings));
         }
         if (definition == EnemyDefinitionId.EvirProjectile)
             return EnemyOccupant.Running(new EvirSpitEntity(this, occupant, place, common));

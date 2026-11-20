@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>The Spore Spawn species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -20,7 +20,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SporeSpawn];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SporeSpawnEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SporeSpawnEntity(this, occupant, place, common));
 
     /// <summary>Provides boss event state, installed colors, and the room RNG.</summary>
     private readonly EnemyRoomBinding _room;

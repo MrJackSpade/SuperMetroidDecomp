@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// segments and spit (#1801): it is their projectile behaviour, since a segment is a piece of Botwoon run from his state.
 /// </summary>
 [RoomLifetime]
-internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonProjectileMotion>, IEnemySpecies, IEnemyEntityFactory
+internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonProjectileMotion>, IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -24,7 +24,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Botwoon];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BotwoonEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BotwoonEntity(this, occupant, place, common));
 
     /// <summary>Active room services and RNG used by path and drop decisions.</summary>
     private readonly EnemyRoomBinding _room;

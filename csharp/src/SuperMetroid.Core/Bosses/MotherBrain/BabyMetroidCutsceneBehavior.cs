@@ -11,13 +11,16 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Baby Metroid cutscene species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
+internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory, IEnemyJoiningFactory<BabyMetroidCutsceneState, EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroidCutscene];
+    /// <summary>The cutscene Baby, only spawned joining the late fight that makes it (<see cref="SpawnMotherBrainBabyMetroid"/>).</summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar) => Ensure.NotNull(registrar).Joins([EnemyDefinitionId.BabyMetroidCutscene]);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BabyMetroidCutsceneEntity(this, occupant, place, common));
+    /// <summary>The Baby its late fight made in its place, which it holds from its setup (#2218, #2471, #2554).</summary>
+    public EnemyOccupant CreateJoining(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        BabyMetroidCutsceneState encounter) =>
+        EnemyOccupant.Running(new BabyMetroidCutsceneEntity(this, occupant, place, common, encounter));
 
     /// <summary>Initializes the dynamically allocated Baby through the ordinary enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;
@@ -63,9 +66,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         RoomEnemyPlacement population = MotherBrainBabyMetroidDefinitions.SpawnPopulation;
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
-        RoomEnemyOccupant occupant = _lifecycle.InitializePlaceFromDefinition(babyPlace, population, definition);
         // The Baby holds the Baby its late fight makes in its place, from its setup (#2218, #2471, #2554).
-        _lifecycle.SetUpEnemyJoining(occupant, lateFight.MakeBaby(babyPlace));
+        var spawn = new JoiningEnemySpawn<BabyMetroidCutsceneState, EnemySpawnSettings>(population, population.SpawnSettings, this, lateFight.MakeBaby(babyPlace));
+        _lifecycle.SetUpSpawnedEnemy(_lifecycle.InitializePlaceFromDefinition(babyPlace, spawn, definition), spawn);
 
         // Spawning leaves the Baby undrawn after its setup while it animates.
         // Its animation is still live and shows its first visible frame on its first
@@ -77,7 +80,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Sets the Baby up and starts its first animation, showing its own colours as it arrives.</summary>
-    internal static void InitializeMotherBrainBabyMetroid(RoomEnemyPlace place, BabyMetroidCutsceneState baby)
+    /// <returns><paramref name="baby"/>, which the Baby holds from its setup.</returns>
+    internal static BabyMetroidCutsceneState InitializeMotherBrainBabyMetroid(RoomEnemyPlace place, BabyMetroidCutsceneState baby)
     {
         MotherBrainEnemyState state = baby.LateFight.Encounter;
         // The place keeps its previous occupant's fractions, which the Baby starts from (BabyMetroidArrivalFractions).
@@ -93,6 +97,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         // The Baby arrives in its own colours; where it is transparent the room's backdrop shows.
         ShowBabyMetroidArrival(state.Colours);
+        return baby;
     }
 
     /// <summary>Shows the Baby's arrival colours.</summary>

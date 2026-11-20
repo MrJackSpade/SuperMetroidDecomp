@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>The Puyo species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class PuyoBehavior : IEnemySpecies, IEnemySpawnFactory<PuyoSpawnSettings>
 {
     /// <summary>Whether a hop is one of the three ordinary hops that proximity and chance choose between.</summary>
     private static bool IsNormalHop(PuyoHopType type) =>
@@ -17,7 +17,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Puyo];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new PuyoEntity(this, occupant, place, common, occupant.SpawnSettings<PuyoSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, PuyoSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new PuyoEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies the shared room RNG used when choosing Puyo hop type and bounce height.</summary>
     private readonly EnemyRoomBinding _room;

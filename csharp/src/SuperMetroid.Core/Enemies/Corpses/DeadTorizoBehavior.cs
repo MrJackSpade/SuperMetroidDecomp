@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The dead Torizo species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseTorizo];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new DeadTorizoEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new DeadTorizoEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared random seed.</summary>
     private readonly EnemyRoomBinding _room;

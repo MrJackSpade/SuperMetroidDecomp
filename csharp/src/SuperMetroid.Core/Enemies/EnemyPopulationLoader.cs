@@ -36,8 +36,12 @@ internal sealed class EnemyPopulationLoader
         private set => _room.Session.DeathQuota = value;
     }
 
-    /// <summary>Initializes each population place, runs its AI, and publishes count and kill quota for nonempty populations.</summary>
+    /// <summary>
+    /// Binds each population entry to its species, which checks its settings once (#2554), initializes its place, runs its
+    /// AI, and publishes count and kill quota for nonempty populations.
+    /// </summary>
     internal void LoadPopulation(
+        EnemySpeciesRegistry species,
         IRoomEnemyDefinitionSource definitions,
         RoomEnemyPopulationDefinition populationDefinition,
         EnemyPopulationSurroundings surroundings)
@@ -54,11 +58,12 @@ internal sealed class EnemyPopulationLoader
             }
 
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(enemy);
+            PopulationEnemySpawn spawn = species.Bind(population);
             RoomEnemyPlace place = _places.InUpdateOrder[ordinal];
-            RoomEnemyOccupant occupant = _lifecycle.InitializePlaceFromDefinition(place, population, definition);
+            RoomEnemyOccupant occupant = _lifecycle.InitializePlaceFromDefinition(place, spawn, definition);
             if (definition.Boss is { } boss)
                 _roomStatus.Boss = boss;
-            _lifecycle.SetUpEnemy(occupant, surroundings);
+            _lifecycle.SetUpEnemy(occupant, spawn, surroundings);
 
             // Loading replaces whatever frame the initialization AI showed: an animated enemy shows the empty frame until
             // its first animation tick replaces it, and one that collides by its frames' hitboxes collides at the point

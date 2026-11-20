@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The Draygon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -17,7 +17,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Draygon's body, eye, tail or arms (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Draygon definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.DraygonBody)

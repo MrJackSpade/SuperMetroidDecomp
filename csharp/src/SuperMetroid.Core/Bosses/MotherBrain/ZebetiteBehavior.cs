@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Zebetite species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zebetite];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ZebetiteEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ZebetiteEntity(this, occupant, place, common, linkedTo: null));
 
     /// <summary>Initializes newly spawned Zebetite places through the common enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;
@@ -72,11 +72,14 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         ? PictureShading.Shaded(ZebetiteShades.Pulse(pulse))
         : PictureShading.Standard;
 
-    /// <summary>Sets a Zebetite up when the room spawns it.</summary>
+    /// <summary>
+    /// Sets a Zebetite up when the room spawns it: a linked half spawned by its primary is linked to the primary's place
+    /// (<paramref name="linkedTo"/>) as it is set up (#2554).
+    /// </summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal ZebetiteEnemyState InitializeZebetite(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal ZebetiteEnemyState InitializeZebetite(RoomEnemyOccupant occupant, RoomEnemyPlace place, RoomEnemyPlace? linkedTo)
     {
-        var state = new ZebetiteEnemyState(occupant.Spawn);
+        var state = new ZebetiteEnemyState(occupant.Spawn) { LinkedHalf = linkedTo };
 
         // A Zebetite animates and is solid to Samus.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
@@ -132,11 +135,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place = zebetite.Place;
         if (state.Form == ZebetiteBarrierForm.SplitPair)
         {
-            if (SpawnZebetite(ZebetiteHalf.Linked) is { } secondary)
-            {
-                secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedHalf = place;
+            // The linked half is linked to this half as it is set up.
+            if (SpawnZebetite(ZebetiteHalf.Linked, linkedTo: place) is { } secondary)
                 state.LinkedHalf = secondary;
-            }
         }
 
         state.Action = ZebetiteAction.WaitForDoorTransition;
@@ -181,7 +182,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.ZebetiteProgress.ZebetitesDestroyed = nextGeneration;
         FinishZebetiteDeath(zebetite);
         if (nextGeneration < PersistentProgress.ZebetiteCount)
-            _ = SpawnZebetite(ZebetiteHalf.Primary);
+            _ = SpawnZebetite(ZebetiteHalf.Primary, linkedTo: null);
     }
 
     /// <summary>
@@ -225,7 +226,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Finds a free place in the room's enemies and initializes a primary or linked half from its population entry; a full
     /// pool spawns no half.
     /// </summary>
-    private RoomEnemyPlace? SpawnZebetite(ZebetiteHalf half)
+    private RoomEnemyPlace? SpawnZebetite(ZebetiteHalf half, RoomEnemyPlace? linkedTo)
     {
         // The spawn takes the first free place. In particular, a primary's death vacates
         // its place before spawning the next generation; surviving linked halves keep
@@ -236,7 +237,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlacement population = Zebetites.SpawnPopulation(half, _room.Services.ZebetiteProgress.ZebetitesDestroyed);
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
-        _lifecycle.SetUpSpawnedEnemy(_lifecycle.InitializePlaceFromDefinition(spawned, population, definition));
+        var spawn = new OrdinaryEnemySpawn<EnemySpawnSettings>(population, population.SpawnSettings, (occupant, _, place, common) =>
+            EnemyOccupant.Running(new ZebetiteEntity(this, occupant, place, common, linkedTo)));
+        _lifecycle.SetUpSpawnedEnemy(_lifecycle.InitializePlaceFromDefinition(spawned, spawn, definition), spawn);
         _places.CoverSpawn(spawned);
         return spawned;
     }

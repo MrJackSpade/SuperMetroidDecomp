@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>The Morph Ball eye species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<MorphBallEyeSpawnSettings>
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -19,11 +19,15 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MorphBallEye];
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        occupant.SpawnSettings<MorphBallEyeSpawnSettings>() is MorphBallEyeMountSpawnSettings
-            ? EnemyOccupant.PlacedOnly(new MorphBallEyeMountEntity(this, occupant, place, common, occupant.SpawnSettings<MorphBallEyeMountSpawnSettings>()))
-            : EnemyOccupant.Running(new MorphBallEyeEntity(this, occupant, place, common, occupant.SpawnSettings<MorphBallEyeBodySpawnSettings>()));
+    /// <summary>The eye's mount or its body, as the placement's settings name the part it is.</summary>
+    /// <exception cref="InvalidOperationException">The placement names no part of the eye.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, MorphBallEyeSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        settings switch
+        {
+            MorphBallEyeMountSpawnSettings mount => EnemyOccupant.PlacedOnly(new MorphBallEyeMountEntity(this, occupant, place, common, mount)),
+            MorphBallEyeBodySpawnSettings body => EnemyOccupant.Running(new MorphBallEyeEntity(this, occupant, place, common, body)),
+            var part => throw new InvalidOperationException($"Undefined Morph Ball eye part {part}."),
+        };
 
     /// <summary>The room-global beam an eye body casts.</summary>
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();

@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Enemies.Flies;
 
 /// <summary>The Flies species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class FliesBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.MaridiaFly];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new FliesEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new FliesEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared room RNG whose advance is part of each fly AI update.</summary>
     private readonly EnemyRoomBinding _room;

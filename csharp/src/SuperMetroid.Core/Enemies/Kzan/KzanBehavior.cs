@@ -5,18 +5,18 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>The Kzan species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class KzanBehavior : IEnemySpecies, IEnemySpawnFactory<KzanSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.KzanBottom, EnemyDefinitionId.KzanTop];
 
     /// <summary>A Kzan's top, or the bottom that follows it (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Kzan definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, KzanSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.KzanTop)
-            return EnemyOccupant.Running(new KzanTopEntity(this, occupant, place, common, occupant.SpawnSettings<KzanSpawnSettings>()));
+            return EnemyOccupant.Running(new KzanTopEntity(this, occupant, place, common, settings));
         if (definition == EnemyDefinitionId.KzanBottom)
             return EnemyOccupant.Of(new KzanBottomEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The Kzan species creates no {occupant.DefinitionId}.");

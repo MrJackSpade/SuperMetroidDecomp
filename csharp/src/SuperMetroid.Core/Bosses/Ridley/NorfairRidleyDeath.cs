@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Norfair Ridley's death: the roar, breakup, explosions and the drop.</summary>
 [RoomLifetime]
-internal sealed class NorfairRidleyDeath
+internal sealed class NorfairRidleyDeath : IEnemyJoiningFactory<RidleyBreakupSource, RidleyExplosionSpawnSettings>
 {
     /// <summary>Spawns the enemies Ridley's death releases into the room.</summary>
     private readonly IEnemyLifecycle _lifecycle;
@@ -183,6 +183,7 @@ internal sealed class NorfairRidleyDeath
         {
             // Every piece spawns at the room's origin with the same properties and names its part; its setup
             // places it where that part of Ridley still stands and starts its animation.
+            var settings = new RidleyExplosionSpawnSettings(part);
             RoomEnemyPlacement population = new(
                 EnemyDefinitionId.RidleyBreakupPiece,
                 Placing: EnemyPlacing.At(Position16<RoomPixels>.Zero),
@@ -190,15 +191,22 @@ internal sealed class NorfairRidleyDeath
                 Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
                 Presence: EnemyPresence.None,
                 CollidesByFrameHitboxes: false,
-                SpawnSettings: new RidleyExplosionSpawnSettings(part));
+                SpawnSettings: settings);
             // Each piece's setup starts it from where its part of Ridley stands. A full pool spawns no piece, and the
             // breakup goes on without it.
-            _ = _lifecycle.SpawnEnemyJoining(population, new RidleyBreakupSource(state, body.Position.Whole));
+            _ = _lifecycle.SpawnEnemy(new JoiningEnemySpawn<RidleyBreakupSource, RidleyExplosionSpawnSettings>(
+                population, settings, this, new RidleyBreakupSource(state, body.Position.Whole)));
         }
     }
 
+    /// <summary>A piece of the breakup <paramref name="encounter"/> names, which it joins as it is built (#2231, #2554).</summary>
+    public EnemyOccupant CreateJoining(RoomEnemyOccupant occupant, RidleyExplosionSpawnSettings settings, RoomEnemyPlace place,
+        EnemyCommonParticipation common, RidleyBreakupSource encounter) =>
+        EnemyOccupant.Running(new RidleyBreakupPieceEntity(this, occupant, place, common, settings, encounter));
+
     /// <summary>Sets up one of the breakup's twelve pieces from the breakup it joined.</summary>
-    internal void InitializeNorfairRidleyExplosion(RoomEnemyOccupant occupant, RidleyExplosionSpawnSettings ridleyExplosionSpawnSettings, RoomEnemyPlace fragment, RidleyBreakupSource source)
+    /// <returns>The state the piece holds from its setup.</returns>
+    internal RidleyExplosionFragmentState InitializeNorfairRidleyExplosion(RoomEnemyOccupant occupant, RidleyExplosionSpawnSettings ridleyExplosionSpawnSettings, RoomEnemyPlace fragment, RidleyBreakupSource source)
     {
         NorfairRidleyState state = source.Ridley;
         RidleyExplosionPart part = ridleyExplosionSpawnSettings.Part;
@@ -228,7 +236,7 @@ internal sealed class NorfairRidleyDeath
             Picture = picture,
         };
         fragmentState.Lifetime.LastFor(RidleyExplosionDefinitions.LifetimeUpdates[part]);
-        fragment.SetSpeciesState(fragmentState);
+        return fragmentState;
     }
 
     /// <summary>Runs a breakup piece's update: flicker, drag, gravity, movement, and lifetime.</summary>

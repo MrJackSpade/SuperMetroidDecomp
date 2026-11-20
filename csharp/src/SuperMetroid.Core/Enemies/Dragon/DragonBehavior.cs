@@ -6,14 +6,14 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>The Dragon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dragon];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        occupant.SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, DragonSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        settings.Part == DragonPart.Wing
             ? EnemyOccupant.PlacedOnly(new DragonWingEntity(this, occupant, place, common))
             : EnemyOccupant.Running(new DragonEntity(this, occupant, place, common));
 

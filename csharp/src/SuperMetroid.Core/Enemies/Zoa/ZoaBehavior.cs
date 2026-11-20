@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>The Zoa species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class ZoaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zoa];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ZoaEntity(occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ZoaEntity(occupant, place, common));
 
     /// <summary>Advances Zoa's typed animation (#641) in place of the shared enemy animation.</summary>
     internal static void AdvanceZoaAnimation(RoomEnemyPlace place, ZoaEnemyState state)

@@ -9,17 +9,13 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The Fake Kraid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FakeKraid];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
-
-    /// <inheritdoc/>
-    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new FakeKraidEntity(this, occupant, place, common, surroundings));
 
     /// <summary>Provides the existing random number sampled for Fake Kraid's action decisions.</summary>

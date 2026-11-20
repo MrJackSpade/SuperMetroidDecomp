@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The Crocomire species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class CrocomireBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -16,7 +16,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Crocomire's body, or his tongue (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Crocomire definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Crocomire)

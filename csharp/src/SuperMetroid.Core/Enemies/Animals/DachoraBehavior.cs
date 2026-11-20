@@ -10,16 +10,16 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The Dachora species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class DachoraBehavior : IEnemySpecies, IEnemySpawnFactory<DachoraSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dachora];
 
     /// <summary>A Dachora's body, or one of the speed-boost echoes its placement names (#2283).</summary>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        occupant.SpawnSettings<DachoraSpawnSettings>().Role == DachoraRole.SpeedBoostEcho
-            ? EnemyOccupant.Running(LinkEcho(new DachoraEchoEntity(occupant, place, common, occupant.SpawnSettings<DachoraSpawnSettings>())))
-            : EnemyOccupant.Running(new DachoraEntity(this, occupant, place, common, occupant.SpawnSettings<DachoraSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, DachoraSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        settings.Role == DachoraRole.SpeedBoostEcho
+            ? EnemyOccupant.Running(LinkEcho(new DachoraEchoEntity(occupant, place, common, settings)))
+            : EnemyOccupant.Running(new DachoraEntity(this, occupant, place, common, settings));
 
     /// <summary>Each speed-boost echo's state, under its place, linked as the echo is built (#2554).</summary>
     private readonly EnemyPartLinks<DachoraEchoState> _echoStates = new();

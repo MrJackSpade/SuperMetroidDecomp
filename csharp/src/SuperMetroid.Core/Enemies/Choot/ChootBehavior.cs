@@ -5,13 +5,13 @@ namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>The Choot species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class ChootBehavior : IEnemySpecies, IEnemySpawnFactory<ChootSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Choot];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ChootEntity(occupant, place, common, occupant.SpawnSettings<ChootSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, ChootSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ChootEntity(occupant, place, common, settings));
 
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>

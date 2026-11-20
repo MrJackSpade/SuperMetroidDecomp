@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>The nuclear waffle species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySpawnFactory<NuclearWaffleSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.NuclearWaffle];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new NuclearWaffleEntity(this, occupant, place, common, occupant.SpawnSettings<NuclearWaffleSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, NuclearWaffleSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new NuclearWaffleEntity(this, occupant, place, common, settings));
 
     /// <summary>Allocates the collidable links in the articulated body.</summary>
     private readonly EnemyProjectileEngine _projectiles;

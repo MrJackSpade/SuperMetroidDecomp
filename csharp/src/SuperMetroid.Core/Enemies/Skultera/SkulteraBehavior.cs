@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
 
@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 
 /// <summary>The Skultera species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<SkulteraSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skultera];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SkulteraEntity(this, occupant, place, common, occupant.SpawnSettings<SkulteraSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, SkulteraSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SkulteraEntity(this, occupant, place, common, settings));
 
     /// <summary>The room's blocks Skultera's horizontal and vertical swim steps meet.</summary>
     private readonly EnemyTerrain _terrain;

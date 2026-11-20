@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>The Skree species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class SkreeBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skree];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SkreeEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SkreeEntity(this, occupant, place, common));
 
     /// <summary>Queues the dive and floor-impact sound requests at their AI transitions.</summary>
     private readonly EnemyAudioQueue _audio;

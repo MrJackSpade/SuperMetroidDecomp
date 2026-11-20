@@ -8,14 +8,14 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>The Platforms species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<PlatformSpawnSettings>
 {
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new PlatformsEntity(this, occupant, place, common, occupant.SpawnSettings<PlatformSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, PlatformSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new PlatformsEntity(this, occupant, place, common, settings));
 
     /// <summary>Clips the Tripper's and the suspensor platform's horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;

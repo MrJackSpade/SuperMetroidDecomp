@@ -5,13 +5,13 @@ namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>The Bull species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Bull];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BullEntity(this, occupant, place, common, occupant.SpawnSettings<BullSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, BullSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BullEntity(this, occupant, place, common, settings));
 
     /// <summary>Hands each new Bull the previous Bull in its place, whose shot-reaction guard it inherits.</summary>
     private readonly PlaceInheritance<BullEnemyState> _inheritance;

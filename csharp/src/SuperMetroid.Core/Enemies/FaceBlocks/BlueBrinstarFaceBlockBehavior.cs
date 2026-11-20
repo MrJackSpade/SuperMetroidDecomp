@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>The blue Brinstar face block species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
+internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyLoadedFactory<FaceBlockSpawnSettings>, IRoomGlow
 {
     /// <summary>The pass-through shot reaction for this species' private shot reaction.</summary>
     internal static EnemyShotReaction PassThroughShot { get; } =
@@ -22,12 +22,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FaceBlock];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
-
-    /// <inheritdoc/>
-    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-        EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new BlueBrinstarFaceBlockEntity(this, occupant, place, common, surroundings, occupant.SpawnSettings<FaceBlockSpawnSettings>()));
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, FaceBlockSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new BlueBrinstarFaceBlockEntity(this, occupant, place, common, surroundings, settings));
 
     /// <summary>The face blocks the room has set up, in the order they were placed; all show the room-wide glow (#2283).</summary>
     private readonly List<RoomEnemyPlace> _blocks = [];

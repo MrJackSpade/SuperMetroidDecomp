@@ -12,14 +12,14 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// eyes and greys the released statues show. Only the statue room builds one, with that room (#2382, #2426).
 /// </summary>
 [RoomLifetime]
-internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
+internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySpawnFactory<TourianEntranceStatueSpawnSettings>, IGameplayShadingSource
 {
     /// <inheritdoc/>
     /// <remarks>Only the statue room can place these.</remarks>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.TourianStatue];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new TourianEntranceStatueEntity(this, occupant, place, common, occupant.SpawnSettings<TourianEntranceStatueSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, TourianEntranceStatueSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new TourianEntranceStatueEntity(this, occupant, place, common, settings));
 
     /// <summary>Spawns the scene's decorations and its unlock effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;

@@ -9,29 +9,25 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>The Magdollite species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
+internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<MagdolliteSpawnSettings>, IRoomGlow
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Magdollite];
 
-    /// <summary>The Magdollite part the placement names: its head, rising body or tracking overlay (#2342, #2474).</summary>
+    /// <summary>
+    /// The Magdollite part the placement names (#2342, #2474): its head, which faces the loading Samus, its rising body or
+    /// its tracking overlay. Only the room's population load places a Magdollite's parts.
+    /// </summary>
     /// <exception cref="InvalidOperationException">The placement names no Magdollite part.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        occupant.SpawnSettings<MagdolliteSpawnSettings>() switch
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, MagdolliteSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) =>
+        settings switch
         {
-            MagdolliteHeadSpawnSettings => throw new InvalidOperationException($"A Magdollite head {occupant.DefinitionId} is only placed by its room's population load."),
+            MagdolliteHeadSpawnSettings head => EnemyOccupant.Running(new MagdolliteHeadEntity(this, occupant, place, common, surroundings, head)),
             MagdolliteBodySpawnSettings => EnemyOccupant.Running(new MagdolliteBodyEntity(this, occupant, place, common)),
             MagdolliteOverlaySpawnSettings => EnemyOccupant.Running(new MagdolliteOverlayEntity(this, occupant, place, common)),
             var part => throw new InvalidOperationException($"Undefined Magdollite part {part}."),
         };
-
-    /// <summary>The Magdollite part the population load places: its head, which faces the loading Samus, or as a spawn's.</summary>
-    /// <exception cref="InvalidOperationException">The placement names no Magdollite part.</exception>
-    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-        EnemyPopulationSurroundings surroundings) =>
-        occupant.SpawnSettings<MagdolliteSpawnSettings>() is MagdolliteHeadSpawnSettings
-            ? EnemyOccupant.Running(new MagdolliteHeadEntity(this, occupant, place, common, surroundings))
-            : Create(occupant, place, common);
 
     /// <summary>The state each Magdollite head holds from its setup, under its place, for its body and overlay (#2554).</summary>
     private readonly EnemyPartLinks<MagdolliteHeadState> _headStates = new();

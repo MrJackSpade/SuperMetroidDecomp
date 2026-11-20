@@ -3,16 +3,16 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>The Hibashi species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<HibashiSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Hibashi];
 
     /// <summary>The Hibashi's flame, or the collision part its placement names (#2342).</summary>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        occupant.SpawnSettings<HibashiSpawnSettings>() is HibashiCollisionPartSpawnSettings
-            ? EnemyOccupant.PlacedOnly(new HibashiCollisionPartEntity(occupant, place, common))
-            : EnemyOccupant.Running(new HibashiEntity(this, occupant, place, common, occupant.SpawnSettings<HibashiFlameSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, HibashiSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        settings is HibashiFlameSpawnSettings flame
+            ? EnemyOccupant.Running(new HibashiEntity(this, occupant, place, common, flame))
+            : EnemyOccupant.PlacedOnly(new HibashiCollisionPartEntity(occupant, place, common));
 
     /// <summary>The room's enemy places, where each visible geyser finds its hitbox when it is placed.</summary>
     private readonly EnemyPlaces _places;

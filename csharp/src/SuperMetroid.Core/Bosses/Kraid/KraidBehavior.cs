@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The Kraid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -22,7 +22,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>One of Kraid's eight parts, each joining its own reference as it initializes (#1877, #2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Kraid definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Kraid)

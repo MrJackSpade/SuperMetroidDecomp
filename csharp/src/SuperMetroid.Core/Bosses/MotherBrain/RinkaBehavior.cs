@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Rinka species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rinka];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new RinkaEntity(this, occupant, place, common, occupant.SpawnSettings<RinkaSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RinkaSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new RinkaEntity(this, occupant, place, common, settings));
 
     /// <summary>Applies normal Samus contact damage before the Rinka's own death.</summary>
     private readonly EnemyCollision _collision;

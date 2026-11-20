@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>The Boulder species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<BoulderSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boulder];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BoulderEntity(this, occupant, place, common, occupant.SpawnSettings<BoulderSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, BoulderSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BoulderEntity(this, occupant, place, common, settings));
 
     /// <summary>Moves the actor through room collision during fall and roll phases.</summary>
     private readonly EnemyTerrain _terrain;

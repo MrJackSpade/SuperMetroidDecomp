@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The Etecoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySpawnFactory<EtecoonSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Etecoon];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new EtecoonEntity(this, occupant, place, common, occupant.SpawnSettings<EtecoonSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EtecoonSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new EtecoonEntity(this, occupant, place, common, settings));
 
     /// <summary>Probes the floor, walls, and ceiling throughout the teaching route.</summary>
     private readonly EnemyTerrain _terrain;

@@ -21,6 +21,8 @@ internal sealed class CeresRidleyFlight
     private readonly RidleyEncounter _ridleyEncounter;
     /// <summary>Shows Ridley's colours over the room once he has begun his encounter.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Builds the walls of the getaway chamber the flight spawns.</summary>
+    private readonly CeresDoorFactory _getawayWalls;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal CeresRidleyFlight(CeresRidleyFlightDependencies dependencies)
@@ -31,6 +33,7 @@ internal sealed class CeresRidleyFlight
         _places = dependencies.Places;
         _ridleyEncounter = dependencies.RidleyEncounter;
         _presentation = dependencies.Presentation;
+        _getawayWalls = dependencies.GetawayWalls;
     }
 
     /// <summary>
@@ -399,6 +402,7 @@ internal sealed class CeresRidleyFlight
             return;
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(EnemyDefinitionId.CeresGetawayChamberWall);
+        var settings = new CeresGetawayChamberWallSpawnSettings(side);
         RoomEnemyPlacement population = new(
             EnemyDefinitionId.CeresGetawayChamberWall,
             Placing: EnemyPlacing.At(position),
@@ -406,8 +410,9 @@ internal sealed class CeresRidleyFlight
             Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
             Presence: EnemyPresence.Hidden,
             CollidesByFrameHitboxes: false,
-            SpawnSettings: new CeresGetawayChamberWallSpawnSettings(side));
-        _lifecycle.SetUpSpawnedEnemy(_lifecycle.InitializePlaceFromDefinition(wall, population, definition));
+            SpawnSettings: settings);
+        var spawn = new OrdinaryEnemySpawn<CeresGetawayChamberWallSpawnSettings>(population, settings, _getawayWalls.CreateGetawayChamberWall);
+        _lifecycle.SetUpSpawnedEnemy(_lifecycle.InitializePlaceFromDefinition(wall, spawn, definition), spawn);
         _places.CoverSpawn(wall);
     }
 }

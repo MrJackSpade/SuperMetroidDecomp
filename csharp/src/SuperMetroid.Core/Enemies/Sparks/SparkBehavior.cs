@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>The Spark species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class SparkBehavior : IEnemySpecies, IEnemySpawnFactory<SparkSpawnSettings>
 {
     /// <summary>The pass-through shot reaction for this species' private shot reaction.</summary>
     internal static EnemyShotReaction PassThroughShot { get; } =
@@ -19,7 +19,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Spark];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SparkEntity(this, occupant, place, common, occupant.SpawnSettings<SparkSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, SparkSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SparkEntity(this, occupant, place, common, settings));
 
     /// <summary>Owner of the falling-spark projectile emitted by one spark action.</summary>
     private FallingSparksBehavior FallingSparks { get; }

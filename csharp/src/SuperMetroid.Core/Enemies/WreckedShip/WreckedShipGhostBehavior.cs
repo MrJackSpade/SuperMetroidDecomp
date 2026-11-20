@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>The Wrecked Ship ghost species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Coven];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WreckedShipGhostEntity(occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WreckedShipGhostEntity(occupant, place, common));
 
     /// <summary>Initializes the Wrecked Ship ghost.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>

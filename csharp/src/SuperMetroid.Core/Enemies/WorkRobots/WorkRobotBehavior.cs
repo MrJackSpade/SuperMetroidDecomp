@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>The work robot species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
+internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySpawnFactory<WorkRobotSpawnSettings>, IRoomGlow
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.WorkRobot, EnemyDefinitionId.UnpoweredWorkRobot];
@@ -20,13 +20,13 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// states once Phantoon is defeated, so it always has power (#2455).
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no work robot definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, WorkRobotSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.WorkRobot)
             return EnemyOccupant.Running(new PoweredWorkRobotEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
-            return EnemyOccupant.Running(new UnpoweredWorkRobotEntity(this, occupant, place, common, occupant.SpawnSettings<WorkRobotSpawnSettings>()));
+            return EnemyOccupant.Running(new UnpoweredWorkRobotEntity(this, occupant, place, common, settings));
         throw new InvalidOperationException($"The work robot species creates no {occupant.DefinitionId}.");
     }
 

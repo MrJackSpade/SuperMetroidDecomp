@@ -11,23 +11,16 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 [RoomLifetime]
 internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-    [
-        EnemyDefinitionId.KihunterGreen, EnemyDefinitionId.KihunterGreenWings, EnemyDefinitionId.KihunterRed,
-        EnemyDefinitionId.KihunterRedWings, EnemyDefinitionId.KihunterYellow, EnemyDefinitionId.KihunterYellowWings,
-    ];
-
     /// <summary>A body of any colour, or its wings (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Ki-Hunter definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterYellow)
-            return EnemyOccupant.Running(new KiHunterBodyEntity(this, occupant, place, common, occupant.SpawnSettings<KiHunterSpawnSettings>()));
-        if (definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterRedWings or EnemyDefinitionId.KihunterYellowWings)
-            return EnemyOccupant.Running(new KiHunterWingsEntity(this, occupant, place, common, occupant.SpawnSettings<KiHunterWingsSpawnSettings>()));
-        throw new InvalidOperationException($"The Ki-Hunter species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<KiHunterSpawnSettings>(
+            [EnemyDefinitionId.KihunterGreen, EnemyDefinitionId.KihunterRed, EnemyDefinitionId.KihunterYellow],
+            (occupant, settings, place, common) => EnemyOccupant.Running(new KiHunterBodyEntity(this, occupant, place, common, settings)));
+        registrar.Spawns<KiHunterWingsSpawnSettings>(
+            [EnemyDefinitionId.KihunterGreenWings, EnemyDefinitionId.KihunterRedWings, EnemyDefinitionId.KihunterYellowWings],
+            (occupant, settings, place, common) => EnemyOccupant.Running(new KiHunterWingsEntity(this, occupant, place, common, settings)));
     }
 
     /// <summary>Provides the active room state used by Ki-Hunter movement.</summary>

@@ -12,18 +12,13 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The Torizo species owner, Bomb and Golden Torizo alike: their per-room state, behaviour and the interactions they register.</summary>
 [RoomLifetime]
-internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class TorizoBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo];
 
-    /// <summary>Bomb Torizo or Golden Torizo (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Torizo definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
-
     /// <inheritdoc/>
-    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         EnemyPopulationSurroundings surroundings)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;

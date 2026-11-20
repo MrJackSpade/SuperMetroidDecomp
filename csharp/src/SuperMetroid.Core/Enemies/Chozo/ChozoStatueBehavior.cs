@@ -14,13 +14,13 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>The Chozo statue species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<ChozoStatueSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Chozo];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ChozoStatueEntity(this, occupant, place, common, occupant.SpawnSettings<ChozoStatueSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, ChozoStatueSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ChozoStatueEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies room events, scroll grid and Samus-control service.</summary>
     private readonly EnemyRoomBinding _room;

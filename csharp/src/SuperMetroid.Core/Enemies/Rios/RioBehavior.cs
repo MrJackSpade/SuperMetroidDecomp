@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class RioBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rio];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new RioEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new RioEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared enemy random number consumed on every Rio AI frame.</summary>
     private readonly EnemyRoomBinding _room;

@@ -10,20 +10,20 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>The mama turtle species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySpawnFactory<BabyTurtleSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyTurtle, EnemyDefinitionId.MamaTurtle];
 
     /// <summary>The mama turtle, or one of her babies (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no mama turtle definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, BabyTurtleSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.MamaTurtle)
             return EnemyOccupant.Running(new MamaTurtleEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.BabyTurtle)
-            return EnemyOccupant.Running(new BabyTurtleEntity(this, occupant, place, common, occupant.SpawnSettings<BabyTurtleSpawnSettings>()));
+            return EnemyOccupant.Running(new BabyTurtleEntity(this, occupant, place, common, settings));
         throw new InvalidOperationException($"The mama turtle species creates no {occupant.DefinitionId}.");
     }
 

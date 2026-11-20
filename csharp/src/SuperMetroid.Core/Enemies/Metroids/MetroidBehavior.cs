@@ -13,13 +13,13 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The Metroid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class MetroidBehavior : IEnemySpecies, IEnemySpawnFactory<MetroidSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metroid];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MetroidEntity(this, occupant, place, common, occupant.SpawnSettings<MetroidSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, MetroidSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MetroidEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies room RNG for the scattered death drops and idle cries.</summary>
     private readonly EnemyRoomBinding _room;

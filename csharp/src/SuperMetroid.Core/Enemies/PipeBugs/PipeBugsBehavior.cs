@@ -8,21 +8,16 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 [RoomLifetime]
 internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Gamet, EnemyDefinitionId.Geega, EnemyDefinitionId.Zeb, EnemyDefinitionId.Zebbo];
-
     /// <summary>A Brinstar Pipe Bug (Zeb or Zebbo), a Norfair one (Gamet) or a yellow one (Geega) (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Pipe Bugs definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo)
-            return EnemyOccupant.Running(new BrinstarPipeBugEntity(occupant, place, common, occupant.SpawnSettings<BrinstarPipeBugSpawnSettings>()));
-        if (definition == EnemyDefinitionId.Gamet)
-            return EnemyOccupant.Running(new NorfairPipeBugEntity(this, occupant, place, common, occupant.SpawnSettings<NorfairPipeBugSpawnSettings>()));
-        if (definition == EnemyDefinitionId.Geega)
-            return EnemyOccupant.Running(new YellowPipeBugEntity(occupant, place, common, occupant.SpawnSettings<YellowPipeBugSpawnSettings>()));
-        throw new InvalidOperationException($"The Pipe Bugs species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<BrinstarPipeBugSpawnSettings>([EnemyDefinitionId.Zeb, EnemyDefinitionId.Zebbo], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new BrinstarPipeBugEntity(occupant, place, common, settings)));
+        registrar.Spawns<NorfairPipeBugSpawnSettings>([EnemyDefinitionId.Gamet], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new NorfairPipeBugEntity(this, occupant, place, common, settings)));
+        registrar.Spawns<YellowPipeBugSpawnSettings>([EnemyDefinitionId.Geega], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new YellowPipeBugEntity(occupant, place, common, settings)));
     }
 
     /// <summary>The room's enemy places, where each Norfair formation leader finds its formation when it is placed.</summary>

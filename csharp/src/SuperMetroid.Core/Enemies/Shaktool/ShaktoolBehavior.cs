@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>The Shaktool species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFactory<ShaktoolSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Shaktool];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ShaktoolEntity(this, occupant, place, common, occupant.SpawnSettings<ShaktoolSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, ShaktoolSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ShaktoolEntity(this, occupant, place, common, settings));
 
     /// <summary>Checks terrain collisions along each segment's orbit and attack path.</summary>
     private readonly EnemyTerrain _terrain;

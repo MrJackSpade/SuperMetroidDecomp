@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>The Hoppers species owner: its per-room state, AI behaviours and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class HoppersBehavior : IEnemySpecies, IEnemySpawnFactory<HopperSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dessgeega, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new HoppersEntity(this, occupant, place, common, occupant.SpawnSettings<HopperSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, HopperSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new HoppersEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies the shared RNG seed consumed during Hopper initialization.</summary>
     private readonly EnemyRoomBinding _room;

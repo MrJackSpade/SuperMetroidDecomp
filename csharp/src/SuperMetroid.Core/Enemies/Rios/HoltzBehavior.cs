@@ -7,14 +7,14 @@ namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Lower Norfair rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class HoltzBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFollowerSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Holtz];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemyFollowerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        settings.Role == EnemyFollowerRole.Follower
             ? EnemyOccupant.Running(new HoltzFollowerEntity(this, occupant, place, common))
             : EnemyOccupant.Running(new HoltzEntity(this, occupant, place, common));
 

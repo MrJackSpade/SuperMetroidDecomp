@@ -10,18 +10,14 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>The Elevator species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IElevatorJourney
+internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFactory<ElevatorSpawnSettings>, IElevatorJourney
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Elevator];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
-
-    /// <inheritdoc/>
-    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-        EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new ElevatorEntity(this, occupant, place, common, surroundings, occupant.SpawnSettings<ElevatorSpawnSettings>()));
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, ElevatorSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new ElevatorEntity(this, occupant, place, common, surroundings, settings));
 
     /// <summary>The loaded room's bindings, whose game-state services set up Samus's elevator pose when the elevator departs.</summary>
     private readonly EnemyRoomBinding _room;

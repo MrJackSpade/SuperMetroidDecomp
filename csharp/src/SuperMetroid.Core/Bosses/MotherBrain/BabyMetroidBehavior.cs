@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Baby Metroid (Baby Metroid) species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemySpawnSettings>
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -26,11 +26,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
-
-    /// <inheritdoc/>
-    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new BabyMetroidEntity(this, occupant, place, common, surroundings));
 
     /// <summary>Provides the room's enemy session, room scroll values, RNG, and installed encounter colors.</summary>
@@ -172,7 +168,8 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BabyMetroidAction.ActivateSidehopperCorpse:
-                DeadSidehopperBehavior.ActivateDeadSidehopperVictim(RequireBabyMetroidVictim(place), (RequireBabyMetroidVictim(place)).RequireSpeciesState<DeadSidehopperEnemyState>());
+                DeadSidehopperEntity corpse = RequireBabyMetroidVictimCorpse(place);
+                DeadSidehopperBehavior.ActivateDeadSidehopperVictim(corpse.Place, corpse.State);
                 state.Action = BabyMetroidAction.RiseAfterFeeding;
                 state.StateTimer.LastFor(BabyMetroidFightDefinitions.RiseUpdates);
                 goto case BabyMetroidAction.RiseAfterFeeding;
@@ -700,6 +697,13 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException("The Baby Metroid's victim, the enemy placed after it, is missing.");
         return victim;
     }
+
+    /// <summary>The dead Sidehopper the Baby feeds on, the enemy its room places after it, with the state it holds (#2554).</summary>
+    /// <exception cref="InvalidDataException">The enemy placed after the Baby is missing or is no dead Sidehopper.</exception>
+    private DeadSidehopperEntity RequireBabyMetroidVictimCorpse(RoomEnemyPlace place) =>
+        RequireBabyMetroidVictim(place).Entity is DeadSidehopperEntity corpse
+            ? corpse
+            : throw new InvalidDataException("The Baby Metroid's victim, the enemy placed after it, is no dead Sidehopper.");
 
     /// <summary>Uses bomb damage for recoil strength but Samus's first shot for its direction, without health loss.</summary>
     internal static void ReactToBabyMetroidBomb(EnemyBombContext c, BabyMetroidEnemyState babyMetroidEnemyState) =>

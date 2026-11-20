@@ -12,32 +12,25 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 [RoomLifetime]
 internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-    [
-        EnemyDefinitionId.Sciser, EnemyDefinitionId.Zero, EnemyDefinitionId.Viola, EnemyDefinitionId.Zeela,
-        EnemyDefinitionId.Sova, EnemyDefinitionId.Zoomer, EnemyDefinitionId.ArmoredZoomer, EnemyDefinitionId.OrangeZoomer,
-    ];
-
     /// <summary>
     /// A crawler set up in its animation family that crawls by the shared crawl: Sciser, Zero and Viola each in their own,
     /// Zeela, Sova and both Zoomers in the shared family; or an orange Zoomer (#2146).
     /// </summary>
-    /// <exception cref="InvalidOperationException">The place holds no crawler definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.Sciser)
-            return EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser, occupant.SpawnSettings<CrawlerSpawnSettings>()));
-        if (definition == EnemyDefinitionId.Zero)
-            return EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero, occupant.SpawnSettings<CrawlerSpawnSettings>()));
-        if (definition == EnemyDefinitionId.Viola)
-            return EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola, OnBlockSide(occupant.SpawnSettings<ViolaSpawnSettings>())));
-        if (definition is EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer)
-            return EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared, occupant.SpawnSettings<CrawlerSpawnSettings>()));
-        if (definition == EnemyDefinitionId.OrangeZoomer)
-            return EnemyOccupant.Running(new OrangeZoomerEntity(this, occupant, place, common, occupant.SpawnSettings<CrawlerSpawnSettings>()));
-        throw new InvalidOperationException($"The crawler species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<CrawlerSpawnSettings>([EnemyDefinitionId.Sciser], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser, settings)));
+        registrar.Spawns<CrawlerSpawnSettings>([EnemyDefinitionId.Zero], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero, settings)));
+        registrar.Spawns<ViolaSpawnSettings>([EnemyDefinitionId.Viola], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola, OnBlockSide(settings))));
+        registrar.Spawns<CrawlerSpawnSettings>(
+            [EnemyDefinitionId.Zeela, EnemyDefinitionId.Sova, EnemyDefinitionId.Zoomer, EnemyDefinitionId.ArmoredZoomer],
+            (occupant, settings, place, common) =>
+                EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared, settings)));
+        registrar.Spawns<CrawlerSpawnSettings>([EnemyDefinitionId.OrangeZoomer], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new OrangeZoomerEntity(this, occupant, place, common, settings)));
     }
 
     /// <summary>

@@ -70,7 +70,8 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>Sets Mother Brain's body up when the room spawns it.</summary>
-    internal void InitializeMotherBrainBody(RoomEnemyOccupant occupant)
+    /// <returns>The encounter the body begins, which it holds from its setup.</returns>
+    internal MotherBrainEnemyState InitializeMotherBrainBody(RoomEnemyOccupant occupant)
     {
         RoomEnemyPlace body = occupant.Place;
         body.AnimationClock.StepOnNextUpdate();
@@ -88,7 +89,6 @@ internal sealed class MotherBrainBody
             HitboxesEnabled = MotherBrainHitboxParts.Brain,
             BrainAction = MotherBrainBrainAction.ShowsBrainAlone,
         });
-        body.SetSpeciesState(state);
         // Her body frames show on her body from here, which her room does not show over the pipe background until her
         // phase-two transition reveals it (#1356, #1515).
         _presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, state));
@@ -96,6 +96,7 @@ internal sealed class MotherBrainBody
         // Her room's acid rises, which the room loader applies after enemy initialization.
         _passEvents.Publish(new MotherBrainAcidChange(MotherBrainRoomFxDefinitions.AcidRises));
         SpawnMotherBrainInitialTurrets(state);
+        return state;
     }
 
     /// <summary>Updates the glass-bound first phase and advances its scripted reaction to Samus.</summary>

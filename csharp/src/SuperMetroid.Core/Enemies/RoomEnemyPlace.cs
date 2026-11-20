@@ -100,10 +100,10 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// identity change goes through here, at the statement that changes the definition, because the game re-reads the
     /// definition each time the enemy runs.
     /// </summary>
-    /// <param name="spawn">The population entry the occupant is spawned from, which names its enemy.</param>
+    /// <param name="spawn">The bound population entry the occupant is spawned from, which names its enemy.</param>
     /// <param name="definition">The occupant's resolved definition, which the occupant holds.</param>
     /// <returns>The new occupant, whose entity its species builds as it is set up (<see cref="Build"/>).</returns>
-    internal RoomEnemyOccupant Bind(RoomEnemyPlacement spawn, RoomEnemyDefinition definition)
+    internal RoomEnemyOccupant Bind(EnemySpawn spawn, RoomEnemyDefinition definition)
     {
         ReleaseEntity();
         RoomEnemyOccupant occupant;
@@ -120,28 +120,14 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     }
 
     /// <summary>
-    /// Builds <paramref name="occupant"/>'s entity with the state it holds from its setup (#2554), through its species'
-    /// factory, once the place holds its identity and live values: the occupant was spawned on another enemy's behalf or
-    /// rebuilt by a respawn.
+    /// Builds <paramref name="occupant"/>'s entity with the state it holds from its setup (#2554), through
+    /// <paramref name="build"/>, its species' creation bound to its settings, once the place holds its identity and live
+    /// values.
     /// </summary>
     /// <param name="occupant">The occupant the place was just bound to.</param>
+    /// <param name="build">How the occupant's species builds it where it is set up.</param>
     /// <returns>The entity with the setup and main AI it runs.</returns>
-    internal EnemyOccupant Build(RoomEnemyOccupant occupant) => Hold(_registry.Create(occupant, this));
-
-    /// <summary>As <see cref="Build"/>, for an occupant the room's population load placed, seeing its <paramref name="surroundings"/>.</summary>
-    /// <param name="occupant">The occupant the place was just bound to.</param>
-    /// <param name="surroundings">The room, Samus, controller and camera the population load sets the enemy up in.</param>
-    /// <returns>The entity with the setup and main AI it runs.</returns>
-    internal EnemyOccupant BuildLoaded(RoomEnemyOccupant occupant, EnemyPopulationSurroundings surroundings) =>
-        Hold(_registry.CreateLoaded(occupant, this, surroundings));
-
-    /// <summary>As <see cref="Build"/>, for an occupant spawned joining <paramref name="encounter"/>, which it receives as it is built.</summary>
-    /// <param name="occupant">The occupant the place was just bound to.</param>
-    /// <param name="encounter">The encounter the spawned enemy joins.</param>
-    /// <typeparam name="TEncounter">The encounter's type.</typeparam>
-    /// <returns>The entity with the setup and main AI it runs.</returns>
-    internal EnemyOccupant BuildJoining<TEncounter>(RoomEnemyOccupant occupant, TEncounter encounter) where TEncounter : class =>
-        Hold(_registry.CreateJoining(occupant, this, encounter));
+    internal EnemyOccupant Build(RoomEnemyOccupant occupant, IEnemyBuild build) => Hold(Ensure.NotNull(build).Create(occupant, this, _registry.Common));
 
     /// <summary>Holds <paramref name="built"/> as the place's entity.</summary>
     private EnemyOccupant Hold(EnemyOccupant built)

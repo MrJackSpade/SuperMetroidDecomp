@@ -176,10 +176,10 @@ internal static class PipeBugBehaviorVerification
         switch (definition)
         {
             case EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo:
-                PipeBugsBehavior.InitializeBrinstarPipeBug(place);
+                PipeBugsBehavior.InitializeBrinstarPipeBug(place, place.SpawnSettings<BrinstarPipeBugSpawnSettings>());
                 break;
             case EnemyDefinitionId.Gamet:
-                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place);
+                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place, place.SpawnSettings<NorfairPipeBugSpawnSettings>());
                 break;
             case EnemyDefinitionId.None:
             case EnemyDefinitionId.Boyon:
@@ -330,7 +330,7 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.PirateMagentaWalking:
             case EnemyDefinitionId.PirateSilverWalking:
             default:
-                PipeBugsBehavior.InitializeYellowPipeBug(place);
+                PipeBugsBehavior.InitializeYellowPipeBug(place, place.SpawnSettings<YellowPipeBugSpawnSettings>());
                 break;
         }
     }

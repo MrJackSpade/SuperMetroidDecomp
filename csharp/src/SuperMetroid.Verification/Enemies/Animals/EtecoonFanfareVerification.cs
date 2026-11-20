@@ -32,7 +32,7 @@ internal static class EtecoonFanfareVerification
             place.Processing = EnemyProcessing.OffScreen;
             place.Presence = EnemyPresence.None;
             place.SetSpawnParameter2(EnemyDefinitionId.Etecoon, (ushort)index);
-            EtecoonBehavior.InitializeEtecoon(place);
+            EtecoonBehavior.InitializeEtecoon(place, place.SpawnSettings<EtecoonSpawnSettings>());
         }
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
         RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(48, 192));

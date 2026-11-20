@@ -53,7 +53,7 @@ internal static class RipperBehaviorVerification
             place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
             place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
-            RipperBehavior.InitializeGrappleRipper(place);
+            RipperBehavior.InitializeGrappleRipper(place, place.SpawnSettings<GrappleRipperSpawnSettings>());
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 
@@ -64,7 +64,7 @@ internal static class RipperBehaviorVerification
             place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
             place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
-            RipperBehavior.InitializeGrappleRipper(place);
+            RipperBehavior.InitializeGrappleRipper(place, place.SpawnSettings<GrappleRipperSpawnSettings>());
             RipperBehavior.ReverseRipperVariant(place);
             VerifyInstalledLoop(enemies, place, RipperSegment.GrappleRipperMovingLeft, "GrappleRipper left reversal");
         }
@@ -75,7 +75,7 @@ internal static class RipperBehaviorVerification
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.JetRipper);
             place.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
             place.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
-            RipperBehavior.InitializeJetRipper(place);
+            RipperBehavior.InitializeJetRipper(place, place.SpawnSettings<RipperSpawnSettings>());
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 

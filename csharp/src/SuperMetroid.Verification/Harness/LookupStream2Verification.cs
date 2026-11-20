@@ -904,7 +904,7 @@ internal static class LookupStream2Verification
                 var place = enemies.Places.InUpdateOrder[member];
                 place.Bind(EnemyDefinitionId.Gamet, place.Definition);
                 place.Position = place.Position.WithWhole(new(128, 128)); place.SetSpawnParameter2(EnemyDefinitionId.Gamet, 64);
-                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place);
+                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place, place.SpawnSettings<NorfairPipeBugSpawnSettings>());
                 place.AnimationClock.HoldFor((ushort)(member + 4));
             }
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };

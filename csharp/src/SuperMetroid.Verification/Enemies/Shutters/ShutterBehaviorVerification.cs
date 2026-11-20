@@ -31,7 +31,7 @@ internal static class ShutterBehaviorVerification
                 place.SetSpawnSettings(new GrowingShutterSpawnSettings(
                     Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 144, ActivationWait: 0,
                     GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(17)));
-                ShuttersBehavior.InitializeGrowingShutter(place);
+                ShuttersBehavior.InitializeGrowingShutter(place, place.SpawnSettings<GrowingShutterSpawnSettings>());
             },
             enemies => enemies.Places.InUpdateOrder[0].EntityState<ShuttersEntity, GrowingShutterEnemyState>()?.Playback);
         foreach (EnemyDefinitionId definition in new[] { EnemyDefinitionId.ShutterShootable, EnemyDefinitionId.ShutterDestroyable })
@@ -189,7 +189,7 @@ internal static class ShutterBehaviorVerification
             place.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
             place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
                 LittleEndianBytes.Word(speedIndex, primaryDirection), 0, 0, LittleEndianBytes.Word(0, travelDistance), 0));
-            ShuttersBehavior.InitializeVerticalShutter(place, ShutterSegment.FullyGrown);
+            ShuttersBehavior.InitializeVerticalShutter(place, ShutterSegment.FullyGrown, place.SpawnSettings<ShutterSpawnSettings>());
             VerticalShutterEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<VerticalShutterEntity>(place).State;
             string context = $"primary direction {primaryDirection} at Y {spawnY}";
             AssertEqual(expectedUpperY, state.UpperEndpointY, $"{context}: upper endpoint");

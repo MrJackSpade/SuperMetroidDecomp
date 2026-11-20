@@ -74,7 +74,7 @@ internal static class YardDirectionDefinitionsVerification
             place.Processing = EnemyProcessing.None;
             place.Presence = EnemyPresence.RespawnsIfKilled;
             place.Bind(EnemyDefinitionId.Yard, place.Definition);
-            YardEnemyBehavior.InitializeYard(place);
+            YardEnemyBehavior.InitializeYard(place, place.SpawnSettings<YardSpawnSettings>());
 
             YardEnemyState state = enemies.YardStates[0] ??
                 throw new InvalidDataException("Yard initializer produced no typed state.");
@@ -108,7 +108,7 @@ internal static class YardDirectionDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.SetSpawnWords(EnemyDefinitionId.Yard, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(direction, 0, 0, 0, 0));
             place.Bind(EnemyDefinitionId.Yard, place.Definition);
-            YardEnemyBehavior.InitializeYard(place);
+            YardEnemyBehavior.InitializeYard(place, place.SpawnSettings<YardSpawnSettings>());
             YardEnemyState state = (enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0]."));
             HorizontalDirection facing = state.AirborneFacingDirection;
             YardAirborneAnimationDefinition expected =

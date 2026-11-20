@@ -68,7 +68,7 @@ internal static class PuyoHopDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.Puyo, place.Definition);
             place.SetSpawnParameter1(EnemyDefinitionId.Puyo, 5);
-            PuyoBehavior.InitializePuyo(place);
+            PuyoBehavior.InitializePuyo(place, place.SpawnSettings<PuyoSpawnSettings>());
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             place.Radius = RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.Puyo).Radius;
             PuyoEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<PuyoEntity>(place).State;

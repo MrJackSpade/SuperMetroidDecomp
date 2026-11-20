@@ -52,7 +52,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         place.Bind(EnemyDefinitionId.Puyo, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.SetSpawnSettings(new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 0));
-        PuyoBehavior.InitializePuyo(place);
+        PuyoBehavior.InitializePuyo(place, place.SpawnSettings<PuyoSpawnSettings>());
         return new PuyoInstructionProgramDefinitionsCreateResult(enemies, place, enemies.PuyoStates[0] ?? throw new InvalidOperationException("Puyo has no state."));
     }
 

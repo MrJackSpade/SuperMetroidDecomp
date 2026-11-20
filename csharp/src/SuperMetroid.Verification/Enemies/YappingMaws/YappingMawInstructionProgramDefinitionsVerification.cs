@@ -94,7 +94,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             place.Position = place.Position.WithWhole(new(128, 128));
             place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 128);
             place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, parameter2);
-            enemies.YappingMawBehavior.InitializeYappingMaw(place);
+            enemies.YappingMawBehavior.InitializeYappingMaw(place, place.SpawnSettings<YappingMawSpawnSettings>());
             YappingMawEnemyState state = enemies.YappingMawStates[0] ??
                 throw new InvalidOperationException(
                     $"Yapping Maw {name} initializer did not publish typed state.");
@@ -166,7 +166,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         place.Position = place.Position.WithWhole(new(128, 128));
         place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, checked((ushort)activationDistance));
         place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, 1);
-        enemies.YappingMawBehavior.InitializeYappingMaw(place);
+        enemies.YappingMawBehavior.InitializeYappingMaw(place, place.SpawnSettings<YappingMawSpawnSettings>());
         YappingMawEnemyState state = enemies.YappingMawStates[0] ?? throw new InvalidOperationException("Yapping Maw has no state.");
         return new NewInitializedYappingMawResult(enemies, place, state);
     }

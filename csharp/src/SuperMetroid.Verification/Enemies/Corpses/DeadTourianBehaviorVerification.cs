@@ -24,7 +24,7 @@ internal static class DeadTourianBehaviorVerification
         corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
         corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
         corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, 0);
-        enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
+        enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse, corpse.SpawnSettings<DeadSidehopperSpawnSettings>());
         AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperIdle), AnimationPlace.StartOfAnimation),
             SuperMetroid.Core.Enemies.EnemyPartners.Listed<DeadSidehopperEntity>(corpse).State.Playback, "real dead Sidehopper initializer starts the alive-idle pose");
 
@@ -67,7 +67,7 @@ internal static class DeadTourianBehaviorVerification
             corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
             corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
             corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, 0);
-            enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
+            enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse, corpse.SpawnSettings<DeadSidehopperSpawnSettings>());
             DeadSidehopperEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<DeadSidehopperEntity>(corpse).State;
             AssertEqual(DeadSidehopperAction.AliveWaitForCamera, state.Action, "the Shitroid victim starts waiting for the camera");
 

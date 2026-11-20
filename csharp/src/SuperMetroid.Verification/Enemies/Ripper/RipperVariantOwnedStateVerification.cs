@@ -21,7 +21,7 @@ internal static class RipperVariantOwnedStateVerification
         const int speedRecord = 3;
         place.SetSpawnParameter1(EnemyDefinitionId.JetRipper, speedRecord);
         place.SetSpawnParameter2(EnemyDefinitionId.JetRipper, 0);
-        RipperBehavior.InitializeJetRipper(place);
+        RipperBehavior.InitializeJetRipper(place, place.SpawnSettings<RipperSpawnSettings>());
         RipperEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<RipperEntity>(place).State;
 
         SignedSixteenSixteen positive = EnemyLinearSpeedTable.Speed(speedRecord);

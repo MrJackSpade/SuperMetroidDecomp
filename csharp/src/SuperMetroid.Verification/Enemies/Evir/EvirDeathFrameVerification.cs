@@ -38,7 +38,7 @@ internal static class EvirDeathFrameVerification
             else if (index == 7)
                 enemies.EvirBehavior.InitializeEvirArms(place);
             else
-                enemies.EvirBehavior.InitializeEvirBody(place, samus);
+                enemies.EvirBehavior.InitializeEvirBody(place, samus, place.SpawnSettings<EvirSpawnSettings>());
         }
         var body = enemies.Places.InUpdateOrder[6];
         var arms = enemies.Places.InUpdateOrder[7];

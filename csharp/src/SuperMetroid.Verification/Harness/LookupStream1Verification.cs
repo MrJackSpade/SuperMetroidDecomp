@@ -212,7 +212,7 @@ internal static class LookupStream1Verification
             balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
             balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
             balloon.Bind(balloon.DefinitionId, default(RoomEnemyDefinition));
-            PowampBehavior.InitializePowampBalloon(balloon);
+            PowampBehavior.InitializePowampBalloon(balloon, balloon.SpawnSettings<PowampSpawnSettings>());
             var body = enemies.Places.InUpdateOrder[1];
             body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0, PowampContact.Accepts));
             body.Bind(EnemyDefinitionId.Powamp, body.Definition);

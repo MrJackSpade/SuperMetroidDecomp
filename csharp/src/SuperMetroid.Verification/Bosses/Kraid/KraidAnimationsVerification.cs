@@ -462,7 +462,7 @@ internal static class KraidAnimationsVerification
         enemies.KraidBehavior.Background.SpawnKraidCeilingRock(96);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidCeilingRock),
             "the real ceiling producer allocates its rock in the enemy projectile pool");
-        var state = new KraidEnemyState(new KraidParts());
+        var state = new KraidEnemyState(KraidPartsAccess.Standalone());
         random = 0;
         enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);
         random = 16;

@@ -62,7 +62,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.SetSpawnSettings(PlacedBody);
             body.Bind(EnemyDefinitionId.Evir, body.Definition);
-            var bodyState = new EvirBodyState(spit: place) { Facing = HorizontalDirection.Left };
+            var bodyState = new EvirBodyState(spit: place, spit: place.SpawnSettings<EvirSpawnSettings>()) { Facing = HorizontalDirection.Left };
             body.SetSpeciesState(bodyState);
             // The spit finds its body as production places it, two places after the body.
             place.Bind(EnemyDefinitionId.EvirProjectile, place.Definition);
@@ -72,7 +72,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             // body's installed list, so the offset starts at +8.
             state.Facing = HorizontalDirection.Right;
             state.Action = EvirSpitAction.Regenerating;
-            enemies.Places.InUpdateOrder[0].SetSpeciesState(new EvirBodyState(spit: place) { Facing = HorizontalDirection.Left });
+            enemies.Places.InUpdateOrder[0].SetSpeciesState(new EvirBodyState(spit: place, spit: place.SpawnSettings<EvirSpawnSettings>()) { Facing = HorizontalDirection.Left });
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int call = 0; call < 10; call++)
             {
@@ -107,7 +107,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
     internal static EvirBodyState PrepareEvirBodyLoop(RoomEnemyPlace place, EvirSegment program)
     {
         Bind(place, EnemyDefinitionId.Evir);
-        var state = new EvirBodyState(spit: place)
+        var state = new EvirBodyState(spit: place, spit: place.SpawnSettings<EvirSpawnSettings>())
         {
             Playback = new(EvirAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };

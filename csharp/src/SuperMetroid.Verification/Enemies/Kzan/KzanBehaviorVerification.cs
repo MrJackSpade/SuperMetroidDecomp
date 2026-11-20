@@ -25,7 +25,7 @@ internal static class KzanBehaviorVerification
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.Position = place.Position.WithWholeY(128);
         place.SetSpawnSettings(new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromParts(4, 0), FallWait: 112, FallDistance: 80));
-        KzanBehavior.InitializeKzanTop(place);
+        KzanBehavior.InitializeKzanTop(place, place.SpawnSettings<KzanSpawnSettings>());
         AssertEqual(new AnimationPlayback<KzanSegment>(KzanAnimations.StartingWith(KzanSegment.Idle), AnimationPlace.StartOfAnimation),
             (enemies.Places.InUpdateOrder[0].EntityState<KzanTopEntity, KzanEnemyState>() ?? throw new InvalidOperationException("The Kzan has no state.")).Playback,
             "Kzan initializer animation");
@@ -50,7 +50,7 @@ internal static class KzanBehaviorVerification
         place.SetSpawnParameter1(EnemyDefinitionId.KzanTop, 0);
         place.SetSpawnParameter2(EnemyDefinitionId.KzanTop, 32 * 256);
         place.Position = place.Position.WithWhole(new(128, 128));
-        KzanBehavior.InitializeKzanTop(place);
+        KzanBehavior.InitializeKzanTop(place, place.SpawnSettings<KzanSpawnSettings>());
         KzanEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<KzanTopEntity>(place).State;
         AssertEqual(160, state.FallingTargetY, "the falling target is the spawn plus the fall");
         AssertEqual(128, state.RisingTargetY, "the rising target is the spawn position");

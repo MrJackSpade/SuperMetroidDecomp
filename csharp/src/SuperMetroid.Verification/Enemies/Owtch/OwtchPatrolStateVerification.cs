@@ -72,7 +72,7 @@ internal static class OwtchPatrolStateVerification
         place.SetSpawnParameter1(EnemyDefinitionId.Owtch, OwtchNativeWords.Behaviors.Word(behavior));
         place.SetSpawnParameter2(EnemyDefinitionId.Owtch, 0);
         place.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64));
-        OwtchBehavior.InitializeOwtch(place);
+        OwtchBehavior.InitializeOwtch(place, place.SpawnSettings<OwtchSpawnSettings>());
         return new NewOwtchResult(enemies, place, SuperMetroid.Core.Enemies.EnemyPartners.Listed<OwtchEntity>(place).State);
     }
 

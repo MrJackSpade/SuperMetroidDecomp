@@ -36,7 +36,7 @@ internal static class SparkMovementDefinitionsVerification
 
             place.SetSpawnParameter1(EnemyDefinitionId.Spark, selector);
             place.SetSpawnParameter2(EnemyDefinitionId.Spark, 5);
-            SparkBehavior.InitializeSpark(place);
+            SparkBehavior.InitializeSpark(place, place.SpawnSettings<SparkSpawnSettings>());
             SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
             AssertEqual(new AnimationPlayback<SparkSegment>(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation),
                 state.Playback, $"Spark production animation selector {selector}");
@@ -78,7 +78,7 @@ internal static class SparkMovementDefinitionsVerification
         place.Bind(EnemyDefinitionId.Spark, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.SetSpawnSettings(new SparkSpawnSettings(Start: SparkMovementDefinitions.AlwaysActive, BaseActionTime: 0));
-        SparkBehavior.InitializeSpark(place);
+        SparkBehavior.InitializeSpark(place, place.SpawnSettings<SparkSpawnSettings>());
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
         state.Playback = new(SparkAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();

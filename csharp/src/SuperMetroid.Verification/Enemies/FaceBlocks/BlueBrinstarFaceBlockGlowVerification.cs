@@ -51,7 +51,7 @@ internal static class BlueBrinstarFaceBlockGlowVerification
         place.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
         place.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, 0);
         place.Position = place.Position.WithWhole(new(256, 256));
-        enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(place, RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(place, RoomEnemyFrameFixtures.StandaloneSamus(), place.SpawnSettings<FaceBlockSpawnSettings>());
         BlueBrinstarFaceBlockEnemyState state = enemies.BlueBrinstarFaceBlockStates[0]
             ?? throw new InvalidOperationException("The face block has no state.");
         // Samus has the Morph Ball but stands far from the block, which starts the glow and does not wake.

@@ -23,7 +23,7 @@ internal static class PowampOwnedStateVerification
         balloon.SetSpawnParameter2(EnemyDefinitionId.Powamp, ushort.MaxValue);
         balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
         balloon.Position = balloon.Position.WithWhole(new(0x0180, 0x0020));
-        PowampBehavior.InitializePowampBalloon(balloon);
+        PowampBehavior.InitializePowampBalloon(balloon, balloon.SpawnSettings<PowampSpawnSettings>());
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
         body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0, PowampContact.Accepts));
         body.Bind(EnemyDefinitionId.Powamp, body.Definition);

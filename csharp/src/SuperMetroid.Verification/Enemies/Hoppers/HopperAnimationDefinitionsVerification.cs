@@ -68,7 +68,7 @@ internal static class HopperAnimationDefinitionsVerification
             place.Bind(definitions[variant], place.Definition);
             place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             place.SetSpawnParameter1(EnemyDefinitionId.Sidehopper, onCeiling ? (ushort)1 : (ushort)0);
-            enemies.HoppersBehavior.InitializeHopper(place);
+            enemies.HoppersBehavior.InitializeHopper(place, place.SpawnSettings<HopperSpawnSettings>());
             HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
             AssertEqual(kind, state.Kind, $"hopper kind {context}");
             HopperSegment landed = HopperAnimationChoices.Animation(kind, onCeiling ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Landed);
@@ -123,7 +123,7 @@ internal static class HopperAnimationDefinitionsVerification
         place.Bind(EnemyDefinitionId.SidehopperTourian, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
-        enemies.HoppersBehavior.InitializeHopper(place);
+        enemies.HoppersBehavior.InitializeHopper(place, place.SpawnSettings<HopperSpawnSettings>());
         EnemyInstructionRunner.ShownFrames(place, 1);
         AssertEqual((SoundEffectId?)EnemySound.LowThud, enemies.Audio.LatestSound,
             "Tourian Sidehopper shares the large-Sidehopper landed program");

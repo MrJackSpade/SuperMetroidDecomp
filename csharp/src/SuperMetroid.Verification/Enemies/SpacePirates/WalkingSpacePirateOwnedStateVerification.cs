@@ -19,7 +19,7 @@ internal static class WalkingSpacePirateOwnedStateVerification
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
         place.SetSpawnParameter2(EnemyDefinitionId.PirateGreyWalking, 48);
-        WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(place);
+        WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(place, place.SpawnSettings<WalkingSpacePirateSpawnSettings>());
         WalkingSpacePirateEnemyState state = enemies.WalkingSpacePirateStates[0]
             ?? throw new InvalidOperationException("The walking Pirate has no state.");
         AssertEqual(0x0100 - 48, state.LeftPostX, "the left post lies the patrol radius left");

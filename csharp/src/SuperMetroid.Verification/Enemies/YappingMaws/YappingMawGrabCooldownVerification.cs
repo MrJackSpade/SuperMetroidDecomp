@@ -99,7 +99,7 @@ internal static class YappingMawGrabCooldownVerification
         place.Position = place.Position.WithWhole(Root);
         place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 48);
         place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, 0);
-        enemies.YappingMawBehavior.InitializeYappingMaw(place);
+        enemies.YappingMawBehavior.InitializeYappingMaw(place, place.SpawnSettings<YappingMawSpawnSettings>());
         YappingMawEnemyState state = enemies.YappingMawStates[0] ?? throw new InvalidOperationException("Yapping Maw has no state.");
         return new NewInitializedYappingMawResult(enemies, place, state);
     }

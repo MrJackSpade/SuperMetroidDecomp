@@ -44,7 +44,7 @@ internal static class AtomicMovementDefinitionsVerification
         {
             place.SetSpawnParameter1(EnemyDefinitionId.Atomic, selector);
             place.SetSpawnParameter2(EnemyDefinitionId.Atomic, (ushort)(selector * 7));
-            AtomicBehavior.InitializeAtomic(place);
+            AtomicBehavior.InitializeAtomic(place, place.SpawnSettings<AtomicSpawnSettings>());
             AtomicEnemyState state = enemies.AtomicStates[0] ?? throw new InvalidOperationException("Verification requires enemies.AtomicStates[0].");
             AtomicSegment program = DecodedSpin(selector);
             AssertEqual(new AnimationPlayback<AtomicSegment>(AtomicAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback,

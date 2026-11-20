@@ -58,7 +58,7 @@ internal static class EscapeEtecoonDefinitionsVerification
             place.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, parameter);
             place.Position = place.Position.WithWhole(new(0xaaaa, 0xbbbb));
             place.Bind(EnemyDefinitionId.EtecoonEscape, place.Definition);
-            enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(place);
+            enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(place, place.SpawnSettings<EscapeEtecoonSpawnSettings>());
 
             int role = parameter >> 1;
             EscapeEtecoonInitialization expected =
@@ -151,7 +151,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.Definition);
         etecoon.Bind(etecoon.DefinitionId, default(RoomEnemyDefinition));
         etecoon.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, 0);
-        enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon);
+        enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon, etecoon.SpawnSettings<EscapeEtecoonSpawnSettings>());
         return enemies;
     }
 

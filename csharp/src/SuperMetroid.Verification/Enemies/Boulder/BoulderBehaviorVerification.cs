@@ -23,7 +23,7 @@ internal static class BoulderBehaviorVerification
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.SetSpawnSettings(new BoulderSpawnSettings(TriggerHeight: 8, TriggerReach: 8, Start: new BoulderStart.FallsFrom(1), Roll: BoulderRoll.Left));
         place.Position = place.Position.WithWhole(new(256, 512));
-        BoulderBehavior.InitializeBoulder(place);
+        BoulderBehavior.InitializeBoulder(place, place.SpawnSettings<BoulderSpawnSettings>());
         AssertEqual(new AnimationPlayback<BoulderSegment>(BoulderAnimations.StartingWith(BoulderSegment.Left), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<BoulderEntity, BoulderEnemyState>() ?? throw new InvalidOperationException("The Boulder has no state.")).Playback,
             "Boulder initializer animation");
         place.AnimationClock.StepOnNextUpdate();
@@ -54,7 +54,7 @@ internal static class BoulderBehaviorVerification
             place.Bind(EnemyDefinitionId.Boulder, place.Definition);
             place.Position = place.Position.WithWhole(new(256, 512));
             place.SetSpawnWords(EnemyDefinitionId.Boulder, words => words);
-            BoulderBehavior.InitializeBoulder(place);
+            BoulderBehavior.InitializeBoulder(place, place.SpawnSettings<BoulderSpawnSettings>());
             BoulderEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BoulderEntity>(place).State;
             state.Action = BoulderAction.Rebound;
             state.BounceCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(start);

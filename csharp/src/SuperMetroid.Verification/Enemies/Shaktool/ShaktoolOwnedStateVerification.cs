@@ -54,7 +54,7 @@ internal static class ShaktoolOwnedStateVerification
         misplaced.Bind(EnemyDefinitionId.Shaktool, misplaced.Definition);
         misplaced.Bind(misplaced.DefinitionId, default(RoomEnemyDefinition));
         misplaced.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 0);
-        AssertThrows<InvalidDataException>(() => misplacedEnemies.ShaktoolBehavior.InitializeShaktool(misplaced),
+        AssertThrows<InvalidDataException>(() => misplacedEnemies.ShaktoolBehavior.InitializeShaktool(misplaced, misplaced.SpawnSettings<ShaktoolSpawnSettings>()),
             "a Shaktool chain starting after the first slot is refused");
 
         // The chain moves as one, so a segment placed moving otherwise than its leading saw is refused (#2452).
@@ -68,8 +68,8 @@ internal static class ShaktoolOwnedStateVerification
                 index == 0 ? ShaktoolChainMotion.CurlingClockwise : ShaktoolChainMotion.CurlingClockwise with { OrbitDirection = RotationDirection.Counterclockwise },
                 ShaktoolSegmentDefinitions.Segments[index]));
         }
-        mismatchedEnemies.ShaktoolBehavior.InitializeShaktool(mismatchedEnemies.Places.InUpdateOrder[0]);
-        AssertThrows<InvalidDataException>(() => mismatchedEnemies.ShaktoolBehavior.InitializeShaktool(mismatchedEnemies.Places.InUpdateOrder[1]),
+        mismatchedEnemies.ShaktoolBehavior.InitializeShaktool(mismatchedEnemies.Places.InUpdateOrder[0], mismatchedEnemies.Places.InUpdateOrder[0].SpawnSettings<ShaktoolSpawnSettings>());
+        AssertThrows<InvalidDataException>(() => mismatchedEnemies.ShaktoolBehavior.InitializeShaktool(mismatchedEnemies.Places.InUpdateOrder[1], mismatchedEnemies.Places.InUpdateOrder[1].SpawnSettings<ShaktoolSpawnSettings>()),
             "a Shaktool segment placed moving otherwise than its leading saw is refused");
         Console.WriteLine("Shaktool owned state: orbit wrap, reversed orientation, wall reversal, the first-slot chain and the one chain motion match.");
     }
@@ -85,7 +85,7 @@ internal static class ShaktoolOwnedStateVerification
             place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             place.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
             place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
-            enemies.ShaktoolBehavior.InitializeShaktool(place);
+            enemies.ShaktoolBehavior.InitializeShaktool(place, place.SpawnSettings<ShaktoolSpawnSettings>());
         }
         return enemies;
     }

@@ -183,7 +183,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             place.Radius = new(8, 16);
             place.SetSpawnParameter2(EnemyDefinitionId.PirateGreyWall, 0x0080);
-            WallSpacePirateBehavior.InitializeWallSpacePirate(place);
+            WallSpacePirateBehavior.InitializeWallSpacePirate(place, place.SpawnSettings<WallSpacePirateSpawnSettings>());
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),

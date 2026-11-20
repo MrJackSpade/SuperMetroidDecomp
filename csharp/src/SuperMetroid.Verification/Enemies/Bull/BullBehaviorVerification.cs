@@ -26,7 +26,7 @@ internal static class BullBehaviorVerification
         place.Bind(EnemyDefinitionId.Bull, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        enemies.BullBehavior.InitializeBull(place);
+        enemies.BullBehavior.InitializeBull(place, place.SpawnSettings<BullSpawnSettings>());
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException("Bull initializer did not publish typed state.");
         AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.StartingWith(BullSegment.Idle), AnimationPlace.StartOfAnimation), state.Playback, "Bull initializer animation");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BullAnimations.Segments, BullSegment.Idle, BullFrameToolingDefinitions.Spritemap),
@@ -45,7 +45,7 @@ internal static class BullBehaviorVerification
         RoomEnemyPlace bombed = enemies.Places.InUpdateOrder[1];
         bombed.Bind(EnemyDefinitionId.Bull, bombed.Definition);
         bombed.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        enemies.BullBehavior.InitializeBull(bombed);
+        enemies.BullBehavior.InitializeBull(bombed, bombed.SpawnSettings<BullSpawnSettings>());
         var bomb = new SamusBomb(0) { Type = SamusProjectileType.Of(SamusProjectileFamily.Bomb) };
         var context = new EnemyBombContext(bombed, bomb, InstalledFixtures.CreateProjectileSystem(), RoomEnemyFrameFixtures.StandaloneSamus(),
             SelectedShot: null, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0), HealthBefore: bombed.Health)
@@ -72,7 +72,7 @@ internal static class BullBehaviorVerification
         RoomEnemyPlace slot = enemies.Places.InUpdateOrder[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
         slot.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        enemies.BullBehavior.InitializeBull(slot);
+        enemies.BullBehavior.InitializeBull(slot, slot.SpawnSettings<BullSpawnSettings>());
         BullEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BullEntity>(slot).State;
         SignedEightEight brakingStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
 

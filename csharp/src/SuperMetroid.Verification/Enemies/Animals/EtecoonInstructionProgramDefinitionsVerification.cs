@@ -77,7 +77,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         place.Bind(EnemyDefinitionId.Etecoon, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.SetSpawnWords(EnemyDefinitionId.Etecoon, words => words);
-        EtecoonBehavior.InitializeEtecoon(place);
+        EtecoonBehavior.InitializeEtecoon(place, place.SpawnSettings<EtecoonSpawnSettings>());
         return new NewEtecoonResult(enemies, place, enemies.EtecoonStates[0] ?? throw new InvalidOperationException("The Etecoon has no state."));
     }
 

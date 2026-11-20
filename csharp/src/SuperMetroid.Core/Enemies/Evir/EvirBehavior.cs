@@ -411,7 +411,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // wings keep theirs (#2375, #2476): the copies are observable. Each part counts its copied freeze down on its own
         // turn, and the copy carries no hurt state, so a part's freeze runs out while a hurt body's waits for its flash to
         // end. A power bomb hits the arms on their own, whose follow-up freezes their spit and the next Evir's body, and
-        // the spit can be shot and frozen by itself.
+        // the spit can be shot and frozen by itself. Each copy sets both the part's freeze countdown and its Frozen AI state
+        // (#2560): the AI states are the shared enemy engine's state, which the common freeze, contact and drawing paths read
+        // and clear on their own, so the flag is not this species' to fold into the countdown.
         firstRelative.Freeze.Restart(actor.Freeze.UpdatesLeft);
         firstRelative.AiStates = firstRelative.AiStates | EnemyAiStates.Frozen;
         // The game compares the action of the enemy listed two places on with the moving spit's. In the

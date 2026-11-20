@@ -6,4 +6,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="RoomObjectBlock">The room block of the gate's top block, where its room object sits.</param>
 public sealed record DownwardGateProjectileWake(Position16<RoomBlocks> RoomObjectBlock)
-    : DownwardGateProjectileRequest(RoomObjectBlock);
+    : DownwardGateProjectileRequest(RoomObjectBlock)
+{
+    /// <inheritdoc/>
+    internal override void React(DownwardGateProjectileRequestReactions reactions) => Ensure.NotNull(reactions).DownwardGateProjectileWake(this);
+}

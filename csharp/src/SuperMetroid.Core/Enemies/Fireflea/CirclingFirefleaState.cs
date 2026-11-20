@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 /// <summary>The flight of a Fireflea that circles where it started.</summary>
 public sealed class CirclingFirefleaState : FirefleaFlightState
 {
+    /// <inheritdoc/>
+    internal override void React(FirefleaFlightStateReactions reactions) => Ensure.NotNull(reactions).CirclingFirefleaState(this);
+
     /// <summary>Starts the circling flight its spawn settings chose, <paramref name="definition"/>.</summary>
     internal CirclingFirefleaState(FirefleaFlight.Circling definition) => Definition = Ensure.NotNull(definition);
 

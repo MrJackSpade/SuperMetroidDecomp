@@ -7,4 +7,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="RoomObjectBlock">The block the hand occupies, which the fragment's placement is relative to.</param>
 public sealed record BombTorizoStatueProjectileRequest(
     BombTorizoStatueFragment Fragment,
-    Position16<RoomBlocks> RoomObjectBlock) : RoomObjectProjectileRequest(RoomObjectBlock);
+    Position16<RoomBlocks> RoomObjectBlock) : RoomObjectProjectileRequest(RoomObjectBlock)
+{
+    /// <inheritdoc/>
+    internal override void React(RoomObjectProjectileRequestReactions reactions) => Ensure.NotNull(reactions).BombTorizoStatueProjectileRequest(this);
+}

@@ -11,6 +11,16 @@ public abstract record RoomObjectProjectileRequest
     /// <param name="roomObjectBlock">The block of the room object that threw the projectile.</param>
     private protected RoomObjectProjectileRequest(Position16<RoomBlocks> roomObjectBlock) => RoomObjectBlock = roomObjectBlock;
 
+    /// <summary>Carries out the reaction <paramref name="reactions"/> has to this room object projectile request, through the case it is.</summary>
+    /// <param name="reactions">What its owner does on each case.</param>
+    internal abstract void React(RoomObjectProjectileRequestReactions reactions);
+
+
     /// <summary>The block of the room object that threw the projectile, which the projectile's place is relative to.</summary>
     public Position16<RoomBlocks> RoomObjectBlock { get; }
 }
+
+/// <summary>What the owner of a <see cref="RoomObjectProjectileRequest"/> does on each of its cases (#2553).</summary>
+/// <param name="MotherBrainGlassProjectileRequest">Reacts to a <see cref="Bosses.MotherBrain.MotherBrainGlassProjectileRequest"/>.</param>
+/// <param name="BombTorizoStatueProjectileRequest">Reacts to a <see cref="Bosses.Torizo.BombTorizoStatueProjectileRequest"/>.</param>
+internal sealed record RoomObjectProjectileRequestReactions(Action<Bosses.MotherBrain.MotherBrainGlassProjectileRequest> MotherBrainGlassProjectileRequest, Action<Bosses.Torizo.BombTorizoStatueProjectileRequest> BombTorizoStatueProjectileRequest);

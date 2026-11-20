@@ -7,4 +7,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="RoomObjectBlock">The glass room object's block, the origin of the emitters.</param>
 internal sealed record MotherBrainGlassProjectileRequest(
     MotherBrainGlassShard Shard,
-    Position16<RoomBlocks> RoomObjectBlock) : RoomObjectProjectileRequest(RoomObjectBlock);
+    Position16<RoomBlocks> RoomObjectBlock) : RoomObjectProjectileRequest(RoomObjectBlock)
+{
+    /// <inheritdoc/>
+    internal override void React(RoomObjectProjectileRequestReactions reactions) => Ensure.NotNull(reactions).MotherBrainGlassProjectileRequest(this);
+}

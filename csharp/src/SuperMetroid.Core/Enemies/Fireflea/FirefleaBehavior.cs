@@ -71,15 +71,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the Fireflea's main AI, advancing circular angle or vertical travel.</summary>
     private static void RunFirefleaMain(RoomEnemyPlace place, FirefleaEnemyState state)
     {
-        switch (state.Flight)
-        {
-            case CirclingFirefleaState circling:
-                place.Position = place.Position.WithWhole(circling.Center
-                    + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), place.SpawnSettings<FirefleaSpawnSettings>().Radius));
-                circling.Angle = circling.Angle.TurnedBy(circling.Definition.TurnPerUpdate);
-                return;
-
-            case BobbingFirefleaState bobbing:
+        state.Flight.React(new FirefleaFlightStateReactions(
+            BobbingFirefleaState: bobbing =>
+            {
                 place.Position = place.Position.AdvanceY(bobbing.Velocity);
 
                 // The Fireflea overshoots a bound before its way reverses.
@@ -87,11 +81,13 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
                 bool reachedMaximum = place.Position.Y.Whole >= bobbing.MaximumY;
                 if (crossedMinimum || reachedMaximum)
                     bobbing.Direction = bobbing.Direction.Reversed();
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined Fireflea flight {state.Flight}.");
-        }
+            },
+            CirclingFirefleaState: circling =>
+            {
+                place.Position = place.Position.WithWhole(circling.Center
+                    + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), place.SpawnSettings<FirefleaSpawnSettings>().Radius));
+                circling.Angle = circling.Angle.TurnedBy(circling.Definition.TurnPerUpdate);
+            }));
     }
 
     /// <summary>

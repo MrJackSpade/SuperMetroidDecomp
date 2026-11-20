@@ -103,17 +103,9 @@ internal sealed class RoomObjectFramePhase
     {
         foreach (RoomObjectProjectileRequest thrown in step.ThrownProjectiles)
         {
-            switch (thrown)
-            {
-                case MotherBrainGlassProjectileRequest shard:
-                    room.Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(shard);
-                    break;
-                case BombTorizoStatueProjectileRequest fragment:
-                    room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(fragment);
-                    break;
-                default:
-                    throw new InvalidDataException($"A room object threw the undefined projectile {thrown}.");
-            }
+            thrown.React(new RoomObjectProjectileRequestReactions(
+                MotherBrainGlassProjectileRequest: shard => room.Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(shard),
+                BombTorizoStatueProjectileRequest: fragment => room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(fragment)));
         }
     }
 

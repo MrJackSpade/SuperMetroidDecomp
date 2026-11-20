@@ -26,18 +26,9 @@ internal sealed class DownwardGateBehavior
     public void ApplyDownwardGateProjectileRequest(
         DownwardGateProjectileRequest request)
     {
-        switch (request)
-        {
-            case DownwardGateProjectileSpawn spawn:
-                SpawnDownwardGateProjectile(spawn);
-                return;
-            case DownwardGateProjectileWake wake:
-                WakeDownwardGateProjectile(wake.RoomObjectBlock);
-                return;
-            default:
-                throw new ArgumentOutOfRangeException(
-                    nameof(request), request, "Unknown downward gate projectile request.");
-        }
+        request.React(new DownwardGateProjectileRequestReactions(
+            DownwardGateProjectileSpawn: spawn => SpawnDownwardGateProjectile(spawn),
+            DownwardGateProjectileWake: wake => WakeDownwardGateProjectile(wake.RoomObjectBlock)));
     }
 
     /// <summary>Allocates a gate actor at its room object's block and ties it to its gate's block for waking.</summary>

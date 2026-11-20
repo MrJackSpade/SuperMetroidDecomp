@@ -136,15 +136,11 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
     /// <summary>
-    /// The wind-up's finishing cue (#2450): the dive is ready, and the Skree starts it on its next update.
+    /// The wind-up's finishing cue (#2450): the dive is ready, and the Skree starts it on its next update. The cue moves the
+    /// Skree into its ready phase as the cartridge's instruction sets the attack-ready flag, and the ready phase's step
+    /// consumes it, launching the dive.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The Skree is not winding up.</exception>
-    private static void ReadySkreeAttack(SkreeEnemyState state)
-    {
-        if (state.Action != SkreeAction.PreparingAttack)
-            throw new InvalidOperationException($"A Skree's dive was readied while it was {state.Action}.");
-        state.Action = SkreeAction.AttackReady;
-    }
+    private static void ReadySkreeAttack(SkreeEnemyState state) => state.Action = SkreeAction.AttackReady;
 
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>
     /// <remarks>The Skree's shot reaction adds its four debris actors after the shared normal shot response reports death, before the

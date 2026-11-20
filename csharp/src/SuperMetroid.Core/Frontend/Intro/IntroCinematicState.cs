@@ -866,9 +866,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Samus's ordinary update resolves a downward collision only after animation.
         // Apply the shared landing transition here so pose, radii, feet alignment, and the
         // next animation all come from the same landing implementation as gameplay.
-        if (!animationTransitionApplied && fallingMovement is { Landed: true })
+        if (!animationTransitionApplied && fallingMovement is { Landed: true } && SamusPoseMetadata.ReadAim(samus) is SamusPoseAim.ISteady sourceAim)
         {
-            SamusPoseTransitions.ApplyAerialLanding(samus, wasSpinning: samus.Pose == SamusPoseId.SpinJumpLeftPose, demoInput);
+            SamusPoseTransitions.ApplyAerialLanding(samus, sourceAim, wasSpinning: samus.Pose == SamusPoseId.SpinJumpLeftPose, demoInput);
             transitionAccepted = true;
         }
 

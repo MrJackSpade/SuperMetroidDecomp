@@ -258,13 +258,10 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     public static void ApplyGroundedTurn(SamusState samus, SamusPoseId targetPose, GameplayAction controllerInput = GameplayAction.None)
     {
-        // The two front-view poses take an unusual route.
-        // They face neither way, so they cannot honestly be classified as either
-        // a right-facing or left-facing source. The game instead skips the shot-direction
-        // lookup entirely when the previous pose is forward-facing, retaining the generic
-        // standing turn selected by that front-view pose's input transitions.
-        bool wasForwardFacing = SamusPoseMetadata.IsForwardFacingPose(samus.Pose);
-
+        // The two front-view poses take an unusual route. They face neither way, so they cannot honestly be classified as
+        // either a right-facing or left-facing source. The game instead skips the shot-direction lookup entirely when the
+        // previous pose is forward-facing, retaining the generic standing turn selected by that front-view pose's input
+        // transitions (SamusGroundTurnSource.FacingForward).
         // Crouching input transitions publish the crouching turn directly, whereas every admitted
         // standing, running and landing pose's transitions publish the standing turn. The setup still uses
         // the previous SamusMovementType.Crouching to choose the crouched turn that keeps her aim.
@@ -288,27 +285,13 @@ internal static class SamusGroundedPoseTransitions
             return;
         }
 
-        // The turn reads the PREVIOUS pose before it starts the final turn's pose.
-        // A previous crouching movement selects the crouched turns by aim; every other admitted source selects
-        // the standing ones. Both cover Samus's ten aims, but her two straight-down aims belong to
-        // the compact straight-down family, which this transition does not handle.
-        SamusPoseId selectedTurnPose;
-        if (wasForwardFacing)
-        {
-            // A forward-facing Samus keeps the generic turn the input transitions chose.
-            selectedTurnPose = targetPose;
-        }
-        else
-        {
-            SamusPoseAim aim = SamusPoseMetadata.ReadAim(samus);
-            IReadOnlyDictionary<SamusProjectileDirection, SamusPoseId> turns = wasCrouching
-                ? SamusAimedPoseChoiceDefinitions.CrouchingTurns
-                : SamusAimedPoseChoiceDefinitions.StandingTurns;
-            // Grounded and crouched poses never aim straight down, nor outside their eight aims.
-            selectedTurnPose = aim is SamusPoseAim.Aiming { Direction: var direction } && turns.TryGetValue(direction, out SamusPoseId turn)
-                ? turn
-                : throw new InvalidDataException($"{(wasCrouching ? "Crouched" : "Grounded")} turn aim {aim} is invalid.");
-        }
+        // The turn reads the PREVIOUS pose before it starts the final turn's pose. A forward-facing Samus keeps the generic
+        // turn the input transitions chose; every other pose that turns on the ground aims (bound as the poses load), and a
+        // previous crouching movement selects the crouched turn keeping that aim, every other the standing one. A
+        // straight-down aim turns as its diagonal-down neighbour.
+        SamusPoseId selectedTurnPose = SamusGroundTurnSources.Of(samus.Pose).Turn(targetPose, wasCrouching
+            ? SamusAimedPoseChoiceDefinitions.CrouchingTurns
+            : SamusAimedPoseChoiceDefinitions.StandingTurns);
 
         // The turn consumes the extra run speed and selects SamusAccelerationMode.Turning. The direction selector reads
         // that mode as “move opposite the NEW facing direction” while the speed calculation decelerates, which is how

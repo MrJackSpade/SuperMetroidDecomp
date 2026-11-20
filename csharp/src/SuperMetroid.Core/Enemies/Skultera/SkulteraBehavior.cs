@@ -29,14 +29,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>What <c>ApplySkulteraCue</c> does for each <see cref="SkulteraCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<SkulteraCueKind, Action<SkulteraEnemyState>> ApplySkulteraCueForSkulteraCueKind => field ??= new(new Dictionary<SkulteraCueKind, Action<SkulteraEnemyState>>
     {
-        [SkulteraCueKind.FinishTurn] = static state =>
-        {
-            // Turns rest immediately after finishing (#2450). Main AI starts the steady swim on the following
-            // update.
-            if (state.Action != SkulteraAction.Turning)
-                throw new InvalidOperationException($"A Skultera's turn finished while it was {state.Action}.");
-            state.Action = SkulteraAction.TurnFinished;
-        },
+        // Turns rest immediately after finishing (#2450): the cue moves the Skultera into its finished turn, which main AI
+        // consumes on the following update, starting the steady swim.
+        [SkulteraCueKind.FinishTurn] = static state => state.Action = SkulteraAction.TurnFinished,
     });
 
     /// <summary>Carries out one cue of Skultera's animations.</summary>

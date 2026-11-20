@@ -21,6 +21,18 @@ internal abstract record SamusPoseAim
     /// <summary>Whether the pose aims straight up, facing either way.</summary>
     public bool AimsStraightUp => this is Aiming { Direction: var direction } && SamusProjectileDirectionDefinitions.Axes(direction).IsStraightUp;
 
+    /// <summary>
+    /// A pose that holds its aim, not turning: it aims or disables shooting. A jump or fall in such a pose lands keeping
+    /// it; a turning pose turns instead of landing.
+    /// </summary>
+    internal interface ISteady
+    {
+        /// <summary>The landing a jump or fall in the pose takes, facing left or right, with Shoot held or released.</summary>
+        /// <param name="facingLeft">Whether she faces left.</param>
+        /// <param name="shotHeld">Whether Shoot is held.</param>
+        SamusPoseId Landing(bool facingLeft, bool shotHeld);
+    }
+
     /// <summary>A pose whose arm cannon is armed: it aims or turns, and places a held charge's flare.</summary>
     internal abstract record Armed : SamusPoseAim
     {
@@ -30,10 +42,22 @@ internal abstract record SamusPoseAim
 
     /// <summary>A pose aiming in <paramref name="Direction"/>, which places a held charge's flare at that direction's muzzle.</summary>
     /// <param name="Direction">The direction the pose fires in.</param>
-    internal sealed record Aiming(SamusProjectileDirection Direction) : Armed
+    internal sealed record Aiming(SamusProjectileDirection Direction) : Armed, ISteady
     {
         /// <inheritdoc/>
         public override SamusFlareAim Flare { get; } = new SamusFlareAim.AtMuzzle(Direction);
+
+        /// <summary>
+        /// The aimed landing keeping <see cref="Direction"/>; a level aim takes the landing's extra Shot-binding test, held
+        /// Shot selecting the firing landing.
+        /// </summary>
+        /// <param name="facingLeft">Whether she faces left; the aim names the way.</param>
+        /// <param name="shotHeld">Whether Shoot is held.</param>
+        public SamusPoseId Landing(bool facingLeft, bool shotHeld)
+        {
+            SamusLandingChoice landing = SamusAimedPoseChoiceDefinitions.Landings[Direction];
+            return shotHeld ? landing.ShootHeld : landing.ShootReleased;
+        }
     }
 
     /// <summary>
@@ -47,6 +71,11 @@ internal abstract record SamusPoseAim
         public override SamusFlareAim Flare { get; } = new SamusFlareAim.WhileTurning(HeldAim);
     }
 
-    /// <summary>A pose that disables shooting.</summary>
-    internal sealed record ShootingDisabled : SamusPoseAim;
+    /// <summary>A pose that disables shooting; it lands in the ordinary landing facing its way.</summary>
+    internal sealed record ShootingDisabled : SamusPoseAim, ISteady
+    {
+        /// <inheritdoc/>
+        public SamusPoseId Landing(bool facingLeft, bool shotHeld) =>
+            facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose;
+    }
 }

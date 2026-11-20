@@ -376,9 +376,11 @@ internal sealed class SamusPoseTransitionPhase
         // spin landing from the movement type that executed this frame, then settling
         // the accepted landing clears both velocity axes. This ordinary prospective pose
         // is lower priority than the animation's pending transition pose above.
+        // A turning pose turns rather than lands: only a pose holding its aim lands, keeping it. Among the poses that move
+        // through the air, the turning ones are exactly the jumping and falling turns.
         if (!transitionApplied &&
             frame.AerialMovement is { Landed: true } &&
-            !SamusPoseMetadata.IsAerialTurnPose(frame.PoseAtFrameStart))
+            SamusPoseMetadata.ReadAim(frame.PoseAtFrameStart) is SamusPoseAim.ISteady sourceAim)
         {
             if (SamusPoseMetadata.IsCompactAerialPose(frame.PoseAtFrameStart))
             {
@@ -392,6 +394,7 @@ internal sealed class SamusPoseTransitionPhase
                 bool wasSpinning = SamusPoseMetadata.IsSpinJumpPose(frame.PoseAtFrameStart) ||
                     SamusPoseMetadata.IsWallJumpPose(frame.PoseAtFrameStart);
                 SamusPoseTransitions.ApplyAerialLandingInRoom(samus,
+                    sourceAim,
                     terrain.Level,
                     wasSpinning,
                     _playerActions.Current,

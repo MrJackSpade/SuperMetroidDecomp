@@ -44,31 +44,41 @@ internal static class SamusAimedPoseChoiceDefinitions
         [Shot.UpFacingLeft] = SamusPoseId.TurningLeftToRightFallingAimUpPose,
     };
 
-    /// <summary>The turn a standing or running pose takes, by the direction it aims; no grounded pose aims straight down.</summary>
-    internal static IReadOnlyDictionary<Shot, SamusPoseId> StandingTurns { get; } = new Dictionary<Shot, SamusPoseId>
+    /// <summary>
+    /// The turn a standing or running pose takes, by the direction it aims, over all ten: a straight-down aim turns as the
+    /// diagonal-down aim facing its way does, as the cartridge's turning table gives it.
+    /// </summary>
+    internal static IdentityTable<Shot, SamusPoseId> StandingTurns { get; } = new(new Dictionary<Shot, SamusPoseId>
     {
         [Shot.UpFacingRight] = SamusPoseId.TurningRightToLeftAimUpPose,
         [Shot.UpRight] = SamusPoseId.TurningRightToLeftAimDiagonalUpPose,
         [Shot.Right] = SamusPoseId.TurningRightToLeftPose,
         [Shot.DownRight] = SamusPoseId.TurningRightToLeftAimDiagonalDownPose,
+        [Shot.DownFacingRight] = SamusPoseId.TurningRightToLeftAimDiagonalDownPose,
+        [Shot.DownFacingLeft] = SamusPoseId.TurningLeftToRightAimDiagonalDownPose,
         [Shot.DownLeft] = SamusPoseId.TurningLeftToRightAimDiagonalDownPose,
         [Shot.Left] = SamusPoseId.TurningLeftToRightPose,
         [Shot.UpLeft] = SamusPoseId.TurningLeftToRightAimDiagonalUpPose,
         [Shot.UpFacingLeft] = SamusPoseId.TurningLeftToRightAimUpPose,
-    };
+    });
 
-    /// <summary>The turn a crouching pose takes, by the direction it aims; no crouch aims straight down.</summary>
-    internal static IReadOnlyDictionary<Shot, SamusPoseId> CrouchingTurns { get; } = new Dictionary<Shot, SamusPoseId>
+    /// <summary>
+    /// The turn a crouching pose takes, by the direction it aims, over all ten: a straight-down aim turns as the
+    /// diagonal-down aim facing its way does, as the cartridge's turning table gives it.
+    /// </summary>
+    internal static IdentityTable<Shot, SamusPoseId> CrouchingTurns { get; } = new(new Dictionary<Shot, SamusPoseId>
     {
         [Shot.UpFacingRight] = SamusPoseId.TurningRightToLeftCrouchingAimUpPose,
         [Shot.UpRight] = SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose,
         [Shot.Right] = SamusPoseId.TurningRightToLeftCrouchingPose,
         [Shot.DownRight] = SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose,
+        [Shot.DownFacingRight] = SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose,
+        [Shot.DownFacingLeft] = SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose,
         [Shot.DownLeft] = SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose,
         [Shot.Left] = SamusPoseId.TurningLeftToRightCrouchingPose,
         [Shot.UpLeft] = SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose,
         [Shot.UpFacingLeft] = SamusPoseId.TurningLeftToRightCrouchingAimUpPose,
-    };
+    });
 
     /// <summary>
     /// The turning jump a moonwalk takes when it reverses with Jump held, by the direction it aims; a moonwalk aims only
@@ -103,18 +113,21 @@ internal static class SamusAimedPoseChoiceDefinitions
     });
 
     /// <summary>
-    /// The landing a jump or fall that can shoot takes, by the direction it aims; a straight-down aim lands through the
-    /// compact landing, which needs the room's blocks.
+    /// The landing a jump or fall that can shoot takes, by the direction it aims, over all ten as the cartridge's landing
+    /// table gives them: a straight-down aim lands in the normal landing facing its way, Shoot held or not. Compact
+    /// straight-down poses land through the compact landing, which needs the room's blocks, and takes the same poses.
     /// </summary>
-    internal static IReadOnlyDictionary<Shot, SamusLandingChoice> Landings { get; } = new Dictionary<Shot, SamusLandingChoice>
+    internal static IdentityTable<Shot, SamusLandingChoice> Landings { get; } = new(new Dictionary<Shot, SamusLandingChoice>
     {
         [Shot.UpFacingRight] = new(SamusPoseId.LandingAimUpRightPose, SamusPoseId.LandingAimUpRightPose),
         [Shot.UpRight] = new(SamusPoseId.LandingAimDiagonalUpRightPose, SamusPoseId.LandingAimDiagonalUpRightPose),
         [Shot.Right] = new(SamusPoseId.NormalLandingRightPose, SamusPoseId.FiringLandingRightPose),
         [Shot.DownRight] = new(SamusPoseId.LandingAimDiagonalDownRightPose, SamusPoseId.LandingAimDiagonalDownRightPose),
+        [Shot.DownFacingRight] = new(SamusPoseId.NormalLandingRightPose, SamusPoseId.NormalLandingRightPose),
+        [Shot.DownFacingLeft] = new(SamusPoseId.NormalLandingLeftPose, SamusPoseId.NormalLandingLeftPose),
         [Shot.DownLeft] = new(SamusPoseId.LandingAimDiagonalDownLeftPose, SamusPoseId.LandingAimDiagonalDownLeftPose),
         [Shot.Left] = new(SamusPoseId.NormalLandingLeftPose, SamusPoseId.FiringLandingLeftPose),
         [Shot.UpLeft] = new(SamusPoseId.LandingAimDiagonalUpLeftPose, SamusPoseId.LandingAimDiagonalUpLeftPose),
         [Shot.UpFacingLeft] = new(SamusPoseId.LandingAimUpLeftPose, SamusPoseId.LandingAimUpLeftPose),
-    };
+    });
 }

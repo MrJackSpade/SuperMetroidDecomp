@@ -26,7 +26,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>What <c>ApplyBoyonCue</c> does for each <see cref="BoyonCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<BoyonCueKind, Action<RoomEnemyPlace, BoyonEnemyState>> ApplyBoyonCueForBoyonCueKind => field ??= new(new Dictionary<BoyonCueKind, Action<RoomEnemyPlace, BoyonEnemyState>>
     {
-        [BoyonCueKind.PlayBounceSound] = (place, state) => PlayBoyonBounceSound(state),
+        [BoyonCueKind.PlayBounceSound] = (place, state) => PlayBoyonBounceSound(),
         [BoyonCueKind.ProcessOffScreen] = (place, state) => place.Processing = place.Processing.With(EnemyProcessing.OffScreen),
         [BoyonCueKind.StopProcessingOffScreen] = (place, state) => place.Processing = place.Processing.Without(EnemyProcessing.OffScreen),
     });
@@ -174,16 +174,11 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The bounce cue: request the bounce sound. The bouncing animation that raises it starts only as the Boyon starts
-    /// bouncing, so the arc it permits is already under way (#2432).
+    /// The bounce cue: request the bounce sound, all its instruction does. The bouncing animation that raises it starts only
+    /// as the Boyon starts bouncing, so the arc it permits is already under way (#2432).
     /// </summary>
-    /// <exception cref="InvalidOperationException">The Boyon is not bouncing.</exception>
-    private void PlayBoyonBounceSound(BoyonEnemyState state)
-    {
-        if (!state.IsBouncing)
-            throw new InvalidOperationException($"A Boyon's bounce cue ran in its {state.Phase} phase.");
+    private void PlayBoyonBounceSound() =>
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.BoyonBounceSound, priority: SoundRequestPriority.Normal);
-    }
 
     /// <summary>Runs Boyon's idle and bouncing loops (#641).</summary>
     internal void AdvanceBoyonAnimation(RoomEnemyPlace place) =>

@@ -78,14 +78,19 @@ internal static class SamusPoseTransitions
     /// landing pose against the changed-pose collision, so the much taller landing body never overlaps a low ceiling.
     /// This roomless form is for cinematic movement only.
     /// </remarks>
+    /// <param name="samus">Samus, landing.</param>
+    /// <param name="sourceAim">The aim the pose she lands from holds.</param>
+    /// <param name="wasSpinning">Whether she lands from a spin.</param>
+    /// <param name="controllerInput">The actions held as she lands.</param>
     public static void ApplyAerialLanding(
         SamusState samus,
+        SamusPoseAim.ISteady sourceAim,
         bool wasSpinning,
         GameplayAction controllerInput)
     {
         SamusPoseId sourcePose = samus.Pose;
         bool leavingScrewAttack = SamusPoseMetadata.IsScrewAttackPose(sourcePose);
-        SamusPoseId targetPose = SelectAerialLandingPose(samus, wasSpinning, controllerInput);
+        SamusPoseId targetPose = SelectAerialLandingPose(samus, sourceAim, wasSpinning, controllerInput);
 
         int oldRadius = samus.Kinematics.Radius.Y;
         samus.Pose = targetPose;
@@ -103,8 +108,16 @@ internal static class SamusPoseTransitions
     /// Applies a normal or spinning landing through the game's shared prospective-pose
     /// collision response before committing the taller landing body.
     /// </summary>
+    /// <param name="samus">Samus, landing.</param>
+    /// <param name="sourceAim">The aim the pose she lands from holds.</param>
+    /// <param name="level">The room's blocks the landing body is tested against.</param>
+    /// <param name="wasSpinning">Whether she lands from a spin.</param>
+    /// <param name="controllerInput">The actions held as she lands.</param>
+    /// <param name="frameCounter">The frame counter the collision reads.</param>
+    /// <param name="roomObjects">The room's objects the collision reads.</param>
     public static void ApplyAerialLandingInRoom(
         SamusState samus,
+        SamusPoseAim.ISteady sourceAim,
         RoomLevelData level,
         bool wasSpinning,
         GameplayAction controllerInput,
@@ -115,7 +128,7 @@ internal static class SamusPoseTransitions
 
         SamusPoseId sourcePose = samus.Pose;
         bool leavingScrewAttack = SamusPoseMetadata.IsScrewAttackPose(sourcePose);
-        SamusPoseId targetPose = SelectAerialLandingPose(samus, wasSpinning, controllerInput);
+        SamusPoseId targetPose = SelectAerialLandingPose(samus, sourceAim, wasSpinning, controllerInput);
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
             level,
             targetPose,
@@ -166,6 +179,7 @@ internal static class SamusPoseTransitions
     /// <summary>Chooses the landing transition's prospective landing pose.</summary>
     private static SamusPoseId SelectAerialLandingPose(
         SamusState samus,
+        SamusPoseAim.ISteady sourceAim,
         bool wasSpinning,
         GameplayAction controllerInput)
     {
@@ -177,23 +191,9 @@ internal static class SamusPoseTransitions
                 : SamusPoseId.SpinLandingRightPose;
         }
 
-        // A pose that disables shooting lands through the ordinary facing pair before her
-        // aim chooses a landing; hurt and damage-boost art disable shooting.
-        // Horizontal aims take the landing's extra Shot-binding test. Held Shot selects the
-        // firing landing; released Shot selects the ordinary normal landing pair. The six
-        // admitted aimed directions select the aimed landings.
-        SamusPoseAim aim = SamusPoseMetadata.ReadAim(samus);
-        if (aim.DisablesShooting)
-            return facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose;
-        bool shotHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
-        // The straight-down aims are consumed by ApplyCompactAerialLanding, because the compact-to-standing expansion needs room
-        // collision data.
-        SamusLandingChoice landing = aim is SamusPoseAim.Aiming { Direction: var direction } &&
-            SamusAimedPoseChoiceDefinitions.Landings.TryGetValue(direction, out SamusLandingChoice? choice)
-            ? choice
-            : throw new InvalidOperationException(
-                $"Landing from aim {aim} requires the collision-aware compact landing operation.");
-        return shotHeld ? landing.ShootHeld : landing.ShootReleased;
+        // A pose that disables shooting lands through the ordinary facing pair before her aim chooses a landing; hurt and
+        // damage-boost art disable shooting. An aiming pose lands keeping its aim, a level aim with held Shot firing.
+        return sourceAim.Landing(facingLeft, (controllerInput & GameplayAction.Shoot) != GameplayAction.None);
     }
 
     /// <summary>

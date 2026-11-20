@@ -12,16 +12,28 @@ public abstract record EnemyGrappleResponse
     {
     }
 
+    /// <summary>How the beam that meets the enemy reacts: the enemy's own reaction, or none.</summary>
+    public abstract GrappleEnemyReaction BeamReaction { get; }
+
     /// <summary>An enemy that reacts to the beam in <paramref name="Reaction"/>'s way.</summary>
     /// <param name="Reaction">How the enemy reacts to the beam.</param>
-    public sealed record Reacting(GrappleEnemyReaction Reaction) : EnemyGrappleResponse;
+    public sealed record Reacting(GrappleEnemyReaction Reaction) : EnemyGrappleResponse
+    {
+        /// <inheritdoc/>
+        public override GrappleEnemyReaction BeamReaction => Reaction;
+    }
 
     /// <summary>
-    /// The enemy has no reaction to the grapple beam (#2283, #2558): the elevator, whose own behaviour carries on. The beam
-    /// never meets it, and reaching it fails.
+    /// The enemy has no reaction of the beam's own to the grapple beam (#2283, #2558): the elevator, whose grapple behaviour is
+    /// its main behaviour. The beam meets it as the cartridge's endpoint test does ($A0:9E9A): the enemy is held grappled,
+    /// and the beam, finding none of the shared grapple behaviours, reads it as it reads an enemy with no interaction; the
+    /// held enemy's own behaviour carries on, and nothing releases it.
     /// </summary>
     public sealed record Unreactive : EnemyGrappleResponse
     {
+        /// <inheritdoc/>
+        public override GrappleEnemyReaction BeamReaction => GrappleEnemyReaction.None;
+
         /// <summary>The one unreactive response.</summary>
         public static Unreactive Instance { get; } = new();
 

@@ -157,15 +157,11 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
     /// <summary>
-    /// The launch crouch's finishing cue (#2439): the attack is ready, and the Metaree launches it on its next update.
+    /// The launch crouch's finishing cue (#2439): the attack is ready, and the Metaree launches it on its next update. The
+    /// cue moves the Metaree into its ready phase as the cartridge's instruction sets the attack-ready flag, and the ready
+    /// phase's step consumes it, launching the attack.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The Metaree is not preparing an attack.</exception>
-    private static void ReadyMetareeAttack(MetareeEnemyState state)
-    {
-        if (state.Action != MetareeAction.PreparingAttack)
-            throw new InvalidOperationException($"A Metaree's attack was readied while it was {state.Action}.");
-        state.Action = MetareeAction.AttackReady;
-    }
+    private static void ReadyMetareeAttack(MetareeEnemyState state) => state.Action = MetareeAction.AttackReady;
 
     /// <summary>Spawns four metal debris actors in the dying Metaree's colours before common shot death clears them.</summary>
     /// <param name="metaree">The Metaree the reaction is built for, whose sheet the objects it spawns draw from.</param>

@@ -148,14 +148,11 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Animation cue: finishes the eruption (#2439). The flame hides at its spawn height, its hitbox stops touching anything,
     /// and it has finished: its next update rests it.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The flame is not erupting.</exception>
     private void FinishHibashiActivity(RoomEnemyPlace flame)
     {
         HibashiEnemyState state = flame.RequireSpeciesState<HibashiEnemyState>();
         RoomEnemyPlace hitbox = GetFollowingHibashiPart(flame);
 
-        if (state.Action != HibashiAction.Active)
-            throw new InvalidOperationException($"A Hibashi's eruption finished while it was {state.Action}.");
         state.Action = HibashiAction.Finished;
         hitbox.Radius = new(0, 0);
         flame.Position = flame.Position.WithWholeY(state.SpawnY);

@@ -41,12 +41,10 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 continue;
 
             // Grappling replaces any hurt or frozen state the enemy had, so its next update runs its grappled
-            // reaction.
-            if (grappled.Definition.GrappleResponse is not EnemyGrappleResponse.Reacting { Reaction: var reaction })
-                throw new InvalidDataException($"Enemy {grappled.DefinitionId} has no reaction to the grapple beam.");
+            // reaction; an unreactive enemy is held too, and the beam reads it as one with no interaction.
             enemy.AiStates = EnemyAiStates.Grappled;
             return new GrappleEnemyCollision(
-                reaction,
+                grappled.Definition.GrappleResponse.BeamReaction,
                 enemy.Position.Whole,
                 grappled.Definition.Damage);
         }
@@ -130,8 +128,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
         if ((enemy.AiStates & EnemyAiStates.Grappled) == EnemyAiStates.None)
             return false;
 
-        // Only a reacting enemy is ever grappled: the beam's meeting with an unreactive one fails before it holds it, and an
-        // unreactive enemy's own behaviour carries on.
+        // A held unreactive enemy's grapple behaviour is its main behaviour, which the ordinary scheduler runs.
         return grappled.Definition.GrappleResponse is EnemyGrappleResponse.Reacting { Reaction: var reaction } &&
             GrappleReactions[reaction](grappled, enemy, frame);
     }

@@ -13,14 +13,14 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="place">The place the wall occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class CeresElevatorRoomWallEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => doors.Start(Place, CeresDoorSegment.ElevatorRoomWall);
+    /// <summary>The wall's animation, which its setup starts as the wall is built (#2554).</summary>
+    internal CeresDoorAnimationState State { get; } = doors.Start(place, CeresDoorSegment.ElevatorRoomWall);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => doors.EscapeQuake.Keep(EarthquakeReach.RoomBlocksSceneryAndEnemies);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, Place.RequireSpeciesState<CeresRidleyRoomDoorState>(), Place.RequireSpeciesState<CeresDoorAnimationState>(), context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, CeresDoorBehavior.LookOnlyRidleyRoomDoorShows, State, context.Samus);
 }

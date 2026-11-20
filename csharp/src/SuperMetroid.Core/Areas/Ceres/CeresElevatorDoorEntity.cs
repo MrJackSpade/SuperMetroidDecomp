@@ -23,19 +23,19 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     /// <summary>How many updates apart the destruction's explosions burst (#2281).</summary>
     private const int RumbleInterval = 5;
 
-    /// <inheritdoc/>
-    public void Initialize()
-    {
-        doors.Start(Place, CeresDoorSegment.ElevatorDoor);
-        Place.SetSpeciesState(new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Intact });
-        // Only the elevator door shows the door's own look (#1406, #1538).
-        doors.Presentation.ShowLook(CeresElevatorDoorLookDefinitions.OverlayLook);
-    }
+    /// <summary>The door's animation, which its setup starts as the door is built (#2554).</summary>
+    internal CeresDoorAnimationState State { get; } = doors.Start(place, CeresDoorSegment.ElevatorDoor);
+
+    /// <summary>The door's phase and destruction counters, intact from its setup.</summary>
+    private CeresElevatorDoorState Door { get; } = new() { Phase = CeresElevatorDoorPhase.Intact };
+
+    /// <summary>Shows the door's own look as it is set up: only the elevator door shows it (#1406, #1538).</summary>
+    public void Initialize() => doors.Presentation.ShowLook(CeresElevatorDoorLookDefinitions.OverlayLook);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        CeresElevatorDoorState state = Place.RequireSpeciesState<CeresElevatorDoorState>();
+        CeresElevatorDoorState state = Door;
         switch (state.Phase)
         {
             case CeresElevatorDoorPhase.Intact:
@@ -66,12 +66,12 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, Place.RequireSpeciesState<CeresRidleyRoomDoorState>(), Place.RequireSpeciesState<CeresDoorAnimationState>(), context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, CeresDoorBehavior.LookOnlyRidleyRoomDoorShows, State, context.Samus);
 
     /// <summary>Runs one update of the destruction.</summary>
     private void Explode()
     {
-        CeresElevatorDoorState state = Place.RequireSpeciesState<CeresElevatorDoorState>();
+        CeresElevatorDoorState state = Door;
         if (state.Rumble.Count())
         {
             // The last update ends the destruction: the door hides, keeps cycling the glow and platform from the next update

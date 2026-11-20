@@ -15,18 +15,18 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal sealed class CeresRidleyRoomDoorEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize()
-    {
-        doors.Start(Place, CeresDoorSegment.RidleyRoomDoor);
-        Place.SetSpeciesState(new CeresRidleyRoomDoorState());
-        // The room's Ceres doors show this door's overlay while its look is the overlay (#2573).
-        doors.AttachRidleyRoomDoor(Place);
-    }
+    /// <summary>The door's animation, which its setup starts as the door is built (#2554).</summary>
+    internal CeresDoorAnimationState State { get; } = doors.Start(place, CeresDoorSegment.RidleyRoomDoor);
+
+    /// <summary>The look the door shows, its actor or its fixed overlay, which its animation switches (#2573).</summary>
+    private CeresRidleyRoomDoorState Look { get; } = new();
+
+    /// <summary>Attaches the door, as it is set up, to the room's Ceres doors, which show its overlay while its look is the overlay (#2573).</summary>
+    public void Initialize() => doors.AttachRidleyRoomDoor(Place, Look);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => doors.EscapeQuake.Keep(EarthquakeReach.SceneryAndEnemies);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, Place.RequireSpeciesState<CeresRidleyRoomDoorState>(), Place.RequireSpeciesState<CeresDoorAnimationState>(), context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, look => Look.Look = look, State, context.Samus);
 }

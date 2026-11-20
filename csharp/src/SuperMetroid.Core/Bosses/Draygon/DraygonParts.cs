@@ -105,26 +105,13 @@ internal sealed class DraygonParts
         arms.Shading = JoiningPart(arms, EnemyDefinitionId.DraygonArms, draygon => draygon.ArmsPart).Draygon.Colours.Sprites;
 
     /// <summary>Sets <paramref name="eye"/> tracking Samus facing <paramref name="facing"/> (#2165).</summary>
-    private static void Track(DraygonEyeState eye, HorizontalDirection facing)
-    {
-        eye.Action = DraygonEyeAction.Tracking;
-        eye.Facing = facing;
-    }
+    private static void Track(DraygonEyeState eye, HorizontalDirection facing) => eye.TrackingFacing = facing;
 
     /// <summary>Runs the eye's step: inert, or tracking Samus the way the body faces.</summary>
     internal void RunDraygonEyeMain(DraygonEnemyState state, SamusState samus)
     {
-        DraygonEyeState eye = state.EyeTracking;
-        switch (eye.Action)
-        {
-            case DraygonEyeAction.Inert:
-                return;
-            case DraygonEyeAction.Tracking:
-                TrackSamusWithDraygonEye(state, samus, eye.Facing);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined Draygon eye action {eye.Action}.");
-        }
+        if (state.EyeTracking.TrackingFacing is { } facing)
+            TrackSamusWithDraygonEye(state, samus, facing);
     }
 
     /// <summary>

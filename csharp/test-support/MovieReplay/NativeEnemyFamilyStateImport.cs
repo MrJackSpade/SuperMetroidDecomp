@@ -1312,20 +1312,18 @@ internal static class NativeEnemyFamilyStateImport
             case KraidLintState lint:
                 if (recorded)
                     lint.Phase = KraidNativeWords.LintPhases.Decode(words.A, "recorded KraidLintPhase");
-                lint.LintXOffset = CoordinateAxis.AsSigned(words.C);
+                int emergesAt = CoordinateAxis.AsSigned(words.C);
+                lint.Emergence = KraidArenaDefinitions.LintEmergenceXOffsets.Single(pair => pair.Value == emergesAt).Key;
                 lint.LintTravel = words.B;
                 ImportPhaseWait(lint, words.F);
                 return;
             case KraidFootState foot:
             {
                 // A foot whose setup has not given it a phase rests.
-                (KraidFootPhase phase, HorizontalDirection? walk) = recorded
-                    ? KraidNativeWords.FootPhases.Decode(words.A, "recorded KraidFootPhase")
-                    : (KraidFootPhase.Resting, null);
-                foot.Phase = phase;
-                // Only the foot's walk names the way it walks (#2165).
-                if (walk is { } direction)
-                    foot.WalkDirection = direction;
+                // The foot's walk names the way it walks in its phase (#2165, #2560).
+                foot.Phase = recorded
+                    ? KraidNativeWords.FootPhases.Decode(words.A, "recorded KraidFootPhase").Phase
+                    : KraidFootPhase.Resting;
                 ImportPhaseWait(foot, words.F);
                 return;
             }

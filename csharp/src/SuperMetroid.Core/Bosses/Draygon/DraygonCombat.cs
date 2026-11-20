@@ -66,10 +66,12 @@ internal sealed class DraygonCombat
         DraygonEnemyState state,
         SamusState samus)
     {
-        bool whiteFrame = DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(body.HurtFlash.UpdatesLeft);
+        DraygonBodyColours hurt = DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(body.HurtFlash.UpdatesLeft)
+            ? DraygonBodyColours.WhiteFlash
+            : DraygonBodyColours.Material;
         // A hurt update shows his material colours with his band, or their white flash, as the import's shades (#1512).
-        state.Colours.ShowHurt(whiteFrame);
-        if (!whiteFrame)
+        state.Colours.ShowHurt(hurt);
+        if (hurt == DraygonBodyColours.Material)
             state.Colours.ShowBand(state.HealthBand);
         state.ShadeSprites();
 
@@ -124,7 +126,7 @@ internal sealed class DraygonCombat
         state.EyePart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightDying
                 : DraygonSegment.EyeFacingLeftDying);
-        state.EyeTracking.Action = DraygonEyeAction.Inert;
+        state.EyeTracking.TrackingFacing = null;
         state.Phase = DraygonPhase.Dying;
 
         // The death behaviour releases Samus unconditionally, even during an

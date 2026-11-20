@@ -46,7 +46,6 @@ internal static class KraidBodyPublicationVerification
         // Risen: his body shown as it now appears, with the head it rises with before his head shows a pose, placed at his
         // position (#1515, #1540, #2031).
         RoomEnemyPlace body = runtime.Enemies.KraidBehavior.Parts.Body;
-        state.BodyAppearance = KraidBodyAppearance.BehindSprites;
         state.ShowBody();
         global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", null);
         body.Position = body.Position.WithWhole(new(320, 88));
@@ -70,7 +69,7 @@ internal static class KraidBodyPublicationVerification
         AssertTrue(roaring.Placement == body.Position.Whole, "the roaring body publishes placed where he moved in the room");
 
         // Dead: the death clear keeps BG2 as Kraid's map, every word blank; the room's own BG2 never returns (#1427).
-        state.BodyAppearance = KraidBodyAppearance.Hidden;
+        state.HideBody();
         GameplayLatchedBossBody cleared = Published(runtime);
         AssertTrue(Words(cleared, art).All(word => word == KraidWorkingMapDefinitions.BlankTile.PackedWord),
             "the cleared body publishes only the blank tile");

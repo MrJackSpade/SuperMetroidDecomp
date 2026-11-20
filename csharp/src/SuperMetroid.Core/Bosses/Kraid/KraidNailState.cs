@@ -29,10 +29,10 @@ public sealed class KraidNailState : KraidAnimatedPartState
     public KraidNailPhase Phase { get; internal set; }
 
     /// <summary>
-    /// Gets whether this fingernail's last launch was the fixed-left spawn rather than the body-side one. A nail
-    /// launches body-side whenever its sibling's last launch was fixed-left.
+    /// The side this fingernail's last launch took (#2560): the body-side spawn, or the fixed-left one. A nail launches
+    /// body-side whenever its sibling's last launch was fixed-left.
     /// </summary>
-    public bool AlternateSpawn { get; internal set; }
+    public KraidNailLaunchSide LaunchSide { get; internal set; }
 
     /// <summary>A fingernail's velocity in pixels per update, positive right and down.</summary>
     public FixedVector<RoomPixels> NailVelocity { get; internal set; }

@@ -15,30 +15,23 @@ internal sealed class CrocomireColours : IGameplayShadingSource
     /// <summary>The shading his projectiles draw in.</summary>
     internal static PictureShading ProjectileShading { get; } = PictureShading.Shaded(CrocomireShades.Projectiles);
 
-    /// <summary>Whether his body has shown its fight colours; before, it shows the room's.</summary>
-    private bool ShowsFightBody { get; set; }
+    /// <summary>What his body shows (#2560): the room's colours until its first update, then his fight colours or the hurt flash.</summary>
+    private CrocomireBodyColours Body { get; set; }
 
-    /// <summary>Whether his body shows the white hurt flash.</summary>
-    private bool HurtFlash { get; set; }
+    /// <summary>How far his death's colours have reached his sprites (#2560): none, the wall spikes', then the skeleton's arm's too.</summary>
+    private CrocomireDeathColours DeathColours { get; set; }
 
-    /// <summary>Whether his sprites show his skeleton's arm colours.</summary>
-    private bool ShowsSkeletonArm { get; set; }
+    /// <summary>Shows <paramref name="colours"/> on his body: his fight colours or the white hurt flash.</summary>
+    internal void ShowBody(CrocomireBodyColours colours) => Body = colours;
 
-    /// <summary>Whether his sprites show the wall spikes' colours.</summary>
-    private bool ShowsWallSpikes { get; set; }
-
-    /// <summary>Shows his body's fight colours, or the white hurt flash when <paramref name="white"/>.</summary>
-    internal void ShowBody(bool white)
-    {
-        ShowsFightBody |= !white;
-        HurtFlash = white;
-    }
-
-    /// <summary>Shows his skeleton's arm colours on his sprites.</summary>
-    internal void ShowSkeletonArm() => ShowsSkeletonArm = true;
+    /// <summary>Shows his skeleton's arm colours on his sprites, after the wall spikes'.</summary>
+    /// <exception cref="InvalidOperationException">The wall spikes' colours have not been shown, which the skeleton's reveal follows.</exception>
+    internal void ShowSkeletonArm() => DeathColours = DeathColours == CrocomireDeathColours.WallSpikes
+        ? CrocomireDeathColours.WallSpikesAndSkeletonArm
+        : throw new InvalidOperationException($"Crocomire's skeleton arm colours follow the wall spikes', not {DeathColours}.");
 
     /// <summary>Shows the wall spikes' colours on his sprites.</summary>
-    internal void ShowWallSpikes() => ShowsWallSpikes = true;
+    internal void ShowWallSpikes() => DeathColours = CrocomireDeathColours.WallSpikes;
 
     /// <summary>
     /// <paramref name="drawn"/>, a sprite draw's own shading, with the colours his death has shown laid over it: the
@@ -48,9 +41,9 @@ internal sealed class CrocomireColours : IGameplayShadingSource
     {
         Ensure.NotNull(drawn);
         PictureShading shading = drawn;
-        if (ShowsSkeletonArm)
+        if (DeathColours == CrocomireDeathColours.WallSpikesAndSkeletonArm)
             shading = shading.With(CrocomireShades.SkeletonArm);
-        if (ShowsWallSpikes)
+        if (DeathColours != CrocomireDeathColours.None)
             shading = shading.With(CrocomireShades.WallSpikes);
         return shading;
     }
@@ -59,9 +52,14 @@ internal sealed class CrocomireColours : IGameplayShadingSource
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {
         Ensure.NotNull(frame);
-        if (HurtFlash)
-            frame.Shade(GameplayPictures.BossBody, CrocomireShades.BodyHurt);
-        else if (ShowsFightBody)
-            frame.Shade(GameplayPictures.BossBody, CrocomireShades.FightBody);
+        switch (Body)
+        {
+            case CrocomireBodyColours.HurtFlash:
+                frame.Shade(GameplayPictures.BossBody, CrocomireShades.BodyHurt);
+                break;
+            case CrocomireBodyColours.Fight:
+                frame.Shade(GameplayPictures.BossBody, CrocomireShades.FightBody);
+                break;
+        }
     }
 }

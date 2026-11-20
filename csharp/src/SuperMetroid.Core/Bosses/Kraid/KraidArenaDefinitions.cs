@@ -70,11 +70,18 @@ internal static class KraidArenaDefinitions
     /// <summary>
     /// How far left of the body's line each lint emerges: the top lint on it, the middle and bottom lints further left.
     /// </summary>
-    internal static readonly FrozenDictionary<KraidLintPart, int> LintXOffsets = new Dictionary<KraidLintPart, int>
+    internal static readonly FrozenDictionary<KraidLintPart, KraidLintEmergence> LintEmergences = new Dictionary<KraidLintPart, KraidLintEmergence>
     {
-        [KraidLintPart.Top] = 0,
-        [KraidLintPart.Middle] = -16,
-        [KraidLintPart.Bottom] = -16,
+        [KraidLintPart.Top] = KraidLintEmergence.OnBodyLine,
+        [KraidLintPart.Middle] = KraidLintEmergence.LeftOfBodyLine,
+        [KraidLintPart.Bottom] = KraidLintEmergence.LeftOfBodyLine,
+    }.ToFrozenDictionary();
+
+    /// <summary>How far left of the body's line, in pixels, a lint emerging each way lies (#2560).</summary>
+    internal static readonly FrozenDictionary<KraidLintEmergence, int> LintEmergenceXOffsets = new Dictionary<KraidLintEmergence, int>
+    {
+        [KraidLintEmergence.OnBodyLine] = 0,
+        [KraidLintEmergence.LeftOfBodyLine] = -16,
     }.ToFrozenDictionary();
 
     /// <summary>Where Kraid's arm hangs from his body.</summary>

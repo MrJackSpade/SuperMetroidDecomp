@@ -51,7 +51,7 @@ internal sealed class KraidProjectiles
         lint.Shading = _parts.Body.Shading;
         part.ShowPose(KraidPartSegment.LintInitial);
         part.Phase = KraidLintPhase.Inactive;
-        part.LintXOffset = KraidArenaDefinitions.LintXOffsets[expected];
+        part.Emergence = KraidArenaDefinitions.LintEmergences[expected];
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ internal sealed class KraidProjectiles
         // A fingernail is set up at rest, so its sibling's launch reads it as stopped, as it reads a killed one.
         nailPart.NailVelocity = FixedVector<RoomPixels>.Zero;
         // A fingernail set up, at the room's first setup or a respawn, has taken no alternate spawn, as a killed one has not.
-        nailPart.AlternateSpawn = false;
+        nailPart.LaunchSide = KraidNailLaunchSide.BodySide;
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
         // The nail shows its spin's first pose, and the spin waits until its flight starts it from its beginning.
         _ = nailPart.ShowFirstPose(KraidPartSegment.NailLoop);
@@ -217,16 +217,16 @@ internal sealed class KraidProjectiles
         part.SetAnimation(KraidPartSegment.NailLoop);
         part.Phase = KraidNailPhase.Fire;
 
-        if (!KraidRandomDefinitions.NailWaitsForLint.IsTakenBy(random) || siblingPart is { AlternateSpawn: true })
+        if (!KraidRandomDefinitions.NailWaitsForLint.IsTakenBy(random) || siblingPart is { LaunchSide: KraidNailLaunchSide.FixedLeft })
         {
-            part.AlternateSpawn = false;
+            part.LaunchSide = KraidNailLaunchSide.BodySide;
             RoomEnemyPlace body = _parts.Body;
             nail.Position = nail.Position.WithWhole(new(RoomGridConversions.BlockStart(
                 body.Position.X.Whole - body.Radius.X - nail.Radius.X), _parts.Arm.Position.Y.Whole + KraidArenaDefinitions.NailLaunchBelowArm));
             return;
         }
 
-        part.AlternateSpawn = true;
+        part.LaunchSide = KraidNailLaunchSide.FixedLeft;
         nail.Position = nail.Position.WithWhole(KraidArenaDefinitions.AlternateNailStart);
         part.NailVelocity = KraidNailLaunchDefinitions.Parked;
         part.Phase = KraidNailPhase.WaitForLint;

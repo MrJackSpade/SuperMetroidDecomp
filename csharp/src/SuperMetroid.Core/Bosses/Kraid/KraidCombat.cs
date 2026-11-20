@@ -181,8 +181,7 @@ internal sealed class KraidCombat
         if (mouthHits != 0)
         {
             state.StartHurtFlash();
-            if (state.MouthReopenArmed)
-                state.MouthReopenMarked = true;
+            state.MarkMouthReopen();
             if (body.Health < 1 && state.BodyState.Fights)
                 BeginKraidDeath(state);
         }
@@ -224,7 +223,6 @@ internal sealed class KraidCombat
             state.BodyState.FightPhase = KraidFightPhase.InitializeEyeGlow;
             if (chargedHit)
             {
-                state.MouthReopenArmed = true;
                 state.ArmMouthReopens();
             }
         }

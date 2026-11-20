@@ -104,7 +104,8 @@ internal static class BossBodyLayeredPartsVerification
         int compared = 0;
         foreach (KraidBodyAppearance appearance in new[] { KraidBodyAppearance.BehindSprites, KraidBodyAppearance.InFrontOfSprites })
         {
-            state.BodyAppearance = appearance;
+            if (appearance == KraidBodyAppearance.InFrontOfSprites)
+                state.BringBodyInFront();
             foreach (KraidHeadFrame? head in new KraidHeadFrame?[] { null }.Concat(KraidHeadTilemapFormat.HeadsByMouthStage.Select(pose => (KraidHeadFrame?)pose)))
             {
                 global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", head);

@@ -36,9 +36,10 @@ internal sealed class CrocomireCombat
     /// <summary>Shows Crocomire's white hurt flash on his body.</summary>
     internal void ApplyCrocomireHurtFlash(RoomEnemyPlace body, CrocomireEnemyState state)
     {
-        bool white = body.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount);
         // His body shows its fight colours or the white flash as the import's shades of them (#1512).
-        state.Colours.ShowBody(white);
+        state.Colours.ShowBody(body.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount)
+            ? CrocomireBodyColours.HurtFlash
+            : CrocomireBodyColours.Fight);
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Rooms;
 
@@ -59,7 +59,7 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
         if (Kraid is not { ShowsBodyLayer: true } state)
             return null;
         BossBodySheet sheet = _bossArtwork.Body(BossBodyOwner.Kraid);
-        KraidBodyAppearance appearance = state.BodyShown ? state.BodyAppearance : KraidBodyAppearance.Hidden;
+        KraidBodyAppearance appearance = state.BodyAppearance;
         if (shown is not { } cached || cached.Appearance != appearance || cached.Head != state.DisplayedHeadFrame
             || !ReferenceEquals(cached.Sheet, sheet))
         {

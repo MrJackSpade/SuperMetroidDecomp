@@ -19,54 +19,41 @@ public sealed class KraidBodyState : KraidPartState
     /// The stage the body is in (#2208), which names the type of the phase it runs; setting a stage's phase enters that
     /// stage. The body's setup puts it in its rise, or in its death in a room he was found defeated in.
     /// </summary>
-    public KraidBodyStage Stage { get; private set; }
+    public KraidBodyStage Stage => step.Stage;
+
+    /// <summary>The stage the body is in with the phase of it it runs, one value (#2560): no phase of another stage is held.</summary>
+    private KraidBodyStep step = new KraidBodyStep.InStage<KraidRisePhase>(KraidBodyStage.Rising, KraidRisePhase.RestrictSamusToFirstScreen);
 
     /// <summary>The phase of his rise through the floor the body runs.</summary>
     /// <exception cref="InvalidOperationException">The body is not rising.</exception>
     public KraidRisePhase RisePhase
     {
-        get => Stage == KraidBodyStage.Rising ? field : throw NotIn(KraidBodyStage.Rising);
-        internal set
-        {
-            field = value;
-            Stage = KraidBodyStage.Rising;
-        }
+        get => step is KraidBodyStep.InStage<KraidRisePhase> { Stage: KraidBodyStage.Rising } inStage ? inStage.Phase : throw NotIn(KraidBodyStage.Rising);
+        internal set => step = new KraidBodyStep.InStage<KraidRisePhase>(KraidBodyStage.Rising, value);
     }
 
     /// <summary>The phase of his fight the body runs.</summary>
     /// <exception cref="InvalidOperationException">The body is not fighting.</exception>
     public KraidFightPhase FightPhase
     {
-        get => Stage == KraidBodyStage.Fighting ? field : throw NotIn(KraidBodyStage.Fighting);
-        internal set
-        {
-            field = value;
-            Stage = KraidBodyStage.Fighting;
-        }
+        get => step is KraidBodyStep.InStage<KraidFightPhase> { Stage: KraidBodyStage.Fighting } inStage ? inStage.Phase : throw NotIn(KraidBodyStage.Fighting);
+        internal set => step = new KraidBodyStep.InStage<KraidFightPhase>(KraidBodyStage.Fighting, value);
     }
 
     /// <summary>The phase of his growth the body runs.</summary>
     /// <exception cref="InvalidOperationException">The body is not growing.</exception>
     public KraidGrowthPhase GrowthPhase
     {
-        get => Stage == KraidBodyStage.Growing ? field : throw NotIn(KraidBodyStage.Growing);
-        internal set
-        {
-            field = value;
-            Stage = KraidBodyStage.Growing;
-        }
+        get => step is KraidBodyStep.InStage<KraidGrowthPhase> { Stage: KraidBodyStage.Growing } inStage ? inStage.Phase : throw NotIn(KraidBodyStage.Growing);
+        internal set => step = new KraidBodyStep.InStage<KraidGrowthPhase>(KraidBodyStage.Growing, value);
     }
 
     /// <summary>The phase of his death the body runs.</summary>
     /// <exception cref="InvalidOperationException">The body is not dying.</exception>
     public KraidDeathPhase DeathPhase
     {
-        get => Stage == KraidBodyStage.Dying ? field : throw NotIn(KraidBodyStage.Dying);
-        internal set
-        {
-            field = value;
-            Stage = KraidBodyStage.Dying;
-        }
+        get => step is KraidBodyStep.InStage<KraidDeathPhase> { Stage: KraidBodyStage.Dying } inStage ? inStage.Phase : throw NotIn(KraidBodyStage.Dying);
+        internal set => step = new KraidBodyStep.InStage<KraidDeathPhase>(KraidBodyStage.Dying, value);
     }
 
     /// <summary>

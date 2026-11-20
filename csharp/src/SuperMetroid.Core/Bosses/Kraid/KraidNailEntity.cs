@@ -13,16 +13,17 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="reference">Kraid's reference to the fingernail, which it joins as it initializes.</param>
 /// <param name="nail">Which of his fingernails it is, whose state it holds from its setup (#2298).</param>
 internal sealed class KraidNailEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference, KraidNailPart nail)
-    : KraidEntity(species, occupant, place, common, reference), IEnemyTypedAnimation
+    : KraidEntity(species, occupant, place, common, reference, () => species.Projectiles.InitializeKraidNail(place, nail)), IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    protected override void SetUp() => Species.Projectiles.InitializeKraidNail(Place, nail);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.Projectiles.RunKraidNailMain(Place, Encounter.Nail(nail), frame.Level);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.Projectiles.RunKraidNailMain(Place, Part, frame.Level);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Encounter.Nail(nail));
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Part);
+
+    /// <summary>The fingernail's part of the encounter, which its sibling reads in its place.</summary>
+    internal KraidNailState Part => Encounter.Nail(nail);
 
     /// <summary>Whether the fingernail's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == KraidReactions.NailTouch || base.ReactsToTouch;

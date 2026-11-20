@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// foot and his two fingernails. Each part joins its own reference when it initializes (#1877, #2146), and the fight
 /// reaches it through that. A part's reference outlives the part's occupant: a deleted part leaves its last values there
 /// and a killed part is emptied, so a read of a part that has been killed finds what the kill left
-/// (<see cref="RoomEnemyPlace.FoundState{T}"/>).
+/// (<see cref="RoomEnemyPlace.FoundEntity"/>).
 /// </summary>
 [RoomLifetime]
 internal sealed class KraidParts
@@ -45,7 +45,13 @@ internal sealed class KraidParts
     /// sets up (#2420).
     /// </summary>
     /// <exception cref="InvalidOperationException">His body has not set up.</exception>
-    internal KraidEnemyState Encounter => Body.RequireSpeciesState<KraidPartState>().Kraid;
+    internal KraidEnemyState Encounter => _encounters.Of(Body);
+
+    /// <summary>The encounter each body began, under its place (#2554).</summary>
+    private readonly EnemyPartLinks<KraidEnemyState> _encounters = new();
+
+    /// <summary>Records <paramref name="kraid"/>, the encounter his body begins as it sets up, which his other parts join.</summary>
+    internal void Begin(KraidEnemyState kraid) => _encounters.Place(Body, kraid);
 
     /// <summary>His arm.</summary>
     internal RoomEnemyPlace Arm => ArmReference.Place;

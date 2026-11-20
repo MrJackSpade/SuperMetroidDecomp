@@ -30,34 +30,36 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>Installs the arm part in its place with the rising-or-sinking animation.</summary>
-    internal void InitializeKraidArm(RoomEnemyPlace arm)
+    /// <returns>The encounter the arm joins, which it holds from its setup.</returns>
+    internal KraidEnemyState InitializeKraidArm(RoomEnemyPlace arm)
     {
+        // The arm joins the encounter its body began, which it holds from here (#2218).
+        KraidEnemyState state = _parts.Encounter;
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(arm);
-            return;
+            return state;
         }
-        // The arm joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = _parts.Encounter;
-        KraidEncounterAccess.AttachKraidPart(state.ArmState);
         arm.Shading = _parts.Body.Shading;
         state.ArmState.StartAnimation(KraidPartSegment.ArmRisingOrSinking);
+        return state;
     }
 
     /// <summary>Installs a foot part with its initial animation and shared body state.</summary>
-    internal void InitializeKraidFoot(RoomEnemyPlace foot)
+    /// <returns>The encounter the foot joins, which it holds from its setup.</returns>
+    internal KraidEnemyState InitializeKraidFoot(RoomEnemyPlace foot)
     {
+        // The foot joins the encounter its body began, which it holds from here (#2218).
+        KraidEnemyState state = _parts.Encounter;
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(foot);
-            return;
+            return state;
         }
-        // The foot joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = _parts.Encounter;
-        KraidEncounterAccess.AttachKraidPart(state.FootState);
         foot.Shading = _parts.Body.Shading;
         state.FootState.StartAnimation(KraidPartSegment.FootInitial);
         state.FootState.Phase = KraidFootPhase.Resting;
+        return state;
     }
 
     /// <summary>

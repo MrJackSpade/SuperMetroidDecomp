@@ -194,7 +194,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFo
             return;
         }
         // The pair is checked when the follower is placed; a parent deleted without a kill is read as it left its place and
-        // its animation (RoomEnemyPlace.FoundState).
+        // its animation (RoomEnemyPlace.FoundEntity).
         GerutaEnemyState parentState = followerState.Parent;
         follower.Freeze.Restart(parent.Freeze.UpdatesLeft);
         if (parent.Freeze.IsRunning || parentState.Idles)

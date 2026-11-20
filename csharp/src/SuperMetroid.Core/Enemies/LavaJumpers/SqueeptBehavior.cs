@@ -162,7 +162,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyF
         RoomEnemyPlace parent = GetPrecedingSqueeptPlace(follower);
 
         // The follower reads its parent's health, freeze, vertical speed and position in the parent's place; a parent
-        // deleted without a kill is read as it left them (RoomEnemyPlace.FoundState), and a killed parent's emptied place
+        // deleted without a kill is read as it left them (RoomEnemyPlace.FoundEntity), and a killed parent's emptied place
         // ends the follower.
         if (parent.Health == 0)
         {

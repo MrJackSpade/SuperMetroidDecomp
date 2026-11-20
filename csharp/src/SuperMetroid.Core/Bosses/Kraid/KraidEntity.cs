@@ -11,26 +11,25 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="reference">Kraid's reference to the part, which it joins as it initializes.</param>
-internal abstract class KraidEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyFrameHitboxes
+/// <param name="reference">Kraid's reference to the part, which it joins as it is set up.</param>
+/// <param name="setUp">The part's setup once it has joined Kraid, which returns the encounter it joined.</param>
+internal abstract class KraidEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    KraidPartReference reference, Func<KraidEnemyState> setUp)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyFrameHitboxes
 {
     /// <summary>The Kraid species owner.</summary>
     protected KraidBehavior Species => species;
 
-    /// <inheritdoc/>
-    public void Initialize()
+    /// <summary>The encounter the part is part of, which it holds from its setup (#2218, #2554).</summary>
+    internal KraidEnemyState Encounter { get; } = Join(reference, occupant, setUp);
+
+    /// <summary>Joins the part's reference, then sets the part up.</summary>
+    /// <returns>The encounter the part joined.</returns>
+    private static KraidEnemyState Join(KraidPartReference reference, RoomEnemyOccupant occupant, Func<KraidEnemyState> setUp)
     {
-        reference.Join(Occupant);
-        SetUp();
+        Ensure.NotNull(reference).Join(occupant);
+        return Ensure.NotNull(setUp)();
     }
-
-    /// <summary>Sets the part up, once it has joined Kraid.</summary>
-    protected abstract void SetUp();
-
-    /// <summary>The encounter the part is part of, which its state holds from its setup (#2218).</summary>
-    /// <exception cref="InvalidOperationException">The part has not set up as one of his parts.</exception>
-    protected KraidEnemyState Encounter => Place.RequireSpeciesState<KraidPartState>().Kraid;
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);

@@ -47,23 +47,21 @@ public sealed class InstalledProjectileTrails
                 ?? throw new InvalidDataException("Trail document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid trail JSON.", error); }
+        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame[] shown = [.. ProjectileTrailSources.Records.Select(record => record.Value).Distinct()];
         if (document.Version != ProjectileTrailVisualDefinitions.Version || document.Frames is null ||
-            document.Frames.Count != ProjectileTrailVisualDefinitions.RecordCount)
-            throw new InvalidDataException("Trail document requires every native record and version 1.");
+            document.Frames.Count != shown.Length)
+            throw new InvalidDataException($"Trail document requires every trail frame and version {ProjectileTrailVisualDefinitions.Version}.");
         var attributes = new Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, SpritePart>();
-        for (int index = 0; index < ProjectileTrailVisualDefinitions.RecordCount; index++)
+        foreach (SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame frame in shown)
         {
-            var frame = ProjectileTrailSources.Records[index].Value;
-            string name = ProjectileTrailVisualDefinitions.RecordNames[index];
+            string name = SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrameKeys.Installed.Of(frame);
             if (!document.Frames.TryGetValue(name, out var p) || p is null ||
                 (uint)p.TileColumn >= ProjectileSpriteDefinitions.TileColumns || (uint)p.TileRow >= ProjectileSpriteDefinitions.TileRows ||
                 (uint)p.Palette > 7 || (uint)p.Priority > 3)
                 throw new InvalidDataException($"Missing or invalid trail appearance {name}.");
             SpritePart appearance = SpritePart.Single(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
                 p.Palette, p.Priority, (p.FlipX ? PictureFlip.Horizontal : 0) | (p.FlipY ? PictureFlip.Vertical : 0));
-            // Every record of one frame shows that frame's one appearance (#2348).
-            if (!attributes.TryAdd(frame, appearance) && attributes[frame] != appearance)
-                throw new InvalidDataException($"Trail appearance {name} differs from another record of frame {frame}.");
+            attributes.Add(frame, appearance);
         }
         return new(attributes);
     }

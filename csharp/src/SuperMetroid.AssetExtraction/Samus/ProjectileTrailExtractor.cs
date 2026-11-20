@@ -18,12 +18,16 @@ public static class ProjectileTrailExtractor
         {
             var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.MovementBank.Value | (ProjectileTrailSources.Records[index].Key + 2)));
-            frames.Add(ProjectileTrailVisualDefinitions.RecordNames[index], new()
+            var appearance = new ProjectileTrailAppearance
             {
                 TileColumn = a.TileNumber % ProjectileSpriteDefinitions.TileColumns,
                 TileRow = a.TileNumber / ProjectileSpriteDefinitions.TileColumns,
                 Palette = a.PaletteIndex, Priority = a.Priority, FlipX = a.FlipHorizontally, FlipY = a.FlipVertically,
-            });
+            };
+            // Every record of one frame shows that frame's one appearance (#2348), which the document holds once.
+            string name = SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrameKeys.Installed.Of(ProjectileTrailSources.Records[index].Value);
+            if (!frames.TryAdd(name, appearance) && frames[name] != appearance)
+                throw new InvalidDataException($"The trail records of frame {name} show different appearances.");
         }
         return InstalledProjectileTrails.Write(new() { Version = ProjectileTrailVisualDefinitions.Version, Frames = frames });
     }

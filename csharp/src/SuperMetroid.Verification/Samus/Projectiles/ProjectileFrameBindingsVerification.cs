@@ -59,7 +59,7 @@ internal static class ProjectileFrameBindingsVerification
             shots.Animation.AdvanceProjectileAnimation(installedShot);
             AssertEqual(false, !installedShot.IsActive,
                 "installed projectile frame survives");
-            AssertEqual(nativeShot.SpritemapPointer, installedShot.SpritemapPointer,
+            AssertEqual<int>(ProjectileSpriteNative.FirstStored(Word(2)), installedShot.SpritemapPointer,
                 "installed projectile frame selects the native sprite");
             AssertEqual<int?>(still ? null : nativeShot.NativeFrameHold, installedShot.NativeFrameHold,
                 "projectile duration is independent of sprite binding, a still picture held");
@@ -74,7 +74,7 @@ internal static class ProjectileFrameBindingsVerification
             bombs.AdvanceProjectileAnimation(installedBomb);
             AssertEqual(false, !installedBomb.IsActive,
                 "installed bomb frame survives");
-            AssertEqual(nativeBomb.SpritemapPointer, installedBomb.SpritemapPointer,
+            AssertEqual<int>(ProjectileSpriteNative.FirstStored(Word(2)), installedBomb.SpritemapPointer,
                 "installed bomb frame selects the native sprite");
             AssertEqual(nativeBomb.NativeFrameHold, installedBomb.NativeFrameHold,
                 "bomb duration is independent of sprite binding");

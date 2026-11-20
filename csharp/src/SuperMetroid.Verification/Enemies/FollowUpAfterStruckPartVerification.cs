@@ -69,7 +69,7 @@ internal static class FollowUpAfterStruckPartVerification
                 if (records[place].SpawnSettings is MagdolliteHeadSpawnSettings)
                     head = place;
                 int part = place;
-                IReadOnlyList<RoomEnemyPlace?> recipients = FollowUpAfterStruckPart.Recipients(distance => table.ListedAfterOrNone(places[part], distance), reach: 2);
+                IReadOnlyList<RoomEnemyPlace> recipients = FollowUpAfterStruckPart.RecipientsWithin(table.AllListedAfter(places[part]), reach: 2);
                 AssertTrue(ReferenceEquals(places[part + 1], recipients[0]) && ReferenceEquals(places[part + 2], recipients[1]),
                     $"{population.Name}'s Magdollite part at place {part} reaches the two places after it");
                 for (int distance = 1; distance <= 2; distance++)

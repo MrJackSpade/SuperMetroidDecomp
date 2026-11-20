@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// its spawn settings name.
 /// </param>
 /// <param name="FollowUpRecipients">
-/// The two enemies the part's follow-up to a hit reaches (<see cref="FollowUpAfterStruckPart"/>), nearest first; an
-/// entry is null where the room has no place that far after the part.
+/// The enemies, up to two, the part's follow-up to a hit reaches (<see cref="FollowUpAfterStruckPart"/>), nearest first: as
+/// many as the room places after the part (#2558).
 /// </param>
-internal sealed record MagdollitePartners(MagdolliteComposite Composite, RoomEnemyOccupant Head, IReadOnlyList<RoomEnemyPlace?> FollowUpRecipients);
+internal sealed record MagdollitePartners(MagdolliteComposite Composite, RoomEnemyOccupant Head, IReadOnlyList<RoomEnemyPlace> FollowUpRecipients);

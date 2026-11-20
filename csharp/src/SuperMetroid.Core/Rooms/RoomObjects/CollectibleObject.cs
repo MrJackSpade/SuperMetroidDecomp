@@ -16,14 +16,14 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="kind">The item or tank.</param>
 /// <param name="presentation">How the item lies: exposed, in a Chozo orb or in a shot block.</param>
-/// <param name="blockPair">The terrain block pair an item that shows its own picture draws into; null for a tank.</param>
+/// <param name="terrain">The terrain the item writes its looks into: a tank's own blocks, or the block pair an item that shows its own picture took.</param>
 /// <param name="phase">The phase the item's setup leaves it in.</param>
 /// <param name="location">Where the item lies in the game's item record, as its placement named it.</param>
 /// <param name="savedTerrain">The block the item's setup left at its place, which a shot block's return restores.</param>
 internal sealed class CollectibleObject(
     InWorldCollectibleKind kind,
     CollectiblePresentation presentation,
-    CollectibleBlockPairs.Pair? blockPair,
+    CollectibleTerrain terrain,
     CollectiblePhase phase,
     ItemLocation location,
     RoomTerrainBlock savedTerrain) : RoomObjectBehaviour
@@ -42,10 +42,10 @@ internal sealed class CollectibleObject(
     /// <summary>Exposed, Chozo orb, or shot-block reveal behavior.</summary>
     public CollectiblePresentation Presentation { get; } = presentation;
     /// <summary>
-    /// The terrain block pair an item that shows its own picture writes its frames into (<see cref="CollectibleBlockPairs"/>);
-    /// null for a tank, whose frames are its kind's own blocks.
+    /// The terrain the item writes its looks into (#2558): a tank's own blocks, or the block pair an item that shows its own
+    /// picture took (<see cref="CollectibleBlockPairs"/>).
     /// </summary>
-    public CollectibleBlockPairs.Pair? BlockPair { get; } = blockPair;
+    internal CollectibleTerrain Terrain { get; } = Ensure.NotNull(terrain);
     /// <summary>Current reveal, visible, message, empty, or respawn phase.</summary>
     public CollectiblePhase Phase { get; private set; } = phase;
     /// <summary>
@@ -252,8 +252,8 @@ internal sealed class CollectibleObject(
             (image.Draw ?? throw new InvalidOperationException("A collectible image draws nothing.")).Draw(level, place.Block, drawing);
             return;
         }
-        CollectibleObjectDraws.VisibleFrame(Kind, look, BlockPair).Draw(level, place.Block, drawing);
-        if (BlockPair is not null)
+        Terrain.VisibleFrame(Kind, look).Draw(level, place.Block, drawing);
+        if (Terrain.ShowsOwnPicture)
             level.ShowCollectible(place.Block, new CollectiblePicture(Kind, look));
     }
 }

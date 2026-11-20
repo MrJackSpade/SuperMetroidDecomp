@@ -87,7 +87,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         _partners.Place(place, new MagdollitePartners(
             Composite: composite,
             Head: head,
-            FollowUpRecipients: FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfterOrNone(place, distance), MagdollitePartListingDefinitions.FollowUpReach)));
+            FollowUpRecipients: FollowUpAfterStruckPart.RecipientsWithin(_places.AllListedAfter(place), MagdollitePartListingDefinitions.FollowUpReach)));
         if (place == composite.Overlay &&
             (composite.Head.Entity is not MagdolliteHeadEntity || composite.Body.Entity is not MagdolliteBodyEntity))
         {
@@ -591,29 +591,20 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         // The follow-up reaches the two enemies listed after the part that was hit (FollowUpAfterStruckPart): a power
         // bomb also kills the rising body and the tracking overlay, whose follow-ups reach the enemies listed after the
         // Magdollite.
-        IReadOnlyList<RoomEnemyPlace?> recipients = _partners.Of(current).FollowUpRecipients;
-        RoomEnemyPlace? following = recipients[0];
-        RoomEnemyPlace? secondFollowing = recipients[1];
+        IReadOnlyList<RoomEnemyPlace> recipients = _partners.Of(current).FollowUpRecipients;
 
         if (current.Health == 0)
         {
-            if (following is not null)
+            foreach (RoomEnemyPlace following in recipients)
                 following.Presence = following.Presence.With(EnemyPresence.Deleted);
-            if (secondFollowing is not null)
-                secondFollowing.Presence = secondFollowing.Presence.With(EnemyPresence.Deleted);
         }
 
         if (current.Freeze.IsOver)
             return;
-        if (following is not null)
+        foreach (RoomEnemyPlace following in recipients)
         {
             following.Freeze.Restart(current.Freeze.UpdatesLeft);
             following.AiStates = following.AiStates | EnemyAiStates.Frozen;
-        }
-        if (secondFollowing is not null)
-        {
-            secondFollowing.Freeze.Restart(current.Freeze.UpdatesLeft);
-            secondFollowing.AiStates = secondFollowing.AiStates | EnemyAiStates.Frozen;
         }
     }
 

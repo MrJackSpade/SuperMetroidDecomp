@@ -64,9 +64,9 @@ internal static class RoomPaletteFxDefinitionsVerification
             {
                 ColourEffectDefinition started = ColourEffectAnimations.DefinitionAt(pointer);
                 // The heat shimmer plays none of its own: its start begins the program of the suit's pulse (#2366).
-                AssertTrue((started.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
-                        ? ColourEffectHeatAnimations.Shimmer(ColourEffectHeatSuit.Power)
-                        : started.Animation).Phases.Count > 0,
+                AssertTrue((started.Frames is ColourEffectFrames.OwnAnimation own
+                        ? own.Animation
+                        : ColourEffectHeatAnimations.Shimmer(ColourEffectHeatSuit.Power)).Phases.Count > 0,
                     $"palette-FX ${pointer:X4} begins a typed program");
                 genericCompiledPrograms++;
             }
@@ -177,9 +177,9 @@ internal static class RoomPaletteFxDefinitionsVerification
             // watched before the effect's first frame.
             AssertEqual<ColourEffectCondition>(ColourEffectCondition.WatchesNothing.Instance, effect.WatchedCondition, $"${pointer:X4} production condition");
             AssertEqual(definition.Condition, effect.Condition, $"${pointer:X4} the definition's condition");
-            Animation<ColourEffectSegment> expected = definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
-                ? ColourEffectHeatAnimations.Shimmer(ColourEffectHeatSuit.Power)
-                : definition.Animation;
+            Animation<ColourEffectSegment> expected = definition.Frames is ColourEffectFrames.OwnAnimation own
+                ? own.Animation
+                : ColourEffectHeatAnimations.Shimmer(ColourEffectHeatSuit.Power);
             AssertTrue(ReferenceEquals(expected, effect.Animation), $"${pointer:X4} production initial animation");
             AssertEqual(AnimationPlace.StartOfAnimation, effect.Place, $"${pointer:X4} production starts its animation");
             // A started effect is due on its first turn (#2488): that turn shows its animation's first frame.

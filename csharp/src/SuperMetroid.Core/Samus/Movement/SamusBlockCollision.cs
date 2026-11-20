@@ -199,7 +199,7 @@ public static class SamusBlockCollision
                     case RoomCollisionType.SpecialAir:
                         // Sand's submerging reaction clears vertical speed/gravity even
                         // when reached through the horizontal step.
-                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionBodyAttack(owner)), terrain, block, Axis.Horizontal,
+                        collided = SamusInsideBlockReactions.ReactCollision(new(state, BodyAttackOf(owner)), terrain, block, Axis.Horizontal,
                             ref acceptedDisplacement, out _, move.Observes) == SpecialAirCollisionOutcome.Blocks;
                         if (block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
                             !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At))
@@ -533,7 +533,7 @@ public static class SamusBlockCollision
                 case RoomCollisionType.SpecialAir:
                     if (block.CollisionType == RoomCollisionType.SpecialAir)
                     {
-                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionBodyAttack(owner)), terrain, block, Axis.Vertical,
+                        collided = SamusInsideBlockReactions.ReactCollision(new(state, BodyAttackOf(owner)), terrain, block, Axis.Vertical,
                             ref acceptedDisplacement, out bool touchedSand, move.Observes) == SpecialAirCollisionOutcome.Blocks;
                         sandContact |= touchedSand;
                     }
@@ -757,6 +757,13 @@ public static class SamusBlockCollision
             return;
         terrain.RoomObjects.BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.At, block.Behavior);
     }
+
+    /// <summary>
+    /// The contact attack a move makes as it meets the blocks Samus lies in (#2558): <paramref name="owner"/>'s live one, or
+    /// none for a move with no Samus, which carries no attack of its own.
+    /// </summary>
+    private static SamusBodyAttack BodyAttackOf(SamusState? owner) =>
+        owner is null ? SamusBodyAttack.None : owner.HorizontalSpeed.BodyAttack;
 
     /// <summary>
     /// The bomb-block setup reads the live boost stage and pose for every scan that reaches it,

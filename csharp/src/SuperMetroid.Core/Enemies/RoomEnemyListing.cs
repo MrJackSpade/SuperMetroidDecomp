@@ -35,6 +35,12 @@ internal static class RoomEnemyListing
         return place >= EnemyPlaceOrder.Capacity ? null : enemies.InUpdateOrder[place];
     }
 
+    /// <summary>Every place the population lists after <paramref name="part"/>, nearest first; none for the last place.</summary>
+    /// <param name="enemies">The room's enemy places.</param>
+    /// <param name="part">The part looking for its partners.</param>
+    internal static IEnumerable<RoomEnemyPlace> AllListedAfter(this EnemyPlaces enemies, RoomEnemyPlace part) =>
+        Ensure.NotNull(enemies).InUpdateOrder.Skip(Ensure.NotNull(part).Ordinal + 1);
+
     /// <summary>The <paramref name="count"/> places the population lists directly after <paramref name="part"/>, nearest first.</summary>
     /// <param name="enemies">The room's enemy places.</param>
     /// <param name="part">The part looking for its partners.</param>

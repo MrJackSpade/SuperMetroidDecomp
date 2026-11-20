@@ -13,12 +13,19 @@ namespace SuperMetroid.Core.Fx;
 /// The condition the effect checks at the start of each turn from the update after it shows its first frame:
 /// <see cref="ColourEffectCondition.WatchesNothing"/> for an effect that watches nothing.
 /// </param>
-/// <param name="Animation">
-/// The animation the effect plays, in its own frames; the heat shimmer plays none of its own, since its start chooses its
-/// suit's pulse instead.
+/// <param name="Frames">
+/// The frames the effect plays: an animation of its own, or, for the heat shimmer, whose start chooses its suit's pulse,
+/// that pulse's (<see cref="ColourEffectFrames.SuitHeatPulse"/>).
 /// </param>
 internal sealed record ColourEffectDefinition(
     ColourEffectStart Start,
     ColourEffectColours Colours,
     ColourEffectCondition Condition,
-    Animation<ColourEffectSegment> Animation);
+    ColourEffectFrames Frames)
+{
+    /// <summary>The animation the effect plays in its own frames.</summary>
+    /// <exception cref="InvalidOperationException">The effect plays its suit's heat pulse, with no animation of its own.</exception>
+    internal Animation<ColourEffectSegment> OwnAnimation => Frames is ColourEffectFrames.OwnAnimation own
+        ? own.Animation
+        : throw new InvalidOperationException("The heat shimmer plays its suit's heat pulse, with no animation of its own.");
+}

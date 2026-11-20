@@ -83,7 +83,8 @@ public static class ProjectileSpriteDefinitions
     private static readonly ProjectileSpriteId SpazerStartupUpRightThickShort = new(ProjectileSpriteGroup.SpazerStartup, "UpRightThick.Short");
 
     /// <summary>
-    /// The composition each of the cartridge's 417 projectile composition records holds, in its storage order (#1762, #2295):
+    /// The composition each of the cartridge's 416 pictured projectile composition records holds, in its storage order after
+    /// the empty record no picture is composed from, which a frame showing nothing selects (#1762, #2295, #2558):
     /// each named by its family and pose, the pose naming the direction it points or travels and the stage of its animation
     /// it shows. A wave's poses name the side it swings to and how far (Near, Midway, Far, Peak), a spread its lanes'
     /// widening from its seed (Splitting, Parting, Spreading, NearlySpread, Spread), and a charged shot's flicker the
@@ -93,7 +94,6 @@ public static class ProjectileSpriteDefinitions
     /// </summary>
     internal static IReadOnlyList<ProjectileSpriteId> Stored { get; } =
     [
-        new(ProjectileSpriteGroup.Nothing, "Empty"),
         PowerLeft, PowerUpLeft, PowerUp, PowerUpRight,
         .. Poses(ProjectileSpriteGroup.Power, "Right", "DownRight", "Down", "DownLeft"),
         .. Poses(ProjectileSpriteGroup.Plasma, "Right", "DownRight", "Up", "UpRight"),

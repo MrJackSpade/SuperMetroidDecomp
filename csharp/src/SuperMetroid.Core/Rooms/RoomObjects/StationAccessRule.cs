@@ -11,10 +11,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Animation">The station's ordinary animation.</param>
 /// <param name="AcquiredAnimation">The animation the station shows once its reward is held; null when it keeps its ordinary one.</param>
 /// <param name="CompletedMessage">The message the station's activation shows.</param>
-/// <param name="Refill">
-/// What a refill station refills, which it turns Samus away for when already full; null for the map station, whose reward
-/// is its area's map.
-/// </param>
+/// <param name="Reward">What the station's activation gives Samus: a refill, or its area's map.</param>
 internal sealed record StationAccessRule(
     StationKind Kind,
     int RightOffset,
@@ -22,7 +19,7 @@ internal sealed record StationAccessRule(
     StationAnimation Animation,
     StationAnimation? AcquiredAnimation,
     GameplayMessageId CompletedMessage,
-    StationRefill? Refill)
+    StationReward Reward)
 {
     /// <summary>The columns from the station block to its access block on <paramref name="side"/>.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="side"/> is undefined.</exception>

@@ -74,8 +74,8 @@ public enum RoomSound
     RidleyTailWhip,
     /// <summary>Crocomire's acid damage.</summary>
     CrocomireAcidDamage,
-    /// <summary>The Baby Metroid's first cry.</summary>
-    BabyMetroidCry1,
+    /// <summary>The Baby Metroid's high cry, one held note.</summary>
+    BabyMetroidHighCry,
     /// <summary>The Baby Metroid's cry on Ceres; a high-priority sound.</summary>
     CeresBabyMetroidCry,
     /// <summary>
@@ -83,10 +83,10 @@ public enum RoomSound
     /// arriving.
     /// </summary>
     SpeedBoosterOrElevatorStop,
-    /// <summary>The Baby Metroid's second cry.</summary>
-    BabyMetroidCry2,
-    /// <summary>The Baby Metroid's third cry.</summary>
-    BabyMetroidCry3,
+    /// <summary>The Baby Metroid's hitched cry, a short catch before a held note.</summary>
+    BabyMetroidHitchedCry,
+    /// <summary>The Baby Metroid's low cry, one louder, lower held note.</summary>
+    BabyMetroidLowCry,
     /// <summary>Phantoon materialising for an attack.</summary>
     PhantoonMaterialise,
     /// <summary>Phantoon's attack after a Super Missile hit.</summary>

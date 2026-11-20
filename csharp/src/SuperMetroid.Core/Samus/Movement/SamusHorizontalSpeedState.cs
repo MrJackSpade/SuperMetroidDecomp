@@ -217,7 +217,7 @@ public sealed class SamusHorizontalSpeedState
         if (!HasRunningMomentum)
         {
             HasRunningMomentum = true;
-            SpeedBoostCounter = default;
+            SpeedBoostCounter = SamusSpeedBoostCounter.NotBuilding;
         }
 
         // The cap test reads the whole pixels and the fraction each on their own (SamusSpeedMagnitude.ReadsAtCap). The
@@ -492,7 +492,7 @@ public sealed class SamusHorizontalSpeedState
         if (HasRunningMomentum)
         {
             HasRunningMomentum = false;
-            SpeedBoostCounter = default;
+            SpeedBoostCounter = SamusSpeedBoostCounter.NotBuilding;
             SamusGlowPlay.Restart(FullBodyGlow, FullBodyGlowStart);
             SuitShade.Show();
         }
@@ -518,14 +518,14 @@ public sealed class SamusHorizontalSpeedState
         if (speedBoosterEquipped)
         {
             // The glow shows its first shade on the next update, as a restart does.
-            if (HasRunningMomentum && SpeedBoostCounter == default)
+            if (HasRunningMomentum && !SpeedBoostCounter.IsBuilding)
                 StartBoost(firstShadeWait: 1);
             return;
         }
 
         HasRunningMomentum = false;
         SamusGlowPlay.Restart(FullBodyGlow, FullBodyGlowStart);
-        SpeedBoostCounter = default;
+        SpeedBoostCounter = SamusSpeedBoostCounter.NotBuilding;
         ClearSpeedEchoes();
     }
 

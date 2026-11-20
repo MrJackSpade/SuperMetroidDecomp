@@ -73,7 +73,7 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
             Beams(SamusShades.IntroBeams, IntroBeams),
             new(SamusShades.ChargedShotGlow, [.. Enumerable.Range(SamusSheetInks.Suit + 1, SamusColourSets.ColoursPerSet - 1)],
                 Enumerable.Repeat(ChargedShotGlowColour, SamusColourSets.ColoursPerSet - 1).ToArray()),
-            new(SamusShades.DoorCompletionVisor, [SamusSheetInks.Suit + SamusSheetInks.VisorColour], [DoorCompletionVisorColour]),
+            new(SamusShades.DoorCompletionVisor, [SamusSheetInks.Visor], [DoorCompletionVisorColour]),
             new(SamusShades.GrappleFiringFlare, [SamusSheetInks.GrappleFlare], [GrappleFiringFlareColour]),
         };
         foreach (SamusSuit suit in SuitShadeOrder)
@@ -96,9 +96,9 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
         foreach (SamusHurtColorVariant variant in HurtShadeOrder)
             shades.Add(Suit(SamusShades.Hurt(variant), Colours(colour => Hurt.Resolve(variant, colour))));
         for (int step = 0; step < SamusShades.XrayWideningVisor.Count; step++)
-            shades.Add(new(SamusShades.XrayWideningVisor[step], [SamusSheetInks.Suit + SamusSheetInks.VisorColour], [Visor.XrayWidening(step)]));
+            shades.Add(new(SamusShades.XrayWideningVisor[step], [SamusSheetInks.Visor], [Visor.XrayWidening(step)]));
         for (int step = 0; step < SamusShades.VisorCycle.Count; step++)
-            shades.Add(new(SamusShades.VisorCycle[step], [SamusSheetInks.Suit + SamusSheetInks.VisorColour], [Visor.Cycle(step)]));
+            shades.Add(new(SamusShades.VisorCycle[step], [SamusSheetInks.Visor], [Visor.Cycle(step)]));
         foreach (SamusBeamCombination combination in SamusBeamColours.Shown)
             shades.Add(Beams(SamusShades.Beam(combination), SamusBeamColours.Of(combination, BeamPalettes)));
         for (int step = 0; step < SamusShades.CrystalFlashBody.Count; step++)
@@ -110,12 +110,12 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
         for (int step = 0; step < SamusShades.CrystalFlashBubble.Count; step++)
         {
             int shown = step;
-            shades.Add(SheetShade.Run(SamusShades.CrystalFlashBubble[shown], SamusSheetInks.Beams + SamusSheetInks.CrystalFlashBubbleFirstColour,
+            shades.Add(SheetShade.Run(SamusShades.CrystalFlashBubble[shown], SamusSheetInks.CrystalFlashBubble,
                 Enumerable.Range(0, CrystalFlashColorFormat.BubbleColorCount).Select(colour => CrystalFlash.ResolveBubble(shown, colour)).ToArray()));
         }
         for (int frame = 0; frame < SamusShades.HyperBeamCycle.Count; frame++)
         {
-            shades.Add(SheetShade.Run(SamusShades.HyperBeamCycle[frame], SamusSheetInks.Beams + SamusSheetInks.HyperBeamFirstColour,
+            shades.Add(SheetShade.Run(SamusShades.HyperBeamCycle[frame], SamusSheetInks.HyperBeamCycle,
                 HyperBeamCycle.Frame(frame).AsSpan()));
         }
         foreach (SamusDeathShade shown in SamusDeathShade.All)
@@ -123,7 +123,7 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
             foreach (SamusSuit suit in SuitShadeOrder)
             {
                 shades.Add(Suit(SamusShades.DeathSuit(suit, shown),
-                    Colours(colour => Death.SuitedColor(SamusSuitListLayout.Place(suit), shown.Step, colour))));
+                    Colours(colour => Death.SuitedColor(suit, shown.Step, colour))));
             }
             shades.Add(SheetShade.Run(SamusShades.DeathSuitless(shown), SamusSheetInks.Suitless,
                 Colours(colour => Death.SuitlessColor(shown.Step, colour))));

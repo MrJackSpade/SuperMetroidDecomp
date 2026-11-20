@@ -12,6 +12,7 @@ internal static class IntroMotherBrainFrameCatalogVerification
     {
         var frames = IntroMotherBrainSpriteDefinitions.Frames;
         AssertEqual(3, frames.Count, "Mother Brain three original frames");
+        string[] keys = ["mother-brain-pulse-low", "mother-brain-pulse-middle", "mother-brain-pulse-high"];
         for (int frame = 0; frame < 3; frame++)
         {
             int operand = 0x8bcb07 + 4 * frame;
@@ -19,7 +20,7 @@ internal static class IntroMotherBrainFrameCatalogVerification
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[frame].Pose), "original Mother Brain frame operand");
             int count = LittleEndianBytes.Word(IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0001 + pointer));
             AssertEqual(count, IntroMotherBrainSpriteDefinitions.StockPartCount, "original nine-part frame");
-            AssertEqual($"mother-brain-frame-{frame}", frames[frame].Name, "published frame key");
+            AssertEqual(keys[frame], frames[frame].Name, "published frame key");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "frame catalog bounds");

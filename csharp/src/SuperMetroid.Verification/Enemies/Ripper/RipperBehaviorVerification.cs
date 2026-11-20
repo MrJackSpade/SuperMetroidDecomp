@@ -53,7 +53,7 @@ internal static class RipperBehaviorVerification
             place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
             place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
-            RipperBehavior.InitializeGrappleRipper(place);
+            RipperBehavior.InitializeGrappleRipper(place.HeldOccupant(), place);
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 
@@ -64,7 +64,7 @@ internal static class RipperBehaviorVerification
             place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
             place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
-            RipperBehavior.InitializeGrappleRipper(place);
+            RipperBehavior.InitializeGrappleRipper(place.HeldOccupant(), place);
             RipperBehavior.ReverseRipperVariant(place);
             VerifyInstalledLoop(enemies, place, RipperSegment.GrappleRipperMovingLeft, "GrappleRipper left reversal");
         }
@@ -75,7 +75,7 @@ internal static class RipperBehaviorVerification
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.JetRipper);
             place.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
             place.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
-            RipperBehavior.InitializeJetRipper(place);
+            RipperBehavior.InitializeJetRipper(place.HeldOccupant(), place);
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 
@@ -85,7 +85,7 @@ internal static class RipperBehaviorVerification
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.Ripper);
             place.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
             place.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
-            RipperBehavior.InitializeRipper(place);
+            RipperBehavior.InitializeRipper(place.HeldOccupant(), place);
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 
@@ -123,8 +123,8 @@ internal static class RipperBehaviorVerification
     private static RoomEnemyPlace NewPlace(RoomEnemySystem enemies, EnemyDefinitionId definition)
     {
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(definition, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(definition, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         return place;
     }
 

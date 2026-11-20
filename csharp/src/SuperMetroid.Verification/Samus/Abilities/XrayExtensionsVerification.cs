@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 internal static class XrayExtensionsVerification
 {
     /// <summary>The block the fixture's installed one-block reveals show.</summary>
-    private const int RevealedBlock = 500;
+    private static readonly SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture RevealedBlock = SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(500);
 
     /// <summary>Checks axis routing, signed steps, chains leaving the room, unsupported reveal types, and cycle detection.</summary>
     internal static void VerifyXrayExtensions()
@@ -19,7 +19,7 @@ internal static class XrayExtensionsVerification
             level.SetObjectBehavior(index, RoomBlockBehaviorCodec.Decode(behavior));
         }
         // A terminal special-air block shows its installed reveal block (#1596).
-        var visuals = XrayRevealFixtures.Complete(shape => XrayRevealFixtures.Corners(shape, RevealedBlock, 0, 0, 0));
+        var visuals = XrayRevealFixtures.Complete(shape => XrayRevealFixtures.Corners(shape, RevealedBlock.Block, 0, 0, 0));
         var level = Create();
         Set(level, 18, RoomCollisionType.HorizontalExtension, 0xff);
         Set(level, 17, RoomCollisionType.SpecialAir, 0x46);

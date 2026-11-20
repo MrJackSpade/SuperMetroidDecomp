@@ -55,6 +55,8 @@ internal static class EnemySpriteFrames
                 throw new InvalidDataException($"Enemy composition part {index} drawn from character {baseTileIndex} reads past the characters into its depth.");
             framed[index] = SpritePartFrames.Part((part with { Attributes = attributes }).ToPart(), firstCharacter: 0);
         }
-        return new SpriteFrame($"Enemy+{baseTileIndex:X3}/{paletteRow}", ImmutableCollectionsMarshal.AsImmutableArray(framed));
+        // The frame is shared by every sheet frame that shows this composition, each of which names it for what it shows; its
+        // own name only says what kind of frame it is (#2556).
+        return new SpriteFrame("Enemy spritemap", ImmutableCollectionsMarshal.AsImmutableArray(framed));
     }
 }

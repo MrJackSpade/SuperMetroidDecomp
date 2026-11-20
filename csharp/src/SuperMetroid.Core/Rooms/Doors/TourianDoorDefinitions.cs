@@ -7,7 +7,7 @@ public static class TourianDoorDefinitions
     public static DoorDefinition TourianFirstToMetroids1 { get; } = new("TourianFirstToMetroids1", RoomDefinitions.Metroids1, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(94, 6), new(5, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Tourian First room to the Statues room.</summary>
-    public static DoorDefinition TourianFirstToStatues { get; } = new("TourianFirstToStatues", RoomDefinitions.Statues, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.None, DoorSetupDefinitions.StatuesOpensScreens0x0And0x1);
+    public static DoorDefinition TourianFirstToStatues { get; } = new("TourianFirstToStatues", RoomDefinitions.Statues, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 1), DoorSamusSpeed.None, DoorSetupDefinitions.StatuesOpensScreens0x0And0x1);
 
     /// <summary>The door from the Tourian First room to the Upper Tourian Save room.</summary>
     public static DoorDefinition TourianFirstToUpperTourianSave { get; } = new("TourianFirstToUpperTourianSave", RoomDefinitions.UpperTourianSave, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -52,10 +52,10 @@ public static class TourianDoorDefinitions
     public static DoorDefinition BigBoyToDustTorizo { get; } = new("BigBoyToDustTorizo", RoomDefinitions.DustTorizo, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Big Boy room to the Seaweed room.</summary>
-    public static DoorDefinition BigBoyToSeaweed { get; } = new("BigBoyToSeaweed", RoomDefinitions.Seaweed, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition BigBoyToSeaweed { get; } = new("BigBoyToSeaweed", RoomDefinitions.Seaweed, new(DoorDirection.Left, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Seaweed room to the Big Boy room.</summary>
-    public static DoorDefinition SeaweedToBigBoy { get; } = new("SeaweedToBigBoy", RoomDefinitions.BigBoy, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition SeaweedToBigBoy { get; } = new("SeaweedToBigBoy", RoomDefinitions.BigBoy, new(DoorDirection.Right, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Seaweed room to the Tourian Eye Door room.</summary>
     public static DoorDefinition SeaweedToTourianEyeDoor { get; } = new("SeaweedToTourianEyeDoor", RoomDefinitions.TourianEyeDoor, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);

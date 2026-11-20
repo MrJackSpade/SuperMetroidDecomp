@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Menus;
@@ -135,14 +136,14 @@ internal static class LookupStream3Verification
             .Select(cell => ReadVerificationWord(rom, 0x8cd785 + 16 * frame + 2 * cell)).ToArray()).ToArray();
         IntroEyeTilemapPresentation stock = Load(native);
         Confirm(stock, native);
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles(-1).ToArray(), "negative eye frame");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles(4).ToArray(), "upper eye frame");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles((SuperMetroid.Core.Frontend.Intro.IntroEyeFrame)(-1)).ToArray(), "negative eye frame");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles((SuperMetroid.Core.Frontend.Intro.IntroEyeFrame)4).ToArray(), "upper eye frame");
         Console.WriteLine("Intro eye rectangles:24 native cells, the content identity and bounds pass; actual portrait draw copies pass.");
 
         static void Confirm(IntroEyeTilemapPresentation selected, ushort[][] expected)
         {
             for (int frame = 0; frame < expected.Length; frame++)
-                AssertTrue(expected[frame].SequenceEqual(BackgroundTileWordBytes.Words(selected.FrameTiles(frame))), $"eye rectangle {frame}");
+                AssertTrue(expected[frame].SequenceEqual(BackgroundTileWordBytes.Words(selected.FrameTiles(IntroEyeTilemapFormat.Eyes[frame]))), $"eye rectangle {frame}");
             string identity = SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>
             {
                 content.Append("frames", expected.Length);
@@ -157,7 +158,7 @@ internal static class LookupStream3Verification
                 Version = IntroEyeTilemapFormat.Version,
                 Frames = frames.Select((words, frame) => new IntroEyeTilemapFrame
                 {
-                    Id = IntroEyeTilemapFormat.FrameId(frame),
+                    Id = IntroEyeTilemapFormat.FrameId(IntroEyeTilemapFormat.Eyes[frame]),
                     Cells = words.Select(raw =>
                     {
                         var word = new SnesBgTilemapWord(raw);
@@ -559,7 +560,7 @@ internal static class LookupStream3Verification
         {
             ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f639 + action * 2));
             AssertEqual(new Position16<CharacterCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
-                loaded.controllerLabelAnchors[action], "native options label anchor");
+                loaded.controllerLabelAnchors[global::SuperMetroid.Core.Frontend.Options.GameOptionsPageRows.ControllerActions[action]], "native options label anchor");
         }
         foreach ((GameOptionsPage page, int address, int count) in new[]
         {
@@ -1052,12 +1053,12 @@ internal static class LookupStream3Verification
     {
         IReadOnlyList<MotherBrainStaggerStage> stages = MotherBrainPainfulWalkingDefinitions.Stages;
         AssertEqual(8, stages.Count, "stream 3 stagger stage count");
-        AssertEqual(6, MotherBrainPainfulWalkingDefinitions.BeamRunsOutStage, "stream 3 the beam runs out as the seventh stage begins");
         for (int stage = 0; stage < stages.Count; stage++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9beee + 2 * stage)), WalkPoseDuration(stages[stage].Speed), "stream 3 native stagger animation delay");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9befe + 2 * stage)), stages[stage].NeckTurn.RawValue, "stream 3 native stagger neck angle delta");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * stage)), stages[stage].PauseUpdates, "stream 3 native stagger pause timer");
+            AssertEqual(stage == 6, ReferenceEquals(stages[stage], MotherBrainPainfulWalkingDefinitions.BeamRunsOut), "stream 3 the beam runs out as the seventh stage begins");
         }
         for (int stage = 0; stage < stages.Count; stage++)
         {
@@ -1368,7 +1369,7 @@ internal static class LookupStream3Verification
                 AssertEqual(initial[color], catalog.InitialColor(color), "stream 3 Baby initial color");
             for (int frame = 0; frame < fade.Length; frame++)
             for (int color = 0; color < fade[frame].Length; color++)
-                AssertEqual(fade[frame][color], catalog.FadeColor(frame + 1, color), "stream 3 Baby fade selected color");
+                AssertEqual(fade[frame][color], catalog.FadeColor(frame, color), "stream 3 Baby fade selected color");
             string identity = SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
             {
                 content.AppendWords("initial", initial);
@@ -1378,10 +1379,10 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        foreach (int invalid in new[] { -1, 0, 7, int.MaxValue })
+        foreach (int invalid in new[] { -1, 6, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(invalid, 0), "stream 3 Baby fade frame bounds");
         foreach (int invalid in new[] { -1, 14, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(1, invalid), "stream 3 Baby fade color bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(0, invalid), "stream 3 Baby fade color bounds");
     }
 
     /// <summary>Checks Mother Brain body, leg, and corpse fade frames against the native color sequences.</summary>
@@ -1533,7 +1534,7 @@ internal static class LookupStream3Verification
             for (int frame = 0; frame < 6; frame++)
             {
                 for (int color = 0; color < 4; color++)
-                    AssertEqual(words[frame][color], cycle.Resolve(frame, color),
+                    AssertEqual(words[frame][color], cycle.GlowColours(WorkRobotGlowAnimations.Cycle[frame])[color],
                         "stream 3 Work Robot selected color");
             }
             string expectedIdentity = SelectedPresentationHash.Create("WorkRobotPaletteCycle-v1",
@@ -1543,12 +1544,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        foreach (int invalid in new[] { -1, 6, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(invalid, 0),
-                "stream 3 Work Robot frame bounds");
-        foreach (int invalid in new[] { -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(0, invalid),
-                "stream 3 Work Robot color bounds");
     }
 
     /// <summary>Checks Mother Brain's health tint from paint anchors without retaining native intermediate rows.</summary>

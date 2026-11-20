@@ -456,10 +456,10 @@ internal sealed class SpcMusicSequencer
     internal void HandleMusicCommand()
     {
         int command = musicInputLatch;
-        musicInputLatch = (int)MusicPortCommand.None;
-        if (Enum.IsDefined((MusicPortCommand)command))
+        musicInputLatch = MusicPortCommands.Encode(MusicPortCommand.None);
+        if (MusicPortCommands.TryDecode(command, out MusicPortCommand control))
         {
-            switch ((MusicPortCommand)command)
+            switch (control)
             {
                 case MusicPortCommand.Pause:
                     _voices.keyOff = _voices.keyOff | unchecked((byte)~_voices.channelOnMask);
@@ -509,14 +509,14 @@ internal sealed class SpcMusicSequencer
                 StartTrack(0);
                 return;
             }
-            if (MusicTrackControls.TryDecode(record, out MusicTrackControl control))
+            if (MusicTrackControls.TryDecode(record, out MusicTrackControl trackControl))
             {
                 // The driver stores the control word's low byte as its fast-forward flag.
-                fastForward = control switch
+                fastForward = trackControl switch
                 {
                     MusicTrackControl.FastForwardOn => unchecked((byte)record),
                     MusicTrackControl.FastForwardOff => 0,
-                    _ => throw new InvalidOperationException($"Undefined {nameof(MusicTrackControl)} {control}."),
+                    _ => throw new InvalidOperationException($"Undefined {nameof(MusicTrackControl)} {trackControl}."),
                 };
             }
             else
@@ -540,7 +540,7 @@ internal sealed class SpcMusicSequencer
         {
             ManagedSpcMusicChannel channel = channels[index];
             _voices.currentChannelBit = unchecked((byte)bit);
-            if (channel.PatternOrderPointer > byte.MaxValue && channel.InstrumentId == 0)
+            if (channel.IsPlaying && channel.InstrumentId == 0)
                 SetInstrument(channel, 0);
             channel.SubroutineLoops = 0;
             channel.VolumeFadeTicks = 0;
@@ -555,7 +555,7 @@ internal sealed class SpcMusicSequencer
         {
             ManagedSpcMusicChannel channel = channels[index];
             _voices.currentChannelBit = unchecked((byte)bit);
-            if (channel.PatternOrderPointer <= byte.MaxValue)
+            if (!channel.IsPlaying)
                 continue;
             channel.NoteTicksLeft = SpcDriverWrap.Byte(channel.NoteTicksLeft - 1);
             if (channel.NoteTicksLeft == 0)
@@ -636,7 +636,7 @@ internal sealed class SpcMusicSequencer
         for (int index = 0, bit = 1; index < channels.Length; index++, bit <<= 1)
         {
             _voices.currentChannelBit = unchecked((byte)bit);
-            if (channels[index].PatternOrderPointer > byte.MaxValue)
+            if (channels[index].IsPlaying)
                 HandleChannelTick(channels[index]);
         }
         _voices.currentChannelBit = 0;

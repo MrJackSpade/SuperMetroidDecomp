@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core;
@@ -60,7 +61,7 @@ internal static class CrocomirePresentation1193Verification
         {
             global::SuperMetroid.Core.PrivateState.Set((boss ?? throw new InvalidOperationException("Verification requires boss.")), "DeathStage", CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>());
             boss.Body.Presence = boss.Body.Presence.Without(EnemyPresence.Hidden);
-            boss.RumbleOscillation = 0;
+            boss.RumbleOscillation = ListStep<CrocomireRumbleOscillation>.FirstOf(CrocomireRumbleDefinitions.Oscillations);
             boss.RumbleTowardExtreme = true;
             (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = 0;
             death.RumbleRepeatsLeft = UpdateCountdown.For(10);

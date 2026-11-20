@@ -4,13 +4,14 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>One SporeSpawn occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The SporeSpawn species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
+internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeSporeSpawn(Place);
+    public void Initialize() => species.InitializeSporeSpawn(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSporeSpawnMainAi(Place, Encounter);
@@ -29,30 +30,24 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyPlac
     private EnemyBombReaction OwnBombReaction => field ??= species.SporeSpawnBombReactionOf(this);
 
     /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
-        => SporeSpawnBehavior.FindSporeSpawnHitboxReaction(Place, probe, out reaction);
-
-    /// <summary>Spore Spawn's touch reaction, which its definition leaves to it.</summary>
-    public EnemyReaction? SpeciesTouch => SporeSpawnReactions.Touch;
-
-    /// <summary>Spore Spawn's shot reaction, which its definition leaves to it.</summary>
-    public EnemyReaction? SpeciesShot => SporeSpawnReactions.Shot;
+    public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)
+        => SporeSpawnBehavior.FindSporeSpawnHitboxReaction(Place, probe);
 
     /// <summary>Whether Spore Spawn's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == SporeSpawnReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs Spore Spawn's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Occupant.Definition.Touch == SporeSpawnReactions.Touch)
             species.ReactToSporeSpawnTouch(context, Encounter);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>Spore Spawn's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SporeSpawnReactions.Shot ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>
     /// Spore Spawn's dud shot for a bomb whose hitbox selects it, in place of common bomb damage once the ignoring check has
@@ -69,7 +64,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyPlac
 
     /// <summary>Spore Spawn's own stages around common bomb damage, for a bomb that selects its shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot == SporeSpawnReactions.Shot ? OwnBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>Spore Spawn's contact and shots both meet its own frames' hitboxes.</summary>
@@ -77,7 +72,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyPlac
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>Spore Spawn's shot reaction and its dud shot, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) =>
         reaction == SporeSpawnReactions.Shot || reaction == EnemyReaction.DudShot;
 }

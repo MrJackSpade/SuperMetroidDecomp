@@ -60,10 +60,10 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Sets Crocomire up when the room spawns it.</summary>
-    internal void InitializeCrocomire(RoomEnemyPlace place)
+    internal void InitializeCrocomire(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         _roomStatus.Boss = AreaBoss.Crocomire;
-        var state = new CrocomireEnemyState(place);
+        var state = new CrocomireEnemyState(occupant, place);
         place.SetSpeciesState(state);
         // Once attached, the room's shaking and his melt's display read his encounter from the room (#2194); his parts
         // each hold the encounter from their own setup.
@@ -102,9 +102,9 @@ internal sealed class CrocomireFight
     /// <summary>Sets Crocomire's tongue up when the room spawns it.</summary>
     internal void InitializeCrocomireTongue(RoomEnemyPlace place)
     {
-        // The room lists the tongue right after its body, which has set the encounter up; the tongue joins it in a
-        // defeated room too, where it is deleted at once (#2400).
-        CrocomireEnemyState state = _places.ListedBefore(place, 1).RequireSpeciesState<CrocomireEnemyState>();
+        // The tongue joins the encounter its body has set up, in a defeated room too, where it is deleted at once (#2400).
+        CrocomireEnemyState state = _places.Member(place, CrocomirePartListingDefinitions.Listing, EnemyDefinitionId.CrocomireTongue, EnemyDefinitionId.Crocomire)
+            .RequireSpeciesState<CrocomireEnemyState>();
         state.JoinTongue(place);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
@@ -122,18 +122,19 @@ internal sealed class CrocomireFight
 
     /// <summary>Runs the artificial left-side wall.</summary>
     internal void HandleCrocomireInvisibleWall(
-        RoomEnemyPlace body,
+        RoomEnemyOccupant crocomire,
         CrocomireEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
+        RoomEnemyPlace body = crocomire.Place;
         if (state.DeathStage.Entry is not CrocomireDeathStage.Fighting)
             return;
         int leftEdge = body.Position.X.Whole - body.Radius.X - samus.Kinematics.Radius.X;
         if (leftEdge >= samus.Position.X.Whole)
             return;
 
-        _collision.ResolveOrdinaryTouch(body, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(crocomire, samus, pseudoScrew);
         samus.Position = samus.Position.WithWholeX(leftEdge);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(CrocomireFightDefinitions.WallPush);
     }
@@ -453,15 +454,10 @@ internal sealed class CrocomireFight
     /// <summary>Spawns one of Crocomire's fight projectiles, fired along <paramref name="gradient"/>.</summary>
     private void SpawnCrocomireProjectile(RoomEnemyPlace body, int gradient)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireProjectile, _combat.MouthShot, graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.CrocomireProjectile,
-            _combat.MouthShot,
-            graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
         projectile.StartAnimation(new CrocomireProjectileAnimation(_combat.MouthShot, CrocomireProjectileSegment.Mouth));
         projectile.Velocity = CrocomireFightDefinitions.SpitVelocity;
         projectile.Position = projectile.Position.WithWhole(body.Position.Whole + CrocomireFightDefinitions.SpitOffset);

@@ -76,10 +76,10 @@ internal static class SpanQueriesVerification
         var red = new ScreenTintLayer(new RgbColor(255, 0, 0));
         var objects = new SpritesLayer([]);
         var blue = new ScreenTintLayer(new RgbColor(0, 0, 255));
-        var snapshot = new LayeredScene(memory, new DisplayLayer[] { red, objects, blue }, 15);
+        var snapshot = new LayeredScene(memory, new DisplayLayer[] { red, objects, blue }, DisplayBrightness.Full);
         LayeredScene without = snapshot.Without<ScreenTintLayer>();
         AssertTrue(without.Layers.SequenceEqual(new DisplayLayer[] { objects }), "Without removes only the selected kind");
-        AssertTrue(ReferenceEquals(snapshot.Paint, without.Paint) && without.Brightness == 15,
+        AssertTrue(ReferenceEquals(snapshot.Paint, without.Paint) && without.Brightness.IsFull,
             "Without shares memory and brightness");
         AssertTrue(snapshot.Layers.SequenceEqual(new DisplayLayer[] { red, objects, blue }), "Without leaves the source snapshot unchanged");
         AssertTrue(snapshot.LayersOf<ScreenTintLayer>().SequenceEqual(new[] { red, blue }), "LayersOf keeps application order");

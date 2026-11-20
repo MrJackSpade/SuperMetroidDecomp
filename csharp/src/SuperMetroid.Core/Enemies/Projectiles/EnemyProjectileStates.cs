@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal sealed class EnemyProjectileStates<TState> where TState : EnemyProjectileState
 {
     /// <summary>The entry of the projectile in each place, given when the behaviour's spawner set that projectile up.</summary>
-    private readonly TState[] _places = new TState[EnemyProjectileEngine.PlaceCount];
+    private readonly TState[] _places = new TState[EnemyProjectilePlaces.Capacity];
 
     /// <summary>Gives <paramref name="projectile"/>, which the behaviour is bound to, <paramref name="state"/> for its life.</summary>
     /// <param name="projectile">A projectile the behaviour's spawner is setting up.</param>

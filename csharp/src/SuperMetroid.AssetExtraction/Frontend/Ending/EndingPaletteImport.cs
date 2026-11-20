@@ -66,10 +66,10 @@ internal static class EndingPaletteImport
 
         var native = new byte[count * sizeof(ushort)];
         for (int step = 0; step < EndingLogoDefinitions.CrossfadeSteps; step++)
-        for (int palette = 0; palette < 2; palette++)
+        for (int palette = 0; palette < EndingPaletteSources.CrossfadeLayers.Count; palette++)
         for (int color = 0; color < 16; color++)
         {
-            SnesAddress source = EndingPaletteSources.LogoCrossfadeSource(step, palette)
+            SnesAddress source = EndingPaletteSources.LogoCrossfadeSource(step, EndingPaletteSources.CrossfadeLayers[palette])
                 .AddWithinBank(-(15 - color) * sizeof(ushort));
             int index = (step * 2 + palette) * 16 + color;
             BinaryPrimitives.WriteUInt16LittleEndian(

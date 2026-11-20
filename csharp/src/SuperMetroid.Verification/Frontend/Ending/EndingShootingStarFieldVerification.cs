@@ -44,7 +44,7 @@ internal static class EndingShootingStarFieldVerification
         int still = 0;
         for (int index = 0; index < EndingShootingStarDefinitions.Count; index++)
         {
-            if (EndingShootingStarDefinitions.Stars[index].Period is not null)
+            if (EndingShootingStarDefinitions.Stars[index].Pace.Animates)
                 continue;
             still++;
             var stars = new EndingShootingStars();

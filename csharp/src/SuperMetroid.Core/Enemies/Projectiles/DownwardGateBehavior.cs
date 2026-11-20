@@ -51,11 +51,10 @@ internal sealed class DownwardGateBehavior
             _ => throw new InvalidDataException($"Downward gate requested undefined projectile {request.Kind}."),
         };
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, Gate, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return; // The projectile spawn's deliberate finite-pool failure.
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Gate, graphics: default);
         bool closed = request.Kind == DownwardGateProjectileKind.Closed;
         projectile.StartAnimation(new DownwardGateProjectileAnimation(Gate, closed
             ? DownwardGateProjectileSegment.Closed

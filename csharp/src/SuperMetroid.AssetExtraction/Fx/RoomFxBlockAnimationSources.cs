@@ -33,7 +33,7 @@ internal static class RoomFxBlockAnimationSources
             BlockAnimation.Spores => Simple(RoomFxBlockAnimationSourceDefinitions.Spores),
             BlockAnimation.WreckedShipTreadmillRightwards => new PictureRun(
                 RoomFxBlockAnimationSourceDefinitions.WreckedShipTreadmill, RoomFxBlockAnimationLoops.TreadmillFrameByteCount),
-            BlockAnimation.WreckedShipTreadmillLeftwards or BlockAnimation.None or BlockAnimation.TourianStatuePhantoon or BlockAnimation.TourianStatueRidley
+            BlockAnimation.WreckedShipTreadmillLeftwards or BlockAnimation.TourianStatuePhantoon or BlockAnimation.TourianStatueRidley
                 or BlockAnimation.TourianStatueKraid or BlockAnimation.TourianStatueDraygon
                 => throw new InvalidDataException($"{image.Object} has no pictures in the room-FX atlas."),
             _ => throw new InvalidDataException($"Undefined room-FX object {image.Object}."),

@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 internal static class GameOptionsSourcePresentationPrivateAccess
 {
     /// <summary>The signature of <c>ApplyControllerLabel</c>, called directly: reflection cannot pass a ref struct.</summary>
-    private delegate void ApplyControllerLabelCall(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation self, global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> page, int action, global::SuperMetroid.Core.Input.ControllerButton button);
+    private delegate void ApplyControllerLabelCall(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation self, global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> page, global::SuperMetroid.Core.Input.ControllerAction action, global::SuperMetroid.Core.Input.ControllerButton button);
 
     /// <summary>The signature of <c>ApplyLanguage</c>, called directly: reflection cannot pass a ref struct.</summary>
     private delegate void ApplyLanguageCall(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation self, global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> primaryPage, bool japanese);
@@ -24,7 +24,7 @@ internal static class GameOptionsSourcePresentationPrivateAccess
     {
         /// <summary>The private method <c>ApplyControllerLabel</c>, invoked by name.</summary>
         internal void ApplyControllerLabel(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> page, int action, global::SuperMetroid.Core.Input.ControllerButton button) =>
-            PrivateState.MethodDelegate<ApplyControllerLabelCall>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation), "ApplyControllerLabel", [typeof(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile>), typeof(int), typeof(global::SuperMetroid.Core.Input.ControllerButton)])(self, page, action, button);
+            PrivateState.MethodDelegate<ApplyControllerLabelCall>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation), "ApplyControllerLabel", [typeof(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile>), typeof(global::SuperMetroid.Core.Input.ControllerAction), typeof(global::SuperMetroid.Core.Input.ControllerButton)])(self, page, action >= 0 && action < global::SuperMetroid.Core.Frontend.Options.GameOptionsPageRows.ControllerActions.Count ? global::SuperMetroid.Core.Frontend.Options.GameOptionsPageRows.ControllerActions[action] : (global::SuperMetroid.Core.Input.ControllerAction)99, button);
 
         /// <summary>The private method <c>ApplyLanguage</c>, invoked by name.</summary>
         internal void ApplyLanguage(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> primaryPage, bool japanese) =>
@@ -39,7 +39,7 @@ internal static class GameOptionsSourcePresentationPrivateAccess
             PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation, global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[]>(self, "CreatePage", [typeof(global::SuperMetroid.Core.Frontend.Options.GameOptionsScreen)], new object?[] { tilemap });
 
         /// <summary>The private field <c>controllerLabelAnchors</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.AssetExtraction.Artwork.CharacterCells>[] controllerLabelAnchors => PrivateState.Field<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.AssetExtraction.Artwork.CharacterCells>[]>(self, "controllerLabelAnchors");
+        internal global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Input.ControllerAction, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.AssetExtraction.Artwork.CharacterCells>> controllerLabelAnchors => PrivateState.Field<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation, global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Input.ControllerAction, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.AssetExtraction.Artwork.CharacterCells>>>(self, "controllerLabelAnchors");
 
         /// <summary>The private field <c>controllerLabels</c>, reached by name.</summary>
         internal global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Input.ControllerButton, global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[]> controllerLabels => PrivateState.Field<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation, global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Input.ControllerButton, global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[]>>(self, "controllerLabels");

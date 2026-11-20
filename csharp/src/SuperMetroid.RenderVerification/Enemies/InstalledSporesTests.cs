@@ -121,7 +121,7 @@ internal static class InstalledSporesTests
                         layer.Window.IsClosed && layer.OverlayBehind is not null && !layer.BackgroundBehind,
                         "Spore capture does not brighten the background, the actors and the backdrop with the spores lying behind them.");
                     packets.Add(new(packets.Count + 1, new LayeredScene(
-                        FramePaint.FromNativeGameplay(new RgbColor[SnesCgram.ColorCount], []), [layer], 15)));
+                        FramePaint.FromNativeGameplay(new RgbColor[SnesCgram.ColorCount], []), [layer], DisplayBrightness.Full)));
                 }
                 comparisons++;
             }
@@ -206,7 +206,7 @@ internal static class InstalledSporesTests
                 FxOverlayFixtures.ArtworkFromVram(RoomFxType.Spores, vram.Bytes, colors, 0x4000));
             var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors, new((ushort)(1 | (bg1High ? 0x2000 : 0))))),
                 spores, (OverlayBehindRoomBlend)spores.Blend);
-            var scene = new LayeredScene(FramePaint.FromOamGameplay(vram.Bytes, colors, oam, 1, 0), [layer], 15);
+            var scene = new LayeredScene(FramePaint.FromOamGameplay(vram.Bytes, colors, oam, 1, 0), [layer], DisplayBrightness.Full);
             RgbaPixel[] pixels = DisplayRendering.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only
             // post-process cannot distinguish excluded BG1/low OBJ from BG2 here.

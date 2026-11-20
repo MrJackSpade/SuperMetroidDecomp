@@ -49,7 +49,7 @@ internal static class HyperBeamFxColorArtworkVerification
             RgbColor[] shownBeams = extractedColours.ShownBeams(stockSources);
             for (int color = 0; color < 8; color++)
                 AssertEqual(RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906 + 20 * expectedFrame + 2 * color))),
-                    shownBeams[SamusSheetInks.HyperBeamFirstColour + color],
+                    shownBeams[SamusSheetInks.HyperBeamCycle - SamusSheetInks.Beams + color],
                     "Extracted Hyper Beam frame's installed shade shows the native frame's colours");
         }
 

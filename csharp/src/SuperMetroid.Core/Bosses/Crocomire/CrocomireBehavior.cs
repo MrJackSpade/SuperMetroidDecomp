@@ -16,14 +16,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Crocomire's body, or his tongue (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Crocomire definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Crocomire)
-            return EnemyOccupant.Of(new CrocomireBodyEntity(this, place, common, _bossArtwork));
+            return EnemyOccupant.Of(new CrocomireBodyEntity(this, occupant, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.CrocomireTongue)
-            return EnemyOccupant.Of(new CrocomireTongueEntity(this, place, common));
-        throw new InvalidOperationException($"The Crocomire species creates no {place.DefinitionId}.");
+            return EnemyOccupant.Of(new CrocomireTongueEntity(this, occupant, place, common));
+        throw new InvalidOperationException($"The Crocomire species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
@@ -69,11 +69,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Crocomire's main AI for one update: the fight, or the stage of his death he is at.</summary>
     private void RunCrocomireMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant crocomire,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         Position16<RoomPixels> camera)
     {
+        RoomEnemyPlace place = crocomire.Place;
         CrocomireEnemyState state = place.RequireSpeciesState<CrocomireEnemyState>();
 
         if (state.DeathStage.Entry is CrocomireDeathStage.Fighting)
@@ -94,7 +95,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             RunCrocomireDeathSequence(state, samus, camera);
         }
 
-        Fight.HandleCrocomireInvisibleWall(place, state, samus, pseudoScrew);
+        Fight.HandleCrocomireInvisibleWall(crocomire, state, samus, pseudoScrew);
         Combat.ApplyCrocomireHurtFlash(place, state);
     }
 
@@ -187,8 +188,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Crocomire's main AI.</summary>
-    internal void RunCrocomireMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunCrocomireMainAi(RoomEnemyOccupant crocomire, IEnemyAiFrame frame)
     {
-        RunCrocomireMain(place, frame.Samus, frame.PseudoScrew, frame.Camera);
+        _ = crocomire.Place;
+        RunCrocomireMain(crocomire, frame.Samus, frame.PseudoScrew, frame.Camera);
     }
 }

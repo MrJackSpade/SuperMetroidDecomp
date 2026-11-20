@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -28,10 +29,10 @@ internal sealed class EndingStage
     internal EndingColours Colours => screen.Colours;
 
     /// <summary>The screen's brightness and the cadence of its fades, shared through scene and colour handoffs.</summary>
-    internal ScreenFade Fade { get; } = new(0);
+    internal ScreenFade Fade { get; } = new(DisplayBrightness.Black);
 
     /// <summary>The screen's brightness through the scene's fades, from black through full.</summary>
-    internal int Brightness => Fade.Level;
+    internal DisplayBrightness Brightness => Fade.Level;
 
     /// <summary>The turning floor's view, which the escape, the explosion and the planet escape share (#2541).</summary>
     internal EndingTurningFloor Floor { get; } = new();
@@ -68,20 +69,21 @@ internal sealed class EndingStage
     private EndingSprite Place(EndingSprite added)
     {
         EndingSpriteRole role = added.Role;
-        int rank = SoleActorRank(role);
-        if (rank >= 0)
+        int? rank = SoleActorRank(role);
+        if (rank is not null)
             sprites.RemoveAll(actor => actor.Role == role);
         // A sole actor stands before the first sole actor ranked after it; any other actor before the first sole actor.
-        int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) > rank && SoleActorRank(actor.Role) >= 0);
+        int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) is int other && (rank is not int own || other > own));
         sprites.Insert(place >= 0 ? place : sprites.Count, added);
         return added;
     }
 
     /// <summary>
     /// Where <paramref name="role"/> stands among the actors the ending shows one of at a time, zero for the first to run, or
-    /// minus one for an actor that runs in spawn order ahead of them.
+    /// null for an actor that runs in spawn order ahead of them.
     /// </summary>
-    private static int SoleActorRank(EndingSpriteRole role) => Array.IndexOf(EndingCastOrderDefinitions.SoleActorsLast, role);
+    private static int? SoleActorRank(EndingSpriteRole role) =>
+        Array.IndexOf(EndingCastOrderDefinitions.SoleActorsLast, role) is int rank and >= 0 ? rank : null;
 
     /// <summary>Adds an actor from its definition's position, colouring and animation.</summary>
     internal void SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>

@@ -20,16 +20,16 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Mother Brain's body, her head, or a tube of her fake death (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Mother Brain definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.MotherBrainBody)
-            return EnemyOccupant.Of(new MotherBrainBodyEntity(this, place, common, _bossArtwork));
+            return EnemyOccupant.Of(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.MotherBrainHead)
-            return EnemyOccupant.Of(new MotherBrainHeadEntity(this, place, common));
+            return EnemyOccupant.Of(new MotherBrainHeadEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.MotherBrainTubes)
-            return EnemyOccupant.Of(new MotherBrainTubesEntity(this, place, common));
-        throw new InvalidOperationException($"The Mother Brain species creates no {place.DefinitionId}.");
+            return EnemyOccupant.Of(new MotherBrainTubesEntity(this, occupant, place, common));
+        throw new InvalidOperationException($"The Mother Brain species creates no {occupant.DefinitionId}.");
     }
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;

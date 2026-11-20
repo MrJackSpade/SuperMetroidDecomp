@@ -116,7 +116,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen, ICompose
     /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle;
     /// <summary>The screen's brightness, black at first, and its slow fades, one level at each fade step.</summary>
-    private readonly ScreenFade fade = new(0, stepDelay: CeresDestructionSceneDefinitions.Timing.FirstFadeWaitBeforeEachStep,
+    private readonly ScreenFade fade = new(DisplayBrightness.Black, stepDelay: CeresDestructionSceneDefinitions.Timing.FirstFadeWaitBeforeEachStep,
         firstWait: CeresDestructionSceneDefinitions.Timing.FirstFadeWaitBeforeEachStep);
     /// <summary>The hold of the phase holding: after the explosion, then on close Zebes.</summary>
     private UpdateCountdown phaseHold = UpdateCountdown.Ended();
@@ -465,7 +465,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen, ICompose
         FloorScroll = FixedVector<FloorPixels>.Zero;
         angle = RotationAngle.Zero;
         Zoom = FloorZoom.OwnSize;
-        fade.Show(0);
+        fade.Show(DisplayBrightness.Black);
         fade.StepEvery(CeresDestructionSceneDefinitions.Timing.FadeUpdatesPerStep);
         revealBlockWidth = CeresDestructionSceneDefinitions.RevealPixelation.StartingBlockWidth;
     }

@@ -73,7 +73,8 @@ public sealed class CeresRidleyColorCatalog
     internal RgbColor ResolveBodyFade(int shade, int color) => bodyFade.Colour(shade, color);
 
     /// <summary>One installed colour of a health band.</summary>
-    internal RgbColor ResolveHealth(int band, int color) => health.Colour(band, color);
+    internal RgbColor ResolveHealth(RidleyHealthShade band, int color) =>
+        health.Colour(InstalledRows.Of(RidleyHealthShadeDefinitions.LeastHurtFirst, band), color);
 
     /// <summary>One installed colour of an alarm step.</summary>
     internal RgbColor ResolveAlarm(int step, int color) => alarm.Colour(step, color);

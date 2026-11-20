@@ -57,7 +57,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         kept.Check("the blue door's opening", Terrain(RoomCollisionType.ShootableBlock), [block], level =>
             RoomObjectFixtures.Unbound().DoorObjects.SpawnBlueDoorOpening(level, block,
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)),
-                SamusProjectileType.None));
+                BlockStrike.GrappleTouch.Instance));
         kept.Check("the passable block's setup", Terrain(RoomCollisionType.SpecialAir), [block], level =>
             DoorObjects.SetupPassableBlock(level, PlaceAt(RoomObjectFixtures.Unbound(), block)));
         kept.AssertEveryCaseKept();
@@ -141,7 +141,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         {
             RoomBlockBehavior behavior = RoomBlockBehavior.Reacting(ShootableReaction.PermanentBreak1x1);
             level.SetBehavior(block, behavior);
-            AssertTrue(RoomObjectFixtures.Unbound().BlockReactions.TrySpawnProjectileShotBlock(level, block, behavior, SamusProjectileType.None,
+            AssertTrue(RoomObjectFixtures.Unbound().BlockReactions.TrySpawnProjectileShotBlock(level, block, behavior, BlockStrike.GrappleTouch.Instance,
                 solidBlock: true), "the break takes a place");
         });
         var plant = new Position16<RoomBlocks>(1, 1);
@@ -213,7 +213,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
             new ScrollTriggerObject(RoomScrollChange.LandingSiteOpensScreen1x2TopAligned).Rest(level, block));
         kept.Check("a scroll extension's setup", Solid, [block], level =>
             ScrollObjects.SetupScrollExtension(level, PlaceAt(RoomObjectFixtures.Unbound(), block),
-                new ScrollExtension(RoomCollisionType.HorizontalExtension, -1)));
+                new ScrollExtension(ScrollExtensionDirection.Left)));
         kept.AssertEveryCaseKept();
     }
 

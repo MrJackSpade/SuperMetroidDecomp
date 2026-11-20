@@ -19,9 +19,9 @@ internal static class BoyonSpeedDefinitionsVerification
     internal static void VerifyCompiledBoyonSpeeds(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Action<RoomEnemyPlace> initialize = BoyonBehavior.InitializeBoyon;
+        Action<RoomEnemyPlace> initialize = fixturePlace => BoyonBehavior.InitializeBoyon(fixturePlace);
         RoomEnemyPlace actor = enemies.Places.InUpdateOrder[0];
-        actor.Bind(EnemyDefinitionId.Boyon, actor.Definition);
+        actor.Bind(EnemyDefinitionId.Boyon, actor.KeptDefinition);
         int initialized = 0;
         for (int height = 0; height < 9; height++)
         {
@@ -32,7 +32,7 @@ internal static class BoyonSpeedDefinitionsVerification
                 initialize(actor);
                 initialized++;
                 // The Boyon reads its multiplier and height from its spawn settings where it uses them (#2476).
-                BoyonSpawnSettings settings = actor.SpawnSettings<BoyonSpawnSettings>();
+                BoyonSpawnSettings settings = actor.HeldOccupant().SpawnSettings<BoyonSpawnSettings>();
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286df + multiplier * 2)), settings.SpeedMultiplier, "Boyon real initialized multiplier without bus");
                 AssertEqual(authoredHeight, SignedSixteenSixteen.FromWholePixels(settings.JumpHeight).InTwoFiftySixths, "Boyon real initialized height without bus");
             }

@@ -12,7 +12,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Shaktool];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ShaktoolEntity(this, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ShaktoolEntity(this, occupant, place, common));
 
     /// <summary>Checks terrain collisions along each segment's orbit and attack path.</summary>
     private readonly EnemyTerrain _terrain;
@@ -36,9 +36,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         (angle + RotationAngle.HalfTurn).WholeStep;
 
     /// <summary>Initializes the Shaktool, establishing the segment's orbit and its place in its chain.</summary>
-    internal void InitializeShaktool(RoomEnemyPlace place)
+    internal void InitializeShaktool(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        ShaktoolSpawnSettings settings = place.SpawnSettings<ShaktoolSpawnSettings>();
+        ShaktoolSpawnSettings settings = occupant.SpawnSettings<ShaktoolSpawnSettings>();
         ShaktoolSegmentDefinition definition = settings.Segment;
         var state = new ShaktoolSegmentState();
         place.SetSpeciesState(state);
@@ -47,21 +47,20 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ResetOrientation();
         place.Processing = place.Processing.With(ShaktoolSegmentDefinitions.Processing);
         place.Contact = place.Contact.With(definition.Contact);
-        // The segment's definition names how far after the chain's leading saw the room lists it. The chain's death
-        // deletes the enemies the room lists first (ShaktoolDeathDeletesFirstListed), so the chain must be listed first.
-        RoomEnemyPlace? owner = definition.OwnerPlaceDistance == 0
+        // The segment's definition is its place in the chain, which the room lists together. The chain's death deletes
+        // the enemies the room lists first (ShaktoolDeathDeletesFirstListed), so the chain must be listed first.
+        RoomEnemyPlace owner = definition == ShaktoolSegmentDefinitions.LeadingSaw
             ? place
-            : _places.ListedBeforeOrNone(place, definition.OwnerPlaceDistance);
-        if (owner is null || !ShaktoolDeathDeletesFirstListed.DeletesOwnChain(_places.InUpdateOrder, owner))
+            : _places.Member(place, ShaktoolSegmentDefinitions.Chain, definition, ShaktoolSegmentDefinitions.LeadingSaw);
+        if (!ShaktoolDeathDeletesFirstListed.DeletesOwnChain(_places.InUpdateOrder, owner))
         {
             throw new InvalidDataException(
-                $"Shaktool's chain starts in enemy place {place.Ordinal - definition.OwnerPlaceDistance}; its death deletes the first seven places, " +
-                "where both Shaktool room states place it.");
+                $"Shaktool's chain starts at {owner}; its death deletes the first seven places, where both Shaktool room states place it.");
         }
         _chains.Place(place, new ShaktoolChainPlaces(
             Chain: owner == place ? StartShaktoolChain(owner, settings.Motion) : JoinShaktoolChain(owner, settings.Motion),
-            Previous: _places.ListedBeforeOrNone(place, 1),
-            Next: _places.ListedAfterOrNone(place, 1)));
+            Previous: _places.MemberBefore(place, ShaktoolSegmentDefinitions.Chain, definition),
+            Next: _places.MemberAfter(place, ShaktoolSegmentDefinitions.Chain, definition)));
         state.Motion = definition.Motion;
         // Initialization and synchronization both take the segment's authored angular velocity unchanged.
         state.AngularVelocity = definition.AngularVelocity;
@@ -83,9 +82,12 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private ShaktoolChain StartShaktoolChain(RoomEnemyPlace leadingSaw, ShaktoolChainMotion motion)
     {
-        RoomEnemyPlace[] chainPlaces = [leadingSaw, .. _places.ListedRunAfter(leadingSaw, ShaktoolSegmentDefinitions.SegmentCount - 1)];
         return new ShaktoolChain(
-            [.. chainPlaces.Zip(ShaktoolSegmentDefinitions.Segments, (segment, part) => new ShaktoolChainSegment(segment, part))],
+            [.. ShaktoolSegmentDefinitions.Segments.Select(part => new ShaktoolChainSegment(
+                part == ShaktoolSegmentDefinitions.LeadingSaw
+                    ? leadingSaw
+                    : _places.Member(leadingSaw, ShaktoolSegmentDefinitions.Chain, ShaktoolSegmentDefinitions.LeadingSaw, part),
+                part))],
             motion);
     }
 
@@ -444,7 +446,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (struckSegment.Health != 0)
             return;
-        foreach (RoomEnemyPlace segment in ShaktoolDeathDeletesFirstListed.Deleted(_places.InUpdateOrder, ShaktoolSegmentDefinitions.SegmentCount))
+        foreach (RoomEnemyPlace segment in ShaktoolDeathDeletesFirstListed.Deleted(_places.InUpdateOrder, ShaktoolSegmentDefinitions.Segments.Length))
         {
             segment.Contact = EnemyContact.None;
             segment.Processing = EnemyProcessing.None;

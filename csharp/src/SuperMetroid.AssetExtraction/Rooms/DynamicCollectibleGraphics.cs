@@ -6,13 +6,13 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>Which graphics and palette offsets each dynamic collectible loads.</summary>
 internal static class DynamicCollectibleGraphics
 {
-    /// <summary>The place of <paramref name="kind"/> in <see cref="RoomObjectDynamicCollectibleGraphicsDefinitions.Kinds"/>, or -1 when it has no dynamic graphics upload.</summary>
-    internal static int KindIndex(InWorldCollectibleKind kind) => Array.IndexOf(Kinds, kind);
+    /// <summary>Whether <paramref name="kind"/> has a dynamic graphics upload: whether <see cref="RoomObjectDynamicCollectibleGraphicsDefinitions.Kinds"/> lists it.</summary>
+    internal static bool HasUpload(InWorldCollectibleKind kind) => Kinds.Contains(kind);
 
     /// <summary>Combines a permanent item's eight palette selectors and tile bytes.</summary>
     internal static RoomObjectDynamicCollectibleGraphic Get(InWorldCollectibleKind kind)
     {
-        if (KindIndex(kind) < 0)
+        if (!HasUpload(kind))
             throw new InvalidDataException(
                 $"Permanent-item kind {kind} has no dynamic graphics upload.");
         byte[] palettes = new byte[8];
@@ -20,6 +20,12 @@ internal static class DynamicCollectibleGraphics
             palettes[tile] = PaletteOffset(kind, tile);
         return new(kind, palettes, Convert.FromHexString(Tiles[GraphicIndex(kind)]));
     }
+
+    /// <summary>The place of <paramref name="kind"/> in <see cref="RoomObjectDynamicCollectibleGraphicsDefinitions.Kinds"/>, the order the dynamic uploads list it.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="kind"/> has no dynamic graphics upload.</exception>
+    internal static int UploadOrder(InWorldCollectibleKind kind) => HasUpload(kind)
+        ? Array.IndexOf(Kinds, kind)
+        : throw new InvalidDataException($"Permanent-item kind {kind} has no dynamic graphics upload.");
 
     /// <summary>The place of <paramref name="kind"/>'s artwork block among the item graphics, in their stored order.</summary>
     private static int GraphicIndex(InWorldCollectibleKind kind) => Array.IndexOf(StoredGraphics, GraphicFor(kind));
@@ -58,7 +64,7 @@ internal static class DynamicCollectibleGraphics
     /// </summary>
     private static byte PaletteOffset(InWorldCollectibleKind kind, int tile)
     {
-        if (KindIndex(kind) < 0)
+        if (!HasUpload(kind))
             throw new InvalidDataException(
                 $"Permanent-item kind {kind} has no dynamic graphics upload.");
         if ((uint)tile >= 8)

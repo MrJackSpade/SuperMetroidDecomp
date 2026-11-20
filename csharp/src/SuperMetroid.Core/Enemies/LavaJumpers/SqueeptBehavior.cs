@@ -10,10 +10,10 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Squeept];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
-            ? EnemyOccupant.Of(new NorfairLavaJumperFollowerEntity(this, place, common))
-            : EnemyOccupant.Of(new SqueeptEntity(this, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
+            ? EnemyOccupant.Of(new NorfairLavaJumperFollowerEntity(this, occupant, place, common))
+            : EnemyOccupant.Of(new SqueeptEntity(this, occupant, place, common));
 
     /// <summary>Supplies one random number per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;
@@ -42,7 +42,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
         });
-        _parents.Place(place, _places.ListedBefore(place, 1));
+        _parents.Place(place, _places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader));
         ValidateSqueeptParent(place);
     }
 
@@ -193,8 +193,8 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Norfair lava-jumping follower in place {follower.Ordinal} must immediately follow " +
                 "a parent of the same definition. " +
-                $"Preceding place: definition={parent.DefinitionId}, " +
-                $"health={parent.Health}, spawn={parent.Spawn.Population.SpawnSettings}, contact={parent.Contact}, processing={parent.Processing}, presence={parent.Presence}.");
+                $"Preceding place: definition={parent.Occupant?.DefinitionId}, " +
+                $"health={parent.Health}, spawn={parent.Occupant?.Spawn.SpawnSettings}, contact={parent.Contact}, processing={parent.Processing}, presence={parent.Presence}.");
         }
     }
 

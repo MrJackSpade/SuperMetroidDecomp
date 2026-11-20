@@ -26,7 +26,7 @@ internal static class CeresEscapeNativeSources
         internal bool TryResolveNative(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> characters)
         {
             for (int page = 0; page < CeresEscapeTileArtworkDefinitions.All.Length; page++)
-                if (self.TryResolve(page, sourceAddress - PageSource(page), byteCount, out characters))
+                if (self.TryResolve(SuperMetroid.AssetExtraction.Areas.Ceres.Artwork.CeresEscapeTileArtworkDefinitions.All[page], sourceAddress - PageSource(page), byteCount, out characters))
                     return true;
             characters = default;
             return false;

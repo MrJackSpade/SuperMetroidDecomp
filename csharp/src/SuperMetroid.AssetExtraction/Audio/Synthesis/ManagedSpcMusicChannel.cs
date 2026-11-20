@@ -5,6 +5,12 @@ internal sealed class ManagedSpcMusicChannel
 {
     /// <summary>Current byte cursor in this voice's SPC pattern instruction stream.</summary>
     internal int PatternOrderPointer;
+
+    /// <summary>
+    /// Whether the voice plays a pattern: the driver keeps a playing voice's cursor in its sequence data, past the driver's
+    /// first page, and an idle voice's within that page.
+    /// </summary>
+    internal bool IsPlaying => PatternOrderPointer > byte.MaxValue;
     /// <summary>Hardware voice index used when selecting the channel's DSP registers.</summary>
     internal int Index;
     /// <summary>Remaining duration of the current note before reading another pattern command.</summary>

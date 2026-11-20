@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 public enum EnemyProjectileFrameId
 {
-    /// <summary>The empty projectile frame, which draws nothing and is on no sheet: every beat that shows no picture (#2431).</summary>
-    Blank,
     /// <summary>The Skree debris, one composed picture.</summary>
     SkreeDebris,
     /// <summary>The Metaree debris, one composed picture.</summary>

@@ -12,9 +12,4 @@ public static class TitleGradientFormat
     /// </summary>
     public static FloorZoomStep ZoomRangeWidth { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 16);
 
-    /// <summary>
-    /// The gradient the floor shows at its own size, where the final zoom ends and the idle title screen stays: the first,
-    /// the gradient of the zoom range that starts at no zoom.
-    /// </summary>
-    public const int OwnSizeVariant = 0;
 }

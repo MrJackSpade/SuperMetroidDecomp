@@ -49,7 +49,7 @@ internal static class CeresRidleyColorsVerification
             Check(RidleySourceDefinitions.Ceres.HealthColors + row *
                 CeresRidleyColorFormat.HealthColorCount * sizeof(ushort),
                 CeresRidleyColorFormat.HealthColorCount,
-                color => native.ResolveHealth(row, color));
+                color => native.ResolveHealth(RidleyHealthShadeDefinitions.LeastHurtFirst[row], color));
         for (int row = 0; row < CeresRidleyColorFormat.AlarmStepCount; row++)
             Check(RidleySourceDefinitions.Ceres.AlarmColors + row *
                 CeresRidleyColorFormat.AlarmColorCount * sizeof(ushort),
@@ -75,7 +75,7 @@ internal static class CeresRidleyColorsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(fixtureAssets.EnemyTiles.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: fixtureAssets.EnemyTiles.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         // Binding gives the place a fresh occupant, so the body is bound before it begins the encounter it holds (#2231).
-        place.Bind(EnemyDefinitionId.RidleyCeres, place.Definition);
+        place.Bind(EnemyDefinitionId.RidleyCeres, place.KeptDefinition);
         enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley(place);
         CheckCgram(enemies.CeresRidley() ?? throw new InvalidOperationException("Ceres Ridley initialization did not publish state."),
             document.Start.Length, CeresRidleyShadeDefinitionsConstants.StartCgramIndex,
@@ -129,7 +129,7 @@ internal static class CeresRidleyColorsVerification
             int row = count < 70 ? 0 : 2;
             CheckCgram(state, CeresRidleyColorFormat.HealthColorCount,
                 CeresRidleyShadeDefinitionsConstants.HealthCgramIndex,
-                color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveHealth(row, color),
+                color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveHealth(RidleyHealthShadeDefinitions.LeastHurtFirst[row], color),
                 $"Ceres Ridley hit count {count}");
         }
         Suite(nameof(VerifyNorfairHealthPalette), () => VerifyNorfairHealthPalette());

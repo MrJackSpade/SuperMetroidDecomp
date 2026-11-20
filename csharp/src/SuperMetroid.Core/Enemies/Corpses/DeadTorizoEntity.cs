@@ -2,10 +2,11 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>One dead Torizo occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The dead Torizo species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CorpseEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
+internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CorpseEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
 {
     /// <inheritdoc/>
     public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(Place);

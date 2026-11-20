@@ -52,14 +52,16 @@ internal sealed class DraygonParts
     /// Sets Draygon's body up when the room spawns it: it begins the encounter with his eye, tail and arms, which his room
     /// lists right after his body (#2298), each playing the animation its setup starts.
     /// </summary>
-    internal void InitializeDraygonBody(RoomEnemyPlace body)
+    internal void InitializeDraygonBody(RoomEnemyOccupant occupant)
     {
+        RoomEnemyPlace body = occupant.Place;
 
         body.AnimationClock.StepOnNextUpdate();
 
         _frameContext.RequestFullSweep();
-        RoomEnemyPlace[] parts = _places.ListedRunAfter(body, DraygonPartListingDefinitions.PartsAfterBody);
-        var draygon = new DraygonEnemyState(body, eye: parts[0], tail: parts[1], arms: parts[2])
+        var draygon = new DraygonEnemyState(occupant, eye: Partner(body, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye),
+            tail: Partner(body, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonTail),
+            arms: Partner(body, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonArms))
         {
             Phase = DraygonPhase.IntroInitialDelay,
         };
@@ -75,29 +77,32 @@ internal sealed class DraygonParts
         body.Shading = draygon.Colours.Sprites;
     }
 
+    /// <summary>The member of Draygon's that plays <paramref name="role"/>, as his room lists them (#2298, #2556).</summary>
+    private RoomEnemyPlace Partner(RoomEnemyPlace member, EnemyDefinitionId memberRole, EnemyDefinitionId role) =>
+        _places.Member(member, DraygonPartListingDefinitions.Listing, memberRole, role);
+
     /// <summary>
-    /// The part a part other than the body joins as it sets up, of the encounter his body, listed
-    /// <paramref name="placesAfterBody"/> places before the part, began (#2298): the part holds it as its species state, and
-    /// its animation, the one the encounter began it with, steps on its next update.
+    /// The part a part playing <paramref name="role"/> joins as it sets up, of the encounter his body began (#2298): the part
+    /// holds it as its species state, and its animation, the one the encounter began it with, steps on its next update.
     /// </summary>
-    private DraygonPart JoiningPart(RoomEnemyPlace place, int placesAfterBody, Func<DraygonEnemyState, DraygonPart> part)
+    private DraygonPart JoiningPart(RoomEnemyPlace place, EnemyDefinitionId role, Func<DraygonEnemyState, DraygonPart> part)
     {
-        DraygonPart joined = part(_places.ListedBefore(place, placesAfterBody).RequireSpeciesState<DraygonEnemyState>());
+        DraygonPart joined = part(Partner(place, role, EnemyDefinitionId.DraygonBody).RequireSpeciesState<DraygonEnemyState>());
         place.SetSpeciesState(joined);
         place.AnimationClock.StepOnNextUpdate();
         return joined;
     }
 
     /// <summary>Sets Draygon's eye up, listed right after his body, inert until the body publishes facing AI.</summary>
-    internal void InitializeDraygonEye(RoomEnemyPlace eye) => JoiningPart(eye, DraygonPartListingDefinitions.EyePlacesAfterBody, draygon => draygon.EyePart);
+    internal void InitializeDraygonEye(RoomEnemyPlace eye) => JoiningPart(eye, EnemyDefinitionId.DraygonEye, draygon => draygon.EyePart);
 
     /// <summary>Sets Draygon's tail up, listed after his eye, starting with its fake whip.</summary>
     internal void InitializeDraygonTail(RoomEnemyPlace tail) =>
-        tail.Shading = JoiningPart(tail, DraygonPartListingDefinitions.TailPlacesAfterBody, draygon => draygon.TailPart).Draygon.Colours.Sprites;
+        tail.Shading = JoiningPart(tail, EnemyDefinitionId.DraygonTail, draygon => draygon.TailPart).Draygon.Colours.Sprites;
 
     /// <summary>Sets Draygon's arms up, listed after his tail, in their idle loop.</summary>
     internal void InitializeDraygonArms(RoomEnemyPlace arms) =>
-        arms.Shading = JoiningPart(arms, DraygonPartListingDefinitions.ArmsPlacesAfterBody, draygon => draygon.ArmsPart).Draygon.Colours.Sprites;
+        arms.Shading = JoiningPart(arms, EnemyDefinitionId.DraygonArms, draygon => draygon.ArmsPart).Draygon.Colours.Sprites;
 
     /// <summary>Sets <paramref name="eye"/> tracking Samus facing <paramref name="facing"/> (#2165).</summary>
     private static void Track(DraygonEyeState eye, HorizontalDirection facing)
@@ -267,14 +272,14 @@ internal sealed class DraygonParts
         _effectActors.SpawnRoomEffectActor(
             state.Body.Position.Whole + scatter,
             kind,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>Applies the tail whip's hit to grabbed Samus, including suit damage.</summary>
     private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState samus)
     {
         state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
-        SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
+        SamusSuitDamage.Hurt(samus, state.BodyOccupant.Definition.Damage);
 
         // The tail hit also shakes the foreground strongly for its shake's updates, so the camera shows the hit as well as the
         // energy it costs.
@@ -283,7 +288,7 @@ internal sealed class DraygonParts
         _effectActors.SpawnRoomEffectActor(
             new(samus.Position.X.Whole, samus.Position.Y.Whole + DraygonArenaDefinitions.TailHitDustBelowSamus),
             RoomEffectActorKind.BigDustCloud,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>
@@ -296,15 +301,10 @@ internal sealed class DraygonParts
     /// <summary>Spawns a goop as either of the body animation's two goop cues does.</summary>
     private void SpawnDraygonGoop(DraygonEnemyState state, HorizontalDirection direction)
     {
-        EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonGoop, _shots.Goop, graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
         if (goop is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            goop,
-            RoomEnemyProjectileKind.DraygonGoop,
-            _shots.Goop,
-            graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
         goop.StartAnimation(new DraygonProjectileAnimation(_shots.Goop, DraygonProjectileSegment.Goop));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(state.Body.Position.Whole + (direction == HorizontalDirection.Right
             ? DraygonArenaDefinitions.GoopSpawnMovingRight : DraygonArenaDefinitions.GoopSpawnMovingLeft));

@@ -28,14 +28,9 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
         int checksum = 0;
         foreach (RoomEnemyProjectileKind kind in Enum.GetValues<RoomEnemyProjectileKind>())
         {
-            if (kind == RoomEnemyProjectileKind.None)
-                continue;
-
             // Every translated kind has a definition; the catalog rejects any other.
             _ = EnemyProjectileKinds.Get(kind);
-            var projectile = global::SuperMetroid.Core.PrivateState.With<EnemyProjectile>(new EnemyProjectile(0, default)
-            {
-                }, "Kind", kind);
+            var projectile = new EnemyProjectile(0, default, kind);
             // Botwoon's, Crocomire's, Draygon's and Kraid's spawners (and Kago's, which shares Kraid's rock pose) start
             // typed animations (#641); their oracles match them to these native lists frame by frame, and no
             // interpreter owns the lists. Crocomire's mouth projectile, Draygon's goop and Kraid's spat rock also start
@@ -55,7 +50,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.MotherBrainGlassShard or RoomEnemyProjectileKind.MotherBrainGlassSparkle or
                 RoomEnemyProjectileKind.MotherBrainHandBeamCharging or RoomEnemyProjectileKind.MotherBrainHandBeamFired or
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
-                RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.RidleyFireball or
+                RoomEnemyProjectileKind.RidleyFireball or
                 RoomEnemyProjectileKind.RidleyAfterburnCenter or RoomEnemyProjectileKind.RidleyHorizontalAfterburn or
                 RoomEnemyProjectileKind.RidleyVerticalAfterburn or
                 RoomEnemyProjectileKind.SporeSpawnStalk or RoomEnemyProjectileKind.SporeSpawnSpore or

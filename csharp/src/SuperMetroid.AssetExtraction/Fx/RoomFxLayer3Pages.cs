@@ -44,15 +44,8 @@ public sealed class RoomFxLayer3Pages
             var tiles = new BackgroundTile[RoomFxLayer3TilemapFormat.CellsPerPage];
             for (int cell = 0; cell < cells.Length; cell++)
             {
-                RoomBackgroundTilemapCell? value = cells[cell];
-                if (value is null ||
-                    (uint)value.TileColumn >= RoomBackgroundTilemapFormat.TileColumns ||
-                    (uint)value.TileRow >= RoomBackgroundTilemapFormat.TileRows ||
-                    (uint)value.Palette >= RoomBackgroundTilemapFormat.PaletteCount)
-                    throw new InvalidDataException(
-                        $"Room-FX BG3 {type} cell {cell} has an invalid tile or palette.");
-                tiles[cell] = new BackgroundTile(value.TileRow * RoomBackgroundTilemapFormat.TileColumns + value.TileColumn,
-                    value.Palette, value.FlipX, value.FlipY, value.Priority);
+                tiles[cell] = cells[cell]?.Placement() ?? throw new InvalidDataException(
+                    $"Room-FX BG3 {type} cell {cell} has an invalid tile or palette.");
             }
             return tiles;
         }

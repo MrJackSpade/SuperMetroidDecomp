@@ -14,9 +14,9 @@ internal static class SamusArmCannonCoverTransfers
         {
             if (byteCount == SamusArmCannonArtworkFormat.CoverTileByteCount
                 && SnesAddressMath.BankBase(sourceAddress) == SamusSourceDefinitions.CharacterDataBank.Value
-                && ArmCannonTileSources.CoverTileDmaSources.IndexOf(unchecked((ushort)SnesAddressMath.OffsetInBank(sourceAddress))) is int index and >= 0)
+                && ArmCannonTileSources.TryDecode(SnesAddressMath.OffsetInBank(sourceAddress), out SamusArmCannonCoverTile tile))
             {
-                data = self.TileCharacters(index);
+                data = self.TileCharacters(tile);
                 return true;
             }
             data = default;

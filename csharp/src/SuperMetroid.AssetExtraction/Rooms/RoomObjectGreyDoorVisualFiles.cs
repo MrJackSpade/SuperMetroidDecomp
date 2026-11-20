@@ -64,10 +64,10 @@ public static class RoomObjectGreyDoorVisualFiles
     /// <summary>The four cleared openings, then each facing's grey cap closed and sliding aside.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()
     {
-        for (int orientation = 0; orientation < 4; orientation++)
-            yield return GreyDoorCaps.Family.Of(GreyDoorCaps.Draw.ClearedOf(DoorCapOrientations.FromTableIndex(orientation)));
-        for (int orientation = 0; orientation < 4; orientation++)
+        foreach (ColoredDoorOrientation orientation in DoorCapOrientations.InTableOrder)
+            yield return GreyDoorCaps.Family.Of(GreyDoorCaps.Draw.ClearedOf(orientation));
+        foreach (ColoredDoorOrientation orientation in DoorCapOrientations.InTableOrder)
             foreach (DoorCapLook look in DoorCaps.OpeningLooks)
-                yield return GreyDoorCaps.Family.Of(new GreyDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), look));
+                yield return GreyDoorCaps.Family.Of(new GreyDoorCaps.Draw(orientation, look));
     }
 }

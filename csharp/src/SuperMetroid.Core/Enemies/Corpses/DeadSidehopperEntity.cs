@@ -2,16 +2,17 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>One dead Sidehopper occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The dead Sidehopper species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CorpseEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
+internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CorpseEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
 {
     /// <inheritdoc/>
     public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(Place);
 
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeDeadSidehopper(Place);
+    public void Initialize() => species.InitializeDeadSidehopper(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadSidehopperMainAi(Place, frame);

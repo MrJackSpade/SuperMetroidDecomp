@@ -9,6 +9,6 @@ internal enum MetroidEggBehavior
     /// <summary>Nothing: the egg hatches as its animation plays.</summary>
     Hatches,
 
-    /// <summary>The end of page three's cross-fade, when the egg deletes itself.</summary>
+    /// <summary>The end of the cross-fade from the discovery back to the narration, when the egg deletes itself.</summary>
     WaitsForCrossFadeEnd,
 }

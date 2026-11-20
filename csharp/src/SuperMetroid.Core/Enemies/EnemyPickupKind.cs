@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// What the random drop selection chooses for a defeated enemy: one of the five pickups, or no drop.
+/// The five pickups a defeated enemy can drop; the drop roll's outcome is one of them or nothing (<see cref="EnemyDropRoll"/>).
 /// </summary>
 public enum EnemyPickupKind
 {
-    /// <summary>
-    /// No collectible: the selection's result when nothing drops, which leaves the death to end without a pickup.
-    /// </summary>
-    NoDrop,
-
     /// <summary>Small energy pickup restoring <see cref="EnemyPickupDefinitions.SmallEnergyAmount"/>, any past full health filling the reserve tanks.</summary>
     SmallEnergy,
 

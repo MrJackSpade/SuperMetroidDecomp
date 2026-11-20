@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// The partners each part of one multipart species found when it was placed (#1542), held by the species for its
 /// room. A part records its <typeparamref name="TLinks"/> as it initializes, from where the room lists its partners
-/// (<see cref="RoomEnemyListing"/>), and every later reach to a partner reads them here; a part placed again, by a
+/// (<see cref="EnemyCompositeListing"/>), and every later reach to a partner reads them here; a part placed again, by a
 /// respawn or a new occupant of its place, records them again. A partner is a place, so one that has died or been
 /// deleted is still the one reached.
 /// </summary>
@@ -28,5 +28,5 @@ internal sealed class EnemyPartLinks<TLinks> where TLinks : class
         _links.TryGetValue(Ensure.NotNull(part), out TLinks? links)
             ? links
             : throw new InvalidOperationException(
-                $"Enemy {part.Ordinal} ({part.DefinitionId}) reached its partners before it was placed as a part that has them.");
+                $"Enemy {part.Ordinal} ({part.Occupant?.DefinitionId}) reached its partners before it was placed as a part that has them.");
 }

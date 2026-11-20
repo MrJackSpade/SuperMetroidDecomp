@@ -50,9 +50,9 @@ internal static class IntroCinematicRomDataVerification
             IntroCinematicDefinitions.Sounds.EggHatch.Library,
             "egg hatch sound library");
         AssertEqual(SoundEffectLibrary.Room,
-            IntroCinematicDefinitions.Sounds.BabyCry1.Library,
+            IntroCinematicDefinitions.Sounds.BabyHighCry.Library,
             "Baby cry sound library");
-        AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Room, 0x23), IntroCinematicDefinitions.Sounds.BabyCry1,
+        AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Room, 0x23), IntroCinematicDefinitions.Sounds.BabyHighCry,
             "Baby cry one sequence");
 
         Suite(nameof(VerifyCinematicCodePointerCatalog), () => VerifyCinematicCodePointerCatalog());

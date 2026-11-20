@@ -273,10 +273,10 @@ internal static class EnemyTerrainBlockAddressingVerification
     /// collision. The eye door's collision reads only the blocks, so the projectile the move carries is any one.
     /// </summary>
     private static bool EyeDoorScanStops(RoomLevelData level, int fixedPixel, int spanStart, int spanEnd, Axis edge) =>
-        EyeDoorEffectCollision.Rule.Stops(
+        EyeDoorEffectCollision.Rule.Reaction(
             level,
-            new EnemyProjectileScannedMove(ScannedProjectile, EnemyProjectileBlockScan.Across(fixedPixel, spanStart, spanEnd, edge), MovingNegative: false, LeadingEdge: fixedPixel),
-            out _);
+            new EnemyProjectileScannedMove(ScannedProjectile, EnemyProjectileBlockScan.Across(fixedPixel, spanStart, spanEnd, edge), MovingNegative: false, LeadingEdge: fixedPixel))
+            != EnemyProjectileBlockReaction.Passes;
 
     /// <summary>The first rows the scan checks compare: four cycles of 256.</summary>
     private const int ScannedFirstRows = 1024;
@@ -316,7 +316,7 @@ internal static class EnemyTerrainBlockAddressingVerification
     }
 
     /// <summary>The projectile the scan row check moves, placed afresh for each move.</summary>
-    private static readonly EnemyProjectile ScannedProjectile = new(0, default);
+    private static readonly EnemyProjectile ScannedProjectile = new(0, default, RoomEnemyProjectileKind.EyeDoorSmoke);
 
     /// <summary>
     /// A room for the scan row checks: air, walls, spike and grapple blocks and extension links leading up to a row's

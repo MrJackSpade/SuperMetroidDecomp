@@ -205,7 +205,9 @@ internal static class PpuMemoryModelVerification
         {
             for (int frame = 0; frame < frames; frame++)
             {
-                CgramPalette objects = new CgramPalettes(cgram).Objects;
+                // The OBJ colours are bound through the view's own constructor: the whole-CGRAM view's private range is
+                // reached only by reflection, which boxes, so the measured loop never names it.
+                CgramPalette objects = new(cgram, PpuMemoryLayoutConstants.ObjectPalettes);
                 for (int index = 0; index < objects.Colors.Length; index++)
                     objects.Write(index, RgbColor.Saturating(objects.Colors[index].FadeLevels.Red + 1, frame & 31, index & 31));
                 VramRegion bg1 = new VramRegion(vram, GameplayVramLayoutConstants.Bg1Tilemap);

@@ -147,12 +147,10 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainTopTubeSegment tube,
         Position16<RoomPixels> position)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, _projectileAttacks.Projectile,
-            graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes));
         projectile.StartAnimation(new MotherBrainTopTubeAnimation(tube));
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
@@ -171,9 +169,9 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Initializes a falling tube.</summary>
-    internal static void InitializeMotherBrainFallingTube(RoomEnemyPlace tube)
+    internal static void InitializeMotherBrainFallingTube(RoomEnemyOccupant occupant, RoomEnemyPlace tube)
     {
-        MotherBrainTubeSpawnSettings settings = tube.Spawn.Population.SpawnSettingsOf<MotherBrainTubeSpawnSettings>();
+        MotherBrainTubeSpawnSettings settings = occupant.SpawnSettings<MotherBrainTubeSpawnSettings>();
         MotherBrainTubePiece piece = settings.Piece;
         MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(piece);
         tube.Radius = tubeBody.Radius;

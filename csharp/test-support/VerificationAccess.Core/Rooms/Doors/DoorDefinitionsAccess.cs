@@ -327,6 +327,9 @@ internal static class DoorDefinitionsAccess
     {
         /// <summary>The word the cartridge's door list stores for this entry's physical door, or null for the elevator ride.</summary>
         internal ushort? Pointer => self.Door is { } door ? DoorHeaderSourcesConstants.PointerOf(door) : null;
+
+        /// <summary>The physical door the entry leads through, which a check reads; null for the elevator ride.</summary>
+        internal DoorDefinition? Door => self is DoorBlockExit.ThroughDoor { Door: var door } ? door : null;
     }
 
     /// <summary>

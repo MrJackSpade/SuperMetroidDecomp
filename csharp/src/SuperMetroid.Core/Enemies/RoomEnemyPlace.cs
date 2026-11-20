@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// One of the room's enemy places and the enemy occupying it: its identity, where it is, how it collides, its health and
-/// timers, and the species state installed for it. A place is found by the place object or its ordinal
-/// (<see cref="Ordinal"/>); <see cref="EnemyPlaceOrder"/> sets how places are allocated and processed.
+/// timers, and the species state installed for it. A place is held and passed as itself; its position in the room's list
+/// (<see cref="Ordinal"/>) is read only by the owner of the population's listing (<see cref="EnemyCompositeListing"/>) and
+/// the compatibility services that reproduce a reach by placement. <see cref="EnemyPlaceOrder"/> sets how places are
+/// allocated and processed.
 /// </summary>
 public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
 {
@@ -36,38 +38,47 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     [IntegerQuantity("place among the room's enemy places")]
     public int Ordinal { get; }
     /// <summary>
-    /// The occupant's enemy identity; <see cref="EnemyDefinitionId.None"/> when the place holds no enemy, whether it is
-    /// free or <see cref="AwaitsRespawn"/>.
+    /// What the place has held since its room loaded (#2558): nothing yet, or the history of a populated place, which
+    /// keeps the population entry its latest occupant was spawned from and whether an enemy holds it now.
     /// </summary>
-    public EnemyDefinitionId DefinitionId { get; private set; }
+    public EnemyPlaceHistory History { get; private set; } = NeverPopulatedEnemyPlace.Instance;
+
+    /// <summary>
+    /// The enemy holding the place (#2558), which carries its identity and the population entry it was spawned from; null
+    /// while the place holds no enemy, whether it was never populated, was vacated or <see cref="AwaitsRespawn"/>. Each
+    /// binding installs a new occupant.
+    /// </summary>
+    public RoomEnemyOccupant? Occupant => History is PopulatedEnemyPlace { Occupancy: OccupiedEnemyPlace occupied } ? occupied.Occupant : null;
+
+    /// <summary>Whether the place holds an enemy of <paramref name="definition"/>; false while it holds none.</summary>
+    /// <param name="definition">The enemy asked about.</param>
+    public bool Holds(EnemyDefinitionId definition) => Occupant is { } occupant && occupant.DefinitionId == definition;
 
     /// <summary>
     /// Whether the place holds no enemy but stays taken until the death explosion of the respawning enemy killed in it
-    /// rebuilds that enemy from its population entry (#1851). No spawn takes the place meanwhile, and the enemy passes
-    /// that reach every place pass it over as they pass a free one; the enemy pass still counts its updates on the update
-    /// its enemy died.
+    /// rebuilds that enemy from its population entry (#1851), as its history records. No spawn takes the place meanwhile,
+    /// and the enemy passes that reach every place pass it over as they pass a free one; the enemy pass still counts its
+    /// updates on the update its enemy died.
     /// </summary>
-    public bool AwaitsRespawn { get; private set; }
+    public bool AwaitsRespawn => History is PopulatedEnemyPlace { AwaitsRespawn: true };
 
     /// <summary>
-    /// Whether the place is free for a spawn: it holds no enemy and does not await one's respawn. A place's earlier
-    /// occupant's partners read it as gone only once it is free.
+    /// Whether the place is free for a spawn: it was never populated, or its last occupant left it with no respawn pending.
+    /// A place's earlier occupant's partners read it as gone only once it is free.
     /// </summary>
-    internal bool IsFree => DefinitionId == EnemyDefinitionId.None && !AwaitsRespawn;
-    /// <summary>Immutable resolved definition for the current enemy identity, supplying initialization, collision, and AI definitions.</summary>
-    public RoomEnemyDefinition Definition { get; private set; }
+    internal bool IsFree => History is NeverPopulatedEnemyPlace or PopulatedEnemyPlace { Occupancy: VacatedEnemyPlace };
 
     /// <summary>The species registry that creates the entity for each installed occupant.</summary>
     private readonly EnemySpeciesRegistry _registry;
 
     /// <summary>The enemy occupying the place, bound with its identity; null while the place is empty.</summary>
-    internal IEnemyEntity? Entity => Occupant?.Entity;
+    internal IEnemyEntity? Entity => BoundEntity?.Entity;
 
     /// <summary>
     /// The occupant's entity with the setup and main AI it runs, as its factory named them (#2571); null while the place is
     /// empty.
     /// </summary>
-    internal EnemyOccupant? Occupant { get; private set; }
+    internal EnemyOccupant? BoundEntity { get; private set; }
 
     /// <summary>
     /// The species states the current occupant owns (#1543). Its species installs them as it initializes, and the place
@@ -116,25 +127,30 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     }
 
     /// <summary>The species states of the enemy holding the place, or null while it holds none.</summary>
-    private EnemyOccupantStates? HeldStates => DefinitionId == EnemyDefinitionId.None ? null : OccupantStates;
+    private EnemyOccupantStates? HeldStates => Occupant is null ? null : OccupantStates;
 
     /// <summary>
-    /// Installs a new occupant's identity and binds the entity its species creates. Every identity change goes through
-    /// here, at the statement that changes the definition, because the game re-reads the definition each time the enemy runs.
+    /// Installs a new occupant spawned from <paramref name="spawn"/> and binds the entity its species creates. Every
+    /// identity change goes through here, at the statement that changes the definition, because the game re-reads the
+    /// definition each time the enemy runs.
     /// </summary>
-    /// <param name="definitionId">The occupant's definition.</param>
-    /// <param name="definition">The occupant's resolved definition.</param>
-    internal void Bind(EnemyDefinitionId definitionId, RoomEnemyDefinition definition)
+    /// <param name="spawn">The population entry the occupant is spawned from, which names its enemy.</param>
+    /// <param name="definition">The occupant's resolved definition, which the occupant holds.</param>
+    internal void Bind(RoomEnemyPlacement spawn, RoomEnemyDefinition definition)
     {
         ReleaseEntity();
-        DefinitionId = definitionId;
-        Definition = definition;
-        AwaitsRespawn = false;
+        RoomEnemyOccupant occupant;
+        if (History is PopulatedEnemyPlace populated)
+            occupant = populated.Occupy(spawn, definition);
+        else
+        {
+            var first = new PopulatedEnemyPlace(this, spawn, definition);
+            History = first;
+            occupant = first.LatestOccupant;
+        }
         OccupantStates = new();
         AnimationClock = new();
-        if (definitionId == EnemyDefinitionId.None)
-            return;
-        Occupant = _registry.Create(this);
+        BoundEntity = _registry.Create(occupant, this);
     }
 
     /// <summary>
@@ -144,21 +160,9 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     private void ReleaseEntity()
     {
         IEnemyEntity? leaving = Entity;
-        Occupant = null;
+        BoundEntity = null;
         if (leaving is IEnemyDeparture departure)
             departure.Leave();
-    }
-
-    /// <summary>
-    /// Keeps the place of a respawning enemy just killed in it taken until its death explosion rebuilds it
-    /// (<see cref="AwaitsRespawn"/>). The killed enemy's population entry stays in <see cref="Spawn"/> for the rebuild.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The place still holds an enemy.</exception>
-    internal void AwaitRespawn()
-    {
-        if (DefinitionId != EnemyDefinitionId.None)
-            throw new InvalidOperationException($"Enemy place {Ordinal} still holds {DefinitionId}; only a killed enemy's place awaits its respawn.");
-        AwaitsRespawn = true;
     }
 
     /// <summary>
@@ -172,22 +176,17 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         Vacate();
     }
 
-    /// <summary>Empties the place's identity, entity and species states.</summary>
+    /// <summary>
+    /// Empties the place of its occupant, its entity and its species states, leaving its other values and what earlier
+    /// occupants left: a deletion and a kill go on from here, and a recorded state's free place is imported by it.
+    /// </summary>
     private void Vacate()
     {
-        DefinitionId = EnemyDefinitionId.None;
+        if (History is PopulatedEnemyPlace populated)
+            populated.Vacate();
         ReleaseEntity();
         OccupantStates = new();
     }
-    /// <summary>
-    /// The population entry the occupant was spawned from, kept unchanged while its live state moves on and after it is
-    /// killed; only populating the place replaces it.
-    /// </summary>
-    public RoomEnemySpawnSnapshot Spawn { get; internal set; }
-
-    /// <summary>The settings the occupant's population entry gives its species, as the <typeparamref name="T"/> it reads.</summary>
-    /// <exception cref="InvalidDataException">The entry carries other settings.</exception>
-    internal T SpawnSettings<T>() where T : EnemySpawnSettings => Spawn.Population.SpawnSettingsOf<T>();
     /// <summary>The enemy's room position with its fraction of a pixel, each whole coordinate wrapping around the room.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Collision half-extents in pixels, initially the definition's.</summary>
@@ -283,16 +282,15 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     public Offset16<RoomPixels> DrawOffset { get; internal set; }
 
     /// <summary>
-    /// Empties the place when its occupant is killed: its identity, its species states and the place's live values. The
+    /// Empties the place when its occupant is killed: its occupant, its species states and the place's live values. The
     /// kill clears what the occupant leaves, so the enemies that read the place find no species state there. The
-    /// population entry the occupant was spawned from survives the kill (<see cref="Spawn"/>): a respawn rebuilds the
-    /// enemy from it (#2256).
+    /// population entry the occupant was spawned from survives the kill in the place's <see cref="History"/>: a respawn
+    /// rebuilds the enemy from it (#2256). Only a kill of its occupant clears a place (<see cref="RoomEnemyOccupant.Kill"/>).
     /// </summary>
     internal void Clear()
     {
         _leftovers.Killed();
         Vacate();
-        Definition = default;
         Position = FixedPosition<RoomPixels>.Zero;
         Radius = Extent16<RoomPixels>.Zero;
         Contact = EnemyContact.None;
@@ -310,7 +308,6 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         Shake.End();
         Invincibility.End();
         HurtFlashFrames = 0;
-        AwaitsRespawn = false;
         DrawOffset = Offset16<RoomPixels>.Zero;
     }
 }

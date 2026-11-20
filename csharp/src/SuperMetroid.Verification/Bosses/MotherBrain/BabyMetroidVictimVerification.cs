@@ -17,17 +17,21 @@ internal static class BabyMetroidVictimVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         IReadOnlyList<RoomEnemyPlace> places = enemies.Places.InUpdateOrder;
-        AssertTrue(ReferenceEquals(places[1], BabyMetroidVictim.Of(places, 0)), "the retail Baby's victim is the enemy placed after it");
-        AssertTrue(ReferenceEquals(places[6], BabyMetroidVictim.Of(places, 5)), "a Baby placed later feeds on the enemy placed after it");
+        AssertTrue(ReferenceEquals(places[1], BabyMetroidVictim.Of(places, places[0])), "the retail Baby's victim is the enemy placed after it");
+        AssertTrue(ReferenceEquals(places[6], BabyMetroidVictim.Of(places, places[5])), "a Baby placed later feeds on the enemy placed after it");
         int last = places.Count - 1;
-        AssertTrue(ReferenceEquals(places[last], BabyMetroidVictim.Of(places, last - 1)), "the victim may be the final enemy");
-        AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.Of(places, last), "a Baby in the final place has no victim");
-        AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.Of(places, -1), "a Baby before the first place is refused");
-        AssertTrue(BabyMetroidVictim.FeederOf(places, 0) is null, "the enemy placed first has no enemy feeding on it");
-        AssertTrue(ReferenceEquals(places[5], BabyMetroidVictim.FeederOf(places, 6)), "a victim's feeder is the enemy placed before it");
-        AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.FeederOf(places, -1), "a victim before the first place is refused");
+        AssertTrue(ReferenceEquals(places[last], BabyMetroidVictim.Of(places, places[last - 1])), "the victim may be the final enemy");
+        AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.Of(places, places[last]), "a Baby in the final place has no victim");
+        AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.Of(places, StrayPlace()), "a Baby in no place is refused");
+        AssertTrue(BabyMetroidVictim.FeederOf(places, places[0]) is null, "the enemy placed first has no enemy feeding on it");
+        AssertTrue(ReferenceEquals(places[5], BabyMetroidVictim.FeederOf(places, places[6])), "a victim's feeder is the enemy placed before it");
+        AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.FeederOf(places, StrayPlace()), "a victim in no place is refused");
         Console.WriteLine("Baby Metroid victim: the enemy placed directly after the Baby, and none past the last.");
     }
+
+    /// <summary>A place of another room's enemies, which is none of the checked room's places.</summary>
+    private static RoomEnemyPlace StrayPlace() =>
+        EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance).Places.InUpdateOrder[0];
 
     /// <summary>
     /// Confirms the victim's question about its Baby Metroid's feeding (#2030): each Baby Metroid owns its state, and a victim asks

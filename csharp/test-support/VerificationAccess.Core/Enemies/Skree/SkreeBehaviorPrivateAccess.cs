@@ -12,8 +12,8 @@ internal static class SkreeBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Skree.SkreeBehavior self)
     {
         /// <summary>The private method <c>RunSkreeMain</c>, invoked by name.</summary>
-        internal void RunSkreeMain(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Skree.SkreeBehavior>(self, "RunSkreeMain", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData)], new object?[] { place, samus, level });
+        internal void RunSkreeMain(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Skree.SkreeBehavior>(self, "RunSkreeMain", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData)], new object?[] { occupant, place, samus, level });
     }
 
     /// <summary>The private static members checks name.</summary>

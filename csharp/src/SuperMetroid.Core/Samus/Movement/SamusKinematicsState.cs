@@ -28,16 +28,6 @@ public sealed class SamusKinematicsState
     /// </summary>
     internal WallJumpLaunchShake<ISolidEnemy> WallJumpLaunch { get; } = new();
 
-    /// <summary>
-    /// Contact-damage snapshot for ownerless geometry probes. Sand still reads this
-    /// collision input even when a probe deliberately cannot mutate the full owner.
-    /// </summary>
-    internal SamusBodyAttack? ProbeBodyAttack { get; init; }
-
-    /// <summary>The captured contact mode of an ownerless probe, otherwise <paramref name="owner"/>'s live mode.</summary>
-    internal SamusBodyAttack CollisionBodyAttack(SamusState? owner) =>
-        ProbeBodyAttack ?? owner?.HorizontalSpeed.BodyAttack ?? SamusBodyAttack.None;
-
     /// <summary>Constructs kinematics with no owner, for block collision that moves no Samus.</summary>
     public SamusKinematicsState()
     {
@@ -50,7 +40,7 @@ public sealed class SamusKinematicsState
     /// </summary>
     internal SamusKinematicsState CreateCollisionProbe()
     {
-        var probe = new SamusKinematicsState { ProbeBodyAttack = ProbeBodyAttack };
+        var probe = new SamusKinematicsState();
         probe.Position = Position;
         probe.Radius = Radius;
         probe.VerticalVelocity = VerticalVelocity;
@@ -159,8 +149,6 @@ public sealed class SamusKinematicsState
     private static SamusCollisionDirection RequireContactDirection(SamusCollisionDirection direction) => direction switch
     {
         SamusCollisionDirection.Left or SamusCollisionDirection.Right or SamusCollisionDirection.Up or SamusCollisionDirection.Down => direction,
-        SamusCollisionDirection.NonDirectionalProbe => throw new ArgumentOutOfRangeException(nameof(direction), direction,
-            "A non-directional probe meets no solid enemy."),
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
 

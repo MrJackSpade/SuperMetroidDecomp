@@ -86,9 +86,9 @@ internal static class LookupRetailDoorHeadersVerification
     private static void VerifyDoorHeaderOrientation(CartridgeImportAddressSpace rom) =>
         VerifyDoorHeaderField(rom, 3, 1, raw => DoorRecordCodec.DecodeOrientation(checked((byte)raw)), header => header.Orientation);
     /// <summary>Matches the door PLM's horizontal block coordinate at offset four.</summary>
-    private static void VerifyDoorHeaderObjectX(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 4, 1, raw => raw, header => header.RoomObjectBlock.X);
+    private static void VerifyDoorHeaderObjectX(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 4, 1, raw => raw, header => header.RoomObjectBlock?.X ?? 0);
     /// <summary>Matches the door PLM's vertical block coordinate at offset five.</summary>
-    private static void VerifyDoorHeaderObjectY(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 5, 1, raw => raw, header => header.RoomObjectBlock.Y);
+    private static void VerifyDoorHeaderObjectY(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 5, 1, raw => raw, header => header.RoomObjectBlock?.Y ?? 0);
     /// <summary>Matches the destination screen's horizontal coordinate at offset six.</summary>
     private static void VerifyDoorHeaderDestinationScreenX(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 6, 1, raw => raw, header => header.DestinationScreen.X);
     /// <summary>Matches the destination screen's vertical coordinate at offset seven.</summary>

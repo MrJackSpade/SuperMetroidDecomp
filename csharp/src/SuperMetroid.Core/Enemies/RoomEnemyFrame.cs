@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -49,5 +50,5 @@ internal sealed record RoomEnemyFrame
     public required int FrameCounter { get; init; }
 
     /// <summary>The camera's frame-start Samus checkpoint under the live previous positions that Draygon and Yapping Maw cap; null when no camera owns them.</summary>
-    public required FixedPosition<RoomPixels>? SamusPreviousPositionCheckpoint { get; init; }
+    public required SamusScrollCheckpoint SamusPreviousPositionCheckpoint { get; init; }
 }

@@ -85,11 +85,15 @@ internal static class PhantoonFlameAnimations
 
     /// <summary>A falling flame's flicker: <paramref name="pose"/> for one update, then nothing for one.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>[] Flicker(EnemyProjectileFrameId pose) =>
-        [Show(pose, 1), Show(EnemyProjectileFrameId.Blank, 1)];
+        [Show(pose, 1), Hide(1)];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue> Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Frame(frame, duration);
+
+    /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue> Hide(int duration) =>
+        new AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Hidden(duration);
 
     /// <summary>Raises <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue> Cue(PhantoonFlameCue cue) =>

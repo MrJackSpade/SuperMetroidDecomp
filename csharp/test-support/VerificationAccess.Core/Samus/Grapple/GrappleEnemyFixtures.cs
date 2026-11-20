@@ -4,6 +4,5 @@ namespace SuperMetroid.Core.Samus.Grapple;
 internal static class GrappleEnemyFixtures
 {
     /// <summary>An enemy test that finds no enemy at any endpoint.</summary>
-    internal static Func<Position16<RoomPixels>, GrappleEnemyCollision> NoEnemy { get; } =
-        anchor => new GrappleEnemyCollision(GrappleEnemyReaction.None, anchor, 0);
+    internal static Func<Position16<RoomPixels>, GrappleEnemyCollision?> NoEnemy { get; } = _ => null;
 }

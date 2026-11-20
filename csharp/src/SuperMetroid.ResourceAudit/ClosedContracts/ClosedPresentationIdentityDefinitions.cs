@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
@@ -80,7 +79,7 @@ internal static class ClosedPresentationIdentityDefinitions
         ("EnemyTileSourceArtwork", "PaletteOf" or "TryGetPalette", "enemy") => EnemyTileSourceDefinitions.All
             .Select(definition => (int)definition.DefinitionId).ToArray(),
         ("EnemyProjectileSpritemapCatalog", "Get", "frame") => EnemyProjectileSpritemapDefinitions.FrameNames
-            .Select(name => (int)EnemyProjectileFrames.Identity(name)).Append((int)EnemyProjectileFrameId.Blank).ToArray(),
+            .Select(name => (int)EnemyProjectileFrames.Identity(name)).ToArray(),
         ("EnemyProjectileSpritemapCatalog", "GetProgramFrame", "frame") => EnemyProjectilePresentationFrameSets.All
             .SelectToArray(frame => (int)frame.Frame),
         // The Ceres elevator arrival's every pose has its installed picture (#2425).

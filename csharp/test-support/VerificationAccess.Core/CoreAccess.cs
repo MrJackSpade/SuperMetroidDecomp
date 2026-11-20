@@ -39,7 +39,7 @@ internal static class CoreAccess
     internal static bool KraidMouthHitboxOverlapsShot(RoomEnemyPlace body, ushort hitboxPointer, SamusProjectile shot)
     {
         KraidPassBounds bounds = KraidBehaviorConstants.PlaceKraidPassBounds(body, hitboxPointer);
-        return KraidCombat.OverlapsKraidMouth(bounds, new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage, IsPlacedBomb: false));
+        return KraidCombat.OverlapsKraidMouth(bounds, new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.HeldShot().Type, shot.HeldShot().Damage, IsPlacedBomb: false));
     }
 
     /// <summary>Exposes frontend-owned gameplay runtime, attract timing, audio, and Samus observations for verification.</summary>
@@ -103,7 +103,7 @@ internal static class CoreAccess
     extension(EndingCreditsState ending)
     {
         /// <summary>Current credits fade brightness, 0 (black) through 15 (full), from the private cinematic state.</summary>
-        internal int Brightness => ending.Stage.Brightness;
+        internal int Brightness => ending.Stage.Brightness.StepsAboveBlack;
         /// <summary>Cinematic calls the ending has made so far.</summary>
         internal int CinematicFrame => PrivateState.Field<EndingCreditsState, int>(ending, "cinematicFrame");
         /// <summary>Whole-pixel vertical credits scroll position while the staff credits show, or zero in every other scene.</summary>
@@ -114,7 +114,7 @@ internal static class CoreAccess
     extension(PauseMenuState pause)
     {
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
-        internal bool PageTransitionActive => pause.Transition != PauseMenuTransition.None;
+        internal bool PageTransitionActive => pause.Transition is not null;
         /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>
         internal Offset16<MapPixels> MapScroll => pause.MapScrollPosition;
 

@@ -8,10 +8,11 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// shot their definitions lead to through Crocomire's component contact, and own his hitboxes' shot reactions.
 /// </summary>
 /// <param name="species">The Crocomire species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class CrocomireEntity(CrocomireBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
+internal abstract class CrocomireEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <summary>The Crocomire species owner.</summary>
     protected CrocomireBehavior Species => species;
@@ -32,13 +33,7 @@ internal abstract class CrocomireEntity(CrocomireBehavior species, RoomEnemyPlac
     public abstract void AdvanceTypedAnimation(EnemyAnimationCueContext context);
 
     /// <inheritdoc/>
-    public abstract bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction);
-
-    /// <summary>None: the body's definition names the ignoring touch and the tongue's the ordinary one.</summary>
-    public EnemyReaction? SpeciesTouch => null;
-
-    /// <summary>None: the body's definition names no shot reaction, and every live hitbox names its own.</summary>
-    public EnemyReaction? SpeciesShot => null;
+    public abstract EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe);
 
     /// <summary>Whether the touch the part's definition names leads to Crocomire's component contact, which his frames' hitboxes decide.</summary>
     protected abstract bool OwnsTouch { get; }
@@ -60,15 +55,15 @@ internal abstract class CrocomireEntity(CrocomireBehavior species, RoomEnemyPlac
     }
 
     /// <summary>The shot reaction that routes the part's hitboxes' reactions where its definition leads to them, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => OwnsShot ? OwnShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => OwnsShot ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>The body's and tongue's contact and shots both meet their own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>Crocomire's own hitbox shot reactions.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) =>
         reaction == CrocomireReactions.AbsorbedShot || reaction == CrocomireReactions.DustShot ||
         reaction == CrocomireReactions.MouthShot;
 }

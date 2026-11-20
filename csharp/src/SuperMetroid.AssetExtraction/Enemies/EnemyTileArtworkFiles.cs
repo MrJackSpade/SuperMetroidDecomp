@@ -96,21 +96,21 @@ public static class EnemyTileArtworkFiles
         ValidateDefinitionIds(headers);
         byte[] firstMelt = ExtractCrocomireMelt(bus,
             CrocomireMeltingIllustration.Flesh,
-            CrocomireMeltingArtworkFormat.FirstByteCount);
+            CrocomireMeltingArtworkFormat.FleshByteCount);
         byte[] secondMelt = ExtractCrocomireMelt(bus,
             CrocomireMeltingIllustration.BareSkull,
-            CrocomireMeltingArtworkFormat.SecondByteCount);
+            CrocomireMeltingArtworkFormat.BareSkullByteCount);
         byte[] firstMeltTilemap = ExtractCrocomireMeltTilemap(bus,
             CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.Flesh));
         byte[] secondMeltTilemap = ExtractCrocomireMeltTilemap(bus,
             CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.BareSkull));
-        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.FirstFileName), firstMelt);
-        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.SecondFileName), secondMelt);
+        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.FleshFileName), firstMelt);
+        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.BareSkullFileName), secondMelt);
         // The melt layouts, like Kraid's, only compose the boss body sheets, whose pictures the installation holds (#1638).
         File.WriteAllBytes(Path.Combine(importData,
-            CrocomireMeltingArtworkFormat.FirstTilemapFileName), firstMeltTilemap);
+            CrocomireMeltingArtworkFormat.FleshTilemapFileName), firstMeltTilemap);
         File.WriteAllBytes(Path.Combine(importData,
-            CrocomireMeltingArtworkFormat.SecondTilemapFileName), secondMeltTilemap);
+            CrocomireMeltingArtworkFormat.BareSkullTilemapFileName), secondMeltTilemap);
         byte[] skeletonPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CrocomireSourceDefinitions.SkeletonChunk(0),
             CrocomireSkeletonCharacterDefinitions.TotalByteCount);
@@ -232,7 +232,7 @@ public static class EnemyTileArtworkFiles
             upperKraid);
         File.WriteAllBytes(Path.Combine(importData, KraidBackgroundArtworkFormat.LowerFileName),
             lowerKraid);
-        var kraidHeadHashes = new Dictionary<int, string>();
+        var kraidHeadHashes = new Dictionary<string, string>();
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
         {
             byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -649,7 +649,7 @@ public static class EnemyTileArtworkFiles
         string MotherBrainEscapeTextSha256,
         Dictionary<string, string> MotherBrainSpecialSpritesSha256,
         string KraidUpperSha256, string KraidLowerSha256,
-        Dictionary<int, string> KraidHeadsSha256,
+        Dictionary<string, string> KraidHeadsSha256,
         string KraidRoomBackgroundSha256,
         string KraidColorsSha256,
         string KraidEyeColoursSha256,

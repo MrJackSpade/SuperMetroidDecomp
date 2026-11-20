@@ -11,7 +11,6 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class LookupCollectibleSelectorsVerification
 {
     /// <summary>Every block pair a tank's draw is checked against, and none: a tank's frames are its kind's own blocks.</summary>
-    private static readonly CollectibleBlockPairs.Pair?[] TankBlockPairs = [null, .. CollectibleBlockPairs.InTurn];
 
     /// <summary>Checks the orb animation's four images, in order, against the native orb draws.</summary>
     internal static void VerifyCollectibleOrbSelector(CartridgeImportAddressSpace rom)
@@ -51,7 +50,7 @@ internal static class LookupCollectibleSelectorsVerification
             AssertIs<AnimationBeat<CollectibleImage, CollectiblePhase>.Frame>(beat, $"{sequence} image {index}").Shown.Draw
                 ?? throw new InvalidOperationException($"{sequence} image {index} is a look, not a draw."))];
 
-    /// <summary>Checks four tank kinds against native frames regardless of the unused block pair.</summary>
+    /// <summary>Checks four tank kinds against native frames drawn in their own blocks.</summary>
     internal static void VerifyCollectibleTankSelector(CartridgeImportAddressSpace rom)
     {
         // Native exposed tank instruction-list draw operands, independently addressed.
@@ -59,14 +58,13 @@ internal static class LookupCollectibleSelectorsVerification
         for (int kind = 0; kind < starts.Length; kind++)
         {
             foreach (CollectibleLook look in Enum.GetValues<CollectibleLook>())
-                foreach (CollectibleBlockPairs.Pair? unusedPair in TankBlockPairs)
-                    AssertEqual(ReadCollectibleDrawWord(rom, (ushort)(starts[kind] + (look == CollectibleLook.Primary ? 0 : 4))),
-                        RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.VisibleFrame((InWorldCollectibleKind)kind,look,unusedPair)),
-                        "Collectible native tank draw independent of block pair");
+                AssertEqual(ReadCollectibleDrawWord(rom, (ushort)(starts[kind] + (look == CollectibleLook.Primary ? 0 : 4))),
+                    RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.TankFrame((InWorldCollectibleKind)kind, look)),
+                    "Collectible native tank draw in its own blocks");
         }
     }
 
-    /// <summary>Checks byte-backed dynamic collectible kinds, both looks, the four block pairs, and an item without a pair.</summary>
+    /// <summary>Checks byte-backed dynamic collectible kinds, both looks and the four block pairs.</summary>
     internal static void VerifyCollectibleDynamicSelector(CartridgeImportAddressSpace rom)
     {
         // The byte-backed kind domain historically selects dynamic graphics for every value above the four tanks.
@@ -77,11 +75,8 @@ internal static class LookupCollectibleSelectorsVerification
                 // The pairs in turn select the table's selectors in order.
                 for (int selector = 0; selector < CollectibleBlockPairs.InTurn.Count; selector++)
                     AssertEqual(ReadCollectibleDrawWord(rom, (ushort)((look == CollectibleLook.Primary ? 0xe05f : 0xe077) + selector * 2)),
-                        RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.VisibleFrame((InWorldCollectibleKind)kind,look,CollectibleBlockPairs.InTurn[selector])),
+                        RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.BlockPairFrame(CollectibleBlockPairs.InTurn[selector], look)),
                         "Collectible native block pair draw");
-                // A typed pair cannot lie outside the four, so the bound left is an item that took no pair at all.
-                AssertThrows<InvalidDataException>(() => CollectibleObjectDraws.VisibleFrame(
-                    (InWorldCollectibleKind)kind,look,null), "Collectible item without a block pair");
             }
         }
     }

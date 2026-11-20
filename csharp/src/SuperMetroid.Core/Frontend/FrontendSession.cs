@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Runtime.Attract;
@@ -160,14 +159,14 @@ internal sealed class FrontendSession
     /// <summary>The live gameplay runtime; gameplay phases run only while a game is loaded.</summary>
     internal SuperMetroidRuntime GameplayRuntime => runtime ??
         throw new InvalidOperationException("No gameplay runtime is loaded; this phase runs only during gameplay.");
-    /// <summary>The choices the options menu closed with, which every selected game starts with; null before any.</summary>
-    internal SelectedGameplayOptions? ChosenOptions { get; private set; }
+    /// <summary>The options every selected game starts with: unchosen until the options menu first closes.</summary>
+    internal GameplayOptionsChoice OptionsChoice { get; private set; } = GameplayOptionsChoice.Unchosen;
     /// <summary>Keeps <paramref name="options"/>'s choices for the selected game the menu starts.</summary>
     internal void ChooseOptions(GameOptionsMenuState options)
     {
         Ensure.NotNull(options);
-        ChosenOptions = new SelectedGameplayOptions(options.JapaneseText, options.ControllerBindings, options.MoonwalkEnabled,
-            options.IconCancelEnabled);
+        OptionsChoice = new ChosenGameplayOptions(new SelectedGameplayOptions(options.JapaneseText, options.ControllerBindings,
+            options.MoonwalkEnabled, options.IconCancelEnabled));
     }
     /// <summary>Ceres elevator departure and blackout transition state.</summary>
     internal readonly CeresDepartureState ceresDeparture = new();
@@ -212,11 +211,11 @@ internal sealed class FrontendSession
     /// updates before each step.
     /// </summary>
     internal ScreenFade GameplayFadeIn { get; } =
-        new(0, stepDelay: GameplayFadeDefinitions.FadeInWaitBeforeEachStep, firstWait: GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
+        new(DisplayBrightness.Black, stepDelay: GameplayFadeDefinitions.FadeInWaitBeforeEachStep, firstWait: GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
     /// <summary>Selects Ceres arrival rather than Landing Site at the fade destination.</summary>
     internal bool GameplayFadeLeadsToCeresArrival { get; private set; }
     /// <summary>Gameplay brightness retained through pause and unpause fades, from black through full.</summary>
-    internal int PauseBrightness => screenFade.Level;
+    internal DisplayBrightness PauseBrightness => screenFade.Level;
     /// <summary>Steps the shared screen fade one frame toward lit, without publishing it; returns whether it is fully lit.</summary>
     internal bool AdvanceScreenFadeIn() => screenFade.Brighten();
     /// <summary>Steps the shared screen fade one frame toward lit and publishes the level; returns whether it is fully lit.</summary>
@@ -466,12 +465,12 @@ internal sealed class FrontendSession
     /// </summary>
     internal void BeginBlackDeathBlackOut()
     {
-        DeathFade.Restart(0, 0);
+        DeathFade.Restart(DisplayBrightness.Black, 0);
         Enter(DeathSequenceStep.FinalBlackOut);
         display.PublishBlack();
     }
     /// <summary>Sets the screen's brightness on the published frame and retains it for pause fades.</summary>
-    internal void SetDisplayBrightness(int brightness)
+    internal void SetDisplayBrightness(DisplayBrightness brightness)
     {
         // Pause entry fades from the last level the screen was shown at.
         screenFade.Show(brightness);
@@ -481,7 +480,7 @@ internal sealed class FrontendSession
     /// Starts a pause fade from <paramref name="initialBrightness"/>, waiting the pause fades' wait before each step
     /// (<see cref="PauseFadeTiming.WaitBeforeEachStep"/>).
     /// </summary>
-    internal void BeginPauseFade(int initialBrightness)
+    internal void BeginPauseFade(DisplayBrightness initialBrightness)
     {
         screenFade.Restart(initialBrightness, PauseFadeTiming.WaitBeforeEachStep);
     }
@@ -516,14 +515,14 @@ internal sealed class FrontendSession
             },
             Artwork = Artwork,
             // Attract scripts retain the default controls and options of their private runtime.
-            Selected = attract ? null : ChosenOptions ?? new SelectedGameplayOptions(false, ControllerBindings.Default, false, false),
+            Selected = attract ? null : OptionsChoice.StartingOptions,
         });
     }
     /// <summary>Applies live menu controller and gameplay choices to a newly created runtime.</summary>
     internal void ApplySelectedGameOptions()
     {
         // Live edits in options take precedence over the snapshot loaded at file select.
-        if (ChosenOptions is not { } options) return;
+        if (OptionsChoice is not ChosenGameplayOptions { Options: var options }) return;
         GameplayRuntime.Options.ControllerBindings = options.ControllerBindings;
         GameplayRuntime.Options.MoonwalkEnabled = options.MoonwalkEnabled;
         GameplayRuntime.Options.IconCancelEnabled = options.IconCancelEnabled;
@@ -663,7 +662,7 @@ internal sealed class FrontendSession
     /// </summary>
     internal void BeginGameplayFadeIn(GameplayFadeTarget target)
     {
-        GameplayFadeIn.Restart(0, GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
+        GameplayFadeIn.Restart(DisplayBrightness.Black, GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
         GameplayFadeLeadsToCeresArrival = target == GameplayFadeTarget.CeresArrival;
         Enter(Phases.GameplayFadeIn);
     }

@@ -17,7 +17,7 @@ internal static class InstalledArtworkContentIdentityConstants
             for (int suit = 0; suit < InstalledSamusDeathPalettes.SuitCount; suit++)
             for (int palette = 0; palette < SamusShadeDefinitions.Death.ExplosionShadeCount; palette++)
             {
-                for (int color = 0; color < InstalledSamusDeathPalettes.ColorCount; color++) stepColours[color] = palettes.SuitedColor(suit, palette, color);
+                for (int color = 0; color < InstalledSamusDeathPalettes.ColorCount; color++) stepColours[color] = palettes.SuitedColor(SuperMetroid.AssetExtraction.Samus.SamusSuitListLayout.Order[suit], palette, color);
                 content.AppendColors("suited row", stepColours);
             }
             for (int palette = 0; palette < SamusShadeDefinitions.Death.ExplosionShadeCount; palette++)

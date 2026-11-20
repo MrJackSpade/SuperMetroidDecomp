@@ -296,27 +296,34 @@ public static class RoomLevelStreamFiles
     }
 
     /// <summary>
-    /// Writes an appearance: what it shows (<see cref="ShownCode"/>), a block's number, then its mirroring's code.
+    /// Writes an appearance: what it shows (<see cref="ShownCodes"/>), a block's number, then its mirroring's code.
     /// </summary>
     /// <exception cref="InvalidDataException">The appearance is terrain beyond the room, which no installed level holds.</exception>
     private static void WriteAppearance(BinaryWriter writer, RoomBlockAppearance appearance)
     {
         if (appearance.IsBeyondRoom)
             throw new InvalidDataException("An installed level holds no terrain beyond the room: the game fills that space itself.");
-        writer.Write(checked((byte)(appearance.ShowsNothing ? ShownCode.Nothing : ShownCode.Block)));
+        writer.Write(ShownCodes[appearance.ShowsNothing ? Shown.Nothing : Shown.Block]);
         if (appearance.ShowsBlock)
             writer.Write(checked((ushort)appearance.Block));
         writer.Write(checked((byte)MirroringCodes.IndexOf(appearance.Mirroring)));
     }
 
-    /// <summary>What an appearance shows, as the byte a level file writes before it (#2100).</summary>
-    private enum ShownCode
+    /// <summary>What an appearance shows (#2100).</summary>
+    private enum Shown
     {
         /// <summary>A block, whose number follows.</summary>
         Block,
         /// <summary>Nothing.</summary>
         Nothing,
     }
+
+    /// <summary>The byte a level file writes before an appearance for what it shows (#2556).</summary>
+    private static readonly Dictionary<Shown, byte> ShownCodes = new()
+    {
+        [Shown.Block] = 0,
+        [Shown.Nothing] = 1,
+    };
 
     /// <summary>Reads one installed level file.</summary>
     /// <exception cref="InvalidDataException">The file is truncated, has trailing bytes, or holds an unknown kind, mirroring, block or reaction list, or a reading out of its range.</exception>
@@ -370,12 +377,14 @@ public static class RoomLevelStreamFiles
     /// <exception cref="InvalidDataException">The appearance's code or its mirroring's code is unknown.</exception>
     private static RoomBlockAppearance ReadAppearance(BinaryReader reader)
     {
-        var shown = (ShownCode)reader.ReadByte();
+        int code = reader.ReadByte();
+        Shown shown = ShownCodes.Where(entry => entry.Value == code).Select(entry => (Shown?)entry.Key).SingleOrDefault()
+            ?? throw new InvalidDataException($"Appearance code {code} names neither a block nor nothing.");
         RoomBlockAppearance appearance = shown switch
         {
-            ShownCode.Block => RoomBlockAppearance.Of(reader.ReadUInt16()),
-            ShownCode.Nothing => RoomBlockAppearance.Nothing,
-            _ => throw new InvalidDataException($"Appearance code {(int)shown} names neither a block nor nothing."),
+            Shown.Block => RoomBlockAppearance.Of(reader.ReadUInt16()),
+            Shown.Nothing => RoomBlockAppearance.Nothing,
+            _ => throw new InvalidDataException($"Appearance code {code} names neither a block nor nothing."),
         };
         int mirroring = reader.ReadByte();
         if (mirroring >= MirroringCodes.Length)

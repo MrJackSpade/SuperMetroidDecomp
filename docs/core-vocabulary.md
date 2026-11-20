@@ -1004,6 +1004,14 @@ velocity up away from rest (`SpedUpBy`) or dragging it toward rest (`DraggedBy`)
 `SamusVerticalVelocity`. Where the original's unsigned-magnitude arithmetic is observable, a compatibility service
 reproduces it (`SpeedAlongAngle`, `MultiviolaLeftOrUpSpeed`, `BullBackwardStep`).
 
+SME6476 (#2558) keeps magic values from standing for a role or absence. In Core and the import pipeline no array or
+sequence is filled with minus one or `int.MaxValue` (`Array.Fill(places, -1)`), no choice gives one beside a computed
+value (`found ? index : -1`, `index ?? -1`), no method returns one, no field or property is seeded with one, and no local
+is seeded with one that its body then tests against zero or minus one. An identity enum (`…Id`) has no `None`, `Empty`,
+`Blank` or `Nothing` member, and an identity or type value (`…Id`, `…Type`) no static of that name. Absence is a typed
+optional (`int?`, a nullable reference, a `TryGet`) or a closed type's case, and a role is a named member. A named
+constant, a sign beside another constant, a comparison's order and a library's own result are not sentinels.
+
 SME6472 (#2575) keeps definition data in domain catalogs. Outside a catalog file, Core builds no value of a Core type
 wholly from constants with a nonzero numeric literal among them (`new Offset16<RoomPixels>(1, 0)`,
 `SignedSixteenSixteen.FromWholePixels(1)`, `UpdateCountdown.Lasting(1)`) and passes no nonzero numeric literal by name
@@ -1014,6 +1022,14 @@ member's summary (`DachoraMotionDefinitions.WaitingFloorProbe`, `GoldNinjaSpaceP
 value type names its own units (`SignedSixteenSixteen.OnePixel`, `SignedEightEight.FinestStep`, `Offset16<T>.OneDown`,
 `UpdateCountdown.LastingOneUpdate()`); zero, a literal beside computed state and a literal passed by position are not
 definitions.
+
+SME6482 (#2556) keeps relations as references, never list positions. Outside an `[EncodingOwner]` type and a
+`[CompatibilityService]`, Core reads no place's `Ordinal`, its position in the list it belongs to, except to spell it in an
+interpolated message: no partner is found by counting places from another (`part.Ordinal - 1`), and no place number is
+handed to a lookup, stored or compared (`Inherit(place.Ordinal, ...)`). A member of a multipart enemy finds the member
+playing another role through the one owner of the population's listing (`EnemyCompositeListing.Member`, with the roles
+in listed order in the species' `EnemyComposite`) and keeps the place it finds; a rule the game makes depend on placement
+itself is a compatibility service (`FollowUpAfterStruckPart`, `BabyMetroidVictim`); a place is handed on as itself.
 
 SME6483 (#2557) states repeated literal structure once, in Core's and AssetExtraction's hand-written catalog files. A
 list of two or more entries is not written out again, entry for entry, in another list of the same file, and a list

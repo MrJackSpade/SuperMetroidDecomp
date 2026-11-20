@@ -70,7 +70,7 @@ internal static class CeresSteamAnimationsVerification
         enemies.VerificationServices().NextRandom = () => wait - 1;
         RoomEnemyPlace vent = enemies.Places.InUpdateOrder[0];
         vent.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)CeresSteamVariant.Up);
-        vent.Bind(EnemyDefinitionId.CeresSteam, vent.Definition);
+        vent.Bind(EnemyDefinitionId.CeresSteam, vent.KeptDefinition);
         ((IEnemyInitialization)(vent.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
         AssertEqual(wait, vent.RequireSpeciesState<CeresSteamEnemyState>().UpdatesToActivation, "the vent draws its wait");
 

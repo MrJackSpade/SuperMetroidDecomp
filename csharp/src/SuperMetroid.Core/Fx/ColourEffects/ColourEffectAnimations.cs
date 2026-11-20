@@ -287,7 +287,7 @@ internal static class ColourEffectAnimations
         [A.CrateriaEscapeYellowLightning] = new(ColourEffectStart.Plain, ColourEffectColours.CrateriaEscapeLightning, ColourEffectCondition.WatchesNothing.Instance, Looping(S.EscapeLightning)),
         [A.ParlorEscapeSkyFlicker] = new(ColourEffectStart.Plain, ColourEffectColours.ParlorEscapeSky, ColourEffectCondition.WatchesNothing.Instance, Looping(S.EscapeLightning)),
         [A.SamusInHeat] = new(ColourEffectStart.ChoosesHeatAnimationForSuit, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance,
-            new([], AnimationEnd.Stops)),
+            ColourEffectFrames.SuitHeatPulse),
         [A.PowerSuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance,
             Looping(S.PowerSuitHeatPulse)),
         [A.VariaSuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance, HeatPulseLoop),

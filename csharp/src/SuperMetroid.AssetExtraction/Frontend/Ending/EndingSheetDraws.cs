@@ -60,11 +60,9 @@ internal sealed class EndingSheetDraws
     internal IReadOnlyList<KeyValuePair<EndingTypedText, List<EndingSpriteColouring>>> Texts =>
         [.. textOrder.Select(text => KeyValuePair.Create(text, texts[text]))];
 
-    /// <summary>Records <paramref name="pose"/> as drawn in <paramref name="colouring"/>; the blank pose draws nothing.</summary>
+    /// <summary>Records <paramref name="pose"/> as drawn in <paramref name="colouring"/>.</summary>
     internal void AddPose(CinematicSpriteFamily family, CinematicSpritePose pose, EndingSpriteColouring colouring)
     {
-        if (pose == CinematicSpritePose.Blank)
-            return;
         if (!families.TryGetValue(family, out Dictionary<CinematicSpritePose, List<EndingSpriteColouring>>? poses))
         {
             poses = [];

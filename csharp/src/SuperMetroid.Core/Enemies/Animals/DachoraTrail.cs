@@ -14,7 +14,7 @@ internal static class DachoraTrail
     internal static RoomEnemyPlacement[] Placed(RoomEnemyPlacement runner)
     {
         DachoraSpawnSettings settings = runner.SpawnSettingsOf<DachoraSpawnSettings>();
-        RoomEnemyPlacement echo = new(runner.DefinitionId, runner.Position, runner.Contact, runner.Processing, EnemyPresence.Hidden,
+        RoomEnemyPlacement echo = new(runner.DefinitionId, runner.Placing, runner.Contact, runner.Processing, EnemyPresence.Hidden,
             runner.CollidesByFrameHitboxes, settings with { Role = DachoraRole.SpeedBoostEcho });
         return [runner, .. DefinitionRun.Repeated(echo, DachoraTimingDefinitions.EchoCount)];
     }

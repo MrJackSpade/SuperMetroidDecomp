@@ -110,7 +110,7 @@ public static class SamusGrappleMovement
         SamusState samus,
         GameplayAction controllerInput,
         ISamusRoomObjects roomObjects,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
@@ -137,8 +137,8 @@ public static class SamusGrappleMovement
         // Firing tests the current endpoint against ordinary enemies before moving the
         // beam through its four block-collision substeps. The collision reports the
         // enemy's grapple reaction: the reactions that stop the beam or connect it act here, while Kill and no
-        // interaction let it go on to the room's blocks, exactly like an enemy with no grapple reaction.
-        GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
+        // interaction let it go on to the room's blocks, exactly like an endpoint that catches no enemy.
+        if (enemyCollision(grapple.Anchor) is { } enemy)
         switch (enemy.Reaction)
         {
             case GrappleEnemyReaction.Attach:
@@ -164,6 +164,9 @@ public static class SamusGrappleMovement
             case GrappleEnemyReaction.None:
             case GrappleEnemyReaction.Kill:
                 break;
+            // The collision never reports an enemy with no reaction to the beam: reaching one fails there.
+            case GrappleEnemyReaction.Unreactive:
+                throw new InvalidOperationException("The grapple collision reported an enemy with no reaction to the beam.");
             default:
                 throw new InvalidOperationException($"Undefined GrappleEnemyReaction {enemy.Reaction}.");
         }
@@ -238,7 +241,7 @@ public static class SamusGrappleMovement
     /// a fresh press of Up or Down adjusts the rope's length.
     /// A release or drop leaves its pose for the frame's pose update to commit.
     /// </summary>
-    internal static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction newlyPressedInput, Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+    internal static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction newlyPressedInput, Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
@@ -319,7 +322,7 @@ public static class SamusGrappleMovement
         SamusTerrain terrain,
         SamusState samus,
         GameplayAction controllerInput,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
 
@@ -364,10 +367,9 @@ public static class SamusGrappleMovement
     /// </summary>
     private static bool TryRetainEnemyAnchor(
         SamusGrappleState grapple,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
-        GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
-        if (enemy.Reaction == GrappleEnemyReaction.None)
+        if (enemyCollision(grapple.Anchor) is not { Reaction: not GrappleEnemyReaction.None } enemy)
             return false;
 
         if (enemy.Attaches)
@@ -406,7 +408,7 @@ public static class SamusGrappleMovement
         SamusTerrain terrain,
         SamusState samus,
         GameplayAction controllerInput,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
         bool shootHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
@@ -723,14 +725,14 @@ public static class SamusGrappleMovement
                 // blue door setup's power-bomb rejection; the ordinary opening owner
                 // supplies all four cap blocks, timing, collision changes, and sound.
                 if (block.Behavior.TryGetDownwardGateTrigger(out _))
-                    roomObjects.Gates.SpawnDownwardGateTrigger(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
+                    roomObjects.Gates.SpawnDownwardGateTrigger(level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
                 else if (block.Behavior.TryGetBlueDoorOrientation(out _))
-                    roomObjects.DoorObjects.SpawnBlueDoorOpening(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
+                    roomObjects.DoorObjects.SpawnBlueDoorOpening(level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
                 else if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
                 {
                     // A shot-triggered block also reacts to the grapple: its resident actor hears of a hit with no
                     // weapon, and decides itself whether to refuse the hit or wake up.
-                    if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType: SamusProjectileType.None))
+                    if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.GrappleTouch.Instance))
                         throw new InvalidOperationException(
                             $"Grapple trigger block {block.Position} has no resident room-object owner.");
                 }
@@ -744,7 +746,7 @@ public static class SamusGrappleMovement
                             level,
                             block.At,
                             block.Behavior,
-                            projectileType: SamusProjectileType.None,
+                            BlockStrike.GrappleTouch.Instance,
                             solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
                     }
                     catch (UnsupportedShotBlockReactionException error)

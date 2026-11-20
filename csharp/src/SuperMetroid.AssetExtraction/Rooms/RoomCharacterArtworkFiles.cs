@@ -40,9 +40,9 @@ public static class RoomCharacterArtworkFiles
         {
             byte[] png = pngs[name];
             // The ghost sheet is stored uncompressed, so its length is the library background's.
-            int nativeByteCount = source.Set == RoomCharacterSet.TourianStatueGhost
+            int nativeByteCount = source is RoomCharacterSource.OfSet { Set: RoomCharacterSet.TourianStatueGhost }
                 ? LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount
-                : RomDataReader.Decompress(CartridgeImportSource.Require(bus), source.Set is { } set
+                : RomDataReader.Decompress(CartridgeImportSource.Require(bus), source is RoomCharacterSource.OfSet(RoomCharacterSet set)
                     ? tilesets.Characters[set]
                     : RoomTilesetSourceDefinitions.CreCharacters).Length;
             RoomCharacterAtlasFormat.ValidateTileCount(nativeByteCount);
@@ -109,7 +109,7 @@ public static class RoomCharacterArtworkFiles
             {
                 throw new InvalidDataException($"Invalid room character PNG {path}: {error.Message}", error);
             }
-            if (source.Set is { } set) sheets.Add(set, atlas);
+            if (source is RoomCharacterSource.OfSet(RoomCharacterSet set)) sheets.Add(set, atlas);
             else cre = atlas;
         }
         return new RoomCharacterAtlases(
@@ -121,21 +121,33 @@ public static class RoomCharacterArtworkFiles
     {
         var sources = new Dictionary<string, RoomCharacterSource>
         {
-            [RoomCharacterSheetFiles.CreFileName] = new(null),
+            [RoomCharacterSheetFiles.CreFileName] = new RoomCharacterSource.Common(),
         };
         foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
             RoomCharacterSet set = tileset.Characters;
-            sources[RoomCharacterSheetFiles.FileName(set)] = new(set);
+            sources[RoomCharacterSheetFiles.FileName(set)] = new RoomCharacterSource.OfSet(set);
         }
         sources[RoomCharacterSheetFiles.FileName(RoomCharacterSet.TourianStatueGhost)] =
-            new(RoomCharacterSet.TourianStatueGhost);
+            new RoomCharacterSource.OfSet(RoomCharacterSet.TourianStatueGhost);
         return sources;
     }
 
-    /// <summary>A character file's sheet: none for the common room elements.</summary>
-    /// <param name="Set">The sheet, or null for the common room elements.</param>
-    private readonly record struct RoomCharacterSource(RoomCharacterSet? Set);
+    /// <summary>A character file's sheet: the common room elements' or a character set's.</summary>
+    private abstract record RoomCharacterSource
+    {
+        /// <summary>Only the nested cases derive.</summary>
+        private RoomCharacterSource()
+        {
+        }
+
+        /// <summary>The common room elements' sheet.</summary>
+        internal sealed record Common : RoomCharacterSource;
+
+        /// <summary>A character set's sheet.</summary>
+        /// <param name="Set">The set.</param>
+        internal sealed record OfSet(RoomCharacterSet Set) : RoomCharacterSource;
+    }
 
     /// <summary>Reads and writes manifest property names in their stable camel-case JSON form.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

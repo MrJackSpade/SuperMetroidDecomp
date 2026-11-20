@@ -135,7 +135,7 @@ internal static class RoomBlockWriters
             throw new InvalidDataException($"Blue door frame {draw} is not a blue door cap's frame.");
         ColoredDoorOrientation facing = cap.Orientation;
         return state => state.HoldsBlueDoorCap(facing) ||
-            state.Entrances.Any(door => DoorClosingObjects.GetDefinition(door.Orientation)?.BlueCapFacing == facing);
+            state.Entrances.Any(door => DoorClosingObjects.GetDefinition(door.Orientation) is DoorClosingObjectDefinition.BlueCap { Facing: var closing } && closing == facing);
     }
 
     /// <summary>
@@ -156,7 +156,7 @@ internal static class RoomBlockWriters
         Func<InventoriedRoomState, bool> coloured = state =>
             state.Places(setup => setup is ColoredDoorSetup { Door.Orientation: var placed } && placed == facing);
         return state => grey(state) || coloured(state) || state.HoldsBlueDoorCap(facing) ||
-            state.Entrances.Any(door => DoorClosingObjects.GetDefinition(door.Orientation)?.BlueCapFacing == facing);
+            state.Entrances.Any(door => DoorClosingObjects.GetDefinition(door.Orientation) is DoorClosingObjectDefinition.BlueCap { Facing: var closing } && closing == facing);
     }
 
     /// <summary>Whether a station's frame <paramref name="draw"/> is written in a room state: where a station of the kind that draws it is placed.</summary>
@@ -251,7 +251,7 @@ internal static class RoomBlockWriters
             XrayRevealShape command = XrayReveals.Find(key.Type, key.Reaction)
                 ?? throw new InvalidDataException($"X-ray visual {key.Type}/reaction {key.Reaction} has no reveal rule.");
             bool brinstar = command == XrayRevealShape.CopyBrinstar;
-            var blocks = new HashSet<int>(visual.InReadingOrder);
+            var blocks = new HashSet<int>(visual.InReadingOrder.Select(picture => picture.Block));
             yield return new(blocks,
                 state => state.Holds(key.Type, key.Reaction) && (!brinstar || state.Area == AreaId.Brinstar));
         }

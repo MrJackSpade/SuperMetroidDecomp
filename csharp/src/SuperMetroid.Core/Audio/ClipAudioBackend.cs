@@ -58,7 +58,8 @@ public sealed class ClipAudioBackend
         long frameStart = State.Sample;
         int cursor = 0;
         bool stepped = false;
-        int lastStep = -1;
+        // The sample offset of the update's last clock step, none before its first.
+        int? lastStep = null;
         bool lastChecked = false;
         foreach (AudioEvent audioEvent in events)
         {
@@ -70,7 +71,11 @@ public sealed class ClipAudioBackend
                     break;
                 case AudioEvent.SelectMusicTrack selection:
                     RequireBeforeSteps(stepped, audioEvent);
-                    State.SongChange.Hold(new SongChange(selection.Track));
+                    State.SongChange.Hold(new SongChange.Play(selection.Track));
+                    break;
+                case AudioEvent.StopMusic:
+                    RequireBeforeSteps(stepped, audioEvent);
+                    State.SongChange.Hold(new SongChange.Stop());
                     break;
                 case AudioEvent.ClockStep step:
                     if (step.SampleOffset < cursor || step.SampleOffset >= FramesPerUpdate)
@@ -133,12 +138,15 @@ public sealed class ClipAudioBackend
     /// <summary>Applies the song change waiting for this beat, unless it asks for what already plays.</summary>
     private void OnBeat(long now)
     {
-        if (State.SongChange.Take() is not SongChange change || change.Track == State.PlayingTrack)
+        if (State.SongChange.Take() is not SongChange change)
+            return;
+        // A change to what already plays, the same track or the silence, changes nothing.
+        if (change is SongChange.Play { Track: var asked } ? asked == State.PlayingTrack : State.Song is null)
             return;
         if (State.Song is MusicClipEntry playing)
             State.Beat.Hold(BeatLengthAt(playing, now - State.SongStart));
         ReleaseMusic(now);
-        if (change.Track is not MusicTrack track)
+        if (change is not SongChange.Play { Track: var track })
         {
             State.StopSong();
             return;

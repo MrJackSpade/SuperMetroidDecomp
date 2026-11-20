@@ -43,6 +43,8 @@ internal static class KraidContourCaseMappingsVerification
         var overlaps = CreateKraidBodyContourProbe();
         var body = enemies.Places.InUpdateOrder[0];
         var shot = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake()).Shots[0];
+        // The tested shot holds its place as an uncharged Power beam, the type the cleared slot word reads as.
+        shot.OccupyAsFired(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
         body.Position = body.Position.WithWhole(new(256, 1024));
         shot.Radius = shot.Radius.WithX(0);
         foreach (short y in new short[] { -113, -112, -1, 0 })

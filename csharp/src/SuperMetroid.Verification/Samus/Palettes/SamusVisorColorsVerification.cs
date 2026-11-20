@@ -72,7 +72,7 @@ internal static class SamusVisorColorsVerification
             };
         }
         return SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(
-            new SamusVisorColorDocument { Version = SamusVisorColorFile.Version, Colors = colors })));
+            new SamusVisorColorDocument { Version = SamusVisorColorFile.Version, Widening = colors[..3], Cycle = colors[3..] })));
     }
 
     /// <summary>Compares 32 room updates for timer, source offset, and CGRAM slot 196 without installed table reads.</summary>
@@ -187,7 +187,7 @@ internal static class SamusVisorColorsVerification
             ?? throw new InvalidDataException("Stock Samus visor color document is null.");
         AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(document with
         {
-            Colors = [.. document.Colors.Take(3), document.Colors[3] with { Red = 32 }, .. document.Colors.Skip(4)],
+            Cycle = [document.Cycle[0] with { Red = 32 }, .. document.Cycle.Skip(1)],
         }))), "out-of-range visor color fails loudly");
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.Text.Json;
 using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -138,7 +139,7 @@ public sealed class ExtractedAudioAssetCatalog
                 throw new InvalidDataException($"Audio manifest repeats sample bank address ${bank.SnesAddress:X6}.");
             if (!instruments.TryAdd(definition.AudioSet, ValidateInstruments(bank)))
                 throw new InvalidDataException($"Audio manifest repeats instrument bank address ${bank.SnesAddress:X6}.");
-            IReadOnlyDictionary<int, byte> compiled = ValidateMusicBank(bank);
+            IReadOnlyDictionary<int, byte> compiled = ValidateMusicBank(bank, definition.DataSet);
             if (!musicBanks.TryAdd(definition.AudioSet, bank))
                 throw new InvalidDataException($"Audio manifest repeats music bank address ${bank.SnesAddress:X6}.");
             compiledMusicBanks.Add(definition.AudioSet, compiled);
@@ -340,15 +341,18 @@ public sealed class ExtractedAudioAssetCatalog
 
     /// <summary>Checks stable track, phrase, and program addresses, then compiles an authored SPC music bank.</summary>
     /// <returns>The bank's compiled definition bytes by APU RAM address.</returns>
-    private static IReadOnlyDictionary<int, byte> ValidateMusicBank(AudioBankMetadata bank)
+    /// <param name="bank">The bank's installed music.</param>
+    /// <param name="dataSet">The music data set the bank uploads, which numbers its songs; none for the driver's own upload.</param>
+    private static IReadOnlyDictionary<int, byte> ValidateMusicBank(AudioBankMetadata bank, MusicDataSet? dataSet)
     {
         if (bank.TrackPointers is null || bank.MusicTracks is null ||
             bank.MusicPhrases is null || bank.MusicPrograms is null)
             throw new InvalidDataException($"Audio bank '{bank.Name}' has an incomplete music catalog.");
-        if (bank.TrackPointers.Count != bank.MusicTracks.Count)
+        int playingSlots = bank.TrackPointers.Count(pointer => pointer != 0);
+        if (playingSlots != bank.MusicTracks.Count)
         {
             throw new InvalidDataException(
-                $"Audio bank '{bank.Name}' has {bank.TrackPointers.Count} track pointers but " +
+                $"Audio bank '{bank.Name}' has {playingSlots} track slots that play a song but " +
                 $"{bank.MusicTracks.Count} decoded tracks.");
         }
         // Phrases and programs are named by their place among the bank's in their slots' order, never by a slot (#2548).
@@ -368,12 +372,11 @@ public sealed class ExtractedAudioAssetCatalog
                 (place > 0 && program.Address <= bank.MusicPrograms[place - 1].Address))
                 throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid program identity '{program.Id}'.");
         }
-        for (int trackIndex = 0; trackIndex < bank.MusicTracks.Count; trackIndex++)
+        var songs = new HashSet<MusicTrack>();
+        foreach (AudioMusicTrackMetadata track in bank.MusicTracks)
         {
-            AudioMusicTrackMetadata track = bank.MusicTracks[trackIndex];
-            if (track.Track != trackIndex || track.Id != SpcMusicDefinitionCodec.TrackId(bank.DataIndex, trackIndex) ||
-                track.Address != bank.TrackPointers[trackIndex])
-                throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid track identity '{track.Id}'.");
+            if (!songs.Add(track.Song) || track.Address != bank.TrackPointers[MusicTrackNumbers.Number(dataSet, track.Song)])
+                throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid track '{track.Song}'.");
             _ = SpcMusicDefinitionCodec.EncodeTrack(track, phrases);
         }
         foreach (AudioMusicProgramMetadata program in bank.MusicPrograms)
@@ -437,7 +440,8 @@ public sealed class ExtractedAudioAssetCatalog
                 throw new InvalidDataException($"Audio SFX library {library.Library} has no effect list.");
             if (library.Library != libraryIndex + 1)
                 throw new InvalidDataException($"Audio SFX library index {libraryIndex} is identified as {library.Library}.");
-            int commandCount = SpcSoundEffectTables.CommandCount(libraryIndex);
+            SoundEffectLibrary soundLibrary = SoundLibraryNumbers.FromDriverIndex(libraryIndex);
+            int commandCount = SpcSoundEffectTables.CommandCount(soundLibrary);
             if (library.Effects.Count != commandCount)
             {
                 throw new InvalidDataException(
@@ -452,16 +456,14 @@ public sealed class ExtractedAudioAssetCatalog
                 int command = effectIndex + 1;
                 string id = $"sfx-{library.Library}-{command:x2}";
                 if (effect.Command != command || effect.Id != id ||
-                    effect.StreamPointer != SpcSoundEffectTables.StreamPointer(libraryIndex, command) ||
-                    effect.Configuration != SpcSoundEffectTables.Configuration(libraryIndex, command))
+                    effect.StreamPointer != SpcSoundEffectTables.StreamPointer(soundLibrary, command) ||
+                    effect.Policy != SpcSoundEffectTables.PolicyKey(soundLibrary, command))
                 {
                     throw new InvalidDataException(
                         $"Audio effect {library.Library}:${command:X2} changes compiled identity, " +
                         "routing pointer, or voice-allocation configuration.");
                 }
-                int channelCount = SpcSoundEffectTables.GetVoiceCount(
-                    libraryIndex,
-                    effect.Configuration);
+                int channelCount = SpcSoundEffectTables.VoiceCount(soundLibrary, effect.Policy);
                 if (effect.ChannelPrograms.Count != channelCount)
                 {
                     throw new InvalidDataException(

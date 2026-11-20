@@ -54,15 +54,15 @@ internal static class PauseMenuStatePrivateAccess
         }
 
         /// <summary>The private property <c>Transition</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Frontend.Pause.PauseMenuTransition Transition
+        internal global::SuperMetroid.Core.Frontend.Pause.PauseMenuTransition? Transition
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Pause.PauseMenuState, global::SuperMetroid.Core.Frontend.Pause.PauseMenuTransition>(self, "Transition");
+            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Pause.PauseMenuState, global::SuperMetroid.Core.Frontend.Pause.PauseMenuTransition?>(self, "Transition");
         }
 
         /// <summary>The private property <c>TransitionBrightness</c>, reached by name.</summary>
         internal int TransitionBrightness
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Pause.PauseMenuState, int>(self, "TransitionBrightness");
+            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Pause.PauseMenuState, global::SuperMetroid.Core.Rendering.DisplayBrightness>(self, "TransitionBrightness").StepsAboveBlack;
         }
 
         /// <summary>The private field <c>area</c>, reached by name.</summary>

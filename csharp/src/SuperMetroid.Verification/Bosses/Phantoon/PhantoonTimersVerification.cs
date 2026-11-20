@@ -16,14 +16,14 @@ internal static class PhantoonTimersVerification
     {
         for (int i = 0; i < 8; i++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd41 + i * 2)), PhantoonTimerDefinitions.VulnerableWindow[i], "Native vulnerable timer");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd53 + i * 2)), PhantoonTimerDefinitions.EyeClosed[i], "Native eye-closed timer");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd63 + i * 2)), PhantoonTimerDefinitions.RainHiding[i], "Native rain timer");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd41 + i * 2)), PhantoonTimerDefinitions.VulnerableWindow.ChosenOn(new UpdateCounterField(0, 3), i), "Native vulnerable timer");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd53 + i * 2)), PhantoonTimerDefinitions.EyeClosed.ChosenOn(new UpdateCounterField(0, 3), i), "Native eye-closed timer");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd63 + i * 2)), PhantoonTimerDefinitions.RainHiding.ChosenOn(new UpdateCounterField(0, 3), i), "Native rain timer");
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var body = enemies.Places.InUpdateOrder[0];
         var eye = enemies.Places.InUpdateOrder[1];
-        var state = new PhantoonEnemyState(body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
         enemies.BeginPhantoonAsSetUp(state);
         // His initialization shows his body black before any pattern fades it (#1512).
         state.Colours.Show(PhantoonBodyLook.Black);

@@ -31,7 +31,7 @@ internal static class MaridiaPuyoPileVerification
         for (int i = 0; i < population.Length; i++)
         {
             var actor = enemies.Places.InUpdateOrder[i];
-            AssertEqual(EnemyDefinitionId.Puyo, actor.DefinitionId, "pile actor is retail Puyo");
+            AssertEqual(EnemyDefinitionId.Puyo, actor.Occupant?.DefinitionId, "pile actor is retail Puyo");
             AssertEqual(population[i].X, actor.Position.X.Whole, "native pile spawn X");
             AssertEqual(population[i].Y, actor.Position.Y.Whole, "native pile spawn Y");
             AssertEqual(population[i].Delay + EnemyWaitDefinitions.RunOutUpdate, (enemies.PuyoStates[i] ?? throw new InvalidOperationException("Verification requires enemies.PuyoStates[i].")).HopCooldownTimer.UpdatesLeft, "native full-word initial cooldown");

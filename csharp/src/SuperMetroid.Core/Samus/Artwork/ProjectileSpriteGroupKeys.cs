@@ -9,7 +9,6 @@ internal static class ProjectileSpriteGroupKeys
     /// <summary>Each ProjectileSpriteGroup member's installed key.</summary>
     internal static InstalledKeys<ProjectileSpriteGroup> Installed { get; } = new(new Dictionary<ProjectileSpriteGroup, string>
     {
-        [ProjectileSpriteGroup.Nothing] = "Nothing",
         [ProjectileSpriteGroup.Power] = "Power",
         [ProjectileSpriteGroup.Plasma] = "Plasma",
         [ProjectileSpriteGroup.MissileExplosion] = "MissileExplosion",

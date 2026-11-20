@@ -45,7 +45,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         for (int color = 0; color < TourianStatueColorDefinitions.EyeColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueEyeColors +
                 (row * TourianStatueColorDefinitions.EyeColorCount + color) * sizeof(ushort),
-                (colors.ResolveEye(row, color)).ToWord());
+                (colors.ResolveEye(TourianStatuePalettes.EyeRowOrder[row], color)).ToWord());
         for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueGreyColors + color * sizeof(ushort),
                 colors.ResolveGrey(color).ToWord());
@@ -177,7 +177,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         {
             RoomEnemyPlace place = enemy.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
-            place.Bind(EnemyDefinitionId.TourianStatue, place.Definition);
+            place.Bind(EnemyDefinitionId.TourianStatue, place.KeptDefinition);
             EnemySystemFixtures.InitializeStatuePlacement(place);
         }
 

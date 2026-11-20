@@ -36,14 +36,14 @@ public static class RoomObjectCollectibleVisualFiles
         CollectibleDraw.SuperMissileTankBright,
         CollectibleDraw.PowerBombTankBright,
         CollectibleDraw.PowerBombTankDim,
-        CollectibleDraw.FirstBlockPairPrimaryLook,
-        CollectibleDraw.FirstBlockPairAlternateLook,
-        CollectibleDraw.SecondBlockPairPrimaryLook,
-        CollectibleDraw.SecondBlockPairAlternateLook,
-        CollectibleDraw.ThirdBlockPairPrimaryLook,
-        CollectibleDraw.ThirdBlockPairAlternateLook,
-        CollectibleDraw.FourthBlockPairPrimaryLook,
-        CollectibleDraw.FourthBlockPairAlternateLook,
+        CollectibleDraw.SolidPairPrimaryLook,
+        CollectibleDraw.SolidPairAlternateLook,
+        CollectibleDraw.FirstDoorPairPrimaryLook,
+        CollectibleDraw.FirstDoorPairAlternateLook,
+        CollectibleDraw.SecondDoorPairPrimaryLook,
+        CollectibleDraw.SecondDoorPairAlternateLook,
+        CollectibleDraw.ThirdDoorPairPrimaryLook,
+        CollectibleDraw.ThirdDoorPairAlternateLook,
         CollectibleDraw.ShotBlockIntact,
         CollectibleDraw.ShotBlockCracking,
         CollectibleDraw.ShotBlockDust,
@@ -117,8 +117,8 @@ public static class RoomObjectCollectibleVisualFiles
                 ? RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame0Table.Offset
                 : RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame1Table.Offset;
             int native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + selector * 2)))));
-            int compiled = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.VisibleFrame(
-                InWorldCollectibleKind.Bombs, look, CollectibleBlockPairs.InTurn[selector]));
+            int compiled = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.BlockPairFrame(
+                CollectibleBlockPairs.InTurn[selector], look));
             if (native != compiled)
                 throw new InvalidDataException(
                     $"Collectible block pair selector $84:{table + selector * 2:X4} differs from the cartridge.");

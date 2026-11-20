@@ -37,12 +37,12 @@ internal static class OumCollisionDefinitionsVerification
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace nativePlace = compiled.Places.InUpdateOrder[1];
         RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
-        var boundDefinition = default(RoomEnemyDefinition);
-        nativePlace.Bind(nativePlace.DefinitionId, boundDefinition);
-        compiledPlace.Bind(compiledPlace.DefinitionId, boundDefinition);
+        var boundDefinition = EnemyDefinitionFixtures.Blank;
+        nativePlace.Bind(EnemyDefinitionId.Oum, boundDefinition);
+        compiledPlace.Bind(EnemyDefinitionId.Oum, boundDefinition);
         // The native place is an Oum too: its frame's word is read in its header's bank (#2327).
-        nativePlace.Bind(EnemyDefinitionId.Oum, nativePlace.Definition);
-        compiledPlace.Bind(EnemyDefinitionId.Oum, compiledPlace.Definition);
+        nativePlace.Bind(EnemyDefinitionId.Oum, nativePlace.KeptDefinition);
+        compiledPlace.Bind(EnemyDefinitionId.Oum, compiledPlace.KeptDefinition);
         AssertEqual(30, OumCollisionDefinitionsConstants.FramePointers.Length,
             "all Oum extended frames have compiled collision");
         AssertEqual(30, OumCollisionDefinitions.HitboxPointers.Count(),

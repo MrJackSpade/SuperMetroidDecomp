@@ -39,11 +39,14 @@ public sealed class InstalledSamusChargeColors
     public SamusChargeColours ToColours()
     {
         var palettes = new Dictionary<SamusChargeShade, ImmutableArray<RgbColor>>();
+        // The document lists each sequence's rows suit by suit, in the suits' order (SamusSuitListLayout.Order).
+        var chargedBySuit = SamusSuitListLayout.Order.Zip(chargedBeam, KeyValuePair.Create).ToDictionary();
+        var screwBySuit = SamusSuitListLayout.Order.Zip(pseudoScrew, KeyValuePair.Create).ToDictionary();
         foreach (SamusSuit suit in SamusSuitListLayout.Order)
         for (int phase = 0; phase < SamusChargeColorFormat.PhasesPerSuit; phase++)
         {
-            palettes.Add(new(SamusChargeKind.ChargedBeam, suit, phase), [.. chargedBeam[SamusSuitListLayout.Place(suit)][phase]]);
-            palettes.Add(new(SamusChargeKind.PseudoScrew, suit, phase), [.. pseudoScrew[SamusSuitListLayout.Place(suit)][phase]]);
+            palettes.Add(new(SamusChargeKind.ChargedBeam, suit, phase), [.. chargedBySuit[suit][phase]]);
+            palettes.Add(new(SamusChargeKind.PseudoScrew, suit, phase), [.. screwBySuit[suit][phase]]);
         }
         return new(palettes, hyperShot.ToColours());
     }

@@ -6,13 +6,14 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// reaches a reaction of the species'.
 /// </summary>
 /// <param name="species">The Ki-Hunter species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the wings occupy.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KiHunterWingsEntity(KiHunterBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+internal sealed class KiHunterWingsEntity(KiHunterBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeKiHunterWings(Place);
+    public void Initialize() => species.InitializeKiHunterWings(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterWingsMainAi(Place, frame);

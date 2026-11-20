@@ -57,7 +57,7 @@ public static class SamusInsideBlockReactions
                 // but keeps the base speed's fraction of a pixel rather than stopping it.
                 var speed = samus.HorizontalSpeed;
                 speed.HasRunningMomentum = false;
-                speed.SpeedBoostCounter = default;
+                speed.SpeedBoostCounter = SamusSpeedBoostCounter.NotBuilding;
                 speed.EchoSoundPlaying = false;
                 speed.ExtraRunSpeed = default;
                 speed.BaseSpeed = QuicksandSurfaceSpeedLeftover.Leftover(speed.BaseSpeed);
@@ -122,7 +122,7 @@ public static class SamusInsideBlockReactions
     /// <param name="axis">The axis the scan moves along.</param>
     /// <param name="displacement">The scan's accepted displacement, which sand can limit.</param>
     /// <param name="surfaceContact">Whether Samus touched the sand's surface.</param>
-    /// <param name="blockReactionDirection">The direction the reaction sees, or null for the scan's own.</param>
+    /// <param name="observes">Whether the scan only observes, so the surface sees no direction of travel.</param>
     internal static SpecialAirCollisionOutcome ReactCollision(
         SamusCollisionContact contact,
         SamusTerrain terrain,
@@ -130,7 +130,7 @@ public static class SamusInsideBlockReactions
         Axis axis,
         ref SignedSixteenSixteen displacement,
         out bool surfaceContact,
-        SamusCollisionDirection? blockReactionDirection = null)
+        bool observes = false)
     {
         RoomLevelData level = terrain.Level;
         ISamusRoomObjects roomObjects = terrain.RoomObjects;
@@ -150,13 +150,11 @@ public static class SamusInsideBlockReactions
             return SpecialAirCollisionOutcome.PassesThrough;
         }
         if (!reaction.IsQuicksandSurface) return SpecialAirCollisionOutcome.PassesThrough;
-        SamusCollisionDirection reactionDirection = blockReactionDirection ??
-            (axis == Axis.Vertical
-                ? displacement.IsNegative ? SamusCollisionDirection.Up : SamusCollisionDirection.Down
-                : displacement.IsNegative ? SamusCollisionDirection.Left : SamusCollisionDirection.Right);
-        // The surface reacts to vertical scans and to the pose-observation probe; ordinary horizontal movement passes
-        // through it untouched.
-        if (reactionDirection is SamusCollisionDirection.Left or SamusCollisionDirection.Right) return SpecialAirCollisionOutcome.PassesThrough;
+        // The surface reacts to vertical scans and to observing probes; ordinary horizontal movement passes through it
+        // untouched.
+        if (!observes && axis == Axis.Horizontal) return SpecialAirCollisionOutcome.PassesThrough;
+        // An observing probe moves in no direction; a vertical scan moves down unless it rises.
+        bool movesDown = !observes && !displacement.IsNegative;
         // A rising Samus passes through; a stationary one lands only on an actual downward collision; a falling one lands
         // even during pose-observation probes. The grounded vertical direction never reaches the surface.
         switch (body.VerticalVelocity.Direction)
@@ -164,7 +162,7 @@ public static class SamusInsideBlockReactions
             case SamusVerticalDirection.Up:
                 return SpecialAirCollisionOutcome.PassesThrough;
             case SamusVerticalDirection.None:
-                if (reactionDirection != SamusCollisionDirection.Down) return SpecialAirCollisionOutcome.PassesThrough;
+                if (!movesDown) return SpecialAirCollisionOutcome.PassesThrough;
                 break;
             case SamusVerticalDirection.Down:
                 break;

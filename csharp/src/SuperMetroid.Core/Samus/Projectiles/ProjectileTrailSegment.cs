@@ -3,8 +3,11 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>A projectile-trail animation one side of a trail runs.</summary>
 public enum ProjectileTrailSegment
 {
-    /// <summary>Ends the trail without drawing another frame.</summary>
-    Empty,
+    /// <summary>
+    /// The animation a side runs where its shot leaves no sparkle there (#2558): it ends on its first update without
+    /// drawing.
+    /// </summary>
+    EndsWithoutSparkle,
 
     /// <summary>The left ice sparkle, also drawn by a charged Power Beam.</summary>
     LeftIce,

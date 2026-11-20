@@ -8,4 +8,7 @@ internal static class EnemyHeaderWordsConstants
     /// that place as awaiting respawn, with no enemy and no definition, so only native comparisons need the word.
     /// </summary>
     internal const ushort AwaitingRespawnHeader = 0xdaff;
+
+    /// <summary>The header word of an enemy slot that holds no enemy.</summary>
+    internal const ushort FreeSlotHeader = 0;
 }

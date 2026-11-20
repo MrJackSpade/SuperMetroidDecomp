@@ -85,11 +85,11 @@ internal static class TitleSkipFadeVerification
         for (int at = 0; at < press; at++)
             title.Step(ControllerButton.None);
         string pressed = $"a skip pressed on {natural[press].Phase} update {press}";
-        AssertEqual(DisplayBrightness.Full, natural[press].Brightness, $"the unskipped title shows {pressed}'s update at full brightness");
+        AssertEqual(DisplayBrightness.Full.StepsAboveBlack, natural[press].Brightness, $"the unskipped title shows {pressed}'s update at full brightness");
 
         // The fade-out: the running step runs and draws as the unskipped title does, darker by two levels per update.
         int update = press;
-        int brightness = DisplayBrightness.Full;
+        int brightness = DisplayBrightness.StepsFromBlackToFull;
         while (true)
         {
             title.Step(update == press ? ControllerButton.Start : ControllerButton.None);
@@ -127,15 +127,15 @@ internal static class TitleSkipFadeVerification
             rebuilt.Draws[1], $"{rebuild} draws the copyright in its restored colours");
 
         // The fade-in brightens by two levels per update, from the update after the rebuild, to the idle title screen.
-        while (brightness < DisplayBrightness.Full)
+        while (brightness < DisplayBrightness.StepsFromBlackToFull)
         {
             update++;
             title.Step(ControllerButton.None);
-            brightness = Math.Min(DisplayBrightness.Full, brightness + TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
+            brightness = Math.Min(DisplayBrightness.Full.StepsAboveBlack, brightness + TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
             TitleFrame shown = Capture(title);
             string place = $"{pressed}, fade-in update {update}";
             AssertEqual(brightness, shown.Brightness, $"{place} fades two levels brighter per update");
-            AssertEqual(brightness == DisplayBrightness.Full ? TitleSequencePhase.TitleScreen : TitleSequencePhase.TitleScreenFadeIn,
+            AssertEqual(brightness == DisplayBrightness.StepsFromBlackToFull ? TitleSequencePhase.TitleScreen : TitleSequencePhase.TitleScreenFadeIn,
                 shown.Phase, $"{place} fades in until the idle title screen");
             AssertTrue(rebuilt.Draws.SequenceEqual(shown.Draws), $"{place} draws the rebuilt logo and copyright");
             AssertEqual(rebuilt.Floor, shown.Floor, $"{place} keeps the rebuilt floor");
@@ -186,7 +186,7 @@ internal static class TitleSkipFadeVerification
     private static TitleFrame Capture(TitleSequenceState title)
     {
         FloorScene scene = title.ComposeScene();
-        return new TitleFrame(title.Phase, title.SkipStage, scene.Brightness, scene.Paint.SpriteDraws, scene.Floor?.View, scene.Gradient,
+        return new TitleFrame(title.Phase, title.SkipStage, scene.Brightness.StepsAboveBlack, scene.Paint.SpriteDraws, scene.Floor?.View, scene.Gradient,
             title.BabyPose, title.FloorShading);
     }
 

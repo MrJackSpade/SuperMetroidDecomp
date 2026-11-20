@@ -89,7 +89,8 @@ internal static class DemoInputProgramsVerification
                         int loopsFrom = target == entry ? 0
                             : loop is { } own && target == own.Entry ? own.FirstRecord
                             : throw new InvalidDataException($"{at}: goto ${target:X4} leaves the recording.");
-                        AssertEqual(DemoRecordingEnd.LoopsFrom(loopsFrom), recording.End, $"{at}: the recording loops");
+                        AssertEqual(recording.Inputs.Count - 1, loopsFrom, $"{at}: the recording loops its last input");
+                        AssertEqual(DemoRecordingEnd.HoldsLastInput, recording.End, $"{at}: the recording holds its last input");
                         break;
                     case DemoInputInstruction.Delete:
                         AssertEqual(DemoRecordingEnd.Stops, recording.End, $"{at}: the recording ends");

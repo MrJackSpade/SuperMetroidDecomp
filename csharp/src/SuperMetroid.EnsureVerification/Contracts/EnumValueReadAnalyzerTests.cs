@@ -62,8 +62,15 @@ internal static class EnumValueReadAnalyzerTests
         // The type that owns an encoding converts, including from a nested type.
         Expect(Types + "[EncodingOwner(\"fixture format\")] class Codec { int Run(Draw draw) => (int)draw; }", count: 0);
         Expect(Types + "[EncodingOwner(\"fixture format\")] class Codec { static class Bits { static ushort Run(Items items) => (ushort)items; } }", count: 0);
-        // Outside Core the import pipeline translates.
-        Expect(Types + "class Importer { Draw Run(int word) => (Draw)word; }", count: 0, assemblyName: "SuperMetroid.AssetExtraction");
+        // The import pipeline reads no backing value outside its codecs either (#2556); its codecs translate.
+        Expect(Types + "class Importer { Draw Run(int word) => (Draw)word; }", "The cast '(Draw)word' reads the numeric value of 'Draw'" + Advice,
+            assemblyName: "SuperMetroid.AssetExtraction");
+        Expect(Types + "class Importer { bool Run(Draw draw) => draw >= Draw.Wave; }", "'draw >= Draw.Wave' reads the numeric value of 'Draw'" + Advice,
+            assemblyName: "SuperMetroid.AssetExtraction");
+        Expect(Types + "[EncodingOwner(\"fixture format\")] class Codec { Draw Run(int word) => (Draw)word; }", count: 0,
+            assemblyName: "SuperMetroid.AssetExtraction");
+        // A host or tool outside Core and the import pipeline is not the rule's scope.
+        Expect(Types + "class Tool { Draw Run(int word) => (Draw)word; }", count: 0, assemblyName: "SuperMetroid.Tooling");
     }
 
     /// <summary>Compiles one source and compares the SME6450 count and an optional message fragment.</summary>

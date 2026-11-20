@@ -61,7 +61,11 @@ public sealed class ManagedSpcAudioBackend
                     break;
                 case AudioEvent.SelectMusicTrack selection:
                     RequireBeforeTicks(ticks, audioEvent);
-                    Player.WriteMusicPort(checked((byte)(selection.Track is MusicTrack track ? MusicTrackNumbers.Number(loadedDataSet, track) : 0)));
+                    Player.WriteMusicPort(checked((byte)MusicTrackNumbers.Number(loadedDataSet, selection.Track)));
+                    break;
+                case AudioEvent.StopMusic:
+                    RequireBeforeTicks(ticks, audioEvent);
+                    Player.WriteMusicPort(MusicTrackNumbers.Silence);
                     break;
                 case AudioEvent.ClockStep step:
                     if (ticks == schedule.Length)
@@ -87,7 +91,7 @@ public sealed class ManagedSpcAudioBackend
     {
         Player.Uploads.Upload(assets.GetUpload(bank).Span);
         Player.Uploads.ApplyInstrumentDefinitions(assets.GetInstrumentBank(bank));
-        Player.Uploads.ApplyMusicDefinitions(assets.GetMusicBank(bank), assets.GetCompiledMusicBank(bank));
+        Player.Uploads.ApplyMusicDefinitions(assets.GetMusicBank(bank), AudioAssetCatalogDefinitions.Get(bank).DataSet, assets.GetCompiledMusicBank(bank));
         Player.Uploads.ApplySoundEffectDefinitions(assets.SoundEffectImage);
         Player.SetSampleBank(assets.GetSampleBank(bank));
     }

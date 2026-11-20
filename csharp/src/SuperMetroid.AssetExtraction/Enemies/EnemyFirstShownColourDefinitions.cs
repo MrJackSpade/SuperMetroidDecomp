@@ -78,7 +78,7 @@ internal static class EnemyFirstShownColourDefinitions
     [
         start,
         hidden,
-        RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.Images[^1]),
-        RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.Images[^1]),
+        RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.End),
+        RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.End),
     ];
 }

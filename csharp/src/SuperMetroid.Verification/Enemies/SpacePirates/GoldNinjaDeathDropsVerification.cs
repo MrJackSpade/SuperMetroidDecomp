@@ -4,6 +4,7 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 
 using SuperMetroid.Verification.Harness;
@@ -29,7 +30,7 @@ internal static class GoldNinjaDeathDropsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MetalPirates);
         var samus = runtime.Player.IntroducedSamus;
         RoomEnemyPlace pirate = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.PirateGoldNinja);
+            place.Holds(EnemyDefinitionId.PirateGoldNinja));
         samus.Control.LockOutPlayer();
         // The Gold Ninja is invincible in almost every frame. Install
         // ExtendedSpritemaps_PirateNinja_28 ($B2:8EA2), whose lower piece
@@ -43,20 +44,20 @@ internal static class GoldNinjaDeathDropsVerification
         MotherBrainRinkaDoorSpawnExpected target = new MotherBrainRinkaDoorSpawnExpected(pirate.Position.X.Whole, (ushort)(pirate.Position.Y.Whole + 15));
 
         var shot = runtime.Projectiles.Shots[0];
-        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;
+        shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300); shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(new(target.X, target.Y));
         shot.Radius = new(4, 4);
         shot.Animation = ProjectileFixturePlaybacks.Active();
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
-            pirate, Position16<RoomPixels>.Zero);
+            pirate.HeldOccupant(), Position16<RoomPixels>.Zero);
         AssertEqual(0, pirate.Health, "the shot kills the Gold Ninja Pirate");
 
         var projectiles = runtime.Enemies.Projectiles;
-        int explosion = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount - 1;
+        int explosion = SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity - 1;
         while (explosion >= 0 && projectiles.LatestInPlace(explosion)?.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
             explosion--;
         AssertTrue(explosion >= 0, "EnemyDeath spawns the death explosion");
-        for (int slot = explosion + 1; slot < SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount; slot++)
+        for (int slot = explosion + 1; slot < SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity; slot++)
             AssertTrue(projectiles.LatestInPlace(slot)?.Kind != RoomEnemyProjectileKind.EnemyDeathPickup,
                 $"no drop sits above the explosion (slot {slot})");
         AssertEqual(5, Enumerable.Range(0, explosion).Count(place => projectiles.LatestInPlace(place)?.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),

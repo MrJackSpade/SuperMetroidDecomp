@@ -11,10 +11,10 @@ internal sealed class SamusScrollCap
     /// position is this point plus the frame's writes so far. Null when no camera
     /// owns them.
     /// </summary>
-    private FixedPosition<RoomPixels>? _samusPreviousPositionCheckpoint;
+    private SamusScrollCheckpoint _samusPreviousPositionCheckpoint = SamusScrollCheckpoint.SincePlacement;
 
     /// <summary>Enemy frame start: the camera's checkpoint of Samus's previous position, or none.</summary>
-    internal void BeginFrame(FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint) =>
+    internal void BeginFrame(SamusScrollCheckpoint samusPreviousPositionCheckpoint) =>
         _samusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint;
 
     /// <summary>
@@ -33,8 +33,8 @@ internal sealed class SamusScrollCap
     /// </remarks>
     internal void CapSamusScrollingSpeed(SamusState samus)
     {
-        // Only the camera reads this position; without one there is nothing to cap.
-        if (_samusPreviousPositionCheckpoint is not { } checkpoint)
+        // Only the camera reads this position; a camera placed since its last scroll holds none to cap.
+        if (_samusPreviousPositionCheckpoint is not SamusScrolledCheckpoint { Point: var checkpoint })
             return;
 
         Position16<RoomPixels> previous = samus.PeekPreviousPosition(checkpoint);

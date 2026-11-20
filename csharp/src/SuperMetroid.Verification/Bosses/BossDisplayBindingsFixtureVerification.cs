@@ -33,7 +33,7 @@ internal static class BossDisplayBindingsFixtureVerification
         private readonly BossBodyOwner? bodyOwner;
 
         /// <summary>The boss whose body layer the actor draws on.</summary>
-        private BossBodyOwner BodyOwner => bodyOwner ?? throw new InvalidOperationException($"{Actor.DefinitionId} draws no body layer.");
+        private BossBodyOwner BodyOwner => bodyOwner ?? throw new InvalidOperationException($"{Actor.Occupant?.DefinitionId} draws no body layer.");
 
         /// <summary>The tilemap entry each cell of the boss's body layer shows now, from the frames its artwork installs (#1466).</summary>
         internal ushort[] Bg2Words => BossBodyWords.Of(Enemies.Presentation.RequireBossBody().Publish(), BodyOwner, bodies.Frames);
@@ -49,7 +49,7 @@ internal static class BossDisplayBindingsFixtureVerification
         /// cartridge writes its transparent sprites.
         /// </summary>
         internal bool ActorFrameShowsNothing =>
-            Actor.Frame is { } frame && Enemies.Presentation.Artwork.Enemy(Actor.DefinitionId).Sheet.ShowsNothing(EnemySheetDefinitions.FrameName(frame));
+            Actor.Frame is { } frame && Enemies.Presentation.Artwork.Enemy(Actor.HeldOccupant().DefinitionId).Sheet.ShowsNothing(EnemySheetDefinitions.FrameName(frame));
 
         /// <summary>The body sheets composed from the fixture's boss frames.</summary>
         private BossBodySheets Sheets => bodies.Sheets;
@@ -65,8 +65,8 @@ internal static class BossDisplayBindingsFixtureVerification
             bodyOwner = BodyOwnerOf(definition);
             bodies = bodyOwner is { } drawn ? BossBodySheetFixtures.For(artwork.Bosses, drawn) : BossBodySheetFixtures.Stock;
             Enemies.BossArtworkBinding.BodySheets = Sheets;
-            Actor.Bind(definition, Actor.Definition);
-            Actor.Bind(Actor.DefinitionId, RoomEnemyDefinitionLookup.Get(definition));
+            Actor.Bind(definition, Actor.KeptDefinition);
+            Actor.Bind(Actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(definition));
             Actor.Position = Actor.Position.WithWhole(new(128, 128));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);

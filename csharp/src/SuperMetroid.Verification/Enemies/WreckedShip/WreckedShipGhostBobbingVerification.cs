@@ -32,7 +32,7 @@ internal static class WreckedShipGhostBobbingVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Coven, place.Definition);
+            place.Bind(EnemyDefinitionId.Coven, place.KeptDefinition);
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(64, y));
             var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay)
             {

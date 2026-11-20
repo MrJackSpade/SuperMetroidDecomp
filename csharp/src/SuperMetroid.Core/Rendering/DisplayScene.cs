@@ -10,13 +10,13 @@ public abstract class DisplayScene
     /// <summary>Keeps the scene's brightness; only the three kinds of scene derive from this.</summary>
     /// <param name="brightness">The frame's brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>.</param>
     /// <exception cref="ArgumentOutOfRangeException">The brightness is below black or above full.</exception>
-    private protected DisplayScene(int brightness) => Brightness = DisplayBrightness.Require(brightness);
+    private protected DisplayScene(DisplayBrightness brightness) => Brightness = brightness;
 
     /// <summary>
     /// The frame's one brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>, applied once after the scene
     /// is composed.
     /// </summary>
-    public int Brightness { get; }
+    public DisplayBrightness Brightness { get; }
 
     /// <summary>Draws the scene with <paramref name="drawer"/>'s method for its kind.</summary>
     /// <typeparam name="TDrawer">The drawer's type.</typeparam>
@@ -26,5 +26,5 @@ public abstract class DisplayScene
     /// <summary>The same scene shown at <paramref name="brightness"/>: this scene where that is its own brightness.</summary>
     /// <param name="brightness">The brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>.</param>
     /// <exception cref="ArgumentOutOfRangeException">The brightness is below black or above full.</exception>
-    internal abstract DisplayScene AtBrightness(int brightness);
+    internal abstract DisplayScene AtBrightness(DisplayBrightness brightness);
 }

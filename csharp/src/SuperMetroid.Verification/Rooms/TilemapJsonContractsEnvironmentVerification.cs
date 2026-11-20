@@ -74,7 +74,7 @@ internal static class TilemapJsonContractsEnvironmentVerification
         var eyeWords = TilemapContractWords(IntroEyeTilemapFormat.FrameCount * IntroEyeTilemapFormat.CellsPerFrame);
         var eyes = new IntroEyeTilemapDocument { Version = IntroEyeTilemapFormat.Version,
             Frames = Enumerable.Range(0, IntroEyeTilemapFormat.FrameCount).Select(frame => new IntroEyeTilemapFrame
-            { Id = IntroEyeTilemapFormat.FrameId(frame), Cells = Enumerable.Range(0, IntroEyeTilemapFormat.CellsPerFrame)
+            { Id = IntroEyeTilemapFormat.FrameId(IntroEyeTilemapFormat.Eyes[frame]), Cells = Enumerable.Range(0, IntroEyeTilemapFormat.CellsPerFrame)
                 .Select(index => TilemapContractCell(BinaryPrimitives.ReadUInt16LittleEndian(eyeWords.AsSpan(
                     (frame * IntroEyeTilemapFormat.CellsPerFrame + index) * 2)))).ToArray() }).ToArray() };
         using var eyesEncoded = new MemoryStream();
@@ -86,7 +86,7 @@ internal static class TilemapJsonContractsEnvironmentVerification
             for (int frame = 0; frame < IntroEyeTilemapFormat.FrameCount; frame++)
             for (int index = 0; index < IntroEyeTilemapFormat.CellsPerFrame; index++)
                 AssertEqual(BinaryPrimitives.ReadUInt16LittleEndian(eyeWords.AsSpan((frame * IntroEyeTilemapFormat.CellsPerFrame + index) * 2)),
-                    catalog.FrameTiles(frame)[index].PackedWord, "all eye rectangles retain ordered visual words, encoded through the codec");
+                    catalog.FrameTiles(IntroEyeTilemapFormat.Eyes[frame])[index].PackedWord, "all eye rectangles retain ordered visual words, encoded through the codec");
         }
         LoadEyes(eyeJson);
         Reject("opening eyes (case-sensitive)", TilemapContractHistoricalCasing(eyeJson),

@@ -22,8 +22,8 @@ internal sealed class SamusNoTransitionSetup
         _run = run;
     }
 
-    /// <summary>Nothing is set up: her pose and momentum stay as her movement left them.</summary>
-    internal static SamusNoTransitionSetup None { get; } = new(nameof(None), (_, _, _, _, _) => { });
+    /// <summary>Nothing more is set up: her pose and momentum stay as her movement left them.</summary>
+    internal static SamusNoTransitionSetup KeepsMomentum { get; } = new(nameof(KeepsMomentum), (_, _, _, _, _) => { });
 
     /// <summary>A knockback kept as its fallback stops her momentum.</summary>
     internal static SamusNoTransitionSetup StopKnockback { get; } = new(nameof(StopKnockback),

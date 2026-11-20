@@ -27,7 +27,7 @@ internal static class StatueSplashVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => random), statueRoom: new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
             enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
-            foreach (var actor in enemies.Projectiles.EnemyProjectiles) global::SuperMetroid.Core.PrivateState.Set(actor, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(0));
+            foreach (var actor in enemies.Projectiles.EnemyProjectiles) actor.Delete();
             EnemySystemFixtures.UnlockEffects(enemies).SpawnTourianEyeGlow(SuperMetroid.Core.Areas.Tourian.TourianStatueNativeWords.Eye(0));
             var eye = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             EnemyProjectile? particle = null;
@@ -64,7 +64,7 @@ internal static class StatueSplashVerification
                     // Isolate the spawned actor after the real crossing so every
                     // emitted sprite can be compared against its native screen origin.
                     foreach (var other in enemies.Projectiles.EnemyProjectiles)
-                        if (other != splash) global::SuperMetroid.Core.PrivateState.Set(other, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(0));
+                        if (other != splash) other.Delete();
                     int visibleFrames = 0;
                     ushort splashX = (ushort)SixteenSixteenWords.WholeOf(unchecked((uint)x));
                     for (int age = 0; age < 64 && splash.IsActive; age++)

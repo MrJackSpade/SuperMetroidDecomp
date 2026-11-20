@@ -20,7 +20,7 @@ public sealed record EndingObjectArtworkParts
     public required RoomBackgroundTilemapAtlas WaitingTilemap { get; init; }
 
     /// <summary>32-by-32-cell BG3 transformation map.</summary>
-    public required RoomBackgroundTilemapAtlas PostCreditsFragmentB { get; init; }
+    public required RoomBackgroundTilemapAtlas TransformationMap { get; init; }
 
     /// <summary>$0800-byte, 32-by-32-cell final-logo map.</summary>
     public required RoomBackgroundTilemapAtlas PostShotLogoMap { get; init; }

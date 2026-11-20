@@ -46,7 +46,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
     {
         CorpseRottingConfiguration configuration = CorpseRottingConfigurationCodec.Decode(rom, configurationPointer);
         string context = $"dead sidehopper configuration $A9:{configurationPointer:X4}";
-        AssertEqual<CorpseRowUploadList?>(new CorpseRowUploadList(RottingCorpseSpecies.Sidehopper, graphicsVariant / 2), configuration.UploadList,
+        AssertEqual<CorpseRowUploadList?>(graphicsVariant == 0 ? CorpseRowUploadList.SidehopperBabyMetroidVictim : CorpseRowUploadList.SidehopperAlreadyDead, configuration.UploadList,
             $"{context} names the row upload list the extraction finds the corpse's characters by");
         AssertEqual(DeadSidehopperCorpseDefinitions.RowCount, configuration.RowCount, $"{context} corpse height");
     }
@@ -60,9 +60,9 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         DeadSidehopperAction startingAction)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-        Action<RoomEnemyPlace> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopper;
+        Action<RoomEnemyPlace> initialize = fixturePlace => enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(fixturePlace.HeldOccupant(), fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.CorpseSidehopper, place.Definition);
+        place.Bind(EnemyDefinitionId.CorpseSidehopper, place.KeptDefinition);
         place.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, parameter1);
 
         initialize(place);

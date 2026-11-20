@@ -46,8 +46,8 @@ internal sealed class ShinesparkEchoProjectile
 
         bool firstDeparts = shots < SamusProjectileSystem.PlaceCount - 1;
         if (firstDeparts)
-            first.Depart(Launch(SamusShotPool.FirstEchoPlace, angles.First, picturedBeams), crashPosition);
-        second.Depart(Launch(SamusShotPool.SecondEchoPlace, angles.Second, picturedBeams), crashPosition);
+            first.Depart(Launch(ShinesparkCrashEchoPlaces.First(SamusProjectileSystem.PlaceCount), angles.First, picturedBeams), crashPosition);
+        second.Depart(Launch(ShinesparkCrashEchoPlaces.Second(SamusProjectileSystem.PlaceCount), angles.Second, picturedBeams), crashPosition);
         return firstDeparts;
     }
 
@@ -63,10 +63,10 @@ internal sealed class ShinesparkEchoProjectile
             replaced.IsOccupied ? replaced.Position.Whole : null);
         SamusProjectile echo = _pool.Occupy(place);
         echo.Position = echo.Position.WithWhole(start);
-        echo.Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho);
+        SamusProjectileOccupant released = BeamCombos.OccupyComboShot(echo, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), BeamComboShotKind.Echo);
         echo.PicturedBeams = picturedBeams;
-        BeamCombos.InitializeComboShot(echo, BeamComboShotKind.Echo);
-        echo.Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(angle.ToTrigonometryAngle()));
+        BeamCombos.StartComboShot(released, BeamComboShotKind.Echo);
+        released.Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(angle.ToTrigonometryAngle()));
         return echo;
     }
 

@@ -20,7 +20,7 @@ public static class BabyMetroidCutsceneColorExtractor
         Ensure.NotNull(bus);
         var fade = new PaletteRgb5[BabyMetroidCutsceneColorDefinitions.FadeFrameCount][];
         for (int frame = 0; frame < fade.Length; frame++)
-            fade[frame] = Read(MotherBrainSourceDefinitions.BabyMetroid.FadeColors(frame + 1),
+            fade[frame] = Read(MotherBrainSourceDefinitions.BabyMetroid.FadeColors(frame),
                 BabyMetroidCutsceneColorFormat.FadeColorCount);
         return BabyMetroidCutsceneColorFile.Write(new BabyMetroidCutsceneColorDocument
         {

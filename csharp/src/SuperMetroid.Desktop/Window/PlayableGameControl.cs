@@ -72,6 +72,8 @@ public sealed class PlayableGameControl : UserControl
     private readonly HostInputActivationGate inputActivation = new();
     /// <summary>Current Windows gamepad sample merged with keyboard input.</summary>
     private readonly WindowsGamepadInput gamepad = new();
+    /// <summary>Xbox controllers and pads in X-input mode.</summary>
+    private readonly XInputGamepadInput xinputGamepad = new();
     /// <summary>Elapsed wall-clock updates waiting to be simulated.</summary>
     private double pendingPlaybackFrames;
     /// <summary>Current frontend dispatcher and its retained display state.</summary>
@@ -733,7 +735,9 @@ public sealed class PlayableGameControl : UserControl
         // Keyboard and gamepad are two host producers for the game's one controller.
         // Merge them before recording so replay sees one exact set of held buttons and
         // never depends on which Windows device pressed a particular button.
-        ControllerButton input = keyboard.BuildControllerWord(gamepad.Poll());
+        // An Xbox controller can also appear through WinMM; both readers map it to the same
+        // buttons, so their union is the same set either way.
+        ControllerButton input = keyboard.BuildControllerWord(gamepad.Poll() | xinputGamepad.Poll());
         return inputActivation.Filter(input);
     }
 

@@ -78,7 +78,7 @@ internal static class BotwoonAnimationsVerification
     {
         HeadUpdateInputs inputs = HeadUpdateInputs.Standalone();
         Action<RoomEnemyPlace, BotwoonEnemyState> animateHead = BotwoonBehavior.AnimateBotwoonHeadFromMovement;
-        Action<RoomEnemySystem, RoomEnemyPlace, BotwoonEnemyState, SamusState> aimHead = (owner, a0, a1, a2) => owner.BotwoonBehavior.AimBotwoonAtSamus(a0, a1, a2);
+        Action<RoomEnemySystem, RoomEnemyPlace, BotwoonEnemyState, SamusState> aimHead = (owner, a0, a1, a2) => owner.BotwoonBehavior.AimBotwoonAtSamus(a0.HeldOccupant(), a0, a1, a2);
         OctantVector[] octantVectors =
             [new OctantVector(0, -100), new OctantVector(100, -100), new OctantVector(100, 0), new OctantVector(100, 100), new OctantVector(0, 100), new OctantVector(-100, 100), new OctantVector(-100, 0), new OctantVector(-100, -100)];
         // The direction each vector points, as the cartridge's octant lists number them clockwise from up.
@@ -163,13 +163,13 @@ internal static class BotwoonAnimationsVerification
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {
-            var projectile = global::SuperMetroid.Core.PrivateState.With<EnemyProjectile>(new EnemyProjectile(0, default), "Kind", RoomEnemyProjectileKind.BotwoonBody);
+            var projectile = new EnemyProjectile(0, default, RoomEnemyProjectileKind.BotwoonBody);
             projectile.StartAnimation(new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(selector)));
             CompareBotwoonProjectile(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSegmentListTable + selector)), projectile, Pass,
                 $"segment selector ${selector:X2}");
         }
 
-        Action<RoomEnemyPlace, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head, new TrigonometryAngle(angle), speed);
+        Action<RoomEnemyPlace, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head.BoundFor(EnemyDefinitionId.Botwoon), head, new TrigonometryAngle(angle), speed);
         spawnSpit(enemies.Places.InUpdateOrder[0], 0x40, 0x0180);
         EnemyProjectile spit = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonSpit);
         AssertTrue(spit.Animation is BotwoonSpitAnimation, "the real spit producer starts the typed spit animation");
@@ -182,7 +182,7 @@ internal static class BotwoonAnimationsVerification
         head.SetSpeciesState(state);
         // A changed selector restarts the segment; an unchanged one keeps running.
         Action<EnemyProjectile, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
-        var segment = global::SuperMetroid.Core.PrivateState.With<EnemyProjectile>(new EnemyProjectile(1, default), "Kind", RoomEnemyProjectileKind.BotwoonBody);
+        var segment = new EnemyProjectile(1, default, RoomEnemyProjectileKind.BotwoonBody);
         var segmentAnimation = new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(0));
         enemies.BotwoonBehavior.Segments.Start(segment, new BotwoonSegmentState(head, 1, segment, segmentAnimation));
         segment.StartAnimation(segmentAnimation);
@@ -198,7 +198,7 @@ internal static class BotwoonAnimationsVerification
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.
-        Func<RoomEnemyPlace, int, BotwoonSegmentState> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
+        Func<RoomEnemyPlace, int, BotwoonSegmentState> spawnBody = (head, segment) => enemies.BotwoonBehavior.SpawnBotwoonBodySegment(head.HeldOccupant(), head, segment);
         Action<EnemyProjectile, int> runBody = enemies.BotwoonBehavior.MoveBotwoonBodySegment;
         BotwoonSegmentState spawned = spawnBody(head, 1);
         EnemyProjectile body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
@@ -235,7 +235,7 @@ internal static class BotwoonAnimationsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
+        head.Bind(EnemyDefinitionId.Botwoon, head.KeptDefinition);
         var state = new BotwoonEnemyState(body: []);
         head.SetSpeciesState(state);
         return new NewBotwoonHeadResult(enemies, head, state);

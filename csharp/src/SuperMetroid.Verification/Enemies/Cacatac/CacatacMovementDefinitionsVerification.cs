@@ -14,9 +14,9 @@ internal static class CacatacMovementDefinitionsVerification
         const int distanceTable = 0xa29f36;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = CacatacBehavior.InitializeCacatac;
+        Action<RoomEnemyPlace> initialize = fixturePlace => CacatacBehavior.InitializeCacatac(fixturePlace.HeldOccupant(), fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
+        place.Bind(EnemyDefinitionId.Cacatac, place.KeptDefinition);
 
         // Spawn columns from the shipped placements' range: the left edge's nearest, a middle one and the farthest right.
         foreach (int spawnX in new[] { 72, 0x100, 3240 })
@@ -27,7 +27,7 @@ internal static class CacatacMovementDefinitionsVerification
                 ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 place.SetSpawnParameter1(EnemyDefinitionId.Cacatac, 0);
                 place.SetSpawnParameter2(EnemyDefinitionId.Cacatac, distanceIndex);
-                AssertEqual(native, place.SpawnSettings<CacatacSpawnSettings>().TravelDistance,
+                AssertEqual(native, place.HeldOccupant().SpawnSettings<CacatacSpawnSettings>().TravelDistance,
                     $"imported Cacatac travel distance {distanceIndex}");
                 place.Position = place.Position.WithWholeX(spawnX);
                 initialize(place);

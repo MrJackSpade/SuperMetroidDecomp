@@ -112,12 +112,12 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.PirateGreyWalking, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(EnemyDefinitionId.PirateGreyWalking, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // A left-facing Pirate's population entry with no options and no patrol reach, as the room load gives it.
             place.SetSpawnSettings(new WalkingSpacePirateSpawnSettings(HorizontalDirection.Left, PirateLaserSpeed.Fast, WalkingSpacePirateShotWatch.IgnoresShots, PatrolReach: 0));
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
-            WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(place);
+            WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(place.HeldOccupant(), place);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),

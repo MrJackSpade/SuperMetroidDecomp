@@ -42,16 +42,7 @@ public static class RoomFxLayer3TilemapExtractor
                 if (type is RoomFxType.Rain or RoomFxType.Fog)
                     raw = (ushort)((raw & ~RoomFxAtmosphereTilemapDefinitions.CalculatedMask(type)) |
                         RoomFxAtmosphereTilemapDefinitions.CalculatedFields(type, index));
-                var word = new SnesBgTilemapWord(checked((ushort)raw));
-                cells[index] = new RoomBackgroundTilemapCell
-                {
-                    TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
-                    TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
-                    Palette = word.PaletteIndex,
-                    Priority = word.HasPriority,
-                    FlipX = word.FlipHorizontally,
-                    FlipY = word.FlipVertically,
-                };
+                cells[index] = RoomBackgroundTilemapCell.Of(checked((ushort)raw));
             }
             pages.Add(RoomFxTypeKeys.Installed.Of(type), cells);
         }

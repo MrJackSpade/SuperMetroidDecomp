@@ -20,7 +20,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Chozo];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ChozoStatueEntity(this, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ChozoStatueEntity(this, occupant, place, common));
 
     /// <summary>Supplies room events, scroll grid and Samus-control service.</summary>
     private readonly EnemyRoomBinding _room;
@@ -50,22 +50,22 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes either shipped statue.</summary>
-    internal void InitializeChozoStatue(RoomEnemyPlace statue)
+    internal void InitializeChozoStatue(RoomEnemyOccupant occupant, RoomEnemyPlace statue)
     {
-        ChozoStatueSite site = statue.SpawnSettings<ChozoStatueSpawnSettings>().Site;
+        ChozoStatueSite site = occupant.SpawnSettings<ChozoStatueSpawnSettings>().Site;
         if (!Enum.IsDefined(site))
             throw new InvalidOperationException($"Undefined {nameof(ChozoStatueSite)} {site}.");
 
         // The setup makes the statue solid to Samus and animates it, on screen or off.
         statue.Contact = statue.Contact.With(EnemyContact.SolidToSamus);
         statue.Processing = statue.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
-        statue.Frame = EnemyFrameId.Empty;
+        statue.Frame = EnemyFrameId.PointAtOrigin;
         statue.AnimationClock.Restart();
 
         // The statue shows its own colours, the shade of its site's statue, which no other enemy shows (#1512).
         statue.Shading = PictureShading.Shaded(site == ChozoStatueSite.WreckedShip ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
 
-        var state = new ChozoStatueState { Phase = ChozoStatuePhase.Placed };
+        var state = new ChozoStatueState { Phase = ChozoStatuePhase.Placed, Site = site };
         statue.SetSpeciesState(state);
         _statue = statue;
 
@@ -91,9 +91,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHandTrigger()
     {
         RoomEnemyPlace statue = _statue ?? throw new InvalidOperationException("A Chozo hand triggered in a room whose statue was never placed.");
-        statue.RequireSpeciesState<ChozoStatueState>().TriggerHand();
+        ChozoStatueState statueState = statue.RequireSpeciesState<ChozoStatueState>();
+        statueState.TriggerHand();
         DisableChozoStatueSamusControls();
-        if (statue.SpawnSettings<ChozoStatueSpawnSettings>().Site == ChozoStatueSite.LowerNorfair)
+        if (statueState.Site == ChozoStatueSite.LowerNorfair)
         {
             // Lower Norfair's hand trigger records the acid-lowered event before waking the actor.
             _room.Services.Events.Set(StoryEvent.LowerNorfairChozoLoweredAcid);
@@ -115,12 +116,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Starts the statue's activation once Samus has triggered its hand while it waits for her; the Wrecked Ship's hand
     /// admits her only once Phantoon is defeated. The animation does the rest.
     /// </summary>
-    private static void RunChozoStatueMain(RoomEnemyPlace statue, ChozoStatueState state)
+    private static void RunChozoStatueMain(RoomEnemyOccupant occupant, RoomEnemyPlace statue, ChozoStatueState state)
     {
         if (state.Phase != ChozoStatuePhase.HandTriggered)
             return;
 
-        state.Playback = new(ChozoStatueAnimations.StartingWith(statue.SpawnSettings<ChozoStatueSpawnSettings>().Site == ChozoStatueSite.WreckedShip
+        state.Playback = new(ChozoStatueAnimations.StartingWith(occupant.SpawnSettings<ChozoStatueSpawnSettings>().Site == ChozoStatueSite.WreckedShip
             ? ChozoStatueSegment.WreckedShipActivated
             : ChozoStatueSegment.LowerNorfairActivated), AnimationPlace.StartOfAnimation);
         statue.AnimationClock.StepOnNextUpdate();
@@ -236,15 +237,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Places the Wrecked Ship footstep projectile beneath the statue at its signed horizontal offset.</summary>
     internal void SpawnWreckedShipChozoFootstep(RoomEnemyPlace statue, int footstepOffsetX)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
-            EnemyProjectileBehavior.Still,
-            graphics: default);
         projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingWith(ChozoTourianDustSegment.Footsteps)));
         projectile.Position = projectile.Position.WithWhole(new(statue.Position.X.Whole + footstepOffsetX, statue.Position.Y.Whole + ChozoStatueRoomDefinitions.FootstepDepth));
     }
@@ -278,9 +274,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _passEvents.Publish(new ChozoStatueObjectAsked(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject)));
 
     /// <summary>Runs ChozoStatue's main AI.</summary>
-    internal static void RunChozoStatueMainAi(RoomEnemyPlace place)
+    internal static void RunChozoStatueMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        RunChozoStatueMain(place, place.RequireSpeciesState<ChozoStatueState>());
+        RunChozoStatueMain(occupant, place, place.RequireSpeciesState<ChozoStatueState>());
     }
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>

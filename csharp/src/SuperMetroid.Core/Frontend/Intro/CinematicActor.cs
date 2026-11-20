@@ -125,6 +125,11 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
                 frameHold.Restart(frame.Duration);
                 Shown = frame.Shown;
                 return;
+            case AnimationShown<TAnimation, TFrame>.Hidden hidden:
+                // A hidden beat shows no pose for its updates (#2558).
+                frameHold.Restart(hidden.Duration);
+                Shown = null;
+                return;
             case AnimationShown<TAnimation, TFrame>.HeldFrame rested:
                 // A held frame shows from now on: the animation plays on no further until its owner starts another.
                 Shown = rested.Shown;

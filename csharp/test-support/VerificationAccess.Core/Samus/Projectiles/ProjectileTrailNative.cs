@@ -27,7 +27,7 @@ internal static class ProjectileTrailNative
     extension(ProjectileTrailDefinitions)
     {
         /// <summary>$90:B4C9, the empty program.</summary>
-        internal static ushort Empty => ProjectileTrailSources.Start(ProjectileTrailSegment.Empty);
+        internal static ushort Empty => ProjectileTrailSources.Start(ProjectileTrailSegment.EndsWithoutSparkle);
         /// <summary>$90:B4CB, the left ice program.</summary>
         internal static ushort LeftIce => ProjectileTrailSources.Start(ProjectileTrailSegment.LeftIce);
         /// <summary>$90:B52D, the right ice program.</summary>
@@ -126,7 +126,6 @@ internal static class ProjectileTrailNative
         throw new InvalidDataException($"No trail pose appears as tile word ${nativeWord:X4}.");
     }
 
-    /// <summary>The import document's name of the first record that shows <paramref name="frame"/>.</summary>
-    internal static string Name(ProjectileTrailFrame frame) =>
-        ProjectileTrailVisualDefinitions.RecordNames[ProjectileTrailSources.Records.Select(record => record.Value).ToList().IndexOf(frame)];
+    /// <summary>The import document's name of the appearance <paramref name="frame"/> shows.</summary>
+    internal static string Name(ProjectileTrailFrame frame) => SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrameKeys.Installed.Of(frame);
 }

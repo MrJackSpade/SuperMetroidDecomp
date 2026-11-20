@@ -23,7 +23,7 @@ internal sealed class RidleyBodyNativeInstructionPointers
     /// either facing (#2175).
     /// </summary>
     internal ushort Body(RidleyFlightState state) =>
-        (state.BodyPlayback.Place.Beat == AnimationPlace.NotEntered
+        (state.BodyPlayback.Place.HasNotEntered
             ? RidleyNativeProgramOracle.FacedStartPointer(state.BodyPlayback.Animation)
             : null)
         ?? NativeEnemyAnimationOracle.PointerOf(body, RidleyNativeProgramOracle.BodyListEntries, RidleyAnimations.StartingAt, state.BodyPlayback);

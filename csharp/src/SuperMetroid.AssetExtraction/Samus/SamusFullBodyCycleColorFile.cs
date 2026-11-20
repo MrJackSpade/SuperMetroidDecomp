@@ -18,7 +18,7 @@ public static class SamusFullBodyCycleColorFile
         if (document.Version != SamusFullBodyCycleColorFormat.Version)
             throw new InvalidDataException("Samus full-body cycle colors require the supported version.");
 
-        var palettes = new RgbColor[SamusFullBodyCycleColorFormat.PaletteCount][];
+        var palettes = new Dictionary<SamusFullBodyCycleShade, RgbColor[]>();
         AddFamily(palettes, SamusFullBodyCycleFamily.SpeedBooster, document.SpeedBooster);
         AddFamily(palettes, SamusFullBodyCycleFamily.ScrewAttack, document.ScrewAttack);
         AddFamily(palettes, SamusFullBodyCycleFamily.StoredShine, document.StoredShine);
@@ -31,7 +31,7 @@ public static class SamusFullBodyCycleColorFile
         JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Validates a family's three suits and four shades, then places RGB5 colors in their artwork rows.</summary>
-    private static void AddFamily(RgbColor[][] destination,
+    private static void AddFamily(Dictionary<SamusFullBodyCycleShade, RgbColor[]> destination,
         SamusFullBodyCycleFamily family, PaletteRgb5[][][]? source)
     {
         if (source is null || source.Length != SamusFullBodyCycleColorFormat.SuitCount)
@@ -56,10 +56,8 @@ public static class SamusFullBodyCycleColorFile
                             $"{family} suit {suit}, shade {shade}, color {index} requires RGB5 channels 0..31.");
                     words[index] = rgb.ToRgbColor();
                 }
-                int paletteIndex = SamusFullBodyCycleColorFormat.PaletteIndex(new(family, SamusSuitListLayout.AtPlace(suit), shade));
-                if (destination[paletteIndex] is not null)
+                if (!destination.TryAdd(new(family, SamusSuitListLayout.AtPlace(suit), shade), words))
                     throw new InvalidDataException($"Duplicate full-body palette {family} suit {suit}, shade {shade}.");
-                destination[paletteIndex] = words;
             }
         }
     }

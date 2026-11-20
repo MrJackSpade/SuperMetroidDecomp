@@ -8,8 +8,9 @@ using SuperMetroid.EnsureAnalyzer.Modules;
 namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
-/// An identity's backing value is arbitrary and nothing reads it (SME6450, #1418): in <c>SuperMetroid.Core</c>, no code
-/// outside a type marked <c>[EncodingOwner]</c> converts an enum to an integral type or an integral value to an enum
+/// An identity's backing value is arbitrary and nothing reads it (SME6450, #1418): in <c>SuperMetroid.Core</c> and, since
+/// #2556, in the import pipeline <c>SuperMetroid.AssetExtraction</c>, no code outside a type marked <c>[EncodingOwner]</c>
+/// converts an enum to an integral type or an integral value to an enum
 /// (an explicit cast, <c>Enum.ToObject</c> or a <c>Convert</c> call), or combines an enum-typed value with an integral
 /// literal in arithmetic or a comparison, or orders two values of one enum with <c>&lt;</c>, <c>&lt;=</c>, <c>&gt;</c> or
 /// <c>&gt;=</c>, which compares their backing values (#1452). Each such read is a translation that belongs in a codec, a dispatch that
@@ -18,12 +19,15 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class EnumValueReadAnalyzer : DiagnosticAnalyzer
 {
-    /// <summary>Core reads an enum's numeric value.</summary>
+    /// <summary>Core or the import pipeline reads an enum's numeric value.</summary>
     public const string EnumValueReadId = "SME6450";
+
+    /// <summary>The import pipeline, whose codecs alone translate an identity to and from the cartridge's numbers (#2556).</summary>
+    private const string ExtractionAssembly = "SuperMetroid.AssetExtraction";
 
     private static readonly DiagnosticDescriptor Rule = new(
         EnumValueReadId,
-        "Core reads an enum's numeric value",
+        "Core or the import pipeline reads an enum's numeric value",
         "{0} reads the numeric value of '{1}'; translate it in an encoding codec, dispatch through a behaviour reference, or look it up by identity",
         "Design",
         DiagnosticSeverity.Error,
@@ -44,7 +48,7 @@ public sealed class EnumValueReadAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterCompilationStartAction(start =>
         {
-            if (start.Compilation.AssemblyName != CoreLayerAnalyzer.CoreAssembly)
+            if (start.Compilation.AssemblyName is not (CoreLayerAnalyzer.CoreAssembly or ExtractionAssembly))
                 return;
             start.RegisterOperationAction(AnalyzeConversion, OperationKind.Conversion);
             start.RegisterOperationAction(AnalyzeBinary, OperationKind.Binary);

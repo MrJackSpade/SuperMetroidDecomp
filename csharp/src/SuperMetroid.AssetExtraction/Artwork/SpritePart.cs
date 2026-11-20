@@ -106,6 +106,6 @@ public readonly record struct SpritePart(
         content.Append("flip-horizontal", FlipsHorizontally ? 1 : 0);
         content.Append("flip-vertical", FlipsVertically ? 1 : 0);
         content.Append("palette", Palette);
-        content.Append("depth", (int)Depth);
+        content.AppendName("depth", ActorDepthKeys.Installed.Of(Depth));
     }
 }

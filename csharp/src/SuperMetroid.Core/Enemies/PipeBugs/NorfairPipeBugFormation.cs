@@ -9,21 +9,13 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 internal sealed record NorfairPipeBugFormation(IReadOnlyList<NorfairPipeBugMember> Members)
 {
     /// <summary>
-    /// The formation <paramref name="leader"/> leads: itself and the four places its room lists right after it, which take
-    /// the upper near, upper far, lower near and lower far roles in that order.
+    /// The formation <paramref name="leader"/> leads: itself and the four its room lists with it in the formation's roles
+    /// (<see cref="PipeBugDefinitions.Formation"/>).
     /// </summary>
     /// <param name="places">The room's enemy places.</param>
     /// <param name="leader">The formation's leader.</param>
-    internal static NorfairPipeBugFormation LedBy(EnemyPlaces places, RoomEnemyPlace leader)
-    {
-        RoomEnemyPlace[] followers = places.ListedRunAfter(leader, 4);
-        return new NorfairPipeBugFormation(
-        [
-            new(leader, PipeBugDefinitions.LeaderRole),
-            new(followers[0], PipeBugDefinitions.UpperNearRole),
-            new(followers[1], PipeBugDefinitions.UpperFarRole),
-            new(followers[2], PipeBugDefinitions.LowerNearRole),
-            new(followers[3], PipeBugDefinitions.LowerFarRole),
-        ]);
-    }
+    internal static NorfairPipeBugFormation LedBy(EnemyPlaces places, RoomEnemyPlace leader) =>
+        new([.. PipeBugDefinitions.Formation.ListedRoles.Select(role => new NorfairPipeBugMember(
+            role == PipeBugDefinitions.LeaderRole ? leader : places.Member(leader, PipeBugDefinitions.Formation, PipeBugDefinitions.LeaderRole, role),
+            role))]);
 }

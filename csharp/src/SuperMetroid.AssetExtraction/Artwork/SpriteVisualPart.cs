@@ -30,17 +30,21 @@ public sealed record SpriteVisualPart
     public required bool FlipY { get; init; }
 
     /// <summary>
-    /// The piece this document part describes on a sheet <paramref name="tileColumns"/> characters wide. An inherited
-    /// palette becomes row 0, which the draw's palette replaces.
+    /// The piece this document part describes on a sheet <paramref name="tileColumns"/> characters wide, in the palette row
+    /// the part names.
     /// </summary>
-    /// <exception cref="InvalidDataException">The size is not eight or sixteen, or a field is outside its range.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The size is not eight or sixteen, the part names no palette row of its own, or a field is outside its range.
+    /// </exception>
     public SpritePart ToSpritePart(int tileColumns)
     {
         if (Size is not (8 or 16))
             throw new InvalidDataException($"A sprite part is {Size} pixels square; parts are 8 or 16.");
+        if (Palette is not int row)
+            throw new InvalidDataException("A sprite part takes its draw's palette, but a stored piece names its own palette row.");
         try
         {
-            return SpritePart.Create(Offset16<ScreenPixels>.Of(OffsetX, OffsetY), Size == 16, TileRow * tileColumns + TileColumn, Palette ?? 0, Depth,
+            return SpritePart.Create(Offset16<ScreenPixels>.Of(OffsetX, OffsetY), Size == 16, TileRow * tileColumns + TileColumn, row, Depth,
                 (FlipX ? PictureFlip.Horizontal : PictureFlip.None) | (FlipY ? PictureFlip.Vertical : PictureFlip.None));
         }
         catch (ArgumentOutOfRangeException error)

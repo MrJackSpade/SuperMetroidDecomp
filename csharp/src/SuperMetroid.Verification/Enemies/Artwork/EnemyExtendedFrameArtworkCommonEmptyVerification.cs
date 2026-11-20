@@ -95,7 +95,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
         // The frame pointer names a frame of the bank the slot's enemy lives in.
         EnemyDefinitionId definition = RoomEnemyDefinitionNative.FirstInBank(bank);
         LeadingPartPlacement.Prepare(place, definition);
-        place.Bind(definition, default(RoomEnemyDefinition));
+        place.Bind(definition, EnemyDefinitionFixtures.Blank);
         // The shared point is the empty frame of an enemy that collides by its frames' hitboxes.
         place.CollidesByFrameHitboxes = true;
         place.SpritemapPointer = CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame;

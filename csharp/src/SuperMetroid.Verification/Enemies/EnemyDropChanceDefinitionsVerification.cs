@@ -26,7 +26,7 @@ internal static class EnemyDropChanceDefinitionsVerification
         };
         // The fixture's population is empty; drop selection reads the chances it is given.
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1], CompiledRoomEnemyDefinitions.Instance);
-        var projectile = new EnemyProjectile(1, default);
+        var projectile = new EnemyProjectile(1, default, RoomEnemyProjectileKind.EnemyDeathPickup);
         for (int table = 0; table < EnemyHeaderTableDefinitions.DropChancesCount; table++)
         {
             int word = EnemyHeaderTableDefinitions.FirstDropChances + table * EnemyHeaderTableDefinitions.DropChancesSize;
@@ -37,11 +37,12 @@ internal static class EnemyDropChanceDefinitionsVerification
             AssertEqual(new EnemyDropChances(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]), chances,
                 $"enemy drop table ${word:X4} chances in column order");
 
-            EnemyPickupKind selected = fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(chances, fixture.Samus);
-            AssertTrue(Enum.IsDefined(selected), $"production enemy drop table ${word:X4} returns a defined kind");
+            EnemyDropRoll selected = fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(EnemyDrops.Rolling(chances), fixture.Samus);
+            AssertTrue(selected is EnemyDropRoll.NothingDrops || selected is EnemyDropRoll.PickupDrops { Kind: var kind } && Enum.IsDefined(kind),
+                $"production enemy drop table ${word:X4} returns a defined outcome");
         }
 
-        AssertEqual<EnemyDropChances?>(null, EnemyHeaderTables.DropChances(cartridge, 0), "a zero word drops nothing");
+        AssertEqual(EnemyDrops.Nothing, EnemyHeaderTables.Drops(cartridge, 0), "a zero word drops nothing");
         AssertThrows<InvalidDataException>(
             () => EnemyHeaderTables.DropChances(cartridge, EnemyHeaderTableDefinitions.FirstDropChances - EnemyHeaderTableDefinitions.DropChancesSize),
             "a word below the tables is rejected");

@@ -30,4 +30,8 @@ internal abstract record EnemyProjectileFrameStep
 
     /// <summary>The animation rests on the frame it shows.</summary>
     internal sealed record Rest : EnemyProjectileFrameStep;
+
+    /// <summary>The projectile shows nothing for <paramref name="Duration"/> updates (#2558), holding no shown frame meanwhile.</summary>
+    /// <param name="Duration">The updates the projectile stays hidden.</param>
+    internal sealed record Hide(int Duration) : EnemyProjectileFrameStep;
 }

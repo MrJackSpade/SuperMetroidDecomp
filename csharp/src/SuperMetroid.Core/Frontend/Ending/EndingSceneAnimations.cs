@@ -68,7 +68,7 @@ internal static class EndingSceneAnimations
                 B.Show(S.PlanetGlowWideHalo, 16),
                 B.Show(S.PlanetGlowSpreadingHalo, 16),
             ],
-            [A.ExplosionLavaHidden] = [B.Show(S.Blank, 156)],
+            [A.ExplosionLavaHidden] = [B.Hide(156)],
             [A.ExplosionLava] =
             [
                 B.Show(S.PlanetLavaDark, 10),

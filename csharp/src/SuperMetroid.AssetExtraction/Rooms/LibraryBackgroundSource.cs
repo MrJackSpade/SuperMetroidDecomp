@@ -17,8 +17,6 @@ public abstract record LibraryBackgroundSource
     /// <summary>The source's name in diagnostics and artwork identities.</summary>
     public abstract string Name { get; }
 
-    /// <summary>No source: a clear command's.</summary>
-    public static LibraryBackgroundSource None { get; } = new NothingRead();
 
     /// <summary>The tilemap the list staged.</summary>
     public static LibraryBackgroundSource TilemapStaging { get; } = new StagedTilemap();
@@ -32,9 +30,6 @@ public abstract record LibraryBackgroundSource
     /// <summary>The HUD's characters.</summary>
     public static LibraryBackgroundSource HudCharacters { get; } = new HudCharacterSet();
 
-    /// <summary>The compressed tilemap <paramref name="tilemap"/>.</summary>
-    public static LibraryBackgroundSource Compressed(RoomBackgroundTilemap tilemap) => new CompressedTilemap(tilemap);
-
     /// <summary>Scrolling-sky page <paramref name="page"/>, 0 through 6.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="page"/> is not a sky page.</exception>
     public static LibraryBackgroundSource Sky(int page) => new SkyPage(page);
@@ -42,12 +37,6 @@ public abstract record LibraryBackgroundSource
     /// <inheritdoc cref="Name"/>
     public sealed override string ToString() => Name;
 
-    /// <summary>A clear command, which reads nothing.</summary>
-    public sealed record NothingRead : LibraryBackgroundSource
-    {
-        /// <inheritdoc/>
-        public override string Name => "None";
-    }
 
     /// <summary>The tilemap the list staged.</summary>
     public sealed record StagedTilemap : LibraryBackgroundSource

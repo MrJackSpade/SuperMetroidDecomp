@@ -29,7 +29,7 @@ internal sealed class FrontendDisplay
     /// <summary>The frame as its scene composed it, at the scene's own brightness; black until a scene publishes.</summary>
     private DisplayPacket composedDisplay;
     /// <summary>The screen brightness the session set on <see cref="composedDisplay"/>, or null while it has set none.</summary>
-    private int? screenBrightness;
+    private DisplayBrightness? screenBrightness;
     /// <summary>The published frame: <see cref="composedDisplay"/> shown at the brightness the session set.</summary>
     private DisplayPacket publishedDisplay;
 
@@ -107,11 +107,10 @@ internal sealed class FrontendDisplay
     /// its scene's own brightness combined with this one (<see cref="DisplayBrightness.Combine"/>), until the next scene
     /// publishes.
     /// </summary>
-    /// <param name="brightness">The screen brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The brightness is below black or above full.</exception>
-    internal void SetBrightness(int brightness)
+    /// <param name="brightness">The screen brightness.</param>
+    internal void SetBrightness(DisplayBrightness brightness)
     {
-        screenBrightness = DisplayBrightness.Require(brightness);
+        screenBrightness = brightness;
         publishedDisplay = Shown(publishedDisplay.FrameNumber);
     }
 
@@ -126,7 +125,7 @@ internal sealed class FrontendDisplay
     private DisplayPacket Shown(int number)
     {
         DisplayPacket frame = composedDisplay;
-        int brightness = screenBrightness is { } level ? DisplayBrightness.Combine(frame.Brightness, level) : frame.Brightness;
+        DisplayBrightness brightness = screenBrightness is { } level ? DisplayBrightness.Combine(frame.Brightness, level) : frame.Brightness;
         return new(number, frame.Scene.AtBrightness(brightness));
     }
 }

@@ -30,7 +30,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
     /// <summary>Detects newly pressed answer-navigation and confirmation buttons.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>The screen's brightness, stepped one level on every fade update; the menu opens black.</summary>
-    private readonly ScreenFade fade = new(0);
+    private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>The selection missile's frame cycle, shared by the Yes and No positions.</summary>
     private readonly MenuMissileAnimation missile;
     /// <summary>
@@ -83,8 +83,11 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
     /// </summary>
     public bool IsWaitingOutDisplayFrame { get; private set; }
 
-    /// <summary>How the menu hands off to the outer game-state loop (#2562), kept once it reaches one.</summary>
-    public GameOverMenuOutcome Outcome { get; private set; }
+    /// <summary>
+    /// How the menu hands off to the outer game-state loop (#2562), kept once it reaches one; absent while the menu runs,
+    /// before it has reached one (#2587).
+    /// </summary>
+    public GameOverMenuOutcome? Outcome { get; private set; }
 
     /// <summary>
     /// Binds the installed map artwork when the game is bound to its installed content and refreshes only
@@ -149,7 +152,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
                 baby.Show(GameOverBabyAnimation.Playing);
                 StepBabyMetroid();
                 SelectedItem = YesNoChoice.Yes;
-                fade.Show(0);
+                fade.Show(DisplayBrightness.Black);
                 // Unblank, then wait out one update before advancing the step.
                 IsWaitingOutDisplayFrame = true;
                 break;
@@ -246,9 +249,9 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
     /// <exception cref="InvalidDataException">The cry is not one of the Baby's.</exception>
     private static SoundEffectId CrySound(GameOverBabySound sound) => sound switch
     {
-        GameOverBabySound.FirstCry => GameOverMenuDefinitions.FirstCry,
-        GameOverBabySound.SecondCry => GameOverMenuDefinitions.SecondCry,
-        GameOverBabySound.ThirdCry => GameOverMenuDefinitions.ThirdCry,
+        GameOverBabySound.HighCry => GameOverMenuDefinitions.HighCry,
+        GameOverBabySound.HitchedCry => GameOverMenuDefinitions.HitchedCry,
+        GameOverBabySound.LowCry => GameOverMenuDefinitions.LowCry,
         _ => throw new InvalidDataException($"Unknown game-over Baby sound {sound}."),
     };
 

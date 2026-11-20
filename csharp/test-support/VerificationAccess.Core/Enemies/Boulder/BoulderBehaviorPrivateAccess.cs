@@ -12,7 +12,7 @@ internal static class BoulderBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Boulder.BoulderBehavior self)
     {
         /// <summary>The private method <c>RunBoulderFalling</c>, invoked by name.</summary>
-        internal void RunBoulderFalling(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Boulder.BoulderEnemyState state, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Boulder.BoulderBehavior>(self, "RunBoulderFalling", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Boulder.BoulderEnemyState), typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData)], new object?[] { place, state, level });
+        internal void RunBoulderFalling(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Boulder.BoulderEnemyState state, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Boulder.BoulderBehavior>(self, "RunBoulderFalling", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Boulder.BoulderEnemyState), typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData)], new object?[] { occupant, place, state, level });
     }
 }

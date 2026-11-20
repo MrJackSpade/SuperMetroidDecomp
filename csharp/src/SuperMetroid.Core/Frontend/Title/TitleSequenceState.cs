@@ -86,9 +86,9 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     /// <summary>The floor's zoom, animated from the close-up scene to the floor's own size.</summary>
     private FloorZoom Zoom { get; set; }
     /// <summary>The title's screen brightness and the cadence of its fades; the skip's and the fade-in's step every update.</summary>
-    private readonly ScreenFade fade = new(0);
+    private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>Current screen brightness applied after composing title layers.</summary>
-    private int Brightness => fade.Level;
+    private DisplayBrightness Brightness => fade.Level;
     /// <summary>The Baby Metroid's pulse on the floor (#2359).</summary>
     private readonly AnimationPlayer<TitleBabySegment, TitleBabyPose, NoAnimationCue> baby = TitleBabyAnimation.Start();
     /// <summary>The pose of the Baby Metroid's pulse the floor shows.</summary>
@@ -189,8 +189,11 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     /// <summary>How far the skip to the title screen has run alongside the running step (#1719).</summary>
     private TitleSkipStage SkipStage { get; set; }
 
-    /// <summary>How the title hands off to the frontend (#2562): file select or the demo, kept once it reaches one.</summary>
-    public TitleSequenceOutcome Outcome { get; private set; }
+    /// <summary>
+    /// How the title hands off to the frontend (#2562): file select or the demo, kept once it reaches one; absent while
+    /// the title runs, before it has reached either (#2587).
+    /// </summary>
+    public TitleSequenceOutcome? Outcome { get; private set; }
 
     /// <summary>The player-cancelled return from the demo skips the introductory title cards.</summary>
     internal static TitleSequenceState ReturnFromDemo(
@@ -206,7 +209,7 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
             titleBackdrop,
             spriteSheets);
         title.EnterImmediateTitleScreen();
-        title.fade.Restart(0, 0);
+        title.fade.Restart(DisplayBrightness.Black, 0);
         title.Phase = TitleSequencePhase.TitleScreenFadeIn;
         return title;
     }

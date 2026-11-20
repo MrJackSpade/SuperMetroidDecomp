@@ -86,7 +86,7 @@ internal static class BossSpriteEntriesVerification
         AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.ByteCounts[EnemyDefinitionId.Evir], evirTiles.Length,
             "Evir's installed sheet is its whole tile set");
         EncounterArtworkUpload upload = EncounterLookUploads.Uploads(ComposedEncounter.DraygonEvirs,
-            EncounterLookUploads.IndexOf(ComposedEncounter.DraygonEvirs, EncounterLookUploads.DraygonEvirsLook), resolver).Single();
+            EncounterLookUploads.DraygonEvirsLook, resolver).Single();
         AssertTrue(upload.Characters.Span.SequenceEqual(evirTiles.Span), "Draygon's Evirs look copies Evir's installed sheet");
         Console.WriteLine("Boss sprite entries stage 2: Draygon's Evirs look copies Evir's installed tiles.");
     }
@@ -100,7 +100,7 @@ internal static class BossSpriteEntriesVerification
         ImportEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.RidleyCeres, place.Definition);
+        place.Bind(EnemyDefinitionId.RidleyCeres, place.KeptDefinition);
         place.Position = place.Position.WithWhole(new(200, 100));
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);

@@ -36,7 +36,7 @@ internal static class EndingRewardAnimations
     /// </summary>
     private static AnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[] ArmGesture =>
     [
-        G.Show(S.Blank, ArmHiddenUpdates),
+        G.Hide(ArmHiddenUpdates),
         G.Show(S.SuitedArmLowered, 8),
         G.Show(S.SuitedArmSwingingUp, 8),
         G.Show(S.SuitedArmFistForward, 5),

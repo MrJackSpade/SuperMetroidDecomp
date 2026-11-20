@@ -50,10 +50,10 @@ public static class RoomObjectBlueDoorVisualFiles
     {
         get
         {
-            for (int orientation = 0; orientation < 4; orientation++)
+            foreach (ColoredDoorOrientation orientation in DoorCapOrientations.InTableOrder)
                 foreach (DoorCapLook look in DoorCaps.OpeningLooks)
                 {
-                    yield return DrawListOf(BlueDoorCaps.Family.Of(new BlueDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), look)));
+                    yield return DrawListOf(BlueDoorCaps.Family.Of(new BlueDoorCaps.Draw(orientation, look)));
                 }
         }
     }

@@ -96,11 +96,11 @@ internal static class IntroCinematicArtworkVerification
                     $"final-line map tile {index} matches cartridge source");
             }
             Suite(nameof(VerifyIntroEyeInstructions), () => VerifyIntroEyeInstructions(bus));
-            for (int frame = 0; frame < IntroEyeTilemapFormat.FrameCount; frame++)
+            foreach (SuperMetroid.Core.Frontend.Intro.IntroEyeFrame frame in IntroEyeTilemapFormat.Eyes)
             {
                 int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     (ushort)(FrontendSourceDefinitions.IntroEyeFrameRecords +
-                        frame * FrontendSourceDefinitions.IntroEyeFrameRecordStride));
+                        FrontendSourceDefinitions.IntroEyeFrameRecordOf[frame] * FrontendSourceDefinitions.IntroEyeFrameRecordStride));
                 for (int cell = 0; cell < IntroEyeTilemapFormat.CellsPerFrame; cell++)
                 {
                     int wordSource = source + 4 + cell * sizeof(ushort);
@@ -407,7 +407,7 @@ internal static class IntroCinematicArtworkVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed intro explosion actors never reread the twelve native compositions");
 
-        document.Frames.Remove("small-explosion-0");
+        document.Frames.Remove("small-explosion-spark");
         AssertThrows<InvalidDataException>(() =>
         {
             using var malformed = new MemoryStream();

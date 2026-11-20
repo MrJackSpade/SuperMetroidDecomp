@@ -28,7 +28,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         // The native side uses the independent test-side ROM walker, which reads the bound Crocomire's frame word in its
         // own bank (#2327); the installed side selects Crocomire's compiled physical data. Both read the one place.
         RoomEnemyPlace place = compiled.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Crocomire, place.Definition);
+        place.Bind(EnemyDefinitionId.Crocomire, place.KeptDefinition);
         place.Position = place.Position.WithWhole(new(0x1000, 0x1000));
 
         var frames = CrocomireBodyVisualDefinitionsConstants.Frames;

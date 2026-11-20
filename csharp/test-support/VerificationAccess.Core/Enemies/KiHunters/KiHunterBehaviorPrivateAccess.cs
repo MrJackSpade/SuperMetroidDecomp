@@ -12,8 +12,8 @@ internal static class KiHunterBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior self)
     {
         /// <summary>The private method <c>SpawnKiHunterAcidSpit</c>, invoked by name.</summary>
-        internal void SpawnKiHunterAcidSpit(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Spatial.HorizontalDirection direction) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior>(self, "SpawnKiHunterAcidSpit", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection)], new object?[] { body, direction });
+        internal void SpawnKiHunterAcidSpit(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Spatial.HorizontalDirection direction) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior>(self, "SpawnKiHunterAcidSpit", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection)], new object?[] { occupant, body, direction });
     }
 
     /// <summary>The private static members checks name.</summary>

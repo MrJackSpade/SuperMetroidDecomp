@@ -830,8 +830,8 @@ internal static class EnemyProjectileProgramFrameDefinitions
     /// the work robot's flare, the Chozo's dust and the Tourian statue's base show poses their lists showed before from
     /// operands of their own, some drawing the same picture from a copy of its spritemap (#2273). The operands of Phantoon's
     /// flames' blinks, the Torizos' drool delays, Golden Torizo's eye beam floor impact, the Tourian statues' eye glow,
-    /// Botwoon's hidden segments, the enemy deaths' waits and the falling sparks' blinks draw nothing and show the blank
-    /// frame (#2431). The import composes each frame once from <see cref="Operands"/>; tools reading native lists find its
+    /// Botwoon's hidden segments, the enemy deaths' waits and the falling sparks' blinks draw nothing, as
+    /// <see cref="DrawNothing"/> lists (#2431). The import composes each frame once from <see cref="Operands"/>; tools reading native lists find its
     /// frame here.
     /// </summary>
     internal static readonly FrozenDictionary<ushort, EnemyProjectileFrameId> AlsoStoredAt = new Dictionary<ushort, EnemyProjectileFrameId>
@@ -997,22 +997,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [0xdc16] = EnemyProjectileFrameId.SporeSpawnSpawnerOpening,
         [0xdc1a] = EnemyProjectileFrameId.SporeSpawnSpawnerClosed,
         [0xdc3c] = EnemyProjectileFrameId.SporeSpawnSporeBurstSpark,
-        [0x97be] = EnemyProjectileFrameId.Blank,
-        [0x97ce] = EnemyProjectileFrameId.Blank,
-        [0x97de] = EnemyProjectileFrameId.Blank,
-        [0xa46c] = EnemyProjectileFrameId.Blank,
-        [0xa470] = EnemyProjectileFrameId.Blank,
-        [0xb3e9] = EnemyProjectileFrameId.Blank,
-        [0xb7d9] = EnemyProjectileFrameId.Blank,
-        [0xe8f5] = EnemyProjectileFrameId.Blank,
-        [0xeca5] = EnemyProjectileFrameId.Blank,
-        [0xecb9] = EnemyProjectileFrameId.Blank,
-        [0xecd7] = EnemyProjectileFrameId.Blank,
-        [0xf369] = EnemyProjectileFrameId.Blank,
-        [0xf371] = EnemyProjectileFrameId.Blank,
-        [0xf379] = EnemyProjectileFrameId.Blank,
-        [0xf381] = EnemyProjectileFrameId.Blank,
-        [0xf389] = EnemyProjectileFrameId.Blank,
     }.ToFrozenDictionary();
 
     /// <summary>
@@ -1031,4 +1015,30 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [0xe6a1] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, 16)),
         [0xe6a5] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, 24)),
     }.ToFrozenDictionary();
+
+    /// <summary>
+    /// The bank-$86 operands that draw nothing (#2431, #2558): Phantoon's flames' blinks, the Torizos' drool delays,
+    /// Golden Torizo's eye beam floor impact, the Tourian statues' eye glow, Botwoon's hidden segments, the enemy deaths'
+    /// waits and the falling sparks' blinks. A projectile showing one holds no shown frame, which the typed animations
+    /// play as a hidden beat.
+    /// </summary>
+    internal static readonly FrozenSet<ushort> DrawNothing = new HashSet<ushort>
+    {
+        0x97be,
+        0x97ce,
+        0x97de,
+        0xa46c,
+        0xa470,
+        0xb3e9,
+        0xb7d9,
+        0xe8f5,
+        0xeca5,
+        0xecb9,
+        0xecd7,
+        0xf369,
+        0xf371,
+        0xf379,
+        0xf381,
+        0xf389,
+    }.ToFrozenSet();
 }

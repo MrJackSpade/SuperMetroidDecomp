@@ -51,11 +51,11 @@ internal static class SamusBodySheetComposer
             SpriteFrame frame = picture.Frame;
             SpriteArtwork read = characters.BodyArtwork(picture.Key.TopPicture, picture.Key.BottomPicture);
             // A part naming characters past the body's, the chest cover among them, reads the standard OBJ sheet there.
-            if (frame.LastCharacter >= read.CharacterCount)
+            if (frame.LastCharacter is int last && last >= read.CharacterCount)
             {
                 if (!overlaid.TryGetValue(read, out SpriteArtwork? onStandardObjects))
                 {
-                    onStandardObjects = SpriteArtwork.Overlay(new SpriteArtworkId(SpriteArtworkKind.SamusBodyOnStandardObjects, read.Id.Variant),
+                    onStandardObjects = SpriteArtwork.Overlay(read.Id.InKind(SpriteArtworkKind.SamusBodyOnStandardObjects),
                         inputs.StandardObjects, read, 0);
                     overlaid.Add(read, onStandardObjects);
                 }

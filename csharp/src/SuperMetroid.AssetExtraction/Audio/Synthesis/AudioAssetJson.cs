@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -11,7 +12,7 @@ internal static class AudioAssetJson
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
-        Converters = { new ExactByteListConverter(), new MusicInstructionConverter() },
+        Converters = { new ExactByteListConverter(), new MusicInstructionConverter(), new MusicTrackJsonConverter() },
     };
 
     /// <summary>

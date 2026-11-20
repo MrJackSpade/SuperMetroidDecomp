@@ -59,15 +59,16 @@ internal sealed class ScrollObjects
     /// <summary>Runs one scroll extension's setup at the place the room population took for it.</summary>
     /// <param name="level">The room's level data.</param>
     /// <param name="place">The place the population took.</param>
-    /// <param name="extension">The collision and the step back toward the trigger the extension writes.</param>
+    /// <param name="extension">The way back toward the trigger the extension leads.</param>
     internal static void SetupScrollExtension(RoomLevelData level, RoomObjectPlace place, ScrollExtension extension)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(place);
         // The setup changes how the block collides and reacts, and the block keeps its picture and what it shows
         // (#2502).
-        level.SetCollision(place.Block, extension.CollisionType);
-        level.SetBehavior(place.Block, RoomBlockBehavior.Extending(extension.Offset));
+        RoomCollisionType collision = extension.Horizontal ? RoomCollisionType.HorizontalExtension : RoomCollisionType.VerticalExtension;
+        level.SetCollision(place.Block, collision);
+        level.SetBehavior(place.Block, RoomBlockBehavior.Extending(extension.BlocksTowardTrigger));
 
         // An extension's whole effect is its setup, which removes it at once, freeing its place for the room's next object.
         place.Delete();

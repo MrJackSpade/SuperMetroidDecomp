@@ -26,16 +26,11 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     /// </summary>
     public void SpawnOldTourianEscapeShaftWallExplosion()
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion, WallExplosion, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return; // Spawning fails when the room has no place left for an enemy projectile.
 
         // The wall's projectile draws from the room's own graphics.
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion,
-            WallExplosion,
-            graphics: default);
         projectile.StartAnimation(new OldTourianWallExplosionAnimation(WallExplosion, OldTourianWallExplosionSegment.Start));
         projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionAnimationDefinitions.XPosition);
         projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionAnimationDefinitions.YPosition);

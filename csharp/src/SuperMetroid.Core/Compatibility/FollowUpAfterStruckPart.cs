@@ -42,4 +42,24 @@ public static class FollowUpAfterStruckPart
         _ = Ensure.BetweenInclusive(1, int.MaxValue, reach);
         return [.. Enumerable.Range(1, reach).Select(listedAfterPart)];
     }
+
+    /// <summary>The one enemy placed directly after a Dragon part, which its follow-up reaches.</summary>
+    /// <typeparam name="TEnemy">An enemy place.</typeparam>
+    /// <param name="listedAfterPart">The enemy the room lists a given number of places, one or more, after the part.</param>
+    public static TEnemy Recipient<TEnemy>(Func<int, TEnemy> listedAfterPart) => Ensure.NotNull(listedAfterPart)(1);
+
+    /// <summary>
+    /// The enemies, up to <paramref name="reach"/>, placed directly after a Magdollite part, nearest first (#2558): as many
+    /// as the room places after the part, so a part placed near the last place reaches only those after it.
+    /// </summary>
+    /// <typeparam name="TEnemy">An enemy place.</typeparam>
+    /// <param name="listedAfterPart">Every enemy the room lists after the part, nearest first.</param>
+    /// <param name="reach">How many following enemies the part's follow-up reaches, one or more.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="reach"/> is less than one.</exception>
+    public static IReadOnlyList<TEnemy> RecipientsWithin<TEnemy>(IEnumerable<TEnemy> listedAfterPart, int reach)
+    {
+        Ensure.NotNull(listedAfterPart);
+        _ = Ensure.BetweenInclusive(1, int.MaxValue, reach);
+        return [.. listedAfterPart.Take(reach)];
+    }
 }

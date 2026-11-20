@@ -114,7 +114,7 @@ internal static class ProjectileTrailCoordinatesVerification
     private static void VerifyCoordinateSpawn(ISnesAddressSpace bus, Dictionary<ushort, ProjectileTrailPlacementList> lists)
     {
         var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-        var spawn = new Action<SamusProjectile>(system.Trails.SpawnTrail);
+        var spawn = new Action<SamusProjectile>(projectile => system.Trails.SpawnTrail(projectile.HeldShot()));
         int cases = 0;
         // 36 is the Spazer combo's trail echo; no projectile is an echo of Spazer+Wave (37), which the typed identity cannot name.
         foreach (ushort type in new ushort[] { 1, 2, 6, 7, 10, 11, 17, 18, 22, 23, 26, 27, 36, 0x100, 0x200 })
@@ -127,14 +127,12 @@ internal static class ProjectileTrailCoordinatesVerification
             int trailWord = PlacementTrailWord(bus, frame, record);
             ushort y = unchecked((ushort)(offsets + trailWord * 4));
             system.Reset();
-            var shot = new SamusProjectile(0)
-            {
-                Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type),
-                Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction),
-                Animation = SamusProjectileProgramAddresses.StandingAt(unchecked((ushort)(record +
-                    SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount))),
-                Position = new(new(origin, 0), new(origin, 0)),
-            };
+            var shot = new SamusProjectile(0);
+            shot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
+            shot.Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
+            shot.Animation = SamusProjectileProgramAddresses.StandingAt(unchecked((ushort)(record +
+                    SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)));
+            shot.Position = new(new(origin, 0), new(origin, 0));
             if (SamusProjectilePlayback.BeatOf(shot.Playback ?? throw new InvalidOperationException($"The position after {frame} names no playback.")).Beat == 0)
             {
                 // The record ends its list, so the position after it is the next list's start: a trail spawned there has no
@@ -169,10 +167,11 @@ internal static class ProjectileTrailCoordinatesVerification
             ushort data = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), dataTable + index * 2);
             ushort listStart = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(data + 2 + direction * 2)));
             system.Reset();
-            var shot = new SamusProjectile(0)
-            {
-                Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction), Animation = SamusProjectileProgramAddresses.PlayerAt(listStart), Position = new(new(0x0100, 0), new(0x0100, 0)),
-            };
+            var shot = new SamusProjectile(0);
+            shot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
+            shot.Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
+            shot.Animation = SamusProjectileProgramAddresses.PlayerAt(listStart);
+            shot.Position = new(new(0x0100, 0), new(0x0100, 0));
             spawn(shot);
             AssertEqual(0, system.LiveTrails.Count, $"reflected type ${type:X4} direction {direction} leaves no trail at its list's start");
             cases++;

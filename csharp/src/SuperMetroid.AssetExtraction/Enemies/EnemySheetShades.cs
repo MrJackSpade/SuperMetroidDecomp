@@ -19,7 +19,6 @@ using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
-using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Fx;
@@ -43,6 +42,12 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal sealed class EnemySheetShades
 {
+    /// <summary>
+    /// The palette row an enemy sheet draws a part in when neither the part nor its frame's draw chooses one: every
+    /// enemy sheet is laid in the first row, with its family's palette bits ORed in.
+    /// </summary>
+    internal const int SheetRow = 0;
+
     /// <summary>Each catalogued frame colouring by the sheet frame name its frame takes.</summary>
     private static readonly Lazy<Dictionary<string, FrameColouring>> FrameColourings = new(() => new Dictionary<string, FrameColouring>(
         FrameColouringDefinitions.Projectiles.Select(entry => KeyValuePair.Create(EnemySheetDefinitions.ProjectileFrameName(entry.Key), entry.Value))
@@ -179,7 +184,7 @@ internal sealed class EnemySheetShades
         var recolouredBy = new Dictionary<int, string>();
         foreach (FramePictures pictures in frames)
         {
-            HashSet<int> rows = [.. pictures.Sources.SelectMany(source => source.Frame.Parts.Select(part => (part.Palette ?? source.Palette ?? 0) | paletteBits))];
+            HashSet<int> rows = [.. pictures.Sources.SelectMany(source => source.Frame.Parts.Select(part => (part.Palette ?? source.Palette ?? SheetRow) | paletteBits))];
             if (FrameColourings.Value.TryGetValue(pictures.Name, out FrameColouring? colouring))
                 Lay([.. colouring.Shades.Select(name => EffectOf(colouring.Owner, name))], rows, $"frame {pictures.Name}'s family colouring");
             else if (CommonFrameColourings.Value.TryGetValue(pictures.Name, out CommonSpawnerShades common))
@@ -323,10 +328,7 @@ internal sealed class EnemySheetShades
                 // The cartridge's colour records are the glow's steps in the order the glow shows them. The steps that show
                 // one place show it in one colouring, so each place installs one shade (#2393).
                 foreach (WorkRobotGlowPlace place in WorkRobotGlowAnimations.Places)
-                {
-                    RgbColor[] colours = WorkRobotGlowColours(cycle, place);
-                    shades.Add(SheetShade.Run(WorkRobotShades.Glow(place), first + WorkRobotPaletteDefinitions.FirstAnimatedColor, colours));
-                }
+                    shades.Add(cycle.GlowShade(place, first));
                 break;
             }
             case EnemyDefinitionId.ShutterDestroyable:
@@ -388,7 +390,7 @@ internal sealed class EnemySheetShades
                 }
                 break;
             }
-            case EnemyDefinitionId.None or EnemyDefinitionId.Boyon or EnemyDefinitionId.MamaTurtle
+            case EnemyDefinitionId.Boyon or EnemyDefinitionId.MamaTurtle
                 or EnemyDefinitionId.BabyTurtle or EnemyDefinitionId.Puyo or EnemyDefinitionId.Cacatac or EnemyDefinitionId.Owtch
                 or EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella
                 or EnemyDefinitionId.MaridiaFly or EnemyDefinitionId.Multiviola or EnemyDefinitionId.Polyp or EnemyDefinitionId.Rinka
@@ -557,10 +559,10 @@ internal sealed class EnemySheetShades
         yield return new SheetShade(TourianStatueShades.Entrance,
             [.. Enumerable.Range(body, LoadedSetColours.RowColours), .. Enumerable.Range(decoration, LoadedSetColours.RowColours)],
             [.. Frame(LoadedSetColours.RowColours, statue.StatueColor), .. Frame(LoadedSetColours.RowColours, statue.BaseColor)]);
-        foreach ((PictureShade glow, int row) in TourianStatueColorDefinitions.EyeGlowRows)
+        foreach ((PictureShade glow, SuperMetroid.Core.Areas.Tourian.TourianStatue boss) in TourianStatueColorDefinitions.EyeGlowRows)
         {
             yield return SheetShade.Run(glow, decoration + 9,
-                Frame(TourianStatueColorDefinitions.EyeColorCount, colour => statue.ResolveEye(row, colour)));
+                Frame(TourianStatueColorDefinitions.EyeColorCount, colour => statue.ResolveEye(boss, colour)));
         }
         yield return SheetShade.Run(TourianStatueShades.PhantoonCleared, body + 12, Frame(3, _ => RgbColor.Black));
         yield return SheetShade.Run(TourianStatueShades.PhantoonGrey, body, Frame(TourianStatueColorDefinitions.GreyColorCount, statue.GreyColor));
@@ -632,21 +634,6 @@ internal sealed class EnemySheetShades
 
     /// <summary><paramref name="count"/> colours, colour after colour.</summary>
     private static RgbColor[] Frame(int count, Func<int, RgbColor> colour) => [.. Enumerable.Range(0, count).Select(colour)];
-
-    /// <summary>
-    /// The colours the Work Robot glow shows <paramref name="place"/> in (#2393): the record of every step showing it, which
-    /// must agree, since the place installs one shade.
-    /// </summary>
-    /// <exception cref="InvalidDataException">Two steps showing the place have different colours.</exception>
-    private static RgbColor[] WorkRobotGlowColours(WorkRobotPaletteCycle cycle, WorkRobotGlowPlace place)
-    {
-        RgbColor[][] showing = [.. Enumerable.Range(0, WorkRobotGlowAnimations.Cycle.Count)
-            .Where(step => WorkRobotGlowAnimations.Cycle[step] == place)
-            .Select(step => Frame(WorkRobotPaletteDefinitions.ColorCount, colour => cycle.Resolve(step, colour)))];
-        if (showing.Any(colours => !colours.SequenceEqual(showing[0])))
-            throw new InvalidDataException($"The Work Robot glow colour records for {place} differ; each place has one colouring.");
-        return showing[0];
-    }
 
     /// <summary>
     /// The colours of face-block glow level <paramref name="level"/> (#2477): those of every colour record of a step showing

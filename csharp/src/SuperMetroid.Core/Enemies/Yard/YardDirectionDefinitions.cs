@@ -6,6 +6,12 @@ namespace SuperMetroid.Core.Enemies.Yard;
 internal static class YardDirectionDefinitions
 {
     /// <summary>
+    /// The direction a Yard holds before its first direction cue sets its live direction (#2556): a Yard starts with only
+    /// its animations and the signs of its velocity, so a hide on its first update, which skips the cue, keeps this one.
+    /// </summary>
+    internal static YardDirection BeforeFirstDirectionCue => YardDirection.OnLeftWallMovingUp;
+
+    /// <summary>
     /// Each of the eight surface orientations' crawling and hiding animations, airborne
     /// facing, opposite direction and the crawl turning around into it begins, by direction: on a wall to its left moving
     /// up and down, on a wall to its right moving up and down, ceiling moving left and right, floor moving left and right. Direction

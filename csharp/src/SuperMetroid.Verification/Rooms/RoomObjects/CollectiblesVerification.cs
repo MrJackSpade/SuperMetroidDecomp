@@ -59,7 +59,7 @@ internal static class CollectiblesVerification
             if (bts is > 0x3f and not 0x4e) continue;
             var emptyLevel = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
             var unusedObjects = RoomObjectFixtures.Unbound();
-            AssertTrue(unusedObjects.TrySpawnProjectileShotBlock(emptyLevel, Position16<RoomBlocks>.Zero, (byte)bts, SamusProjectileType.None, true),
+            AssertTrue(unusedObjects.TrySpawnProjectileShotBlock(emptyLevel, Position16<RoomBlocks>.Zero, (byte)bts, BlockStrike.GrappleTouch.Instance, true),
                 "unused shootable entry allocates native nothing PLM");
             AssertEqual(1, unusedObjects.Places.ActiveCount, "nothing PLM retains its provisional slot");
             AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), emptyLevel.GetCollisionBlockByIndex(0).Terrain, "nothing PLM leaves terrain unchanged");
@@ -106,7 +106,7 @@ internal static class CollectiblesVerification
                 // The room's only collectible takes the first block pair, whose block under the primary look its first
                 // visible draw writes into the terrain (#2354); BG1 shows the item's own picture's first frame over it (#1538).
                 AssertEqual(
-                    RoomBlockAppearance.Of(new CollectiblePairBlock(CollectibleBlockPairs.Pair.First, CollectibleLook.Primary)),
+                    RoomBlockAppearance.Of(new CollectiblePairBlock(CollectibleBlockPairs.Pair.Solid, CollectibleLook.Primary)),
                     fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain.Appearance,
                     $"{kind} writes the first block pair's primary-look block");
                 AssertEqual(

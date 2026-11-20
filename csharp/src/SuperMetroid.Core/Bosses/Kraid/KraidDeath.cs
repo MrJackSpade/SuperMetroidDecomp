@@ -148,9 +148,9 @@ internal sealed class KraidDeath
         // nails, then the three lints, each in the small death explosion.
         foreach (RoomEnemyPlace nail in _parts.Nails)
             nail.Presence = nail.Presence.Without(EnemyPresence.RespawnsIfKilled);
-        foreach (RoomEnemyPlace nail in _parts.Nails)
+        foreach (RoomEnemyOccupant nail in _parts.LatestNails)
             _deathsAndDrops.StartGenericEnemyDeath(nail, EnemyDeathExplosion.Small, samus);
-        foreach (RoomEnemyPlace lint in _parts.Lints)
+        foreach (RoomEnemyOccupant lint in _parts.LatestLints)
             _deathsAndDrops.StartGenericEnemyDeath(lint, EnemyDeathExplosion.Small, samus);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.

@@ -26,7 +26,7 @@ internal abstract record DoorContact
     /// <param name="pose">Samus's pose as room collision reads it.</param>
     public static DoorContact Of(DoorBlockExit exit, SamusCollisionPose pose)
     {
-        if (exit.Door is { } door)
+        if (exit is DoorBlockExit.ThroughDoor { Door: var door })
             return new EntersDoor(door);
         return pose is SamusCollisionPose.StandingNormal or SamusCollisionPose.StandingOther
             ? StandsAtElevator.Instance

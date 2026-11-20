@@ -28,10 +28,21 @@ internal static class XrayRevealFixtures
     {
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
-        foreach (BlockReaction? reaction in BlockReactionFamilies.ReadingsOf(type))
+        {
+            IReadOnlyList<BlockReaction> readings = BlockReactionFamilies.ReadingsOf(type);
+            // A kind that reads no reaction has one rule of its own, under no reaction.
+            if (readings.Count == 0)
+                Add(type, null);
+            foreach (BlockReaction reaction in readings)
+                Add(type, reaction);
+        }
+        return entries;
+
+        void Add(RoomCollisionType type, BlockReaction? reaction)
+        {
             if (XrayReveals.Find(type, reaction) is { } command && InstalledXrayReveals.IsDrawable(command))
                 entries.Add(new(type, reaction, shown(command)));
-        return entries;
+        }
     }
 
     /// <summary>
@@ -42,7 +53,7 @@ internal static class XrayRevealFixtures
         shape switch
         {
             XrayRevealShape.CopyWide => XrayRevealVisualBlocks.Wide(topLeft, topRight),
-            XrayRevealShape.CopyTall => XrayRevealVisualBlocks.Tall(topLeft, bottomLeft),
+            XrayRevealShape.CopyTall => XrayRevealVisualBlocks.Tall(SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(topLeft), SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(bottomLeft)),
             XrayRevealShape.CopySquare => XrayRevealVisualBlocks.Square(topLeft, topRight, bottomLeft, bottomRight),
             XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => XrayRevealVisualBlocks.One(topLeft),
             XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension =>

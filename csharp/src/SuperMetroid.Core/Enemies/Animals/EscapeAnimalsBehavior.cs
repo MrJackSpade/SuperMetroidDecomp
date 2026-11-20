@@ -16,14 +16,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>An escaping Etecoon, or the escaping Dachora (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no escape animals definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.EtecoonEscape)
-            return EnemyOccupant.Of(new EscapeEtecoonEntity(this, place, common));
+            return EnemyOccupant.Of(new EscapeEtecoonEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.DachoraEscape)
-            return EnemyOccupant.WithoutMainAi(new EscapeDachoraEntity(this, place, common));
-        throw new InvalidOperationException($"The escape animals species creates no {place.DefinitionId}.");
+            return EnemyOccupant.WithoutMainAi(new EscapeDachoraEntity(this, occupant, place, common));
+        throw new InvalidOperationException($"The escape animals species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Provides room events and live Samus state used by both escape-animal branches.</summary>
@@ -39,10 +39,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the escape Etecoon.</summary>
-    internal void InitializeEscapeEtecoon(RoomEnemyPlace place)
+    internal void InitializeEscapeEtecoon(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         EscapeEtecoonInitialization initialization =
-            EscapeEtecoons.Initialization(place.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
+            EscapeEtecoons.Initialization(occupant.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
         var state = new EscapeEtecoonEnemyState(initialization.Action);
         place.SetSpeciesState(state);
 
@@ -77,7 +77,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Dachora's placement already animates and keeps it from touching Samus; the setup makes it animate again.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.Restart();
         place.RequireSpeciesState<EscapeDachoraEnemyState>().Playback =
             new(EscapeDachoraAnimations.RunningAroundLowTide, AnimationPlace.StartOfAnimation);

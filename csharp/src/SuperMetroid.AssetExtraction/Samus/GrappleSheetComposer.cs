@@ -64,8 +64,8 @@ internal static class GrappleSheetComposer
                 foreach (SpriteMirror mirror in RopeMirrors)
                 {
                     // `$94:AFDE` ORs the rope direction's flips into the segment's own attributes.
-                    PictureFlip flips = ((mirror & SpriteMirror.Horizontal) != 0 ? PictureFlip.Horizontal : PictureFlip.None) |
-                        ((mirror & SpriteMirror.Vertical) != 0 ? PictureFlip.Vertical : PictureFlip.None);
+                    PictureFlip flips = (mirror.HasFlag(SpriteMirror.Horizontal) ? PictureFlip.Horizontal : PictureFlip.None) |
+                        (mirror.HasFlag(SpriteMirror.Vertical) ? PictureFlip.Vertical : PictureFlip.None);
                     frames.Add(new(GrappleSheets.RopeFrame(orientation, GrappleSheetDefinitions.RopePattern[segment], mirror),
                         SpritePartFrames.CentredSmallObject(appearance with { Flip = appearance.Flip | flips }, 0), page));
                 }

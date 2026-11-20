@@ -75,7 +75,7 @@ internal sealed class EnemyDrawList
             // Power-bomb damage runs after queue construction and can clear a
             // queued actor or replace it with the inert respawn reservation.
             // Neither lifecycle state owns a display composition.
-            if (place.DefinitionId == EnemyDefinitionId.None)
+            if (place.Occupant is not { } occupant)
                 continue;
 
             // The draw offset is zero for enemies the room places; the offset is added
@@ -102,7 +102,7 @@ internal sealed class EnemyDrawList
             if (place.Frame is not { } shown)
             {
                 if (reached)
-                    throw new InvalidDataException($"Enemy {place.DefinitionId} draws before showing a frame.");
+                    throw new InvalidDataException($"Enemy {occupant.DefinitionId} draws before showing a frame.");
                 continue;
             }
             // Resolve the sprite picture and the body frame through one presentation binding. Validate the
@@ -110,11 +110,11 @@ internal sealed class EnemyDrawList
             // and collision definitions. The empty frame draws nothing and is on no sheet (#1513).
             EnemyFrameDisplays displays = _room.Session.FrameDisplays;
             if (!displays.TryGetDisplay(shown, out bool pictured))
-                throw new InvalidDataException($"Enemy {place.DefinitionId} frame {shown} has no installed presentation.");
+                throw new InvalidDataException($"Enemy {occupant.DefinitionId} frame {shown} has no installed presentation.");
             // Only the draw pass shows a boss body frame; a frame without a body shows none.
             if (reached)
-                _animationPlayer.DrawBossBodyFrame(place, displays.GetDisplayFrame(shown));
-            prepared.Add(new PreparedEnemyDraw(place, origin, drawShading, shown, pictured, placed?.PictureDepth));
+                _animationPlayer.DrawBossBodyFrame(place, occupant, displays.GetDisplayFrame(shown));
+            prepared.Add(new PreparedEnemyDraw(place, occupant, origin, drawShading, shown, pictured, placed?.PictureDepth));
         }
         _prepared = prepared;
     }
@@ -146,7 +146,7 @@ internal sealed class EnemyDrawList
             // Every frame is one whole sheet picture placed at the enemy's origin. Collision still
             // uses the game's own frame hitboxes, never the picture.
             if (draw.Pictured)
-                _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(place.DefinitionId, EnemySheetDefinitions.FrameName(draw.Frame),
+                _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(draw.Occupant.DefinitionId, EnemySheetDefinitions.FrameName(draw.Frame),
                     draw.Origin)
                 {
                     Shading = draw.Shading,
@@ -168,13 +168,14 @@ internal sealed class EnemyDrawList
 
     /// <summary>One queued enemy's draw, formed by <see cref="Advance"/>.</summary>
     /// <param name="Place">The enemy.</param>
+    /// <param name="Occupant">The enemy holding the place, whose identity names its sheet.</param>
     /// <param name="Origin">Its screen origin, shaken when the draw pass reaches it.</param>
     /// <param name="Shading">The shading the common draw selected for this frame (#1512).</param>
     /// <param name="Frame">The frame the enemy shows, which names its sheet picture.</param>
     /// <param name="Pictured">Whether the frame has a sheet picture: the empty frame, a frame shown only on a boss body and
     /// a frame whose pieces show nothing have none.</param>
     /// <param name="Depth">The depth the enemy places its picture at (#2210), or null for its picture's own.</param>
-    private readonly record struct PreparedEnemyDraw(RoomEnemyPlace Place,
+    private readonly record struct PreparedEnemyDraw(RoomEnemyPlace Place, RoomEnemyOccupant Occupant,
         Offset16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId Frame, bool Pictured, ActorDepth? Depth);
 
     /// <summary>

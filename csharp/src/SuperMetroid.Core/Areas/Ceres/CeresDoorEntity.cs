@@ -8,11 +8,12 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// quake going through the foreground, the background and the enemies.
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the door occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="facing">The way the door faces, choosing its pictures.</param>
-internal sealed class CeresDoorEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common, HorizontalDirection facing)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+internal sealed class CeresDoorEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, HorizontalDirection facing)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize() => doors.Start(Place, facing, CeresDoorSegment.Door);

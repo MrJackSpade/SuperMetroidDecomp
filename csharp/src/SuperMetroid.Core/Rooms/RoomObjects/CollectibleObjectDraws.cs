@@ -54,9 +54,9 @@ internal static class CollectibleObjectDraws
         CollectibleDraw.EnergyTankBright or CollectibleDraw.EnergyTankDim or CollectibleDraw.MissileTankDim or CollectibleDraw.MissileTankBright
             or CollectibleDraw.SuperMissileTankDim or CollectibleDraw.SuperMissileTankBright or CollectibleDraw.PowerBombTankBright
             or CollectibleDraw.PowerBombTankDim => DrawGroup.Tank,
-        CollectibleDraw.FirstBlockPairPrimaryLook or CollectibleDraw.FirstBlockPairAlternateLook or CollectibleDraw.SecondBlockPairPrimaryLook
-            or CollectibleDraw.SecondBlockPairAlternateLook or CollectibleDraw.ThirdBlockPairPrimaryLook or CollectibleDraw.ThirdBlockPairAlternateLook
-            or CollectibleDraw.FourthBlockPairPrimaryLook or CollectibleDraw.FourthBlockPairAlternateLook => DrawGroup.OwnPicture,
+        CollectibleDraw.SolidPairPrimaryLook or CollectibleDraw.SolidPairAlternateLook or CollectibleDraw.FirstDoorPairPrimaryLook
+            or CollectibleDraw.FirstDoorPairAlternateLook or CollectibleDraw.SecondDoorPairPrimaryLook or CollectibleDraw.SecondDoorPairAlternateLook
+            or CollectibleDraw.ThirdDoorPairPrimaryLook or CollectibleDraw.ThirdDoorPairAlternateLook => DrawGroup.OwnPicture,
         CollectibleDraw.ShotBlockIntact or CollectibleDraw.ShotBlockCracking or CollectibleDraw.ShotBlockDust => DrawGroup.ShotReveal,
         _ => throw new InvalidOperationException($"Undefined {nameof(CollectibleDraw)} {draw}."),
     };
@@ -74,21 +74,22 @@ internal static class CollectibleObjectDraws
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {group}."),
     };
 
+    /// <summary>The draw of <paramref name="look"/> of the tank kind <paramref name="kind"/>, in its own blocks.</summary>
+    /// <exception cref="InvalidDataException">The kind is no tank.</exception>
+    internal static RoomObjectFrameDraw<CollectibleDraw> TankFrame(InWorldCollectibleKind kind, CollectibleLook look) =>
+        TankLooks.TryGetValue(kind, out CollectibleLookDraws tank)
+            ? Family.Of(tank.Of(look))
+            : throw new InvalidDataException($"Collectible {kind} is no tank.");
+
     /// <summary>
-    /// The draw of <paramref name="look"/> of a tank kind, or of the block pair an item that shows its own picture took
-    /// (<see cref="CollectibleBlockPairs"/>).
+    /// The draw of <paramref name="look"/> into the block pair <paramref name="pair"/> an item that shows its own picture
+    /// took (<see cref="CollectibleBlockPairs"/>).
     /// </summary>
-    internal static RoomObjectFrameDraw<CollectibleDraw> VisibleFrame(InWorldCollectibleKind kind,
-        CollectibleLook look, CollectibleBlockPairs.Pair? blockPair)
-    {
-        if (TankLooks.TryGetValue(kind, out CollectibleLookDraws tank))
-            return Family.Of(tank.Of(look));
-        if (blockPair is not { } pair)
-            throw new InvalidDataException($"Collectible {kind} shows its own picture but took no block pair.");
-        return BlockPairLooks.TryGetValue(pair, out CollectibleLookDraws looks)
+    /// <exception cref="InvalidDataException">The pair is none of the four.</exception>
+    internal static RoomObjectFrameDraw<CollectibleDraw> BlockPairFrame(CollectibleBlockPairs.Pair pair, CollectibleLook look) =>
+        BlockPairLooks.TryGetValue(pair, out CollectibleLookDraws looks)
             ? Family.Of(looks.Of(look))
             : throw new InvalidDataException($"Undefined collectible block pair {pair}.");
-    }
 
     /// <summary>The collectibles' family: a block pair's frame writes its terrain alone; every other frame draws as pictured.</summary>
     private sealed class CollectibleDrawFamily() : RoomObjectDrawFamily<CollectibleDraw>("collectible",

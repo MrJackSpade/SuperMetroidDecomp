@@ -47,7 +47,7 @@ internal static class OrdinarySmokeTests
                 hdma % 2 == 0 || geometry is { First: 64, Second: 64 } && hdma == 3 ? rooms : hdma == 1 ? sky : loaded, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
-                new DisplayLayer[] { layer }, 15));
+                new DisplayLayer[] { layer }, DisplayBrightness.Full));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, geometry {geometry}, layers {flags}, HDMA {hdma}");
             if (count == 96)
@@ -72,7 +72,7 @@ internal static class OrdinarySmokeTests
             var registers = new GameplaySceneView(new Offset16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511), flags);
             var layer = new GameplaySceneLayer(registers, pictured, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
             count++;
-            var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
+            var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, DisplayBrightness.Full));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, block pictures, layers {flags}, HDMA {hdma}");
         }
@@ -85,7 +85,7 @@ internal static class OrdinarySmokeTests
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             var layer = new GameplaySceneLayer(registers, background, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
             count++;
-            var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
+            var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, DisplayBrightness.Full));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, background image, geometry {geometry}, HDMA {hdma}");
         }
@@ -106,7 +106,7 @@ internal static class OrdinarySmokeTests
                 },
             };
             count++;
-            var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
+            var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, DisplayBrightness.Full));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, boss BG2 tilemap, HDMA {hdma}");
         }
@@ -118,7 +118,7 @@ internal static class OrdinarySmokeTests
             var hidden = shown with { ShownLayers = ScreenLayers.Foreground | ScreenLayers.Sprites };
             var nothing = rooms with { Background = SuperMetroid.Core.Gameplay.ShownRoomBackground.Nothing, Warning = null };
             DisplayPacket Frame(GameplaySceneView view, SuperMetroid.Core.Gameplay.RoomBackgrounds shownRooms) =>
-                new(0, new LayeredScene(memory, new DisplayLayer[] { new GameplaySceneLayer(view, shownRooms, default) }, 15));
+                new(0, new LayeredScene(memory, new DisplayLayer[] { new GameplaySceneLayer(view, shownRooms, default) }, DisplayBrightness.Full));
             count++;
             PixelComparison.Verify(Frame(shown, nothing), renderer.RenderForReadback(Frame(hidden, rooms with { Warning = null })),
                 renderer.RenderForReadback(Frame(shown, nothing)), $"{device.Kind}: ordinary {count}, a background showing nothing");
@@ -135,7 +135,7 @@ internal static class OrdinarySmokeTests
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             var layer = new GameplaySceneLayer(registers, typed, default);
             count++;
-            var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
+            var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, DisplayBrightness.Full));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG2 overlay pictures, geometry {geometry}");
         }
@@ -147,7 +147,7 @@ internal static class OrdinarySmokeTests
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             var layer = new GameplaySceneLayer(registers, warned, default);
             count++;
-            var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
+            var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, DisplayBrightness.Full));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG1 overlay pictures");
         }
@@ -176,7 +176,7 @@ internal static class OrdinarySmokeTests
                 {
                     BossBody = new BossBodyView(new ShownBossBody(seeded.Parts.SetItem(0, part)), registers.BackgroundScroll),
                 },
-            }, 15));
+            }, DisplayBrightness.Full));
             count++;
             DisplayPacket frame = Frame(masked);
             PixelComparison.Verify(frame, renderer.RenderForReadback(Frame(expected)), renderer.RenderForReadback(frame),

@@ -13,10 +13,10 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Geruta];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
-            ? EnemyOccupant.Of(new GerutaFollowerEntity(this, place, common))
-            : EnemyOccupant.Of(new GerutaEntity(this, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
+            ? EnemyOccupant.Of(new GerutaFollowerEntity(this, occupant, place, common))
+            : EnemyOccupant.Of(new GerutaEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared RNG advanced by every parent and flame follower.</summary>
     private readonly EnemyRoomBinding _room;
@@ -42,7 +42,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes a flame follower: it finds its parent, listed right before it, and starts its ascending flames.</summary>
     internal void InitializeGerutaFollower(RoomEnemyPlace place)
     {
-        _parents.Place(place, _places.ListedBefore(place, 1));
+        _parents.Place(place, _places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader));
         ValidateGerutaParent(place);
         place.SetSpeciesState(new GerutaFollowerState
         {

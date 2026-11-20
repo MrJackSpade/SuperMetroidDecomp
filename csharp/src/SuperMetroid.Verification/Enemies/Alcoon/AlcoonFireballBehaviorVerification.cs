@@ -26,16 +26,16 @@ internal static class AlcoonFireballBehaviorVerification
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, AlcoonFireballNativeListAddresses.Extent, "Alcoon-fireball");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
-        source.Bind(EnemyDefinitionId.Alcoon, source.Definition);
+        source.Bind(EnemyDefinitionId.Alcoon, source.KeptDefinition);
         source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         var state = new AlcoonEnemyState(AlcoonAction.WaitingForSamus);
         source.SetSpeciesState(state);
-        foreach (HorizontalDirection direction in new[] { HorizontalDirection.Left, HorizontalDirection.Right })
+        foreach (AlcoonWalk direction in new[] { AlcoonWalk.Left, AlcoonWalk.Right })
         {
             state.WalkingDirection = direction;
             foreach (AlcoonFireballLaunch launch in new[] { AlcoonFireballLaunchDefinitions.Upward, AlcoonFireballLaunchDefinitions.Level, AlcoonFireballLaunchDefinitions.Downward })
-                enemies.AlcoonBehavior.SpawnAlcoonFireball(source, launch);
+                enemies.AlcoonBehavior.SpawnAlcoonFireball(source.HeldOccupant(), source, launch);
         }
         EnemyProjectile[] fireballs = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball)];
         AssertEqual(6, fireballs.Length, "all three fire commands spawn in both facings");

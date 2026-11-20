@@ -4,17 +4,17 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 public static class CrocomireMeltingArtworkFormat
 {
     /// <summary>Import-data indexed PNG filename for the first dissolve image, assembled from the native bank-$A4 copies beginning at $A07D.</summary>
-    public const string FirstFileName = "crocomire-melt-first.png";
+    public const string FleshFileName = "crocomire-melt-flesh.png";
     /// <summary>Import-data indexed PNG filename for the second, eroded dissolve image, assembled from the native bank-$A4 copies beginning at $AC7D.</summary>
-    public const string SecondFileName = "crocomire-melt-second.png";
+    public const string BareSkullFileName = "crocomire-melt-bare-skull.png";
     /// <summary>Import-data JSON filename for the first image's 256 BG2 references, corresponding to $A4:9C79.</summary>
-    public const string FirstTilemapFileName = "crocomire-melt-first-tiles.json";
+    public const string FleshTilemapFileName = "crocomire-melt-flesh-tiles.json";
     /// <summary>Import-data JSON filename for the second image's 256 BG2 references, corresponding to $A4:9E7B.</summary>
-    public const string SecondTilemapFileName = "crocomire-melt-second-tiles.json";
+    public const string BareSkullTilemapFileName = "crocomire-melt-bare-skull-tiles.json";
     /// <summary>$0E20 compiled 4bpp bytes, or 113 characters, for the first scratch image; bytes beyond the native overlapping-copy extent must remain zero.</summary>
-    public const int FirstByteCount = 3616;
+    public const int FleshByteCount = 3616;
     /// <summary>$1020 compiled 4bpp bytes, or 129 characters, for the second scratch image; bytes beyond the native overlapping-copy extent must remain zero.</summary>
-    public const int SecondByteCount = 4128;
+    public const int BareSkullByteCount = 4128;
     /// <summary>
     /// Supported visual tile-layout schema revision, checked before compiling packed SNES BG words: 2 declares the layout's
     /// grid as the 32-by-8 one it is read in (#2564).

@@ -19,11 +19,11 @@ internal static class NuclearWaffleProjectileBehaviorVerification
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, NuclearWaffleProjectileNativeListAddresses.Extent, "Nuclear Waffle body");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace owner = enemies.Places.InUpdateOrder[0];
-        owner.Bind(EnemyDefinitionId.NuclearWaffle, owner.Definition);
+        owner.Bind(EnemyDefinitionId.NuclearWaffle, owner.KeptDefinition);
         owner.SetSpawnParameter1(EnemyDefinitionId.NuclearWaffle, 8193);
         owner.SetSpawnParameter2(EnemyDefinitionId.NuclearWaffle, 8192);
         owner.Position = owner.Position.WithWhole(new(384, 512));
-        enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(owner);
+        enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(owner.HeldOccupant(), owner);
         EnemyProjectile[] links = [.. (enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Verification requires the Nuclear Waffle's state."))
             .ProjectileLinks.Select(link => link.Actor)];
         AssertEqual(4, links.Length, "the initializer spawns four body links");

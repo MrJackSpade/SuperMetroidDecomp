@@ -18,7 +18,7 @@ internal static class EnemyDeathAndDropAnimations
     {
         [P.RespawnPause] =
         [
-            Show(EnemyProjectileFrameId.Blank, 64),
+            Hide(64),
             Cue(new EnemyDeathAndDropCue.Signal(K.RespawnEnemy)),
             Cue(new EnemyDeathAndDropCue.Signal(K.Delete)),
         ],
@@ -26,7 +26,7 @@ internal static class EnemyDeathAndDropAnimations
         [
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.SmallExplosion, EnemyDeathExplosionDefinitions.NarrowSpriteSpread)),
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.Smoke, EnemyDeathExplosionDefinitions.NarrowSpriteSpread)),
-            Show(EnemyProjectileFrameId.Blank, 8),
+            Hide(8),
             Cue(new EnemyDeathAndDropCue.Signal(K.PlaySmallExplosionSound)),
         ],
         [P.BigExplosionEnd] =
@@ -38,7 +38,7 @@ internal static class EnemyDeathAndDropAnimations
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.SmallExplosion, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.Smoke, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
             Cue(new EnemyDeathAndDropCue.SpawnEffectActor(RoomEffectActorKind.BigDustCloud, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
-            Show(EnemyProjectileFrameId.Blank, 8),
+            Hide(8),
             Cue(new EnemyDeathAndDropCue.Signal(K.PlaySmallExplosionSound)),
         ],
         [P.FakeKraidExplosionEnd] =
@@ -151,6 +151,10 @@ internal static class EnemyDeathAndDropAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Frame(frame, duration);
+
+    /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue> Hide(int duration) =>
+        new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Hidden(duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue> Cue(EnemyDeathAndDropCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>.Event(cue);

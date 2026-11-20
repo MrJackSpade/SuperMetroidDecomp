@@ -51,10 +51,10 @@ internal static class ShaktoolOwnedStateVerification
         // The chain's death deletes the first seven slots, so a chain starting anywhere else is refused (#1500).
         var misplacedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace misplaced = misplacedEnemies.Places.InUpdateOrder[1];
-        misplaced.Bind(EnemyDefinitionId.Shaktool, misplaced.Definition);
-        misplaced.Bind(misplaced.DefinitionId, default(RoomEnemyDefinition));
+        misplaced.Bind(EnemyDefinitionId.Shaktool, misplaced.KeptDefinition);
+        misplaced.Bind(misplaced.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         misplaced.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 0);
-        AssertThrows<InvalidDataException>(() => misplacedEnemies.ShaktoolBehavior.InitializeShaktool(misplaced),
+        AssertThrows<InvalidDataException>(() => misplacedEnemies.ShaktoolBehavior.InitializeShaktool(misplaced.HeldOccupant(), misplaced),
             "a Shaktool chain starting after the first slot is refused");
 
         // The chain moves as one, so a segment placed moving otherwise than its leading saw is refused (#2452).
@@ -62,14 +62,14 @@ internal static class ShaktoolOwnedStateVerification
         for (int index = 0; index < 2; index++)
         {
             RoomEnemyPlace place = mismatchedEnemies.Places.InUpdateOrder[index];
-            place.Bind(EnemyDefinitionId.Shaktool, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(EnemyDefinitionId.Shaktool, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnSettings(new ShaktoolSpawnSettings(
                 index == 0 ? ShaktoolChainMotion.CurlingClockwise : ShaktoolChainMotion.CurlingClockwise with { OrbitDirection = RotationDirection.Counterclockwise },
                 ShaktoolSegmentDefinitions.Segments[index]));
         }
-        mismatchedEnemies.ShaktoolBehavior.InitializeShaktool(mismatchedEnemies.Places.InUpdateOrder[0]);
-        AssertThrows<InvalidDataException>(() => mismatchedEnemies.ShaktoolBehavior.InitializeShaktool(mismatchedEnemies.Places.InUpdateOrder[1]),
+        mismatchedEnemies.ShaktoolBehavior.InitializeShaktool(mismatchedEnemies.Places.InUpdateOrder[0].HeldOccupant(), mismatchedEnemies.Places.InUpdateOrder[0]);
+        AssertThrows<InvalidDataException>(() => mismatchedEnemies.ShaktoolBehavior.InitializeShaktool(mismatchedEnemies.Places.InUpdateOrder[1].HeldOccupant(), mismatchedEnemies.Places.InUpdateOrder[1]),
             "a Shaktool segment placed moving otherwise than its leading saw is refused");
         Console.WriteLine("Shaktool owned state: orbit wrap, reversed orientation, wall reversal, the first-slot chain and the one chain motion match.");
     }
@@ -81,11 +81,11 @@ internal static class ShaktoolOwnedStateVerification
         for (int index = 0; index < 7; index++)
         {
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
-            place.Bind(EnemyDefinitionId.Shaktool, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(EnemyDefinitionId.Shaktool, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
             place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
-            enemies.ShaktoolBehavior.InitializeShaktool(place);
+            enemies.ShaktoolBehavior.InitializeShaktool(place.HeldOccupant(), place);
         }
         return enemies;
     }

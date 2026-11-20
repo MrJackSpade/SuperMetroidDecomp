@@ -908,7 +908,7 @@ internal sealed class SamusFramePhases
 
         // The camera point is the room camera's previous Samus point or, for a new camera, the point sampled at the
         // frame's start, before enemy-owned motion and her movement.
-        frame.SampleCameraPoint(room.Camera.PreviousSamusPoint ?? cameraPointAtFrameStart);
+        frame.SampleCameraPoint(room.Camera.PreviousSamusPoint is SamusScrolledCheckpoint { Point: var point } ? point : cameraPointAtFrameStart);
 
         // Retain the frame-start pose because the turn-transition animation cue can replace Samus.Pose during
         // animation later in this same frame. Input/movement/transition phases all
@@ -974,7 +974,7 @@ internal sealed class SamusFramePhases
         // movement.
         if (_player.ProspectiveSamusPose is { } matchedBombCancel &&
             matchedBombCancel.ProspectivePose != samus.Pose)
-            samus.BombJumpRequest = SamusBombJumpRequest.None;
+            samus.BombJump = null;
         frame.SamplePoseLookup(poseLookup, samus);
         _player.ProspectiveSamusFallbackPose = null;
         _player.ProspectiveSamusWallCollisionPose = null;

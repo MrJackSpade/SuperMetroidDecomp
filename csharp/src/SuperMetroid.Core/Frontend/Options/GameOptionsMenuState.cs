@@ -38,7 +38,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     /// <summary>Page to load when the current page has dissolved to black.</summary>
     private GameOptionsPage dissolveDestination = GameOptionsPage.Primary;
     /// <summary>The screen's brightness, which the page fades and final exits step one level an update.</summary>
-    private readonly ScreenFade fade = new(0);
+    private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>The primary page's selected row, which its cursor shows while the primary page does.</summary>
     private GameOptionsPrimaryRow primaryRow = GameOptionsPageRows.Primary.Top;
     /// <summary>The controller page's selected row, which its cursor shows while the controller page does.</summary>
@@ -123,8 +123,11 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     /// <summary>Gets the options menu's current phase.</summary>
     public GameOptionsPhase Phase { get; private set; }
 
-    /// <summary>How the menu hands off to the frontend (#2562): the opening sequence or file select, kept once it reaches one.</summary>
-    public GameOptionsMenuOutcome Outcome { get; private set; }
+    /// <summary>
+    /// How the menu hands off to the frontend (#2562): the opening sequence or file select, kept once it reaches one;
+    /// absent while the menu runs, before it has reached either (#2587).
+    /// </summary>
+    public GameOptionsMenuOutcome? Outcome { get; private set; }
 
     /// <summary>Advances one options-menu update using the held controller buttons.</summary>
     public void Step(ControllerButton controllerInput)

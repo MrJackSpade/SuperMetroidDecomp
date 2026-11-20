@@ -35,7 +35,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         Suite(nameof(VerifyFrame), () => VerifyFrame(SporeSpawnSourceDefinitions.SporeColors, native.ResolveSpore,
             "spore initialization"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.HealthColors,
-            SporeSpawnColorFormat.HealthFrameCount, native.ResolveHealth, "health"));
+            SporeSpawnColorFormat.HealthFrameCount, (band, colour) => native.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[band], colour), "health"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.DeathSpriteColors,
             SporeSpawnColorFormat.DeathSpriteFrameCount, native.ResolveDeathSprite,
             "death sprite"));
@@ -63,11 +63,11 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: stock.Bosses);
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
-        body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
+        body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
+        body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
-        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
+        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body.HeldOccupant(), body);
         SporeSpawnEnemyState state = body.RequireSpeciesState<SporeSpawnEnemyState>();
         // His live colour handlers name shades of his sprites and room (#1512); the import pre-colours each from the
         // installed colours.
@@ -86,7 +86,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             SporeSpawnBehavior.ShowSporeSpawnHealthShade(body, state, band);
             AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.Health(band)), body.Shading,
                 $"live Spore Spawn health band {band}");
-            AssertShade(sprites, SporeSpawnShades.Health(band), colour => colors.ResolveHealth(shown, colour), $"live Spore Spawn health band {band}");
+            AssertShade(sprites, SporeSpawnShades.Health(band), colour => colors.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[shown], colour), $"live Spore Spawn health band {band}");
         }
 
         foreach (SporeSpawnDeathFadeStep step in SporeSpawnDeathFadeStep.All)

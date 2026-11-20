@@ -52,16 +52,6 @@ internal static class SamusBodySheetFixtures
     /// <summary>The body each fixture presentation was last bound to by <c>BindBodyFixture</c>.</summary>
     private static readonly ConditionalWeakTable<SamusPresentation, SamusBodySources> boundBodies = new();
 
-    /// <summary>
-    /// Registered characters by the definition-group starts they fill, which other fixture bodies built over the same groups
-    /// bind: a body holds no characters (#1636), so a body rebuilt from a registered fixture's tables shows its characters.
-    /// </summary>
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, SamusBodyCharacterArtwork> registeredByGroups = new(StringComparer.Ordinal);
-
-    /// <summary>The key of the definition-group starts <paramref name="body"/>'s frames select within.</summary>
-    private static string GroupsOf(SamusBodySources body) =>
-        $"{string.Join(',', body.TopSetStarts.ToArray())}/{string.Join(',', body.BottomSetStarts.ToArray())}";
-
     /// <summary>Atmosphere sheets already composed, by the spritemaps' and then the atmospheric attributes' content identities.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<InstalledSpriteSheets>> atmospheres =
         new(StringComparer.Ordinal);
@@ -101,28 +91,25 @@ internal static class SamusBodySheetFixtures
     {
         ArgumentNullException.ThrowIfNull(artwork);
         characters.AddOrUpdate(artwork.Body, artwork);
-        registeredByGroups[GroupsOf(artwork.Body)] = artwork;
         return artwork.Body;
     }
 
     /// <summary>
-    /// The characters <paramref name="body"/> shows: those registered for it, or those registered for a body over the same
-    /// definition groups, or else the stock characters, bound to its frames. A body holds no characters (#1636), so one
-    /// that shows characters of its own registers them.
+    /// The characters <paramref name="body"/> shows: those registered for it, or else the stock half pictures, bound to its
+    /// frames. A body holds no characters (#1636), so one that shows characters of its own registers them.
     /// </summary>
     internal static SamusBodyCharacterArtwork CharactersOf(SamusBodySources body)
     {
         if (characters.TryGetValue(body, out SamusBodyCharacterArtwork? registered))
             return registered;
-        SamusBodyCharacterArtwork stock = registeredByGroups.TryGetValue(GroupsOf(body), out SamusBodyCharacterArtwork? named)
-            ? named : inputs.Value.SamusBody;
+        SamusBodyCharacterArtwork stock = inputs.Value.SamusBody;
         return characters.GetValue(body, key =>
         {
-            var bound = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtwork>([typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodySources), typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer[][]), typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer[][])], new object?[] { key, (global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer[][])([.. Enumerable.Range(0, SamusBodySources.TopSetCount).Select(set => stock.TopSet(set).ToArray())]), (global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer[][])([.. Enumerable.Range(0, SamusBodySources.BottomSetCount).Select(set => stock.BottomSet(set).ToArray())]) });
-            // Each set is copied whole, so over the same group starts every record holds the source's definition and the
-            // characters' identity is the source's, already hashed (#1680).
-            if (GroupsOf(key) == GroupsOf(stock.Body))
-                characterIdentities.AddOrUpdate(bound, CharactersIdentityOf(stock));
+            var bound = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtwork>(
+                [typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodySources), typeof(IReadOnlyDictionary<global::SuperMetroid.AssetExtraction.Samus.SamusBodyPicture, global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer>)],
+                new object?[] { key, stock.pictures });
+            // The stock pictures are bound whole, so the characters' identity is the stock's, already hashed (#1680).
+            characterIdentities.AddOrUpdate(bound, CharactersIdentityOf(stock));
             return bound;
         });
     }

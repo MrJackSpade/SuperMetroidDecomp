@@ -16,8 +16,8 @@ internal static class BlueBrinstarFaceBlockBehaviorPrivateAccess
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockBehavior>(self, "InitializeBlueBrinstarFaceBlock", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { place, samus });
 
         /// <summary>The private method <c>RunBlueBrinstarFaceBlockMain</c>, invoked by name.</summary>
-        internal void RunBlueBrinstarFaceBlockMain(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockEnemyState state, global::SuperMetroid.Core.Samus.SamusState samus) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockBehavior>(self, "RunBlueBrinstarFaceBlockMain", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockEnemyState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { place, state, samus });
+        internal void RunBlueBrinstarFaceBlockMain(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockEnemyState state, global::SuperMetroid.Core.Samus.SamusState samus) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockBehavior>(self, "RunBlueBrinstarFaceBlockMain", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockEnemyState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { occupant, place, state, samus });
     }
 
     /// <summary>The private static members checks name.</summary>

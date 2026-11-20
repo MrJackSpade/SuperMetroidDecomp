@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 public sealed record PauseReserveArrowFrame
 {
     /// <summary>RGB5 color written to arrow palette slot six for this phase.</summary>
-    public required PaletteRgb5 Color6 { get; init; }
+    public required PaletteRgb5 Shade { get; init; }
     /// <summary>RGB5 color written to arrow palette slot eleven for this phase.</summary>
-    public required PaletteRgb5 Color11 { get; init; }
+    public required PaletteRgb5 Light { get; init; }
 }

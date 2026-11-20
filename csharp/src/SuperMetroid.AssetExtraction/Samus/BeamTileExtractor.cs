@@ -15,9 +15,8 @@ public static class BeamTileExtractor
     public static Dictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         var files = new Dictionary<string, byte[]>();
-        for (int index = 0; index < BeamTileAtlasDefinitions.ArtworkCount; index++)
+        foreach (SamusBeamCombination selection in BeamTileAtlasDefinitions.Pictured)
         {
-            SamusBeamCombination selection = BeamTileAtlasDefinitions.SelectionAt(index);
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.TilePointers.Value + selection.TableIndex * 2);
             byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.CharacterDataBank.Value | pointer, BeamTileAtlasDefinitions.ByteCount);

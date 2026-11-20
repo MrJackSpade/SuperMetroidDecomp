@@ -14,7 +14,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Alcoon];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new AlcoonEntity(this, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new AlcoonEntity(this, occupant, place, common));
 
     /// <summary>Provides RNG for the randomized post-volley walk count.</summary>
     private readonly EnemyRoomBinding _room;
@@ -39,11 +39,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Alcoon's animations: spitting a fireball, starting to walk, or taking a stride. Starting to
     /// walk always continues at the walk for the Alcoon's facing, and a stride that meets a wall turns it round to the other walk.
     /// </summary>
-    private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
+    private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
     {
         if (cue is AlcoonCue.Fire fire)
         {
-            SpawnAlcoonFireball(place, fire.Launch);
+            SpawnAlcoonFireball(occupant, place, fire.Launch);
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
             return null;
         }
@@ -153,12 +153,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetupAlcoonJumpMovement(state);
         if (signedXDistance < 0)
         {
-            state.WalkingDirection = HorizontalDirection.Left;
+            state.WalkingDirection = AlcoonWalk.Left;
             StartAlcoonAnimation(place, state, AlcoonSegment.AirborneLeftLookingUp);
         }
         else
         {
-            state.WalkingDirection = HorizontalDirection.Right;
+            state.WalkingDirection = AlcoonWalk.Right;
             StartAlcoonAnimation(place, state, AlcoonSegment.AirborneRightLookingUp);
         }
         state.Action = AlcoonAction.EmergingRising;
@@ -198,12 +198,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (samus.Position.X.Whole < place.Position.X.Whole)
         {
-            state.WalkingDirection = HorizontalDirection.Left;
+            state.WalkingDirection = AlcoonWalk.Left;
             StartAlcoonAnimation(place, state, AlcoonSegment.WalkingLeft);
         }
         else
         {
-            state.WalkingDirection = HorizontalDirection.Right;
+            state.WalkingDirection = AlcoonWalk.Right;
             StartAlcoonAnimation(place, state, AlcoonSegment.WalkingRight);
         }
         state.Action = AlcoonAction.WalkingAndFiring;
@@ -280,7 +280,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resets the jump to its upward velocity (<see cref="AlcoonMotionDefinitions.EmergeJumpVelocity"/>).</summary>
     private static void SetupAlcoonJumpMovement(AlcoonEnemyState state)
     {
-        state.WalkingDirection = null;
+        state.WalkingDirection = AlcoonWalk.Undecided;
         state.VerticalVelocity = AlcoonMotionDefinitions.EmergeJumpVelocity;
     }
 
@@ -334,10 +334,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SignedSixteenSixteen displacement = state.WalkingDirection switch
         {
-            HorizontalDirection.Left => -AlcoonWalkDefinitions.StrideDistance,
-            HorizontalDirection.Right => AlcoonWalkDefinitions.StrideDistance,
-            null => SignedSixteenSixteen.Zero,
-            _ => throw new InvalidOperationException($"Undefined {nameof(HorizontalDirection)} {state.WalkingDirection}."),
+            AlcoonWalk.Left => -AlcoonWalkDefinitions.StrideDistance,
+            AlcoonWalk.Right => AlcoonWalkDefinitions.StrideDistance,
+            AlcoonWalk.Undecided => SignedSixteenSixteen.Zero,
+            _ => throw new InvalidOperationException($"Undefined {nameof(AlcoonWalk)} {state.WalkingDirection}."),
         };
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
         {
@@ -349,9 +349,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         bool turnsLeft = !FacesLeft(state);
         state.WalkingDirection = state.WalkingDirection switch
         {
-            HorizontalDirection.Left => HorizontalDirection.Right,
-            HorizontalDirection.Right => HorizontalDirection.Left,
-            _ => state.WalkingDirection,
+            AlcoonWalk.Left => AlcoonWalk.Right,
+            AlcoonWalk.Right => AlcoonWalk.Left,
+            AlcoonWalk.Undecided => AlcoonWalk.Undecided,
+            _ => throw new InvalidOperationException($"Undefined {nameof(AlcoonWalk)} {state.WalkingDirection}."),
         };
         return turnsLeft
             ? AlcoonAnimations.WalkingLeftFromFirstStride
@@ -359,7 +360,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Whether the Alcoon faces left: it does only once it has picked the left side.</summary>
-    private static bool FacesLeft(AlcoonEnemyState state) => state.WalkingDirection == HorizontalDirection.Left;
+    private static bool FacesLeft(AlcoonEnemyState state) => state.WalkingDirection == AlcoonWalk.Left;
 
     /// <summary>An Alcoon fireball (#1760): it flies with vertical, then horizontal, room collision and horizontal drag.</summary>
     private static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
@@ -378,15 +379,15 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Alcoon's typed animation.</summary>
-    internal void AdvanceAlcoonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
+    internal void AdvanceAlcoonTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context) =>
         EnemyAnimationPlayback.Advance(place, AlcoonAnimations.Segments,
             static (AlcoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyAlcoonCue(place, state, context.Level, cue));
+            (state, cue) => ApplyAlcoonCue(occupant, place, state, context.Level, cue));
 
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
-    private void SpawnAlcoonFireball(RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
+    private void SpawnAlcoonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.AlcoonFireball, Fireball, SpriteGraphics.SpawnedBy(occupant, alcoon.Shading));
         if (projectile is null)
             return;
 
@@ -395,11 +396,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The fireball takes its radii, damage, persistence, shot blocking, animation and motion from its definition
         // before its setup sets its position, to a fraction of a pixel, and its velocity.
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.AlcoonFireball,
-            Fireball,
-            SpriteGraphics.SpawnedBy(alcoon));
         projectile.StartAnimation(new AlcoonFireballAnimation(AlcoonFireballSegment.Spinning));
         Offset16<RoomPixels> muzzle = AlcoonFireballLaunchDefinitions.MuzzleFacingRight;
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(alcoon.Position.Whole + (movingLeft ? muzzle.MirroredX() : muzzle));

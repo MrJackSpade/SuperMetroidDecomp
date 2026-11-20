@@ -42,7 +42,7 @@ internal static class MetroidBombPlacementVerification
         var target = enemies.Places.InUpdateOrder[0];
         target.Position = target.Position.WithWhole(new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 8)));
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-        enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), target, Position16<RoomPixels>.Zero);
+        enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), target.HeldOccupant(), Position16<RoomPixels>.Zero);
         var state = enemies.MetroidStates[0];
         AssertEqual(MetroidMovement.AttachedToSamus, (state ?? throw new InvalidOperationException("Verification requires state.")).Movement, "real touch attaches Metroid to morphed Samus");
         var bombs = CreateBombFixture();
@@ -52,7 +52,7 @@ internal static class MetroidBombPlacementVerification
         {
             GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
             bombs.StepFrame(new SamusTerrain { Level = assets.LevelData, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
-            if (firstExplosion < 0 && bombs.Bombs.Any(b => !b.Type.IsNone && b.HasBurnedOut)) firstExplosion = frame;
+            if (firstExplosion < 0 && bombs.Bombs.Any(b => b.IsOccupied && b.HasBurnedOut)) firstExplosion = frame;
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             enemies.ResolveBombsOnInteractiveEnemies(bombs, shots, samus);
             if (state.Movement == MetroidMovement.PowerBombEscape && detached < 0) detached = frame;

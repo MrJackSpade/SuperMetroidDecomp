@@ -32,11 +32,10 @@ internal static class GrappleEnemyDeathVerification
         SuperMetroid.TestSupport.RepositoryInstallation.Verification.SpawnedObjectFixtures.LoadSetDrawing(fixture.System, EnemyDefinitionId.Zeela);
         fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
         SeedGrappleEnemyDeathRetailBanks(fixture.Bus);
-        ushort header = TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
-        SeedEnemyDropChancePointer(fixture.Bus, header);
+        SeedStandInDropper(fixture.Bus);
         var enemy = fixture.System.Places.InUpdateOrder[0];
-        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
-        enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
+        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
+        enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
         {
             GrappleResponse = GrappleEnemyReaction.Kill,
             DeathExplosion = EnemyDeathExplosion.Big,
@@ -45,8 +44,8 @@ internal static class GrappleEnemyDeathVerification
         enemy.Radius = new(8, 8);
         enemy.Health = 500;
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus });
-        var contact = fixture.System.GrappleBehavior.ResolveGrappleEndpoint(new(100, 100));
-        AssertEqual(GrappleEnemyReaction.Kill, contact.Reaction, "header selects grapple kill independently of enemy health");
+        GrappleEnemyCollision? contact = fixture.System.GrappleBehavior.ResolveGrappleEndpoint(new(100, 100));
+        AssertEqual<GrappleEnemyReaction?>(GrappleEnemyReaction.Kill, contact?.Reaction, "header selects grapple kill independently of enemy health");
         samus.Grapple.Phase = GrapplePhase.Firing;
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         var explosion = fixture.System.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
@@ -55,7 +54,7 @@ internal static class GrappleEnemyDeathVerification
         AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "native death routine drops the active grapple");
         AssertEqual(100, explosion.Position.X.Whole, "death explosion preserves enemy X");
         AssertEqual(100, explosion.Position.Y.Whole, "death explosion preserves enemy Y");
-        AssertEqual(EnemyPlaceFixtures.StandIn, fixture.System.DeathsAndDrops.Explosions.Of(explosion).DropDefinitionId, "death actor retains drop-table identity");
+        AssertEqual(EnemyPlaceFixtures.StandIn, fixture.System.DeathsAndDrops.Explosions.Of(explosion).Dropper?.DefinitionId, "death actor retains drop-table identity");
         var spriteFrames = new HashSet<string>();
         bool sawPickup = false;
         bool heardDeath = false;
@@ -115,8 +114,8 @@ internal static class GrappleEnemyDeathVerification
             var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
             var enemy = fixture.System.Places.InUpdateOrder[0];
-            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
-            enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
+            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
+            enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
             {
                 GrappleResponse = GrappleEnemyReaction.Kill,
             });

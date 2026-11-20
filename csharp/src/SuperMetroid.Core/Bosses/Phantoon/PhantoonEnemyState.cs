@@ -17,12 +17,14 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => false;
 
     /// <summary>Begins the encounter of the body at <paramref name="body"/> and the parts his room lists with it.</summary>
+    /// <param name="bodyOccupant">The enemy holding <paramref name="body"/>.</param>
     /// <param name="body">The place his body occupies.</param>
     /// <param name="eye">The place his eye occupies.</param>
     /// <param name="tentacles">The place his tentacles occupy.</param>
     /// <param name="mouth">The place his mouth occupies.</param>
-    internal PhantoonEnemyState(RoomEnemyPlace body, RoomEnemyPlace eye, RoomEnemyPlace tentacles, RoomEnemyPlace mouth)
+    internal PhantoonEnemyState(RoomEnemyOccupant bodyOccupant, RoomEnemyPlace body, RoomEnemyPlace eye, RoomEnemyPlace tentacles, RoomEnemyPlace mouth)
     {
+        BodyOccupant = bodyOccupant;
         BodyPart = new PhantoonPart(this, body, PhantoonPartSegment.InvulnerableBody);
         EyePart = new PhantoonPart(this, eye, PhantoonPartSegment.EyeClosed);
         TentaclesPart = new PhantoonPart(this, tentacles, PhantoonPartSegment.Tentacles);
@@ -50,6 +52,9 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
 
     /// <summary>Gets the place his body occupies.</summary>
     public RoomEnemyPlace Body => BodyPart.Place;
+
+    /// <summary>The enemy holding his body's place, whose sheet his flames draw from (#2558).</summary>
+    public RoomEnemyOccupant BodyOccupant { get; }
 
     /// <summary>Gets the place his eye occupies.</summary>
     public RoomEnemyPlace Eye => EyePart.Place;

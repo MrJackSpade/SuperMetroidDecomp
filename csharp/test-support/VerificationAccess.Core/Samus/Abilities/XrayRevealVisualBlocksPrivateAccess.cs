@@ -13,14 +13,14 @@ internal static class XrayRevealVisualBlocksPrivateAccess
     {
         /// <summary>The private method <c>One</c>, invoked by name.</summary>
         internal static global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks One(int block) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks>(typeof(global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks), "One", [typeof(int)], new object?[] { block });
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks>(typeof(global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks), "One", [typeof(global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture)], new object?[] { global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(block) });
 
         /// <summary>The private method <c>Square</c>, invoked by name.</summary>
         internal static global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks Square(int topLeft, int topRight, int bottomLeft, int bottomRight) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks>(typeof(global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks), "Square", [typeof(int), typeof(int), typeof(int), typeof(int)], new object?[] { topLeft, topRight, bottomLeft, bottomRight });
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks>(typeof(global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks), "Square", [typeof(global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture), typeof(global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture), typeof(global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture), typeof(global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture)], new object?[] { global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(topLeft), global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(topRight), global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(bottomLeft), global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(bottomRight) });
 
         /// <summary>The private method <c>Wide</c>, invoked by name.</summary>
         internal static global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks Wide(int left, int right) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks>(typeof(global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks), "Wide", [typeof(int), typeof(int)], new object?[] { left, right });
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks>(typeof(global::SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks), "Wide", [typeof(global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture), typeof(global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture)], new object?[] { global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(left), global::SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(right) });
     }
 }

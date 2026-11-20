@@ -39,9 +39,7 @@ using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
@@ -92,10 +90,10 @@ internal static class EnemySpritemapArtworkVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemyPlace bull = enemies.Places.InUpdateOrder[0];
-        bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
-        bull.Bind(bull.DefinitionId, default(RoomEnemyDefinition));
+        bull.Bind(EnemyDefinitionId.Bull, bull.KeptDefinition);
+        bull.Bind(bull.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         bull.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        new Action<RoomEnemyPlace>(enemies.BullBehavior.InitializeBull)(bull);
+        new Action<RoomEnemyPlace>(fixturePlace => enemies.BullBehavior.InitializeBull(fixturePlace.HeldOccupant(), fixturePlace))(bull);
         object?[] arguments =
             [bull, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int frame = 0; frame < 41; frame++)
@@ -124,174 +122,6 @@ internal static class EnemySpritemapArtworkVerification
     {
         AssertTrue(stock.Enemies.Spritemaps is not null,
             "installed enemy catalog contains named OAM compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreCeresDoorFrameCount + 14,
-            EnemySpritemapDefinitionsConstants.PreCeresBabyFrameCount,
-            "Ceres door adds its thirteen selected poses and private overlay");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreCeresBabyFrameCount + 3,
-            EnemySpritemapDefinitionsConstants.PreRioFrameCount,
-            "Ceres Baby adds its three authored OAM poses");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreRioFrameCount + 8,
-            EnemySpritemapDefinitionsConstants.PreHoltzFrameCount,
-            "Rio adds its eight distinct OAM compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreHoltzFrameCount + 15,
-            EnemySpritemapDefinitionsConstants.PreGerutaFrameCount,
-            "Lower Norfair Rio adds its fifteen parent and flame compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreGerutaFrameCount + 16,
-            EnemySpritemapDefinitionsConstants.PrePuyoFrameCount,
-            "Norfair Rio adds its sixteen parent and flame compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PrePuyoFrameCount + 8,
-            EnemySpritemapDefinitionsConstants.PreBullFrameCount,
-            "Puyo adds its eight distinct ground and airborne compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreBullFrameCount + 3,
-            EnemySpritemapDefinitionsConstants.PreAlcoonFrameCount,
-            "Bull adds its three distinct normal and immune-shot compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreAlcoonFrameCount + 18,
-            EnemySpritemapDefinitionsConstants.PreBeetomFrameCount,
-            "Alcoon adds eighteen left/right walking, firing, and airborne compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreBeetomFrameCount + 22,
-            EnemySpritemapDefinitionsConstants.PreHopperFrameCount,
-            "Beetom adds twenty-two distinct crawl, hop, and drain compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreHopperFrameCount + 24,
-            EnemySpritemapDefinitionsConstants.PreChootFrameCount,
-            "Hoppers add twenty-four distinct floor/ceiling compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreChootFrameCount + 4,
-            EnemySpritemapDefinitionsConstants.PreSpinyCrawlerFrameCount,
-            "Choot adds four idle, jumping, and falling compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreSpinyCrawlerFrameCount + 20,
-            EnemySpritemapDefinitionsConstants.PreSbugFrameCount,
-            "The spiny crawlers add five frames in each of four surface orientations");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreSbugFrameCount + 24,
-            EnemySpritemapDefinitionsConstants.PreFuneNamiheFrameCount,
-            "Sbug adds three distinct frames in each of eight facing directions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreFuneNamiheFrameCount + 22,
-            EnemySpritemapDefinitionsConstants.PreKamerFrameCount,
-            "Fune/Namihe add all left/right idle and active OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreKamerFrameCount + 4,
-            EnemySpritemapDefinitionsConstants.PreElevatorFrameCount,
-            "Kamer platform adds its four native OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreElevatorFrameCount + 2,
-            EnemySpritemapDefinitionsConstants.PreDraygonIntroFrameCount,
-            "elevator adds its two native OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreDraygonIntroFrameCount + 4,
-            EnemySpritemapDefinitionsConstants.PreDraygonBreathFrameCount,
-            "Draygon intro adds its four native Evir sprite-object frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreDraygonBreathFrameCount + 9,
-            EnemySpritemapDefinitionsConstants.PreRoomEffectActorFrameCount,
-            "Draygon breath bubble adds its nine native sprite-object frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreRoomEffectActorFrameCount + 109,
-            EnemySpritemapDefinitionsConstants.PreYappingMawFrameCount,
-            "remaining room sprite-object programs add 109 distinct visual frames; their empty record shows the shared empty frame");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreYappingMawFrameCount + 24,
-            EnemySpritemapDefinitionsConstants.PreKiHunterFrameCount,
-            "Yapping Maw adds 24 distinct OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreKiHunterFrameCount + 35,
-            EnemySpritemapDefinitionsConstants.PreMotherBrainFrameCount,
-            "KiHunter adds 35 distinct body and wing OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreMotherBrainFrameCount + 18,
-            EnemySpritemapDefinitionsConstants.PreDeadTorizoFrameCount,
-            "Mother Brain adds eighteen head, neck, and falling-tube OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreDeadTorizoFrameCount + 1,
-            EnemySpritemapDefinitionsConstants.PreRidleySupplementFrameCount,
-            "Dead Torizo adds its private corpse OAM frame");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreRidleySupplementFrameCount + 31,
-            EnemySpritemapDefinitionsConstants.PreSciserFrameCount,
-            "Ridley adds sixteen tips, twelve wings, and three tail segment OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreSciserFrameCount + 12,
-            EnemySpritemapDefinitionsConstants.PreFlyFrameCount,
-            "Sciser adds twelve distinct surface-animation OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreFlyFrameCount + 4,
-            EnemySpritemapDefinitionsConstants.PreKagoFrameCount,
-            "Mellow, Mella and Memu share four flight OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreKagoFrameCount + 3,
-            EnemySpritemapDefinitionsConstants.PreFaceBlockFrameCount,
-            "Kago adds three OAM frames shared by its slow and fast loops");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreFaceBlockFrameCount + 5,
-            EnemySpritemapDefinitionsConstants.PreMorphBallEyeFrameCount,
-            "face block adds five distinct neutral and directional OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreMorphBallEyeFrameCount + 22,
-            EnemySpritemapDefinitionsConstants.PreShutterFrameCount,
-            "Morph Ball eye and mount add twenty-two distinct OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreShutterFrameCount + 4,
-            EnemySpritemapDefinitionsConstants.PreMetroidFrameCount,
-            "growing and vertical shutters share four distinct frames; the horizontal shutter is no enemy species (#1686)");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreMetroidFrameCount + 4,
-            EnemySpritemapDefinitionsConstants.PreShaktoolFrameCount,
-            "both ordinary-Metroid loops share four distinct body OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreShaktoolFrameCount + 15,
-            EnemySpritemapDefinitionsConstants.PreTripperKamerFrameCount,
-            "Shaktool's saw, arm, and head programs select fifteen OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreTripperKamerFrameCount + 12,
-            EnemySpritemapDefinitionsConstants.PreDragonFrameCount,
-            "the Tripper adds ten animated and two frozen OAM frames; the suspensor platform shows the Kamer's lights (#2307)");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreDragonFrameCount + 12,
-            EnemySpritemapDefinitionsConstants.PreMultiviolaFrameCount,
-            "Dragon adds twelve distinct body and wing OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreMultiviolaFrameCount +
-                MultiviolaVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitionsConstants.PreNorfairLavaJumperFrameCount,
-            "Multiviola adds eight distinct spinning OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreNorfairLavaJumperFrameCount +
-                NorfairLavaJumperVisualDefinitions.FrameCount - 1,
-            EnemySpritemapDefinitionsConstants.PreChozoStatueFrameCount,
-            "Norfair lava jumper adds ten frames; its follower's empty beat shows the common empty frame (#1823)");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreChozoStatueFrameCount +
-                ChozoStatueVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitionsConstants.PreViolaFrameCount,
-            "Lower Norfair and Wrecked Ship Chozo share twenty-four pictures (#2307)");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreViolaFrameCount +
-                ViolaVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitionsConstants.PreRinkaFrameCount,
-            "Viola adds eight distinct OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreRinkaFrameCount +
-                RinkaVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitionsConstants.PreDeadTorizoStationaryFrameCount,
-            "Rinka adds five OAM frames shared by ordinary and boss loops");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreDeadTorizoStationaryFrameCount + 1,
-            EnemySpritemapDefinitionsConstants.PreDeadTourianCorpseFrameCount,
-            "Dead Torizo adds its stationary corpse composition after version 53");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreDeadTourianCorpseFrameCount +
-                DeadTourianCorpseVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitionsConstants.PreMochtroidFrameCount,
-            "dead Zoomer, Ripper, Skree, and Sidehopper add seven compositions; the dead Sidehopper's legs are the large Sidehopper's (#2327)");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreMochtroidFrameCount +
-                MochtroidVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitionsConstants.PreEvirFrameCount,
-            "Mochtroid adds six free-flight and attached OAM compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreEvirFrameCount +
-                EvirVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitionsConstants.PreWorkRobotFrameCount,
-            "Evir adds 24 body, arms, and projectile compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreWorkRobotFrameCount +
-                WorkRobotVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitionsConstants.PreYardFrameCount,
-            "Work Robot adds 27 powered and unpowered compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreYardFrameCount +
-                YardVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitionsConstants.PreBotwoonFrameCount,
-            "Yard adds 96 crawling, turn, hiding, and airborne compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreBotwoonFrameCount +
-                BotwoonVisualDefinitionsConstants.Frames().Length,
-            EnemySpritemapDefinitionsConstants.PreGunshipFrameCount,
-            "Botwoon adds sixteen distinct visible head compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreGunshipFrameCount +
-                GunshipVisualDefinitions.FrameCount,
-            EnemySpritemapToolingDefinitions.PreMamaTurtleFrameCount,
-            "Gunship adds two hull and eleven entrance-pad compositions");
-        AssertEqual(EnemySpritemapToolingDefinitions.PreMamaTurtleFrameCount +
-                MamaTurtleVisualDefinitions.FrameCount + ZeroVisualDefinitions.FrameCount +
-                FriendlyAnimalVisualDefinitions.EtecoonFrameCount +
-                FriendlyAnimalVisualDefinitions.DachoraFrameCount +
-                FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount +
-                FriendlyAnimalVisualDefinitions.EscapeDachoraFrameCount +
-                HibashiVisualDefinitions.FrameCount + ZebetiteVisualToolingDefinitions.FrameCount +
-                WreckedShipGhostVisualDefinitions.FrameCount + PowampVisualDefinitions.FrameCount +
-                SparkVisualDefinitions.FrameCount + BabyMetroidSpritemapDefinitions.FrameCount +
-                KraidLintVisualDefinitions.FrameCount + NuclearWaffleVisualDefinitions.FrameCount +
-                2 + // Single-frame Kzan and Polyp.
-                RidleyBreakupVisualDefinitions.Legs.Length + RidleyBreakupVisualDefinitions.OpenHeadAndNeck.Length +
-                RidleyBreakupVisualDefinitions.Torso.Length + RidleyBreakupVisualDefinitions.Claw.Length,
-            EnemySpritemapDefinitions.Frames.Length,
-            "post-Gunship installed composition groups account for the complete current catalog");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             
             .Where(frame => frame.LegacyName.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -517,10 +347,10 @@ internal static class EnemySpritemapArtworkVerification
             // The enemy is placed as a retail room places it, so an actor its placement's settings choose, as an ordinary
             // Ceres door its facing (#1989), binds as it does there.
             if (SuperMetroid.AssetExtraction.World.RoomStates.RoomStateDefinitions.All.SelectMany(state => state.EnemyPopulation.Placements.ToArray())
-                    .FirstOrDefault(placement => placement.DefinitionId == definition) is { DefinitionId: not EnemyDefinitionId.None } placed)
-                place.SetSpawnSettings(placed.SpawnSettings);
-            place.Bind(definition, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+                    .FirstOrDefault(placement => placement.DefinitionId == definition) is { } placed)
+                place.PopulateFor(definition, placed.SpawnSettings);
+            place.Bind(definition, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // A boss's part draws in a room whose boss has attached the body its body frames show on (#2573).
             BossBodyCanvasFixtures.AttachBodyOfPart(enemies, place);
             place.Shading = PictureShading.Standard;

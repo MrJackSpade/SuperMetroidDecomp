@@ -28,7 +28,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
 
         RoomObjectDrawLists.DrawList[] lists =
             BlueDoorObjectDrawDefinitionsTooling.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        InstalledRoomObjectBlueDoorVisuals stock = InstalledRoomObjectBlueDoorVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.BlueDoor;
         ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (DoorObjectNativeListAddresses.Blue(ColoredDoorOrientation.Left).Opening + 5)));
         AssertEqual("left-ajar", RoomObjectBlueDoorVisualFiles.VisualId(NativeObjectDraws.At<BlueDoorCaps.Draw>(leftFirstDraw)),
             "the left blue door opens on its first opening frame");

@@ -48,9 +48,6 @@ internal static class RoomObjectFixtures
     /// <summary>The repository installation's pictures of Mother Brain's glass frames, read once per process.</summary>
     private static readonly Lazy<InstalledMotherBrainGlassFrames> MotherBrainGlassFrames = new(() => InstalledMotherBrainGlassFrames.Stock());
 
-    /// <summary>The repository installation's pictures of the escape gate's frames, read once per process.</summary>
-    private static readonly Lazy<InstalledEscapeGateFrames> EscapeGateFrames = new(() => InstalledEscapeGateFrames.Stock());
-
     /// <summary>The repository installation's pictures of Mother Brain's fake-death room frames, read once per process.</summary>
     private static readonly Lazy<InstalledMotherBrainFakeDeathFrames> MotherBrainFakeDeathFrames = new(() => InstalledMotherBrainFakeDeathFrames.Stock());
 
@@ -111,15 +108,15 @@ internal static class RoomObjectFixtures
         RoomObjectShotBlockVisuals = RoomObjectPicturesStock.ShotBlock,
         RoomObjectGrappleBlockVisuals = RoomObjectPicturesStock.GrappleBlock,
         RoomObjectStationVisuals = RoomObjectPicturesStock.Station,
-        RoomObjectBlueDoorVisuals = InstalledRoomObjectBlueDoorVisuals.Stock(),
+        RoomObjectBlueDoorVisuals = RoomObjectPicturesStock.BlueDoor,
         RoomObjectColoredDoorVisuals = RoomObjectPicturesStock.ColoredDoor,
         RoomObjectGreyDoorVisuals = RoomObjectPicturesStock.GreyDoor,
-        RoomObjectEyeDoorVisuals = InstalledRoomObjectEyeDoorVisuals.Stock(),
+        RoomObjectEyeDoorVisuals = RoomObjectPicturesStock.EyeDoor,
         RoomObjectMotherBrainGlassVisuals = MotherBrainGlassFrames.Value,
         RoomObjectNoobTubeVisuals = RoomObjectPicturesStock.NoobTube,
         RoomObjectDownwardGateVisuals = RoomObjectPicturesStock.DownwardGate,
         RoomObjectElevatorPlatformVisuals = RoomObjectPicturesStock.ElevatorPlatform,
-        RoomObjectEscapeGateVisuals = EscapeGateFrames.Value,
+        RoomObjectEscapeGateVisuals = RoomObjectPicturesStock.EscapeGate,
         RoomObjectBombTorizoHandVisuals = RoomObjectPicturesStock.BombTorizoHand,
         RoomObjectDraygonCannonVisuals = DraygonCannonFrames.Value,
         RoomObjectPhantoonDoorVisuals = PhantoonDoorFrames.Value,

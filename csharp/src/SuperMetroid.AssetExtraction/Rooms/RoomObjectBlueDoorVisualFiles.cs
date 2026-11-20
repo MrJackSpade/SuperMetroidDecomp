@@ -21,11 +21,29 @@ public static class RoomObjectBlueDoorVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory) =>
         RoomObjectFrameImageFiles.Extract(bus, directory, Family);
 
-    /// <summary>Loads the installed blue-door cap pictures as the player left them, without the cartridge.</summary>
+    /// <summary>
+    /// Loads the installed blue-door cap pictures as the player left them, without the cartridge, with each facing's closed
+    /// cap drawn solid showing that facing's closed cap.
+    /// </summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectBlueDoorVisuals Load(string directory) =>
-        new(RoomObjectFrameImageFiles.Load(directory, Family));
+    public static InstalledRoomObjectPictures Load(string directory) =>
+        new(WithClosedSolidCaps(RoomObjectFrameImageFiles.Load(directory, Family)));
+
+    /// <summary>
+    /// The installed caps' pictures and, under each facing's closed cap drawn solid, the picture of that facing's closed
+    /// cap, which it shows (#1627).
+    /// </summary>
+    private static RoomObjectFrameImages<RoomObjectDraw> WithClosedSolidCaps(RoomObjectFrameImages<RoomObjectDraw> caps)
+    {
+        var pictures = new Dictionary<RoomObjectDraw, RoomObjectFrameImage>(caps.All);
+        foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
+        {
+            RoomObjectDraw solid = BlueDoorCaps.ClosedSolid(orientation);
+            pictures.Add(solid, caps.Image(BlueDoorCaps.VisualSource(solid)));
+        }
+        return new RoomObjectFrameImages<RoomObjectDraw>(pictures);
+    }
 
     /// <summary>Sixteen original artwork identities; each facing's closed cap drawn solid shows its closed cap's.</summary>
     private static IEnumerable<RoomObjectDrawLists.DrawList> Editable

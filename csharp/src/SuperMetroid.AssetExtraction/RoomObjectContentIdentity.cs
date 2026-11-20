@@ -16,13 +16,6 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>The installed content identities of the room objects' visual catalogs, which only the import pipeline and its diagnostics compare (#1502).</summary>
 internal static class RoomObjectContentIdentity
 {
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectBlueDoorVisuals"/>.</summary>
-    extension(InstalledRoomObjectBlueDoorVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectBlueDoorVisuals), visuals.Images, RoomObjectBlueDoorVisualFiles.Family);
-    }
-
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectSetupBlocks"/>.</summary>
     extension(InstalledRoomObjectSetupBlocks blocks)
     {
@@ -37,13 +30,6 @@ internal static class RoomObjectContentIdentity
                 content.AppendAppearances("shows", shown);
             }
         });
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectEyeDoorVisuals"/>.</summary>
-    extension(InstalledRoomObjectEyeDoorVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectEyeDoorVisuals), visuals.Images, RoomObjectEyeDoorVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="RoomObjectTourianAccessVisuals"/>.</summary>
@@ -65,13 +51,6 @@ internal static class RoomObjectContentIdentity
     {
         /// <summary>Hashes every door frame's picture, in published-name order.</summary>
         public string ContentIdentity => FrameImagesIdentity(nameof(InstalledPhantoonDoorFrames), visuals.Images, RoomObjectPhantoonDoorVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledEscapeGateFrames"/>.</summary>
-    extension(InstalledEscapeGateFrames visuals)
-    {
-        /// <summary>Hashes every gate frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledEscapeGateFrames), visuals.Images, RoomObjectEscapeGateVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledMotherBrainFakeDeathFrames"/>.</summary>

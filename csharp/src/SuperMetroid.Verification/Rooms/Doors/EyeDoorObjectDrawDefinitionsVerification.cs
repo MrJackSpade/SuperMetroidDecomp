@@ -74,7 +74,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
         var guarded = NewEyeDoorDrawGuard(bus, lists);
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), RoomObjectPopulationImporter.Read(guarded, 0x9000), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { EyeDoorProjectile = _ => { }, EyeDoorAttack = _ => { } } });
         roomObjects.Step(level);
-        InstalledRoomObjectEyeDoorVisuals pictures = InstalledRoomObjectEyeDoorVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.EyeDoor;
         int[] origins = [4 * width + 7, 6 * width + 7, 8 * width + 7];
         for (int component = 0; component < pointers.Length; component++)
         {

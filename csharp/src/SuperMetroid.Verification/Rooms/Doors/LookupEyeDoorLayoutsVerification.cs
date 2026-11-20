@@ -31,7 +31,7 @@ internal static class LookupEyeDoorLayoutsVerification
             0x9c4f,0x9c5b,0x9c63,0x9c6b,0x9c73,0x9c7b,0x9c83,0x9c89,0x9c8f,0x9c95,0x9c9b,0x9ca1];
         var exported = RoomObjectEyeDoorVisualFiles.All.ToArray();
         AssertEqual(24,exported.Length,"Eye door original layout count");
-        InstalledRoomObjectEyeDoorVisuals? pictures = field == 2 ? InstalledRoomObjectEyeDoorVisuals.Stock() : null;
+        InstalledRoomObjectPictures? pictures = field == 2 ? RoomObjectPicturesStock.EyeDoor : null;
         if (field == 0)
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {

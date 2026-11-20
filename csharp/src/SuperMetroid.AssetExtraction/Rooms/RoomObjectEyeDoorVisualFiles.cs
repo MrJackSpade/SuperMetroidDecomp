@@ -21,11 +21,22 @@ public static class RoomObjectEyeDoorVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory) =>
         RoomObjectFrameImageFiles.Extract(bus, directory, Family);
 
-    /// <summary>Loads the installed eye-door pictures as the player left them, without the cartridge.</summary>
+    /// <summary>
+    /// Loads the installed eye-door pictures as the player left them, without the cartridge, with the right door's opening
+    /// clear showing the shared clear mirrored left to right.
+    /// </summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectEyeDoorVisuals Load(string directory) =>
-        new(RoomObjectFrameImageFiles.Load(directory, Family));
+    public static InstalledRoomObjectPictures Load(string directory) =>
+        new(WithMirroredOpeningClear(RoomObjectFrameImageFiles.Load(directory, Family)));
+
+    /// <summary>The installed frames' pictures and, under the mirrored opening clear, the shared clear's picture mirrored left to right.</summary>
+    private static RoomObjectFrameImages<RoomObjectDraw> WithMirroredOpeningClear(RoomObjectFrameImages<RoomObjectDraw> frames)
+    {
+        var pictures = new Dictionary<RoomObjectDraw, RoomObjectFrameImage>(frames.All);
+        pictures.Add(EyeDoorObjectDrawDefinitions.MirroredOpeningClear, frames.Image(EyeDoorObjectDrawDefinitions.SharedClear).MirroredHorizontally());
+        return new RoomObjectFrameImages<RoomObjectDraw>(pictures);
+    }
 
     /// <summary>Enumerates both sides' clear, eye, middle, and bottom draws, left side first.</summary>
     private static IEnumerable<RoomObjectDrawLists.DrawList> All

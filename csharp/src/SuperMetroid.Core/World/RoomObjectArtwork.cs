@@ -27,7 +27,7 @@ internal sealed record RoomObjectArtwork
     public required InstalledRoomObjectPictures RoomObjectStationVisuals { get; init; }
 
     /// <summary>Visual-only blue-door cap frames supplied by installed content.</summary>
-    public required InstalledRoomObjectBlueDoorVisuals RoomObjectBlueDoorVisuals { get; init; }
+    public required InstalledRoomObjectPictures RoomObjectBlueDoorVisuals { get; init; }
 
     /// <summary>Visual-only colored-door cap frames supplied by installed content.</summary>
     public required InstalledRoomObjectPictures RoomObjectColoredDoorVisuals { get; init; }
@@ -36,7 +36,7 @@ internal sealed record RoomObjectArtwork
     public required InstalledRoomObjectPictures RoomObjectGreyDoorVisuals { get; init; }
 
     /// <summary>Visual-only mirrored eye-door frames supplied by installed content.</summary>
-    public required InstalledRoomObjectEyeDoorVisuals RoomObjectEyeDoorVisuals { get; init; }
+    public required InstalledRoomObjectPictures RoomObjectEyeDoorVisuals { get; init; }
 
     /// <summary>The installed pictures of Mother Brain's glass frames; collision stays with the draws.</summary>
     public required InstalledMotherBrainGlassFrames RoomObjectMotherBrainGlassVisuals { get; init; }
@@ -51,7 +51,7 @@ internal sealed record RoomObjectArtwork
     public required InstalledRoomObjectPictures RoomObjectElevatorPlatformVisuals { get; init; }
 
     /// <summary>The installed pictures of Mother Brain's escape-gate frames; collision stays with the draws.</summary>
-    public required InstalledEscapeGateFrames RoomObjectEscapeGateVisuals { get; init; }
+    public required InstalledRoomObjectPictures RoomObjectEscapeGateVisuals { get; init; }
 
     /// <summary>Bomb Torizo hand art; collision stays with the draws.</summary>
     public required InstalledRoomObjectPictures RoomObjectBombTorizoHandVisuals { get; init; }

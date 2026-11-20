@@ -15,12 +15,14 @@ public static class RoomObjectPresentationIdentity
                 GameInstallationLayout.RoomObjectGrappleBlockVisualDirectoryName, RoomObjectGrappleBlockVisualFiles.Family),
             [GameInstallationLayout.RoomObjectStationVisualDirectoryName] = catalogs.Station.ContentIdentity(
                 GameInstallationLayout.RoomObjectStationVisualDirectoryName, RoomObjectStationVisualFiles.Family),
-            [GameInstallationLayout.RoomObjectBlueDoorVisualDirectoryName] = catalogs.BlueDoor.ContentIdentity,
+            [GameInstallationLayout.RoomObjectBlueDoorVisualDirectoryName] = catalogs.BlueDoor.ContentIdentity(
+                GameInstallationLayout.RoomObjectBlueDoorVisualDirectoryName, RoomObjectBlueDoorVisualFiles.Family),
             [GameInstallationLayout.RoomObjectColoredDoorVisualDirectoryName] = catalogs.ColoredDoor.ContentIdentity(
                 GameInstallationLayout.RoomObjectColoredDoorVisualDirectoryName, RoomObjectColoredDoorVisualFiles.Family),
             [GameInstallationLayout.RoomObjectGreyDoorVisualDirectoryName] = catalogs.GreyDoor.ContentIdentity(
                 GameInstallationLayout.RoomObjectGreyDoorVisualDirectoryName, RoomObjectGreyDoorVisualFiles.Family),
-            [GameInstallationLayout.RoomObjectEyeDoorVisualDirectoryName] = catalogs.EyeDoor.ContentIdentity,
+            [GameInstallationLayout.RoomObjectEyeDoorVisualDirectoryName] = catalogs.EyeDoor.ContentIdentity(
+                GameInstallationLayout.RoomObjectEyeDoorVisualDirectoryName, RoomObjectEyeDoorVisualFiles.Family),
             [GameInstallationLayout.RoomObjectMotherBrainGlassVisualDirectoryName] = catalogs.MotherBrainGlass.ContentIdentity,
             [GameInstallationLayout.RoomObjectNoobTubeVisualDirectoryName] = catalogs.NoobTube.ContentIdentity(
                 GameInstallationLayout.RoomObjectNoobTubeVisualDirectoryName, RoomObjectNoobTubeVisualFiles.Family),
@@ -28,7 +30,8 @@ public static class RoomObjectPresentationIdentity
                 GameInstallationLayout.RoomObjectDownwardGateVisualDirectoryName, RoomObjectDownwardGateVisualFiles.Family),
             [GameInstallationLayout.RoomObjectElevatorPlatformVisualDirectoryName] = catalogs.ElevatorPlatform.ContentIdentity(
                 GameInstallationLayout.RoomObjectElevatorPlatformVisualDirectoryName, RoomObjectElevatorPlatformVisualFiles.Family),
-            [GameInstallationLayout.RoomObjectEscapeGateVisualDirectoryName] = catalogs.EscapeGate.ContentIdentity,
+            [GameInstallationLayout.RoomObjectEscapeGateVisualDirectoryName] = catalogs.EscapeGate.ContentIdentity(
+                GameInstallationLayout.RoomObjectEscapeGateVisualDirectoryName, RoomObjectEscapeGateVisualFiles.Family),
             [GameInstallationLayout.RoomObjectBombTorizoHandVisualDirectoryName] = catalogs.BombTorizoHand.ContentIdentity(
                 GameInstallationLayout.RoomObjectBombTorizoHandVisualDirectoryName, RoomObjectBombTorizoHandVisualFiles.Family),
             [GameInstallationLayout.RoomObjectDraygonCannonVisualDirectoryName] = catalogs.DraygonCannon.ContentIdentity,

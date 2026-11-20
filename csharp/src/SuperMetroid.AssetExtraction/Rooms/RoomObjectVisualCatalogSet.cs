@@ -24,7 +24,7 @@ public sealed record RoomObjectVisualCatalogSet
     public required InstalledRoomObjectPictures Station { get; init; }
 
     /// <summary>Blue door.</summary>
-    public required InstalledRoomObjectBlueDoorVisuals BlueDoor { get; init; }
+    public required InstalledRoomObjectPictures BlueDoor { get; init; }
 
     /// <summary>Colored door.</summary>
     public required InstalledRoomObjectPictures ColoredDoor { get; init; }
@@ -33,7 +33,7 @@ public sealed record RoomObjectVisualCatalogSet
     public required InstalledRoomObjectPictures GreyDoor { get; init; }
 
     /// <summary>Eye door.</summary>
-    public required InstalledRoomObjectEyeDoorVisuals EyeDoor { get; init; }
+    public required InstalledRoomObjectPictures EyeDoor { get; init; }
 
     /// <summary>Mother brain glass.</summary>
     public required InstalledMotherBrainGlassFrames MotherBrainGlass { get; init; }
@@ -48,7 +48,7 @@ public sealed record RoomObjectVisualCatalogSet
     public required InstalledRoomObjectPictures ElevatorPlatform { get; init; }
 
     /// <summary>Escape gate.</summary>
-    public required InstalledEscapeGateFrames EscapeGate { get; init; }
+    public required InstalledRoomObjectPictures EscapeGate { get; init; }
 
     /// <summary>Bomb torizo hand.</summary>
     public required InstalledRoomObjectPictures BombTorizoHand { get; init; }

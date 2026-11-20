@@ -17,7 +17,7 @@ internal static class LookupEyeDoorStockVerification
     /// Compares the 23 published frames' pictures and the mirrored clear's with the cartridge's draw lists, rejects other
     /// draws, then checks the import and its rejections.
     /// </summary>
-    internal static void VerifyEyeDoorStockMapping(CartridgeImportAddressSpace rom, InstalledRoomObjectEyeDoorVisuals installed)
+    internal static void VerifyEyeDoorStockMapping(CartridgeImportAddressSpace rom, InstalledRoomObjectPictures installed)
     {
         LookupEscapeGateStockFrame[] frames = [
             new LookupEscapeGateStockFrame(0x9c03,"left-eye-closed"),new LookupEscapeGateStockFrame(0x9c0b,"left-eye-half-open"),new LookupEscapeGateStockFrame(0x9c13,"left-eye-open"),
@@ -33,9 +33,10 @@ internal static class LookupEyeDoorStockVerification
         const ushort mirroredClear = 0x9bf7;
         // Each frame is one run; its header word holds how many cells the run writes.
         int written = frames.Sum(frame => ReadSamusEaterObjectWord(rom, 0x840000 | frame.Pointer) & 0x7fff);
-        foreach (InstalledRoomObjectEyeDoorVisuals pictures in new[] { InstalledRoomObjectEyeDoorVisuals.Stock(), installed })
+        foreach (InstalledRoomObjectPictures pictures in new[] { RoomObjectPicturesStock.EyeDoor, installed })
         {
-            AssertPicturedAsNative(rom, pictures.Images, RoomObjectEyeDoorVisualFiles.Family, frames, written);
+            AssertEqual(frames.Length + 1, pictures.Images.All.Count, "Eye door pictures every frame and the mirrored opening clear");
+            AssertPicturedAsNative(rom, FamilyFrames(pictures.Images, RoomObjectEyeDoorVisualFiles.Family), RoomObjectEyeDoorVisualFiles.Family, frames, written);
             RoomObjectFrameImage clear = pictures.Image(NativeObjectDraws.At<EyeDoorDraws.Draw>(mirroredClear));
             AssertAliasPicturedAsNative(rom, clear, mirroredClear, "Eye door original mirrored native word");
             RoomObjectFrameImage shared = pictures.Image(NativeObjectDraws.At<EyeDoorDraws.Draw>(0x9c4f));
@@ -45,6 +46,6 @@ internal static class LookupEyeDoorStockVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (raw != mirroredClear && frames.All(frame => frame.Pointer != raw))
                 AssertThrows<InvalidDataException>(() => installed.Image(NativeObjectDraws.At<EyeDoorDraws.Draw>((ushort)raw)), "Eye door stock full pointer rejection");
-        AssertImportAndRejections(rom, installed.Images, RoomObjectEyeDoorVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectEyeDoorVisualDirectory);
+        AssertImportAndRejections(rom, FamilyFrames(installed.Images, RoomObjectEyeDoorVisualFiles.Family), RoomObjectEyeDoorVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectEyeDoorVisualDirectory);
     }
 }

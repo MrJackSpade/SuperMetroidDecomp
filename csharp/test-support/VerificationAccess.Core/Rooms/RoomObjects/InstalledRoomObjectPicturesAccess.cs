@@ -8,7 +8,7 @@ internal static class InstalledRoomObjectPicturesAccess
     /// <summary>Exposes <see cref="InstalledRoomObjectPictures"/> state that only verification reads.</summary>
     extension(InstalledRoomObjectPictures self)
     {
-        /// <summary>The picture <paramref name="draw"/> shows.</summary>
+        /// <summary>The picture <paramref name="draw"/> shows, a second identity's included.</summary>
         /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
         internal RoomObjectFrameImage Image(RoomObjectDraw draw) => self.Images.Image(draw);
     }
@@ -17,6 +17,15 @@ internal static class InstalledRoomObjectPicturesAccess
 /// <summary>Each room-object family's pictures as the repository installation holds them (#2557).</summary>
 internal static class RoomObjectPicturesStock
 {
+    /// <summary>BlueDoor's pictures as the repository installation holds them.</summary>
+    internal static InstalledRoomObjectPictures BlueDoor => RepositoryInstallation.Installation.LoadRoomObjectBlueDoorVisuals();
+
+    /// <summary>EscapeGate's pictures as the repository installation holds them.</summary>
+    internal static InstalledRoomObjectPictures EscapeGate => RepositoryInstallation.Installation.LoadRoomObjectEscapeGateVisuals();
+
+    /// <summary>EyeDoor's pictures as the repository installation holds them.</summary>
+    internal static InstalledRoomObjectPictures EyeDoor => RepositoryInstallation.Installation.LoadRoomObjectEyeDoorVisuals();
+
     /// <summary>BotwoonWall's pictures as the repository installation holds them.</summary>
     internal static InstalledRoomObjectPictures BotwoonWall => RepositoryInstallation.Installation.LoadRoomObjectBotwoonWallVisuals();
 

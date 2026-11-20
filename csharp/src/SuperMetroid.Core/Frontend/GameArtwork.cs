@@ -68,7 +68,7 @@ public sealed record GameArtwork
     public required InstalledRoomObjectPictures RoomObjectStationVisuals { get; init; }
 
     /// <summary>Room-object blue door visuals.</summary>
-    public required InstalledRoomObjectBlueDoorVisuals RoomObjectBlueDoorVisuals { get; init; }
+    public required InstalledRoomObjectPictures RoomObjectBlueDoorVisuals { get; init; }
 
     /// <summary>Room-object colored door visuals.</summary>
     public required InstalledRoomObjectPictures RoomObjectColoredDoorVisuals { get; init; }
@@ -77,7 +77,7 @@ public sealed record GameArtwork
     public required InstalledRoomObjectPictures RoomObjectGreyDoorVisuals { get; init; }
 
     /// <summary>Room-object eye door visuals.</summary>
-    public required InstalledRoomObjectEyeDoorVisuals RoomObjectEyeDoorVisuals { get; init; }
+    public required InstalledRoomObjectPictures RoomObjectEyeDoorVisuals { get; init; }
 
     /// <summary>Room-object mother brain glass visuals.</summary>
     public required InstalledMotherBrainGlassFrames RoomObjectMotherBrainGlassVisuals { get; init; }
@@ -92,7 +92,7 @@ public sealed record GameArtwork
     public required InstalledRoomObjectPictures RoomObjectElevatorPlatformVisuals { get; init; }
 
     /// <summary>Room-object escape gate visuals.</summary>
-    public required InstalledEscapeGateFrames RoomObjectEscapeGateVisuals { get; init; }
+    public required InstalledRoomObjectPictures RoomObjectEscapeGateVisuals { get; init; }
 
     /// <summary>Room-object bomb torizo hand visuals.</summary>
     public required InstalledRoomObjectPictures RoomObjectBombTorizoHandVisuals { get; init; }

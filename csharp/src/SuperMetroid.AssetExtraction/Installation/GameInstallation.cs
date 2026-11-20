@@ -152,7 +152,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock definitions for blue-door cap frames under the replaceable content tree.</summary>
     private string RoomObjectBlueDoorVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectBlueDoorVisualDirectoryName);
     /// <summary>Editable blue-door cap art; opening timing and physical tiles remain compiled.</summary>
-    private InstalledRoomObjectBlueDoorVisuals LoadRoomObjectBlueDoorVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectBlueDoorVisuals() =>
         RoomObjectBlueDoorVisualFiles.Load(RoomObjectBlueDoorVisualDirectory);
     /// <summary>Stock definitions for colored-door cap frames under the replaceable content tree.</summary>
     private string RoomObjectColoredDoorVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectColoredDoorVisualDirectoryName);
@@ -167,7 +167,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock definitions for the three eye-door components' appearances under the replaceable content tree.</summary>
     private string RoomObjectEyeDoorVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectEyeDoorVisualDirectoryName);
     /// <summary>Editable eye-door blocks; the three PLM components retain compiled behavior.</summary>
-    private InstalledRoomObjectEyeDoorVisuals LoadRoomObjectEyeDoorVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectEyeDoorVisuals() =>
         RoomObjectEyeDoorVisualFiles.Load(RoomObjectEyeDoorVisualDirectory);
     /// <summary>Stock definitions for Mother Brain glass appearances under the replaceable content tree.</summary>
     private string RoomObjectMotherBrainGlassVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectMotherBrainGlassVisualDirectoryName);
@@ -192,7 +192,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock definitions for closing escape-gate appearances under the replaceable content tree.</summary>
     private string RoomObjectEscapeGateVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectEscapeGateVisualDirectoryName);
     /// <summary>Loads the installed pictures of Mother Brain's escape-gate frames as the player left them.</summary>
-    private InstalledEscapeGateFrames LoadRoomObjectEscapeGateVisuals() =>
+    private InstalledRoomObjectPictures LoadRoomObjectEscapeGateVisuals() =>
         RoomObjectEscapeGateVisualFiles.Load(RoomObjectEscapeGateVisualDirectory);
     /// <summary>Stock definitions for Bomb Torizo hand appearances under the replaceable content tree.</summary>
     private string RoomObjectBombTorizoHandVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectBombTorizoHandVisualDirectoryName);

@@ -61,8 +61,10 @@ internal static class RoomObjectFrameClosedContractDefinitions
     /// <summary>Every room-object frame-picture provider, with its reviewed sources.</summary>
     internal static readonly ClosedPresentationContract[] Families =
     [
-        // Every family whose provider only holds its frames' pictures shares the one provider; its loaders each enumerate their
-        // family's frames through the family's descriptors (#2557).
+        // Every family whose provider only holds its draws' pictures shares the one provider; its loaders each enumerate their
+        // family's frames through the family's descriptors (#2557). The blue-door loader adds each facing's closed cap drawn
+        // solid under its closed cap's picture, the eye-door loader the opening clear as the shared clear mirrored, and the
+        // escape-gate loader keys each gate frame by its draw.
         new("SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures", "room-object-family-complete-frames", [],
             [
                 new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectPictures.cs"),
@@ -86,6 +88,10 @@ internal static class RoomObjectFrameClosedContractDefinitions
                 new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectSporeSpawnCeilingVisualFiles.cs"),
                 new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectBombTorizoHandVisualFiles.cs"),
                 new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectChozoStatueVisualFiles.cs"),
+                new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectBlueDoorVisualFiles.cs"),
+                new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectEyeDoorVisualFiles.cs"),
+                new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectEscapeGateVisualFiles.cs"),
+                new("csharp/src/SuperMetroid.AssetExtraction/Rooms/MotherBrainEscapeGateDrawKeys.cs"),
                 new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/BotwoonWallObjectDraws.cs"),
                 new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/BotwoonWallObjectDrawDefinitions.cs"),
                 new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/BotwoonWallDraw.cs"),
@@ -115,24 +121,18 @@ internal static class RoomObjectFrameClosedContractDefinitions
                 new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnCeilingDraws.cs"),
                 new("csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandDraws.cs"),
                 new("csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueDraws.cs"),
+                new("csharp/src/SuperMetroid.Core/Rooms/Doors/BlueDoorCaps.cs"),
+                new("csharp/src/SuperMetroid.Core/Rooms/Doors/BlueDoorObjectDrawDefinitions.cs"),
+                new("csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorDraws.cs"),
+                new("csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorObjectDrawDefinitions.cs"),
+                new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/MotherBrainEscapeGateDraws.cs"),
+                new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/MotherBrainEscapeGateObjectDrawDefinitions.cs"),
                 .. Shared,
             ]),
         Family("SuperMetroid.Core.Areas.Tourian.Artwork.RoomObjectTourianAccessVisuals", "room-object-tourian-access-complete-frames",
             "csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/RoomObjectTourianAccessVisuals.cs",
             "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectTourianAccessVisualFiles.cs",
             "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianAccessDraw.cs"),
-        // The closed cap drawn solid shows its facing's closed cap, which the provider reads for each facing.
-        Family(["ClosedSolid"], "SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectBlueDoorVisuals", "room-object-blue-door-complete-frames",
-            "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectBlueDoorVisuals.cs",
-            "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectBlueDoorVisualFiles.cs",
-            "csharp/src/SuperMetroid.Core/Rooms/Doors/BlueDoorCaps.cs",
-            "csharp/src/SuperMetroid.Core/Rooms/Doors/BlueDoorObjectDrawDefinitions.cs"),
-        // A mirrored clear shows the shared clear's picture mirrored; the provider derives it from that installed frame.
-        Family("SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectEyeDoorVisuals", "room-object-eye-door-complete-frames",
-            "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectEyeDoorVisuals.cs",
-            "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectEyeDoorVisualFiles.cs",
-            "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorDraws.cs",
-            "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorObjectDrawDefinitions.cs"),
     ];
 
     /// <summary>

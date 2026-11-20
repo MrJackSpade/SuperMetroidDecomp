@@ -113,16 +113,15 @@ internal sealed class PhantoonOpening
         if (flame is null)
             return false;
 
+        var orbit = new PhantoonOrbitingFlameState(phantoon, start);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             flame,
             RoomEnemyProjectileKind.PhantoonStartingFlame,
-            _combat.StartingFlame,
+            _combat.StartingFlame(orbit),
             SpriteGraphics.SpawnedBy(body));
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.StartingFlame));
         flame.Position = flame.Position.WithoutFractions();
         flame.Velocity = PixelVelocity<RoomPixels>.Zero;
-        var orbit = new PhantoonOrbitingFlameState(phantoon, start);
-        flame.State = orbit;
         PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, orbit.Angle, radius: PhantoonFlameMotionDefinitions.IntroCircleRadius);
         flame.StartMotion(PhantoonFlameMotion.IntroWaiting);
         return true;

@@ -29,8 +29,8 @@ internal static class SkulteraOwnedStateVerification
 
         SignedSixteenSixteen right = EnemyLinearSpeedTable.Speed(speedRecord);
         SignedSixteenSixteen left = -right;
-        AssertEqual(right, SkulteraBehavior.SwimVelocity(place.HeldOccupant(), place, HorizontalDirection.Right), "rightward speed");
-        AssertEqual(left, SkulteraBehavior.SwimVelocity(place.HeldOccupant(), place, HorizontalDirection.Left), "leftward speed");
+        AssertEqual(right, SkulteraBehavior.SwimVelocity(place.HeldOccupant(), HorizontalDirection.Right), "rightward speed");
+        AssertEqual(left, SkulteraBehavior.SwimVelocity(place.HeldOccupant(), HorizontalDirection.Left), "leftward speed");
         SkulteraSpawnSettings settings = place.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>();
         AssertEqual(new VerifySkulteraOwnedStateCase(20, 10), new VerifySkulteraOwnedStateCase(settings.Radius, settings.AngleStep.ToTrigonometryAngle().RawValue), "radius and angle step come from parameter two");
 

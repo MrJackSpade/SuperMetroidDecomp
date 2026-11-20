@@ -523,7 +523,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The velocity of the vertical shutter in <paramref name="place"/> moving toward <paramref name="direction"/>: its
     /// spawn speed, reversed upward, fraction included (#2278).
     /// </summary>
-    internal static SignedSixteenSixteen VerticalShutterVelocity(RoomEnemyOccupant occupant, RoomEnemyPlace place, VerticalDirection direction)
+    internal static SignedSixteenSixteen VerticalShutterVelocity(RoomEnemyOccupant occupant, VerticalDirection direction)
     {
         SignedSixteenSixteen speed = occupant.SpawnSettings<ShutterSpawnSettings>().Speed;
         return speed.Toward(direction);
@@ -539,7 +539,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The riding test reads where the shutter stood before it moves; a rider is carried by the move's whole pixels.
         int previousY = place.Position.Y.Whole;
         bool carriesSamus = EnemyCollision.IsSamusStandingOn(place, samus);
-        place.Position = place.Position.AdvanceY(VerticalShutterVelocity(occupant, place, direction));
+        place.Position = place.Position.AdvanceY(VerticalShutterVelocity(occupant, direction));
         if (carriesSamus)
             CarrySamusVertically(place, samus, previousY);
 
@@ -548,7 +548,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             : place.Position.Y.Whole - state.LowerEndpointY;
         if (beforeEndpoint < 0)
             return;
-        StopVerticalShutter(occupant, place, state, direction);
+        StopVerticalShutter(occupant, state, direction);
     }
 
     /// <summary>
@@ -563,7 +563,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             place.Position.Y.Whole - previousY);
 
     /// <summary>Enters a timed rest or permanent stop at the endpoint the shutter reached moving toward <paramref name="moved"/>.</summary>
-    private static void StopVerticalShutter(RoomEnemyOccupant occupant, RoomEnemyPlace place, VerticalShutterEnemyState state, VerticalDirection moved)
+    private static void StopVerticalShutter(RoomEnemyOccupant occupant, VerticalShutterEnemyState state, VerticalDirection moved)
     {
         ShutterSpawnSettings settings = occupant.SpawnSettings<ShutterSpawnSettings>();
         ShutterRest rest = moved == VerticalDirection.Up ? settings.RestAfterMovingUp : settings.RestAfterMovingDown;

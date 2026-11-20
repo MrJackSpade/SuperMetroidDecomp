@@ -85,7 +85,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case HibashiAction.Finished:
-                RestHibashi(occupant, place, state);
+                RestHibashi(occupant, state);
                 return;
 
             default:
@@ -115,7 +115,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Rests the flame whose eruption has finished, which hid it: its wait restarts at its placement's inactive time and the
     /// update it runs out on (#2340).
     /// </summary>
-    internal static void RestHibashi(RoomEnemyOccupant occupant, RoomEnemyPlace flame, HibashiEnemyState state)
+    internal static void RestHibashi(RoomEnemyOccupant occupant, HibashiEnemyState state)
     {
         state.InactiveTimer = UpdateCountdown.For(occupant.SpawnSettings<HibashiSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = HibashiAction.Inactive;

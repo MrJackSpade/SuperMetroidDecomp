@@ -61,7 +61,7 @@ internal static class SbugMovementDefinitionsVerification
 
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + selector * 2);
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
-            CompassDirection forward = SbugBehavior.ForwardLeg(place.HeldOccupant(), place).Facing;
+            CompassDirection forward = SbugBehavior.ForwardLeg(place.HeldOccupant()).Facing;
             AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[selector], forward,
                 $"Sbug production facing {selector}");
             AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(forward)), AnimationPlace.StartOfAnimation), state.Playback,

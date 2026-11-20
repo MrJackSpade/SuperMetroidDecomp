@@ -185,7 +185,7 @@ internal sealed class NorfairRidleyDeath
             // places it where that part of Ridley still stands and starts its animation.
             RoomEnemyPlacement population = new(
                 EnemyDefinitionId.RidleyBreakupPiece,
-                Position: Position16<RoomPixels>.Zero,
+                Placing: EnemyPlacing.At(Position16<RoomPixels>.Zero),
                 Contact: EnemyContact.IgnoresSamus,
                 Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
                 Presence: EnemyPresence.None,

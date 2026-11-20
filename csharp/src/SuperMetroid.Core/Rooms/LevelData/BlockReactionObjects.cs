@@ -241,7 +241,7 @@ internal sealed class BlockReactionObjects
         if (behavior.Shootable is { } shootable && shootable.SetsOffOnlyInSolidBlocks && !solidBlock)
             return false;
 
-        SamusProjectileFamily projectileFamily = projectileType.Family;
+        SamusProjectileFamily projectileFamily = strike.Family;
 
         // A Power Bomb or Super Missile block breaks only for its own weapon or a bomb; any other shot leaves the block as it
         // is and takes no place.

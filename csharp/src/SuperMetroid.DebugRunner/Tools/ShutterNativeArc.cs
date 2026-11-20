@@ -148,7 +148,7 @@ internal static class ShutterNativeArc
         var shutter = runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
         RoomEnemyPlace shutterPlace = runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[0];
         ShutterSpawnSettings settings = shutterPlace.HeldOccupant().SpawnSettings<ShutterSpawnSettings>();
-        SignedSixteenSixteen upward = ShuttersBehavior.VerticalShutterVelocity(shutterPlace.HeldOccupant(), shutterPlace, VerticalDirection.Up);
+        SignedSixteenSixteen upward = ShuttersBehavior.VerticalShutterVelocity(shutterPlace.HeldOccupant(), VerticalDirection.Up);
         Word(0xFA8, ShutterArcNativeWords.Action((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action));
         Word(0xFB0, upward.Fraction); Word(0xFB2, upward.UnsignedWholePixels);
         Word(0xFAC, settings.Speed.Fraction); Word(0xFAE, settings.Speed.UnsignedWholePixels);

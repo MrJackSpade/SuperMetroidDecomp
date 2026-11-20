@@ -58,7 +58,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case BullAction.Accelerating:
                 if (state.IsBelow(occupant.SpawnSettings<BullSpawnSettings>().MaximumSpeed))
-                    AccelerateBull(occupant, place, state);
+                    AccelerateBull(occupant, state);
                 MoveBull(place, state);
                 TriggerBullDecelerationIfOffTarget(place, state, samus);
                 return;
@@ -73,7 +73,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
                 MoveBull(place, state);
-                DecelerateBull(occupant, place, state);
+                DecelerateBull(occupant, state);
                 return;
 
             default:
@@ -94,7 +94,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole)))).ToAngle();
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
-    private static void AccelerateBull(RoomEnemyOccupant occupant, RoomEnemyPlace place, BullEnemyState state)
+    private static void AccelerateBull(RoomEnemyOccupant occupant, BullEnemyState state)
     {
         if (!state.AccelerationIntervalTimer.StepEnds())
             return;
@@ -104,7 +104,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Reduces acceleration and speed on the configured deceleration cadence.</summary>
-    private static void DecelerateBull(RoomEnemyOccupant occupant, RoomEnemyPlace place, BullEnemyState state)
+    private static void DecelerateBull(RoomEnemyOccupant occupant, BullEnemyState state)
     {
         if (!state.AccelerationIntervalTimer.StepEnds())
             return;

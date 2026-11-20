@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Artwork;
@@ -406,6 +407,7 @@ public sealed class SamusState
     /// handling rejects it, an input transition to another pose cancels it, or the jump it armed ends: the rising arc reads
     /// its direction throughout, and a later blast replaces it whole. She holds none when no bomb jump is asked of her.
     /// </summary>
+    [SuppressMessage("Design", "SME6470", Justification = "Her own state for the bomb jump's whole course, which the rising arc reads throughout and a later blast replaces; no step consumes and clears it.")]
     public SamusBombJumpRequest? BombJumpRequest { get; set; }
 
     /// <summary>True for the bomb jump's one-frame start, which sets her velocity (<see cref="SamusMovementOwner.BombJump"/>).</summary>

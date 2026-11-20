@@ -94,8 +94,10 @@ internal sealed class SamusPoseAnimation
     /// <exception cref="InvalidDataException">The name names no frame of this animation.</exception>
     internal SamusAnimationFrame FrameNamed(string? name)
     {
-        int separator = name?.LastIndexOf('.') ?? -1;
-        if (name is null || separator <= 0 || !SamusAnimationSegmentNameKeys.Installed.TryParse(name[..separator], out SamusAnimationSegmentName segment) ||
+        if (name is null)
+            throw new InvalidDataException("No name names an animation frame.");
+        int separator = name.LastIndexOf('.');
+        if (separator <= 0 || !SamusAnimationSegmentNameKeys.Installed.TryParse(name[..separator], out SamusAnimationSegmentName segment) ||
             !int.TryParse(name.AsSpan(separator + 1), NumberStyles.None, CultureInfo.InvariantCulture, out int frame))
             throw new InvalidDataException($"'{name}' names no animation frame.");
         return Array.Find(segments, candidate => candidate.Name == segment) is { } named && (named.End is not null || frame < named.Delays.Count)

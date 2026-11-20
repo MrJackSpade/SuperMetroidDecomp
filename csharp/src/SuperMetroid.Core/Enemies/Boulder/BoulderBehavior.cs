@@ -217,7 +217,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain.MoveEnemyVertically(level, place, verticalDisplacement);
         place.Position = place.Position.WithWhole(place.Position.Whole - new Offset16<RoomPixels>(0, state.VerticalCompensation));
 
-        SignedSixteenSixteen horizontalDisplacement = ReadBoulderHorizontalDisplacement(occupant, place, state);
+        SignedSixteenSixteen horizontalDisplacement = ReadBoulderHorizontalDisplacement(occupant, state);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontalDisplacement))
         {
             // The boulder breaks: hidden and gone, it does nothing more.
@@ -244,10 +244,10 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Moves the boulder horizontally by its travel speed on the quadratic speed curve, toward its roll.</summary>
     private static void AddBoulderHorizontalVelocity(RoomEnemyOccupant occupant, RoomEnemyPlace place, BoulderEnemyState state) =>
-        place.Position = place.Position.WithX(place.Position.X.MovedBy(ReadBoulderHorizontalDisplacement(occupant, place, state)));
+        place.Position = place.Position.WithX(place.Position.X.MovedBy(ReadBoulderHorizontalDisplacement(occupant, state)));
 
     /// <summary>Reads the quadratic speed sample and signs it toward the roll its spawn settings name.</summary>
-    private static SignedSixteenSixteen ReadBoulderHorizontalDisplacement(RoomEnemyOccupant occupant, RoomEnemyPlace place, BoulderEnemyState state) =>
+    private static SignedSixteenSixteen ReadBoulderHorizontalDisplacement(RoomEnemyOccupant occupant, BoulderEnemyState state) =>
         state.TravelCurvePlace.Speed.Toward(occupant.SpawnSettings<BoulderSpawnSettings>().Roll != BoulderRoll.Right ? HorizontalDirection.Left : HorizontalDirection.Right);
 
     /// <summary>Moves the boulder vertically by its place's speed on the quadratic speed curve, toward <paramref name="direction"/>.</summary>

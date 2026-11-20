@@ -372,7 +372,7 @@ public static class GameSaveJsonCodec
                 if (tile is null || !AreaMapSize.Extent.Contains(tile.Cell))
                     throw new InvalidDataException($"{property}.exploredAreas of {area} contains an invalid tile");
                 int logicalIndex = AreaMapSize.Extent.RowMajorIndex(tile.Cell);
-                if (previousIndex is int previousTile && logicalIndex <= previousTile)
+                if (previousIndex is int previousCell && logicalIndex <= previousCell)
                     throw new InvalidDataException($"{property}.exploredAreas of {area} must be row-major and unique");
                 progress.SetExplored(area, tile.Cell, explored: true);
                 previousIndex = logicalIndex;

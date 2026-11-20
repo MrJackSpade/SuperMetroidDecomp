@@ -147,7 +147,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         SetPlatformVerticallyMovingAnimation(place, state);
-        IncrementAndClampPlatformYSpeed(occupant, place, state);
+        IncrementAndClampPlatformYSpeed(occupant, state);
         SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Speed.Negative;
         if (!_terrain.MoveEnemyVertically(level, place, displacement))
             return;
@@ -171,7 +171,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         int preHorizontalX)
     {
         // Sinking always accelerates.
-        IncrementAndClampPlatformYSpeed(occupant, place, state);
+        IncrementAndClampPlatformYSpeed(occupant, state);
 
         // Add the whole-pixel horizontal step to Samus's extra displacement; fractional
         // displacement is deliberately untouched because this enemy carries only whole pixels.
@@ -196,7 +196,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Steps the place one mark on along the quadratic speed curve, holding it at the cap its spawn settings name: as many
     /// marks on as their vertical acceleration updates.
     /// </summary>
-    internal static void IncrementAndClampPlatformYSpeed(RoomEnemyOccupant occupant, RoomEnemyPlace place, PlatformEnemyState state)
+    internal static void IncrementAndClampPlatformYSpeed(RoomEnemyOccupant occupant, PlatformEnemyState state)
     {
         QuadraticSpeedCurvePlace cap = QuadraticSpeedCurvePlace.FromMarks(occupant.SpawnSettings<PlatformSpawnSettings>().VerticalAccelerationUpdates);
         state.YSpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;

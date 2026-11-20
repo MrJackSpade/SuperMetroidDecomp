@@ -19,14 +19,14 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // A new Sbug plays no animation until it selects its first direction.
         var state = new SbugEnemyState(SbugAction.WaitForSamus);
         place.SetSpeciesState(state);
-        SetSbugFacing(place, state, ForwardLeg(occupant, place).Facing);
+        SetSbugFacing(place, state, ForwardLeg(occupant).Facing);
     }
 
     /// <summary>
     /// The leg along the Sbug's spawn heading, which its forward movement takes: the placement's speed along the heading
     /// (<see cref="EnemyMath.VelocityAlong"/>).
     /// </summary>
-    internal static SbugLeg ForwardLeg(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static SbugLeg ForwardLeg(RoomEnemyOccupant occupant)
     {
         SbugSpawnSettings settings = occupant.SpawnSettings<SbugSpawnSettings>();
         FixedVector<RoomPixels> velocity = EnemyMath.VelocityAlong(settings.InitialAngle.ToTrigonometryAngle(), settings.Speed);
@@ -37,7 +37,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The zigzag leg an eighth of a turn from the Sbug's spawn heading, less it for the first leg and more for the
     /// second: its displacement is the signed short circle product of that heading at the placement's speed.
     /// </summary>
-    private static SbugLeg ZigZagLeg(RoomEnemyOccupant occupant, RoomEnemyPlace place, bool secondLeg)
+    private static SbugLeg ZigZagLeg(RoomEnemyOccupant occupant, bool secondLeg)
     {
         SbugSpawnSettings settings = occupant.SpawnSettings<SbugSpawnSettings>();
         RotationAngle heading = secondLeg ? settings.InitialAngle + RotationAngle.EighthTurn : settings.InitialAngle - RotationAngle.EighthTurn;
@@ -68,7 +68,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case SbugAction.MoveForward:
-                AddSbugVelocity(place, ForwardLeg(occupant, place));
+                AddSbugVelocity(place, ForwardLeg(occupant));
                 return;
             case SbugAction.ZigZag:
                 RunSbugZigZag(occupant, place, state);
@@ -100,7 +100,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The enemy's update count alternates the diagonal legs every sixteen updates, read before this update is
         // counted.
-        SbugLeg leg = ZigZagLeg(occupant, place, secondLeg: SbugDefinitions.ZigZagSecondLeg.IsSetIn(place.FrameCounter));
+        SbugLeg leg = ZigZagLeg(occupant, secondLeg: SbugDefinitions.ZigZagSecondLeg.IsSetIn(place.FrameCounter));
         SetSbugFacing(place, state, leg.Facing);
         AddSbugVelocity(place, leg);
     }
@@ -114,7 +114,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        AddSbugVelocity(place, ForwardLeg(occupant, place));
+        AddSbugVelocity(place, ForwardLeg(occupant));
     }
 
     /// <summary>Moves the Sbug along <paramref name="leg"/>.</summary>

@@ -217,7 +217,7 @@ internal sealed class EnemyDeathsAndDrops
             return null;
 
         pickup.Position = pickup.Position.WithWhole(position);
-        InitializeDirectEnemyPickup(pickup, DropChancesOf(definitionId), samus);
+        InitializeDirectEnemyPickup(pickup, _room.Definitions.ReadEnemyDefinition(definitionId).DropChances, samus);
         return pickup;
     }
 

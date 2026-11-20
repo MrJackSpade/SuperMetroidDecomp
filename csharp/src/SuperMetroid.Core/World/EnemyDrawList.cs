@@ -176,6 +176,7 @@ internal sealed class EnemyDrawList
 
     /// <summary>One queued enemy's draw, formed by <see cref="Advance"/>.</summary>
     /// <param name="Place">The enemy.</param>
+    /// <param name="Occupant">The enemy holding the place, whose identity names its sheet.</param>
     /// <param name="Origin">Its screen origin, shaken when the draw pass reaches it.</param>
     /// <param name="Shading">The shading the common draw selected for this frame (#1512).</param>
     /// <param name="Frame">The frame the enemy shows, which names its sheet picture.</param>

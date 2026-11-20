@@ -88,7 +88,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction)
     {
         SkulteraSpawnSettings settings = occupant.SpawnSettings<SkulteraSpawnSettings>();
-        SignedSixteenSixteen horizontalDisplacement = SwimVelocity(occupant, place, direction);
+        SignedSixteenSixteen horizontalDisplacement = SwimVelocity(occupant, direction);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
@@ -134,7 +134,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The swimming displacement of the Skultera in <paramref name="place"/> toward <paramref name="direction"/>: its
     /// spawn speed, reversed leftward (#2278).
     /// </summary>
-    internal static SignedSixteenSixteen SwimVelocity(RoomEnemyOccupant occupant, RoomEnemyPlace place, HorizontalDirection direction)
+    internal static SignedSixteenSixteen SwimVelocity(RoomEnemyOccupant occupant, HorizontalDirection direction)
     {
         SignedSixteenSixteen speed = occupant.SpawnSettings<SkulteraSpawnSettings>().Speed;
         return speed.Toward(direction);

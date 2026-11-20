@@ -37,7 +37,7 @@ internal static class PlatformOwnedStateVerification
         int[] expectedIndexes = [1, 2, accelerationCap, accelerationCap, accelerationCap];
         foreach (int expected in expectedIndexes)
         {
-            PlatformsBehavior.IncrementAndClampPlatformYSpeed(place.HeldOccupant(), place, state);
+            PlatformsBehavior.IncrementAndClampPlatformYSpeed(place.HeldOccupant(), state);
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, "acceleration climbs by one row and holds at the cap");
         }
         Console.WriteLine("Platform owned state: speeds, resting height and clamped acceleration match.");

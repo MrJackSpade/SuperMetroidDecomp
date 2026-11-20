@@ -184,8 +184,8 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     }
     /// <summary>
     /// What the place's last occupant left of its spawn: the population entry it was spawned from, which a death
-    /// explosion's respawn cue rebuilds whatever the place holds when the cue runs (#1542), as the game keeps a slot's
-    /// spawn entry until the slot is populated again. The occupant's own entry while one holds the place; null for a
+    /// explosion's respawn cue rebuilds whatever the place holds when the cue runs (#1542), as the game keeps a place's
+    /// spawn entry until the place is populated again. The occupant's own entry while one holds the place; null for a
     /// place no enemy has been spawned in.
     /// </summary>
     internal RoomEnemyPlacement? LastSpawn { get; private set; }

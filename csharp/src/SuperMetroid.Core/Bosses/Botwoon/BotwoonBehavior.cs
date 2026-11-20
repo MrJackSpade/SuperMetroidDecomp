@@ -133,7 +133,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
             case BotwoonPhase.WaitForBody:
                 if (state.LastBodySegmentLanded)
-                    BeginBotwoonWallExplosions(head, state, samus);
+                    BeginBotwoonWallExplosions(state, samus);
                 break;
 
             case BotwoonPhase.WallExplosions:
@@ -636,7 +636,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>Requests the crumble room object and sixteen RNG-positioned drops before wall explosions.</summary>
-    private void BeginBotwoonWallExplosions(RoomEnemyPlace head, BotwoonEnemyState state, SamusState samus)
+    private void BeginBotwoonWallExplosions(BotwoonEnemyState state, SamusState samus)
     {
         state.Phase = BotwoonPhase.WallExplosions;
         _passEvents.Publish(new BotwoonWallChange(BotwoonWallMutation.Crumble));

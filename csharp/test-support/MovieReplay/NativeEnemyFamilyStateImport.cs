@@ -1072,7 +1072,7 @@ internal static class NativeEnemyFamilyStateImport
             fune.Action = FuneNamiheNativeWords.FuneActions.Decode(words.B, "recorded FuneAction");
             if (Index(words.D, 15, "Fune/Namihe behaviour") != 0)
                 throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names a Namihe.");
-            int cooldownUpdates = FuneNamiheBehavior.CooldownOf(enemy.HeldOccupant(), enemy).Length;
+            int cooldownUpdates = FuneNamiheBehavior.CooldownOf(enemy.HeldOccupant()).Length;
             fune.Cooldown = UpdateCountdownAccess.AtAge(cooldownUpdates, Math.Min(words.E, cooldownUpdates));
             // The Fune waits its placement's cooldown (#2476), which the recording's must be.
             if (Index(words.F, byte.MaxValue, "Fune cooldown time") != enemy.HeldOccupant().SpawnSettings<FuneSpawnSettings>().CooldownTime)

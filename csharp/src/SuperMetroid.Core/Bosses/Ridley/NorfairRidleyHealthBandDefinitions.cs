@@ -46,8 +46,8 @@ internal static class NorfairRidleyHealthBandDefinitions
     /// The bands below full health, each with the health below which Ridley is in it, lowest first, the order Ridley's
     /// health is tested against them.
     /// </summary>
-    internal static IReadOnlyList<(int HealthBelow, NorfairRidleyHealthBand Band)> WoundedLowestFirst { get; } =
-        [(1800, NearlyDead), (5400, BadlyWounded), (9000, Wounded)];
+    internal static IReadOnlyList<NorfairRidleyWoundBand> WoundedLowestFirst { get; } =
+        [new(1800, NearlyDead), new(5400, BadlyWounded), new(9000, Wounded)];
 
     /// <summary>
     /// One launch, each a speed an update: its rightward speed and upward speed, then its upward and downward

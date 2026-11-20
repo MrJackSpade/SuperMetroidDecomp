@@ -64,7 +64,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // The bottom follows whatever enemy precedes it. Every room with Kzans (the Wasteland and the
         // Wrecked Ship's main shaft) places each bottom directly after its top, so that enemy is its top; any
         // other placement is refused rather than followed.
-        if (_places.ListedBeforeOrNone(place, 1) is not { DefinitionId: EnemyDefinitionId.KzanTop } top)
+        if (_places.ListedBeforeOrNone(place, 1) is not { Occupant.DefinitionId: EnemyDefinitionId.KzanTop } top)
         {
             throw new InvalidDataException(
                 $"Kzan bottom in place {place.Ordinal} does not directly follow a Kzan top, as every room with Kzans places it.");
@@ -95,7 +95,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case KzanAction.WaitingToFall:
-                RunKzanWaitingToFall(occupant, place, state);
+                RunKzanWaitingToFall(occupant, state);
                 return;
 
             case KzanAction.Falling:
@@ -117,7 +117,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Decrements the wrapping top wait and resets the fall speed when descent begins.</summary>
-    private static void RunKzanWaitingToFall(RoomEnemyOccupant occupant, RoomEnemyPlace place, KzanEnemyState state)
+    private static void RunKzanWaitingToFall(RoomEnemyOccupant occupant, KzanEnemyState state)
     {
         state.FallWaitTimer = state.FallWaitTimer.Decrement().Remaining;
         if (!state.FallWaitTimer.IsZero)

@@ -22,7 +22,7 @@ public sealed record RoomObjectPlacement
 
     /// <summary>
     /// Placement in 16-pixel room blocks. A placement whose object only holds its place, or watches the whole room, still
-    /// stands on the cartridge's block: the room's resident-trigger lookup gives a projectile's hit to the first active place
+    /// stands on the game's block: the room's resident-trigger lookup gives a projectile's hit to the first active place
     /// at the struck block whatever it holds, so the block is observed (#2558).
     /// </summary>
     public Position16<RoomBlocks> Block { get; init; }

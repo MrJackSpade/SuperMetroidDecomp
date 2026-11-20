@@ -37,7 +37,7 @@ internal static class HibashiOwnedStateVerification
             new ClockedEnemyAiFrame(RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0), new FrameCounters(0)));
         AssertEqual(HibashiAction.Active, graphicsState.Action, "a new flame erupts on its first update");
         graphicsState.Action = HibashiAction.Finished;
-        HibashiBehavior.RestHibashi(graphics.HeldOccupant(), graphics, graphicsState);
+        HibashiBehavior.RestHibashi(graphics.HeldOccupant(), graphicsState);
         AssertEqual((HibashiAction.Inactive, ushort.MaxValue + EnemyWaitDefinitions.RunOutUpdate), (graphicsState.Action, graphicsState.InactiveTimer.UpdatesLeft),
             "a finished eruption rests for parameter one's full word and the update it runs out on");
         Console.WriteLine("Hibashi owned state: both parts' parameters and the spawn height match.");

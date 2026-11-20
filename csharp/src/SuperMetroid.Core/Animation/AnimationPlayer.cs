@@ -301,7 +301,7 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         place = (place.HasNotEntered ? AnimationPlace.Before(phase) : new AnimationPlace(phase, Math.Min(place.Beat, playing.BeatCount)))
             .WithPlaysLeft(playsLeft);
         Playback = new(animation, place);
-        if (beat > 0 && rebound.Beats(playing.Segment)[playing.FirstBeat + beat - 1].ShownFrame is { } shown)
+        if (place.Beat > 0 && rebound.Beats(playing.Segment)[playing.FirstBeat + place.Beat - 1].ShownFrame is { } shown)
             Shown = shown;
     }
 

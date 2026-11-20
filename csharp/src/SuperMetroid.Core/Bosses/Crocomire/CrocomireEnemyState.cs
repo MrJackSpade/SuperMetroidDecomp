@@ -130,7 +130,7 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     /// While the hidden wall rumbles: the oscillation under way in <see cref="CrocomireRumbleDefinitions.Oscillations"/>,
     /// or none once the last has finished.
     /// </summary>
-    public ListStep<CrocomireRumbleOscillation>? RumbleOscillation { get; internal set; }
+    internal ListStep<CrocomireRumbleOscillation>? RumbleOscillation { get; set; }
 
     /// <summary>Whether the rumbling wall is heading for its oscillation's extreme rather than back to its return offset.</summary>
     public bool RumbleTowardExtreme { get; internal set; }

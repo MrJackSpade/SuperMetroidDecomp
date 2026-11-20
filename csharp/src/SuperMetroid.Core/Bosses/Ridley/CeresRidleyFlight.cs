@@ -401,7 +401,7 @@ internal sealed class CeresRidleyFlight
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(EnemyDefinitionId.CeresGetawayChamberWall);
         RoomEnemyPlacement population = new(
             EnemyDefinitionId.CeresGetawayChamberWall,
-            Position: position,
+            Placing: EnemyPlacing.At(position),
             Contact: EnemyContact.None,
             Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
             Presence: EnemyPresence.Hidden,

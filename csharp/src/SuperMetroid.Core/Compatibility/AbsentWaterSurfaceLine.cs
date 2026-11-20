@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
@@ -21,6 +22,7 @@ public static class AbsentWaterSurfaceLine
 
     /// <summary>The surface line the bubble test and the diving splash read: <paramref name="surface"/>, or the line above the room.</summary>
     /// <param name="surface">The room's water surface, or none.</param>
+    [SuppressMessage("Design", "SME6476", Justification = "The line above the room is the real line the game's tests read for a room with no water surface; callers keep the surface optional, and this compatibility service is where its absence is read as that line.")]
     public static int Read(int? surface) => surface ?? LineAboveRoom;
 
     /// <summary>

@@ -351,7 +351,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AlcoonWalk.Left => AlcoonWalk.Right,
             AlcoonWalk.Right => AlcoonWalk.Left,
-            _ => state.WalkingDirection,
+            AlcoonWalk.Undecided => AlcoonWalk.Undecided,
+            _ => throw new InvalidOperationException($"Undefined {nameof(AlcoonWalk)} {state.WalkingDirection}."),
         };
         return turnsLeft
             ? AlcoonAnimations.WalkingLeftFromFirstStride

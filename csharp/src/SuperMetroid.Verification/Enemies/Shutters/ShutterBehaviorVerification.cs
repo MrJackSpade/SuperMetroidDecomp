@@ -198,9 +198,9 @@ internal static class ShutterBehaviorVerification
             AssertEqual(expectedLowerY, state.LowerEndpointY, $"{context}: lower endpoint");
             SignedSixteenSixteen down = EnemyLinearSpeedTable.Speed(speedIndex);
             SignedSixteenSixteen up = -down;
-            AssertEqual(down, ShuttersBehavior.VerticalShutterVelocity(place.HeldOccupant(), place, VerticalDirection.Down),
+            AssertEqual(down, ShuttersBehavior.VerticalShutterVelocity(place.HeldOccupant(), VerticalDirection.Down),
                 $"{context}: downward velocity is the speed record's first entry");
-            AssertEqual(up, ShuttersBehavior.VerticalShutterVelocity(place.HeldOccupant(), place, VerticalDirection.Up),
+            AssertEqual(up, ShuttersBehavior.VerticalShutterVelocity(place.HeldOccupant(), VerticalDirection.Up),
                 $"{context}: upward velocity is the speed record's second entry");
         }
     }

@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 internal static class FallingSparkCadenceDefinitions
 {
     /// <summary>
-    /// The updates on which a falling spark spawns a trail spark behind it: every fourth update, those whose count
-    /// divides evenly by four.
+    /// The updates on which a falling spark spawns a trail spark behind it: those whose count falls on the period's first
+    /// place.
     /// </summary>
-    internal static readonly UpdateCadence TrailEveryFourthUpdate = new(4, 0);
+    internal static readonly UpdateCadence SparkTrail = new(4, 0);
 }

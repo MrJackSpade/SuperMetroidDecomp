@@ -428,12 +428,12 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (BeetomCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.EnemyPassCount) && samus.Health >= BeetomCadenceDefinitions.DrainSoundLeastHealth)
+        if (BeetomCadenceDefinitions.DrainSound.IsDue(_frameContext.EnemyPassCount) && samus.Health >= BeetomCadenceDefinitions.DrainSoundLeastHealth)
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
         // Unlike ordinary touch damage, the drain at its cadence hurts Samus by her suit-scaled damage and then
         // cancels the invincibility and knockback that touch gives her.
-        if (!BeetomCadenceDefinitions.DrainDamageEverySixtyFourthUpdate.IsDue(place.FrameCounter))
+        if (!BeetomCadenceDefinitions.DrainDamage.IsDue(place.FrameCounter))
             return;
         SamusSuitDamage.Hurt(samus, place.Definition.Damage);
         samus.ClearHurtTimers();

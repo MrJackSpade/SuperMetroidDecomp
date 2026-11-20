@@ -157,15 +157,15 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Drains missiles and supers every fourth enemy pass and power bombs every pass while
+    /// Drains missiles and supers at their drain cadence and power bombs every pass while
     /// the rainbow beam holds Samus.
     /// </summary>
     private static void DecrementAmmoDueToRainbowBeam(
         SamusState samus,
         int enemyPassCount)
     {
-        // Missiles and Super Missiles drain on every fourth enemy pass, Power Bombs on every update.
-        if (MotherBrainCadenceDefinitions.RainbowMissileDrainEveryFourthEnemyPass.IsDue(enemyPassCount))
+        // Missiles and Super Missiles drain at their cadence, Power Bombs on every update.
+        if (MotherBrainCadenceDefinitions.RainbowMissileDrain.IsDue(enemyPassCount))
         {
             samus.Missiles = DecrementOneAmmoType(samus, samus.Missiles, selectedItem: HudItem.Missile);
             samus.SuperMissiles = DecrementOneAmmoType(samus, samus.SuperMissiles, selectedItem: HudItem.SuperMissile);

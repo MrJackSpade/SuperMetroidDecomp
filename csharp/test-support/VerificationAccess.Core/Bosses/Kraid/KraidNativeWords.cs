@@ -17,8 +17,8 @@ internal static class KraidNativeWords
         [KraidRisePhase.RestrictSamusToFirstScreen] = 0xc865,
         [KraidRisePhase.ShowBody] = 0xc86b,
         [KraidRisePhase.StartQuakeAndMusic] = 0xc89a,
-        [KraidRisePhase.RocksEvery16Frames] = 0xc8e0,
-        [KraidRisePhase.RocksEvery8Frames] = 0xc902,
+        [KraidRisePhase.SlowRocks] = 0xc8e0,
+        [KraidRisePhase.FastRocks] = 0xc902,
         [KraidRisePhase.RaiseBody] = 0xc924,
     });
 

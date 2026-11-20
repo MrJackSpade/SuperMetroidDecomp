@@ -147,7 +147,7 @@ internal sealed class PhantoonDeath
         PhantoonDeathState death = state.Death;
         if (!death.PixelationFinished)
         {
-            if (!PhantoonCadenceDefinitions.DeathPixelationGrowsEverySixteenthUpdate.IsDue(_frameContext.FrameCounter))
+            if (!PhantoonCadenceDefinitions.DeathPixelationGrows.IsDue(_frameContext.FrameCounter))
                 return;
 
             if (death.PixelationSize == PhantoonDeathDefinitions.FinalPixelationSize)
@@ -189,7 +189,7 @@ internal sealed class PhantoonDeath
     {
         if (state.PhaseWait.StepKeepsRunning())
             return;
-        if (!PhantoonCadenceDefinitions.PowerReturnStepEveryFourthUpdate.IsDue(_frameContext.FrameCounter))
+        if (!PhantoonCadenceDefinitions.PowerReturnStep.IsDue(_frameContext.FrameCounter))
             return;
 
         if (!AdvanceWreckedShipPowerOn(state))

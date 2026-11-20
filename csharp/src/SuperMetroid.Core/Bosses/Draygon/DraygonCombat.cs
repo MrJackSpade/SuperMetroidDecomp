@@ -78,7 +78,7 @@ internal sealed class DraygonCombat
         // is hurt and subtracts its grapple-shock damage at its shock cadence before
         // running the same fatal/nonfatal reaction as a shot.
         if (!DraygonGrab.IsDraygonGrappleConnected(samus) ||
-            !DraygonCadenceDefinitions.GrappleShockEveryEighthUpdate.IsDue(body.FrameCounter))
+            !DraygonCadenceDefinitions.GrappleShock.IsDue(body.FrameCounter))
             return;
 
         body.Health = body.Health <= DraygonArenaDefinitions.GrappleShockDamage

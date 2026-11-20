@@ -11,8 +11,8 @@ internal static class DachoraGlowCycleDefinitions
     internal static DachoraGlowCycle SpeedEnd { get; } = DachoraGlowCycle.At(4, 16);
 
     /// <summary>
-    /// Where the speed glow restarts: its brightest frame, three, sixteen updates away, so from then on it shows that frame
-    /// every sixteen updates instead of starting over from frame zero.
+    /// Where the speed glow restarts: its brightest frame, a step away, so from then on it shows that frame at each step
+    /// instead of starting over from frame zero.
     /// </summary>
     internal static DachoraGlowCycle SpeedRestart { get; } = DachoraGlowCycle.At(3, 16);
 

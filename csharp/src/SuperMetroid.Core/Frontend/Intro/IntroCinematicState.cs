@@ -346,12 +346,12 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroCinematicPhase.WaitForSecondMusicQueue:
                 if (MusicQueueFinished())
                 {
-                    Phase = IntroCinematicPhase.FourSecondHold;
-                    timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.FourSecondHold);
+                    Phase = IntroCinematicPhase.HoldFirstNarration;
+                    timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.PeaceLineHold);
                 }
                 break;
 
-            case IntroCinematicPhase.FourSecondHold:
+            case IntroCinematicPhase.HoldFirstNarration:
                 if (timer.Step())
                 {
                     Phase = IntroCinematicPhase.FadeOutFirstNarration;

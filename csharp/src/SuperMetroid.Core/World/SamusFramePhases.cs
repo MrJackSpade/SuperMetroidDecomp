@@ -1006,7 +1006,7 @@ internal sealed class SamusFramePhases
     private void AnimateAndSettleSamus(SamusControlFrame frame, SamusState samus, bool runsLowHealthCheck, RoomScope room)
     {
         // Samus's normal movement phase updates the speed echo after her movement owner has moved her
-        // and before animation/pose transitions. Every fourth gameplay frame at the full boost stage, it alternates
+        // and before animation/pose transitions. At its capture cadence at the full boost stage, it alternates
         // between two of her places in the room, so the echoes drawn after it stand where she has moved to.
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup && frame.ShinesparkMovement is null)
         {

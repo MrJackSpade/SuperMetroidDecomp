@@ -24,7 +24,7 @@ internal static class RoomBehaviorPictureDefinitions
     internal static IReadOnlyList<RoomMainBehavior> EscapeExplosionMains { get; } =
     [
         RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions, RoomMainBehavior.ShakeScreenWithRandomExplosions,
-        RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal, RoomMainBehavior.RandomExplosionEveryFourthUpdate,
+        RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal, RoomMainBehavior.RandomEscapeExplosions,
         RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal,
     ];
 

@@ -237,7 +237,7 @@ internal sealed class DraygonParts
         RoomEnemyPlace eye = state.Eye;
         // The eye breathes its bubble on its cadence whether or not its gaze turns,
         // as one of the room's dust and explosion effects.
-        if (DraygonCadenceDefinitions.EyeBreathBubbleEvery128thUpdate.IsDue(eye.FrameCounter))
+        if (DraygonCadenceDefinitions.EyeBreathBubble.IsDue(eye.FrameCounter))
             _projectiles.SpawnDustOrExplosion(
                 new(OffRoomPlaces.Place(eye.Position.X.Whole + (DraygonEyeEffects.HorizontalOffset.Toward(facing))), OffRoomPlaces.Place(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
                 DraygonEyeEffects.DustVariant);

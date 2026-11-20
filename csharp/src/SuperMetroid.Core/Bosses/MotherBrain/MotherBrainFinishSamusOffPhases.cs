@@ -53,7 +53,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // direct pose assignment, so retain the separate animation-stage delay.
         if (frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.FinishOffHoldsBack))
         {
-            if (MotherBrainCadenceDefinitions.FinishOffPostureEveryThirtySecondUpdate.IsDue(frame.EnemyFrameCounter))
+            if (MotherBrainCadenceDefinitions.FinishOffPosture.IsDue(frame.EnemyFrameCounter))
                 _state.MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
             return false;
         }

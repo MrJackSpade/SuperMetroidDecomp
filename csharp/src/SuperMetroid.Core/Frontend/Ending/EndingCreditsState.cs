@@ -652,7 +652,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     private void StepAtmosphericTransform(FloorZoomStep zoomStep)
     {
         // The floor turns during both fades as well as the fully visible interval.
-        if (EndingCadenceDefinitions.AtmosphereFloorTurnEverySecondUpdate.IsDue(cinematicFrame))
+        if (EndingCadenceDefinitions.AtmosphereFloorTurn.IsDue(cinematicFrame))
             Stage.Floor.Turn(EndingMotionDefinitions.AtmosphereTurnSteps);
         Stage.Floor.Widen(zoomStep);
     }

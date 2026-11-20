@@ -356,7 +356,7 @@ internal sealed class IntroBabyDiscoveryState
         {
             BabyCryingDance.Count();
             // The dancing baby cries when its count of frames danced reaches its cry cadence's places.
-            if (IntroCadenceDefinitions.BabyCriesEverySixtyFourthDanceUpdate.IsDue(BabyCryingDance.Age))
+            if (IntroCadenceDefinitions.BabyCriesInDance.IsDue(BabyCryingDance.Age))
                 audio.QueueSound(
                     IntroCinematicDefinitions.Sounds.BabyCry1,
                     priority: IntroCinematicDefinitions.Sounds.SoundPriority);

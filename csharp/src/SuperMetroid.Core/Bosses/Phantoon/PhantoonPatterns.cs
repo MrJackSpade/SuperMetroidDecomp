@@ -597,7 +597,7 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state,
         int steps)
     {
-        if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.BodyFade.IsFinished)
+        if (!PhantoonCadenceDefinitions.FadeStep.IsDue(_frameContext.FrameCounter) || state.BodyFade.IsFinished)
             return;
 
         // The fade's step is a typed fade toward his faded-out colours (#1512, #2251).

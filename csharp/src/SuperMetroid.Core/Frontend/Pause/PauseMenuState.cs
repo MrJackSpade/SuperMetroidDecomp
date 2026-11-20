@@ -83,8 +83,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Current map/equipment fade or load phase.</summary>
     private PauseMenuTransition Transition { get; set; }
     /// <summary>
-    /// The page transition's fade: one level darker every update on the way out, and one level brighter every second
-    /// update on the way in after the load.
+    /// The page transition's fade: one level darker every update on the way out, and one level brighter on alternate
+    /// updates on the way in after the load.
     /// </summary>
     private readonly ScreenFade transitionFade = new(DisplayBrightness.Full);
     /// <summary>Current page-transition brightness, from black to full intensity.</summary>

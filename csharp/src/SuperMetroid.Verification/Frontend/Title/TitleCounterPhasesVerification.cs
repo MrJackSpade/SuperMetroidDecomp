@@ -33,7 +33,7 @@ internal static class TitleCounterPhasesVerification
             "the title gradient refuses a zoom past the floor's own size, which the title never reaches");
 
         for (int input = 0; input <= ushort.MaxValue; input++)
-            AssertSameAt((input & 1) == 0, TitleSequenceDefinitions.Scenes.FinalZoomStepEverySecondUpdate.IsDue(input), "final zoom step", input);
+            AssertSameAt((input & 1) == 0, TitleSequenceDefinitions.Scenes.FinalZoomCadence.IsDue(input), "final zoom step", input);
 
         Console.WriteLine("Title counter phases: every zoom up to the floor's own size and every phase count from 0 through 65535 reads as the expressions they replace.");
     }

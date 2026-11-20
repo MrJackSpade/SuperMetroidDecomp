@@ -8,7 +8,7 @@ internal static class MetroidCadenceDefinitions
     /// each period of the enemy-pass counter, while Samus has at least the drain sound's least health. Every draining actor queues its
     /// own request.
     /// </summary>
-    internal static readonly UpdateCadence DrainSoundEveryEighthEnemyPass = new(8, 7);
+    internal static readonly UpdateCadence DrainSound = new(8, 7);
 
     /// <summary>
     /// The phase of a hurt Metroid's flash timer on which its outer bodies show its own colours: set for two updates of

@@ -300,10 +300,10 @@ public sealed class TitleSequenceState : IFrontendScreen
                 break;
 
             case TitleSequencePhase.FinalZoom:
-                // The zoom acts only on every second update: it grows one step while the floor is smaller than its own
+                // The zoom acts only at its cadence: it grows one step while the floor is smaller than its own
                 // size, and the first such update that finds it at its own size completes the zoom (#1715), so the zoom
                 // holds the floor's own size for one of its steps before the logo shows.
-                bool zoomSteps = TitleSequenceDefinitions.Scenes.FinalZoomStepEverySecondUpdate.IsDue(zoomAge.Age);
+                bool zoomSteps = TitleSequenceDefinitions.Scenes.FinalZoomCadence.IsDue(zoomAge.Age);
                 zoomAge.Count();
                 if (!zoomSteps)
                     break;

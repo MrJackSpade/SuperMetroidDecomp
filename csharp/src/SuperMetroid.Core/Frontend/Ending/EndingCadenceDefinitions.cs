@@ -28,16 +28,16 @@ internal static class EndingCadenceDefinitions
     internal const int RewardColourUpdatesPerStep = 4;
 
     /// <summary>
-    /// The updates on which the turning floor of the ending's atmosphere view turns one step: every second update of the
-    /// cinematic frame counter, on its even place.
+    /// The updates on which the turning floor of the ending's atmosphere view turns one step, counted on the cinematic
+    /// frame counter at the period's even place.
     /// </summary>
-    internal static readonly UpdateCadence AtmosphereFloorTurnEverySecondUpdate = new(2, 0);
+    internal static readonly UpdateCadence AtmosphereFloorTurn = new(2, 0);
 
     /// <summary>
-    /// The updates on which the departing planet, once small enough, turns one step toward its exit angle: every fourth
-    /// update of the cinematic frame counter, on its first place.
+    /// The updates on which the departing planet, once small enough, turns one step toward its exit angle, counted on the
+    /// cinematic frame counter at the period's first place.
     /// </summary>
-    internal static readonly UpdateCadence PlanetTurnEveryFourthUpdate = new(4, 0);
+    internal static readonly UpdateCadence PlanetTurn = new(4, 0);
 
     /// <summary>
     /// The updates each step of the planet explosion's colour crossfade takes: the crossfade steps on the last of each run

@@ -104,7 +104,7 @@ public sealed class EscapeTypewriterState
         {
             var glyph = new EscapeTypewriterGlyph(Corner, EscapeTypewriterGlyph.PictureOf(MessageId, character));
             _glyphsWritten++;
-            step = EscapeTypewriterDefinitions.ClickEverySecondGlyph.IsDue(_glyphsWritten)
+            step = EscapeTypewriterDefinitions.GlyphClick.IsDue(_glyphsWritten)
                 ? new EscapeTypewriterStep.TypedWithClick(glyph)
                 : new EscapeTypewriterStep.Typed(glyph);
         }

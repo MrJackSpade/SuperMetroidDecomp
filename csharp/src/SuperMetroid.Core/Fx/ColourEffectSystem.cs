@@ -349,7 +349,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         {
             IRoomSamus burned = samus.Current;
             burned.TakePeriodicDamage(ColourEffectHeatData.DamagePerUpdate);
-            if (ColourEffectHeatData.DamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
+            if (ColourEffectHeatData.HeatDamageSound.IsDue(frameCounter) &&
                 burned.Health > ColourEffectHeatData.DamageSoundEnergyThreshold)
             {
                 sounds.QueueSound(RoomSound.IncrementalEnergy, ColourEffectHeatData.DamageSoundPriority);

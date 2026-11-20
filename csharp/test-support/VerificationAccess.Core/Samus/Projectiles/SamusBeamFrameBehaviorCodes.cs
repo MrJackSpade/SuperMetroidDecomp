@@ -66,8 +66,8 @@ internal static class SamusBeamFrameBehaviorCodes
     private static readonly IReadOnlyList<(SamusShotBehavior Behavior, ushort Word)> Words =
     [
         (SamusShotBehaviors.Beam, NoWave),
-        (SamusShotBehaviors.WaveBeamThreeUpdateTrail, WaveThreeFrameTrail),
-        (SamusShotBehaviors.WaveBeamFourUpdateTrail, WaveFourFrameTrail),
+        (SamusShotBehaviors.UnchargedWaveBeamTrail, WaveThreeFrameTrail),
+        (SamusShotBehaviors.WaveBeamTrail, WaveFourFrameTrail),
         (SamusShotBehaviors.UnchargedSpazerPlasma, UnchargedSpazerPlasmaUnconnectedRegionWord),
         (SamusShotBehaviors.Spacetime, SpaceTimeProgressionOverwrite),
         (SamusShotBehaviors.ChainsawPowerBomb, ChainsawPowerBomb),

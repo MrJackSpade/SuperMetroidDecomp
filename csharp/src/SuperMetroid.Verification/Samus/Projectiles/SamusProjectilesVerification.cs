@@ -233,8 +233,8 @@ internal static void VerifySamusPowerBeamProjectiles()
         SamusShotBehavior expectedFrameBehavior = (beamType & 1) == 0
             ? SamusShotBehaviors.Beam
             : beamType < 4
-                ? SamusShotBehaviors.WaveBeamThreeUpdateTrail
-                : SamusShotBehaviors.WaveBeamFourUpdateTrail;
+                ? SamusShotBehaviors.UnchargedWaveBeamTrail
+                : SamusShotBehaviors.WaveBeamTrail;
         AssertEqual(expectedFrameBehavior, combinedSlot.Behavior,
             $"beam combination {beamType} selects native pre-instruction family");
     }
@@ -621,7 +621,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         AssertEqual(
             (beamType & 1) == 0
                 ? SamusShotBehaviors.Beam
-                : SamusShotBehaviors.WaveBeamFourUpdateTrail,
+                : SamusShotBehaviors.WaveBeamTrail,
             combinedChargedSlot.Behavior,
             $"charged beam combination {beamType} selects native wave dispatch");
     }
@@ -868,7 +868,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(!waveReportedExplosion, "wave beam never converts on a type-eight wall");
     AssertTrue(waveWallProjectiles.Shots[0].Position.X.Whole > 112,
         "wave beam advances completely through the solid column");
-    AssertEqual(SamusShotBehaviors.WaveBeamThreeUpdateTrail,
+    AssertEqual(SamusShotBehaviors.UnchargedWaveBeamTrail,
         waveWallProjectiles.Shots[0].Behavior,
         "power+wave remains in its native pass-through pre-instruction");
 

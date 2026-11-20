@@ -434,7 +434,7 @@ public sealed class SamusHorizontalSpeedState
         Ensure.AtLeastZero(gameTimeFrames);
         if (!IsActivelySpeedBoosting ||
             SpeedEchoesDeparting ||
-            !SamusCadenceDefinitions.SpeedEchoCaptureEveryFourthUpdate.IsDue(gameTimeFrames))
+            !SamusCadenceDefinitions.SpeedEchoCapture.IsDue(gameTimeFrames))
         {
             return false;
         }

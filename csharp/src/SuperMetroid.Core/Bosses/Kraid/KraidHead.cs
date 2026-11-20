@@ -122,7 +122,7 @@ internal sealed class KraidHead
         // Kraid spits a rock at his spit cadence's place in the open mouth's hold, including the update the open mouth
         // shows and starts it.
         if (state.DisplayedHeadFrame == KraidHeadFrame.Open &&
-            KraidCadenceDefinitions.SpitRockEverySixteenthMouthUpdate.IsDue(state.HeadHold.UpdatesLeft))
+            KraidCadenceDefinitions.MouthSpitRock.IsDue(state.HeadHold.UpdatesLeft))
         {
             SpawnKraidSpitRock(body);
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);

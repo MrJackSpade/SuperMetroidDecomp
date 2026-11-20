@@ -252,7 +252,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         int frameCycle)
     {
         ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
-        if (!MamaTurtleCadenceDefinitions.LeavingShellStepEverySecondUpdate.IsDue(frameCycle))
+        if (!MamaTurtleCadenceDefinitions.LeavingShellStep.IsDue(frameCycle))
             return;
 
         if (EnemyCollision.IsSamusStandingOn(mama, samus))

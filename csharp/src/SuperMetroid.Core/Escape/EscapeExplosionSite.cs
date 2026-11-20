@@ -55,7 +55,7 @@ public abstract class EscapeExplosionSite
     /// The outdoor site: an explosion goes off only over scenery, and one whose random draw leaves its kind open takes the
     /// kind its block's column phase gives it; the room's quake shakes on beside them.
     /// </summary>
-    private sealed class OutdoorSite() : EscapeExplosionSite(ZebesEscapeDefinitions.OutdoorExplosionEverySecondUpdate,
+    private sealed class OutdoorSite() : EscapeExplosionSite(ZebesEscapeDefinitions.OutdoorExplosion,
         ZebesEscapeExplosionDefinitions.OutdoorKindsLeftOpenByColumnPhase)
     {
         /// <inheritdoc/>
@@ -66,7 +66,7 @@ public abstract class EscapeExplosionSite
     }
 
     /// <summary>The indoor site: an explosion goes off anywhere, and one whose random draw leaves its kind open is a small explosion.</summary>
-    private sealed class IndoorSite() : EscapeExplosionSite(ZebesEscapeDefinitions.IndoorExplosionEveryFourthUpdate,
+    private sealed class IndoorSite() : EscapeExplosionSite(ZebesEscapeDefinitions.IndoorExplosion,
         [ZebesEscapeExplosionDefinitions.IndoorKindLeftOpen])
     {
         /// <inheritdoc/>

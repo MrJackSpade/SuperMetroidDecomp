@@ -160,9 +160,9 @@ internal sealed class PhantoonCombat
         {
             PhantoonOrbitingFlameState orbit = Orbits.Of(flame);
             PhantoonEnemyState state = orbit.Phantoon;
-            // Once its hold at its full radius has run out, the orbit closes on every second update of the game's frame
+            // Once its hold at its full radius has run out, the orbit closes at its cadence's place in the game's frame
             // counter.
-            if (orbit.FullRadiusHold.StepRunsOut() && PhantoonCadenceDefinitions.OrbitClosesEverySecondUpdate.IsDue(frameCounter))
+            if (orbit.FullRadiusHold.StepRunsOut() && PhantoonCadenceDefinitions.OrbitCloses.IsDue(frameCounter))
             {
                 orbit.Radius--;
                 if (orbit.Radius == 0)

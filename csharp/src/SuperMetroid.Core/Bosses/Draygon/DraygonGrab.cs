@@ -155,7 +155,7 @@ internal sealed class DraygonGrab
                 state.SpiralAngle.ToTrigonometryAngle(),
                 state.SpiralXRadius.WholePixels / DraygonArenaDefinitions.SpiralWidthToHeight)));
 
-        if (DraygonCadenceDefinitions.GrabFoamEveryEighthUpdate.IsDue(body.FrameCounter))
+        if (DraygonCadenceDefinitions.GrabFoam.IsDue(body.FrameCounter))
         {
             _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + DraygonParts.TowardFacing(DraygonArenaDefinitions.MouthFacingRight, state.Facing),

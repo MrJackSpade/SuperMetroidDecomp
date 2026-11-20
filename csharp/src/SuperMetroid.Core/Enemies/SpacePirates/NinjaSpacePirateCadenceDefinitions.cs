@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class NinjaSpacePirateCadenceDefinitions
 {
     /// <summary>
-    /// The updates on which a ninja Space Pirate considers a claw attack: every 64th update of its own update count, on
-    /// the period's first place.
+    /// The updates on which a ninja Space Pirate considers a claw attack, counted on its own update count at the period's
+    /// first place.
     /// </summary>
-    internal static readonly UpdateCadence ClawAttackEverySixtyFourthUpdate = new(64, 0);
+    internal static readonly UpdateCadence ClawAttack = new(64, 0);
 }

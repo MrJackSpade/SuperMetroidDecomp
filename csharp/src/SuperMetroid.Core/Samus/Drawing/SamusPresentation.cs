@@ -499,7 +499,7 @@ internal sealed class SamusPresentation
         int frameCounter)
     {
         Ensure.NotNull(sprites);
-        if (!SamusCadenceDefinitions.CrashEchoesDrawnEverySecondUpdate.IsDue(frameCounter) ||
+        if (!SamusCadenceDefinitions.CrashEchoesDrawn.IsDue(frameCounter) ||
             samus.Shinespark.Phase is not (ShinesparkPhase.Crash or ShinesparkPhase.CrashHold))
         {
             return;
@@ -525,7 +525,7 @@ internal sealed class SamusPresentation
         int frameCounter)
     {
         Ensure.NotNull(sprites);
-        if (!SamusCadenceDefinitions.CrashEchoesDrawnEverySecondUpdate.IsDue(frameCounter))
+        if (!SamusCadenceDefinitions.CrashEchoesDrawn.IsDue(frameCounter))
             return;
 
         DrawActiveSpeedBoosterEcho(samus,

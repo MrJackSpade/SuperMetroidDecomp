@@ -69,7 +69,7 @@ public sealed class IntroCrossfade
             throw new InvalidOperationException("The opening has not started a crossfade.");
         if (run.IsOver)
             throw new InvalidOperationException($"The opening's crossfade from {from} to {to} has already ended.");
-        if (IntroCadenceDefinitions.CrossfadeStepEveryFourthUpdate.IsDue(run.UpdatesLeft))
+        if (IntroCadenceDefinitions.CrossfadeStep.IsDue(run.UpdatesLeft))
             Step();
         run.Count();
         // The tick counts the updates left before the crossfade's last one: one fewer than the run has left.

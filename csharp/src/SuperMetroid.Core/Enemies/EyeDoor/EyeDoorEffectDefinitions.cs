@@ -36,7 +36,7 @@ internal static class EyeDoorEffectDefinitions
     internal const DustExplosionAnimation ScatteredSmokeAnimation = DustExplosionAnimation.CorpseDustCloud;
 
     /// <summary>The scattered puffs land anywhere in a centred box 16 pixels wide and 32 tall.</summary>
-    internal static DustExplosionPlacement ScatteredSmokePlacement => SmokePuffPlacements.CentredSixteenByThirtyTwoBox;
+    internal static DustExplosionPlacement ScatteredSmokePlacement => SmokePuffPlacements.CentredBox;
 
     /// <summary>The dust animation of the smoke puff centred on the eye.</summary>
     internal const DustExplosionAnimation CenteredSmokeAnimation = DustExplosionAnimation.EyeDoorSmokePuff;

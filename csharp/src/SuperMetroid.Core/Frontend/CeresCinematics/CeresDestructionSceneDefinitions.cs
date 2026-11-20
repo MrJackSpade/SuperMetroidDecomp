@@ -78,8 +78,8 @@ internal static class CeresDestructionSceneDefinitions
         /// <summary>Updates each step of the cinematic's slow fades takes.</summary>
         internal const int FadeUpdatesPerStep = 2;
         /// <summary>
-        /// Updates the screen's first fade, from black, waits before each step, the first included: one, a level every
-        /// second update, as <see cref="FadeUpdatesPerStep"/> paces the later fades.
+        /// Updates the screen's first fade, from black, waits before each step, the first included, a level at each step, as
+        /// <see cref="FadeUpdatesPerStep"/> paces the later fades.
         /// </summary>
         internal const int FirstFadeWaitBeforeEachStep = 1;
     }

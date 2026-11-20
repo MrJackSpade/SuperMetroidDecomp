@@ -174,7 +174,7 @@ public sealed class SamusCrystalFlashState
 
     /// <summary>Runs one update of Crystal Flash's current phase in Samus's movement phase.</summary>
     /// <param name="samus">Live actor receiving movement, ammunition/energy, animation, and phase-completion writes.</param>
-    /// <param name="frameCounter">The frame counter; ammunition drains only on every eighth frame.</param>
+    /// <param name="frameCounter">The frame counter; ammunition drains only at its cadence (<see cref="SamusCadenceDefinitions.CrystalFlashDrain"/>).</param>
     /// <returns>A value snapshot of the entry phase and retained bubble-effect request, even when this update changes phase.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
     /// <exception cref="InvalidOperationException">Crystal Flash does not hold Samus's movement, or the phase/ammunition-family state is unsupported.</exception>
@@ -243,9 +243,9 @@ public sealed class SamusCrystalFlashState
     /// </summary>
     private void StepAmmoDrain(SamusState samus, int frameCounter)
     {
-        // All three drains do nothing on seven of every eight frames of the frame counter;
+        // All three drains do nothing off their cadence's place in the frame counter;
         // Crystal Flash keeps no cadence of its own.
-        if (!SamusCadenceDefinitions.CrystalFlashDrainEveryEighthUpdate.IsDue(frameCounter))
+        if (!SamusCadenceDefinitions.CrystalFlashDrain.IsDue(frameCounter))
             return;
 
         switch (DrainingAmmo)

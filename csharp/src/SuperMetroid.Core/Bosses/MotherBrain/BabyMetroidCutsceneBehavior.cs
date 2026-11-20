@@ -134,7 +134,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // Use the phase that ran, including its final full-health update.
         if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
             samus.Health >= MotherBrainHealthSounds.MinimumEnergy &&
-            MotherBrainCadenceDefinitions.BabyHealSoundEveryEighthEnemyPass.IsDue(_frameContext.EnemyPassCount))
+            MotherBrainCadenceDefinitions.BabyHealSound.IsDue(_frameContext.EnemyPassCount))
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
 

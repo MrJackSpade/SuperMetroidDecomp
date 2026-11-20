@@ -137,7 +137,7 @@ internal sealed class IntroRinkaSystem
 
     /// <summary>
     /// Where a Rinka at <paramref name="position"/> drifts to: sideways by <paramref name="sideways"/> and down by half a
-    /// pixel, so every second update the half pixels add up to one more whole pixel.
+    /// pixel, so on alternate updates the half pixels add up to one more whole pixel.
     /// </summary>
     private static FixedVector<ScreenPixels> Drifted(FixedVector<ScreenPixels> position, SignedSixteenSixteen sideways) =>
         new(position.X + sideways, position.Y + IntroRinkaDefinitions.DownwardDrift);

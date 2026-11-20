@@ -55,7 +55,7 @@ public static class IntroCinematicDefinitions
         /// <summary>The captivity line's hold before the galaxy-at-peace line's music.</summary>
         public const int CaptivityLineHold = 200;
         /// <summary>The four-second hold after the galaxy-at-peace line's music.</summary>
-        public const int FourSecondHold = 240;
+        public const int PeaceLineHold = 240;
     }
 
     /// <summary>Samus as the flashback to her fight with Mother Brain sets her up.</summary>

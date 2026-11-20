@@ -47,7 +47,7 @@ internal sealed class IntroScientistCutsceneState
     public static IntroScientistCutsceneState CreateExamination() => new(IntroLaboratoryScene.Examination);
 
     /// <summary>
-    /// Advances the Baby script and pans the laboratory with it on every fourth update counted down by the crossfade into
+    /// Advances the Baby script and pans the laboratory with it on each crossfade step counted down by the crossfade into
     /// the laboratory; the crossfade back out of the laboratory ends the Baby as it reaches its final update (#1980).
     /// </summary>
     /// <param name="crossfade">What the running crossfade did on this update, or null when none runs.</param>
@@ -61,7 +61,7 @@ internal sealed class IntroScientistCutsceneState
             baby.Delete();
         }
         else if (crossfade is { To: IntroCrossfadeScene.Laboratory } intoLaboratory
-            && IntroCadenceDefinitions.LaboratoryStepEveryFourthUpdate.IsDue(intoLaboratory.UpdatesLeft))
+            && IntroCadenceDefinitions.LaboratoryStep.IsDue(intoLaboratory.UpdatesLeft))
         {
             if (Scene == IntroLaboratoryScene.Delivery && Background.X != 0)
             {

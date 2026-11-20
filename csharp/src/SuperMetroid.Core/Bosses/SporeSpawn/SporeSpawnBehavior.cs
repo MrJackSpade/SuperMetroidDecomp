@@ -194,7 +194,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         UpdateSporeSpawnStalks(body, state);
         // The dust follows the game's frame counter.
-        if (SporeSpawnCadenceDefinitions.IdleDustEverySixteenthUpdate.IsDue(_frameContext.FrameCounter))
+        if (SporeSpawnCadenceDefinitions.IdleDust.IsDue(_frameContext.FrameCounter))
         {
             int random = _room.Random.Generate();
             _ = _effectActors.SpawnRoomEffectActor(

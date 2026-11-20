@@ -77,13 +77,13 @@ public static class TitleSequenceDefinitions
         public const int UpperPanEndX = -176;
         /// <summary>The downward pan's Y threshold, 163 pixels; reaching it starts the Metroid 3 card.</summary>
         public const int DownwardPanEndY = 163;
-        /// <summary>The final zoom's step every second update.</summary>
+        /// <summary>The final zoom's step, taken at the final zoom's cadence.</summary>
         public static FloorZoomStep FinalZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 256);
         /// <summary>
-        /// The updates of the final zoom on which the zoom grows one step (#1619): every second update of the phase's own
-        /// count, on its even place, from the first.
+        /// The updates of the final zoom on which the zoom grows one step (#1619), counted on the phase's own count at the
+        /// period's even place, from the first.
         /// </summary>
-        public static readonly UpdateCadence FinalZoomStepEverySecondUpdate = new(2, 0);
+        public static readonly UpdateCadence FinalZoomCadence = new(2, 0);
         /// <summary>The floor scenes' rotation: none; the scenes pan and zoom only.</summary>
         public static RotationAngle Rotation => RotationAngle.Zero;
         /// <summary>The floor point the floor scenes zoom about.</summary>
@@ -133,7 +133,7 @@ public static class TitleSequenceDefinitions
         public const int CopyrightHoldFrames = 32;
         /// <summary>The idle title screen's timeout in updates; expiring selects the demo before a confirmation that update.</summary>
         public const int TitleScreenIdleTimeoutFrames = 900;
-        /// <summary>Updates each step of the fade leaving the idle title screen takes: one level every second update.</summary>
+        /// <summary>Updates each step of the fade leaving the idle title screen takes.</summary>
         public const int TitleFadeUpdatesPerStep = 2;
         /// <summary>Updates the Baby Metroid holds each pose of its animation.</summary>
         public const int BabyFrameDuration = 10;

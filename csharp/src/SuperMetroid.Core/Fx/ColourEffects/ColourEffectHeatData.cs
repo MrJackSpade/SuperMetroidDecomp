@@ -15,10 +15,10 @@ public static class ColourEffectHeatData
     public const int DamageSoundEnergyThreshold = 70;
 
     /// <summary>
-    /// The updates on which unprotected Samus in a heated room queues the heat-damage sound: every eighth update of the
-    /// frame counter, on its first place, while her energy is above <see cref="DamageSoundEnergyThreshold"/>.
+    /// The updates on which unprotected Samus in a heated room queues the heat-damage sound, counted on the frame counter
+    /// at the period's first place, while her energy is above <see cref="DamageSoundEnergyThreshold"/>.
     /// </summary>
-    public static readonly UpdateCadence DamageSoundEveryEighthUpdate = new(8, 0);
+    public static readonly UpdateCadence HeatDamageSound = new(8, 0);
 
     /// <summary>The heat-damage sound's request priority.</summary>
     public static readonly SoundRequestPriority DamageSoundPriority = SoundRequestPriority.Normal;

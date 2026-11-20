@@ -254,7 +254,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state,
         SamusState samus)
     {
-        if (!NinjaSpacePirateCadenceDefinitions.ClawAttackEverySixtyFourthUpdate.IsDue(place.FrameCounter))
+        if (!NinjaSpacePirateCadenceDefinitions.ClawAttack.IsDue(place.FrameCounter))
             return;
 
         if (place.Position.X.Whole == state.LeftPostX)

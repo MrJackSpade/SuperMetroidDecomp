@@ -57,8 +57,8 @@ internal static class TorizoRandomDefinitions
     /// </summary>
     internal static readonly WeightedRandomChoice<Animation<TorizoProjectileSegment>> LowHealthDroolForm =
         WeightedRandomChoice<Animation<TorizoProjectileSegment>>.InTurn(new RandomSampleField(2, 3),
-            TorizoProjectileAnimations.StartingWith(TorizoProjectileSegment.DroolNoDelay), TorizoProjectileAnimations.DroolFormingForTwoUpdates,
-            TorizoProjectileAnimations.DroolFormingForFourUpdates);
+            TorizoProjectileAnimations.StartingWith(TorizoProjectileSegment.DroolNoDelay), TorizoProjectileAnimations.DroolFormingShort,
+            TorizoProjectileAnimations.DroolFormingLong);
 
     /// <summary>
     /// A sonic boom flying high, twelve pixels above Torizo's Y rather than twenty below (#2410): one time in two.

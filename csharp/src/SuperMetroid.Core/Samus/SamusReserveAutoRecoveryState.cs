@@ -47,7 +47,7 @@ public sealed class SamusReserveAutoRecoveryState
         if (!IsActive)
             throw new InvalidOperationException("Reserve recovery has not begun.");
 
-        bool refillSoundRequested = samus.ReserveEnergy != 0 && SamusCadenceDefinitions.ReserveRefillSoundEveryEighthUpdate.IsDue(frameCounter);
+        bool refillSoundRequested = samus.ReserveEnergy != 0 && SamusCadenceDefinitions.ReserveRefillSound.IsDue(frameCounter);
 
         if (samus.ReserveEnergy != 0)
         {

@@ -27,7 +27,7 @@ internal sealed class DraygonMovement
     /// <summary>Emits a breath bubble at its body-frame cadence.</summary>
     internal void SpawnPeriodicDraygonBreathBubble(DraygonEnemyState state)
     {
-        if (!DraygonCadenceDefinitions.BreathBubbleEvery128thUpdate.IsDue(state.Body.FrameCounter))
+        if (!DraygonCadenceDefinitions.BreathBubble.IsDue(state.Body.FrameCounter))
             return;
         _effectActors.SpawnRoomEffectActor(
             state.Body.Position.Whole + DraygonArenaDefinitions.BreathBubbleOffset,

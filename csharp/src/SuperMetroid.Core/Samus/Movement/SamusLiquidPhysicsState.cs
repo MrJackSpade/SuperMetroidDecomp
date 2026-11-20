@@ -348,7 +348,7 @@ public sealed class SamusLiquidPhysicsState
             _periodicDamage.Accumulate(fxKind == RoomFxType.Lava
                 ? SamusLiquidDamageDefinitions.Lava
                 : SamusLiquidDamageDefinitions.Acid);
-            if (SamusCadenceDefinitions.LiquidDamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
+            if (SamusCadenceDefinitions.LiquidDamageSound.IsDue(frameCounter) &&
                 samus.Health >= SamusLiquidDamageDefinitions.DamageSoundLeastEnergy)
                 QueueSound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
@@ -526,7 +526,7 @@ public sealed class SamusLiquidPhysicsState
         int top = TopLine(samus);
         int mouthY = top - SamusLiquidParticleDefinitions.BreathTestAboveTop;
         if (mouthY < AbsentWaterSurfaceLine.Read(WaterSurfaceY) ||
-            !SamusCadenceDefinitions.BreathBubbleEvery128thUpdate.IsDue(frameCounter) ||
+            !SamusCadenceDefinitions.BreathBubble.IsDue(frameCounter) ||
             !EffectWaits.BubbleCanForm)
         {
             return;
@@ -558,7 +558,7 @@ public sealed class SamusLiquidPhysicsState
         EffectWaits.HoldBubbles(SamusParticle.UpdatesUntilFinished(SamusParticleKind.LavaSpray, AnimationPlace.StartOfAnimation, SamusLiquidParticleDefinitions.OneUpdateLate));
         _particles.SpawnLavaSpray(new(x - SamusLiquidParticleDefinitions.LavaSprayOuterOffset, surface), SamusLiquidParticleDefinitions.AtOnce, -SamusLiquidParticleDefinitions.LavaSprayDrift);
 
-        if (SamusCadenceDefinitions.LavaSpraySoundEverySecondUpdate.IsDue(frameCounter))
+        if (SamusCadenceDefinitions.LavaSpraySound.IsDue(frameCounter))
             QueueSound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }
 

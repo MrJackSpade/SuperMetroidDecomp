@@ -375,10 +375,10 @@ public static class GameplayDisplayCapture
         bool roomDarkens = scene.Blend?.Operation == BlendOperation.Subtract;
         // The X-ray's own tint: grey in a reveal room, none elsewhere; in Fireflea's room the room's darkness shade, never
         // lighter than the reveal's grey. Its last pass clears the tint at once, except in Fireflea's room.
-        int level = latched.Fireflea is { } darkness
-            ? Math.Max(darkness.Shade.FadeLevels.Red, mode.TintLevel)
-            : mode.TintLevel;
-        if (finishedThisFrame && !mode.KeepsDarkness) level = 0;
+        FadeLevelColour tint = latched.Fireflea is { } darkness && darkness.Shade.FadeLevels.Red > mode.Tint.Red
+            ? new FadeLevelColour(darkness.Shade.FadeLevels.Red, darkness.Shade.FadeLevels.Red, darkness.Shade.FadeLevels.Red)
+            : mode.Tint;
+        if (finishedThisFrame && !mode.KeepsDarkness) tint = XrayWindowRenderDefinitions.NoTint;
         // Releasing Run starts the beam's closing, whose window and backdrop still show until its first update is spent;
         // the X-ray keeps the display until its last step finally unfreezes gameplay.
         bool closing = finishedThisFrame || (xray.BeamPhase is XrayBeamPhase.Closing or XrayBeamPhase.Finish && !xray.Closing.ShowsBeam);
@@ -391,7 +391,7 @@ public static class GameplayDisplayCapture
             Blended = mode.Blended,
             Operation = mode.Operation(roomDarkens),
             Halved = mode.Halves && overlayBehind is not null,
-            Colour = new FadeLevelColour(level, level, level).ToColour(),
+            Colour = tint.ToColour(),
         }, overlayBehind);
         return new(paint, new DisplayLayer[] { layer, basis.Hud }, DisplayBrightness.Full);
     }

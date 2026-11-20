@@ -19,7 +19,7 @@ public sealed record XrayRoomBlendMode
         RevealsBlocks = true,
         Blended = BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop,
         Halves = true,
-        TintLevel = XrayWindowRenderDefinitions.RevealTintLevel,
+        Tint = XrayWindowRenderDefinitions.RevealTint,
     };
 
     /// <summary>The room's backgrounds stay as they are and blocks are not revealed; only the foreground and backdrop blend.</summary>
@@ -28,6 +28,7 @@ public sealed record XrayRoomBlendMode
         KeepsBackgrounds = true,
         Blended = BlendedLayers.Foreground | BlendedLayers.Backdrop,
         Halves = true,
+        Tint = XrayWindowRenderDefinitions.NoTint,
     };
 
     /// <summary>Fireflea's darkness stays outside the beam: the whole room darkens with its shade, whole.</summary>
@@ -36,7 +37,7 @@ public sealed record XrayRoomBlendMode
         Blended = BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop,
         ForcedOperation = BlendOperation.Subtract,
         KeepsDarkness = true,
-        TintLevel = XrayWindowRenderDefinitions.RevealTintLevel,
+        Tint = XrayWindowRenderDefinitions.RevealTint,
     };
 
     /// <summary>Whether blocks inside the beam show what they really are.</summary>
@@ -64,10 +65,10 @@ public sealed record XrayRoomBlendMode
     public bool KeepsDarkness { get; private init; }
 
     /// <summary>
-    /// The fade level, in every channel, of the X-ray's own grey tint, zero for none; a blend that keeps the darkness takes
-    /// the darkness's shade where that is darker.
+    /// The X-ray's own grey tint, <see cref="XrayWindowRenderDefinitions.NoTint"/> for none; a blend that keeps the darkness
+    /// takes the darkness's shade where that is darker.
     /// </summary>
-    public int TintLevel { get; private init; }
+    public FadeLevelColour Tint { get; private init; }
 
     /// <summary>
     /// Whether the X-ray brightens or darkens the room outside its cone: the forced operation, or the room's own liquid's

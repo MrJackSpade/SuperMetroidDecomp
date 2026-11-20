@@ -17,11 +17,21 @@ public abstract record AudioEvent
     }
 
     /// <summary>Switches to <see cref="DataSet"/>'s clip set before the update's clock steps run; the song stops.</summary>
-    /// <param name="DataSet">The music data set switched to, or null for only the shared sounds.</param>
-    public sealed record ChangeMusicDataSet(MusicDataSet? DataSet) : AudioEvent
+    /// <param name="DataSet">The music data set switched to.</param>
+    public sealed record ChangeMusicDataSet(MusicDataSet DataSet) : AudioEvent
     {
         /// <inheritdoc />
-        public override string ToString() => $"data set:{DataSet?.ToString() ?? "shared"}";
+        public override string ToString() => $"data set:{DataSet}";
+    }
+
+    /// <summary>
+    /// Installs only the shared sounds before the update's clock steps run, as at power-on: the song stops and the waiting
+    /// song change is dropped.
+    /// </summary>
+    public sealed record InstallSharedSounds : AudioEvent
+    {
+        /// <inheritdoc />
+        public override string ToString() => "data set:shared";
     }
 
     /// <summary>

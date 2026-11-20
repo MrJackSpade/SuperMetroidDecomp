@@ -37,6 +37,10 @@ internal sealed class AudioEventSource
                     clock.PauseForMusicLoad();
                     events.Add(new AudioEvent.ChangeMusicDataSet(change.DataSet));
                     break;
+                case AudioRequest.InstallSharedSounds:
+                    clock.PauseForMusicLoad();
+                    events.Add(new AudioEvent.InstallSharedSounds());
+                    break;
                 case AudioRequest.PlayMusicTrack play:
                     events.Add(new AudioEvent.SelectMusicTrack(play.Track));
                     break;

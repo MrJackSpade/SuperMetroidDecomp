@@ -19,8 +19,11 @@ public sealed class ClipPlaybackState(BeatLength initialBeat)
     /// <summary>Clip frames played so far.</summary>
     internal long Sample { get; private set; }
 
-    /// <summary>The clip set loaded last, named by its music data set, or null while only the shared sounds are loaded.</summary>
-    internal MusicDataSet? ClipSet { get; private set; }
+    /// <summary>
+    /// The clip set the songs are asked of, named by its music data set: the one loaded last, and from power-on until the
+    /// first set loads <see cref="AudioQueueDefinitions.PowerOnDataSet"/>.
+    /// </summary>
+    internal MusicDataSet ClipSet { get; private set; } = AudioQueueDefinitions.PowerOnDataSet;
 
     /// <summary>The song playing, or null when stopped or after a song ended.</summary>
     internal MusicClipEntry? Song { get; private set; }
@@ -41,11 +44,17 @@ public sealed class ClipPlaybackState(BeatLength initialBeat)
     internal void RenderedTo(long sample) => Sample = sample;
 
     /// <summary>Switching to <paramref name="clipSet"/>'s clips stops the song and drops the waiting song change.</summary>
-    internal void SwitchClipSet(MusicDataSet? clipSet)
+    internal void SwitchClipSet(MusicDataSet clipSet)
+    {
+        StopMusic();
+        ClipSet = clipSet;
+    }
+
+    /// <summary>Installing the shared sounds stops the song and drops the waiting song change; the songs asked for next are of the set loaded next.</summary>
+    internal void StopMusic()
     {
         StopSong();
         SongChange.Forget();
-        ClipSet = clipSet;
     }
 
     /// <summary>The song played to its end: the music keeps the song's last beat length and no song plays.</summary>

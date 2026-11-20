@@ -814,7 +814,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         }
         else if (SamusPoseMetadata.IsKnockbackPose(samus.Pose))
         {
-            hurtEndingProbe = SamusGroundedMovement.StepKnockbackEnding(
+            hurtEndingProbe = SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(
                 level, samus, frameCounter, IntroCollisionRoomObjects.Instance);
         }
         else if (CurrentFlashbackDemoInput?.Enabled == true &&

@@ -1577,7 +1577,7 @@ internal static void VerifySamusMoonwalking()
     {
         var walker = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(80, 11)) };
         walker.Kinematics.Radius = new(5, 5);
-        GroundedMovementResult movement = SamusGroundedMovement.StepMoonwalking(
+        GroundedMovementResult movement = SamusGroundedMovement.StepMoonwalking(SuperMetroid.Core.Samus.Movement.SamusMovement.Moonwalking, 
 floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
         AssertEqual(direction * 0x8000, movement.Horizontal.AcceptedDisplacement.RawValue,
             $"moonwalk ${(int)SamusPoseNumbers.Number(pose):X2} uses literal reversed direction");
@@ -1595,7 +1595,7 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     momentumMoonwalk.Kinematics.Radius = new(5, 5);
     momentumMoonwalk.HorizontalSpeed.HasRunningMomentum = true;
     momentumMoonwalk.HorizontalSpeed.ExtraRunSpeed = momentumMoonwalk.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
-    GroundedMovementResult momentumMoonwalkFrame = SamusGroundedMovement.StepMoonwalking(
+    GroundedMovementResult momentumMoonwalkFrame = SamusGroundedMovement.StepMoonwalking(SuperMetroid.Core.Samus.Movement.SamusMovement.Moonwalking, 
 
         floor,
         momentumMoonwalk,
@@ -1610,7 +1610,7 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     };
     unownedMoonwalk.Kinematics.Radius = new(5, 5);
     unownedMoonwalk.HorizontalSpeed.ExtraRunSpeed = unownedMoonwalk.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
-    GroundedMovementResult unownedMoonwalkFrame = SamusGroundedMovement.StepMoonwalking(
+    GroundedMovementResult unownedMoonwalkFrame = SamusGroundedMovement.StepMoonwalking(SuperMetroid.Core.Samus.Movement.SamusMovement.Moonwalking, 
 
         floor,
         unownedMoonwalk,

@@ -29,6 +29,9 @@ internal abstract class SamusMovement
     /// <summary>The fall's movement.</summary>
     internal static FallingMovement Falling { get; } = new();
 
+    /// <summary>The moonwalk's movement.</summary>
+    internal static MoonwalkingMovement Moonwalking { get; } = new();
+
     /// <summary>
     /// The rising or aimed crouched turn's movement in the air: a jumping turn, or an aimed crouched turn moving up or down.
     /// </summary>
@@ -83,6 +86,16 @@ internal abstract class SamusMovement
         /// <summary>The one fall's movement.</summary>
         internal FallingMovement()
             : base(SamusMovementType.Falling)
+        {
+        }
+    }
+
+    /// <summary>The moonwalk's movement (<see cref="SamusMovementType.Moonwalking"/>), which only the stable moonwalk poses move by.</summary>
+    internal sealed class MoonwalkingMovement : SamusMovement
+    {
+        /// <summary>The one moonwalk's movement.</summary>
+        internal MoonwalkingMovement()
+            : base(SamusMovementType.Moonwalking)
         {
         }
     }

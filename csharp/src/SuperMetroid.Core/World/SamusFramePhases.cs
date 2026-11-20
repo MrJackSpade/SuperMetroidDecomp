@@ -712,7 +712,7 @@ internal sealed class SamusFramePhases
         public void StepRunning() => _move.Frame.Record(SamusGroundedMovement.StepRunning(_move.Level, _move.Samus, _phases._clock.Counter, _phases._playerActions.Current, _move.RoomObjects));
 
         /// <inheritdoc/>
-        public void StepMoonwalking() => _move.Frame.Record(SamusGroundedMovement.StepMoonwalking(_move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
+        public void StepMoonwalking() => _move.Frame.Record(SamusGroundedMovement.StepMoonwalking(SamusMovement.Moonwalking, _move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
 
         /// <inheritdoc/>
         public void StepRanIntoWall() => _move.Frame.Record(SamusGroundedMovement.StepRanIntoWall(_move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
@@ -874,7 +874,7 @@ internal sealed class SamusFramePhases
         // installs the input/no-input target chosen during the input phase.
         SignedSixteenSixteen groundingDisplacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics, samus.HorizontalSpeed);
-        BlockMoveResult grounding = SamusGroundedMovement.StepKnockbackEnding(
+        BlockMoveResult grounding = SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(
             room.LevelData,
             samus,
             _clock.Counter,

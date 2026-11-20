@@ -265,6 +265,7 @@ public static class SamusGroundedMovement
     /// including the complete shared extra-run-speed prepass.
     /// </summary>
     internal static GroundedMovementResult StepMoonwalking(
+        SamusMovement.MoonwalkingMovement movement,
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -272,12 +273,6 @@ public static class SamusGroundedMovement
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
-        if (!SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) ||
-            SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Moonwalking)
-        {
-            throw new InvalidOperationException(
-                $"Moonwalking movement requires a stable moonwalk pose, not {samus.Pose}.");
-        }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
@@ -288,7 +283,7 @@ public static class SamusGroundedMovement
         // existing momentum flag deliberately carries the extra pair through moonwalking;
         // without the flag the pair is cleared before displacement is calculated.
         speed.HandleExtraRunSpeed(
-            movementType: SamusMovementType.Moonwalking,
+            movementType: movement.Type,
             controllerInput: GameplayAction.None,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
@@ -296,7 +291,7 @@ public static class SamusGroundedMovement
         // Moonwalking has its own speeds. Its poses' facings intentionally
         // produce travel opposite the visible facing; turning reverses that direction just as it
         // does for every other family. Do not derive either direction from the pose's name.
-        UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Moonwalking);
+        UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType: movement.Type);
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
@@ -397,34 +392,6 @@ public static class SamusGroundedMovement
         // Settling the accepted landing owns its cleanup; a later hurt expiry may write
         // a downward direction while this pose remains active, and that value must survive.
         return new GroundedMovementResult(horizontal, vertical);
-    }
-
-    /// <summary>
-    /// Executes the knockback movement type's ordinary movement after a
-    /// special owner (normal damage knockback or Ceres Ridley's ejection) has restored the
-    /// normal step while leaving a knockback pose current. The game clears the
-    /// vertical-collision result and performs only the shared no-speed Y probe; it does not
-    /// invent another knockback arc or silently reinterpret the hurt body as standing.
-    /// </summary>
-    internal static BlockMoveResult StepKnockbackEnding(
-        RoomLevelData level,
-        SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
-    {
-        Ensure.NotNull(level);
-        Ensure.NotNull(samus);
-        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Knockback)
-        {
-            throw new InvalidOperationException(
-                $"Knockback-ending movement requires the knockback movement type, not pose {samus.Pose}.");
-        }
-
-        return RunNoSpeedCalculationGroundingProbe(
-            level,
-            samus,
-            frameCounter,
-            roomObjects);
     }
 
     /// <summary>

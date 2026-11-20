@@ -1169,7 +1169,7 @@ internal static void VerifySamusAtmosphericEffects()
     // A spray particle shown for two updates first counts down and draws step zero, applying +1/-1 motion. The next
     // update reloads step zero's duration, advances to step one, and draws its distinct `$2A49` attribute word.
     var effects = new SamusParticles();
-    effects.SpawnLavaSpray(new(104, 104), SamusParticleStart.Shown(2), horizontalDrift: 1);
+    effects.SpawnLavaSpray(new(104, 104), SamusParticleStart.Shown(2), HorizontalDirection.Right);
     var oamFrame = new SpriteFrameBuffer();
     oamFrame.BeginFrame();
     OamBuffer oam;
@@ -1195,7 +1195,7 @@ internal static void VerifySamusAtmosphericEffects()
     // A particle hidden for two updates does nothing on the first; the second reloads the current ROM duration, moves,
     // and draws.
     effects.Clear();
-    effects.SpawnLavaSpray(new(100, 100), SamusParticleStart.Hidden(2), horizontalDrift: 1);
+    effects.SpawnLavaSpray(new(100, 100), SamusParticleStart.Hidden(2), HorizontalDirection.Right);
     oamFrame.BeginFrame();
     effects.UpdateAndDraw(oamFrame, new(0, 0), 0, SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
     oam = oamFrame.FinalizeAsOam();

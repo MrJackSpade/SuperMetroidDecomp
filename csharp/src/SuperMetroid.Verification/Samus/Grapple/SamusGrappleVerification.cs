@@ -254,7 +254,7 @@ firingLevel, firingSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixt
     AssertEqual(0x6070, deferredConnectionSamus.Kinematics.VerticalVelocity.Speed.Fraction,
         "suppressed Grapple pose retains vertical fractional speed");
     AssertTrue(deferredConnection.PendingConnection is
-        { Pose: SamusPoseId.GrappleSwingLeftPose, Swinging: true },
+        { Pose: SamusPoseId.GrappleSwingLeftPose, Kind: GrappleConnectionKind.Swinging },
         "connection exposes the lower-priority command-nine pose for late dispatch");
     AssertTrue(!deferredConnection.CameraPrevious.HasValue,
         "suppressed connection does not run command-nine camera correction");

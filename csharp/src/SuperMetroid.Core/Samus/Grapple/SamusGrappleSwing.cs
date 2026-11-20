@@ -36,7 +36,7 @@ public static class SamusGrappleSwing
         // move the collision body. Stock art still selects the same frame.
         var direction = GrappleSwingDirection.Nearest(grapple.MirroredAngle.ToTrigonometryAngle());
         GrappleSwingPicture picture = grapple.Artwork.GrappleSwingFrames.Resolve(direction);
-        var offset = GrappleBodyPlacements.Offset(direction, SamusPoseMetadata.IsFacingLeft(samus.Pose));
+        var offset = GrappleBodyPlacements.Offset(direction, SamusPoseMetadata.ReadFacingDirection(samus.Pose));
 
         SamusPresentation.ShowGrappleSwingPicture(samus, picture);
         samus.Position = samus.Position.WithWhole(new(ropeStart.Pixel.X + offset.X, ropeStart.Pixel.Y + offset.Y));

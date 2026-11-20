@@ -76,7 +76,7 @@ internal sealed class BeamFiring
             SoundEffectId? sound = (controllerInput & shoot) != GameplayAction.None
                 ? TryFireHyperBeam(level, samus, samusBombs, roomObjects)?.Sound
                 : null;
-            return new(sound, sound is null ? null : SoundRequestPriority.Essential);
+            return BeamFiringResult.Of(sound, SoundRequestPriority.Essential);
         }
 
         bool chargeEquipped = samus.EquippedBeams.HasAny(SamusBeamFlags.Charge);
@@ -94,7 +94,7 @@ internal sealed class BeamFiring
                     roomObjects,
                     charged: false)?.Sound
                 : null;
-            return new(sound, sound is null ? null : SoundRequestPriority.Essential);
+            return BeamFiringResult.Of(sound, SoundRequestPriority.Essential);
         }
 
         if (samus.TransitionShot.Handed is not null)
@@ -134,14 +134,14 @@ internal sealed class BeamFiring
                         samusBombs,
                         roomObjects,
                         charged: false)?.Sound;
-                    return new(sound, sound is null ? null : SoundRequestPriority.Essential);
+                    return BeamFiringResult.Of(sound, SoundRequestPriority.Essential);
                 }
 
                 // The charging sound starts once, on the input phase that advances the flare count to
                 // BeamChargeDefinitions.ChargeSoundStartCounter; drawing the flare queues nothing.
                 if (_charge.UpdatesHeld == BeamChargeDefinitions.ChargeSoundStartCounter)
                 {
-                    return new(SamusSound.ChargingBeam, Priority: SoundRequestPriority.High);
+                    return BeamFiringResult.Of(SamusSound.ChargingBeam, SoundRequestPriority.High);
                 }
             }
             else if (_combos.TryActivateCombo(samus, samusBombs, out SoundEffectId? comboSound))
@@ -152,13 +152,13 @@ internal sealed class BeamFiring
                 _charge.ClearCount();
                 _charge.ClearFlare();
                 samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
-                return new(comboSound, SoundRequestPriority.Normal);
+                return BeamFiringResult.Of(comboSound, SoundRequestPriority.Normal);
             }
-            return new(null, null);
+            return BeamFiringResult.Silent;
         }
 
         if (!_charge.IsCharging)
-            return new(null, null);
+            return BeamFiringResult.Silent;
 
         bool releaseCharged =
             _charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
@@ -190,12 +190,12 @@ internal sealed class BeamFiring
         // a failed release, which cancels an audible charge. Murder Beam is the observable
         // case: it allocates a persistent projectile while requesting no new sound.
         if (firing is { } fired)
-            return new(fired.Sound, Priority: SoundRequestPriority.Essential);
+            return BeamFiringResult.Of(fired.Sound, SoundRequestPriority.Essential);
 
         if (!_charge.PreviousCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
-            return new(null, null);
+            return BeamFiringResult.Silent;
         samus.ChargingSound.Cancel();
-        return new(SamusSound.Silence, Priority: SoundRequestPriority.Essential);
+        return BeamFiringResult.Of(SamusSound.Silence, SoundRequestPriority.Essential);
     }
 
     /// <summary>Attempts allocation and muzzle setup for an ordinary or charged beam shot.</summary>

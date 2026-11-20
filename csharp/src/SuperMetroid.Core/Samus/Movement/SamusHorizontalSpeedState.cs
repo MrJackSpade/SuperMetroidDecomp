@@ -569,18 +569,24 @@ public sealed class SamusHorizontalSpeedState
     /// Executes running / normal jumping / airborne ball fallback's deceleration or stop, as the input phase selected it.
     /// Deceleration rechecks speed after movement before folding extra momentum.
     /// </summary>
-    /// <param name="selectedDeceleration">Whether the input phase selected deceleration rather than a stop.</param>
+    /// <param name="response">What the input phase selected (#2560): deceleration, or a stop.</param>
     /// <param name="facingDirection">The direction Samus faces, whose running momentum is cancelled.</param>
-    public void DecelerateForNoTransition(bool selectedDeceleration, SamusFacingDirection facingDirection)
+    /// <exception cref="ArgumentOutOfRangeException">The response is neither deceleration nor a stop.</exception>
+    public void DecelerateForNoTransition(SamusMomentumResponse response, SamusFacingDirection facingDirection)
     {
-        if (selectedDeceleration && HasBaseSpeed)
+        switch (response)
         {
-            BaseSpeed += ExtraRunSpeed;
-            ExtraRunSpeed = default;
-            AccelerationMode = SamusAccelerationMode.Decelerating;
+            case SamusMomentumResponse.Decelerate when HasBaseSpeed:
+                BaseSpeed += ExtraRunSpeed;
+                ExtraRunSpeed = default;
+                AccelerationMode = SamusAccelerationMode.Decelerating;
+                break;
+            case SamusMomentumResponse.Decelerate or SamusMomentumResponse.Stop:
+                AccelerationMode = SamusAccelerationMode.Accelerating;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(response), response, "A no-transition fallback decelerates or stops.");
         }
-        else
-            AccelerationMode = SamusAccelerationMode.Accelerating;
         CancelRunningMomentum(facingDirection);
     }
 

@@ -264,8 +264,7 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(samus);
         Ensure.NotNull(samusBombs);
 
-        SoundEffectId? queuedSound = null;
-        SoundRequestPriority? queuedSoundPriority = null;
+        SoundRequest? queued = null;
 
         // Her standing form's producer is selected by the live HUD item. The beam and Power Bombs
         // share the beam producer; Missiles and Super Missiles reach the missile producer. Ball poses still
@@ -300,32 +299,27 @@ public sealed class SamusProjectileSystem
                 (buttons.ControllerInput & GameplayAction.Dash) == GameplayAction.None;
             if (samus.SelectedHudItem is HudItem.Beam or HudItem.PowerBomb || xrayBeamFallback)
             {
-                (queuedSound, queuedSoundPriority) = Firing.HandleBeamInput(
+                queued = Firing.HandleBeamInput(
                     terrain.Level,
                     samus,
                     buttons.ControllerInput,
                     // Uncharged firing tests both current and prior new-input latches.
                     buttons.ControllerNewInput | buttons.ControllerPreviousNewInput,
                     samusBombs,
-                    terrain.RoomObjects);
+                    terrain.RoomObjects).Request;
             }
             else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
             {
-                queuedSound = Firing.TryFireMissile(
+                queued = BeamFiringResult.Of(Firing.TryFireMissile(
                     samus,
                     buttons.ControllerNewInput,
                     buttons.ControllerPreviousNewInput,
-                    samusBombs)?.Sound;
-                if (queuedSound is not null)
-                    queuedSoundPriority = SoundRequestPriority.Normal;
+                    samusBombs)?.Sound, SoundRequestPriority.Normal).Request;
             }
         }
         // Firing queues its sound as it fires, before any projectile moves.
-        if (queuedSound is { } firingSound)
-        {
-            AudioRequests.QueueSound(firingSound,
-                queuedSoundPriority ?? throw new InvalidDataException("A projectile sound was queued without its priority."));
-        }
+        if (queued is { } firing)
+            AudioRequests.QueueSound(firing.SoundEffect, firing.Priority);
     }
 
     /// <summary>

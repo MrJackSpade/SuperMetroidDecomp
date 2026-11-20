@@ -41,13 +41,14 @@ public sealed class SamusDrainedState
     /// Whether the rainbow glow colours Samus, ahead of every other colouring: the rainbow start sets it and the rainbow
     /// stop clears it during the Baby Metroid's death.
     /// </summary>
-    public bool RainbowGlowing { get; private set; }
+    public bool RainbowGlowing => rainbowHold is not null;
 
     /// <summary>
-    /// How long the rainbow holds each of its shades (#2387): one update as the rainbow starts, lengthened by the Baby, and
-    /// none once it stops. Each shade the rainbow moves on to shows for the hold as it stands then.
+    /// How long the rainbow holds each of its shades while it glows (#2387, #2560): one update as the rainbow starts,
+    /// lengthened by the Baby; none while it does not glow. Each shade the rainbow moves on to shows for the hold as it
+    /// stands then.
     /// </summary>
-    public RainbowGlowHold RainbowGlowHold { get; private set; }
+    private RainbowGlowHold? rainbowHold;
 
     /// <summary>
     /// The rainbow's play of the Hyper Beam's full-body glow (#2387, #2447): the shade it shows, none outside the rainbow,
@@ -147,9 +148,8 @@ public sealed class SamusDrainedState
     public void EnableRainbow(SamusState samus)
     {
         Ensure.NotNull(samus);
-        RainbowGlowing = true;
-        RainbowGlowHold = RainbowGlowHold.Starting;
-        SamusGlowPlay.RestartShowing(Rainbow, SamusGlowSegment.HyperBeamRainbow, RainbowGlowHold.Updates);
+        rainbowHold = RainbowGlowHold.Starting;
+        SamusGlowPlay.RestartShowing(Rainbow, SamusGlowSegment.HyperBeamRainbow, RainbowGlowHold.Starting.Updates);
         _colouringStage = SpecialColouringStage.Showing;
     }
 
@@ -158,7 +158,12 @@ public sealed class SamusDrainedState
     /// (RainbowFramePart); the hold stops at <paramref name="longestHold"/>.
     /// </summary>
     /// <param name="longestHold">The longest hold the glow may reach, which the Baby passes.</param>
-    public void HoldRainbowGlowLonger(int longestHold) => RainbowGlowHold = RainbowGlowHold.Lengthened(longestHold);
+    /// <remarks>A rainbow that does not glow holds nothing: its start holds each shade one update again.</remarks>
+    public void HoldRainbowGlowLonger(int longestHold)
+    {
+        if (rainbowHold is { } hold)
+            rainbowHold = hold.Lengthened(longestHold);
+    }
 
     /// <summary>
     /// Stops Samus's rainbow colouring: clear every rainbow/charge colouring
@@ -167,8 +172,7 @@ public sealed class SamusDrainedState
     public void DisableRainbowAndStartStandingAnimation(SamusState samus)
     {
         Ensure.NotNull(samus);
-        RainbowGlowing = false;
-        RainbowGlowHold = RainbowGlowHold.None;
+        rainbowHold = null;
         SamusGlowPlay.Restart(Rainbow, SamusGlowSegment.HyperBeamRainbow);
         _colouringStage = SpecialColouringStage.Ending;
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
@@ -198,7 +202,7 @@ public sealed class SamusDrainedState
             return true;
         }
 
-        if (!RainbowGlowing)
+        if (rainbowHold is not { } hold)
             return false;
 
         // The colouring shows the rainbow's shade before counting down its hold.
@@ -206,7 +210,7 @@ public sealed class SamusDrainedState
 
         // Each shade shows for the rainbow's hold as it stands when the rainbow moves on to it, not for its own beat.
         if (Rainbow.StepToNewFrame() is not null)
-            Rainbow.HoldShownFrameFor(RainbowGlowHold.Updates);
+            Rainbow.HoldShownFrameFor(hold.Updates);
         return true;
     }
 

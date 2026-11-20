@@ -447,9 +447,8 @@ internal sealed class RoomLoader
         camera.PublishDoorSamusPosition(position.Whole);
         samus.Position = DoorOpeningScrollState.AdvanceSamus(door, position);
         DoorDirection direction = door.Orientation.Direction;
-        bool vertical = direction.IsVertical();
         PublishDoorCameraPosition(DoorOpeningScrollState.GetSetupCamera(door) + DoorOpeningScrollState.LayerStep<RoomPixels>(direction));
-        camera.PublishDoorSamusTravelAxis(vertical, samus.Position.Whole);
+        camera.PublishDoorSamusTravelAxis(direction.TravelAxis(), samus.Position.Whole);
         _doorFrameCounting.BeginScroll();
         RestartShortCounterDuringDoorScroll();
     }
@@ -550,7 +549,7 @@ internal sealed class RoomLoader
         if (completed && _room.LoadedScope.Enemies.LoaderHooks.HasDeferredLoaderTimeCameraReads)
             throw new InvalidDataException("The door scroll finished before the loader initialized every enemy whose setup reads its camera.");
         samus.Position = state.SamusPosition;
-        camera.PublishDoorSamusTravelAxis(state.Direction.IsVertical(), samus.Position.Whole);
+        camera.PublishDoorSamusTravelAxis(state.Direction.TravelAxis(), samus.Position.Whole);
         return completed;
     }
 

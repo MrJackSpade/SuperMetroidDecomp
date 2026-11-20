@@ -964,7 +964,7 @@ internal sealed class SamusFramePhases
             (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) && room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive));
         SamusPoseTransitionLookup poseLookup =
             frame.DeathOwnsSamus || frame.XrayOwnsPoseInput || frame.ActorLocksPoseInput || frame.PostureTransitionSkipsPoseInput
-            ? default
+            ? SamusPoseTransitionLookup.KeepsPose
             : SamusPoseInputTransitions.Lookup(
                 samus.Pose,
                 _playerActions.Current,

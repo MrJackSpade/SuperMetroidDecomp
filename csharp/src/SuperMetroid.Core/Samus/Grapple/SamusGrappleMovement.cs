@@ -845,7 +845,6 @@ public static class SamusGrappleMovement
         var connection = GrappleConnections.ResolveConnection(policy, grapple.FireDirection);
         // The connection names the pose it installs; it swings exactly when its kind does.
         SamusPoseId pose = connection.Pose;
-        bool swinging = connection.Kind == GrappleConnectionKind.Swinging;
 
         // Both the connection and the fired beam derive the angle from the body position that fired the beam,
         // before the connection pose is installed and snaps Samus to the rope. The angle is a
@@ -866,7 +865,7 @@ public static class SamusGrappleMovement
             angle.ToTrigonometryAngle(),
             grapple.RopeLength);
         grapple.RopeStart = ropeStart.Pixel;
-        grapple.Phase = swinging
+        grapple.Phase = connection.Kind is GrappleConnectionKind.Swinging
             ? GrapplePhase.ConnectedSwinging
             : GrapplePhase.ConnectedLocked;
 
@@ -890,7 +889,7 @@ public static class SamusGrappleMovement
             OwnsMovement: false,
             PendingConnection: new GrapplePendingConnection(
                 pose,
-                swinging,
+                connection.Kind,
                 previousPosition));
     }
 
@@ -909,7 +908,7 @@ public static class SamusGrappleMovement
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
 
-        if (pending.Swinging)
+        if (pending.Kind is GrappleConnectionKind.Swinging)
         {
             // The swinging connection pose runs the swing. Swinging copies Start into Flare, then
             // chooses the angle-authored animation frame and body offsets.

@@ -11,6 +11,6 @@ internal static class GrappleBodyPlacements
     /// turn, so the number measures the direction's angle in those shares, and the offsets are laid out one for each share
     /// around the turn.
     /// </summary>
-    internal static Offset16<RoomPixels> Offset(GrappleSwingDirection direction, bool left) =>
-        (left ? LeftOffsets : RightOffsets)[direction.Number];
+    internal static Offset16<RoomPixels> Offset(GrappleSwingDirection direction, SamusFacingDirection facing) =>
+        (facing is SamusFacingDirection.Left ? LeftOffsets : RightOffsets)[direction.Number];
 }

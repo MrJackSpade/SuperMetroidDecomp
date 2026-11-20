@@ -11,7 +11,9 @@ internal abstract record EscapeDachoraCue
     /// <summary>What <paramref name="cases"/> makes of this escape dachora cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the escape dachora cue is made into.</typeparam>
     /// <param name="cases">What each case is made into.</param>
-    internal abstract TResult Match<TResult>(EscapeDachoraCueCases<TResult> cases);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract TResult Match<TContext, TResult>(EscapeDachoraCueCases<TContext, TResult> cases, TContext context);
 
 
     /// <summary>
@@ -22,7 +24,7 @@ internal abstract record EscapeDachoraCue
     internal sealed record LowTideLapEnds(HorizontalDirection Lap) : EscapeDachoraCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(EscapeDachoraCueCases<TResult> cases) => Ensure.NotNull(cases).LowTideLapEnds(this);
+        internal override TResult Match<TContext, TResult>(EscapeDachoraCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).LowTideLapEnds(this, context);
     }
 
     /// <summary>
@@ -33,7 +35,7 @@ internal abstract record EscapeDachoraCue
     internal sealed record LapEnds(HorizontalDirection Lap) : EscapeDachoraCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(EscapeDachoraCueCases<TResult> cases) => Ensure.NotNull(cases).LapEnds(this);
+        internal override TResult Match<TContext, TResult>(EscapeDachoraCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).LapEnds(this, context);
     }
 
     /// <summary>Moves the Dachora by the cue's pixels (#2151).</summary>
@@ -41,7 +43,7 @@ internal abstract record EscapeDachoraCue
     internal sealed record Move(int Offset) : EscapeDachoraCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(EscapeDachoraCueCases<TResult> cases) => Ensure.NotNull(cases).Move(this);
+        internal override TResult Match<TContext, TResult>(EscapeDachoraCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Move(this, context);
     }
 }
 
@@ -50,4 +52,5 @@ internal abstract record EscapeDachoraCue
 /// <param name="LowTideLapEnds">Makes a <see cref="EscapeDachoraCue.LowTideLapEnds"/> into the result.</param>
 /// <param name="LapEnds">Makes a <see cref="EscapeDachoraCue.LapEnds"/> into the result.</param>
 /// <param name="Move">Makes a <see cref="EscapeDachoraCue.Move"/> into the result.</param>
-internal sealed record EscapeDachoraCueCases<TResult>(Func<EscapeDachoraCue.LowTideLapEnds, TResult> LowTideLapEnds, Func<EscapeDachoraCue.LapEnds, TResult> LapEnds, Func<EscapeDachoraCue.Move, TResult> Move);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record EscapeDachoraCueCases<TContext, TResult>(Func<EscapeDachoraCue.LowTideLapEnds, TContext, TResult> LowTideLapEnds, Func<EscapeDachoraCue.LapEnds, TContext, TResult> LapEnds, Func<EscapeDachoraCue.Move, TContext, TResult> Move);

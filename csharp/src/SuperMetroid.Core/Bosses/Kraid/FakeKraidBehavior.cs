@@ -48,27 +48,38 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
     private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemyPlace place, FakeKraidCue cue, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera) =>
-        cue.Match(new FakeKraidCueCases<FakeKraidSegment?>(
-            Spit: spit =>
+        cue.Match(ApplyFakeKraidCueCases, new ApplyFakeKraidCueContext(place, samus, level, camera, this));
+
+    /// <summary>What <c>ApplyFakeKraidCue</c> does on each <see cref="FakeKraidCue"/>, built once (#2553).</summary>
+    private static FakeKraidCueCases<ApplyFakeKraidCueContext, FakeKraidSegment?> ApplyFakeKraidCueCases { get; } = new(
+            Spit: static (spit, context) =>
             {
-                SpawnFakeKraidSpitPair(place, spit.Direction);
+                context.Owner.SpawnFakeKraidSpitPair(context.Place, spit.Direction);
                 return null;
             },
-            ChooseAction: _ => SelectFakeKraidAction(place.RequireSpeciesState<FakeKraidEnemyState>()),
-            Move: _ =>
+            ChooseAction: static (_, context) => context.Owner.SelectFakeKraidAction(context.Place.RequireSpeciesState<FakeKraidEnemyState>()),
+            Move: static (_, context) =>
             {
                 // Walk cue: advance one step unless its random reversal
                 // clock expires, then turn to face Samus.
-                ProcessFakeKraidWalkAnimation(place, place.RequireSpeciesState<FakeKraidEnemyState>(), samus, level);
+                context.Owner.ProcessFakeKraidWalkAnimation(context.Place, context.Place.RequireSpeciesState<FakeKraidEnemyState>(), context.Samus, context.Level);
                 return null;
             },
-            PlayCrySound: _ =>
+            PlayCrySound: static (_, context) =>
             {
                 // The spit step queues its sound only while Fake Kraid is in the view, its edges included.
-                if (EnemyView.Contains(place.Position.Whole, camera))
-                    RequestFakeKraidSound(KraidSoundDefinitions.FakeKraidCry);
+                if (EnemyView.Contains(context.Place.Position.Whole, context.Camera))
+                    context.Owner.RequestFakeKraidSound(KraidSoundDefinitions.FakeKraidCry);
                 return null;
-            }));
+            });
+
+    /// <summary>What <c>ApplyFakeKraidCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The <c>place</c> <c>ApplyFakeKraidCue</c> was handed.</param>
+    /// <param name="Samus">The <c>samus</c> <c>ApplyFakeKraidCue</c> was handed.</param>
+    /// <param name="Level">The <c>level</c> <c>ApplyFakeKraidCue</c> was handed.</param>
+    /// <param name="Camera">The <c>camera</c> <c>ApplyFakeKraidCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="FakeKraidBehavior"/> reacting.</param>
+    private readonly record struct ApplyFakeKraidCueContext(RoomEnemyPlace Place, SamusState Samus, RoomLevelData Level, Position16<RoomPixels> Camera, FakeKraidBehavior Owner);
 
     /// <summary>Queues one of Fake Kraid's sounds as it makes it, after the update's earlier requests.</summary>
     private void RequestFakeKraidSound(SoundEffectId sound) =>

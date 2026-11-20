@@ -162,26 +162,15 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
             {
                 int beat = phase.FirstBeat + place.Beat;
                 place = place with { Beat = place.Beat + 1 };
-                switch (beats[phase.Segment][beat])
-                {
-                    case AnimationBeat<TFrame, TEvent>.Frame frame:
-                        return new AnimationShown<TSegment, TFrame>.Frame(phase.Segment, frame.Shown, frame.Duration);
-                    case AnimationBeat<TFrame, TEvent>.HeldFrame held:
-                        // The animation rests on a held frame for good: its play is done where it stands.
-                        place = AnimationPlace.HoldingIn(place.Phase, phase.BeatCount);
-                        return new AnimationShown<TSegment, TFrame>.HeldFrame(held.Shown);
-                    case AnimationBeat<TFrame, TEvent>.Pause pause:
-                        return new AnimationShown<TSegment, TFrame>.Paused(pause.Duration);
-                    case AnimationBeat<TFrame, TEvent>.Event raised:
-                        React(raised.Raised, ref animation, ref place, react);
-                        continue;
-                    case AnimationBeat<TFrame, TEvent>.Marker marked:
-                        // A marker is raised as an event is (#2301): it marks a moment for its owner and plays nothing.
-                        React(marked.Raised, ref animation, ref place, react);
-                        continue;
-                    default:
-                        throw new InvalidOperationException($"Undefined beat in segment {phase.Segment}.");
-                }
+                var passing = new Play(animation, place, phase, react);
+                AnimationShown<TSegment, TFrame>? shown = beats[phase.Segment][beat].Match(BeatPlays, ref passing);
+                animation = passing.Animation;
+                place = passing.Place;
+                // A beat that raises an event or marks a moment shows nothing: the play goes on where the owner's reaction
+                // leaves it.
+                if (shown is not null)
+                    return shown;
+                continue;
             }
             if (phase.IsRepeated)
             {
@@ -198,21 +187,78 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                 place = Enter(animation, place.Phase + 1);
                 continue;
             }
-            switch (animation.End)
-            {
-                case AnimationEnd.Stop:
-                    return AnimationShown<TSegment, TFrame>.Ended.Instance;
-                case AnimationEnd.Hold:
-                    place = AnimationPlace.HoldingIn(place.Phase, phase.BeatCount);
-                    return AnimationShown<TSegment, TFrame>.Held.Instance;
-                case AnimationEnd.Loop loop:
-                    place = Enter(animation, loop.Phase);
-                    continue;
-                default:
-                    throw new InvalidOperationException($"Undefined animation end {animation.End}.");
-            }
+            var ending = new Play(animation, place, phase, react);
+            AnimationShown<TSegment, TFrame>? ended = animation.End.Match(EndPlays, ref ending);
+            place = ending.Place;
+            // A loop plays on from its cycle's first phase.
+            if (ended is not null)
+                return ended;
         }
         throw new InvalidOperationException("The animation passed every beat without showing a frame.");
+    }
+
+    /// <summary>What a play shows on each beat it passes (#2553), built once.</summary>
+    private static AnimationBeatCases<TFrame, TEvent, Play, AnimationShown<TSegment, TFrame>?> BeatPlays { get; } = new(
+        Frame: static (frame, ref play) => new AnimationShown<TSegment, TFrame>.Frame(play.Phase.Segment, frame.Shown, frame.Duration),
+        HeldFrame: static (held, ref play) =>
+        {
+            // The animation rests on a held frame for good: its play is done where it stands.
+            play.Place = AnimationPlace.HoldingIn(play.Place.Phase, play.Phase.BeatCount);
+            return new AnimationShown<TSegment, TFrame>.HeldFrame(held.Shown);
+        },
+        Pause: static (pause, ref play) => new AnimationShown<TSegment, TFrame>.Paused(pause.Duration),
+        Event: static (raised, ref play) =>
+        {
+            play.Raise(raised.Raised);
+            return null;
+        },
+        Marker: static (marked, ref play) =>
+        {
+            // A marker is raised as an event is (#2301): it marks a moment for its owner and plays nothing.
+            play.Raise(marked.Raised);
+            return null;
+        });
+
+    /// <summary>What a play comes to at each end of its animation (#2553), built once.</summary>
+    private static AnimationEndCases<Play, AnimationShown<TSegment, TFrame>?> EndPlays { get; } = new(
+        Stop: static (_, ref play) => AnimationShown<TSegment, TFrame>.Ended.Instance,
+        Loop: static (loop, ref play) =>
+        {
+            play.Place = Enter(play.Animation, loop.Phase);
+            return null;
+        },
+        Hold: static (_, ref play) =>
+        {
+            play.Place = AnimationPlace.HoldingIn(play.Place.Phase, play.Phase.BeatCount);
+            return AnimationShown<TSegment, TFrame>.Held.Instance;
+        });
+
+    /// <summary>
+    /// A play of the segments as it passes a beat or its animation's end (#2553): the animation playing and where it
+    /// stands, the phase it is in and the owner's reaction to the events it raises.
+    /// </summary>
+    /// <param name="animation">The animation playing.</param>
+    /// <param name="place">Where the play stands.</param>
+    /// <param name="phase">The phase it is in.</param>
+    /// <param name="react">The owner's reaction to an event, and where the play goes on, if anywhere.</param>
+    private struct Play(
+        Animation<TSegment> animation, AnimationPlace place, AnimationPhase<TSegment> phase,
+        Func<TEvent, AnimationPlayback<TSegment>, AnimationContinuation<TSegment>?> react)
+    {
+        /// <summary>The animation playing, which the owner's reaction may replace.</summary>
+        internal Animation<TSegment> Animation = animation;
+
+        /// <summary>Where the play stands.</summary>
+        internal AnimationPlace Place = place;
+
+        /// <summary>The phase the play is in.</summary>
+        internal readonly AnimationPhase<TSegment> Phase => phase;
+
+        /// <summary>
+        /// Raises <paramref name="raised"/> to the owner where the play stands, which goes on where its reaction says, if
+        /// it says.
+        /// </summary>
+        internal void Raise(TEvent raised) => React(raised, ref Animation, ref Place, react);
     }
 
     /// <summary>

@@ -10,7 +10,9 @@ internal abstract record MotherBrainEffectCue
 
     /// <summary>Carries out the reaction <paramref name="reactions"/> has to this mother brain effect cue, through the case it is.</summary>
     /// <param name="reactions">What its owner does on each case.</param>
-    internal abstract void React(MotherBrainEffectCueReactions reactions);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract void React<TContext>(MotherBrainEffectCueReactions<TContext> reactions, TContext context);
 
 
     /// <summary>Sets how far the projectile collides across and down from its centre.</summary>
@@ -18,7 +20,7 @@ internal abstract record MotherBrainEffectCue
     internal sealed record SetRadius(Extent16<RoomPixels> Radius) : MotherBrainEffectCue
     {
         /// <inheritdoc/>
-        internal override void React(MotherBrainEffectCueReactions reactions) => Ensure.NotNull(reactions).SetRadius(this);
+        internal override void React<TContext>(MotherBrainEffectCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).SetRadius(this, context);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -26,11 +28,12 @@ internal abstract record MotherBrainEffectCue
     internal sealed record Signal(MotherBrainEffectCueKind Kind) : MotherBrainEffectCue
     {
         /// <inheritdoc/>
-        internal override void React(MotherBrainEffectCueReactions reactions) => Ensure.NotNull(reactions).Signal(this);
+        internal override void React<TContext>(MotherBrainEffectCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
     }
 }
 
 /// <summary>What the owner of a <see cref="MotherBrainEffectCue"/> does on each of its cases (#2553).</summary>
 /// <param name="SetRadius">Reacts to a <see cref="MotherBrainEffectCue.SetRadius"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="MotherBrainEffectCue.Signal"/>.</param>
-internal sealed record MotherBrainEffectCueReactions(Action<MotherBrainEffectCue.SetRadius> SetRadius, Action<MotherBrainEffectCue.Signal> Signal);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record MotherBrainEffectCueReactions<TContext>(Action<MotherBrainEffectCue.SetRadius, TContext> SetRadius, Action<MotherBrainEffectCue.Signal, TContext> Signal);

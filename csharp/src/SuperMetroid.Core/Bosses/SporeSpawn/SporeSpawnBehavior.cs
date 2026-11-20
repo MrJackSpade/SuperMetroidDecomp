@@ -443,21 +443,31 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of Spore Spawn's body animation.</summary>
     internal void ApplySporeSpawnCue(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnCue cue, SamusState samus)
     {
-        cue.React(new SporeSpawnCueReactions(
-            ShowDeathShade: showDeathShade => ShowSporeSpawnDeathShade(body, state, showDeathShade.DeathShadeStep),
-            QueueSound: queueSound => RequestSporeSpawnSound(queueSound.Sound),
-            SetMovement: setMovement => state.Movement = setMovement.Movement,
-            SetSway: setSway =>
-            {
-                state.SwayRadius = setSway.Radius;
-                state.SwayStep = setSway.Step;
-            },
-            SetSporeGeneration: setSporeGeneration => state.SporeGenerationSuppressed = setSporeGeneration.SporeGenerationSuppressed,
-            Signal: signal =>
-            {
-                ApplySporeSpawnCueForSporeSpawnCueKind[signal.Kind](body, state, samus);
-            }));
+        cue.React(ApplySporeSpawnCueReactions, new ApplySporeSpawnCueContext(body, state, samus, this));
     }
+
+    /// <summary>What <c>ApplySporeSpawnCue</c> does on each <see cref="SporeSpawnCue"/>, built once (#2553).</summary>
+    private static SporeSpawnCueReactions<ApplySporeSpawnCueContext> ApplySporeSpawnCueReactions { get; } = new(
+        ShowDeathShade: static (showDeathShade, context) => ShowSporeSpawnDeathShade(context.Body, context.State, showDeathShade.DeathShadeStep),
+        QueueSound: static (queueSound, context) => context.Owner.RequestSporeSpawnSound(queueSound.Sound),
+        SetMovement: static (setMovement, context) => context.State.Movement = setMovement.Movement,
+        SetSway: static (setSway, context) =>
+        {
+            context.State.SwayRadius = setSway.Radius;
+            context.State.SwayStep = setSway.Step;
+        },
+        SetSporeGeneration: static (setSporeGeneration, context) => context.State.SporeGenerationSuppressed = setSporeGeneration.SporeGenerationSuppressed,
+        Signal: static (signal, context) =>
+        {
+            context.Owner.ApplySporeSpawnCueForSporeSpawnCueKind[signal.Kind](context.Body, context.State, context.Samus);
+        });
+
+    /// <summary>What <c>ApplySporeSpawnCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Body">The <c>body</c> <c>ApplySporeSpawnCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <c>ApplySporeSpawnCue</c> was handed.</param>
+    /// <param name="Samus">The <c>samus</c> <c>ApplySporeSpawnCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="SporeSpawnBehavior"/> reacting.</param>
+    private readonly record struct ApplySporeSpawnCueContext(RoomEnemyPlace Body, SporeSpawnEnemyState State, SamusState Samus, SporeSpawnBehavior Owner);
 
     /// <summary>Shows <paramref name="band"/>'s colours of <paramref name="state"/> on his <paramref name="body"/>.</summary>
     private static void ShowSporeSpawnHealthShade(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnHealthBand band)

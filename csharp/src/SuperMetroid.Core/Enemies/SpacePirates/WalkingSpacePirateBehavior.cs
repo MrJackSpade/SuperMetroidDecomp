@@ -63,30 +63,39 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// animation it selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
     private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemyPlace place, WalkingSpacePirateCue cue, SamusState samus) =>
-        cue.Match(new WalkingSpacePirateCueCases<WalkingSpacePirateSegment?>(
-            FireLaser: fireLaser =>
+        cue.Match(ApplyWalkingSpacePirateCueCases, new ApplyWalkingSpacePirateCueContext(place, samus, this));
+
+    /// <summary>What <c>ApplyWalkingSpacePirateCue</c> does on each <see cref="WalkingSpacePirateCue"/>, built once (#2553).</summary>
+    private static WalkingSpacePirateCueCases<ApplyWalkingSpacePirateCueContext, WalkingSpacePirateSegment?> ApplyWalkingSpacePirateCueCases { get; } = new(
+            FireLaser: static (fireLaser, context) =>
             {
-                _ = SpawnSpacePirateLaser(place, fireLaser.Direction, fireLaser.LaserHeight,
-                    place.SpawnSettings<WalkingSpacePirateSpawnSettings>().LaserSpeed);
+                _ = context.Owner.SpawnSpacePirateLaser(context.Place, fireLaser.Direction, fireLaser.LaserHeight,
+                    context.Place.SpawnSettings<WalkingSpacePirateSpawnSettings>().LaserSpeed);
                 return null;
             },
-            Begin: begin =>
+            Begin: static (begin, context) =>
             {
                 // The pirate animation does not jump to the stand or walk it begins: main AI runs it from the next
                 // frame, as the animation runs on.
-                RequireWalkingSpacePirateState(place).Action = begin.Action;
+                RequireWalkingSpacePirateState(context.Place).Action = begin.Action;
                 return null;
             },
-            BeginHeading: begin =>
+            BeginHeading: static (begin, context) =>
             {
                 // As a plain begin, main AI runs the walk from the next frame, the cue's way (#2165).
-                WalkingSpacePirateEnemyState walker = RequireWalkingSpacePirateState(place);
+                WalkingSpacePirateEnemyState walker = RequireWalkingSpacePirateState(context.Place);
                 walker.Action = begin.Action;
                 walker.Heading = begin.Heading;
                 return null;
             },
             // The walking pirates' one signal chooses their movement.
-            Signal: _ => SelectWalkingSpacePirateMovement(place, samus)));
+            Signal: static (_, context) => SelectWalkingSpacePirateMovement(context.Place, context.Samus));
+
+    /// <summary>What <c>ApplyWalkingSpacePirateCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The <c>place</c> <c>ApplyWalkingSpacePirateCue</c> was handed.</param>
+    /// <param name="Samus">The <c>samus</c> <c>ApplyWalkingSpacePirateCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="WalkingSpacePirateBehavior"/> reacting.</param>
+    private readonly record struct ApplyWalkingSpacePirateCueContext(RoomEnemyPlace Place, SamusState Samus, WalkingSpacePirateBehavior Owner);
 
     /// <summary>
     /// Queues <paramref name="sound"/> as a space pirate makes it, after the update's earlier requests: walking, wall and

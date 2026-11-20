@@ -57,13 +57,21 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the current direction, as the cue returns that animation; every other cue runs on.
     /// </summary>
     private KiHunterSegment? ApplyKiHunterCue(RoomEnemyPlace place, KiHunterCue cue) =>
-        cue.Match(new KiHunterCueCases<KiHunterSegment?>(
-            Spit: spit =>
+        cue.Match(ApplyKiHunterCueCases, new ApplyKiHunterCueContext(place, this));
+
+    /// <summary>What <c>ApplyKiHunterCue</c> does on each <see cref="KiHunterCue"/>, built once (#2553).</summary>
+    private static KiHunterCueCases<ApplyKiHunterCueContext, KiHunterSegment?> ApplyKiHunterCueCases { get; } = new(
+            Spit: static (spit, context) =>
             {
-                SpawnKiHunterAcidFromCue(place, direction: spit.Direction);
+                context.Owner.SpawnKiHunterAcidFromCue(context.Place, direction: spit.Direction);
                 return null;
             },
-            Signal: signal => KiHunterSignals[signal.Kind](place)));
+            Signal: static (signal, context) => context.Owner.KiHunterSignals[signal.Kind](context.Place));
+
+    /// <summary>What <c>ApplyKiHunterCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The <c>place</c> <c>ApplyKiHunterCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="KiHunterBehavior"/> reacting.</param>
+    private readonly record struct ApplyKiHunterCueContext(RoomEnemyPlace Place, KiHunterBehavior Owner);
 
     /// <summary>What each of the Ki-Hunter body's signals does, and the animation it continues at, or null to run on.</summary>
     private IdentityTable<KiHunterCueKind, Func<RoomEnemyPlace, KiHunterSegment?>> KiHunterSignals => field ??=
@@ -719,20 +727,28 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         public void RunCue(EnemyProjectileCueContext context, KiHunterAcidSpitCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
-            cue.React(new KiHunterAcidSpitCueReactions(
-                Launch: launch =>
-                {
-                    // The launch cue names the way the acid's animation spits it, which must be the way its Ki-Hunter spat it (#2338).
-                    HorizontalDirection spat = Spits.Of(projectile).Spat;
-                    if (launch.Direction != spat)
-                        throw new InvalidOperationException($"Acid spat {spat} played the animation that launches it {launch.Direction}.");
-                    projectile.StartMotion(this, KiHunterAcidMotion.Launching);
-                },
-                Signal: signal =>
-                {
-                    RunCueForKiHunterAcidSpitCueKind[signal.Kind](projectile);
-                }));
+            cue.React(RunCueReactions, new RunCueContext(projectile, this));
         }
+
+        /// <summary>What <c>RunCue</c> does on each <see cref="KiHunterAcidSpitCue"/>, built once (#2553).</summary>
+        private static KiHunterAcidSpitCueReactions<RunCueContext> RunCueReactions { get; } = new(
+            Launch: static (launch, context) =>
+            {
+                // The launch cue names the way the acid's animation spits it, which must be the way its Ki-Hunter spat it (#2338).
+                HorizontalDirection spat = context.Owner.Spits.Of(context.Projectile).Spat;
+                if (launch.Direction != spat)
+                    throw new InvalidOperationException($"Acid spat {spat} played the animation that launches it {launch.Direction}.");
+                context.Projectile.StartMotion(context.Owner, KiHunterAcidMotion.Launching);
+            },
+            Signal: static (signal, context) =>
+            {
+                RunCueForKiHunterAcidSpitCueKind[signal.Kind](context.Projectile);
+            });
+
+        /// <summary>What <c>RunCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+        /// <param name="Projectile">The <c>projectile</c> <c>RunCue</c> works with.</param>
+        /// <param name="Owner">The <see cref="AcidBehavior"/> reacting.</param>
+        private readonly record struct RunCueContext(EnemyProjectile Projectile, AcidBehavior Owner);
 
         /// <summary>What <c>Move</c> does for each <see cref="KiHunterAcidMotion"/> member, each member's own arm.</summary>
         private IdentityTable<KiHunterAcidMotion, Action<EnemyProjectileMotionContext>> MoveForKiHunterAcidMotion => field ??= new(new Dictionary<KiHunterAcidMotion, Action<EnemyProjectileMotionContext>>

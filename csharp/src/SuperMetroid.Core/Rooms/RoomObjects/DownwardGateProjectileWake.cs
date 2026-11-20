@@ -9,5 +9,5 @@ public sealed record DownwardGateProjectileWake(Position16<RoomBlocks> RoomObjec
     : DownwardGateProjectileRequest(RoomObjectBlock)
 {
     /// <inheritdoc/>
-    internal override void React(DownwardGateProjectileRequestReactions reactions) => Ensure.NotNull(reactions).DownwardGateProjectileWake(this);
+    internal override void React<TContext>(DownwardGateProjectileRequestReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).DownwardGateProjectileWake(this, context);
 }

@@ -9,5 +9,5 @@ public sealed record DownwardGateProjectileSpawn(DownwardGateProjectileKind Kind
     : DownwardGateProjectileRequest(RoomObjectBlock)
 {
     /// <inheritdoc/>
-    internal override void React(DownwardGateProjectileRequestReactions reactions) => Ensure.NotNull(reactions).DownwardGateProjectileSpawn(this);
+    internal override void React<TContext>(DownwardGateProjectileRequestReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).DownwardGateProjectileSpawn(this, context);
 }

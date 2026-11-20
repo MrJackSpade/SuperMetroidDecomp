@@ -10,5 +10,5 @@ public sealed record BombTorizoStatueProjectileRequest(
     Position16<RoomBlocks> RoomObjectBlock) : RoomObjectProjectileRequest(RoomObjectBlock)
 {
     /// <inheritdoc/>
-    internal override void React(RoomObjectProjectileRequestReactions reactions) => Ensure.NotNull(reactions).BombTorizoStatueProjectileRequest(this);
+    internal override void React<TContext>(RoomObjectProjectileRequestReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).BombTorizoStatueProjectileRequest(this, context);
 }

@@ -73,30 +73,28 @@ public sealed class RoomEffectActor
         AnimationPlace place = playback.Place;
         AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture> shown = RoomEffectActorAnimations.Segments.PlayToNextFrame(
             ref animation, ref place);
-        switch (shown)
-        {
-            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Frame frame:
-                Playback = new(animation, place);
-                Frame = frame.Shown;
-                AnimationClock.Show(frame.Duration);
-                return;
-            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.HeldFrame held:
-                // A still picture shows from now on (#2275).
-                Playback = new(animation, place);
-                Frame = held.Shown;
-                AnimationClock.ShowForGood();
-                return;
-            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Held:
-                Playback = new(animation, place);
-                AnimationClock.Stop();
-                return;
-            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Ended:
-                End();
-                return;
-            default:
-                throw new InvalidOperationException($"Effect actor {Kind}'s animation reached {shown}.");
-        }
+        // The animation's end ends the object; every other outcome stands its animation where the play stopped.
+        if (shown is not AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Ended)
+            Playback = new(animation, place);
+        shown.React(AdvanceAnimationReactions, this);
     }
+
+    /// <summary>What <c>AdvanceAnimation</c> does on each <see cref="AnimationShown{TSegment, TFrame}"/>, built once (#2553).</summary>
+    private static AnimationShownReactions<RoomEffectActorSegment, RoomEffectActorPicture, RoomEffectActor> AdvanceAnimationReactions { get; } = new(
+        Frame: static (frame, actor) =>
+        {
+            actor.Frame = frame.Shown;
+            actor.AnimationClock.Show(frame.Duration);
+        },
+        HeldFrame: static (held, actor) =>
+        {
+            // A still picture shows from now on (#2275).
+            actor.Frame = held.Shown;
+            actor.AnimationClock.ShowForGood();
+        },
+        Paused: static (paused, actor) => actor.AnimationClock.Pause(paused.Duration),
+        Held: static (_, actor) => actor.AnimationClock.Stop(),
+        Ended: static (_, actor) => actor.End());
 
     /// <summary>
     /// Restarts the object's own animation from its first frame, as its spawn started it (#2047): a frozen Metroid's

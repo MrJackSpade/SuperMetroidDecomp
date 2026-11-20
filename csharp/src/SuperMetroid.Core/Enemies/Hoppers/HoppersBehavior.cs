@@ -44,13 +44,22 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of the hoppers' animations.</summary>
     private void ApplyHopperCue(RoomEnemyPlace place, HopperEnemyState state, HopperCue cue)
     {
-        cue.React(new HopperCueReactions(
-            PlaySound: sound => _audio.QueueEnemySound(sound.Sound, priority: SoundRequestPriority.Normal),
-            Signal: signal =>
-            {
-                ApplyHopperCueForHopperCueKind[signal.Kind](place, state);
-            }));
+        cue.React(ApplyHopperCueReactions, new ApplyHopperCueContext(place, state, this));
     }
+
+    /// <summary>What <c>ApplyHopperCue</c> does on each <see cref="HopperCue"/>, built once (#2553).</summary>
+    private static HopperCueReactions<ApplyHopperCueContext> ApplyHopperCueReactions { get; } = new(
+        PlaySound: static (sound, context) => context.Owner._audio.QueueEnemySound(sound.Sound, priority: SoundRequestPriority.Normal),
+        Signal: static (signal, context) =>
+        {
+            ApplyHopperCueForHopperCueKind[signal.Kind](context.Place, context.State);
+        });
+
+    /// <summary>What <c>ApplyHopperCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The <c>place</c> <c>ApplyHopperCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <c>ApplyHopperCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="HoppersBehavior"/> reacting.</param>
+    private readonly record struct ApplyHopperCueContext(RoomEnemyPlace Place, HopperEnemyState State, HoppersBehavior Owner);
 
     /// <summary>Initializes the Hopper.</summary>
     internal void InitializeHopper(RoomEnemyPlace place)

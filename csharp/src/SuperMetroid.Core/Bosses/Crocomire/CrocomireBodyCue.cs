@@ -11,7 +11,9 @@ internal abstract record CrocomireBodyCue
     /// <summary>What <paramref name="cases"/> makes of this crocomire body cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the crocomire body cue is made into.</typeparam>
     /// <param name="cases">What each case is made into.</param>
-    internal abstract TResult Match<TResult>(CrocomireBodyCueCases<TResult> cases);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract TResult Match<TContext, TResult>(CrocomireBodyCueCases<TContext, TResult> cases, TContext context);
 
 
     /// <summary>Takes the cue's step (#2163): its foot dust first where it raises any, then its move where its condition allows.</summary>
@@ -19,7 +21,7 @@ internal abstract record CrocomireBodyCue
     internal sealed record Step(CrocomireStep Move) : CrocomireBodyCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(CrocomireBodyCueCases<TResult> cases) => Ensure.NotNull(cases).Step(this);
+        internal override TResult Match<TContext, TResult>(CrocomireBodyCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Step(this, context);
     }
 
     /// <summary>Spawns a big dust cloud the cue's offset from the body.</summary>
@@ -27,7 +29,7 @@ internal abstract record CrocomireBodyCue
     internal sealed record Dust(int Offset) : CrocomireBodyCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(CrocomireBodyCueCases<TResult> cases) => Ensure.NotNull(cases).Dust(this);
+        internal override TResult Match<TContext, TResult>(CrocomireBodyCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Dust(this, context);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -35,7 +37,7 @@ internal abstract record CrocomireBodyCue
     internal sealed record Signal(CrocomireBodyCueKind Kind) : CrocomireBodyCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(CrocomireBodyCueCases<TResult> cases) => Ensure.NotNull(cases).Signal(this);
+        internal override TResult Match<TContext, TResult>(CrocomireBodyCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Signal(this, context);
     }
 }
 
@@ -44,4 +46,5 @@ internal abstract record CrocomireBodyCue
 /// <param name="Step">Makes a <see cref="CrocomireBodyCue.Step"/> into the result.</param>
 /// <param name="Dust">Makes a <see cref="CrocomireBodyCue.Dust"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="CrocomireBodyCue.Signal"/> into the result.</param>
-internal sealed record CrocomireBodyCueCases<TResult>(Func<CrocomireBodyCue.Step, TResult> Step, Func<CrocomireBodyCue.Dust, TResult> Dust, Func<CrocomireBodyCue.Signal, TResult> Signal);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record CrocomireBodyCueCases<TContext, TResult>(Func<CrocomireBodyCue.Step, TContext, TResult> Step, Func<CrocomireBodyCue.Dust, TContext, TResult> Dust, Func<CrocomireBodyCue.Signal, TContext, TResult> Signal);

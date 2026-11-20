@@ -314,28 +314,37 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <exception cref="InvalidOperationException">The effect watches a condition of no defined kind.</exception>
     private void CheckCondition(RoomColourEffect effect, ColourEffectInputs conditions)
     {
-        effect.WatchedCondition.React(new ColourEffectConditionReactions(
-            WatchesNothing: _ =>
-            {
-            },
-            RestartsWhileSamusIsHigh: high =>
-            {
-                if (conditions.SamusY < high.Height)
-                    effect.Restart();
-            },
-            EndsWhenTorizoDies: _ =>
-            {
-                // An effect watching for a Torizo's defeat lights that Torizo, its target (ColourEffectTarget.OnLitTorizo.Accept).
-                if (effect.Target is ColourEffectTarget.OnLitTorizo { Torizo.IsDefeated: true })
-                    effect.End();
-            },
-            EndsWhenAreaMiniBossDies: _ =>
-            {
-                if (conditions.AreaMiniBossDefeated)
-                    effect.End();
-            },
-            BurnsSamusInHeat: _ => BurnSamusInHeat(effect, conditions.EquippedItems, conditions.Samus, conditions.FrameCounter)));
+        effect.WatchedCondition.React(CheckConditionReactions, new CheckConditionContext(conditions, effect, this));
     }
+
+    /// <summary>What <c>CheckCondition</c> does on each <see cref="ColourEffectCondition"/>, built once (#2553).</summary>
+    private static ColourEffectConditionReactions<CheckConditionContext> CheckConditionReactions { get; } = new(
+        WatchesNothing: static (_, _) =>
+        {
+        },
+        RestartsWhileSamusIsHigh: static (high, context) =>
+        {
+            if (context.Conditions.SamusY < high.Height)
+                context.Effect.Restart();
+        },
+        EndsWhenTorizoDies: static (_, context) =>
+        {
+            // An effect watching for a Torizo's defeat lights that Torizo, its target (ColourEffectTarget.OnLitTorizo.Accept).
+            if (context.Effect.Target is ColourEffectTarget.OnLitTorizo { Torizo.IsDefeated: true })
+                context.Effect.End();
+        },
+        EndsWhenAreaMiniBossDies: static (_, context) =>
+        {
+            if (context.Conditions.AreaMiniBossDefeated)
+                context.Effect.End();
+        },
+        BurnsSamusInHeat: static (_, context) => context.Owner.BurnSamusInHeat(context.Effect, context.Conditions.EquippedItems, context.Conditions.Samus, context.Conditions.FrameCounter));
+
+    /// <summary>What <c>CheckCondition</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Conditions">The <c>conditions</c> <c>CheckCondition</c> was handed.</param>
+    /// <param name="Effect">The <c>effect</c> <c>CheckCondition</c> was handed.</param>
+    /// <param name="Owner">The <see cref="ColourEffectSystem"/> reacting.</param>
+    private readonly record struct CheckConditionContext(ColourEffectInputs Conditions, RoomColourEffect Effect, ColourEffectSystem Owner);
 
     /// <summary>
     /// The heat shimmer's condition. The shimmer deliberately owns both its look and the heat's damage: an unprotected
@@ -373,10 +382,13 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <exception cref="InvalidOperationException">The step is of no defined kind.</exception>
     private void CarryOut(RoomColourEffect effect, ColourEffectCue cue)
     {
-        cue.React(new ColourEffectCueReactions(
-            QueueSound: queueSound => sounds.QueueSound(queueSound.Sound, ColourEffectSoundPriorities.CueSound),
-            PublishHeatPhase: publishHeatPhase => _session.PublishedHeatPhase = publishHeatPhase.Phase));
+        cue.React(CarryOutReactions, this);
     }
+
+    /// <summary>What <c>CarryOut</c> does on each <see cref="ColourEffectCue"/>, built once (#2553).</summary>
+    private static ColourEffectCueReactions<ColourEffectSystem> CarryOutReactions { get; } = new(
+        QueueSound: static (queueSound, owner) => owner.sounds.QueueSound(queueSound.Sound, ColourEffectSoundPriorities.CueSound),
+        PublishHeatPhase: static (publishHeatPhase, owner) => owner._session.PublishedHeatPhase = publishHeatPhase.Phase);
 
     /// <summary>
     /// The frames Samus's suit groups showed during the last update, in order (#1512): she lays the shade of each over

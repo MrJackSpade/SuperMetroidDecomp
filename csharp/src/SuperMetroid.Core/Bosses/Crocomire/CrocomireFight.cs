@@ -184,7 +184,7 @@ internal sealed class CrocomireFight
         state.Tongue.DrawOffset += body.Position.Whole - placedAt;
         // A hold rests the animation: the last frame stays and the clock stops (#2454). A held frame (#1627) shows its
         // frame for good, its clock stopped as a hold's is. Every outcome takes the shared enemy animation's meaning.
-        EnemyAnimationPlayback.Show(body, outcome, frame => ShowCrocomireBodyFrame(state, body, frame));
+        EnemyAnimationPlayback.Show(body, outcome, static (shownOn, frame, crocomire) => ShowCrocomireBodyFrame(crocomire, shownOn, frame), state);
     }
 
     /// <summary>Shows <paramref name="frame"/> on Crocomire's body.</summary>
@@ -212,22 +212,34 @@ internal sealed class CrocomireFight
         CrocomireBodyCue cue)
     {
         RoomEnemyPlace body = state.Body;
-        return cue.Match(new CrocomireBodyCueCases<CrocomireBodyAnimation?>(
-            Step: step =>
-            {
-                if (step.Move.RaisesFootDust)
-                    SpawnCrocomireRandomFootDust(state);
-                if (StepMoves(step.Move.Condition, state, body, cameraX))
-                    MoveCrocomire(body, level, step.Move.HorizontalPixels);
-                return null;
-            },
-            Dust: dust =>
-            {
-                _access.SpawnCrocomireDust(state, dust.Offset);
-                return null;
-            },
-            Signal: signal => ApplyCrocomireBodySignal(state, samus, level, signal.Kind)));
+        return cue.Match(ApplyCrocomireBodyCueCases, new ApplyCrocomireBodyCueContext(state, body, cameraX, level, samus, this));
     }
+
+    /// <summary>What <c>ApplyCrocomireBodyCue</c> does on each <see cref="CrocomireBodyCue"/>, built once (#2553).</summary>
+    private static CrocomireBodyCueCases<ApplyCrocomireBodyCueContext, CrocomireBodyAnimation?> ApplyCrocomireBodyCueCases { get; } = new(
+        Step: static (step, context) =>
+        {
+            if (step.Move.RaisesFootDust)
+                context.Owner.SpawnCrocomireRandomFootDust(context.State);
+            if (StepMoves(step.Move.Condition, context.State, context.Body, context.CameraX))
+                context.Owner.MoveCrocomire(context.Body, context.Level, step.Move.HorizontalPixels);
+            return null;
+        },
+        Dust: static (dust, context) =>
+        {
+            context.Owner._access.SpawnCrocomireDust(context.State, dust.Offset);
+            return null;
+        },
+        Signal: static (signal, context) => context.Owner.ApplyCrocomireBodySignal(context.State, context.Samus, context.Level, signal.Kind));
+
+    /// <summary>What <c>ApplyCrocomireBodyCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="State">The Crocomire encounter whose body runs the animation.</param>
+    /// <param name="Body">The <c>body</c> <c>ApplyCrocomireBodyCue</c> works with.</param>
+    /// <param name="CameraX">The camera's X, which the on-screen movement tests use.</param>
+    /// <param name="Level">The room's collision level, which the movement cues require.</param>
+    /// <param name="Samus">Samus, whom the fight AI measures against.</param>
+    /// <param name="Owner">The <see cref="CrocomireFight"/> reacting.</param>
+    private readonly record struct ApplyCrocomireBodyCueContext(CrocomireEnemyState State, RoomEnemyPlace Body, int CameraX, RoomLevelData Level, SamusState Samus, CrocomireFight Owner);
 
     /// <summary>Whether a step under <paramref name="condition"/> moves the body now.</summary>
     private static bool StepMoves(CrocomireStepCondition condition, CrocomireEnemyState state, RoomEnemyPlace body, int cameraX) => condition switch

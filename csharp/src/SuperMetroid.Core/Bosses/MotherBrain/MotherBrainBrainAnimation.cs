@@ -62,20 +62,23 @@ public sealed class MotherBrainBrainAnimation
         AnimationPlace place = playback.Place;
         AnimationShown<MotherBrainHeadSegment, EnemyFrameId> shown = MotherBrainAnimations.HeadSegments.PlayToNextFrame(ref animation, ref place, react);
         Playback = new AnimationPlayback<MotherBrainHeadSegment>(animation, place);
-        shown.React(new AnimationShownReactions<MotherBrainHeadSegment, EnemyFrameId>(
-            Frame: frame =>
-            {
-                ShownFrame = frame.Shown;
-                Clock.Show(frame.Duration);
-            },
-            HeldFrame: held =>
-            {
-                ShownFrame = held.Shown;
-                Clock.ShowForGood();
-            },
-            Paused: paused => Clock.Pause(paused.Duration),
-            Held: _ => Clock.Stop(),
-            // An ended animation takes no further step; her brain keeps the picture it showed last.
-            Ended: _ => Clock.Stop()));
+        shown.React(StepReactions, this);
     }
+
+    /// <summary>What <c>Step</c> does on each <see cref="AnimationShown{MotherBrainHeadSegment, EnemyFrameId}"/>, built once (#2553).</summary>
+    private static AnimationShownReactions<MotherBrainHeadSegment, EnemyFrameId, MotherBrainBrainAnimation> StepReactions { get; } = new(
+        Frame: static (frame, owner) =>
+        {
+            owner.ShownFrame = frame.Shown;
+            owner.Clock.Show(frame.Duration);
+        },
+        HeldFrame: static (held, owner) =>
+        {
+            owner.ShownFrame = held.Shown;
+            owner.Clock.ShowForGood();
+        },
+        Paused: static (paused, owner) => owner.Clock.Pause(paused.Duration),
+        Held: static (_, owner) => owner.Clock.Stop(),
+        // An ended animation takes no further step; her brain keeps the picture it showed last.
+        Ended: static (_, owner) => owner.Clock.Stop());
 }

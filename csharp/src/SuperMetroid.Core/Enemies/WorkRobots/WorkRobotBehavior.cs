@@ -129,14 +129,24 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// the animation elsewhere, as the cues replace the segment.
     /// </summary>
     private WorkRobotSegment? ApplyWorkRobotCue(RoomEnemyPlace place, WorkRobotEnemyState state, EnemyAnimationCueContext context, WorkRobotCue cue) =>
-        cue.Match(new WorkRobotCueCases<WorkRobotSegment?>(
-            Step: step => MoveWorkRobot(place, state, context.Samus, context.Level, step.Move),
-            TryLaser: laser => TryFireWorkRobotLaser(place, state, laser.Laser, laser.Firing, context.Camera),
-            Signal: signal =>
+        cue.Match(ApplyWorkRobotCueCases, new ApplyWorkRobotCueContext(place, state, context, this));
+
+    /// <summary>What <c>ApplyWorkRobotCue</c> does on each <see cref="WorkRobotCue"/>, built once (#2553).</summary>
+    private static WorkRobotCueCases<ApplyWorkRobotCueContext, WorkRobotSegment?> ApplyWorkRobotCueCases { get; } = new(
+            Step: static (step, reads) => reads.Owner.MoveWorkRobot(reads.Place, reads.State, reads.Context.Samus, reads.Context.Level, step.Move),
+            TryLaser: static (laser, reads) => reads.Owner.TryFireWorkRobotLaser(reads.Place, reads.State, laser.Laser, laser.Firing, reads.Context.Camera),
+            Signal: static (signal, reads) =>
             {
-                WorkRobotSignals[signal.Kind](place, state, context.Camera);
+                reads.Owner.WorkRobotSignals[signal.Kind](reads.Place, reads.State, reads.Context.Camera);
                 return null;
-            }));
+            });
+
+    /// <summary>What <c>ApplyWorkRobotCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The <c>place</c> <c>ApplyWorkRobotCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <c>ApplyWorkRobotCue</c> was handed.</param>
+    /// <param name="Context">The <c>context</c> <c>ApplyWorkRobotCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="WorkRobotBehavior"/> reacting.</param>
+    private readonly record struct ApplyWorkRobotCueContext(RoomEnemyPlace Place, WorkRobotEnemyState State, EnemyAnimationCueContext Context, WorkRobotBehavior Owner);
 
     /// <summary>What each of the Work Robot's signals does; each runs on.</summary>
     private IdentityTable<WorkRobotCueKind, Action<RoomEnemyPlace, WorkRobotEnemyState, Position16<RoomPixels>>> WorkRobotSignals => field ??=

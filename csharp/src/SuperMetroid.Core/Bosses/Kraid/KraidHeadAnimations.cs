@@ -113,15 +113,19 @@ internal static class KraidHeadAnimations
         AnimationPlace place = before.Place;
         AnimationShown<KraidHeadSegment, KraidHeadFrame> entered = Segments.PlayToNextFrame(before.Animation, ref place,
             cue => throw new InvalidOperationException($"Kraid's head enters a pose with no {cue} before it."));
-        int delay = 0;
-        entered.React(new AnimationShownReactions<KraidHeadSegment, KraidHeadFrame>(
-            Frame: pose => delay = pose.Duration,
-            HeldFrame: static _ => { },
-            Paused: pause => delay = pause.Duration,
-            Held: static _ => { },
-            Ended: static _ => { }));
-        return new(before with { Place = place }, delay);
+        return new(before with { Place = place }, entered.Match(EnteredDelays, before));
     }
+
+    /// <summary>
+    /// How long the head holds the pose it enters, for each outcome of the play (#2553): a frame or a pause holds for its
+    /// duration, and a play that shows a frame for good, rests or ends holds what it shows for no update. Built once.
+    /// </summary>
+    private static AnimationShownCases<KraidHeadSegment, KraidHeadFrame, AnimationPlayback<KraidHeadSegment>, int> EnteredDelays { get; } = new(
+        Frame: static (pose, _) => pose.Duration,
+        HeldFrame: static (_, _) => 0,
+        Paused: static (pause, _) => pause.Duration,
+        Held: static (_, _) => 0,
+        Ended: static (_, _) => 0);
 
     /// <summary>
     /// Where <paramref name="playback"/> stands in its head animation: the animation, named by the segment it starts at, and

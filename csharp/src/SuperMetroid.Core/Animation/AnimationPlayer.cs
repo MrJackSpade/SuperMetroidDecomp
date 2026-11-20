@@ -333,30 +333,39 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         AnimationPlace place = Playback.Place;
         AnimationShown<TSegment, TFrame> next = segments.PlayToNextFrame(ref animation, ref place, react);
         Playback = new(animation, place);
-        switch (next)
-        {
-            case AnimationShown<TSegment, TFrame>.Frame frame:
-                Shown = frame.Shown;
-                UpdatesLeft = frame.Duration;
-                return frame.Shown;
-            case AnimationShown<TSegment, TFrame>.Paused pause:
-                UpdatesLeft = pause.Duration;
-                return null;
-            case AnimationShown<TSegment, TFrame>.HeldFrame held:
-                Shown = held.Shown;
-                IsResting = true;
-                return held.Shown;
-            case AnimationShown<TSegment, TFrame>.Held:
-                IsResting = true;
-                return null;
-            case AnimationShown<TSegment, TFrame>.Ended:
-                IsResting = true;
-                HasStopped = true;
-                return null;
-            default:
-                throw new InvalidOperationException($"The animation played on to {next}.");
-        }
+        return next.Match(PlayOnCases, this);
     }
+
+    /// <summary>What <c>PlayOnReacting</c> makes of each <see cref="AnimationShown{TSegment, TFrame}"/>, built once (#2553).</summary>
+    private static AnimationShownCases<TSegment, TFrame, AnimationPlayer<TSegment, TFrame, TEvent>, TFrame?> PlayOnCases { get; } = new(
+        Frame: static (frame, player) =>
+        {
+            player.Shown = frame.Shown;
+            player.UpdatesLeft = frame.Duration;
+            return frame.Shown;
+        },
+        HeldFrame: static (held, player) =>
+        {
+            player.Shown = held.Shown;
+            player.IsResting = true;
+            return held.Shown;
+        },
+        Paused: static (pause, player) =>
+        {
+            player.UpdatesLeft = pause.Duration;
+            return null;
+        },
+        Held: static (_, player) =>
+        {
+            player.IsResting = true;
+            return null;
+        },
+        Ended: static (_, player) =>
+        {
+            player.IsResting = true;
+            player.HasStopped = true;
+            return null;
+        });
 
     /// <summary>
     /// Starts <paramref name="animation"/> again at <paramref name="place"/>, showing at once the frame it plays to from

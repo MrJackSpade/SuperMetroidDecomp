@@ -233,7 +233,7 @@ internal static class EnemyAnimationPlayback
         AnimationPlace place = playback.Place;
         AnimationShown<TSegment, TFrame> shown = segments.PlayToNextFrame(ref animation, ref place, react);
         playback = new AnimationPlayback<TSegment>(animation, place);
-        Show(enemy, shown, (Action<TFrame>)(picture => { enemy.Frame = frame(picture); }));
+        Show(enemy, shown, frame);
     }
 
     /// <summary>
@@ -244,40 +244,63 @@ internal static class EnemyAnimationPlayback
         where TSegment : struct
         where TFrame : struct
     {
-        Ensure.NotNull(enemy);
         Ensure.NotNull(frame);
-        Show(enemy, shown, (Action<TFrame>)(picture => { enemy.Frame = frame(picture); }));
+        Show(enemy, shown, static (shownOn, picture, frameOf) => shownOn.Frame = frameOf(picture), frame);
     }
 
     /// <summary>
-    /// Shows on <paramref name="enemy"/> what one step of its animation came to, its frames through
-    /// <paramref name="showFrame"/>, as the other overload does.
+    /// Shows on <paramref name="enemy"/> what one step of its animation came to, as the other overload does, each frame it
+    /// shows through <paramref name="showFrame"/>, which reads <paramref name="context"/> besides the enemy and the frame
+    /// (#2553), so that no step builds a reaction of its own.
     /// </summary>
-    internal static void Show<TSegment, TFrame>(RoomEnemyPlace enemy, AnimationShown<TSegment, TFrame> shown, Action<TFrame> showFrame)
+    internal static void Show<TSegment, TFrame, TContext>(
+        RoomEnemyPlace enemy, AnimationShown<TSegment, TFrame> shown, Action<RoomEnemyPlace, TFrame, TContext> showFrame, TContext context)
         where TSegment : struct
         where TFrame : struct
     {
         Ensure.NotNull(enemy);
         Ensure.NotNull(showFrame);
-        Ensure.NotNull(shown).React(new AnimationShownReactions<TSegment, TFrame>(
-            Frame: shownFrame =>
+        Ensure.NotNull(shown).React(ShownOn<TSegment, TFrame, TContext>.Reactions, new EnemyFrameShowing<TFrame, TContext>(enemy, showFrame, context));
+    }
+
+    /// <summary>
+    /// An enemy a step of its animation shows on (#2553): the enemy, how it shows a frame, and what that reads besides the
+    /// enemy and the frame.
+    /// </summary>
+    /// <param name="Enemy">The enemy.</param>
+    /// <param name="ShowFrame">Shows a frame on the enemy.</param>
+    /// <param name="Context">What showing a frame reads besides the enemy and the frame.</param>
+    private readonly record struct EnemyFrameShowing<TFrame, TContext>(RoomEnemyPlace Enemy, Action<RoomEnemyPlace, TFrame, TContext> ShowFrame, TContext Context)
+        where TFrame : struct;
+
+    /// <summary>What a step of an enemy's animation shows on it, for each outcome, built once per animation (#2553).</summary>
+    private static class ShownOn<TSegment, TFrame, TContext>
+        where TSegment : struct
+        where TFrame : struct
+    {
+        /// <summary>
+        /// A frame for its updates or for good, a pause, a rest on the frame shown last, or the common end, which deletes the
+        /// enemy.
+        /// </summary>
+        internal static AnimationShownReactions<TSegment, TFrame, EnemyFrameShowing<TFrame, TContext>> Reactions { get; } = new(
+            Frame: static (shownFrame, showing) =>
             {
-                showFrame(shownFrame.Shown);
-                enemy.AnimationClock.Show(shownFrame.Duration);
+                showing.ShowFrame(showing.Enemy, shownFrame.Shown, showing.Context);
+                showing.Enemy.AnimationClock.Show(shownFrame.Duration);
             },
-            HeldFrame: held =>
+            HeldFrame: static (held, showing) =>
             {
-                showFrame(held.Shown);
-                enemy.AnimationClock.ShowForGood();
+                showing.ShowFrame(showing.Enemy, held.Shown, showing.Context);
+                showing.Enemy.AnimationClock.ShowForGood();
             },
-            Paused: paused => enemy.AnimationClock.Pause(paused.Duration),
-            Held: _ => enemy.AnimationClock.Stop(),
-            Ended: _ =>
+            Paused: static (paused, showing) => showing.Enemy.AnimationClock.Pause(paused.Duration),
+            Held: static (_, showing) => showing.Enemy.AnimationClock.Stop(),
+            Ended: static (_, showing) =>
             {
                 // The common end deletes the enemy, and its animation takes no further step (#2532).
-                enemy.Presence = enemy.Presence.With(EnemyPresence.Deleted);
-                enemy.AnimationClock.Stop();
-            }));
+                showing.Enemy.Presence = showing.Enemy.Presence.With(EnemyPresence.Deleted);
+                showing.Enemy.AnimationClock.Stop();
+            });
     }
 
     /// <summary>

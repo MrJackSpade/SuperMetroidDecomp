@@ -30,8 +30,11 @@ internal sealed class SessionGameplayAudioQueues(AudioQueues queues, IAttractDem
         Ensure.NotNull(request);
         if (demo.IsAttractDemo)
             return;
-        request.React(new GameplayMusicRequestReactions(
-            Scheduled: scheduled => queues.ScheduleMusic(scheduled.Request.Request, scheduled.Request.Delay),
-            PermanentItemFanfare: _ => queues.QueuePermanentItemFanfare()));
+        request.React(QueueMusicReactions, this);
     }
+
+    /// <summary>What <c>QueueMusic</c> does on each <see cref="GameplayMusicRequest"/>, built once (#2553).</summary>
+    private static GameplayMusicRequestReactions<SessionGameplayAudioQueues> QueueMusicReactions { get; } = new(
+        Scheduled: static (scheduled, owner) => owner.queues.ScheduleMusic(scheduled.Request.Request, scheduled.Request.Delay),
+        PermanentItemFanfare: static (_, owner) => owner.queues.QueuePermanentItemFanfare());
 }

@@ -179,25 +179,34 @@ internal sealed class MotherBrainBody
     /// <summary>Carries out one cue of a body animation.</summary>
     private void ApplyMotherBrainBodyCue(MotherBrainEnemyState state, SamusState samus, MotherBrainBodyCue cue)
     {
-        cue.React(new MotherBrainBodyCueReactions(
-            SetPose: setPose => state.Pose = setPose.Pose,
-            Move: move => MoveMotherBrainBody(state, move.Offset),
-            StepAndMove: stepAndMove =>
-            {
-                RunMotherBrainFootstep(state);
-                MoveMotherBrainBody(state, stepAndMove.Offset);
-            },
-            SpawnHandDust: spawnHandDust =>
-            {
-                _projectiles.SpawnDustOrExplosion(
-                    new(state.Body.Position.X.Whole + spawnHandDust.Offset.X, state.Body.Position.Y.Whole + spawnHandDust.Offset.Y),
-                    spawnHandDust.Dust);
-            },
-            Signal: signal =>
-            {
-                ApplyMotherBrainBodyCueForMotherBrainBodyCueKind[signal.Kind](state, samus);
-            }));
+        cue.React(ApplyMotherBrainBodyCueReactions, new ApplyMotherBrainBodyCueContext(state, samus, this));
     }
+
+    /// <summary>What <c>ApplyMotherBrainBodyCue</c> does on each <see cref="MotherBrainBodyCue"/>, built once (#2553).</summary>
+    private static MotherBrainBodyCueReactions<ApplyMotherBrainBodyCueContext> ApplyMotherBrainBodyCueReactions { get; } = new(
+        SetPose: static (setPose, context) => context.State.Pose = setPose.Pose,
+        Move: static (move, context) => MoveMotherBrainBody(context.State, move.Offset),
+        StepAndMove: static (stepAndMove, context) =>
+        {
+            context.Owner.RunMotherBrainFootstep(context.State);
+            MoveMotherBrainBody(context.State, stepAndMove.Offset);
+        },
+        SpawnHandDust: static (spawnHandDust, context) =>
+        {
+            context.Owner._projectiles.SpawnDustOrExplosion(
+                new(context.State.Body.Position.X.Whole + spawnHandDust.Offset.X, context.State.Body.Position.Y.Whole + spawnHandDust.Offset.Y),
+                spawnHandDust.Dust);
+        },
+        Signal: static (signal, context) =>
+        {
+            context.Owner.ApplyMotherBrainBodyCueForMotherBrainBodyCueKind[signal.Kind](context.State, context.Samus);
+        });
+
+    /// <summary>What <c>ApplyMotherBrainBodyCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="State">The <c>state</c> <c>ApplyMotherBrainBodyCue</c> was handed.</param>
+    /// <param name="Samus">The <c>samus</c> <c>ApplyMotherBrainBodyCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="MotherBrainBody"/> reacting.</param>
+    private readonly record struct ApplyMotherBrainBodyCueContext(MotherBrainEnemyState State, SamusState Samus, MotherBrainBody Owner);
 
     /// <summary>
     /// Resolves Mother Brain's contact with Samus. Mother Brain owns a flag-selected set of asymmetric

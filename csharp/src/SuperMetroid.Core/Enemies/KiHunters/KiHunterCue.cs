@@ -11,14 +11,16 @@ internal abstract record KiHunterCue
     /// <summary>What <paramref name="cases"/> makes of the cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the cue is made into.</typeparam>
     /// <param name="cases">What each case of the cue is made into.</param>
-    internal abstract TResult Match<TResult>(KiHunterCueCases<TResult> cases);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract TResult Match<TContext, TResult>(KiHunterCueCases<TContext, TResult> cases, TContext context);
 
     /// <summary>Spits acid the cue's way and starts the spit wait (#2151).</summary>
     /// <param name="Direction">The way the acid flies.</param>
     internal sealed record Spit(HorizontalDirection Direction) : KiHunterCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(KiHunterCueCases<TResult> cases) => Ensure.NotNull(cases).Spit(this);
+        internal override TResult Match<TContext, TResult>(KiHunterCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Spit(this, context);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -26,7 +28,7 @@ internal abstract record KiHunterCue
     internal sealed record Signal(KiHunterCueKind Kind) : KiHunterCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(KiHunterCueCases<TResult> cases) => Ensure.NotNull(cases).Signal(this);
+        internal override TResult Match<TContext, TResult>(KiHunterCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Signal(this, context);
     }
 }
 
@@ -34,4 +36,5 @@ internal abstract record KiHunterCue
 /// <typeparam name="TResult">What the cue is made into.</typeparam>
 /// <param name="Spit">Makes a <see cref="KiHunterCue.Spit"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="KiHunterCue.Signal"/> into the result.</param>
-internal sealed record KiHunterCueCases<TResult>(Func<KiHunterCue.Spit, TResult> Spit, Func<KiHunterCue.Signal, TResult> Signal);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record KiHunterCueCases<TContext, TResult>(Func<KiHunterCue.Spit, TContext, TResult> Spit, Func<KiHunterCue.Signal, TContext, TResult> Signal);

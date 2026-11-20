@@ -10,5 +10,5 @@ internal sealed record MotherBrainGlassProjectileRequest(
     Position16<RoomBlocks> RoomObjectBlock) : RoomObjectProjectileRequest(RoomObjectBlock)
 {
     /// <inheritdoc/>
-    internal override void React(RoomObjectProjectileRequestReactions reactions) => Ensure.NotNull(reactions).MotherBrainGlassProjectileRequest(this);
+    internal override void React<TContext>(RoomObjectProjectileRequestReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).MotherBrainGlassProjectileRequest(this, context);
 }

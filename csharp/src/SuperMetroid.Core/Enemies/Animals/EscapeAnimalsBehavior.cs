@@ -169,18 +169,27 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of an Etecoon's animation, returning the segment a branch continues at, or null to run on.</summary>
     private static EscapeEtecoonSegment? ApplyEscapeEtecoonCue(RoomEnemyPlace place, EscapeEtecoonEnemyState state, SamusState samus, EscapeEtecoonCue cue)
     {
-        return cue.Match(new EscapeEtecoonCueCases<EscapeEtecoonSegment?>(
-            LowTideRunStarts: lowTide => IsAcidLow(samus) ? null : HighTideRun(lowTide.Running),
-            Move: move =>
-            {
-                place.Position = place.Position.WithWholeX(place.Position.X.Whole + move.Offset);
-                return null;
-            },
-            Signal: signal =>
-            {
-                return ApplyEscapeEtecoonCueForEscapeEtecoonCueKind[signal.Kind](state);
-            }));
+        return cue.Match(ApplyEscapeEtecoonCueCases, new ApplyEscapeEtecoonCueContext(samus, place, state));
     }
+
+    /// <summary>What <c>ApplyEscapeEtecoonCue</c> does on each <see cref="EscapeEtecoonCue"/>, built once (#2553).</summary>
+    private static EscapeEtecoonCueCases<ApplyEscapeEtecoonCueContext, EscapeEtecoonSegment?> ApplyEscapeEtecoonCueCases { get; } = new(
+        LowTideRunStarts: static (lowTide, context) => IsAcidLow(context.Samus) ? null : HighTideRun(lowTide.Running),
+        Move: static (move, context) =>
+        {
+            context.Place.Position = context.Place.Position.WithWholeX(context.Place.Position.X.Whole + move.Offset);
+            return null;
+        },
+        Signal: static (signal, context) =>
+        {
+            return ApplyEscapeEtecoonCueForEscapeEtecoonCueKind[signal.Kind](context.State);
+        });
+
+    /// <summary>What <c>ApplyEscapeEtecoonCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Samus">The <c>samus</c> <c>ApplyEscapeEtecoonCue</c> was handed.</param>
+    /// <param name="Place">The <c>place</c> <c>ApplyEscapeEtecoonCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <c>ApplyEscapeEtecoonCue</c> was handed.</param>
+    private readonly record struct ApplyEscapeEtecoonCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeEtecoonEnemyState State);
 
     /// <summary>The run an escaping Etecoon starts the way it runs once the rising acid is high (#2167).</summary>
     private static EscapeEtecoonSegment HighTideRun(HorizontalDirection running) =>
@@ -192,15 +201,24 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private AnimationContinuation<EscapeDachoraSegment>? ApplyEscapeDachoraCue(RoomEnemyPlace place, SamusState samus, EscapeDachoraCue cue)
     {
-        return cue.Match(new EscapeDachoraCueCases<AnimationContinuation<EscapeDachoraSegment>?>(
-            LowTideLapEnds: lowTide => IsAcidLow(samus) ? null : RisingTideTakesOver(lowTide.Lap),
-            LapEnds: lap => HasCrittersEscaped() ? EscapeTakesOver(lap.Lap) : null,
-            Move: move =>
-            {
-                place.Position = place.Position.WithWholeX(place.Position.X.Whole + move.Offset);
-                return null;
-            }));
+        return cue.Match(ApplyEscapeDachoraCueCases, new ApplyEscapeDachoraCueContext(samus, place, this));
     }
+
+    /// <summary>What <c>ApplyEscapeDachoraCue</c> does on each <see cref="EscapeDachoraCue"/>, built once (#2553).</summary>
+    private static EscapeDachoraCueCases<ApplyEscapeDachoraCueContext, AnimationContinuation<EscapeDachoraSegment>?> ApplyEscapeDachoraCueCases { get; } = new(
+        LowTideLapEnds: static (lowTide, context) => IsAcidLow(context.Samus) ? null : RisingTideTakesOver(lowTide.Lap),
+        LapEnds: static (lap, context) => context.Owner.HasCrittersEscaped() ? EscapeTakesOver(lap.Lap) : null,
+        Move: static (move, context) =>
+        {
+            context.Place.Position = context.Place.Position.WithWholeX(context.Place.Position.X.Whole + move.Offset);
+            return null;
+        });
+
+    /// <summary>What <c>ApplyEscapeDachoraCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Samus">The <c>samus</c> <c>ApplyEscapeDachoraCue</c> was handed.</param>
+    /// <param name="Place">The <c>place</c> <c>ApplyEscapeDachoraCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="EscapeAnimalsBehavior"/> reacting.</param>
+    private readonly record struct ApplyEscapeDachoraCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeAnimalsBehavior Owner);
 
     /// <summary>
     /// Where the rising tide takes the escaping Dachora at the end of a low-tide lap the way <paramref name="lap"/> ran

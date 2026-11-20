@@ -42,13 +42,22 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of Cacatac's animations.</summary>
     private void ApplyCacatacCue(RoomEnemyPlace place, CacatacEnemyState state, CacatacCue cue)
     {
-        cue.React(new CacatacCueReactions(
-            SpawnSpike: spike => SpawnCacatacSpike(place, spike.Direction),
-            Signal: signal =>
-            {
-                ApplyCacatacCueForCacatacCueKind[signal.Kind](state);
-            }));
+        cue.React(ApplyCacatacCueReactions, new ApplyCacatacCueContext(place, state, this));
     }
+
+    /// <summary>What <c>ApplyCacatacCue</c> does on each <see cref="CacatacCue"/>, built once (#2553).</summary>
+    private static CacatacCueReactions<ApplyCacatacCueContext> ApplyCacatacCueReactions { get; } = new(
+        SpawnSpike: static (spike, context) => context.Owner.SpawnCacatacSpike(context.Place, spike.Direction),
+        Signal: static (signal, context) =>
+        {
+            context.Owner.ApplyCacatacCueForCacatacCueKind[signal.Kind](context.State);
+        });
+
+    /// <summary>What <c>ApplyCacatacCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The <c>place</c> <c>ApplyCacatacCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <c>ApplyCacatacCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="CacatacBehavior"/> reacting.</param>
+    private readonly record struct ApplyCacatacCueContext(RoomEnemyPlace Place, CacatacEnemyState State, CacatacBehavior Owner);
 
     /// <summary>Initializes the Cacatac.</summary>
     internal static void InitializeCacatac(RoomEnemyPlace place)

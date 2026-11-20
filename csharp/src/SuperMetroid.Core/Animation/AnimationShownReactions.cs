@@ -8,11 +8,12 @@ namespace SuperMetroid.Core.Animation;
 /// <param name="Paused">Waits its updates with no new frame.</param>
 /// <param name="Held">Rests on the frame shown last.</param>
 /// <param name="Ended">Ends the animation.</param>
-internal sealed record AnimationShownReactions<TSegment, TFrame>(
-    Action<AnimationShown<TSegment, TFrame>.Frame> Frame,
-    Action<AnimationShown<TSegment, TFrame>.HeldFrame> HeldFrame,
-    Action<AnimationShown<TSegment, TFrame>.Paused> Paused,
-    Action<AnimationShown<TSegment, TFrame>.Held> Held,
-    Action<AnimationShown<TSegment, TFrame>.Ended> Ended)
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record AnimationShownReactions<TSegment, TFrame, TContext>(
+    Action<AnimationShown<TSegment, TFrame>.Frame, TContext> Frame,
+    Action<AnimationShown<TSegment, TFrame>.HeldFrame, TContext> HeldFrame,
+    Action<AnimationShown<TSegment, TFrame>.Paused, TContext> Paused,
+    Action<AnimationShown<TSegment, TFrame>.Held, TContext> Held,
+    Action<AnimationShown<TSegment, TFrame>.Ended, TContext> Ended)
     where TSegment : struct
     where TFrame : struct;

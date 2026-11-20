@@ -549,13 +549,22 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Applies frame cues for facing radius, spit audio, or the volley trigger.</summary>
     private void ApplyBotwoonHeadCue(RoomEnemyPlace head, BotwoonEnemyState state, BotwoonHeadCue cue)
     {
-        cue.React(new BotwoonHeadCueReactions(
-            ApplyFacingRadius: radius => head.Radius = BotwoonAnimations.HeadRadius(radius.Facing),
-            Signal: signal =>
-            {
-                ApplyBotwoonHeadCueForBotwoonHeadCueKind[signal.Kind](state);
-            }));
+        cue.React(ApplyBotwoonHeadCueReactions, new ApplyBotwoonHeadCueContext(head, state, this));
     }
+
+    /// <summary>What <c>ApplyBotwoonHeadCue</c> does on each <see cref="BotwoonHeadCue"/>, built once (#2553).</summary>
+    private static BotwoonHeadCueReactions<ApplyBotwoonHeadCueContext> ApplyBotwoonHeadCueReactions { get; } = new(
+        ApplyFacingRadius: static (radius, context) => context.Head.Radius = BotwoonAnimations.HeadRadius(radius.Facing),
+        Signal: static (signal, context) =>
+        {
+            context.Owner.ApplyBotwoonHeadCueForBotwoonHeadCueKind[signal.Kind](context.State);
+        });
+
+    /// <summary>What <c>ApplyBotwoonHeadCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Head">The <c>head</c> <c>ApplyBotwoonHeadCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <c>ApplyBotwoonHeadCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="BotwoonBehavior"/> reacting.</param>
+    private readonly record struct ApplyBotwoonHeadCueContext(RoomEnemyPlace Head, BotwoonEnemyState State, BotwoonBehavior Owner);
 
     /// <summary>Emits a volley's spit projectiles, fanned out across the aimed direction, and starts his head's cooldown after it.</summary>
     private void SpawnBotwoonSpitVolley(

@@ -27,13 +27,16 @@ internal sealed class RoomDoorContacts
     /// <param name="contact">The contact her collision made.</param>
     internal void Meet(DoorContact contact)
     {
-        Ensure.NotNull(contact).React(new DoorContactReactions(
-            EntersDoor: entered => EnteredDoor ??= entered.Door,
-            StandsAtElevator: _ => ElevatorStand.Stand(),
-            BrushesElevator: _ =>
-            {
-            }));
+        Ensure.NotNull(contact).React(MeetReactions, this);
     }
+
+    /// <summary>What <c>Meet</c> does on each <see cref="DoorContact"/>, built once (#2553).</summary>
+    private static DoorContactReactions<RoomDoorContacts> MeetReactions { get; } = new(
+        EntersDoor: static (entered, owner) => owner.EnteredDoor ??= entered.Door,
+        StandsAtElevator: static (_, owner) => owner.ElevatorStand.Stand(),
+        BrushesElevator: static (_, _) =>
+        {
+        });
 
     /// <summary>
     /// Forgets the entered door without going through it (#2534): the AUTO reserves' refill beginning later in the update

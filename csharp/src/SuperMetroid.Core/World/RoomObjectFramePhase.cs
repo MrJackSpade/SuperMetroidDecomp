@@ -103,11 +103,14 @@ internal sealed class RoomObjectFramePhase
     {
         foreach (RoomObjectProjectileRequest thrown in step.ThrownProjectiles)
         {
-            thrown.React(new RoomObjectProjectileRequestReactions(
-                MotherBrainGlassProjectileRequest: shard => room.Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(shard),
-                BombTorizoStatueProjectileRequest: fragment => room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(fragment)));
+            thrown.React(SpawnThrownProjectilesReactions, room);
         }
     }
+
+    /// <summary>What <c>SpawnThrownProjectiles</c> does on each <see cref="RoomObjectProjectileRequest"/>, built once (#2553).</summary>
+    private static RoomObjectProjectileRequestReactions<RoomScope> SpawnThrownProjectilesReactions { get; } = new(
+        MotherBrainGlassProjectileRequest: static (shard, room) => room.Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(shard),
+        BombTorizoStatueProjectileRequest: static (fragment, room) => room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(fragment));
 
     /// <summary>Runs the ordinary room-object phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
     internal void RunObjectPhase(bool deathOwnsSamus, SamusState samus, RoomScope room)

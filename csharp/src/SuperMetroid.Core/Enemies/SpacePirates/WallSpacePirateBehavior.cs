@@ -217,37 +217,47 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     private WallSpacePirateSegment? ApplyWallSpacePirateCue(RoomEnemyPlace place, WallSpacePirateCue cue, RoomLevelData level)
     {
         WallSpacePirateEnemyState state = place.RequireSpeciesState<WallSpacePirateEnemyState>();
-        return cue.Match(new WallSpacePirateCueCases<WallSpacePirateSegment?>(
-            Climb: climb => MoveWallSpacePirateAndReverseOnCollision(place, state, level, climb.ClimbPixels, wall: climb.Wall),
-            ChooseClimb: choose => RandomizeWallSpacePirateClimbDirection(state, wall: choose.Wall),
-            FireLaser: laser =>
-            {
-                FireWallSpacePirateLaser(place, direction: laser.Direction);
-                return null;
-            },
-            PrepareJump: jump =>
-            {
-                PrepareWallSpacePirateJump(place, state, direction: jump.Direction);
-                return null;
-            },
-            Begin: begin =>
-            {
-                state.Action = begin.Action;
-                return null;
-            },
-            BeginOnWall: begin =>
-            {
-                state.Action = begin.Action;
-                state.Wall = begin.Wall;
-                return null;
-            },
-            // The wall pirates' one signal plays their jump's sound.
-            Signal: _ =>
-            {
-                Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);
-                return null;
-            }));
+        return cue.Match(ApplyWallSpacePirateCueCases, new ApplyWallSpacePirateCueContext(place, state, level, this));
     }
+
+    /// <summary>What <c>ApplyWallSpacePirateCue</c> does on each <see cref="WallSpacePirateCue"/>, built once (#2553).</summary>
+    private static WallSpacePirateCueCases<ApplyWallSpacePirateCueContext, WallSpacePirateSegment?> ApplyWallSpacePirateCueCases { get; } = new(
+        Climb: static (climb, context) => context.Owner.MoveWallSpacePirateAndReverseOnCollision(context.Place, context.State, context.Level, climb.ClimbPixels, wall: climb.Wall),
+        ChooseClimb: static (choose, context) => context.Owner.RandomizeWallSpacePirateClimbDirection(context.State, wall: choose.Wall),
+        FireLaser: static (laser, context) =>
+        {
+            context.Owner.FireWallSpacePirateLaser(context.Place, direction: laser.Direction);
+            return null;
+        },
+        PrepareJump: static (jump, context) =>
+        {
+            PrepareWallSpacePirateJump(context.Place, context.State, direction: jump.Direction);
+            return null;
+        },
+        Begin: static (begin, context) =>
+        {
+            context.State.Action = begin.Action;
+            return null;
+        },
+        BeginOnWall: static (begin, context) =>
+        {
+            context.State.Action = begin.Action;
+            context.State.Wall = begin.Wall;
+            return null;
+        },
+        // The wall pirates' one signal plays their jump's sound.
+        Signal: static (_, context) =>
+        {
+            context.Owner.Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);
+            return null;
+        });
+
+    /// <summary>What <c>ApplyWallSpacePirateCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The <c>place</c> <c>ApplyWallSpacePirateCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <c>ApplyWallSpacePirateCue</c> works with.</param>
+    /// <param name="Level">The <c>level</c> <c>ApplyWallSpacePirateCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="WallSpacePirateBehavior"/> reacting.</param>
+    private readonly record struct ApplyWallSpacePirateCueContext(RoomEnemyPlace Place, WallSpacePirateEnemyState State, RoomLevelData Level, WallSpacePirateBehavior Owner);
 
     /// <summary>Runs the wall Space Pirate's main AI.</summary>
     internal static void RunWallSpacePirateMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

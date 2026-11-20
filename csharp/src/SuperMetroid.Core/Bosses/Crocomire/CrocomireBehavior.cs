@@ -93,44 +93,54 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void RunCrocomireDeathSequence(CrocomireEnemyState state, SamusState samus, Position16<RoomPixels> camera)
     {
-        state.DeathStage.Entry.React(new CrocomireDeathStageReactions(
-            Fighting: _ =>
-            {
-                throw new InvalidDataException("Crocomire's death sequence runs before its bridge collapse began.");
-            },
-            SinkThroughBridge: _ =>
-            {
-                BridgeCollapse.SpawnNextCrocomireBridgeFragment(state.Death);
-                BridgeCollapse.RunCrocomireSinkingComposite(state, CrocomireBodyInAcid.Whole, camera);
-            },
-            Sink: sink => BridgeCollapse.RunCrocomireSinkingComposite(state, sink.Body, camera),
-            SubmergedPause: pause => BridgeCollapse.RunCrocomireSubmergedRest(state, pause.Body),
-            Rise: rise => BridgeCollapse.RunCrocomireRisingComposite(state, rise.Body),
-            ShowMeltImage: show => Melting.ShowCrocomireMeltImage(state, show.Picture),
-            BeginMeltPass: pass => CrocomireMelting.BeginCrocomireMeltPass(state, pass.Picture),
-            ShowMeltBands: _ => CrocomireMelting.ShowNextCrocomireMeltBand(state),
-            PauseOneUpdate: _ => state.AdvanceDeathStage(),
-            StartDissolve: dissolve =>
-            {
-                Access.RequestCrocomireSound(dissolve.Cry);
-                CrocomireMelting.BeginCrocomireMelting(state);
-            },
-            Dissolve: _ => Melting.RunCrocomireMelting(state),
-            ClearMeltImage: _ => Melting.FinishCrocomireMeltingPass(state),
-            FinalSink: _ => BridgeCollapse.RunCrocomireFinalSink(state, camera),
-            FlowDownRiver: _ => CrocomireSkeleton.RunCrocomireSkeletonRiver(state),
-            WaitForSamusAtWall: _ => Skeleton.RunCrocomireWaitBehindWall(state, samus),
-            RumbleHiddenWall: _ => Skeleton.RunCrocomireWallRumble(state),
-            BreakSpikeWall: _ => Skeleton.RunCrocomireSkeletonRevealAndWallBreak(state),
-            DelaySkeletonFall: _ => CrocomireSkeleton.RunCrocomireWallBreakDelay(state),
-            ArcSkeletonIntoArena: _ => Skeleton.RunCrocomireSkeletonArc(state),
-            CollapseSkeleton: _ => Skeleton.RunCrocomireSkeletonCollapse(state, samus),
-            ClearWallAndOpenScrolls: _ => Skeleton.FinishCrocomireArenaScrolls(state),
-            PublishDefeatAndRestoreMusic: _ => Skeleton.CompleteCrocomireBoss(state),
-            InertCorpse: _ =>
-            {
-            }));
+        state.DeathStage.Entry.React(RunCrocomireDeathSequenceReactions, new RunCrocomireDeathSequenceContext(state, camera, samus, this));
     }
+
+    /// <summary>What <c>RunCrocomireDeathSequence</c> does on each <see cref="CrocomireDeathStage"/>, built once (#2553).</summary>
+    private static CrocomireDeathStageReactions<RunCrocomireDeathSequenceContext> RunCrocomireDeathSequenceReactions { get; } = new(
+        Fighting: static (_, _) =>
+        {
+            throw new InvalidDataException("Crocomire's death sequence runs before its bridge collapse began.");
+        },
+        SinkThroughBridge: static (_, context) =>
+        {
+            context.Owner.BridgeCollapse.SpawnNextCrocomireBridgeFragment(context.State.Death);
+            context.Owner.BridgeCollapse.RunCrocomireSinkingComposite(context.State, CrocomireBodyInAcid.Whole, context.Camera);
+        },
+        Sink: static (sink, context) => context.Owner.BridgeCollapse.RunCrocomireSinkingComposite(context.State, sink.Body, context.Camera),
+        SubmergedPause: static (pause, context) => context.Owner.BridgeCollapse.RunCrocomireSubmergedRest(context.State, pause.Body),
+        Rise: static (rise, context) => context.Owner.BridgeCollapse.RunCrocomireRisingComposite(context.State, rise.Body),
+        ShowMeltImage: static (show, context) => context.Owner.Melting.ShowCrocomireMeltImage(context.State, show.Picture),
+        BeginMeltPass: static (pass, context) => CrocomireMelting.BeginCrocomireMeltPass(context.State, pass.Picture),
+        ShowMeltBands: static (_, context) => CrocomireMelting.ShowNextCrocomireMeltBand(context.State),
+        PauseOneUpdate: static (_, context) => context.State.AdvanceDeathStage(),
+        StartDissolve: static (dissolve, context) =>
+        {
+            context.Owner.Access.RequestCrocomireSound(dissolve.Cry);
+            CrocomireMelting.BeginCrocomireMelting(context.State);
+        },
+        Dissolve: static (_, context) => context.Owner.Melting.RunCrocomireMelting(context.State),
+        ClearMeltImage: static (_, context) => context.Owner.Melting.FinishCrocomireMeltingPass(context.State),
+        FinalSink: static (_, context) => context.Owner.BridgeCollapse.RunCrocomireFinalSink(context.State, context.Camera),
+        FlowDownRiver: static (_, context) => CrocomireSkeleton.RunCrocomireSkeletonRiver(context.State),
+        WaitForSamusAtWall: static (_, context) => context.Owner.Skeleton.RunCrocomireWaitBehindWall(context.State, context.Samus),
+        RumbleHiddenWall: static (_, context) => context.Owner.Skeleton.RunCrocomireWallRumble(context.State),
+        BreakSpikeWall: static (_, context) => context.Owner.Skeleton.RunCrocomireSkeletonRevealAndWallBreak(context.State),
+        DelaySkeletonFall: static (_, context) => CrocomireSkeleton.RunCrocomireWallBreakDelay(context.State),
+        ArcSkeletonIntoArena: static (_, context) => context.Owner.Skeleton.RunCrocomireSkeletonArc(context.State),
+        CollapseSkeleton: static (_, context) => context.Owner.Skeleton.RunCrocomireSkeletonCollapse(context.State, context.Samus),
+        ClearWallAndOpenScrolls: static (_, context) => context.Owner.Skeleton.FinishCrocomireArenaScrolls(context.State),
+        PublishDefeatAndRestoreMusic: static (_, context) => context.Owner.Skeleton.CompleteCrocomireBoss(context.State),
+        InertCorpse: static (_, _) =>
+        {
+        });
+
+    /// <summary>What <c>RunCrocomireDeathSequence</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="State">The <c>state</c> <c>RunCrocomireDeathSequence</c> was handed.</param>
+    /// <param name="Camera">The <c>camera</c> <c>RunCrocomireDeathSequence</c> was handed.</param>
+    /// <param name="Samus">The <c>samus</c> <c>RunCrocomireDeathSequence</c> was handed.</param>
+    /// <param name="Owner">The <see cref="CrocomireBehavior"/> reacting.</param>
+    private readonly record struct RunCrocomireDeathSequenceContext(CrocomireEnemyState State, Position16<RoomPixels> Camera, SamusState Samus, CrocomireBehavior Owner);
 
     /// <summary>Advances Crocomire's typed animation.</summary>
     internal void AdvanceCrocomireTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)

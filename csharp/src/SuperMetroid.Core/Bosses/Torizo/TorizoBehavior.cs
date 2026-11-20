@@ -531,66 +531,77 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         TorizoCue cue,
         AnimationPlayback<TorizoBodySegment> continuation)
     {
-        return cue.Match(new TorizoCueCases<AnimationContinuation<TorizoBodySegment>?>(
-            Branch: branch =>
-            {
-                return ApplyTorizoCueForTorizoBranchKind[branch.Kind](torizo, branch, state, inputs);
-            },
-            Interrupt: interrupt =>
-            {
-                return ApplyTorizoCueForTorizoInterruptKind[interrupt.Kind](torizo, interrupt, state, inputs, continuation);
-            },
-            Choice: choice =>
-            {
-                return ApplyTorizoCueForTorizoChoiceKind[choice.Kind](choice, state, inputs);
-            },
-            LandIn: landIn =>
-            {
-                state.Landing = landIn.Landing;
-                return null;
-            },
-            WalkOn: walkOn => TorizoAnimations.ContinueWith(walkOn.Walking),
-            Turn: turn => TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(torizo) ? turn.WhenFacingRight : turn.WhenFacingLeft),
-            Posture: posture =>
-            {
-                ApplyTorizoPosture(torizo, posture.Displacement, posture.Kind);
-                return null;
-            },
-            Walk: walk => Choices.ProcessTorizoWalkStep(torizo, state, inputs.Samus, inputs.Level, walk.Walker, walk.Velocity),
-            Swipe: swipe =>
-            {
-                Attacks.SpawnBombTorizoExplosiveSwipe(torizo, swipe.Hand);
-                return null;
-            },
-            LowHealthExplosions: explosions =>
-            {
-                for (int explosion = 0; explosion < TorizoDeathDefinitions.LowHealthExplosions; explosion++)
-                    Attacks.SpawnBombTorizoLowHealthExplosion(torizo, explosions.Site);
-                torizo.HurtFlash.Restart(TorizoDeathDefinitions.LowHealthExplosionFlash);
-                return null;
-            },
-            SetPhase: setPhase =>
-            {
-                state.Phase = setPhase.Phase;
-                return null;
-            },
-            ShowArtwork: showArtwork =>
-            {
-                ShowTorizoArtwork(state, showArtwork.Look);
-                return null;
-            },
-            Stepped: stepped =>
-            {
-                // The step replaces the whole posture: the way it faces, the foot it leads with, and any turn.
-                SetPosture(torizo, TorizoPosture.AfterStep(stepped.Direction, stepped.Foot));
-                state.CountDecisionStep();
-                return null;
-            },
-            Signal: signal =>
-            {
-                return ApplyTorizoCueForTorizoCueKind[signal.Kind](torizo, state, inputs);
-            }));
+        return cue.Match(ApplyTorizoCueCases, new ApplyTorizoCueContext(torizo, state, inputs, continuation, this));
     }
+
+    /// <summary>What <c>ApplyTorizoCue</c> does on each <see cref="TorizoCue"/>, built once (#2553).</summary>
+    private static TorizoCueCases<ApplyTorizoCueContext, AnimationContinuation<TorizoBodySegment>?> ApplyTorizoCueCases { get; } = new(
+        Branch: static (branch, context) =>
+        {
+            return context.Owner.ApplyTorizoCueForTorizoBranchKind[branch.Kind](context.Torizo, branch, context.State, context.Inputs);
+        },
+        Interrupt: static (interrupt, context) =>
+        {
+            return context.Owner.ApplyTorizoCueForTorizoInterruptKind[interrupt.Kind](context.Torizo, interrupt, context.State, context.Inputs, context.Continuation);
+        },
+        Choice: static (choice, context) =>
+        {
+            return ApplyTorizoCueForTorizoChoiceKind[choice.Kind](choice, context.State, context.Inputs);
+        },
+        LandIn: static (landIn, context) =>
+        {
+            context.State.Landing = landIn.Landing;
+            return null;
+        },
+        WalkOn: static (walkOn, _) => TorizoAnimations.ContinueWith(walkOn.Walking),
+        Turn: static (turn, context) => TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(context.Torizo) ? turn.WhenFacingRight : turn.WhenFacingLeft),
+        Posture: static (posture, context) =>
+        {
+            ApplyTorizoPosture(context.Torizo, posture.Displacement, posture.Kind);
+            return null;
+        },
+        Walk: static (walk, context) => context.Owner.Choices.ProcessTorizoWalkStep(context.Torizo, context.State, context.Inputs.Samus, context.Inputs.Level, walk.Walker, walk.Velocity),
+        Swipe: static (swipe, context) =>
+        {
+            context.Owner.Attacks.SpawnBombTorizoExplosiveSwipe(context.Torizo, swipe.Hand);
+            return null;
+        },
+        LowHealthExplosions: static (explosions, context) =>
+        {
+            for (int explosion = 0; explosion < TorizoDeathDefinitions.LowHealthExplosions; explosion++)
+                context.Owner.Attacks.SpawnBombTorizoLowHealthExplosion(context.Torizo, explosions.Site);
+            context.Torizo.HurtFlash.Restart(TorizoDeathDefinitions.LowHealthExplosionFlash);
+            return null;
+        },
+        SetPhase: static (setPhase, context) =>
+        {
+            context.State.Phase = setPhase.Phase;
+            return null;
+        },
+        ShowArtwork: static (showArtwork, context) =>
+        {
+            context.Owner.ShowTorizoArtwork(context.State, showArtwork.Look);
+            return null;
+        },
+        Stepped: static (stepped, context) =>
+        {
+            // The step replaces the whole posture: the way it faces, the foot it leads with, and any turn.
+            SetPosture(context.Torizo, TorizoPosture.AfterStep(stepped.Direction, stepped.Foot));
+            context.State.CountDecisionStep();
+            return null;
+        },
+        Signal: static (signal, context) =>
+        {
+            return context.Owner.ApplyTorizoCueForTorizoCueKind[signal.Kind](context.Torizo, context.State, context.Inputs);
+        });
+
+    /// <summary>What <c>ApplyTorizoCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Torizo">The <c>torizo</c> <c>ApplyTorizoCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <c>ApplyTorizoCue</c> was handed.</param>
+    /// <param name="Inputs">The <c>inputs</c> <c>ApplyTorizoCue</c> was handed.</param>
+    /// <param name="Continuation">The <c>continuation</c> <c>ApplyTorizoCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="TorizoBehavior"/> reacting.</param>
+    private readonly record struct ApplyTorizoCueContext(RoomEnemyPlace Torizo, TorizoEnemyState State, TorizoCueInputs Inputs, AnimationPlayback<TorizoBodySegment> Continuation, TorizoBehavior Owner);
 
     /// <summary>Moves a Torizo by a posture change's displacement standing up, or back by it sitting down.</summary>
     private static void ApplyTorizoPosture(

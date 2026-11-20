@@ -40,13 +40,21 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of the Hibashi's eruption: its sound, an eruption frame's hitbox, or finishing.</summary>
     private void ApplyHibashiCue(RoomEnemyPlace place, HibashiCue cue)
     {
-        cue.React(new HibashiCueReactions(
-            EruptionStep: step => ApplyHibashiEruptionStep(place, step.Step),
-            Signal: signal =>
-            {
-                ApplyHibashiCueForHibashiCueKind[signal.Kind](place);
-            }));
+        cue.React(ApplyHibashiCueReactions, new ApplyHibashiCueContext(place, this));
     }
+
+    /// <summary>What <c>ApplyHibashiCue</c> does on each <see cref="HibashiCue"/>, built once (#2553).</summary>
+    private static HibashiCueReactions<ApplyHibashiCueContext> ApplyHibashiCueReactions { get; } = new(
+        EruptionStep: static (step, context) => context.Owner.ApplyHibashiEruptionStep(context.Place, step.Step),
+        Signal: static (signal, context) =>
+        {
+            context.Owner.ApplyHibashiCueForHibashiCueKind[signal.Kind](context.Place);
+        });
+
+    /// <summary>What <c>ApplyHibashiCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The <c>place</c> <c>ApplyHibashiCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="HibashiBehavior"/> reacting.</param>
+    private readonly record struct ApplyHibashiCueContext(RoomEnemyPlace Place, HibashiBehavior Owner);
 
     /// <summary>Initializes the collision part, which holds the one-frame hitbox animation.</summary>
     internal static void InitializeHibashiCollisionPart(RoomEnemyPlace place) =>

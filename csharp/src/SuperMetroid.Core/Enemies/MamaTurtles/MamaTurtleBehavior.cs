@@ -47,17 +47,25 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Carries out one cue of the Mama Turtle's animations; rising to hover continues at its spin.</summary>
     private MamaTurtleSegment? ApplyMamaTurtleCue(RoomEnemyPlace place, MamaTurtleCue cue) =>
-        cue.Match(new MamaTurtleCueCases<MamaTurtleSegment?>(
-            RiseToHover: rise =>
+        cue.Match(ApplyMamaTurtleCueCases, new ApplyMamaTurtleCueContext(place, this));
+
+    /// <summary>What <c>ApplyMamaTurtleCue</c> does on each <see cref="MamaTurtleCue"/>, built once (#2553).</summary>
+    private static MamaTurtleCueCases<ApplyMamaTurtleCueContext, MamaTurtleSegment?> ApplyMamaTurtleCueCases { get; } = new(
+            RiseToHover: static (rise, context) =>
             {
-                StartMamaTurtleRisingToHover(place.RequireSpeciesState<MamaTurtleEnemyState>(), direction: rise.Direction);
+                StartMamaTurtleRisingToHover(context.Place.RequireSpeciesState<MamaTurtleEnemyState>(), direction: rise.Direction);
                 return MamaTurtleSegment.Spinning;
             },
-            Signal: signal =>
+            Signal: static (signal, context) =>
             {
-                MamaTurtleSignals[signal.Kind](place);
+                context.Owner.MamaTurtleSignals[signal.Kind](context.Place);
                 return null;
-            }));
+            });
+
+    /// <summary>What <c>ApplyMamaTurtleCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The <c>place</c> <c>ApplyMamaTurtleCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="MamaTurtleBehavior"/> reacting.</param>
+    private readonly record struct ApplyMamaTurtleCueContext(RoomEnemyPlace Place, MamaTurtleBehavior Owner);
 
     /// <summary>What each of the Mama Turtle's signals does; each runs on.</summary>
     private IdentityTable<MamaTurtleCueKind, Action<RoomEnemyPlace>> MamaTurtleSignals => field ??= new(new Dictionary<MamaTurtleCueKind, Action<RoomEnemyPlace>>

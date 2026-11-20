@@ -13,7 +13,9 @@ public abstract record RoomObjectProjectileRequest
 
     /// <summary>Carries out the reaction <paramref name="reactions"/> has to this room object projectile request, through the case it is.</summary>
     /// <param name="reactions">What its owner does on each case.</param>
-    internal abstract void React(RoomObjectProjectileRequestReactions reactions);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract void React<TContext>(RoomObjectProjectileRequestReactions<TContext> reactions, TContext context);
 
 
     /// <summary>The block of the room object that threw the projectile, which the projectile's place is relative to.</summary>
@@ -23,4 +25,5 @@ public abstract record RoomObjectProjectileRequest
 /// <summary>What the owner of a <see cref="RoomObjectProjectileRequest"/> does on each of its cases (#2553).</summary>
 /// <param name="MotherBrainGlassProjectileRequest">Reacts to a <see cref="Bosses.MotherBrain.MotherBrainGlassProjectileRequest"/>.</param>
 /// <param name="BombTorizoStatueProjectileRequest">Reacts to a <see cref="Bosses.Torizo.BombTorizoStatueProjectileRequest"/>.</param>
-internal sealed record RoomObjectProjectileRequestReactions(Action<Bosses.MotherBrain.MotherBrainGlassProjectileRequest> MotherBrainGlassProjectileRequest, Action<Bosses.Torizo.BombTorizoStatueProjectileRequest> BombTorizoStatueProjectileRequest);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record RoomObjectProjectileRequestReactions<TContext>(Action<Bosses.MotherBrain.MotherBrainGlassProjectileRequest, TContext> MotherBrainGlassProjectileRequest, Action<Bosses.Torizo.BombTorizoStatueProjectileRequest, TContext> BombTorizoStatueProjectileRequest);

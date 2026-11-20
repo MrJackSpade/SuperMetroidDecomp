@@ -36,13 +36,21 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Carries out one shared cue of a typed projectile animation, for every kind whose animations publish them.</summary>
     internal void ApplyCommonCue(EnemyProjectile projectile, EnemyProjectileCommonCue cue)
     {
-        cue.React(new EnemyProjectileCommonCueReactions(
-            Scatter: scatter => Scatter(projectile, scatter.Spread),
-            Signal: signal =>
-            {
-                ApplyCommonCueForEnemyProjectileCommonCueKind[signal.Kind](projectile);
-            }));
+        cue.React(ApplyCommonCueReactions, new ApplyCommonCueContext(projectile, this));
     }
+
+    /// <summary>What <c>ApplyCommonCue</c> does on each <see cref="EnemyProjectileCommonCue"/>, built once (#2553).</summary>
+    private static EnemyProjectileCommonCueReactions<ApplyCommonCueContext> ApplyCommonCueReactions { get; } = new(
+        Scatter: static (scatter, context) => context.Owner.Scatter(context.Projectile, scatter.Spread),
+        Signal: static (signal, context) =>
+        {
+            ApplyCommonCueForEnemyProjectileCommonCueKind[signal.Kind](context.Projectile);
+        });
+
+    /// <summary>What <c>ApplyCommonCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Projectile">The <c>projectile</c> <c>ApplyCommonCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="EnemyProjectileEngine"/> reacting.</param>
+    private readonly record struct ApplyCommonCueContext(EnemyProjectile Projectile, EnemyProjectileEngine Owner);
 
     /// <summary>Supplies room RNG and artwork for projectile effects.</summary>
     private readonly EnemyRoomBinding _room;

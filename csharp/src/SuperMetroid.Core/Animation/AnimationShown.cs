@@ -14,7 +14,16 @@ internal abstract record AnimationShown<TSegment, TFrame>
 
     /// <summary>Carries out the reaction <paramref name="reactions"/> has to this outcome (#2553).</summary>
     /// <param name="reactions">What its owner does on each outcome.</param>
-    internal abstract void React(AnimationShownReactions<TSegment, TFrame> reactions);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract void React<TContext>(AnimationShownReactions<TSegment, TFrame, TContext> reactions, TContext context);
+
+    /// <summary>What <paramref name="cases"/> make of this outcome (#2553).</summary>
+    /// <typeparam name="TContext">What the case's answer reads besides the case.</typeparam>
+    /// <typeparam name="TResult">What an outcome comes to.</typeparam>
+    /// <param name="cases">What its owner makes of each outcome.</param>
+    /// <param name="context">What the case's answer reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract TResult Match<TContext, TResult>(AnimationShownCases<TSegment, TFrame, TContext, TResult> cases, TContext context);
 
     /// <summary>The animation shows <paramref name="Shown"/>, a frame of <paramref name="Segment"/>, for <paramref name="Duration"/> updates.</summary>
     /// <param name="Segment">The segment the frame belongs to.</param>
@@ -23,7 +32,11 @@ internal abstract record AnimationShown<TSegment, TFrame>
     internal sealed record Frame(TSegment Segment, TFrame Shown, int Duration) : AnimationShown<TSegment, TFrame>
     {
         /// <inheritdoc/>
-        internal override void React(AnimationShownReactions<TSegment, TFrame> reactions) => Ensure.NotNull(reactions).Frame(this);
+        internal override void React<TContext>(AnimationShownReactions<TSegment, TFrame, TContext> reactions, TContext context) => Ensure.NotNull(reactions).Frame(this, context);
+
+        /// <inheritdoc/>
+        internal override TResult Match<TContext, TResult>(AnimationShownCases<TSegment, TFrame, TContext, TResult> cases, TContext context) =>
+            Ensure.NotNull(cases).Frame(this, context);
     }
 
     /// <summary>
@@ -33,7 +46,11 @@ internal abstract record AnimationShown<TSegment, TFrame>
     internal sealed record HeldFrame(TFrame Shown) : AnimationShown<TSegment, TFrame>
     {
         /// <inheritdoc/>
-        internal override void React(AnimationShownReactions<TSegment, TFrame> reactions) => Ensure.NotNull(reactions).HeldFrame(this);
+        internal override void React<TContext>(AnimationShownReactions<TSegment, TFrame, TContext> reactions, TContext context) => Ensure.NotNull(reactions).HeldFrame(this, context);
+
+        /// <inheritdoc/>
+        internal override TResult Match<TContext, TResult>(AnimationShownCases<TSegment, TFrame, TContext, TResult> cases, TContext context) =>
+            Ensure.NotNull(cases).HeldFrame(this, context);
     }
 
     /// <summary>The animation pauses for <paramref name="Duration"/> updates, showing no new frame.</summary>
@@ -41,14 +58,22 @@ internal abstract record AnimationShown<TSegment, TFrame>
     internal sealed record Paused(int Duration) : AnimationShown<TSegment, TFrame>
     {
         /// <inheritdoc/>
-        internal override void React(AnimationShownReactions<TSegment, TFrame> reactions) => Ensure.NotNull(reactions).Paused(this);
+        internal override void React<TContext>(AnimationShownReactions<TSegment, TFrame, TContext> reactions, TContext context) => Ensure.NotNull(reactions).Paused(this, context);
+
+        /// <inheritdoc/>
+        internal override TResult Match<TContext, TResult>(AnimationShownCases<TSegment, TFrame, TContext, TResult> cases, TContext context) =>
+            Ensure.NotNull(cases).Paused(this, context);
     }
 
     /// <summary>The animation rests on its last frame until its owner plays another.</summary>
     internal sealed record Held : AnimationShown<TSegment, TFrame>
     {
         /// <inheritdoc/>
-        internal override void React(AnimationShownReactions<TSegment, TFrame> reactions) => Ensure.NotNull(reactions).Held(this);
+        internal override void React<TContext>(AnimationShownReactions<TSegment, TFrame, TContext> reactions, TContext context) => Ensure.NotNull(reactions).Held(this, context);
+
+        /// <inheritdoc/>
+        internal override TResult Match<TContext, TResult>(AnimationShownCases<TSegment, TFrame, TContext, TResult> cases, TContext context) =>
+            Ensure.NotNull(cases).Held(this, context);
 
         /// <summary>The one held outcome.</summary>
         internal static Held Instance { get; } = new();
@@ -58,7 +83,11 @@ internal abstract record AnimationShown<TSegment, TFrame>
     internal sealed record Ended : AnimationShown<TSegment, TFrame>
     {
         /// <inheritdoc/>
-        internal override void React(AnimationShownReactions<TSegment, TFrame> reactions) => Ensure.NotNull(reactions).Ended(this);
+        internal override void React<TContext>(AnimationShownReactions<TSegment, TFrame, TContext> reactions, TContext context) => Ensure.NotNull(reactions).Ended(this, context);
+
+        /// <inheritdoc/>
+        internal override TResult Match<TContext, TResult>(AnimationShownCases<TSegment, TFrame, TContext, TResult> cases, TContext context) =>
+            Ensure.NotNull(cases).Ended(this, context);
 
         /// <summary>The one ended outcome.</summary>
         internal static Ended Instance { get; } = new();

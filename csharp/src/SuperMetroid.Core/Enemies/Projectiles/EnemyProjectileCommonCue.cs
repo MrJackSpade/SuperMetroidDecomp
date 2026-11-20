@@ -13,7 +13,9 @@ internal abstract record EnemyProjectileCommonCue
 
     /// <summary>Carries out the reaction <paramref name="reactions"/> has to this enemy projectile common cue, through the case it is.</summary>
     /// <param name="reactions">What its owner does on each case.</param>
-    internal abstract void React(EnemyProjectileCommonCueReactions reactions);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract void React<TContext>(EnemyProjectileCommonCueReactions<TContext> reactions, TContext context);
 
 
     /// <summary>Scatters the projectile randomly about its position.</summary>
@@ -21,7 +23,7 @@ internal abstract record EnemyProjectileCommonCue
     internal sealed record Scatter(EnemyProjectileScatter Spread) : EnemyProjectileCommonCue
     {
         /// <inheritdoc/>
-        internal override void React(EnemyProjectileCommonCueReactions reactions) => Ensure.NotNull(reactions).Scatter(this);
+        internal override void React<TContext>(EnemyProjectileCommonCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Scatter(this, context);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -29,11 +31,12 @@ internal abstract record EnemyProjectileCommonCue
     internal sealed record Signal(EnemyProjectileCommonCueKind Kind) : EnemyProjectileCommonCue
     {
         /// <inheritdoc/>
-        internal override void React(EnemyProjectileCommonCueReactions reactions) => Ensure.NotNull(reactions).Signal(this);
+        internal override void React<TContext>(EnemyProjectileCommonCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
     }
 }
 
 /// <summary>What the owner of a <see cref="EnemyProjectileCommonCue"/> does on each of its cases (#2553).</summary>
 /// <param name="Scatter">Reacts to a <see cref="EnemyProjectileCommonCue.Scatter"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="EnemyProjectileCommonCue.Signal"/>.</param>
-internal sealed record EnemyProjectileCommonCueReactions(Action<EnemyProjectileCommonCue.Scatter> Scatter, Action<EnemyProjectileCommonCue.Signal> Signal);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record EnemyProjectileCommonCueReactions<TContext>(Action<EnemyProjectileCommonCue.Scatter, TContext> Scatter, Action<EnemyProjectileCommonCue.Signal, TContext> Signal);

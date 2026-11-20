@@ -95,28 +95,40 @@ internal sealed class RidleyBodyAnimation
     private RidleyBodySegment? ApplyCue(RoomEnemyPlace place, RidleyEncounterState ridley, SamusState samus, RidleyBodyCue cue, IRidleyBodyOwner owner)
     {
         RidleyFlightState flight = ridley.Flight;
-        return cue.Match(new RidleyBodyCueCases<RidleyBodySegment?>(
-            Move: move =>
-            {
-                place.Position += move.Displacement;
-                return null;
-            },
-            SetClawHeight: setClawHeight =>
-            {
-                flight.ClawHeight = setClawHeight.Height;
-                return null;
-            },
-            Flip: flip =>
-            {
-                RidleyTail.MirrorRidleyTail(ridley.Tail);
-                flight.FacingDirection = flip.Facing == HorizontalDirection.Left ? RidleyFacing.Left : RidleyFacing.Right;
-                return null;
-            },
-            Signal: signal =>
-            {
-                return ApplyCueForRidleyBodyCueKind[signal.Kind](place, samus, owner, flight);
-            }));
+        return cue.Match(ApplyCueCases, new ApplyCueContext(place, flight, ridley, samus, owner, this));
     }
+
+    /// <summary>What <c>ApplyCue</c> does on each <see cref="RidleyBodyCue"/>, built once (#2553).</summary>
+    private static RidleyBodyCueCases<ApplyCueContext, RidleyBodySegment?> ApplyCueCases { get; } = new(
+        Move: static (move, context) =>
+        {
+            context.Place.Position += move.Displacement;
+            return null;
+        },
+        SetClawHeight: static (setClawHeight, context) =>
+        {
+            context.Flight.ClawHeight = setClawHeight.Height;
+            return null;
+        },
+        Flip: static (flip, context) =>
+        {
+            RidleyTail.MirrorRidleyTail(context.Ridley.Tail);
+            context.Flight.FacingDirection = flip.Facing == HorizontalDirection.Left ? RidleyFacing.Left : RidleyFacing.Right;
+            return null;
+        },
+        Signal: static (signal, context) =>
+        {
+            return context.Animation.ApplyCueForRidleyBodyCueKind[signal.Kind](context.Place, context.Samus, context.Owner, context.Flight);
+        });
+
+    /// <summary>What <c>ApplyCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">Ridley's body.</param>
+    /// <param name="Flight">The <c>flight</c> <c>ApplyCue</c> works with.</param>
+    /// <param name="Ridley">Ridley's encounter.</param>
+    /// <param name="Samus">Samus.</param>
+    /// <param name="Owner">The encounter that owns the body, which handles the lift-off and the fireball cut (#2230).</param>
+    /// <param name="Animation">The <see cref="RidleyBodyAnimation"/> reacting.</param>
+    private readonly record struct ApplyCueContext(RoomEnemyPlace Place, RidleyFlightState Flight, RidleyEncounterState Ridley, SamusState Samus, IRidleyBodyOwner Owner, RidleyBodyAnimation Animation);
 
     /// <summary>
     /// Shows a breakup fragment's picture where the shared enemy animation runs (#2235): a still picture, which the

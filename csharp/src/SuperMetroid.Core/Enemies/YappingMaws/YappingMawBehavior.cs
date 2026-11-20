@@ -52,13 +52,21 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of the Yapping Maw's animations: holding a grabbed Samus at a mouth offset, or the bite sound.</summary>
     private void ApplyYappingMawCue(YappingMawEnemyState state, YappingMawCue cue)
     {
-        cue.React(new YappingMawCueReactions(
-            HoldSamus: hold => SetYappingMawHeldOffset(state, hold.Aim),
-            Signal: signal =>
-            {
-                ApplyYappingMawCueForYappingMawCueKind[signal.Kind](state);
-            }));
+        cue.React(ApplyYappingMawCueReactions, new ApplyYappingMawCueContext(state, this));
     }
+
+    /// <summary>What <c>ApplyYappingMawCue</c> does on each <see cref="YappingMawCue"/>, built once (#2553).</summary>
+    private static YappingMawCueReactions<ApplyYappingMawCueContext> ApplyYappingMawCueReactions { get; } = new(
+        HoldSamus: static (hold, context) => SetYappingMawHeldOffset(context.State, hold.Aim),
+        Signal: static (signal, context) =>
+        {
+            context.Owner.ApplyYappingMawCueForYappingMawCueKind[signal.Kind](context.State);
+        });
+
+    /// <summary>What <c>ApplyYappingMawCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="State">The <c>state</c> <c>ApplyYappingMawCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="YappingMawBehavior"/> reacting.</param>
+    private readonly record struct ApplyYappingMawCueContext(YappingMawEnemyState State, YappingMawBehavior Owner);
 
     /// <summary>Initializes the Yapping Maw.</summary>
     internal void InitializeYappingMaw(RoomEnemyPlace place)

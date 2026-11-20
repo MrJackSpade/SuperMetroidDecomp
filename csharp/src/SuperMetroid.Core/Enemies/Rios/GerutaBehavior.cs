@@ -165,14 +165,17 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of the Geruta's animations: the end of its swoop's start, or a flame placement.</summary>
     private static void ApplyGerutaCue(GerutaEnemyState state, GerutaCue cue)
     {
-        cue.React(new GerutaCueReactions(
-            PlaceFlames: placeFlames =>
-            {
-                state.FollowerYOffset = placeFlames.Below;
-                state.Flames = placeFlames.Flames;
-            },
-            SwoopStartFinished: _ => state.Finish.Raise()));
+        cue.React(ApplyGerutaCueReactions, state);
     }
+
+    /// <summary>What <c>ApplyGerutaCue</c> does on each <see cref="GerutaCue"/>, built once (#2553).</summary>
+    private static GerutaCueReactions<GerutaEnemyState> ApplyGerutaCueReactions { get; } = new(
+        PlaceFlames: static (placeFlames, state) =>
+        {
+            state.FollowerYOffset = placeFlames.Below;
+            state.Flames = placeFlames.Flames;
+        },
+        SwoopStartFinished: static (_, state) => state.Finish.Raise());
 
     /// <summary>Copies parent freeze, visibility, animation, and flame offset to the adjacent follower.</summary>
     private void FollowGerutaParent(

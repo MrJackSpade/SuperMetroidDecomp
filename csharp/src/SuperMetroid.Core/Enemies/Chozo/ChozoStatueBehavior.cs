@@ -157,27 +157,38 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
-        cue.React(new ChozoStatueCueReactions(
-            Footstep: footstep =>
-            {
-                ProcessChozoStatueFootstep(
-                    statue,
-                    level,
-                    footstep.OffsetX);
-            },
-            Move: move =>
-            {
-                ProcessChozoStatueMovement(
-                    statue,
-                    samus,
-                    level,
-                    move.Step);
-            },
-            Signal: signal =>
-            {
-                ApplyChozoStatueCueForChozoStatueCueKind[signal.Kind](state);
-            }));
+        cue.React(ApplyChozoStatueCueReactions, new ApplyChozoStatueCueContext(statue, level, samus, state, this));
     }
+
+    /// <summary>What <c>ApplyChozoStatueCue</c> does on each <see cref="ChozoStatueCue"/>, built once (#2553).</summary>
+    private static ChozoStatueCueReactions<ApplyChozoStatueCueContext> ApplyChozoStatueCueReactions { get; } = new(
+        Footstep: static (footstep, context) =>
+        {
+            context.Owner.ProcessChozoStatueFootstep(
+                context.Statue,
+                context.Level,
+                footstep.OffsetX);
+        },
+        Move: static (move, context) =>
+        {
+            context.Owner.ProcessChozoStatueMovement(
+                context.Statue,
+                context.Samus,
+                context.Level,
+                move.Step);
+        },
+        Signal: static (signal, context) =>
+        {
+            context.Owner.ApplyChozoStatueCueForChozoStatueCueKind[signal.Kind](context.State);
+        });
+
+    /// <summary>What <c>ApplyChozoStatueCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Statue">The <c>statue</c> <c>ApplyChozoStatueCue</c> was handed.</param>
+    /// <param name="Level">The <c>level</c> <c>ApplyChozoStatueCue</c> was handed.</param>
+    /// <param name="Samus">The <c>samus</c> <c>ApplyChozoStatueCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <c>ApplyChozoStatueCue</c> works with.</param>
+    /// <param name="Owner">The <see cref="ChozoStatueBehavior"/> reacting.</param>
+    private readonly record struct ApplyChozoStatueCueContext(RoomEnemyPlace Statue, RoomLevelData Level, SamusState Samus, ChozoStatueState State, ChozoStatueBehavior Owner);
 
     /// <summary>Moves the statue through terrain, then places Samus at the authored carry offset from its accepted position.</summary>
     private void ProcessChozoStatueMovement(

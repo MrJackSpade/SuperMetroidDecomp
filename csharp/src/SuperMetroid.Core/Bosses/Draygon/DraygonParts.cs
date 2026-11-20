@@ -141,30 +141,12 @@ internal sealed class DraygonParts
                 ApplyDraygonCue(state, samus, cue);
                 return null;
             });
-        switch (shown)
-        {
-            case AnimationShown<DraygonSegment, EnemyFrameId>.Frame frame:
-                running.Playback = new AnimationPlayback<DraygonSegment>(animation, place);
-                part.Frame = frame.Shown;
-                part.AnimationClock.Show(frame.Duration);
-                return;
-            case AnimationShown<DraygonSegment, EnemyFrameId>.Paused paused:
-                running.Playback = new AnimationPlayback<DraygonSegment>(animation, place);
-                part.AnimationClock.Pause(paused.Duration);
-                return;
-            case AnimationShown<DraygonSegment, EnemyFrameId>.Held:
-                // A rest: the last frame stays and the clock stops (#2454).
-                running.Playback = new AnimationPlayback<DraygonSegment>(animation, place);
-                part.AnimationClock.Stop();
-                return;
-            case AnimationShown<DraygonSegment, EnemyFrameId>.Ended:
-                // The end deletes the part; its animation stays where it stood and takes no further step (#2532).
-                part.Presence = part.Presence.With(EnemyPresence.Deleted);
-                part.AnimationClock.Stop();
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined animation outcome {shown}.");
-        }
+        // The end deletes the part; its animation stays where it stood and takes no further step (#2532). Every other
+        // outcome stands the part's animation where its play stopped. A rest keeps the last frame and stops the clock
+        // (#2454); every outcome takes the shared enemy animation's meaning.
+        if (shown is not AnimationShown<DraygonSegment, EnemyFrameId>.Ended)
+            running.Playback = new AnimationPlayback<DraygonSegment>(animation, place);
+        EnemyAnimationPlayback.Show(part, shown, static frame => frame);
     }
 
     /// <summary>
@@ -175,32 +157,41 @@ internal sealed class DraygonParts
     /// <remarks>Draygon's cues never continue the running part's play elsewhere.</remarks>
     private void ApplyDraygonCue(DraygonEnemyState state, SamusState samus, DraygonCue cue)
     {
-        cue.React(new DraygonCueReactions(
-            StartPartAnimations: start =>
-            {
-                state.BodyPart.SetAnimation(start.Body);
-                state.EyePart.SetAnimation(start.Eye);
-                state.TailPart.SetAnimation(start.Tail);
-                state.ArmsPart.SetAnimation(start.Arms);
-                state.Arms.AnimationClock.StepOnNextUpdate();
-                state.Tail.AnimationClock.StepOnNextUpdate();
-                state.Eye.AnimationClock.StepOnNextUpdate();
-                state.Body.AnimationClock.StepOnNextUpdate();
-            },
-            TrackWithEye: track => Track(state.EyeTracking, track.Facing),
-            ShiftBodyPicture: shift => state.BodyPictureShift = shift.Shift,
-            QueueSound: sound => RequestDraygonSound(sound.Sound),
-            SpawnDyingEffect: dying => SpawnRandomDyingDraygonEffect(state, dying.Kind),
-            ParalyseTailAndArms: _ =>
-            {
-                state.TailPart.StartAnimation(DraygonSegment.Rest);
-                state.ArmsPart.StartAnimation(DraygonSegment.Rest);
-            },
-            SetBodyIntangible: _ => state.Body.Contact = state.Body.Contact.With(EnemyContact.IgnoresSamus),
-            SetBodyPhase: bodyPhase => state.Phase = bodyPhase.Phase,
-            TailWhipHit: _ => ApplyDraygonTailWhipHit(state, samus),
-            SpawnGoop: goop => SpawnDraygonGoop(state, goop.Direction)));
+        cue.React(ApplyDraygonCueReactions, new ApplyDraygonCueContext(state, samus, this));
     }
+
+    /// <summary>What <c>ApplyDraygonCue</c> does on each <see cref="DraygonCue"/>, built once (#2553).</summary>
+    private static DraygonCueReactions<ApplyDraygonCueContext> ApplyDraygonCueReactions { get; } = new(
+        StartPartAnimations: static (start, context) =>
+        {
+            context.State.BodyPart.SetAnimation(start.Body);
+            context.State.EyePart.SetAnimation(start.Eye);
+            context.State.TailPart.SetAnimation(start.Tail);
+            context.State.ArmsPart.SetAnimation(start.Arms);
+            context.State.Arms.AnimationClock.StepOnNextUpdate();
+            context.State.Tail.AnimationClock.StepOnNextUpdate();
+            context.State.Eye.AnimationClock.StepOnNextUpdate();
+            context.State.Body.AnimationClock.StepOnNextUpdate();
+        },
+        TrackWithEye: static (track, context) => Track(context.State.EyeTracking, track.Facing),
+        ShiftBodyPicture: static (shift, context) => context.State.BodyPictureShift = shift.Shift,
+        QueueSound: static (sound, context) => context.Owner.RequestDraygonSound(sound.Sound),
+        SpawnDyingEffect: static (dying, context) => context.Owner.SpawnRandomDyingDraygonEffect(context.State, dying.Kind),
+        ParalyseTailAndArms: static (_, context) =>
+        {
+            context.State.TailPart.StartAnimation(DraygonSegment.Rest);
+            context.State.ArmsPart.StartAnimation(DraygonSegment.Rest);
+        },
+        SetBodyIntangible: static (_, context) => context.State.Body.Contact = context.State.Body.Contact.With(EnemyContact.IgnoresSamus),
+        SetBodyPhase: static (bodyPhase, context) => context.State.Phase = bodyPhase.Phase,
+        TailWhipHit: static (_, context) => context.Owner.ApplyDraygonTailWhipHit(context.State, context.Samus),
+        SpawnGoop: static (goop, context) => context.Owner.SpawnDraygonGoop(context.State, goop.Direction));
+
+    /// <summary>What <c>ApplyDraygonCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="State">The <c>state</c> <c>ApplyDraygonCue</c> was handed.</param>
+    /// <param name="Samus">The <c>samus</c> <c>ApplyDraygonCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="DraygonParts"/> reacting.</param>
+    private readonly record struct ApplyDraygonCueContext(DraygonEnemyState State, SamusState Samus, DraygonParts Owner);
 
     /// <summary>Queues a sound from one of Draygon's animations as the animation makes it, after the update's earlier requests.</summary>
     private void RequestDraygonSound(SoundEffectId sound) =>

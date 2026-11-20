@@ -10,7 +10,9 @@ internal abstract record SporeSpawnCue
 
     /// <summary>Carries out the reaction <paramref name="reactions"/> has to this spore spawn cue, through the case it is.</summary>
     /// <param name="reactions">What its owner does on each case.</param>
-    internal abstract void React(SporeSpawnCueReactions reactions);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract void React<TContext>(SporeSpawnCueReactions<TContext> reactions, TContext context);
 
 
     /// <summary>
@@ -21,7 +23,7 @@ internal abstract record SporeSpawnCue
     internal sealed record ShowDeathShade(SporeSpawnDeathFadeStep DeathShadeStep) : SporeSpawnCue
     {
         /// <inheritdoc/>
-        internal override void React(SporeSpawnCueReactions reactions) => Ensure.NotNull(reactions).ShowDeathShade(this);
+        internal override void React<TContext>(SporeSpawnCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).ShowDeathShade(this, context);
     }
 
     /// <summary>Requests a sound.</summary>
@@ -29,7 +31,7 @@ internal abstract record SporeSpawnCue
     internal sealed record QueueSound(SoundEffectId Sound) : SporeSpawnCue
     {
         /// <inheritdoc/>
-        internal override void React(SporeSpawnCueReactions reactions) => Ensure.NotNull(reactions).QueueSound(this);
+        internal override void React<TContext>(SporeSpawnCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).QueueSound(this, context);
     }
 
     /// <summary>Selects the main-AI movement.</summary>
@@ -37,7 +39,7 @@ internal abstract record SporeSpawnCue
     internal sealed record SetMovement(SporeSpawnMovement Movement) : SporeSpawnCue
     {
         /// <inheritdoc/>
-        internal override void React(SporeSpawnCueReactions reactions) => Ensure.NotNull(reactions).SetMovement(this);
+        internal override void React<TContext>(SporeSpawnCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).SetMovement(this, context);
     }
 
     /// <summary>Sets how wide he sways and how his sway's phase turns.</summary>
@@ -46,7 +48,7 @@ internal abstract record SporeSpawnCue
     internal sealed record SetSway(SporeSpawnSwayRadius Radius, TurnStep Step) : SporeSpawnCue
     {
         /// <inheritdoc/>
-        internal override void React(SporeSpawnCueReactions reactions) => Ensure.NotNull(reactions).SetSway(this);
+        internal override void React<TContext>(SporeSpawnCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).SetSway(this, context);
     }
 
     /// <summary>Starts or stops spore generation.</summary>
@@ -55,7 +57,7 @@ internal abstract record SporeSpawnCue
     internal sealed record SetSporeGeneration(bool SporeGenerationSuppressed) : SporeSpawnCue
     {
         /// <inheritdoc/>
-        internal override void React(SporeSpawnCueReactions reactions) => Ensure.NotNull(reactions).SetSporeGeneration(this);
+        internal override void React<TContext>(SporeSpawnCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).SetSporeGeneration(this, context);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -63,7 +65,7 @@ internal abstract record SporeSpawnCue
     internal sealed record Signal(SporeSpawnCueKind Kind) : SporeSpawnCue
     {
         /// <inheritdoc/>
-        internal override void React(SporeSpawnCueReactions reactions) => Ensure.NotNull(reactions).Signal(this);
+        internal override void React<TContext>(SporeSpawnCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
     }
 }
 
@@ -74,4 +76,5 @@ internal abstract record SporeSpawnCue
 /// <param name="SetSway">Reacts to a <see cref="SporeSpawnCue.SetSway"/>.</param>
 /// <param name="SetSporeGeneration">Reacts to a <see cref="SporeSpawnCue.SetSporeGeneration"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="SporeSpawnCue.Signal"/>.</param>
-internal sealed record SporeSpawnCueReactions(Action<SporeSpawnCue.ShowDeathShade> ShowDeathShade, Action<SporeSpawnCue.QueueSound> QueueSound, Action<SporeSpawnCue.SetMovement> SetMovement, Action<SporeSpawnCue.SetSway> SetSway, Action<SporeSpawnCue.SetSporeGeneration> SetSporeGeneration, Action<SporeSpawnCue.Signal> Signal);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record SporeSpawnCueReactions<TContext>(Action<SporeSpawnCue.ShowDeathShade, TContext> ShowDeathShade, Action<SporeSpawnCue.QueueSound, TContext> QueueSound, Action<SporeSpawnCue.SetMovement, TContext> SetMovement, Action<SporeSpawnCue.SetSway, TContext> SetSway, Action<SporeSpawnCue.SetSporeGeneration, TContext> SetSporeGeneration, Action<SporeSpawnCue.Signal, TContext> Signal);

@@ -243,13 +243,21 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Carries out one cue of Mother Brain's effect animations.</summary>
         private void ApplyMotherBrainEffectCue(EnemyProjectile projectile, MotherBrainEffectCue cue)
         {
-            cue.React(new MotherBrainEffectCueReactions(
-                SetRadius: setRadius => projectile.Radius = setRadius.Radius,
-                Signal: signal =>
-                {
-                    ApplyMotherBrainEffectCueForMotherBrainEffectCueKind[signal.Kind](projectile);
-                }));
+            cue.React(ApplyMotherBrainEffectCueReactions, new ApplyMotherBrainEffectCueContext(projectile, this));
         }
+
+        /// <summary>What <c>ApplyMotherBrainEffectCue</c> does on each <see cref="MotherBrainEffectCue"/>, built once (#2553).</summary>
+        private static MotherBrainEffectCueReactions<ApplyMotherBrainEffectCueContext> ApplyMotherBrainEffectCueReactions { get; } = new(
+            SetRadius: static (setRadius, context) => context.Projectile.Radius = setRadius.Radius,
+            Signal: static (signal, context) =>
+            {
+                context.Owner.ApplyMotherBrainEffectCueForMotherBrainEffectCueKind[signal.Kind](context.Projectile);
+            });
+
+        /// <summary>What <c>ApplyMotherBrainEffectCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+        /// <param name="Projectile">The <c>projectile</c> <c>ApplyMotherBrainEffectCue</c> was handed.</param>
+        /// <param name="Owner">The <see cref="MotherBrainProjectileBehavior"/> reacting.</param>
+        private readonly record struct ApplyMotherBrainEffectCueContext(EnemyProjectile Projectile, MotherBrainProjectileBehavior Owner);
 
         /// <summary>Moves the bomb.</summary>
         private void BounceMotherBrainBomb(

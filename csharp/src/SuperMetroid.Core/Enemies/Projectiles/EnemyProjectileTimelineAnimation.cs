@@ -62,18 +62,18 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
         AnimationPlace place = Playback.Place;
         AnimationShown<TSegment, TFrame> shown = PlayToNextFrame(context, ref animation, ref place);
         Playback = new AnimationPlayback<TSegment>(animation, place);
-        switch (shown)
-        {
-            case AnimationShown<TSegment, TFrame>.Frame shownFrame:
-                return new EnemyProjectileFrameStep.Show(Present(shownFrame.Shown), shownFrame.Duration);
-            case AnimationShown<TSegment, TFrame>.HeldFrame held:
-                return new EnemyProjectileFrameStep.ShowForGood(Present(held.Shown));
-            case AnimationShown<TSegment, TFrame>.Held:
-                return EnemyProjectileFrameStep.Rests;
-            case AnimationShown<TSegment, TFrame>.Paused:
-            case AnimationShown<TSegment, TFrame>.Ended:
-            default:
-                throw new InvalidOperationException($"A projectile animation ended an update with {shown}.");
-        }
+        return shown.Match(NextFrameCases, this);
     }
+
+    /// <summary>
+    /// What <c>NextFrame</c> makes of each <see cref="AnimationShown{TSegment, TFrame}"/>, built once (#2553): a frame shows
+    /// for its duration or for good, a pause keeps the frame shown for its duration, a rest holds the timeline, and the
+    /// animation's end deletes the projectile, as the common end deletes an enemy.
+    /// </summary>
+    private static AnimationShownCases<TSegment, TFrame, EnemyProjectileTimelineAnimation<TSegment, TFrame, TEvent>, EnemyProjectileFrameStep> NextFrameCases { get; } = new(
+        Frame: static (shownFrame, timeline) => new EnemyProjectileFrameStep.Show(timeline.Present(shownFrame.Shown), shownFrame.Duration),
+        HeldFrame: static (held, timeline) => new EnemyProjectileFrameStep.ShowForGood(timeline.Present(held.Shown)),
+        Paused: static (paused, _) => new EnemyProjectileFrameStep.Wait(paused.Duration),
+        Held: static (_, _) => EnemyProjectileFrameStep.Rests,
+        Ended: static (_, _) => EnemyProjectileFrameStep.Ends);
 }

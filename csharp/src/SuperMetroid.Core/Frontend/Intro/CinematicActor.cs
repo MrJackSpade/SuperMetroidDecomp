@@ -119,24 +119,32 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
         AnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
             animation, ref place, cue => ApplyCue(cue, ownerCue));
         Playback = new AnimationPlayback<TAnimation>(animation, place);
-        shown.React(new AnimationShownReactions<TAnimation, TFrame>(
-            Frame: frame =>
-            {
-                frameHold.Restart(frame.Duration);
-                Shown = frame.Shown;
-            },
-            HeldFrame: rested =>
-            {
-                // A held frame shows from now on: the animation plays on no further until its owner starts another.
-                Shown = rested.Shown;
-                held = true;
-            },
-            // A pause holds the frame shown for its updates before the animation plays on.
-            Paused: paused => frameHold.Restart(paused.Duration),
-            // A held animation rests on its last frame for good: playing it on again would only hold again.
-            Held: _ => held = true,
-            Ended: _ => Delete()));
+        shown.React(StepReactions, new StepContext(ownerCue, this));
     }
+
+    /// <summary>What <c>Step</c> does on each <see cref="AnimationShown{TAnimation, TFrame}"/>, built once (#2553).</summary>
+    private static AnimationShownReactions<TAnimation, TFrame, StepContext> StepReactions { get; } = new(
+        Frame: static (frame, context) =>
+        {
+            context.Owner.frameHold.Restart(frame.Duration);
+            context.Owner.Shown = frame.Shown;
+        },
+        HeldFrame: static (rested, context) =>
+        {
+            // A held frame shows from now on: the animation plays on no further until its owner starts another.
+            context.Owner.Shown = rested.Shown;
+            context.Owner.held = true;
+        },
+        // A pause holds the frame shown for its updates before the animation plays on.
+        Paused: static (paused, context) => context.Owner.frameHold.Restart(paused.Duration),
+        // A held animation rests on its last frame for good: playing it on again would only hold again.
+        Held: static (_, context) => context.Owner.held = true,
+        Ended: static (_, context) => context.Owner.Delete());
+
+    /// <summary>What <c>Step</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="OwnerCue">The <c>ownerCue</c> <c>Step</c> was handed.</param>
+    /// <param name="Owner">The <see cref="CinematicActor{TAnimation, TFrame, TCue}"/> reacting.</param>
+    private readonly record struct StepContext(Action<TCue>? OwnerCue, CinematicActor<TAnimation, TFrame, TCue> Owner);
 
     /// <summary>Hands the cue to the actor's owner.</summary>
     private void ApplyCue(TCue cue, Action<TCue>? ownerCue)

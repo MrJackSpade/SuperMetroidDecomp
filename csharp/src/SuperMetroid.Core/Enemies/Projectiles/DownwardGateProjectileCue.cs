@@ -12,7 +12,9 @@ internal abstract record DownwardGateProjectileCue
 
     /// <summary>Carries out the reaction <paramref name="reactions"/> has to this downward gate projectile cue, through the case it is.</summary>
     /// <param name="reactions">What its owner does on each case.</param>
-    internal abstract void React(DownwardGateProjectileCueReactions reactions);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract void React<TContext>(DownwardGateProjectileCueReactions<TContext> reactions, TContext context);
 
 
     /// <summary>Sets the gate's vertical velocity.</summary>
@@ -20,7 +22,7 @@ internal abstract record DownwardGateProjectileCue
     internal sealed record SetYVelocity(SignedEightEight YVelocity) : DownwardGateProjectileCue
     {
         /// <inheritdoc/>
-        internal override void React(DownwardGateProjectileCueReactions reactions) => Ensure.NotNull(reactions).SetYVelocity(this);
+        internal override void React<TContext>(DownwardGateProjectileCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).SetYVelocity(this, context);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -28,11 +30,12 @@ internal abstract record DownwardGateProjectileCue
     internal sealed record Signal(DownwardGateProjectileCueKind Kind) : DownwardGateProjectileCue
     {
         /// <inheritdoc/>
-        internal override void React(DownwardGateProjectileCueReactions reactions) => Ensure.NotNull(reactions).Signal(this);
+        internal override void React<TContext>(DownwardGateProjectileCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
     }
 }
 
 /// <summary>What the owner of a <see cref="DownwardGateProjectileCue"/> does on each of its cases (#2553).</summary>
 /// <param name="SetYVelocity">Reacts to a <see cref="DownwardGateProjectileCue.SetYVelocity"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="DownwardGateProjectileCue.Signal"/>.</param>
-internal sealed record DownwardGateProjectileCueReactions(Action<DownwardGateProjectileCue.SetYVelocity> SetYVelocity, Action<DownwardGateProjectileCue.Signal> Signal);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record DownwardGateProjectileCueReactions<TContext>(Action<DownwardGateProjectileCue.SetYVelocity, TContext> SetYVelocity, Action<DownwardGateProjectileCue.Signal, TContext> Signal);

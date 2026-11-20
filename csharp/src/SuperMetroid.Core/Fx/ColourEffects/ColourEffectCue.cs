@@ -10,7 +10,9 @@ public abstract record ColourEffectCue
 
     /// <summary>Carries out the reaction <paramref name="reactions"/> has to this colour effect cue, through the case it is.</summary>
     /// <param name="reactions">What its owner does on each case.</param>
-    internal abstract void React(ColourEffectCueReactions reactions);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract void React<TContext>(ColourEffectCueReactions<TContext> reactions, TContext context);
 
 
     /// <summary>Queues a sound of the enemies' library.</summary>
@@ -18,7 +20,7 @@ public abstract record ColourEffectCue
     public sealed record QueueSound(SoundEffectId Sound) : ColourEffectCue
     {
         /// <inheritdoc/>
-        internal override void React(ColourEffectCueReactions reactions) => Ensure.NotNull(reactions).QueueSound(this);
+        internal override void React<TContext>(ColourEffectCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).QueueSound(this, context);
     }
 
     /// <summary>Publishes the phase of the heat pulse Samus's heat shimmer follows.</summary>
@@ -26,11 +28,12 @@ public abstract record ColourEffectCue
     public sealed record PublishHeatPhase(HeatPhase Phase) : ColourEffectCue
     {
         /// <inheritdoc/>
-        internal override void React(ColourEffectCueReactions reactions) => Ensure.NotNull(reactions).PublishHeatPhase(this);
+        internal override void React<TContext>(ColourEffectCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).PublishHeatPhase(this, context);
     }
 }
 
 /// <summary>What the owner of a <see cref="ColourEffectCue"/> does on each of its cases (#2553).</summary>
 /// <param name="QueueSound">Reacts to a <see cref="ColourEffectCue.QueueSound"/>.</param>
 /// <param name="PublishHeatPhase">Reacts to a <see cref="ColourEffectCue.PublishHeatPhase"/>.</param>
-public sealed record ColourEffectCueReactions(Action<ColourEffectCue.QueueSound> QueueSound, Action<ColourEffectCue.PublishHeatPhase> PublishHeatPhase);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+public sealed record ColourEffectCueReactions<TContext>(Action<ColourEffectCue.QueueSound, TContext> QueueSound, Action<ColourEffectCue.PublishHeatPhase, TContext> PublishHeatPhase);

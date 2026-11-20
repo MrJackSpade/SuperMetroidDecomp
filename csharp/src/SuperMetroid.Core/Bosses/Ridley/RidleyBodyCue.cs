@@ -11,7 +11,9 @@ internal abstract record RidleyBodyCue
     /// <summary>What <paramref name="cases"/> makes of this ridley body cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the ridley body cue is made into.</typeparam>
     /// <param name="cases">What each case is made into.</param>
-    internal abstract TResult Match<TResult>(RidleyBodyCueCases<TResult> cases);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract TResult Match<TContext, TResult>(RidleyBodyCueCases<TContext, TResult> cases, TContext context);
 
 
     /// <summary>Moves Ridley by the cue's displacement.</summary>
@@ -19,7 +21,7 @@ internal abstract record RidleyBodyCue
     internal sealed record Move(Offset16<RoomPixels> Displacement) : RidleyBodyCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(RidleyBodyCueCases<TResult> cases) => Ensure.NotNull(cases).Move(this);
+        internal override TResult Match<TContext, TResult>(RidleyBodyCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Move(this, context);
     }
 
     /// <summary>Selects how far Ridley's legs reach, which sets his claws' height.</summary>
@@ -27,7 +29,7 @@ internal abstract record RidleyBodyCue
     internal sealed record SetClawHeight(RidleyClawHeight Height) : RidleyBodyCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(RidleyBodyCueCases<TResult> cases) => Ensure.NotNull(cases).SetClawHeight(this);
+        internal override TResult Match<TContext, TResult>(RidleyBodyCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).SetClawHeight(this, context);
     }
 
     /// <summary>Faces the cue's way and mirrors the tail (#2165).</summary>
@@ -35,7 +37,7 @@ internal abstract record RidleyBodyCue
     internal sealed record Flip(HorizontalDirection Facing) : RidleyBodyCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(RidleyBodyCueCases<TResult> cases) => Ensure.NotNull(cases).Flip(this);
+        internal override TResult Match<TContext, TResult>(RidleyBodyCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Flip(this, context);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -43,7 +45,7 @@ internal abstract record RidleyBodyCue
     internal sealed record Signal(RidleyBodyCueKind Kind) : RidleyBodyCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(RidleyBodyCueCases<TResult> cases) => Ensure.NotNull(cases).Signal(this);
+        internal override TResult Match<TContext, TResult>(RidleyBodyCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Signal(this, context);
     }
 }
 
@@ -53,4 +55,5 @@ internal abstract record RidleyBodyCue
 /// <param name="SetClawHeight">Makes a <see cref="RidleyBodyCue.SetClawHeight"/> into the result.</param>
 /// <param name="Flip">Makes a <see cref="RidleyBodyCue.Flip"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="RidleyBodyCue.Signal"/> into the result.</param>
-internal sealed record RidleyBodyCueCases<TResult>(Func<RidleyBodyCue.Move, TResult> Move, Func<RidleyBodyCue.SetClawHeight, TResult> SetClawHeight, Func<RidleyBodyCue.Flip, TResult> Flip, Func<RidleyBodyCue.Signal, TResult> Signal);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record RidleyBodyCueCases<TContext, TResult>(Func<RidleyBodyCue.Move, TContext, TResult> Move, Func<RidleyBodyCue.SetClawHeight, TContext, TResult> SetClawHeight, Func<RidleyBodyCue.Flip, TContext, TResult> Flip, Func<RidleyBodyCue.Signal, TContext, TResult> Signal);

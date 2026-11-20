@@ -42,14 +42,24 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// walk always continues at the walk for the Alcoon's facing, and a stride that meets a wall turns it round to the other walk.
     /// </summary>
     private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue) =>
-        cue.Match(new AlcoonCueCases<AnimationContinuation<AlcoonSegment>?>(
-            Fire: fire =>
+        cue.Match(ApplyAlcoonCueCases, new ApplyAlcoonCueContext(place, state, level, this));
+
+    /// <summary>What <c>ApplyAlcoonCue</c> does on each <see cref="AlcoonCue"/>, built once (#2553).</summary>
+    private static AlcoonCueCases<ApplyAlcoonCueContext, AnimationContinuation<AlcoonSegment>?> ApplyAlcoonCueCases { get; } = new(
+            Fire: static (fire, context) =>
             {
-                SpawnAlcoonFireball(place, fire.Launch);
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
+                context.Owner.SpawnAlcoonFireball(context.Place, fire.Launch);
+                context.Owner._audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return (AnimationContinuation<AlcoonSegment>?)null;
             },
-            Signal: signal => AlcoonSignals[signal.Kind](place, state, level)));
+            Signal: static (signal, context) => context.Owner.AlcoonSignals[signal.Kind](context.Place, context.State, context.Level));
+
+    /// <summary>What <c>ApplyAlcoonCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The <c>place</c> <c>ApplyAlcoonCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <c>ApplyAlcoonCue</c> was handed.</param>
+    /// <param name="Level">The <c>level</c> <c>ApplyAlcoonCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="AlcoonBehavior"/> reacting.</param>
+    private readonly record struct ApplyAlcoonCueContext(RoomEnemyPlace Place, AlcoonEnemyState State, RoomLevelData Level, AlcoonBehavior Owner);
 
     /// <summary>What each of the Alcoon's signals does, and the animation it continues at, or null to run on.</summary>
     private IdentityTable<AlcoonCueKind, Func<RoomEnemyPlace, AlcoonEnemyState, RoomLevelData, AnimationContinuation<AlcoonSegment>?>> AlcoonSignals => field ??=

@@ -26,10 +26,13 @@ internal sealed class DownwardGateBehavior
     public void ApplyDownwardGateProjectileRequest(
         DownwardGateProjectileRequest request)
     {
-        request.React(new DownwardGateProjectileRequestReactions(
-            DownwardGateProjectileSpawn: spawn => SpawnDownwardGateProjectile(spawn),
-            DownwardGateProjectileWake: wake => WakeDownwardGateProjectile(wake.RoomObjectBlock)));
+        request.React(ApplyDownwardGateProjectileRequestReactions, this);
     }
+
+    /// <summary>What <c>ApplyDownwardGateProjectileRequest</c> does on each <see cref="DownwardGateProjectileRequest"/>, built once (#2553).</summary>
+    private static DownwardGateProjectileRequestReactions<DownwardGateBehavior> ApplyDownwardGateProjectileRequestReactions { get; } = new(
+        DownwardGateProjectileSpawn: static (spawn, owner) => owner.SpawnDownwardGateProjectile(spawn),
+        DownwardGateProjectileWake: static (wake, owner) => owner.WakeDownwardGateProjectile(wake.RoomObjectBlock));
 
     /// <summary>Allocates a gate actor at its room object's block and ties it to its gate's block for waking.</summary>
     private void SpawnDownwardGateProjectile(
@@ -123,13 +126,21 @@ internal sealed class DownwardGateBehavior
     /// <summary>Carries out one cue of the gate's animations.</summary>
     private static void ApplyDownwardGateCue(GateBehavior owner, EnemyProjectile projectile, DownwardGateProjectileCue cue)
     {
-        cue.React(new DownwardGateProjectileCueReactions(
-            SetYVelocity: setYVelocity => projectile.Velocity = projectile.Velocity.WithY(setYVelocity.YVelocity),
-            Signal: signal =>
-            {
-                ApplyDownwardGateCueForDownwardGateProjectileCueKind[signal.Kind](owner, projectile);
-            }));
+        cue.React(ApplyDownwardGateCueReactions, new ApplyDownwardGateCueContext(projectile, owner));
     }
+
+    /// <summary>What <c>ApplyDownwardGateCue</c> does on each <see cref="DownwardGateProjectileCue"/>, built once (#2553).</summary>
+    private static DownwardGateProjectileCueReactions<ApplyDownwardGateCueContext> ApplyDownwardGateCueReactions { get; } = new(
+        SetYVelocity: static (setYVelocity, context) => context.Projectile.Velocity = context.Projectile.Velocity.WithY(setYVelocity.YVelocity),
+        Signal: static (signal, context) =>
+        {
+            ApplyDownwardGateCueForDownwardGateProjectileCueKind[signal.Kind](context.Owner, context.Projectile);
+        });
+
+    /// <summary>What <c>ApplyDownwardGateCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Projectile">The <c>projectile</c> <c>ApplyDownwardGateCue</c> was handed.</param>
+    /// <param name="Owner">The <c>owner</c> <c>ApplyDownwardGateCue</c> was handed.</param>
+    private readonly record struct ApplyDownwardGateCueContext(EnemyProjectile Projectile, GateBehavior Owner);
 
     /// <summary>A downward gate, moving or closed (#1760).</summary>
     private GateBehavior Gate { get; } = new();

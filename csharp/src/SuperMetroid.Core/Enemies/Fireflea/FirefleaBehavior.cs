@@ -71,24 +71,27 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the Fireflea's main AI, advancing circular angle or vertical travel.</summary>
     private static void RunFirefleaMain(RoomEnemyPlace place, FirefleaEnemyState state)
     {
-        state.Flight.React(new FirefleaFlightStateReactions(
-            BobbingFirefleaState: bobbing =>
-            {
-                place.Position = place.Position.AdvanceY(bobbing.Velocity);
-
-                // The Fireflea overshoots a bound before its way reverses.
-                bool crossedMinimum = place.Position.Y.Whole < bobbing.MinimumY;
-                bool reachedMaximum = place.Position.Y.Whole >= bobbing.MaximumY;
-                if (crossedMinimum || reachedMaximum)
-                    bobbing.Direction = bobbing.Direction.Reversed();
-            },
-            CirclingFirefleaState: circling =>
-            {
-                place.Position = place.Position.WithWhole(circling.Center
-                    + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), place.SpawnSettings<FirefleaSpawnSettings>().Radius));
-                circling.Angle = circling.Angle.TurnedBy(circling.Definition.TurnPerUpdate);
-            }));
+        state.Flight.React(RunFirefleaMainReactions, place);
     }
+
+    /// <summary>What <c>RunFirefleaMain</c> does on each <see cref="FirefleaFlightState"/>, built once (#2553).</summary>
+    private static FirefleaFlightStateReactions<RoomEnemyPlace> RunFirefleaMainReactions { get; } = new(
+        BobbingFirefleaState: static (bobbing, place) =>
+        {
+            place.Position = place.Position.AdvanceY(bobbing.Velocity);
+
+            // The Fireflea overshoots a bound before its way reverses.
+            bool crossedMinimum = place.Position.Y.Whole < bobbing.MinimumY;
+            bool reachedMaximum = place.Position.Y.Whole >= bobbing.MaximumY;
+            if (crossedMinimum || reachedMaximum)
+                bobbing.Direction = bobbing.Direction.Reversed();
+        },
+        CirclingFirefleaState: static (circling, place) =>
+        {
+            place.Position = place.Position.WithWhole(circling.Center
+                + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), place.SpawnSettings<FirefleaSpawnSettings>().Radius));
+            circling.Angle = circling.Angle.TurnedBy(circling.Definition.TurnPerUpdate);
+        });
 
     /// <summary>
     /// Runs the Fireflea's reaction to Samus's touch, including its double death. The

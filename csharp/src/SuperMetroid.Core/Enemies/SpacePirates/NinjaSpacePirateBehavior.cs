@@ -479,38 +479,48 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyPlace place, NinjaSpacePirateCue cue, SamusState samus)
     {
         NinjaSpacePirateEnemyState state = place.RequireSpeciesState<NinjaSpacePirateEnemyState>();
-        return cue.Match(new NinjaSpacePirateCueCases<NinjaSpacePirateSegment?>(
-            PlaySound: playSound =>
-            {
-                Walking.RequestSpacePirateSound(playSound.Sound);
-                return null;
-            },
-            SetShading: setShading =>
-            {
-                place.Shading = setShading.Shading;
-                return null;
-            },
-            ThrowClaw: throwClaw =>
-            {
-                SpawnNinjaPirateClaw(place, throwClaw.Throw, throwClaw.Offset);
-                return null;
-            },
-            Begin: begin =>
-            {
-                // The animation does not jump to the move it begins: main AI runs it from the next update, as the
-                // animation runs on.
-                state.Action = begin.Action;
-                return null;
-            },
-            BeginHeading: begin =>
-            {
-                // As a plain begin, main AI runs the move from the next update, the cue's way (#2165).
-                state.Action = begin.Action;
-                state.Heading = begin.Heading;
-                return null;
-            },
-            Signal: signal => NinjaSignals[signal.Kind](place, state, samus)));
+        return cue.Match(ApplyNinjaSpacePirateCueCases, new ApplyNinjaSpacePirateCueContext(place, state, samus, this));
     }
+
+    /// <summary>What <c>ApplyNinjaSpacePirateCue</c> does on each <see cref="NinjaSpacePirateCue"/>, built once (#2553).</summary>
+    private static NinjaSpacePirateCueCases<ApplyNinjaSpacePirateCueContext, NinjaSpacePirateSegment?> ApplyNinjaSpacePirateCueCases { get; } = new(
+        PlaySound: static (playSound, context) =>
+        {
+            context.Owner.Walking.RequestSpacePirateSound(playSound.Sound);
+            return null;
+        },
+        SetShading: static (setShading, context) =>
+        {
+            context.Place.Shading = setShading.Shading;
+            return null;
+        },
+        ThrowClaw: static (throwClaw, context) =>
+        {
+            context.Owner.SpawnNinjaPirateClaw(context.Place, throwClaw.Throw, throwClaw.Offset);
+            return null;
+        },
+        Begin: static (begin, context) =>
+        {
+            // The animation does not jump to the move it begins: main AI runs it from the next update, as the
+            // animation runs on.
+            context.State.Action = begin.Action;
+            return null;
+        },
+        BeginHeading: static (begin, context) =>
+        {
+            // As a plain begin, main AI runs the move from the next update, the cue's way (#2165).
+            context.State.Action = begin.Action;
+            context.State.Heading = begin.Heading;
+            return null;
+        },
+        Signal: static (signal, context) => context.Owner.NinjaSignals[signal.Kind](context.Place, context.State, context.Samus));
+
+    /// <summary>What <c>ApplyNinjaSpacePirateCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The <c>place</c> <c>ApplyNinjaSpacePirateCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <c>ApplyNinjaSpacePirateCue</c> works with.</param>
+    /// <param name="Samus">The <c>samus</c> <c>ApplyNinjaSpacePirateCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="NinjaSpacePirateBehavior"/> reacting.</param>
+    private readonly record struct ApplyNinjaSpacePirateCueContext(RoomEnemyPlace Place, NinjaSpacePirateEnemyState State, SamusState Samus, NinjaSpacePirateBehavior Owner);
 
     /// <summary>What each of the ninja Space Pirates' signals does, and the animation it continues at, or null to run on.</summary>
     private IdentityTable<NinjaSpacePirateCueKind, Func<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, NinjaSpacePirateSegment?>> NinjaSignals => field ??=

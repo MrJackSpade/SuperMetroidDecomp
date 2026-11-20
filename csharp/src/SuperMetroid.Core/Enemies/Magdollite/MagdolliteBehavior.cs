@@ -503,26 +503,36 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         MagdolliteCue cue,
         Position16<RoomPixels> camera)
     {
-        cue.React(new MagdolliteCueReactions(
-            PlaySoundIfOnScreen: playSound =>
-            {
-                if (EnemyView.Contains(place.Position.Whole, camera))
-                    _audio.QueueEnemySound(playSound.Sound, priority: SoundRequestPriority.Normal);
-            },
-            Move: move => place.Position += move.Offset,
-            MoveWithPillar: moveWithPillar =>
-            {
-                // Only the head's submerge and emerge raise it, moving the head with the body's pillar.
-                (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(place);
-                place.Position += moveWithPillar.Offset;
-                body.Position += moveWithPillar.Offset;
-            },
-            ShiftFromThrowOrigin: shift => place.Position = place.Position.WithWhole(place.RequireSpeciesState<MagdolliteOverlayState>().ThrowOrigin + shift.Offset),
-            Signal: signal =>
-            {
-                ApplyMagdolliteCueForMagdolliteCueKind[signal.Kind](place, state);
-            }));
+        cue.React(ApplyMagdolliteCueReactions, new ApplyMagdolliteCueContext(place, camera, state, this));
     }
+
+    /// <summary>What <c>ApplyMagdolliteCue</c> does on each <see cref="MagdolliteCue"/>, built once (#2553).</summary>
+    private static MagdolliteCueReactions<ApplyMagdolliteCueContext> ApplyMagdolliteCueReactions { get; } = new(
+        PlaySoundIfOnScreen: static (playSound, context) =>
+        {
+            if (EnemyView.Contains(context.Place.Position.Whole, context.Camera))
+                context.Owner._audio.QueueEnemySound(playSound.Sound, priority: SoundRequestPriority.Normal);
+        },
+        Move: static (move, context) => context.Place.Position += move.Offset,
+        MoveWithPillar: static (moveWithPillar, context) =>
+        {
+            // Only the head's submerge and emerge raise it, moving the head with the body's pillar.
+            (_, RoomEnemyPlace body, _) = context.Owner.RequireMagdolliteComposite(context.Place);
+            context.Place.Position += moveWithPillar.Offset;
+            body.Position += moveWithPillar.Offset;
+        },
+        ShiftFromThrowOrigin: static (shift, context) => context.Place.Position = context.Place.Position.WithWhole(context.Place.RequireSpeciesState<MagdolliteOverlayState>().ThrowOrigin + shift.Offset),
+        Signal: static (signal, context) =>
+        {
+            context.Owner.ApplyMagdolliteCueForMagdolliteCueKind[signal.Kind](context.Place, context.State);
+        });
+
+    /// <summary>What <c>ApplyMagdolliteCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The <c>place</c> <c>ApplyMagdolliteCue</c> was handed.</param>
+    /// <param name="Camera">The <c>camera</c> <c>ApplyMagdolliteCue</c> was handed.</param>
+    /// <param name="State">The <c>state</c> <c>ApplyMagdolliteCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="MagdolliteBehavior"/> reacting.</param>
+    private readonly record struct ApplyMagdolliteCueContext(RoomEnemyPlace Place, Position16<RoomPixels> Camera, MagdollitePartState State, MagdolliteBehavior Owner);
 
     /// <summary>
     /// Passes a struck part's fate to the two enemies listed after it, once any hit's ordinary damage is done: a part

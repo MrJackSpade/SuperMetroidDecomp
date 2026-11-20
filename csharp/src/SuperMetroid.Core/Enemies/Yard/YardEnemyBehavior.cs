@@ -61,30 +61,40 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="playing">Where the play stands just past the cue.</param>
     private AnimationContinuation<YardSegment>? ApplyYardCue(
         RoomEnemyPlace place, YardEnemyState state, YardCue cue, AnimationPlayback<YardSegment> playing) =>
-        cue.Match(new YardCueCases<AnimationContinuation<YardSegment>?>(
-            MoveBy: moveBy =>
+        cue.Match(ApplyYardCueCases, new ApplyYardCueContext(place, state, playing, this));
+
+    /// <summary>What <c>ApplyYardCue</c> does on each <see cref="YardCue"/>, built once (#2553).</summary>
+    private static YardCueCases<ApplyYardCueContext, AnimationContinuation<YardSegment>?> ApplyYardCueCases { get; } = new(
+            MoveBy: static (moveBy, context) =>
             {
-                place.Position += moveBy.Offset;
+                context.Place.Position += moveBy.Offset;
                 return (AnimationContinuation<YardSegment>?)null;
             },
-            SetDirection: setDirection =>
+            SetDirection: static (setDirection, context) =>
             {
-                state.Direction = setDirection.Direction;
-                state.AirborneFacingDirection = YardDirections.ForDirection(state.Direction).AirborneFacingDirection;
+                context.State.Direction = setDirection.Direction;
+                context.State.AirborneFacingDirection = YardDirections.ForDirection(context.State.Direction).AirborneFacingDirection;
                 return null;
             },
-            SetHidingAnimation: setHidingAnimation =>
+            SetHidingAnimation: static (setHidingAnimation, context) =>
             {
-                state.HidingAnimation = setHidingAnimation.OptionalTarget;
+                context.State.HidingAnimation = setHidingAnimation.OptionalTarget;
                 return null;
             },
-            BeginCrawling: beginCrawling =>
+            BeginCrawling: static (beginCrawling, context) =>
             {
-                state.Movement = YardMovement.Crawling;
-                state.Crawl = beginCrawling.Crawl;
+                context.State.Movement = YardMovement.Crawling;
+                context.State.Crawl = beginCrawling.Crawl;
                 return null;
             },
-            Signal: signal => YardSignals[signal.Kind](state, playing)));
+            Signal: static (signal, context) => context.Owner.YardSignals[signal.Kind](context.State, context.Playing));
+
+    /// <summary>What <c>ApplyYardCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The Yard.</param>
+    /// <param name="State">The Yard's state.</param>
+    /// <param name="Playing">Where the play stands just past the cue.</param>
+    /// <param name="Owner">The <see cref="YardEnemyBehavior"/> reacting.</param>
+    private readonly record struct ApplyYardCueContext(RoomEnemyPlace Place, YardEnemyState State, AnimationPlayback<YardSegment> Playing, YardEnemyBehavior Owner);
 
     /// <summary>What each of the Yard's signals does, and the animation it continues at, or null to run on.</summary>
     private IdentityTable<YardCueKind, Func<YardEnemyState, AnimationPlayback<YardSegment>, AnimationContinuation<YardSegment>?>> YardSignals => field ??=

@@ -296,18 +296,27 @@ internal sealed class MotherBrainHead
     /// sounds, so its sounds go straight to the enemy audio queue at their limits (#1391).
     /// </remarks>
     private MotherBrainHeadSegment? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState samus, MotherBrainHeadCue cue) =>
-        cue.Match(new MotherBrainHeadCueCases<MotherBrainHeadSegment?>(
-            PlaySound: playSound =>
+        cue.Match(ApplyMotherBrainHeadCueCases, new ApplyMotherBrainHeadCueContext(state, samus, this));
+
+    /// <summary>What <c>ApplyMotherBrainHeadCue</c> does on each <see cref="MotherBrainHeadCue"/>, built once (#2553).</summary>
+    private static MotherBrainHeadCueCases<ApplyMotherBrainHeadCueContext, MotherBrainHeadSegment?> ApplyMotherBrainHeadCueCases { get; } = new(
+            PlaySound: static (playSound, context) =>
             {
-                _audio.QueueEnemySound(playSound.Effect, priority: SoundRequestPriority.Normal);
+                context.Owner._audio.QueueEnemySound(playSound.Effect, priority: SoundRequestPriority.Normal);
                 return (MotherBrainHeadSegment?)null;
             },
-            SpawnBomb: bomb =>
+            SpawnBomb: static (bomb, context) =>
             {
-                SpawnMotherBrainBomb(state, bomb.Afterburns);
+                context.Owner.SpawnMotherBrainBomb(context.State, bomb.Afterburns);
                 return null;
             },
-            Signal: signal => HeadSignals[signal.Kind](state, samus)));
+            Signal: static (signal, context) => context.Owner.HeadSignals[signal.Kind](context.State, context.Samus));
+
+    /// <summary>What <c>ApplyMotherBrainHeadCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="State">The <c>state</c> <c>ApplyMotherBrainHeadCue</c> was handed.</param>
+    /// <param name="Samus">The <c>samus</c> <c>ApplyMotherBrainHeadCue</c> was handed.</param>
+    /// <param name="Owner">The <see cref="MotherBrainHead"/> reacting.</param>
+    private readonly record struct ApplyMotherBrainHeadCueContext(MotherBrainEnemyState State, SamusState Samus, MotherBrainHead Owner);
 
     /// <summary>
     /// What each of her brain's signals does before her late fight, and the segment it continues at, or null to run on.

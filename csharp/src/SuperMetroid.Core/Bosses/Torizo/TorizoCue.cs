@@ -11,7 +11,9 @@ internal abstract record TorizoCue
     /// <summary>What <paramref name="cases"/> makes of this torizo cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the torizo cue is made into.</typeparam>
     /// <param name="cases">What each case is made into.</param>
-    internal abstract TResult Match<TResult>(TorizoCueCases<TResult> cases);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context);
 
 
     /// <summary>
@@ -23,7 +25,7 @@ internal abstract record TorizoCue
     internal sealed record Branch(TorizoBranchKind Kind) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).Branch(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Branch(this, context);
     }
 
     /// <summary>
@@ -35,7 +37,7 @@ internal abstract record TorizoCue
     internal sealed record Interrupt(TorizoInterruptKind Kind, TorizoAnimation Animation) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).Interrupt(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Interrupt(this, context);
     }
 
     /// <summary>A decision between two body animations (#2028).</summary>
@@ -45,7 +47,7 @@ internal abstract record TorizoCue
     internal sealed record Choice(TorizoChoiceKind Kind, TorizoAnimation Target, TorizoAnimation Alternate) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).Choice(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Choice(this, context);
     }
 
     /// <summary>
@@ -57,7 +59,7 @@ internal abstract record TorizoCue
     internal sealed record LandIn(TorizoAnimation Landing) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).LandIn(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).LandIn(this, context);
     }
 
     /// <summary>Ends an attack chosen on landing: the Torizo walks on in <paramref name="Walking"/>, from its start (#2028).</summary>
@@ -65,7 +67,7 @@ internal abstract record TorizoCue
     internal sealed record WalkOn(TorizoAnimation Walking) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).WalkOn(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).WalkOn(this, context);
     }
 
     /// <summary>Ends the animation in the turn away from the way the Torizo faces (#2028).</summary>
@@ -74,7 +76,7 @@ internal abstract record TorizoCue
     internal sealed record Turn(TorizoAnimation WhenFacingRight, TorizoAnimation WhenFacingLeft) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).Turn(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Turn(this, context);
     }
 
     /// <summary>Stands a Torizo up or sits it down, moving it as its body rises or settles (#1891).</summary>
@@ -86,7 +88,7 @@ internal abstract record TorizoCue
     internal sealed record Posture(TorizoPostureKind Kind, Offset16<RoomPixels> Displacement) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).Posture(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Posture(this, context);
     }
 
     /// <summary>One walking step of a Torizo (#1891).</summary>
@@ -98,7 +100,7 @@ internal abstract record TorizoCue
     internal sealed record Walk(TorizoWalker Walker, int Velocity) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).Walk(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Walk(this, context);
     }
 
     /// <summary>Spawns an explosive swipe at Bomb Torizo's hand.</summary>
@@ -106,7 +108,7 @@ internal abstract record TorizoCue
     internal sealed record Swipe(Offset16<RoomPixels> Hand) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).Swipe(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Swipe(this, context);
     }
 
     /// <summary>
@@ -116,7 +118,7 @@ internal abstract record TorizoCue
     internal sealed record LowHealthExplosions(BombTorizoExplosionSite Site) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).LowHealthExplosions(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).LowHealthExplosions(this, context);
     }
 
     /// <summary>Selects the main-AI phase.</summary>
@@ -124,7 +126,7 @@ internal abstract record TorizoCue
     internal sealed record SetPhase(TorizoPhase Phase) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).SetPhase(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).SetPhase(this, context);
     }
 
     /// <summary>Shows a look of the body's artwork under its poses.</summary>
@@ -132,7 +134,7 @@ internal abstract record TorizoCue
     internal sealed record ShowArtwork(TorizoArtworkLook Look) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).ShowArtwork(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).ShowArtwork(this, context);
     }
 
     /// <summary>
@@ -144,7 +146,7 @@ internal abstract record TorizoCue
     internal sealed record Stepped(HorizontalDirection Direction, HorizontalDirection Foot) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).Stepped(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Stepped(this, context);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -152,7 +154,7 @@ internal abstract record TorizoCue
     internal sealed record Signal(TorizoCueKind Kind) : TorizoCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(TorizoCueCases<TResult> cases) => Ensure.NotNull(cases).Signal(this);
+        internal override TResult Match<TContext, TResult>(TorizoCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Signal(this, context);
     }
 }
 
@@ -172,4 +174,5 @@ internal abstract record TorizoCue
 /// <param name="ShowArtwork">Makes a <see cref="TorizoCue.ShowArtwork"/> into the result.</param>
 /// <param name="Stepped">Makes a <see cref="TorizoCue.Stepped"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="TorizoCue.Signal"/> into the result.</param>
-internal sealed record TorizoCueCases<TResult>(Func<TorizoCue.Branch, TResult> Branch, Func<TorizoCue.Interrupt, TResult> Interrupt, Func<TorizoCue.Choice, TResult> Choice, Func<TorizoCue.LandIn, TResult> LandIn, Func<TorizoCue.WalkOn, TResult> WalkOn, Func<TorizoCue.Turn, TResult> Turn, Func<TorizoCue.Posture, TResult> Posture, Func<TorizoCue.Walk, TResult> Walk, Func<TorizoCue.Swipe, TResult> Swipe, Func<TorizoCue.LowHealthExplosions, TResult> LowHealthExplosions, Func<TorizoCue.SetPhase, TResult> SetPhase, Func<TorizoCue.ShowArtwork, TResult> ShowArtwork, Func<TorizoCue.Stepped, TResult> Stepped, Func<TorizoCue.Signal, TResult> Signal);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record TorizoCueCases<TContext, TResult>(Func<TorizoCue.Branch, TContext, TResult> Branch, Func<TorizoCue.Interrupt, TContext, TResult> Interrupt, Func<TorizoCue.Choice, TContext, TResult> Choice, Func<TorizoCue.LandIn, TContext, TResult> LandIn, Func<TorizoCue.WalkOn, TContext, TResult> WalkOn, Func<TorizoCue.Turn, TContext, TResult> Turn, Func<TorizoCue.Posture, TContext, TResult> Posture, Func<TorizoCue.Walk, TContext, TResult> Walk, Func<TorizoCue.Swipe, TContext, TResult> Swipe, Func<TorizoCue.LowHealthExplosions, TContext, TResult> LowHealthExplosions, Func<TorizoCue.SetPhase, TContext, TResult> SetPhase, Func<TorizoCue.ShowArtwork, TContext, TResult> ShowArtwork, Func<TorizoCue.Stepped, TContext, TResult> Stepped, Func<TorizoCue.Signal, TContext, TResult> Signal);

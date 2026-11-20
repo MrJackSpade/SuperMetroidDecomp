@@ -14,7 +14,9 @@ public abstract record ColourEffectCondition
 
     /// <summary>Carries out the reaction <paramref name="reactions"/> has to this colour effect condition, through the case it is.</summary>
     /// <param name="reactions">What its owner does on each case.</param>
-    internal abstract void React(ColourEffectConditionReactions reactions);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context);
 
 
     /// <summary>
@@ -24,7 +26,7 @@ public abstract record ColourEffectCondition
     public sealed record WatchesNothing : ColourEffectCondition
     {
         /// <inheritdoc/>
-        internal override void React(ColourEffectConditionReactions reactions) => Ensure.NotNull(reactions).WatchesNothing(this);
+        internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).WatchesNothing(this, context);
 
         /// <summary>The one condition.</summary>
         public static WatchesNothing Instance { get; } = new();
@@ -39,7 +41,7 @@ public abstract record ColourEffectCondition
     public sealed record RestartsWhileSamusIsHigh(int Height) : ColourEffectCondition
     {
         /// <inheritdoc/>
-        internal override void React(ColourEffectConditionReactions reactions) => Ensure.NotNull(reactions).RestartsWhileSamusIsHigh(this);
+        internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).RestartsWhileSamusIsHigh(this, context);
     }
 
     /// <summary>
@@ -49,7 +51,7 @@ public abstract record ColourEffectCondition
     public sealed record EndsWhenTorizoDies : ColourEffectCondition
     {
         /// <inheritdoc/>
-        internal override void React(ColourEffectConditionReactions reactions) => Ensure.NotNull(reactions).EndsWhenTorizoDies(this);
+        internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).EndsWhenTorizoDies(this, context);
 
         /// <summary>The one condition.</summary>
         public static EndsWhenTorizoDies Instance { get; } = new();
@@ -59,7 +61,7 @@ public abstract record ColourEffectCondition
     public sealed record EndsWhenAreaMiniBossDies : ColourEffectCondition
     {
         /// <inheritdoc/>
-        internal override void React(ColourEffectConditionReactions reactions) => Ensure.NotNull(reactions).EndsWhenAreaMiniBossDies(this);
+        internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).EndsWhenAreaMiniBossDies(this, context);
 
         /// <summary>The one condition.</summary>
         public static EndsWhenAreaMiniBossDies Instance { get; } = new();
@@ -72,7 +74,7 @@ public abstract record ColourEffectCondition
     public sealed record BurnsSamusInHeat : ColourEffectCondition
     {
         /// <inheritdoc/>
-        internal override void React(ColourEffectConditionReactions reactions) => Ensure.NotNull(reactions).BurnsSamusInHeat(this);
+        internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).BurnsSamusInHeat(this, context);
 
         /// <summary>The one condition.</summary>
         public static BurnsSamusInHeat Instance { get; } = new();
@@ -85,4 +87,5 @@ public abstract record ColourEffectCondition
 /// <param name="EndsWhenTorizoDies">Reacts to a <see cref="ColourEffectCondition.EndsWhenTorizoDies"/>.</param>
 /// <param name="EndsWhenAreaMiniBossDies">Reacts to a <see cref="ColourEffectCondition.EndsWhenAreaMiniBossDies"/>.</param>
 /// <param name="BurnsSamusInHeat">Reacts to a <see cref="ColourEffectCondition.BurnsSamusInHeat"/>.</param>
-public sealed record ColourEffectConditionReactions(Action<ColourEffectCondition.WatchesNothing> WatchesNothing, Action<ColourEffectCondition.RestartsWhileSamusIsHigh> RestartsWhileSamusIsHigh, Action<ColourEffectCondition.EndsWhenTorizoDies> EndsWhenTorizoDies, Action<ColourEffectCondition.EndsWhenAreaMiniBossDies> EndsWhenAreaMiniBossDies, Action<ColourEffectCondition.BurnsSamusInHeat> BurnsSamusInHeat);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+public sealed record ColourEffectConditionReactions<TContext>(Action<ColourEffectCondition.WatchesNothing, TContext> WatchesNothing, Action<ColourEffectCondition.RestartsWhileSamusIsHigh, TContext> RestartsWhileSamusIsHigh, Action<ColourEffectCondition.EndsWhenTorizoDies, TContext> EndsWhenTorizoDies, Action<ColourEffectCondition.EndsWhenAreaMiniBossDies, TContext> EndsWhenAreaMiniBossDies, Action<ColourEffectCondition.BurnsSamusInHeat, TContext> BurnsSamusInHeat);

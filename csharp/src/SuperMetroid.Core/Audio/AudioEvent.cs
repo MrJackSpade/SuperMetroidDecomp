@@ -18,7 +18,9 @@ public abstract record AudioEvent
 
     /// <summary>Carries out the reaction <paramref name="reactions"/> has to this audio event, through the case it is.</summary>
     /// <param name="reactions">What its owner does on each case.</param>
-    internal abstract void React(AudioEventReactions reactions);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract void React<TContext>(AudioEventReactions<TContext> reactions, TContext context);
 
 
     /// <summary>Switches to <see cref="DataSet"/>'s clip set before the update's clock steps run; the song stops.</summary>
@@ -26,7 +28,7 @@ public abstract record AudioEvent
     public sealed record ChangeMusicDataSet(MusicDataSet? DataSet) : AudioEvent
     {
         /// <inheritdoc/>
-        internal override void React(AudioEventReactions reactions) => Ensure.NotNull(reactions).ChangeMusicDataSet(this);
+        internal override void React<TContext>(AudioEventReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).ChangeMusicDataSet(this, context);
 
         /// <inheritdoc />
         public override string ToString() => $"data set:{DataSet?.ToString() ?? "shared"}";
@@ -40,7 +42,7 @@ public abstract record AudioEvent
     public sealed record SelectMusicTrack(MusicTrack? Track) : AudioEvent
     {
         /// <inheritdoc/>
-        internal override void React(AudioEventReactions reactions) => Ensure.NotNull(reactions).SelectMusicTrack(this);
+        internal override void React<TContext>(AudioEventReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).SelectMusicTrack(this, context);
 
         /// <inheritdoc />
         public override string ToString() => Track is MusicTrack track ? $"music:{track}" : "music:stop";
@@ -53,7 +55,7 @@ public abstract record AudioEvent
     public sealed record ClockStep(int SampleOffset, int Steps, bool ChecksRequests) : AudioEvent
     {
         /// <inheritdoc/>
-        internal override void React(AudioEventReactions reactions) => Ensure.NotNull(reactions).ClockStep(this);
+        internal override void React<TContext>(AudioEventReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).ClockStep(this, context);
 
         /// <inheritdoc />
         public override string ToString() => $"step@{SampleOffset}x{Steps}{(ChecksRequests ? "+check" : "")}";
@@ -65,7 +67,7 @@ public abstract record AudioEvent
     public sealed record StartSoundEffect(SoundEffectId SoundEffect, int SampleOffset) : AudioEvent
     {
         /// <inheritdoc/>
-        internal override void React(AudioEventReactions reactions) => Ensure.NotNull(reactions).StartSoundEffect(this);
+        internal override void React<TContext>(AudioEventReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).StartSoundEffect(this, context);
 
         /// <inheritdoc />
         public override string ToString() => $"start@{SampleOffset}:{SoundEffect}";
@@ -77,4 +79,5 @@ public abstract record AudioEvent
 /// <param name="SelectMusicTrack">Reacts to a <see cref="AudioEvent.SelectMusicTrack"/>.</param>
 /// <param name="ClockStep">Reacts to a <see cref="AudioEvent.ClockStep"/>.</param>
 /// <param name="StartSoundEffect">Reacts to a <see cref="AudioEvent.StartSoundEffect"/>.</param>
-public sealed record AudioEventReactions(Action<AudioEvent.ChangeMusicDataSet> ChangeMusicDataSet, Action<AudioEvent.SelectMusicTrack> SelectMusicTrack, Action<AudioEvent.ClockStep> ClockStep, Action<AudioEvent.StartSoundEffect> StartSoundEffect);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+public sealed record AudioEventReactions<TContext>(Action<AudioEvent.ChangeMusicDataSet, TContext> ChangeMusicDataSet, Action<AudioEvent.SelectMusicTrack, TContext> SelectMusicTrack, Action<AudioEvent.ClockStep, TContext> ClockStep, Action<AudioEvent.StartSoundEffect, TContext> StartSoundEffect);

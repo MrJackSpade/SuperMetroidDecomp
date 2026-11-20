@@ -51,13 +51,16 @@ internal static class SamusGlowPlay
     {
         Ensure.NotNull(colours);
         SamusGlowAnimationDefinitions.Segments.PlayToNextFrame(SamusGlowAnimationDefinitions.Animations[sequence], ref place, static _ => { })
-            .React(new AnimationShownReactions<G, PictureShade>(
-                Frame: shade => colours.ShowSuit(shade.Shown),
-                HeldFrame: shade => colours.ShowSuit(shade.Shown),
-                Paused: static _ => { },
-                Held: static _ => { },
-                Ended: static _ => { }));
+            .React(ShowNextShadeReactions, colours);
     }
+
+    /// <summary>What <c>ShowNextShade</c> does on each <see cref="AnimationShown{G, PictureShade}"/>, built once (#2553).</summary>
+    private static AnimationShownReactions<G, PictureShade, SamusColours> ShowNextShadeReactions { get; } = new(
+            Frame: static (shade, colours) => colours.ShowSuit(shade.Shown),
+            HeldFrame: static (shade, colours) => colours.ShowSuit(shade.Shown),
+            Paused: static (_, _) => { },
+            Held: static (_, _) => { },
+            Ended: static (_, _) => { });
 
     /// <summary>
     /// Plays <paramref name="sequence"/> to its next shade going on from <paramref name="playback"/>, and keeps where it stands

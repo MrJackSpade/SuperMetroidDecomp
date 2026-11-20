@@ -11,14 +11,16 @@ internal abstract record MotherBrainHeadCue
     /// <summary>What <paramref name="cases"/> makes of the cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the cue is made into.</typeparam>
     /// <param name="cases">What each case of the cue is made into.</param>
-    internal abstract TResult Match<TResult>(MotherBrainHeadCueCases<TResult> cases);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract TResult Match<TContext, TResult>(MotherBrainHeadCueCases<TContext, TResult> cases, TContext context);
 
     /// <summary>Requests a sound: a roar, an attack cry or the onion rings.</summary>
     /// <param name="Effect">The sound requested.</param>
     internal sealed record PlaySound(SoundEffectId Effect) : MotherBrainHeadCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(MotherBrainHeadCueCases<TResult> cases) => Ensure.NotNull(cases).PlaySound(this);
+        internal override TResult Match<TContext, TResult>(MotherBrainHeadCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).PlaySound(this, context);
     }
 
     /// <summary>Lobs a bomb with its afterburn count.</summary>
@@ -26,7 +28,7 @@ internal abstract record MotherBrainHeadCue
     internal sealed record SpawnBomb(int Afterburns) : MotherBrainHeadCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(MotherBrainHeadCueCases<TResult> cases) => Ensure.NotNull(cases).SpawnBomb(this);
+        internal override TResult Match<TContext, TResult>(MotherBrainHeadCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).SpawnBomb(this, context);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -34,7 +36,7 @@ internal abstract record MotherBrainHeadCue
     internal sealed record Signal(MotherBrainHeadCueKind Kind) : MotherBrainHeadCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(MotherBrainHeadCueCases<TResult> cases) => Ensure.NotNull(cases).Signal(this);
+        internal override TResult Match<TContext, TResult>(MotherBrainHeadCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Signal(this, context);
     }
 
     /// <summary>A cue that carries no values.</summary>
@@ -52,4 +54,5 @@ internal abstract record MotherBrainHeadCue
 /// <param name="PlaySound">Makes a <see cref="MotherBrainHeadCue.PlaySound"/> into the result.</param>
 /// <param name="SpawnBomb">Makes a <see cref="MotherBrainHeadCue.SpawnBomb"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="MotherBrainHeadCue.Signal"/> into the result.</param>
-internal sealed record MotherBrainHeadCueCases<TResult>(Func<MotherBrainHeadCue.PlaySound, TResult> PlaySound, Func<MotherBrainHeadCue.SpawnBomb, TResult> SpawnBomb, Func<MotherBrainHeadCue.Signal, TResult> Signal);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record MotherBrainHeadCueCases<TContext, TResult>(Func<MotherBrainHeadCue.PlaySound, TContext, TResult> PlaySound, Func<MotherBrainHeadCue.SpawnBomb, TContext, TResult> SpawnBomb, Func<MotherBrainHeadCue.Signal, TContext, TResult> Signal);

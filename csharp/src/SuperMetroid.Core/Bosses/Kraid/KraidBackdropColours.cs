@@ -73,20 +73,15 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {
         Ensure.NotNull(frame);
-        switch (Shows)
-        {
-            case KraidBackdropShown.Settled { Colours: KraidBackdropSettledColours.RoomColours }:
-                return;
-            case KraidBackdropShown.Settled settled:
-                frame.Shade(GameplayPictures.Room, ShadeOf(settled.Colours)
-                    ?? throw new InvalidOperationException($"Kraid's backdrop colours {settled.Colours} have no shade."));
-                return;
-            case KraidBackdropShown.Fading fading:
-                frame.Shade(GameplayPictures.Room, FadeOf(fading));
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined Kraid backdrop colours {Shows}.");
-        }
+        // The room's own colours are its pictures' standard colours, which no shade changes.
+        Shows.React(
+            static (settled, shaded) =>
+            {
+                if (ShadeOf(settled.Colours) is { } shade)
+                    shaded.Shade(GameplayPictures.Room, shade);
+            },
+            static (fading, shaded) => shaded.Shade(GameplayPictures.Room, FadeOf(fading)),
+            frame);
     }
 
     /// <summary>The fade between the backdrop's shadings that <paramref name="fading"/> shows.</summary>

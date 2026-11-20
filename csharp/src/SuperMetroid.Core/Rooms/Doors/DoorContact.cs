@@ -16,7 +16,9 @@ internal abstract record DoorContact
 
     /// <summary>Carries out the reaction <paramref name="reactions"/> has to this door contact, through the case it is.</summary>
     /// <param name="reactions">What its owner does on each case.</param>
-    internal abstract void React(DoorContactReactions reactions);
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract void React<TContext>(DoorContactReactions<TContext> reactions, TContext context);
 
 
     /// <summary>Whether the block stops Samus as a solid block does: the elevator's door, which leads to no room.</summary>
@@ -43,7 +45,7 @@ internal abstract record DoorContact
     internal sealed record EntersDoor(DoorDefinition Door) : DoorContact
     {
         /// <inheritdoc/>
-        internal override void React(DoorContactReactions reactions) => Ensure.NotNull(reactions).EntersDoor(this);
+        internal override void React<TContext>(DoorContactReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).EntersDoor(this, context);
 
         /// <inheritdoc/>
         public override bool Blocks => false;
@@ -53,7 +55,7 @@ internal abstract record DoorContact
     internal sealed record StandsAtElevator : DoorContact
     {
         /// <inheritdoc/>
-        internal override void React(DoorContactReactions reactions) => Ensure.NotNull(reactions).StandsAtElevator(this);
+        internal override void React<TContext>(DoorContactReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).StandsAtElevator(this, context);
 
         /// <summary>The one stand at the elevator's door.</summary>
         internal static StandsAtElevator Instance { get; } = new();
@@ -66,7 +68,7 @@ internal abstract record DoorContact
     internal sealed record BrushesElevator : DoorContact
     {
         /// <inheritdoc/>
-        internal override void React(DoorContactReactions reactions) => Ensure.NotNull(reactions).BrushesElevator(this);
+        internal override void React<TContext>(DoorContactReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).BrushesElevator(this, context);
 
         /// <summary>The one brush of the elevator's door.</summary>
         internal static BrushesElevator Instance { get; } = new();
@@ -80,4 +82,5 @@ internal abstract record DoorContact
 /// <param name="EntersDoor">Reacts to a <see cref="DoorContact.EntersDoor"/>.</param>
 /// <param name="StandsAtElevator">Reacts to a <see cref="DoorContact.StandsAtElevator"/>.</param>
 /// <param name="BrushesElevator">Reacts to a <see cref="DoorContact.BrushesElevator"/>.</param>
-internal sealed record DoorContactReactions(Action<DoorContact.EntersDoor> EntersDoor, Action<DoorContact.StandsAtElevator> StandsAtElevator, Action<DoorContact.BrushesElevator> BrushesElevator);
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record DoorContactReactions<TContext>(Action<DoorContact.EntersDoor, TContext> EntersDoor, Action<DoorContact.StandsAtElevator, TContext> StandsAtElevator, Action<DoorContact.BrushesElevator, TContext> BrushesElevator);

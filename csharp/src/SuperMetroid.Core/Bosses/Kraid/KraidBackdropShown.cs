@@ -19,6 +19,13 @@ internal abstract record KraidBackdropShown
     /// <param name="fading">Makes a fade into the result.</param>
     internal abstract TResult Match<TResult>(Func<Settled, TResult> settled, Func<Fading, TResult> fading);
 
+    /// <summary>Carries out <paramref name="settled"/> or <paramref name="fading"/> on the shown colours, whichever they are (#2553).</summary>
+    /// <typeparam name="TContext">What either reaction reads besides the colours.</typeparam>
+    /// <param name="settled">Reacts to settled colours.</param>
+    /// <param name="fading">Reacts to a fade.</param>
+    /// <param name="context">What either reaction reads besides the colours, handed to it so neither is built per call.</param>
+    internal abstract void React<TContext>(Action<Settled, TContext> settled, Action<Fading, TContext> fading, TContext context);
+
     /// <summary>
     /// What a fade toward <paramref name="goal"/> shows, started from <paramref name="from"/>, <paramref name="progress"/>
     /// of the way: what it started from before it has moved, its goal once it has come the whole way or when it fades
@@ -43,6 +50,10 @@ internal abstract record KraidBackdropShown
     {
         /// <inheritdoc/>
         internal override TResult Match<TResult>(Func<Settled, TResult> settled, Func<Fading, TResult> fading) => Ensure.NotNull(settled)(this);
+
+        /// <inheritdoc/>
+        internal override void React<TContext>(Action<Settled, TContext> settled, Action<Fading, TContext> fading, TContext context) =>
+            Ensure.NotNull(settled)(this, context);
     }
 
     /// <summary>
@@ -56,5 +67,9 @@ internal abstract record KraidBackdropShown
     {
         /// <inheritdoc/>
         internal override TResult Match<TResult>(Func<Settled, TResult> settled, Func<Fading, TResult> fading) => Ensure.NotNull(fading)(this);
+
+        /// <inheritdoc/>
+        internal override void React<TContext>(Action<Settled, TContext> settled, Action<Fading, TContext> fading, TContext context) =>
+            Ensure.NotNull(fading)(this, context);
     }
 }

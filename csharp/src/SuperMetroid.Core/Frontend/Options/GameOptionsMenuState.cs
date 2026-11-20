@@ -335,18 +335,21 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
         if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
             return;
-        controllerRow.React(new GameOptionsControllerRowReactions(
-            AssignsAction: _ =>
-            {
-                throw new InvalidOperationException("Controller action rows are handled before navigation rows.");
-            },
-            Exit: _ => BeginDissolveTo(GameOptionsPage.Primary),
-            Reset: _ =>
-            {
-                ControllerBindings = Input.ControllerBindings.Default;
-                LoadVisiblePage();
-            }));
+        controllerRow.React(StepControllerReactions, this);
     }
+
+    /// <summary>What <c>StepController</c> does on each <see cref="GameOptionsControllerRow"/>, built once (#2553).</summary>
+    private static GameOptionsControllerRowReactions<GameOptionsMenuState> StepControllerReactions { get; } = new(
+        AssignsAction: static (_, _) =>
+        {
+            throw new InvalidOperationException("Controller action rows are handled before navigation rows.");
+        },
+        Exit: static (_, owner) => owner.BeginDissolveTo(GameOptionsPage.Primary),
+        Reset: static (_, owner) =>
+        {
+            owner.ControllerBindings = Input.ControllerBindings.Default;
+            owner.LoadVisiblePage();
+        });
 
     /// <summary>Handles icon-cancel and moonwalk toggles or returns to the primary page.</summary>
     private void StepSpecial(ControllerButton pressed)

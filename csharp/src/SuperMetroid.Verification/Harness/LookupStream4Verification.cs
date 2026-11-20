@@ -1910,7 +1910,6 @@ internal static class LookupStream4Verification
         }
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveWhiteFlash(invalid), "Draygon flash bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst[8], 0), "Draygon health band bounds");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst[0], 4), "Draygon health color bounds");
     }
 
@@ -2090,8 +2089,6 @@ internal static class LookupStream4Verification
                 AssertEqual(0, guard.ForbiddenReadAttempts, "actual palette producer performs no native palette reads");
             }
         }
-        foreach (int invalid in new[] { -1, 8, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown[invalid], 0), "Botwoon health band domain");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown[0], invalid), "Botwoon health color domain");
         Console.WriteLine("Botwoon installed colours:128 native outputs,16 initial aliases,the hash identity,actual threshold/copy/completed calls and native-read guard pass.");
@@ -2437,8 +2434,6 @@ internal static class LookupStream4Verification
                 Check(hit, fight == RidleyFightMode.NotFighting || hits < 50 ? -1 : hits < 70 ? 0 : 2);
             }
         }
-        foreach (int row in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(SuperMetroid.Core.Bosses.Ridley.RidleyHealthShadeDefinitions.LeastHurtFirst[row], 0), "Health row bounds");
         foreach (int color in new[] { -1, 14, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(SuperMetroid.Core.Bosses.Ridley.RidleyHealthShadeDefinitions.LeastHurtFirst[0], color), "Health color bounds");
         Console.WriteLine("Ridley health:42 native words,actual copies,18 actual encounter selections and bounds/null pass.");

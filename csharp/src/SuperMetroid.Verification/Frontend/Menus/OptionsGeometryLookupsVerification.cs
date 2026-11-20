@@ -38,8 +38,12 @@ internal static class OptionsGeometryLookupsVerification
     /// <summary>Checks the seven controller-label boxes against the native byte offsets their labels are drawn at.</summary>
     internal static void VerifyOptionsLabelDestinations(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f639, 2, 7,
-            action => checked((ushort)((GameOptionsPageCells.ControllerLabelAnchor(GameOptionsPageRows.ControllerActions[action]).Y * GameOptionsPageDefinitions.MenuTilemapWidth
-                + GameOptionsPageCells.ControllerLabelAnchor(GameOptionsPageRows.ControllerActions[action]).X) * sizeof(ushort))), "controller label box"));
+            action => checked((ushort)((GameOptionsPageCells.ControllerLabelAnchor(ActionAt(action)).Y * GameOptionsPageDefinitions.MenuTilemapWidth
+                + GameOptionsPageCells.ControllerLabelAnchor(ActionAt(action)).X) * sizeof(ushort))), "controller label box"));
+
+    /// <summary>The controller action listed <paramref name="row"/> rows from the top, or an undefined one past the rows.</summary>
+    private static SuperMetroid.Core.Input.ControllerAction ActionAt(int row) =>
+        row >= 0 && row < GameOptionsPageRows.ControllerActions.Count ? GameOptionsPageRows.ControllerActions[row] : (SuperMetroid.Core.Input.ControllerAction)99;
 
     /// <summary>Checks seven source words used by controller-label transfers.</summary>
     internal static void VerifyOptionsLabelSources(ISnesAddressSpace rom) =>

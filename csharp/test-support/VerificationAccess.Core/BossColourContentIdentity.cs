@@ -113,7 +113,7 @@ internal static class BossColourContentIdentity
                 Span<RgbColor> frameColors = stackalloc RgbColor[BabyMetroidCutsceneColorFormat.FadeColorCount];
                 for (int frame = 0; frame < BabyMetroidCutsceneColorDefinitions.FadeFrameCount; frame++)
                 {
-                    for (int color = 0; color < frameColors.Length; color++) frameColors[color] = colors.FadeColor(frame + 1, color);
+                    for (int color = 0; color < frameColors.Length; color++) frameColors[color] = colors.FadeColor(frame, color);
                     content.AppendColors("row", frameColors);
                 }
             });

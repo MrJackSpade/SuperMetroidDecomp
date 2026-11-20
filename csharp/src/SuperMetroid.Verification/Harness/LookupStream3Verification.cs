@@ -559,7 +559,7 @@ internal static class LookupStream3Verification
         {
             ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f639 + action * 2));
             AssertEqual(new Position16<CharacterCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
-                loaded.controllerLabelAnchors[action], "native options label anchor");
+                loaded.controllerLabelAnchors[global::SuperMetroid.Core.Frontend.Options.GameOptionsPageRows.ControllerActions[action]], "native options label anchor");
         }
         foreach ((GameOptionsPage page, int address, int count) in new[]
         {

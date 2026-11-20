@@ -18,7 +18,7 @@ internal static class EnemyEffectResourcesVerification
         // Mother Brain's corpse art is staged and rotted by the extraction (#1392), which fails on missing art; the
         // runtime reads none. Crocomire's melt images are composed into his body sheet at installation (#1466), which
         // fails on missing melt art; gameplay reads only his installed body sheet.
-        AssertThrows<InvalidDataException>(() => BossBodySheetComposer.Frames(new BossSourceArtwork(), BossBodyOwner.Crocomire),
+        AssertThrows<InvalidDataException>(() => BossBodySheetComposer.Frames(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork, BossBodyOwner.Crocomire),
             "missing melt art fails the installation");
         CrocomireMeltingArtwork art = MeltEffectArtwork();
         CheckCrocomireResourceFailure(art, fixture => fixture.InitializeMap((CrocomireMeltingIllustration)(-1)), "unknown melt image");

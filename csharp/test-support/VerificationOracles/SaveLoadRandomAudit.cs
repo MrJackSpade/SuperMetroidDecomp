@@ -28,7 +28,7 @@ internal static class SaveLoadRandomAudit
             };
             var saves = new SaveSlotStore(SaveMapPresentationFixture.Create());
             saves.SaveSlot(SaveSlot.A, save);
-            var game = new SuperMetroidGame(saves);
+            var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves);
             bindPresentation(game);
             bool insertedWait = false;
             long sequence = 0;

@@ -48,7 +48,7 @@ internal static class CeresSaveStartupVerification
         };
         var saves = new SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(SaveSlot.A, departure);
-        var game = new SuperMetroidGame(saves);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves);
         Action<SuperMetroidGame, bool> bind = BindInstalledArtwork(InstalledFixtures.GameArtwork, enemyArtwork: null);
         bind(game, true);
         game.BindArtwork(game.Artwork with
@@ -93,7 +93,7 @@ internal static class CeresSaveStartupVerification
 
         // A new game must write $1F before capturing the initial checkpoint. Reuse
         // immutable installed catalogs, but enter only the one reported room.
-        var fresh = new SuperMetroidGame(new SaveSlotStore(RetailPresentationFixture()));
+        var fresh = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SaveSlotStore(RetailPresentationFixture()));
         bind(fresh, true);
         fresh.BindArtwork(fresh.Artwork with
         {
@@ -110,7 +110,7 @@ internal static class CeresSaveStartupVerification
 
         // Reload the captured initial checkpoint through options, not Load State.
         var reloadSaves = SaveRamCodec.Decode(SaveRamCodec.Encode(fresh.Saves, RetailPresentationFixture()), RetailPresentationFixture());
-        var reload = new SuperMetroidGame(reloadSaves);
+        var reload = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(reloadSaves);
         bind(reload, true);
         reload.BindArtwork(reload.Artwork with
         {
@@ -139,7 +139,7 @@ internal static class CeresSaveStartupVerification
         // #1275: the game-over menu runs no gameplay owner, so its updates keep counting
         // accepted NMIs in the frontend, and Yes on a $1F save reloads Ceres directly
         // ($81:9171) instead of fading into the area map.
-        var gameOverProbe = new SuperMetroidGame(reloadSaves);
+        var gameOverProbe = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(reloadSaves);
         bind(gameOverProbe, true);
         gameOverProbe.BindArtwork(gameOverProbe.Artwork with
         {
@@ -207,7 +207,7 @@ internal static class CeresSaveStartupVerification
         {
             StartupRoute = SaveStartupRoute.MainGame,
         });
-        var unmodified = new SuperMetroidGame(saves);
+        var unmodified = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves);
         unmodified.BindArtwork(InstalledFixtures.GameArtwork with
         {
             ScreenContent = maps,

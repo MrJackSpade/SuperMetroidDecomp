@@ -110,10 +110,10 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     internal bool HoldsSpeedBoosterBlocks => Terrain.Any(block =>
         (block.Collision == RoomCollisionType.SpecialBlock &&
             (SpeedBoosterBlocks.TryResolve(block.Behavior, out _) ||
-                (block.Behavior.Special is not null &&
-                    BombSpecialBlockReactions.ChangeFor(block.Behavior.Special) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
-        (IsReactingSpecialAir(block) &&
-            SpecialAirReactions.CollisionOf(block.Behavior.SpecialAir) is SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock
+                (block.Behavior.Special is { } special &&
+                    BombSpecialBlockReactions.ChangeFor(special) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
+        (IsReactingSpecialAir(block) && block.Behavior.SpecialAir is { } air &&
+            SpecialAirReactions.CollisionOf(air) is SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock
                 or SpecialAirCollisionReaction.BrinstarSlowPermanentSpeedBlock or SpecialAirCollisionReaction.DachoraRespawningSpeedBlock
                 or SpecialAirCollisionReaction.PermanentSpeedBlock));
 
@@ -142,8 +142,8 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         Terrain.Contains(new(EscapeAnimalWallDefinitions.OriginCollisionType, EscapeAnimalWallDefinitions.ReactionBehavior));
 
     /// <summary>Whether the state's terrain holds a special-air block whose inside reaction is a Brinstar plant that bites Samus.</summary>
-    internal bool HoldsSamusEaterPlants => Terrain.Any(block => IsReactingSpecialAir(block) &&
-        SpecialAirReactions.InsideOf(block.Behavior.SpecialAir) is SpecialAirInsideReaction.BrinstarFloorPlant
+    internal bool HoldsSamusEaterPlants => Terrain.Any(block => IsReactingSpecialAir(block) && block.Behavior.SpecialAir is { } air &&
+        SpecialAirReactions.InsideOf(air) is SpecialAirInsideReaction.BrinstarFloorPlant
             or SpecialAirInsideReaction.BrinstarCeilingPlant);
 
     /// <summary>
@@ -199,7 +199,8 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// <summary>Whether <paramref name="block"/> collides as shootable and its reaction is a shot block of one of <paramref name="kinds"/>.</summary>
     private static bool SelectsShotBlock(RoomTerrainReaction block, HashSet<ShotBlockReaction> kinds) =>
         block.Collision is RoomCollisionType.ShootableBlock or RoomCollisionType.ShootableAir &&
-        ShotBlockReactions.Of(block.Behavior.Shootable) is { } reaction && kinds.Contains(reaction);
+        block.Behavior.Shootable is { } shootable && ShotBlockReactions.TryOf(shootable, out ShotBlockReaction reaction) &&
+        kinds.Contains(reaction);
 
     /// <summary>
     /// What of <paramref name="state"/> of <paramref name="room"/> decides the blocks it can show: <paramref name="level"/>

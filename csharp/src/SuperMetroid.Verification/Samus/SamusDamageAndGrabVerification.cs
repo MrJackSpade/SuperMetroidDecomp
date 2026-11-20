@@ -135,7 +135,7 @@ internal static void VerifySamusDrainedController()
     // Index two lasts two ticks; index three lasts sixteen. Expiration reaches `$F7` at
     // index four, which installs the handler and advances again to index five's delay one.
     for (int tick = 0; tick < 18; tick++)
-        SamusPresentation.Animate(right, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(right, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
     AssertEqual(DrainedSamusPhase.Falling, right.Drained.Phase,
         "F7 installs drained movement handler");
     AssertEqual(5, right.AnimationNumber, "F7 performs its second frame increment");
@@ -176,7 +176,7 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
     AssertEqual(4, right.AnimationNumber, "standing release writes byte index four");
     AssertEqual(1, right.AnimationFrameTimer.RawValue, "standing release writes timer one");
     for (int tick = 0; tick < 8 && right.CuePose.Named is null; tick++)
-        SamusPresentation.Animate(right, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(right, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, right.CuePose.Named,
         "standing drained release reaches ROM FD operand");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(right),
@@ -200,7 +200,7 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
     AssertEqual(13, left.AnimationNumber,
         "crouched release preserves literal operand-adjacent byte index thirteen");
     for (int tick = 0; tick < 64 && left.CuePose.Named is null; tick++)
-        SamusPresentation.Animate(left, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(left, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingLeftNormalPose, left.CuePose.Named,
         "left crouched release reaches asymmetric FD operand");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(left),

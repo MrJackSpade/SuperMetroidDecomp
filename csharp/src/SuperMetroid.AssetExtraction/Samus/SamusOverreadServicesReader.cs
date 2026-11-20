@@ -141,7 +141,7 @@ internal static class SamusOverreadServicesReader
     /// </summary>
     /// <exception cref="InvalidDataException">The frame is one of the segment's delays, or a frame of the last segment.</exception>
     private static SamusAnimationFrame PastCueOf(SamusPoseAnimation animation, SamusAnimationFrame frame) =>
-        frame.Segment != animation.Segments[^1].Name && animation.Segment(frame.Segment) is { End: not null } segment && frame.Frame >= segment.CueFrame
+        frame.Segment != animation.Segments[^1].Name && animation.Segment(frame.Segment) is SamusCuedAnimationSegment segment && frame.Frame >= segment.CueFrame
             ? frame
             : throw new InvalidDataException($"Samus overread file names a frame after {animation.NameOf(frame)} of the {animation.Name} animation, which lies on no segment's cue.");
 

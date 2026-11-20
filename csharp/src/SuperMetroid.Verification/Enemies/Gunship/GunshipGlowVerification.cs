@@ -75,7 +75,7 @@ internal static class GunshipGlowVerification
         AssertEqual(GameplayColourPositionDefinitions.SpriteSetsFirst + (row + 1) * GameplayColourPositionDefinitions.SetColours - 1, written,
             "the glow writes the last colour of the pieces' sprite row");
 
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;

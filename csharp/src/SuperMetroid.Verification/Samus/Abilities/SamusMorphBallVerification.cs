@@ -173,7 +173,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, frameCounter: 0, roomObjects: Sam
     for (int tick = 0; tick < 6; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
     }
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, (samus.CuePose.Named ?? throw new InvalidOperationException("Verification requires samus.CuePose.Named.")),
         "F9 selects no-spring grounded endpoint");
@@ -499,7 +499,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: Sa
     for (int tick = 0; tick < 6; tick++)
     {
         airborneEntry.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(airborneEntry, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(airborneEntry, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
     }
     AssertEqual(SamusPoseId.MorphBallFallingRightPose, (airborneEntry.CuePose.Named ?? throw new InvalidOperationException("Verification requires airborneEntry.CuePose.Named.")),
         "F9 nonzero Y subspeed selects airborne endpoint");
@@ -521,7 +521,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: Sa
     for (int tick = 0; tick < 6; tick++)
     {
         spring.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(spring, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(spring, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
     }
     AssertEqual(SamusPoseId.SpringBallGroundRightPose, (spring.CuePose.Named ?? throw new InvalidOperationException("Verification requires spring.CuePose.Named.")),
         "F9 equipped endpoint selects Spring Ball ground");

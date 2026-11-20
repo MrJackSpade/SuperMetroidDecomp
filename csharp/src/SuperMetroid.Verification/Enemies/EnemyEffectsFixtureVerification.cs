@@ -51,7 +51,7 @@ internal static class EnemyEffectsFixtureVerification
         internal CrocomireEffectFixture(CrocomireMeltingArtwork? art = null)
         {
             if (art is not null)
-                Enemies.BossArtwork = new BossSourceArtwork { CrocomireMelting = art };
+                Enemies.BossArtwork = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { CrocomireMelting = art };
             Actor = new CrocomireEnemyState(Enemies.Places.InUpdateOrder[0]);
             Enemies.Places.InUpdateOrder[1].SetSpeciesState(new CrocomireTongueState(Actor));
             Actor.JoinTongue(Enemies.Places.InUpdateOrder[1]);

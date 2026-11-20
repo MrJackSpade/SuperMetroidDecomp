@@ -14,8 +14,12 @@ internal sealed class FrameDrawings
     /// <summary>Every catalogue entry with the frames it lists resolved, its effect actors' frames among them.</summary>
     private static readonly ResolvedDrawing[] Entries = [.. EncounterArtworkDrawingDefinitions.All.Select(drawing => new ResolvedDrawing(drawing,
         new HashSet<EnemyFrameId>(drawing.Frames.Concat(drawing.EffectActors.SelectMany(kind =>
-            RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind))).Select(picture => picture.RequireEnemyFrame()))),
+            RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind))).SelectMany(EnemyFramesOf))),
         new HashSet<EnemyProjectileFrameId>(drawing.Projectiles)))];
+
+    /// <summary>The enemy frame an effect actor's picture shows, or none for a hit burst, which draws from the shots' sheet.</summary>
+    private static IEnumerable<EnemyFrameId> EnemyFramesOf(RoomEffectActorPicture picture) =>
+        picture.Select<IEnumerable<EnemyFrameId>>(frame => [frame], _ => []);
 
     /// <summary>The entries listing the frame.</summary>
     private readonly EncounterArtworkDrawing[] listed;

@@ -55,7 +55,7 @@ internal static class GunshipInstalledCompositionsVerification
     internal static void VerifyGunshipLandingCompositions(GameInstallation installation, ImportEnemyArtwork? enemyArtwork = null)
     {
         // The repository's installation binds the process's shared catalogs; a fresh load would be the check's own cost.
-        var game = new SuperMetroidGame(new SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         BindInstalledArtwork(installation, enemyArtwork)(game, true);
         game.BindArtwork(game.Artwork with
         {

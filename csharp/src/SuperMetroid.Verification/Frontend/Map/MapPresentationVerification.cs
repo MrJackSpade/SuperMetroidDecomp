@@ -610,7 +610,7 @@ internal static class MapPresentationVerification
     /// </summary>
     private static void VerifyLiveMapCatalog(InstalledScreenContent original, MapPresentationInstalledRoomAssets fixtureAssets)
     {
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         game.BindArtwork(InstalledFixtures.GameArtwork with
         {
             ScreenContent = original,

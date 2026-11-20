@@ -21,7 +21,7 @@ internal static class BootDemoSetCountVerification
         AssertTrue(saveRam.ReadSlot(SaveSlot.A) is null && saveRam.ReadSlot(SaveSlot.B) is null && saveRam.ReadSlot(SaveSlot.C) is null,
             "fixture has no valid slot");
 
-        var game = new SuperMetroidGame(saveRam);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam);
         AssertEqual("madadameyohn", ReadMarker(saveRam),
             "boot with no valid slot overwrites the completion marker with 'madadameyohn'");
         AssertTrue(!saveRam.HasCompletedGame, "the overwritten marker no longer reads as a completed game");
@@ -40,7 +40,7 @@ internal static class BootDemoSetCountVerification
         saveRam.CompleteGame();
         AssertEqual(StockAttractDemoScenes.OrdinaryPlaylist, game.Session.DemoPlaylist,
             "a mid-session completion marker does not change the boot demo playlist");
-        var completedBoot = new SuperMetroidGame(saveRam);
+        var completedBoot = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam);
         AssertEqual("supermetroid", ReadMarker(saveRam),
             "boot with a valid slot leaves the completion marker intact");
         AssertEqual(StockAttractDemoScenes.CompletedGamePlaylist, completedBoot.Session.DemoPlaylist,

@@ -264,6 +264,6 @@ internal static class SpawnedObjectSheetComposer
     /// </summary>
     private static IEnumerable<EnemyFrameId> EffectActorFrames(IEnumerable<RoomEffectActorKind> kinds) =>
         kinds.SelectMany(kind => RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind)))
-            .Select(picture => picture.RequireEnemyFrame()).Where(frame => !CommonEnemyEmptyFrames.DrawsNothing(frame)).Distinct()
+            .SelectMany(picture => picture.Select<IEnumerable<EnemyFrameId>>(frame => [frame], _ => [])).Where(frame => !CommonEnemyEmptyFrames.DrawsNothing(frame)).Distinct()
             .OrderBy(EnemySheetDefinitions.EffectActorFrameName, StringComparer.Ordinal);
 }

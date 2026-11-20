@@ -71,7 +71,7 @@ internal static class EscapeRunningFootstepsVerification
             samus.Drained.RunGetUpCheck(samus, (GameplayAction.Up | GameplayAction.Jump));
             // Before the fix, the stale failed-stand callback selects 18/1 here and the
             // real animation/footstep path throws the exact player-reported exception.
-            SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = (GameplayAction.Up | GameplayAction.Jump) });
+            SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom(), ControllerInput = (GameplayAction.Up | GameplayAction.Jump) });
             AssertEqual(DrainedGetUpCheck.Inactive, samus.Drained.GetUpCheck,
                 "escape timer replaces the drained hack handler");
             AssertEqual(9, samus.AnimationNumber, "Up edge in acid advances the running animation normally");

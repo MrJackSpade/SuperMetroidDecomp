@@ -96,12 +96,9 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     }
 
     /// <summary>The room pictures' shading that shows <paramref name="shown"/>.</summary>
-    private static PictureShading ShadingOf(KraidBackdropShown shown) => shown switch
-    {
-        KraidBackdropShown.Settled settled => ShadeOf(settled.Colours) is { } shade ? PictureShading.Shaded(shade) : PictureShading.Standard,
-        KraidBackdropShown.Fading fading => PictureShading.Standard.With(FadeOf(fading)),
-        _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined Kraid backdrop colours."),
-    };
+    private static PictureShading ShadingOf(KraidBackdropShown shown) => shown.Match(
+        static settled => ShadeOf(settled.Colours) is { } shade ? PictureShading.Shaded(shade) : PictureShading.Standard,
+        static fading => PictureShading.Standard.With(FadeOf(fading)));
 
     /// <summary>The shade of each colours.</summary>
     private static IdentityTable<KraidBackdropSettledColours, PictureShade?> ShadeByColours => field ??= new(new Dictionary<KraidBackdropSettledColours, PictureShade?>

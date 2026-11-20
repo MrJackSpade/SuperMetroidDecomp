@@ -17,12 +17,9 @@ public readonly record struct SamusBombJumpRequest
 
     /// <summary>A blast's request to launch Samus in <paramref name="direction"/>, not yet handled by her pose.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The direction is none or undefined.</exception>
-    public static SamusBombJumpRequest Published(SamusBombJumpDirection direction) => direction switch
-    {
-        SamusBombJumpDirection.Left or SamusBombJumpDirection.Straight or SamusBombJumpDirection.Right => new(direction),
-        SamusBombJumpDirection.None => throw new ArgumentOutOfRangeException(nameof(direction), direction, "A published bomb jump has a direction."),
-        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined bomb-jump direction."),
-    };
+    public static SamusBombJumpRequest Published(SamusBombJumpDirection direction) => direction != SamusBombJumpDirection.None
+        ? new(direction)
+        : throw new ArgumentOutOfRangeException(nameof(direction), direction, "A published bomb jump has a direction.");
 
     /// <summary>Which way the jump launches Samus, or <see cref="SamusBombJumpDirection.None"/> when none is requested.</summary>
     public SamusBombJumpDirection Direction { get; }

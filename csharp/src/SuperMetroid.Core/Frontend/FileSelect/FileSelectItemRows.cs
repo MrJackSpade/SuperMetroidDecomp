@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Saves;
 
@@ -39,29 +40,15 @@ internal static class FileSelectItemRows
     internal static FileSelectItem ForSaveSlot(SaveSlot slot) => ForSaveSlotBySlot[slot];
 
     /// <summary>Whether an item selects a save slot, and which.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The item is not a file-select row.</exception>
-    internal static bool TryGetSaveSlot(FileSelectItem item, out SaveSlot slot)
+    internal static bool TryGetSaveSlot(FileSelectItem item, out SaveSlot slot) => SlotsByItem.TryGetValue(item, out slot);
+
+    /// <summary>The save slot each slot item selects; Copy, Clear and Exit select none.</summary>
+    private static FrozenDictionary<FileSelectItem, SaveSlot> SlotsByItem => field ??= new Dictionary<FileSelectItem, SaveSlot>
     {
-        switch (item)
-        {
-            case FileSelectItem.SlotA:
-                slot = SaveSlot.A;
-                return true;
-            case FileSelectItem.SlotB:
-                slot = SaveSlot.B;
-                return true;
-            case FileSelectItem.SlotC:
-                slot = SaveSlot.C;
-                return true;
-            case FileSelectItem.Copy:
-            case FileSelectItem.Clear:
-            case FileSelectItem.Exit:
-                slot = default;
-                return false;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(item), item, "Undefined file-select item.");
-        }
-    }
+        [FileSelectItem.SlotA] = SaveSlot.A,
+        [FileSelectItem.SlotB] = SaveSlot.B,
+        [FileSelectItem.SlotC] = SaveSlot.C,
+    }.ToFrozenDictionary();
 
     /// <summary>The save slot an item selects.</summary>
     /// <exception cref="InvalidDataException">The item is not a save slot.</exception>

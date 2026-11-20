@@ -139,29 +139,27 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// Carries out one cue of the Work Robot's animations. Steps that meet a wall or ledge and a laser that fires continue
     /// the animation elsewhere, as the cues replace the segment.
     /// </summary>
-    private WorkRobotSegment? ApplyWorkRobotCue(RoomEnemyPlace place, WorkRobotEnemyState state, EnemyAnimationCueContext context, WorkRobotCue cue)
-    {
-        SamusState samus = context.Samus;
-        RoomLevelData level = context.Level;
-        Position16<RoomPixels> camera = context.Camera;
-        if (cue is WorkRobotCue.Step step)
-            return MoveWorkRobot(place, state, samus, level, step.Move);
-        if (cue is WorkRobotCue.TryLaser laser)
-            return TryFireWorkRobotLaser(place, state, laser.Laser, laser.Firing, camera);
-        WorkRobotCueKind kind = ((WorkRobotCue.Signal)cue).Kind;
-        switch (kind)
+    private WorkRobotSegment? ApplyWorkRobotCue(RoomEnemyPlace place, WorkRobotEnemyState state, EnemyAnimationCueContext context, WorkRobotCue cue) =>
+        cue.Match<WorkRobotSegment?>(
+            step: step => MoveWorkRobot(place, state, context.Samus, context.Level, step.Move),
+            tryLaser: laser => TryFireWorkRobotLaser(place, state, laser.Laser, laser.Firing, context.Camera),
+            signal: signal =>
+            {
+                WorkRobotSignals[signal.Kind](place, state, context.Camera);
+                return null;
+            });
+
+    /// <summary>What each of the Work Robot's signals does; each runs on.</summary>
+    private IdentityTable<WorkRobotCueKind, Action<RoomEnemyPlace, WorkRobotEnemyState, Position16<RoomPixels>>> WorkRobotSignals => field ??=
+        new(new Dictionary<WorkRobotCueKind, Action<RoomEnemyPlace, WorkRobotEnemyState, Position16<RoomPixels>>>
         {
-            case WorkRobotCueKind.Footstep:
+            [WorkRobotCueKind.Footstep] = (place, _, camera) =>
+            {
                 if (IsWorkRobotOriginStrictlyOnScreen(place, camera))
                     _audio.QueueEnemySound(EnemySoundEffectDefinitions.WorkRobotFootstepSound, priority: SoundRequestPriority.Normal);
-                return null;
-            case WorkRobotCueKind.CountDownLaserCooldown:
-                DecrementWorkRobotLaserCooldown(state);
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(WorkRobotCueKind)} {kind}.");
-        }
-    }
+            },
+            [WorkRobotCueKind.CountDownLaserCooldown] = (_, state, _) => DecrementWorkRobotLaserCooldown(state),
+        });
 
     /// <summary>Applies one walk step, carries Samus on contact, and branches to wall or fall animations when support ends.</summary>
     private WorkRobotSegment? MoveWorkRobot(RoomEnemyPlace place, WorkRobotEnemyState state, SamusState samus, RoomLevelData level, WorkRobotMoveStep step)

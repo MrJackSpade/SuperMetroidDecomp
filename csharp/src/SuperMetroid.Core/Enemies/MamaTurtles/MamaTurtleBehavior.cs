@@ -54,51 +54,56 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Mama Turtle's animations; rising to hover continues at its spin.</summary>
-    private MamaTurtleSegment? ApplyMamaTurtleCue(RoomEnemyPlace place, MamaTurtleCue cue)
-    {
-        switch (cue)
-        {
-            case MamaTurtleCue.RiseToHover rise:
+    private MamaTurtleSegment? ApplyMamaTurtleCue(RoomEnemyPlace place, MamaTurtleCue cue) =>
+        cue.Match<MamaTurtleSegment?>(
+            riseToHover: rise =>
+            {
                 StartMamaTurtleRisingToHover(place.RequireSpeciesState<MamaTurtleEnemyState>(), direction: rise.Direction);
                 return MamaTurtleSegment.Spinning;
-            case MamaTurtleCue.Signal { Kind: MamaTurtleCueKind.EnterShell }:
-                StartMamaTurtleEnteringShell(place.RequireSpeciesState<MamaTurtleEnemyState>());
+            },
+            signal: signal =>
+            {
+                MamaTurtleSignals[signal.Kind](place);
                 return null;
-            case MamaTurtleCue.Signal { Kind: MamaTurtleCueKind.PlaySpinningSound }:
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(MamaTurtleCue)} {cue}.");
-        }
-    }
+            });
+
+    /// <summary>What each of the Mama Turtle's signals does; each runs on.</summary>
+    private IdentityTable<MamaTurtleCueKind, Action<RoomEnemyPlace>> MamaTurtleSignals => field ??= new(new Dictionary<MamaTurtleCueKind, Action<RoomEnemyPlace>>
+    {
+        [MamaTurtleCueKind.EnterShell] = place => StartMamaTurtleEnteringShell(place.RequireSpeciesState<MamaTurtleEnemyState>()),
+        [MamaTurtleCueKind.PlaySpinningSound] = _ => _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal),
+    });
 
     /// <summary>
     /// Carries out one cue of a baby turtle's animations. The crawl loop, leaving the shell while ridden and the end of
     /// leaving it continue at the animation their cues return; every other cue runs on.
     /// </summary>
-    private BabyTurtleSegment? ApplyBabyTurtleCue(RoomEnemyPlace place, BabyTurtleCue cue, SamusState samus, RoomLevelData level)
-    {
-        switch (cue.Kind)
+    private BabyTurtleSegment? ApplyBabyTurtleCue(RoomEnemyPlace place, BabyTurtleCue cue, SamusState samus, RoomLevelData level) =>
+        BabyTurtleCues[cue.Kind](place, samus, level);
+
+    /// <summary>What each of a baby turtle's cues does, and the animation it continues at, or null to run on.</summary>
+    private IdentityTable<BabyTurtleCueKind, Func<RoomEnemyPlace, SamusState, RoomLevelData, BabyTurtleSegment?>> BabyTurtleCues => field ??=
+        new(new Dictionary<BabyTurtleCueKind, Func<RoomEnemyPlace, SamusState, RoomLevelData, BabyTurtleSegment?>>
         {
-            case BabyTurtleCueKind.Crawl:
+            [BabyTurtleCueKind.Crawl] = (place, samus, level) =>
+            {
                 ProcessBabyTurtleCrawlAnimation(place, place.RequireSpeciesState<BabyTurtleEnemyState>(), samus, level);
                 return null;
-            case BabyTurtleCueKind.LoopOrTurnAround:
-                return SelectBabyTurtleCrawlLoop(place, place.RequireSpeciesState<BabyTurtleEnemyState>());
-            case BabyTurtleCueKind.LeaveShell:
-                return SelectBabyTurtleLeaveShell(place, samus);
-            case BabyTurtleCueKind.LeftShell:
-                return FinishBabyTurtleLeavingShell(place, place.RequireSpeciesState<BabyTurtleEnemyState>(), samus);
-            case BabyTurtleCueKind.SetSpinningStoppable:
+            },
+            [BabyTurtleCueKind.LoopOrTurnAround] = (place, _, _) => SelectBabyTurtleCrawlLoop(place, place.RequireSpeciesState<BabyTurtleEnemyState>()),
+            [BabyTurtleCueKind.LeaveShell] = (place, samus, _) => SelectBabyTurtleLeaveShell(place, samus),
+            [BabyTurtleCueKind.LeftShell] = (place, samus, _) => FinishBabyTurtleLeavingShell(place, place.RequireSpeciesState<BabyTurtleEnemyState>(), samus),
+            [BabyTurtleCueKind.SetSpinningStoppable] = (place, _, _) =>
+            {
                 place.RequireSpeciesState<BabyTurtleEnemyState>().Action = BabyTurtleAction.SpinningStoppable;
                 return null;
-            case BabyTurtleCueKind.PlaySpinningSound:
+            },
+            [BabyTurtleCueKind.PlaySpinningSound] = (_, _, _) =>
+            {
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
                 return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BabyTurtleCueKind)} {cue.Kind}.");
-        }
-    }
+            },
+        });
 
     /// <summary>Initializes the Mama Turtle and links her to the four babies her room lists right after her.</summary>
     internal void InitializeMamaTurtle(RoomEnemyPlace place)

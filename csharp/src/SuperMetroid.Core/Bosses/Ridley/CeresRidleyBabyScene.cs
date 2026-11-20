@@ -122,24 +122,21 @@ internal sealed class CeresRidleyBabyScene
     private const CeresBabySegment SilentAnimation = CeresBabySegment.IdleSquish;
 
     /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation its owner starts, or null to play on.</summary>
-    private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue)
-    {
-        switch (cue)
-        {
-            case CeresBabyCue.Cries:
+    private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue) =>
+        cue.Match<CeresBabySegment?>(
+            reactsToMotion: _ => !ridley.Baby.VerticalVelocity.IsZero ? MovingAnimation : null,
+            updateColors: updateColors =>
+            {
+                ridley.Colours.ShowBaby(updateColors.Shade);
+                return null;
+            },
+            cries: _ =>
+            {
                 // While the Baby is falling it always cries and plays on. Otherwise the current random number, read without
                 // drawing a new one, makes it jump silently one time in two.
                 if (ridley.Baby.VerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsTakenBy(_room.Random.Read()))
                     return SilentAnimation;
                 _audio.QueueEnemySound(RoomSound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
                 return null;
-            case CeresBabyCue.UpdateColors updateColors:
-                ridley.Colours.ShowBaby(updateColors.Shade);
-                return null;
-            case CeresBabyCue.ReactsToMotion:
-                return !ridley.Baby.VerticalVelocity.IsZero ? MovingAnimation : null;
-            default:
-                throw new InvalidOperationException($"Undefined Ceres Baby cue {cue}.");
-        }
-    }
+            });
 }

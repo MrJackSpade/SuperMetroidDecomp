@@ -60,31 +60,31 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// Carries out one cue of the walking Space Pirates' animations. Choosing a movement continues at the walk or laser
     /// animation it selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemyPlace place, WalkingSpacePirateCue cue, SamusState samus)
-    {
-        switch (cue)
-        {
-            case WalkingSpacePirateCue.FireLaser fireLaser:
+    private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemyPlace place, WalkingSpacePirateCue cue, SamusState samus) =>
+        cue.Match<WalkingSpacePirateSegment?>(
+            fireLaser: fireLaser =>
+            {
                 _ = SpawnSpacePirateLaser(place, fireLaser.Direction, fireLaser.LaserHeight,
                     place.SpawnSettings<WalkingSpacePirateSpawnSettings>().LaserSpeed);
                 return null;
-            case WalkingSpacePirateCue.Signal { Kind: WalkingSpacePirateCueKind.ChooseMovement }:
-                return SelectWalkingSpacePirateMovement(place, samus);
-            case WalkingSpacePirateCue.Begin begin:
+            },
+            begin: begin =>
+            {
                 // The pirate animation does not jump to the stand or walk it begins: main AI runs it from the next
                 // frame, as the animation runs on.
                 RequireWalkingSpacePirateState(place).Action = begin.Action;
                 return null;
-            case WalkingSpacePirateCue.BeginHeading begin:
+            },
+            beginHeading: begin =>
+            {
                 // As a plain begin, main AI runs the walk from the next frame, the cue's way (#2165).
                 WalkingSpacePirateEnemyState walker = RequireWalkingSpacePirateState(place);
                 walker.Action = begin.Action;
                 walker.Heading = begin.Heading;
                 return null;
-            default:
-                throw new InvalidOperationException($"The walking Space Pirates' animations have no {cue} cue.");
-        }
-    }
+            },
+            // The walking pirates' one signal chooses their movement.
+            signal: _ => SelectWalkingSpacePirateMovement(place, samus));
 
     /// <summary>
     /// Queues <paramref name="sound"/> as a space pirate makes it, after the update's earlier requests: walking, wall and

@@ -64,29 +64,32 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Ki-Hunter body's animations. Returning to flight continues at the flying animation for
     /// the current direction, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private KiHunterSegment? ApplyKiHunterCue(RoomEnemyPlace place, KiHunterCue cue)
-    {
-        if (cue is KiHunterCue.Spit spit)
+    private KiHunterSegment? ApplyKiHunterCue(RoomEnemyPlace place, KiHunterCue cue) =>
+        cue.Match<KiHunterSegment?>(
+            spit: spit =>
+            {
+                SpawnKiHunterAcidFromCue(place, direction: spit.Direction);
+                return null;
+            },
+            signal: signal => KiHunterSignals[signal.Kind](place));
+
+    /// <summary>What each of the Ki-Hunter body's signals does, and the animation it continues at, or null to run on.</summary>
+    private IdentityTable<KiHunterCueKind, Func<RoomEnemyPlace, KiHunterSegment?>> KiHunterSignals => field ??=
+        new(new Dictionary<KiHunterCueKind, Func<RoomEnemyPlace, KiHunterSegment?>>
         {
-            SpawnKiHunterAcidFromCue(place, direction: spit.Direction);
-            return null;
-        }
-        KiHunterCueKind kind = ((KiHunterCue.Signal)cue).Kind;
-        switch (kind)
-        {
-            case KiHunterCueKind.ReturnToFlying:
-                // The cue returns the body's flying animation while separately restarting the attached wings.
-                return ReturnKiHunterToSteadyAnimation(place);
-            case KiHunterCueKind.StartHop:
+            // The cue returns the body's flying animation while separately restarting the attached wings.
+            [KiHunterCueKind.ReturnToFlying] = ReturnKiHunterToSteadyAnimation,
+            [KiHunterCueKind.StartHop] = place =>
+            {
                 StartKiHunterGroundJumpFromCue(place.RequireSpeciesState<KiHunterBodyState>());
                 return null;
-            case KiHunterCueKind.StartWinglessThinking:
+            },
+            [KiHunterCueKind.StartWinglessThinking] = place =>
+            {
                 StartKiHunterGroundWaitFromCue(place.RequireSpeciesState<KiHunterBodyState>());
                 return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(KiHunterCueKind)} {kind}.");
-        }
-    }
+            },
+        });
 
     /// <summary>Initializes the Ki-Hunter body.</summary>
     internal void InitializeKiHunter(RoomEnemyPlace body)

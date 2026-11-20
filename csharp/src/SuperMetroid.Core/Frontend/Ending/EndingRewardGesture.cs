@@ -28,7 +28,8 @@ internal sealed class EndingRewardGesture
         if (handedOff) throw new InvalidOperationException("Reward gesture handoff must be consumed before advancing again.");
         bool jumps = false;
         foreach (CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardGestureCue> actor in actors)
-            actor.Step(cue => jumps |= HandleCue(cue));
+            // The gesture's one cue starts the jump.
+            actor.Step(_ => jumps = true);
         actors.RemoveAll(actor => !actor.IsActive);
         handedOff = jumps;
         return jumps;
@@ -40,18 +41,6 @@ internal sealed class EndingRewardGesture
         Ensure.NotNull(destination);
         foreach (CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardGestureCue> actor in actors)
             actor.Draw(destination, installedArt: installedArt);
-    }
-
-    /// <summary>Converts the jump cue into a suited or suitless handoff: whether <paramref name="cue"/> starts the jump.</summary>
-    private static bool HandleCue(EndingRewardGestureCue cue)
-    {
-        switch (cue)
-        {
-            case EndingRewardGestureCue.StartJump:
-                return true;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingRewardGestureCue)} {cue}.");
-        }
     }
 
     /// <summary>Creates an actor from its defined start and animation.</summary>

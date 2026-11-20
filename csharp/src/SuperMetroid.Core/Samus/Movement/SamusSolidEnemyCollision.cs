@@ -102,6 +102,17 @@ public static class SamusSolidEnemyCollision
             WasTouching: false);
     }
 
+    /// <summary>The pixel the broad test checks for a probe of each direction: the probe's axis moved to the pixel the reach tests, and Samus's current position for the pose-observation probe.</summary>
+    private static IdentityTable<SamusCollisionDirection, Func<SamusKinematicsState, UnsignedSixteenSixteen, Position16<RoomPixels>, Position16<RoomPixels>>> Targets => field ??= new(new Dictionary<SamusCollisionDirection, Func<SamusKinematicsState, UnsignedSixteenSixteen, Position16<RoomPixels>, Position16<RoomPixels>>>
+    {
+        [SamusCollisionDirection.Left] = static (state, reach, target) => target.WithX(SolidEnemyProbeReach.TestedPixelBack(state.Position.X, reach)),
+        [SamusCollisionDirection.Right] = static (state, reach, target) => target.WithX(SolidEnemyProbeReach.TestedPixelForward(state.Position.X, reach)),
+        [SamusCollisionDirection.Up] = static (state, reach, target) => target.WithY(SolidEnemyProbeReach.TestedPixelBack(state.Position.Y, reach)),
+        [SamusCollisionDirection.Down] = static (state, reach, target) => target.WithY(SolidEnemyProbeReach.TestedPixelForward(state.Position.Y, reach)),
+        // The pose-observation probe targets Samus's current position.
+        [SamusCollisionDirection.NonDirectionalProbe] = static (state, reach, target) => target,,
+    });
+
     /// <summary>The whole-pixel centre the broad test checks: Samus's centre with the probe's axis moved to the pixel the reach tests.</summary>
     private static Position16<RoomPixels> BuildTarget(
         SamusKinematicsState state,
@@ -109,16 +120,7 @@ public static class SamusSolidEnemyCollision
         UnsignedSixteenSixteen reach)
     {
         Position16<RoomPixels> target = state.Position.Whole;
-        return direction switch
-        {
-            SamusCollisionDirection.Left => target.WithX(SolidEnemyProbeReach.TestedPixelBack(state.Position.X, reach)),
-            SamusCollisionDirection.Right => target.WithX(SolidEnemyProbeReach.TestedPixelForward(state.Position.X, reach)),
-            SamusCollisionDirection.Up => target.WithY(SolidEnemyProbeReach.TestedPixelBack(state.Position.Y, reach)),
-            SamusCollisionDirection.Down => target.WithY(SolidEnemyProbeReach.TestedPixelForward(state.Position.Y, reach)),
-            // The pose-observation probe targets Samus's current position.
-            SamusCollisionDirection.NonDirectionalProbe => target,
-            _ => throw new InvalidOperationException($"Undefined SamusCollisionDirection {direction}."),
-        };
+        return Targets[direction](state, reach, target);
     }
 
     /// <summary>

@@ -215,31 +215,36 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     private WallSpacePirateSegment? ApplyWallSpacePirateCue(RoomEnemyPlace place, WallSpacePirateCue cue, RoomLevelData level)
     {
         WallSpacePirateEnemyState state = place.RequireSpeciesState<WallSpacePirateEnemyState>();
-        switch (cue)
-        {
-            case WallSpacePirateCue.Climb climb:
-                return MoveWallSpacePirateAndReverseOnCollision(place, state, level, climb.ClimbPixels, wall: climb.Wall);
-            case WallSpacePirateCue.ChooseClimb choose:
-                return RandomizeWallSpacePirateClimbDirection(state, wall: choose.Wall);
-            case WallSpacePirateCue.PrepareJump jump:
-                PrepareWallSpacePirateJump(place, state, direction: jump.Direction);
-                return null;
-            case WallSpacePirateCue.FireLaser laser:
+        return cue.Match<WallSpacePirateSegment?>(
+            climb: climb => MoveWallSpacePirateAndReverseOnCollision(place, state, level, climb.ClimbPixels, wall: climb.Wall),
+            chooseClimb: choose => RandomizeWallSpacePirateClimbDirection(state, wall: choose.Wall),
+            fireLaser: laser =>
+            {
                 FireWallSpacePirateLaser(place, direction: laser.Direction);
                 return null;
-            case WallSpacePirateCue.Begin begin:
+            },
+            prepareJump: jump =>
+            {
+                PrepareWallSpacePirateJump(place, state, direction: jump.Direction);
+                return null;
+            },
+            begin: begin =>
+            {
                 state.Action = begin.Action;
                 return null;
-            case WallSpacePirateCue.BeginOnWall begin:
+            },
+            beginOnWall: begin =>
+            {
                 state.Action = begin.Action;
                 state.Wall = begin.Wall;
                 return null;
-            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PlayJumpSound }:
+            },
+            // The wall pirates' one signal plays their jump's sound.
+            signal: _ =>
+            {
                 Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);
                 return null;
-            default:
-                throw new InvalidOperationException($"The wall Space Pirates' animations have no {cue} cue.");
-        }
+            });
     }
 
     /// <summary>Runs the wall Space Pirate's main AI.</summary>

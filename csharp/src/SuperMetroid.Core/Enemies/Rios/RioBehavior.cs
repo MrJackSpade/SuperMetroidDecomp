@@ -168,10 +168,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     place,
                     state.Velocity.Y.ToSixteenSixteenDelta());
                 return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Rio has no behaviour for action {state.Action}.");
         }
     }
 

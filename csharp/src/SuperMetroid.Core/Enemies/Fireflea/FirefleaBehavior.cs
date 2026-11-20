@@ -33,12 +33,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeFireflea(RoomEnemyPlace place)
     {
         FirefleaSpawnSettings settings = place.SpawnSettings<FirefleaSpawnSettings>();
-        FirefleaFlightState flight = settings.Flight switch
-        {
-            FirefleaFlight.Circling circling => StartCircling(place, circling, settings.Radius),
-            FirefleaFlight.Bobbing bobbing => StartBobbing(place, bobbing, settings.Radius),
-            _ => throw new InvalidOperationException($"Undefined {nameof(FirefleaFlight)} {settings.Flight}."),
-        };
+        FirefleaFlightState flight = settings.Flight.Match<FirefleaFlightState>(
+            bobbing => StartBobbing(place, bobbing, settings.Radius),
+            circling => StartCircling(place, circling, settings.Radius));
         place.SetSpeciesState(new FirefleaEnemyState(flight)
         {
             Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), AnimationPlace.StartOfAnimation),

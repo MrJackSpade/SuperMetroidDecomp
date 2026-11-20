@@ -58,41 +58,51 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="cue">The cue to perform.</param>
     /// <param name="playing">Where the play stands just past the cue.</param>
     private AnimationContinuation<YardSegment>? ApplyYardCue(
-        RoomEnemyPlace place, YardEnemyState state, YardCue cue, AnimationPlayback<YardSegment> playing)
-    {
-        switch (cue)
-        {
-            case YardCue.Signal { Kind: YardCueKind.BeginTurn }:
-                // The Yard holds still while it turns the corner; the turn's animation begins its next crawl.
-                state.Movement = YardMovement.HoldingStill;
-                return null;
-            case YardCue.BeginCrawling beginCrawling:
-                state.Movement = YardMovement.Crawling;
-                state.Crawl = beginCrawling.Crawl;
-                return null;
-            case YardCue.Signal { Kind: YardCueKind.BeginHiding }:
-                state.Movement = YardMovement.Hiding;
-                return null;
-            case YardCue.Signal { Kind: YardCueKind.BeginFlight }:
-                state.Movement = YardMovement.Airborne;
-                return null;
-            case YardCue.SetHidingAnimation setHidingAnimation:
-                state.HidingAnimation = setHidingAnimation.OptionalTarget;
-                return null;
-            case YardCue.SetDirection setDirection:
+        RoomEnemyPlace place, YardEnemyState state, YardCue cue, AnimationPlayback<YardSegment> playing) =>
+        cue.Match(
+            moveBy: moveBy =>
+            {
+                place.Position += moveBy.Offset;
+                return (AnimationContinuation<YardSegment>?)null;
+            },
+            setDirection: setDirection =>
+            {
                 state.Direction = setDirection.Direction;
                 state.AirborneFacingDirection = YardDirections.ForDirection(state.Direction).AirborneFacingDirection;
                 return null;
-            case YardCue.MoveBy moveBy:
-                place.Position += moveBy.Offset;
+            },
+            setHidingAnimation: setHidingAnimation =>
+            {
+                state.HidingAnimation = setHidingAnimation.OptionalTarget;
                 return null;
-            case YardCue.Signal { Kind: YardCueKind.ShellClosedUpdateEnds }:
-                if (state.Behavior != YardBehavior.Hiding && !YardDecisions.HoldsShellClosedAgain.IsTakenBy(_room.Random.Generate()))
-                    return null;
-                return HoldShellClosedAgain(playing);
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(YardCueKind)} {cue}.");
-        }
+            },
+            beginCrawling: beginCrawling =>
+            {
+                state.Movement = YardMovement.Crawling;
+                state.Crawl = beginCrawling.Crawl;
+                return null;
+            },
+            signal: signal => YardSignals[signal.Kind](state, playing));
+
+    /// <summary>What each of the Yard's signals does, and the animation it continues at, or null to run on.</summary>
+    private IdentityTable<YardCueKind, Func<YardEnemyState, AnimationPlayback<YardSegment>, AnimationContinuation<YardSegment>?>> YardSignals => field ??=
+        new(new Dictionary<YardCueKind, Func<YardEnemyState, AnimationPlayback<YardSegment>, AnimationContinuation<YardSegment>?>>
+        {
+            // The Yard holds still while it turns the corner; the turn's animation begins its next crawl.
+            [YardCueKind.BeginTurn] = static (state, _) => Begin(state, YardMovement.HoldingStill),
+            [YardCueKind.BeginHiding] = static (state, _) => Begin(state, YardMovement.Hiding),
+            [YardCueKind.BeginFlight] = static (state, _) => Begin(state, YardMovement.Airborne),
+            [YardCueKind.ShellClosedUpdateEnds] = (state, playing) =>
+                state.Behavior != YardBehavior.Hiding && !YardDecisions.HoldsShellClosedAgain.IsTakenBy(_room.Random.Generate())
+                    ? null
+                    : HoldShellClosedAgain(playing),
+        });
+
+    /// <summary>Puts the Yard in <paramref name="movement"/>; the animation runs on.</summary>
+    private static AnimationContinuation<YardSegment>? Begin(YardEnemyState state, YardMovement movement)
+    {
+        state.Movement = movement;
+        return null;
     }
 
     /// <summary>

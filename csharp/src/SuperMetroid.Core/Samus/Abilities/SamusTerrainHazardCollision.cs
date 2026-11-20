@@ -51,15 +51,8 @@ public static class SamusTerrainHazardCollision
         if (block.Behavior.Spike is not { } spike ||
             !SpikeHazardDefinitions.DamagingSpikeBlocks.TryGetValue(spike, out SpikeBlockBehavior behavior))
             return;
-        int damage = behavior switch
-        {
-            SpikeBlockBehavior.Heavy => level.HeavySpikesDamage
-                ? SpikeHazardDefinitions.HeavySpikeDamage
-                : 0,
-            SpikeBlockBehavior.Light =>
-                SpikeHazardDefinitions.LightSpikeDamage,
-            _ => throw new InvalidOperationException($"Undefined SpikeBlockBehavior {behavior}."),
-        };
+        int damage = behavior == SpikeBlockBehavior.Light ? SpikeHazardDefinitions.LightSpikeDamage
+            : level.HeavySpikesDamage ? SpikeHazardDefinitions.HeavySpikeDamage : 0;
         if (damage == 0)
             return;
 

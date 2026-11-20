@@ -442,8 +442,6 @@ public sealed class SamusHorizontalSpeedState
                 SecondSpeedEchoPosition = position;
                 SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
                 break;
-            case SpeedEchoPhase.Departing:
-                throw new InvalidOperationException("Departing echoes are not captured.");
         }
 
         return true;
@@ -605,12 +603,7 @@ public sealed class SamusHorizontalSpeedState
         if (!SpeedEchoesDeparting)
             return;
 
-        Position16<RoomPixels>? stored = echo switch
-        {
-            SpeedEcho.First => FirstSpeedEchoPosition,
-            SpeedEcho.Second => SecondSpeedEchoPosition,
-            _ => throw new ArgumentOutOfRangeException(nameof(echo), echo, "Undefined speed echo."),
-        };
+        Position16<RoomPixels>? stored = echo == SpeedEcho.First ? FirstSpeedEchoPosition : SecondSpeedEchoPosition;
         if (stored is not { } standing)
             return;
 

@@ -436,18 +436,20 @@ public sealed class SamusLiquidPhysicsState
             EndLandingEffectWait();
     }
 
+    /// <summary>Whether the ground of each wetness is wet under Samus.</summary>
+    private IdentityTable<SamusGroundWetness, Func<SamusState, bool>> WetnessTests => field ??= new(new Dictionary<SamusGroundWetness, Func<SamusState, bool>>
+    {
+        [SamusGroundWetness.Dry] = samus => false,
+        [SamusGroundWetness.Wet] = samus => true,
+        [SamusGroundWetness.WetWhileRaining] = samus => FxType == RoomFxType.Rain,
+        [SamusGroundWetness.WetBelowWaterline] = samus => samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY,
+    });
+
     /// <summary>
     /// Whether ground of <paramref name="wetness"/> is wet where Samus stands: the Landing Site only while it rains, which
     /// is not a generic water test, and the Wrecked Ship entrance at and below its waterline.
     /// </summary>
-    private bool IsWet(SamusState samus, SamusGroundWetness wetness) => wetness switch
-    {
-        SamusGroundWetness.Dry => false,
-        SamusGroundWetness.Wet => true,
-        SamusGroundWetness.WetWhileRaining => FxType == RoomFxType.Rain,
-        SamusGroundWetness.WetBelowWaterline => samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY,
-        _ => throw new InvalidOperationException($"Undefined ground wetness {wetness}."),
-    };
+    private bool IsWet(SamusState samus, SamusGroundWetness wetness) => WetnessTests[wetness](samus);
 
     /// <summary>
     /// Starts the landing's pair of dust or splash particles when Samus's last occupied pixel is above active liquid; the

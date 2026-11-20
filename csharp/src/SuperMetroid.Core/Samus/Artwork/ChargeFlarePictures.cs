@@ -20,14 +20,16 @@ public static class ChargeFlarePictures
             ? composition
             : throw new ArgumentOutOfRangeException(nameof(picture), picture, $"Charge-flare {component} shows no such picture.");
 
-    /// <summary>The family of <paramref name="component"/>'s compositions for the facing.</summary>
-    private static ProjectileSpriteGroup FamilyOf(ChargeFlareComponent component, bool facingLeft) => component switch
+    /// <summary>The picture family each component of the charge flare draws from, by Samus's facing.</summary>
+    private static IdentityTable<ChargeFlareComponent, Func<bool, ProjectileSpriteGroup>> Families => field ??= new(new Dictionary<ChargeFlareComponent, Func<bool, ProjectileSpriteGroup>>
     {
-        ChargeFlareComponent.MainFlare => ProjectileSpriteGroup.FlareMain,
-        ChargeFlareComponent.SlowSparks => facingLeft ? ProjectileSpriteGroup.FlareSlowSparksLeft : ProjectileSpriteGroup.FlareSlowSparksRight,
-        ChargeFlareComponent.FastSparks => facingLeft ? ProjectileSpriteGroup.FlareFastSparksLeft : ProjectileSpriteGroup.FlareFastSparksRight,
-        _ => throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}."),
-    };
+        [ChargeFlareComponent.MainFlare] = static facingLeft => ProjectileSpriteGroup.FlareMain,
+        [ChargeFlareComponent.SlowSparks] = static facingLeft => facingLeft ? ProjectileSpriteGroup.FlareSlowSparksLeft : ProjectileSpriteGroup.FlareSlowSparksRight,
+        [ChargeFlareComponent.FastSparks] = static facingLeft => facingLeft ? ProjectileSpriteGroup.FlareFastSparksLeft : ProjectileSpriteGroup.FlareFastSparksRight,
+    });
+
+    /// <summary>The family of <paramref name="component"/>'s compositions for the facing.</summary>
+    private static ProjectileSpriteGroup FamilyOf(ChargeFlareComponent component, bool facingLeft) => Families[component](facingLeft);
 
     /// <summary>Each flare family's composition of each picture it shows, as <see cref="ChargeFlareSpriteDefinitions.All"/> lists them.</summary>
     private static readonly Dictionary<ProjectileSpriteGroup, Dictionary<ChargeFlarePicture, ProjectileSpriteId>> Compositions =

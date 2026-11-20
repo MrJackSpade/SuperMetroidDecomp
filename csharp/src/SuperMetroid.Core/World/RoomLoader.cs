@@ -713,14 +713,10 @@ internal sealed class RoomLoader
         RoomViewportLoadMode viewportLoadMode,
         RoomEntry entry = default)
     {
-        DoorOpeningSourceView? doorOpeningSourceView = viewportLoadMode switch
-        {
-            RoomViewportLoadMode.DisplayInitialViewport => null,
-            RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn => new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
-                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, SourceScreenPictures())),
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
-        };
+        DoorOpeningSourceView? doorOpeningSourceView = viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport
+            ? null
+            : new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
+                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, SourceScreenPictures()));
         LoadedRoomAssets assets = entry.PreloadedAssets ??
             LoadedRoomAssets.Load(_scrollCells, room, RequireRoomAssetCatalogs());
 

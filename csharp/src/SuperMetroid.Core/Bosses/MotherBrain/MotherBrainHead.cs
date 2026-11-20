@@ -293,68 +293,98 @@ internal sealed class MotherBrainHead
     /// The brain animation advances in her brain's draw, after the enemy update has queued the frame's enemy
     /// sounds, so its sounds go straight to the enemy audio queue at their limits (#1391).
     /// </remarks>
-    private MotherBrainHeadSegment? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState samus, MotherBrainHeadCue cue)
-    {
-        switch (cue)
+    private MotherBrainHeadSegment? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState samus, MotherBrainHeadCue cue) =>
+        cue.Match(
+            playSound: playSound =>
+            {
+                _audio.QueueEnemySound(playSound.Effect, priority: SoundRequestPriority.Normal);
+                return (MotherBrainHeadSegment?)null;
+            },
+            spawnBomb: bomb =>
+            {
+                SpawnMotherBrainBomb(state, bomb.Afterburns);
+                return null;
+            },
+            signal: signal => HeadSignals[signal.Kind](state, samus));
+
+    /// <summary>
+    /// What each of her brain's signals does before her late fight, and the segment it continues at, or null to run on.
+    /// Only the animations of her attacks on the Baby, which her late fight starts, raise the Baby's cues
+    /// (ApplyLateFightHeadCue), so one raised before it fails.
+    /// </summary>
+    private IdentityTable<MotherBrainHeadCueKind, Func<MotherBrainEnemyState, SamusState, MotherBrainHeadSegment?>> HeadSignals => field ??=
+        new(new Dictionary<MotherBrainHeadCueKind, Func<MotherBrainEnemyState, SamusState, MotherBrainHeadSegment?>>
         {
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.ShakeBrain }:
+            [MotherBrainHeadCueKind.ShakeBrain] = static (state, _) =>
+            {
                 state.BrainShake.ShakeFor(MotherBrainFightDefinitions.BrainShakeUpdates);
                 return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnDrool }:
+            },
+            [MotherBrainHeadCueKind.SpawnDrool] = (state, _) =>
+            {
                 SpawnMotherBrainDrool(state);
                 return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnBigPurpleBreath }:
+            },
+            [MotherBrainHeadCueKind.SpawnBigPurpleBreath] = (state, _) =>
+            {
                 SpawnMotherBrainPurpleBreathBig(state);
                 return null;
-            case MotherBrainHeadCue.PlaySound playSound:
-                _audio.QueueEnemySound(playSound.Effect, priority: SoundRequestPriority.Normal);
-                return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.DisableNeckMovement }:
+            },
+            [MotherBrainHeadCueKind.DisableNeckMovement] = static (state, _) =>
+            {
                 state.NeckMovementEnabled = false;
                 return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.EnableNeckMovement }:
+            },
+            [MotherBrainHeadCueKind.EnableNeckMovement] = static (state, _) =>
+            {
                 state.NeckMovementEnabled = true;
                 return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtSamus }:
+            },
+            [MotherBrainHeadCueKind.AimOnionRingsAtSamus] = (state, samus) =>
             {
                 AimMotherBrainOnionRingsAt(state, samus.Position.Whole);
                 return null;
-            }
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnOnionRing }:
+            },
+            [MotherBrainHeadCueKind.SpawnOnionRing] = (state, _) =>
+            {
                 SpawnMotherBrainOnionRing(state, state.OnionRingsTargetAngle);
                 return null;
-            case MotherBrainHeadCue.SpawnBomb bomb:
-                SpawnMotherBrainBomb(state, bomb.Afterburns);
-                return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnLaser }:
+            },
+            [MotherBrainHeadCueKind.SpawnLaser] = (state, _) =>
+            {
                 SpawnMotherBrainMouthLaser(state);
                 return null;
-            // Only the animations of her attacks on the Baby, which her late fight starts, raise their cues
-            // (ApplyLateFightHeadCue).
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid or MotherBrainHeadCueKind.CountBabyMetroidAttack or
-                MotherBrainHeadCueKind.ResetBabyMetroidAttacks or MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
-                throw new InvalidOperationException($"Mother Brain's brain raised {cue}, a cue of her late fight, before it began.");
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.PrepareRainbowBeamCharge }:
+            },
+            [MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid] = static (_, _) => throw LateFightCueBeforeItBegan(MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid),
+            [MotherBrainHeadCueKind.CountBabyMetroidAttack] = static (_, _) => throw LateFightCueBeforeItBegan(MotherBrainHeadCueKind.CountBabyMetroidAttack),
+            [MotherBrainHeadCueKind.ResetBabyMetroidAttacks] = static (_, _) => throw LateFightCueBeforeItBegan(MotherBrainHeadCueKind.ResetBabyMetroidAttacks),
+            [MotherBrainHeadCueKind.QueueBabyMetroidAttackSound] = static (_, _) => throw LateFightCueBeforeItBegan(MotherBrainHeadCueKind.QueueBabyMetroidAttackSound),
+            [MotherBrainHeadCueKind.PrepareRainbowBeamCharge] = (state, _) =>
+            {
                 state.SmallPurpleBreathGenerationEnabled = false;
                 _audio.QueueEnemySound(MotherBrainSoundDefinitions.RainbowBeamCharge, priority: SoundRequestPriority.Normal);
                 return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle }:
+            },
+            [MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle] = (state, _) =>
+            {
                 SpawnMotherBrainRainbowChargingProjectile(state);
                 return null;
+            },
             // The neutral hold holds the phase-two neutral pose again on most samples.
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
-                return MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase2Hold : null;
+            [MotherBrainHeadCueKind.MaybeHoldNeutralPhase2] = (_, _) =>
+                MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase2Hold : null,
             // The hold's chance alone decides whether the phase-three pose holds again.
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
-                return MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase3Hold : null;
+            [MotherBrainHeadCueKind.MaybeHoldNeutralPhase3] = (_, _) =>
+                MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase3Hold : null,
             // The drool hold returns its destination: only the burst's chance bursts into more drool; every other sample
             // keeps the one-frame loop.
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeDroolAgain }:
-                return MotherBrainRandomDefinitions.DroolBursts.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.DyingDroolBurst : null;
-            default:
-                throw new InvalidOperationException($"Undefined Mother Brain head cue {cue}.");
-        }
-    }
+            [MotherBrainHeadCueKind.MaybeDroolAgain] = (_, _) =>
+                MotherBrainRandomDefinitions.DroolBursts.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.DyingDroolBurst : null,
+        });
+
+    /// <summary>The failure of a cue of her late fight that her brain raised before it began.</summary>
+    private static InvalidOperationException LateFightCueBeforeItBegan(MotherBrainHeadCueKind kind) =>
+        new($"Mother Brain's brain raised {kind}, a cue of her late fight, before it began.");
 
     /// <summary>Fires the mouth laser, freezing the neck.</summary>
     private void SpawnMotherBrainMouthLaser(MotherBrainEnemyState state)

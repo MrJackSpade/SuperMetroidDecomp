@@ -53,25 +53,20 @@ internal sealed class GrappleBehavior : IGrappleTargets
         return default;
     }
 
-    /// <summary>
-    /// Moves the enemy the grapple beam holds, as the grappled state selects. Returning true tells the
-    /// ordinary scheduler that this update replaced main AI for the current enemy frame.
-    /// </summary>
-    internal bool RunCommonGrappleAi(RoomEnemyPlace enemy, IEnemyAiFrame frame)
-    {
-        if ((enemy.AiStates & EnemyAiStates.Grappled) == EnemyAiStates.None)
-            return false;
-
-        switch (enemy.Definition.GrappleResponse)
+    /// <summary>How the grapple beam moves an enemy of each grapple reaction; true when it replaced main AI for the enemy frame.</summary>
+    private IdentityTable<GrappleEnemyReaction, Func<RoomEnemyPlace, IEnemyAiFrame, bool>> GrappleReactions => field ??=
+        new(new Dictionary<GrappleEnemyReaction, Func<RoomEnemyPlace, IEnemyAiFrame, bool>>
         {
-            case GrappleEnemyReaction.None:
+            [GrappleEnemyReaction.None] = (enemy, frame) =>
+            {
                 enemy.AiStates = EnemyAiStates.None;
                 enemy.Invincibility.End();
                 enemy.Freeze.End();
                 enemy.Shake.End();
                 return true;
-
-            case GrappleEnemyReaction.Attach:
+            },
+            [GrappleEnemyReaction.Attach] = (enemy, frame) =>
+            {
                 if (enemy.Freeze.IsRunning)
                 {
                     enemy.AiStates = EnemyAiStates.Frozen;
@@ -82,20 +77,27 @@ internal sealed class GrappleBehavior : IGrappleTargets
                     enemy.AiStates = EnemyAiStates.None;
                 }
                 return true;
-
-            case GrappleEnemyReaction.Kill:
+            },
+            [GrappleEnemyReaction.Kill] = (enemy, frame) =>
+            {
                 // A grapple kill always ends in the small explosion. The shared death keeps the enemy's position, its drop
                 // and any respawn marker; deleting the enemy outright would skip the explosion.
                 _deathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.Small, frame.Samus);
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
-
-            case GrappleEnemyReaction.Cancel:
-            case GrappleEnemyReaction.HurtSamus:
+            },
+            [GrappleEnemyReaction.Cancel] = (enemy, frame) =>
+            {
                 enemy.AiStates = EnemyAiStates.Frozen;
                 return true;
-
-            case GrappleEnemyReaction.AttachWithoutInvincibility:
+            },
+            [GrappleEnemyReaction.HurtSamus] = (enemy, frame) =>
+            {
+                enemy.AiStates = EnemyAiStates.Frozen;
+                return true;
+            },
+            [GrappleEnemyReaction.AttachWithoutInvincibility] = (enemy, frame) =>
+            {
                 if (enemy.Freeze.IsRunning)
                 {
                     enemy.AiStates = EnemyAiStates.Frozen;
@@ -108,17 +110,26 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 _lifecycle.RunMainAi(enemy, frame);
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
-
-            case GrappleEnemyReaction.AttachAndParalyze:
+            },
+            [GrappleEnemyReaction.AttachAndParalyze] = (enemy, frame) =>
+            {
                 enemy.HurtFlash.Restart(enemy.HurtFlashFrames);
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
+            },
+        });
 
-            case null:
-                throw new InvalidDataException($"Enemy {enemy.DefinitionId} names no reaction to the grapple beam.");
-            default:
-                throw new InvalidDataException(
-                    $"Enemy {enemy.DefinitionId} has no response to grapple reaction {enemy.Definition.GrappleResponse}.");
-        }
+    /// <summary>
+    /// Moves the enemy the grapple beam holds, as the grappled state selects. Returning true tells the
+    /// ordinary scheduler that this update replaced main AI for the current enemy frame.
+    /// </summary>
+    internal bool RunCommonGrappleAi(RoomEnemyPlace enemy, IEnemyAiFrame frame)
+    {
+        if ((enemy.AiStates & EnemyAiStates.Grappled) == EnemyAiStates.None)
+            return false;
+
+        GrappleEnemyReaction response = enemy.Definition.GrappleResponse
+            ?? throw new InvalidDataException($"Enemy {enemy.DefinitionId} names no reaction to the grapple beam.");
+        return GrappleReactions[response](enemy, frame);
     }
 }

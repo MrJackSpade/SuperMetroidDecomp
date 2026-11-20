@@ -114,32 +114,42 @@ internal sealed class EndingRewardJump
     /// Handles launch, head placement, the flights and the shoot event the jump animations publish: whether
     /// <paramref name="cue"/> is the shoot event.
     /// </summary>
-    private bool HandleCue(EndingRewardJumpCue cue)
+    private bool HandleCue(EndingRewardJumpCue cue) => CueReactions[cue]();
+
+    /// <summary>What each cue of the jump animations does, and whether it is the shoot event.</summary>
+    private IdentityTable<EndingRewardJumpCue, Func<bool>> CueReactions => field ??= new(new Dictionary<EndingRewardJumpCue, Func<bool>>
     {
-        switch (cue)
+        [EndingRewardJumpCue.Launch] = () =>
         {
-            case EndingRewardJumpCue.Launch:
-                Velocity = EndingRewardJumpDefinitions.LaunchVelocity;
-                return false;
-            case EndingRewardJumpCue.PrepareHead:
-                RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadReadied : EndingRewardJumpDefinitions.HelmetlessHeadReadied;
-                return false;
-            case EndingRewardJumpCue.LaunchHead:
-                RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadLaunched : EndingRewardJumpDefinitions.HelmetlessHeadLaunched;
-                return false;
-            case ShootCue:
-                body.SetColouring(EndingShades.Drawn(ShootingColouring));
-                return true;
-            case EndingRewardJumpCue.StartBodyFlight:
-                bodyMotion = EndingRewardJumpMotion.Rising;
-                return false;
-            case EndingRewardJumpCue.StartHeadFlight:
-                headMotion = EndingRewardJumpMotion.Rising;
-                return false;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingRewardJumpCue)} {cue}.");
-        }
-    }
+            Velocity = EndingRewardJumpDefinitions.LaunchVelocity;
+            return false;
+        },
+        [EndingRewardJumpCue.PrepareHead] = () =>
+        {
+            RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadReadied : EndingRewardJumpDefinitions.HelmetlessHeadReadied;
+            return false;
+        },
+        [EndingRewardJumpCue.LaunchHead] = () =>
+        {
+            RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadLaunched : EndingRewardJumpDefinitions.HelmetlessHeadLaunched;
+            return false;
+        },
+        [ShootCue] = () =>
+        {
+            body.SetColouring(EndingShades.Drawn(ShootingColouring));
+            return true;
+        },
+        [EndingRewardJumpCue.StartBodyFlight] = () =>
+        {
+            bodyMotion = EndingRewardJumpMotion.Rising;
+            return false;
+        },
+        [EndingRewardJumpCue.StartHeadFlight] = () =>
+        {
+            headMotion = EndingRewardJumpMotion.Rising;
+            return false;
+        },
+    });
 
 
     /// <summary>Requires a suited jump's head actor when a head-specific cue runs.</summary>

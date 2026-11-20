@@ -39,28 +39,28 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Alcoon's animations: spitting a fireball, starting to walk, or taking a stride. Starting to
     /// walk always continues at the walk for the Alcoon's facing, and a stride that meets a wall turns it round to the other walk.
     /// </summary>
-    private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
-    {
-        if (cue is AlcoonCue.Fire fire)
+    private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue) =>
+        cue.Match(
+            fire: fire =>
+            {
+                SpawnAlcoonFireball(place, fire.Launch);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
+                return (AnimationContinuation<AlcoonSegment>?)null;
+            },
+            signal: signal => AlcoonSignals[signal.Kind](place, state, level));
+
+    /// <summary>What each of the Alcoon's signals does, and the animation it continues at, or null to run on.</summary>
+    private IdentityTable<AlcoonCueKind, Func<RoomEnemyPlace, AlcoonEnemyState, RoomLevelData, AnimationContinuation<AlcoonSegment>?>> AlcoonSignals => field ??=
+        new(new Dictionary<AlcoonCueKind, Func<RoomEnemyPlace, AlcoonEnemyState, RoomLevelData, AnimationContinuation<AlcoonSegment>?>>
         {
-            SpawnAlcoonFireball(place, fire.Launch);
-            _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
-            return null;
-        }
-        AlcoonCueKind kind = ((AlcoonCue.Signal)cue).Kind;
-        switch (kind)
-        {
-            case AlcoonCueKind.StartWalking:
-                return StartAlcoonWalking(state);
-            case AlcoonCueKind.CompleteWalkCycle:
+            [AlcoonCueKind.StartWalking] = (_, state, _) => StartAlcoonWalking(state),
+            [AlcoonCueKind.CompleteWalkCycle] = (place, state, level) =>
+            {
                 state.WalkCyclesBeforeVolley.Step();
                 return MoveAlcoonHorizontally(place, state, level);
-            case AlcoonCueKind.Move:
-                return MoveAlcoonHorizontally(place, state, level);
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(AlcoonCueKind)} {kind}.");
-        }
-    }
+            },
+            [AlcoonCueKind.Move] = MoveAlcoonHorizontally,
+        });
 
     /// <summary>Guards the setup's simulated ascent and floor search against invalid room geometry.</summary>
     private const int AlcoonJumpSimulationLimit = 4096;

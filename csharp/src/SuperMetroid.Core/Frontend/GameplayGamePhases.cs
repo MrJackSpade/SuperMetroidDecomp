@@ -147,6 +147,38 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
     }
 
+    /// <summary>Where each route of the update's out-of-health check sends Samus, and whether the refill or the death takes the update.</summary>
+    private IdentityTable<SamusOutOfHealthRoute, Func<SamusState, bool>> OutOfHealthRoutes => field ??=
+        new(new Dictionary<SamusOutOfHealthRoute, Func<SamusState, bool>>
+        {
+            [SamusOutOfHealthRoute.HasHealth] = samus => false,
+            [SamusOutOfHealthRoute.NotChecked] = samus =>
+            {
+                // A message box suspended the update before its check, which the update the box closes on makes.
+                return false;
+            },
+            [SamusOutOfHealthRoute.DeathWithheld] = samus =>
+            {
+                // Another game state owns the update: it goes on with Samus out of health, and the check froze nothing.
+                return false;
+            },
+            [SamusOutOfHealthRoute.ReserveRefill] = samus =>
+            {
+                session.reserveRecovery.Begin(samus);
+                session.Enter(session.Phases.ReserveTankRefill);
+                return true;
+            },
+            [SamusOutOfHealthRoute.Death] = samus =>
+            {
+                // Samus's death disables colour effects and locks her input and drawing.
+                // Locking the player out is the shared representation;
+                // the death sequence's steps own colour and animation side effects.
+                samus.Control.LockOutPlayer();
+                session.Enter(DeathSequenceStep.FinalGameplayPass);
+                return true;
+            },
+        });
+
     /// <summary>
     /// Enters the reserve tanks' refill or death where the update's out-of-health check sent Samus; the check already froze
     /// gameplay for either (#2519).
@@ -154,29 +186,6 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <returns>Whether the refill or the death takes the update.</returns>
     internal bool RouteOutOfHealth(SamusState samus, SamusOutOfHealthRoute route)
     {
-        switch (route)
-        {
-            case SamusOutOfHealthRoute.HasHealth:
-                return false;
-            case SamusOutOfHealthRoute.NotChecked:
-                // A message box suspended the update before its check, which the update the box closes on makes.
-                return false;
-            case SamusOutOfHealthRoute.DeathWithheld:
-                // Another game state owns the update: it goes on with Samus out of health, and the check froze nothing.
-                return false;
-            case SamusOutOfHealthRoute.ReserveRefill:
-                session.reserveRecovery.Begin(samus);
-                session.Enter(session.Phases.ReserveTankRefill);
-                return true;
-            case SamusOutOfHealthRoute.Death:
-                // Samus's death disables colour effects and locks her input and drawing.
-                // Locking the player out is the shared representation;
-                // the death sequence's steps own colour and animation side effects.
-                samus.Control.LockOutPlayer();
-                session.Enter(DeathSequenceStep.FinalGameplayPass);
-                return true;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SamusOutOfHealthRoute)} {route}.");
-        }
+        return OutOfHealthRoutes[route](samus);
     }
 }

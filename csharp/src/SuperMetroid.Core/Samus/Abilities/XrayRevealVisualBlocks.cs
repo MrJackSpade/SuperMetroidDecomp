@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
@@ -56,15 +58,28 @@ public readonly record struct XrayRevealVisualBlocks
 
     /// <summary>How many blocks a drawable copy shape shows.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="shape"/> copies no blocks.</exception>
-    public static int CountFor(XrayRevealShape shape) => shape switch
+    public static int CountFor(XrayRevealShape shape) => Ensure.Listed(Counts, shape);
+
+    /// <summary>How many blocks each drawable copy shape shows; an extension shape copies none.</summary>
+    private static FrozenDictionary<XrayRevealShape, int> Counts => field ??= new Dictionary<XrayRevealShape, int>
     {
-        XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => 1,
-        XrayRevealShape.CopyWide or XrayRevealShape.CopyTall => 2,
-        XrayRevealShape.CopySquare => 4,
-        XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension =>
-            throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks."),
-        _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, $"Undefined {nameof(XrayRevealShape)}."),
-    };
+        [XrayRevealShape.CopyOne] = 1,
+        [XrayRevealShape.CopyBrinstar] = 1,
+        [XrayRevealShape.CopyWide] = 2,
+        [XrayRevealShape.CopyTall] = 2,
+        [XrayRevealShape.CopySquare] = 4,
+    }.ToFrozenDictionary();
+
+    /// <summary>The blocks each drawable copy shape shows, from its blocks in reading order; an extension shape copies none.</summary>
+    private static FrozenDictionary<XrayRevealShape, Func<IReadOnlyList<int>, XrayRevealVisualBlocks>> Copies => field ??=
+        new Dictionary<XrayRevealShape, Func<IReadOnlyList<int>, XrayRevealVisualBlocks>>
+        {
+            [XrayRevealShape.CopyWide] = static blocks => Wide(blocks[0], blocks[1]),
+            [XrayRevealShape.CopyTall] = static blocks => Tall(blocks[0], blocks[1]),
+            [XrayRevealShape.CopySquare] = static blocks => Square(blocks[0], blocks[1], blocks[2], blocks[3]),
+            [XrayRevealShape.CopyOne] = static blocks => One(blocks[0]),
+            [XrayRevealShape.CopyBrinstar] = static blocks => One(blocks[0]),
+        }.ToFrozenDictionary();
 
     /// <summary>The blocks a drawable copy shape shows, from its blocks in reading order.</summary>
     /// <exception cref="ArgumentNullException"><paramref name="blocks"/> is null.</exception>
@@ -75,15 +90,6 @@ public readonly record struct XrayRevealVisualBlocks
         Ensure.NotNull(blocks);
         if (blocks.Count != CountFor(shape))
             throw new InvalidDataException($"An X-ray {shape} reveal shows {CountFor(shape)} blocks, not {blocks.Count}.");
-        return shape switch
-        {
-            XrayRevealShape.CopyWide => Wide(blocks[0], blocks[1]),
-            XrayRevealShape.CopyTall => Tall(blocks[0], blocks[1]),
-            XrayRevealShape.CopySquare => Square(blocks[0], blocks[1], blocks[2], blocks[3]),
-            XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => One(blocks[0]),
-            XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension =>
-                throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks."),
-            _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, $"Undefined {nameof(XrayRevealShape)}."),
-        };
+        return Ensure.Listed(Copies, shape)(blocks);
     }
 }

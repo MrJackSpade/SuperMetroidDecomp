@@ -498,18 +498,44 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyPlace place, NinjaSpacePirateCue cue, SamusState samus)
     {
         NinjaSpacePirateEnemyState state = place.RequireSpeciesState<NinjaSpacePirateEnemyState>();
-        switch (cue)
-        {
-            case NinjaSpacePirateCue.SetShading setShading:
-                place.Shading = setShading.Shading;
-                return null;
-            case NinjaSpacePirateCue.PlaySound playSound:
+        return cue.Match<NinjaSpacePirateSegment?>(
+            playSound: playSound =>
+            {
                 Walking.RequestSpacePirateSound(playSound.Sound);
                 return null;
-            case NinjaSpacePirateCue.ThrowClaw throwClaw:
+            },
+            setShading: setShading =>
+            {
+                place.Shading = setShading.Shading;
+                return null;
+            },
+            throwClaw: throwClaw =>
+            {
                 SpawnNinjaPirateClaw(place, throwClaw.Throw, throwClaw.Offset);
                 return null;
-            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartActive }:
+            },
+            begin: begin =>
+            {
+                // The animation does not jump to the move it begins: main AI runs it from the next update, as the
+                // animation runs on.
+                state.Action = begin.Action;
+                return null;
+            },
+            beginHeading: begin =>
+            {
+                // As a plain begin, main AI runs the move from the next update, the cue's way (#2165).
+                state.Action = begin.Action;
+                state.Heading = begin.Heading;
+                return null;
+            },
+            signal: signal => NinjaSignals[signal.Kind](place, state, samus));
+    }
+
+    /// <summary>What each of the ninja Space Pirates' signals does, and the animation it continues at, or null to run on.</summary>
+    private IdentityTable<NinjaSpacePirateCueKind, Func<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, NinjaSpacePirateSegment?>> NinjaSignals => field ??=
+        new(new Dictionary<NinjaSpacePirateCueKind, Func<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, NinjaSpacePirateSegment?>>
+        {
+            [NinjaSpacePirateCueKind.StartActive] = static (place, _, samus) =>
             {
                 NinjaSpacePirateSegment active = place.Position.X.Whole < samus.Position.X.Whole
                     ? NinjaSpacePirateSegment.ActiveFacingRight
@@ -519,27 +545,18 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 // Re-entering that animation runs its action cue and restores decision AI
                 // after the idle animation set the action that waits for it.
                 return active;
-            }
-            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.ResetSpinSpeed }:
+            },
+            [NinjaSpacePirateCueKind.ResetSpinSpeed] = static (_, state, _) =>
+            {
                 state.SpinSpeed = SignedEightEight.Zero;
                 return null;
-            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartDivekick }:
+            },
+            [NinjaSpacePirateCueKind.StartDivekick] = (_, state, _) =>
+            {
                 InitializeNinjaPirateDive(state);
                 return null;
-            case NinjaSpacePirateCue.Begin begin:
-                // The animation does not jump to the move it begins: main AI runs it from the next update, as the
-                // animation runs on.
-                state.Action = begin.Action;
-                return null;
-            case NinjaSpacePirateCue.BeginHeading begin:
-                // As a plain begin, main AI runs the move from the next update, the cue's way (#2165).
-                state.Action = begin.Action;
-                state.Heading = begin.Heading;
-                return null;
-            default:
-                throw new InvalidOperationException($"The ninja Space Pirates' animations have no {cue} cue.");
-        }
-    }
+            },
+        });
 
     /// <summary>Installs an animation and restarts its frame timer.</summary>
     private static void StartNinjaPirateAnimation(

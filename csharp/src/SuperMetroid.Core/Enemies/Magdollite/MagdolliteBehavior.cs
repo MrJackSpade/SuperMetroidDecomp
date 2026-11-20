@@ -15,15 +15,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Magdollite];
 
     /// <summary>The Magdollite part the placement names: its head, rising body or tracking overlay (#2342, #2474).</summary>
-    /// <exception cref="InvalidOperationException">The placement names no Magdollite part.</exception>
     public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<MagdolliteSpawnSettings>() switch
-        {
-            MagdolliteHeadSpawnSettings => EnemyOccupant.FromSurroundings(new MagdolliteHeadEntity(this, place, common)),
-            MagdolliteBodySpawnSettings => EnemyOccupant.Of(new MagdolliteBodyEntity(this, place, common)),
-            MagdolliteOverlaySpawnSettings => EnemyOccupant.Of(new MagdolliteOverlayEntity(this, place, common)),
-            var part => throw new InvalidOperationException($"Undefined Magdollite part {part}."),
-        };
+        Ensure.NotNull(place).SpawnSettings<MagdolliteSpawnSettings>().Create(this, place, common);
 
     /// <summary>Supplies the room's apex overreads.</summary>
     private readonly EnemyRoomBinding _room;

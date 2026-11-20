@@ -100,6 +100,36 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
     public TSound? Awaited(TLibrary library) => HandshakeOf(library).Awaited;
 
+    /// <summary>What a pass does in each phase of a library's handshake, and the step it hands the library.</summary>
+    private IdentityTable<Phase, Func<TLibrary, SoundAcknowledgement<TSound>, Handshake, HandshakeStep>> PhaseSteps => field ??=
+        new(new Dictionary<Phase, Func<TLibrary, SoundAcknowledgement<TSound>, Handshake, HandshakeStep>>
+        {
+            [Phase.ReadyToRequest] = (library, acceptance, handshake) => HandshakeStep.RequestNext,
+            [Phase.AwaitingAcceptance] = (library, acceptance, handshake) =>
+            {
+                if (!acceptance.Acknowledges(handshake.Awaited))
+                    return HandshakeStep.RepeatRequest;
+                handshakes[library] = handshake with { Phase = Phase.HoldingBeforeWithdrawal, Hold = UpdateCountdown.Lasting(WithdrawalHoldPasses) };
+                return HandshakeStep.Wait;
+            },
+            [Phase.HoldingBeforeWithdrawal] = (library, acceptance, handshake) =>
+            {
+                UpdateCountdown hold = handshake.Hold
+                    ?? throw new InvalidDataException("A sound handshake holds its accepted request with no hold.");
+                if (!hold.Count())
+                    return HandshakeStep.Wait;
+                handshakes[library] = new Handshake(Phase.AwaitingWithdrawalAcceptance, Awaited: null, Hold: null);
+                return HandshakeStep.Withdraw;
+            },
+            [Phase.AwaitingWithdrawalAcceptance] = (library, acceptance, handshake) =>
+            {
+                if (!acceptance.IsNone)
+                    return HandshakeStep.Withdraw;
+                handshakes[library] = handshake with { Phase = Phase.ReadyToRequest };
+                return HandshakeStep.RequestNext;
+            },
+        });
+
     /// <summary>
     /// Runs one pass of <paramref name="library"/>'s handshake against what the library reports as accepted, and
     /// says what the pass asks of the library's queue.
@@ -112,34 +142,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     public HandshakeStep Advance(TLibrary library, SoundAcknowledgement<TSound> acceptance)
     {
         Handshake handshake = HandshakeOf(library);
-        switch (handshake.Phase)
-        {
-            case Phase.ReadyToRequest:
-                return HandshakeStep.RequestNext;
-
-            case Phase.AwaitingAcceptance:
-                if (!acceptance.Acknowledges(handshake.Awaited))
-                    return HandshakeStep.RepeatRequest;
-                handshakes[library] = handshake with { Phase = Phase.HoldingBeforeWithdrawal, Hold = UpdateCountdown.Lasting(WithdrawalHoldPasses) };
-                return HandshakeStep.Wait;
-
-            case Phase.HoldingBeforeWithdrawal:
-                UpdateCountdown hold = handshake.Hold
-                    ?? throw new InvalidDataException("A sound handshake holds its accepted request with no hold.");
-                if (!hold.Count())
-                    return HandshakeStep.Wait;
-                handshakes[library] = new Handshake(Phase.AwaitingWithdrawalAcceptance, Awaited: null, Hold: null);
-                return HandshakeStep.Withdraw;
-
-            case Phase.AwaitingWithdrawalAcceptance:
-                if (!acceptance.IsNone)
-                    return HandshakeStep.Withdraw;
-                handshakes[library] = handshake with { Phase = Phase.ReadyToRequest };
-                return HandshakeStep.RequestNext;
-
-            default:
-                throw new InvalidDataException($"Sound library {library} holds handshake phase {handshake.Phase}, which no pass can leave.");
-        }
+        return PhaseSteps[handshake.Phase](library, acceptance, handshake);
     }
 
     /// <summary>Records that <paramref name="library"/>'s ready queue requested <paramref name="sound"/>; it then awaits its acceptance.</summary>

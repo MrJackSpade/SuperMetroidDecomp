@@ -36,12 +36,9 @@ internal sealed class RoomObjectPopulationLoader
             {
                 // A placement stands on a block of the grid, or, as the two shipped off-room coloured doors do, on a block
                 // off it (#2034); setups that require the grid's terrain validate when they consume the block.
-                block = placement.Site switch
-                {
-                    RoomObjectSite.RoomGrid => room.Level.GridBlock(placement.Block),
-                    RoomObjectSite.OffTheRoom => room.Level.BlockOffTheGrid(placement.Block),
-                    _ => throw new InvalidDataException($"Undefined {nameof(RoomObjectSite)} {placement.Site}."),
-                };
+                block = placement.Site == RoomObjectSite.RoomGrid
+                    ? room.Level.GridBlock(placement.Block)
+                    : room.Level.BlockOffTheGrid(placement.Block);
             }
             catch (ArgumentOutOfRangeException error)
             {

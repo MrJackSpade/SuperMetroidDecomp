@@ -15,17 +15,19 @@ public static class SquareSlopes
         [SlopeShapeDefinitions.SquareFull] = SquareSlopeShape.Full,
     };
 
+    /// <summary>Whether a quadrant of a block of each square slope shape is solid.</summary>
+    private static IdentityTable<SquareSlopeShape, Func<SquareSlopeQuadrant, bool>> SolidQuadrants => field ??= new(new Dictionary<SquareSlopeShape, Func<SquareSlopeQuadrant, bool>>
+    {
+        [SquareSlopeShape.BottomHalf] = static quadrant => quadrant.Bottom,
+        [SquareSlopeShape.RightHalf] = static quadrant => quadrant.Right,
+        [SquareSlopeShape.BottomRightQuarter] = static quadrant => quadrant.Bottom && quadrant.Right,
+        [SquareSlopeShape.AllButTopLeft] = static quadrant => quadrant.Bottom || quadrant.Right,
+        [SquareSlopeShape.Full] = static quadrant => true,
+    });
+
     /// <summary>Whether <paramref name="quadrant"/> of a block of <paramref name="shape"/> is solid.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The shape is undefined.</exception>
-    public static bool IsSolid(SquareSlopeShape shape, SquareSlopeQuadrant quadrant) => shape switch
-    {
-        SquareSlopeShape.BottomHalf => quadrant.Bottom,
-        SquareSlopeShape.RightHalf => quadrant.Right,
-        SquareSlopeShape.BottomRightQuarter => quadrant.Bottom && quadrant.Right,
-        SquareSlopeShape.AllButTopLeft => quadrant.Bottom || quadrant.Right,
-        SquareSlopeShape.Full => true,
-        _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, "Undefined square slope shape."),
-    };
+    public static bool IsSolid(SquareSlopeShape shape, SquareSlopeQuadrant quadrant) => SolidQuadrants[shape](quadrant);
 
     /// <summary>The square slope shape a slope block's behaviour selects.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The behaviour selects a non-square slope shape.</exception>

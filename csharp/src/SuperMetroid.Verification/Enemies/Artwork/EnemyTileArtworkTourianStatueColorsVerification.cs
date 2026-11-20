@@ -188,7 +188,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             runtime.BossArtwork.KraidEyes = (artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The artwork holds Kraid's colours.")).Eyes();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
             for (int area = 1; area <= 4; area++)
                 runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
             foreach (StoryEvent greyEvent in new[] { StoryEvent.PhantoonStatueGrey, StoryEvent.RidleyStatueGrey, StoryEvent.DraygonStatueGrey, StoryEvent.KraidStatueGrey })

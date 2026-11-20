@@ -32,7 +32,7 @@ internal static class TreadmillVisualVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
             runtime.System.RecordBossesDefeated(AreaId.WreckedShip, DefeatedBosses.AreaBoss);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(pointer));
             var room = runtime.Room.LoadedRoom;

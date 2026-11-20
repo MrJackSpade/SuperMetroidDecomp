@@ -23,7 +23,7 @@ internal static class BoostFloorScrollVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Dachora, camera: new Position16<RoomPixels>(1024, 0));
         var samus = runtime.Player.Samus;
         samus.Control.Unlock();

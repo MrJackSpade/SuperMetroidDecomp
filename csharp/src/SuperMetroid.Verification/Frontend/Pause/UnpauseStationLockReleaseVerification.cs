@@ -28,7 +28,7 @@ internal static class UnpauseStationLockReleaseVerification
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.Control.LockAtStation();

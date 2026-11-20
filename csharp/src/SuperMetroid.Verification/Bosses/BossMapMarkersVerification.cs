@@ -88,7 +88,7 @@ internal static class BossMapMarkersVerification
                 runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
                 runtime.FrameBoundary.BeginAcceptedFrame(0);
                 runtime.RoomLoader.InitializeStartingCeresRoom();
-                runtime.RoomLoader.InitializeCeresStartSamus();
+                runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
                 slot.ApplyTo(runtime.Player.Samus, runtime.System);
                 RoomDefinition room = SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(restored, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), 0).Room
                     ?? throw new InvalidDataException($"{SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area)} station 0 has no room.");

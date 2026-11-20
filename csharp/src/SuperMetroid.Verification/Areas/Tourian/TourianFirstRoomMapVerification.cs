@@ -21,7 +21,7 @@ internal static class TourianFirstRoomMapVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         AssertTrue(!runtime.System.HasAreaMap(AreaId.Tourian), "a new session has no Tourian map");
 
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Metroids1);

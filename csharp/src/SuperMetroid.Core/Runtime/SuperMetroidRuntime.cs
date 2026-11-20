@@ -398,8 +398,6 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The installed boss artwork every room's bosses read.</summary>
     public BossArtworkBinding BossArtwork { get; }
 
-    /// <summary>The last enemy pass's results, for readers after the frame.</summary>
-    internal IEnemyFrameResults EnemyFrameResults => Room.LoadedScope.Enemies;
 
     /// <summary>
     /// The game state whose phase the frontend is now running. Samus's control setups test it from
@@ -445,9 +443,11 @@ internal sealed class SuperMetroidRuntime
     /// <param name="playerInput">The host's controller buttons, read as gameplay actions through the bindings when the frame boundary latches player input; attract playback publishes its independent scripted actions later.</param>
     /// <param name="request">The game state that owns the update and the host's work after the frame boundary.</param>
     /// <returns>What the update started for the game-state loop to act on after it: the time-up and where its out-of-health check sends Samus.</returns>
-    public RuntimeFrameOutcome StepFrame(ControllerButton playerInput, RuntimeFrameRequest request)
+    /// <param name="loaded">The runtime's loaded room, which every gameplay update runs in.</param>
+    public RuntimeFrameOutcome StepFrame(ControllerButton playerInput, RuntimeFrameRequest request, RoomOccupancy.Loaded loaded)
     {
         Ensure.NotNull(request);
+        Ensure.NotNull(loaded);
         // Every gameplay update runs with Samus: each game's start, a saved game's load and the attract demo create her
         // before their first room loads, and only those setups, between updates, replace her.
         SamusState samus = Player.Samus;
@@ -456,7 +456,7 @@ internal sealed class SuperMetroidRuntime
             AmmoLoanGuard.Begin(Assists.Current.AmmoNeverRunsOut, samus);
         try
         {
-            return StepFrameGuarded(playerInput, request, infiniteAmmoGuard, samus);
+            return StepFrameGuarded(playerInput, request, infiniteAmmoGuard, loaded.Scope, samus);
         }
         finally
         {
@@ -476,11 +476,9 @@ internal sealed class SuperMetroidRuntime
         ControllerButton playerInput,
         RuntimeFrameRequest frameRequest,
         AmmoLoanGuard infiniteAmmoGuard,
+        RoomScope room,
         SamusState samus)
     {
-        // Every gameplay update runs in a loaded room: each game's start, a saved game's load and the attract demo load
-        // one before their first update, and a room load replaces the room whole.
-        RoomScope room = Room.LoadedScope;
         // An open message box runs its own updates inside the suspended gameplay update:
         // the frame boundary latches no input and no random number is drawn nor owner run.
         if (MessageBox.IsActive)
@@ -724,7 +722,7 @@ internal sealed class SuperMetroidRuntime
         // gameplay at room main only when main gameplay owns the update and none of them did, and only then can the Ceres
         // elevator take Samus (#2534).
         bool gameInMainGameplay = owner.IsMainGameplay &&
-            DecideTransition(start, owner, startsTimeUp, ceresDepartureRequested: false, samus) == GameplayUpdateTransition.None;
+            DecideTransition(start, owner, startsTimeUp, ceresDepartureRequested: false, room, samus) == GameplayUpdateTransition.None;
         RoomMainOutcome roomMain = RunRoomMains(gameInMainGameplay, room, samus);
         // The out-of-health check follows room main, and the game-time step follows it: a death another game state
         // withholds returns before the step (#2509, #2517). Every step that moves the game to another state has run by
@@ -732,7 +730,7 @@ internal sealed class SuperMetroidRuntime
         // through her collision into the tube's door. The step advances the gameplay clock before shaking. Message-box
         // frames returned above, exactly as the suspended frame does, so item fanfare time is not counted here.
         GameplayUpdateTransition transition = DecideTransition(start, owner, startsTimeUp,
-            ceresDepartureRequested: roomMain == RoomMainOutcome.CeresElevatorTookSamus, samus);
+            ceresDepartureRequested: roomMain == RoomMainOutcome.CeresElevatorTookSamus, room, samus);
         SamusOutOfHealthRoute outOfHealth = CheckSamusOutOfHealth(samus, owner, transition, room);
         if (owner.CountsPlayTime && outOfHealth != SamusOutOfHealthRoute.DeathWithheld)
             GameTime.Step();
@@ -764,7 +762,7 @@ internal sealed class SuperMetroidRuntime
     {
         // Room main does not run on such an update, so the Ceres elevator takes no one on it.
         GameplayUpdateTransition transition = DecideTransition(start, owner, startsTimeUp: false,
-            ceresDepartureRequested: false, samus);
+            ceresDepartureRequested: false, room, samus);
         SamusOutOfHealthRoute outOfHealth = MessageBox.IsActive
             ? SamusOutOfHealthRoute.NotChecked
             : CheckSamusOutOfHealth(samus, owner, transition, room);
@@ -841,35 +839,36 @@ internal sealed class SuperMetroidRuntime
         GameplayUpdateOwner owner,
         bool startsTimeUp,
         bool ceresDepartureRequested,
+        RoomScope room,
         SamusState samus)
     {
         if (startsTimeUp)
             return GameplayUpdateTransition.TimeUp;
-        if (EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted))
+        if (room.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted))
             return GameplayUpdateTransition.LeavesZebes;
         // The map station's completion message pauses on the map as it closes, independently of Start or the station's
         // lock on Samus's input.
         if (start.MessageBox == GameplayMessageId.MapDataAccessCompleted && !MessageBox.IsActive)
             return GameplayUpdateTransition.MapStationPause;
-        if (PauseCheckAdmits(start, owner, samus))
+        if (PauseCheckAdmits(start, owner, room, samus))
             return GameplayUpdateTransition.Pause;
         if (ceresDepartureRequested)
             return GameplayUpdateTransition.CeresDeparture;
         // A message box opened later in the same update (a station's completion notice in the room objects' step)
         // suspends that update until it closes, so the door waits for the box's final update.
-        if (DoorEntered && !MessageBox.IsActive)
+        if (DoorEntered(room) && !MessageBox.IsActive)
             return GameplayUpdateTransition.Door;
         return GameplayUpdateTransition.None;
     }
 
     /// <summary>Whether Samus's collision has entered a door the door transition has yet to go through (#2545).</summary>
-    private bool DoorEntered => Room.LoadedScope.RoomObjects.DoorContacts.EnteredDoor is not null;
+    private static bool DoorEntered(RoomScope room) => room.RoomObjects.DoorContacts.EnteredDoor is not null;
 
     /// <summary>Samus's pause check: whether a new Start press pauses the game this update.</summary>
     /// <param name="start">How the update began.</param>
     /// <param name="owner">The game state that owns the update, whose permissions say whether the game is in main gameplay.</param>
     /// <param name="samus">The update's Samus.</param>
-    private bool PauseCheckAdmits(GameplayUpdateStart start, GameplayUpdateOwner owner, SamusState samus)
+    private bool PauseCheckAdmits(GameplayUpdateStart start, GameplayUpdateOwner owner, RoomScope room, SamusState samus)
     {
         if (Room.ActiveRoom is null)
             return false;
@@ -886,7 +885,7 @@ internal sealed class SuperMetroidRuntime
                !samus.Control.InputLocked &&
                !PowerBombExplosionActive &&
                !samus.Xray.TimeIsFrozen &&
-               !DoorEntered &&
+               !DoorEntered(room) &&
                Room.ActiveRoom.Area != AreaId.Ceres &&
                PlayerActions.NewlyPressed.HasAny(GameplayAction.Start);
     }
@@ -945,7 +944,7 @@ internal sealed class SuperMetroidRuntime
         if (!deathOwnsSamus && !DoorTransition.Passage.IsUnderWay)
         {
             ScrollBoundaryCamera camera = room.Camera;
-            ActiveRoomGeometry roomGeometry = RoomLoader.GetActiveRoomGeometry();
+            ActiveRoomGeometry roomGeometry = RoomLoader.GetActiveRoomGeometry(room.Room);
 
             previousCameraPoint = samus.ApplyPreviousPositionWrites(previousCameraPoint);
             var currentCameraPoint = samus.Position;
@@ -1140,10 +1139,11 @@ internal sealed class SuperMetroidRuntime
     /// and the screen effects), and the frame's colours. Publishing never advances
     /// simulation, and the result shares no storage with it.
     /// </summary>
-    public GameplayDisplayFrame PublishDisplayFrame()
+    /// <param name="loaded">The runtime's loaded room, from which every gameplay frame is shown.</param>
+    public GameplayDisplayFrame PublishDisplayFrame(RoomOccupancy.Loaded loaded)
     {
-        // A frame is shown only from a loaded room, and every room loads with Samus introduced.
-        RoomScope room = Room.LoadedScope;
+        Ensure.NotNull(loaded);
+        RoomScope room = loaded.Scope;
         SamusState samus = Player.Samus;
         MotherBrainEnemyState? motherBrain = room.Enemies.DisplaySources.MotherBrain;
         var frameEnd = new GameplayFrameEndDisplayInputs(
@@ -1158,7 +1158,7 @@ internal sealed class SuperMetroidRuntime
             MessageBoxLayer.Capture(MessageBox, room.MessageBoxes),
             SuitPickup.IsActive ? SuitPickup.Beam : null,
             SamusXrayDisplaySnapshot.Capture(samus, LatestGameplayFrame?.XrayBeamStep));
-        return new(Display.Latched, frameEnd, new FramePaint(PublishShading(samus),
+        return new(Display.Latched, frameEnd, new FramePaint(PublishShading(room, samus),
             Player.Colours.ShadeOwnDraws(DisplayedSprites.Draws)));
     }
 
@@ -1167,20 +1167,20 @@ internal sealed class SuperMetroidRuntime
     /// state shows, each later one showing over the earlier: the room's colour effects and the effect overlay colours,
     /// then its bosses', then the door's fade over all of them.
     /// </summary>
-    private GameplayShading PublishShading(SamusState samus)
+    private GameplayShading PublishShading(RoomScope room, SamusState samus)
     {
         var shading = new GameplayShadingBuilder();
-        foreach (IGameplayShadingSource source in ShadingSources(samus))
+        foreach (IGameplayShadingSource source in ShadingSources(room, samus))
             source.ShadeGameplay(shading);
-        return shading.Build(Room.LoadedScope.Assets.BlockSheet.Sheet.Image, Room.LoadedScope.Assets.BlockSheet.Backdrop);
+        return shading.Build(room.Assets.BlockSheet.Sheet.Image, room.Assets.BlockSheet.Backdrop);
     }
 
     /// <summary>The owners of the colour effects the frame shows, in the order they are laid over each other.</summary>
-    private IEnumerable<IGameplayShadingSource> ShadingSources(SamusState samus)
+    private IEnumerable<IGameplayShadingSource> ShadingSources(RoomScope room, SamusState samus)
     {
-        yield return Room.LoadedScope.ColourEffects;
-        yield return Room.LoadedScope.FxOverlay;
-        foreach (IGameplayShadingSource boss in Room.LoadedScope.Enemies.DisplaySources.ShadingSources)
+        yield return room.ColourEffects;
+        yield return room.FxOverlay;
+        foreach (IGameplayShadingSource boss in room.Enemies.DisplaySources.ShadingSources)
             yield return boss;
         yield return DoorFade;
         // The death explosion's whiteout writes over the colours the death fade left black, so it shows instead of it.
@@ -1230,7 +1230,8 @@ internal sealed class SuperMetroidRuntime
         Ensure.NotNull(assists);
         bool statuesOpening = !Assists.Current.TourianStatuesOpen && assists.TourianStatuesOpen;
         Assists.Rebind(assists);
-        if (statuesOpening) Room.LoadedScope.TourianStatues?.RestartWithStatuesOpen(Room.LoadedScope.RoomObjects);
+        // A runtime that has loaded no room yet has no statues to restart; its statue room loads with them open.
+        if (statuesOpening && Room.Scope is { TourianStatues: { } statues } scope) statues.RestartWithStatuesOpen(scope.RoomObjects);
     }
 
     /// <summary>

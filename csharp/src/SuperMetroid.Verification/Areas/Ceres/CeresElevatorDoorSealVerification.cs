@@ -34,7 +34,7 @@ internal static class CeresElevatorDoorSealVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
 
         RoomLevelData beforeEscape = LoadElevatorRoomThroughItsDoor(runtime);
         AssertTrue(ReferenceEquals(CeresRoomStateDefinitions.CeresElevatorDefault, runtime.Room.LoadedRoom.State),

@@ -28,7 +28,7 @@ internal static class BabyMetroidWallClearTimingVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomLevelData level = runtime.Room.LoadedLevelData;
         const int WallColumn = 0x30, WallRow = 11;

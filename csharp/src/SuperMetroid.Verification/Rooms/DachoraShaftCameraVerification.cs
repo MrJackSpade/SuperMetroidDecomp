@@ -31,7 +31,7 @@ internal static class DachoraShaftCameraVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Dachora);
         RoomScope room = runtime.Room.Scope ?? throw new InvalidOperationException("The debug load adopted no scope.");
         VerificationAssertions.AssertTrue(room.Main is DachoraShaftCameraMain, "the Dachora room's state composes the shaft camera main");

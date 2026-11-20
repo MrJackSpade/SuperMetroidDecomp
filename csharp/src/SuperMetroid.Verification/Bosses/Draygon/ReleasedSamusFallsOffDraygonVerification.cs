@@ -29,7 +29,7 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
         DraygonEnemyState draygon = (runtime.Enemies.Draygon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.Draygon."));
         // Stage the end of the intro rather than replaying the dance; the fight's hitboxes

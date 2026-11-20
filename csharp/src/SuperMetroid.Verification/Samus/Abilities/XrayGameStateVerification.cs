@@ -33,7 +33,7 @@ internal static class XrayGameStateVerification
             SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
             SamusState samus = runtime.Player.Samus;
             samus.Control.Unlock();

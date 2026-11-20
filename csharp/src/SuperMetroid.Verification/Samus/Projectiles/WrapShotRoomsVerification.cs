@@ -35,7 +35,7 @@ internal static class WrapShotRoomsVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
             runtime.LoadCartridgeRoomForDebug(setup.Room);
             var level = runtime.Room.LoadedLevelData;
             bool left = setup.Room == RoomDefinitions.GreenBrinstarMainShaft;

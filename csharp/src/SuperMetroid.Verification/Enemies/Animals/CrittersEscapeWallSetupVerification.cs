@@ -34,7 +34,7 @@ internal static class CrittersEscapeWallSetupVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
 
         RoomLevelData beforeEscape = LoadBombTorizoRoomThroughItsDoor(runtime);
         AssertTrue(!ReferenceEquals(CrateriaRoomStateDefinitions.BombTorizoWhenZebesTimebombSet, runtime.Room.LoadedRoom.State),

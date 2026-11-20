@@ -171,7 +171,7 @@ internal static class SamusSuitColorsVerification
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Suits.Resolve(SamusSuit.Power, 1),
             runtime.Player.Colours.ShownSuit(installedSources)[1],
             "installed production Ceres entry uses the installed Power Suit color");

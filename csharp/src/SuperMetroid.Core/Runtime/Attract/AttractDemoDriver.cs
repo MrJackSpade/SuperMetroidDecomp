@@ -84,7 +84,8 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// Loads the demo scene without consulting or writing a player save.
     /// Uses the ordinary room, room-object, enemy, FX, and graphics loaders with demo progression.
     /// </summary>
-    internal void InitializeAttractDemo(AttractDemoScene scene)
+    /// <returns>The runtime's loaded room, the demo's.</returns>
+    internal RoomOccupancy.Loaded InitializeAttractDemo(AttractDemoScene scene)
     {
         Ensure.NotNull(scene);
         _system.Progress.CopyFrom(DemoProgress());
@@ -116,26 +117,28 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         // The demo record independently supplies room and door. Do not replace room
         // selection with the door destination or derive placement from a load station.
         var room = _roomLoader.LoadSelectedRoom(scene.Room);
-        _roomLoader.LoadRoom(door, room, scene.CameraPosition,
+        RoomOccupancy.Loaded loaded = _roomLoader.LoadRoom(door, room, scene.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport);
         // The scene's room setup acts on the demo room the load just built; a scene without one leaves the room as loaded.
         if (scene.RoomSetup is { } roomSetup)
-            ApplyAttractRoomSetup(roomSetup, _room.LoadedScope.Enemies);
+            ApplyAttractRoomSetup(roomSetup, loaded.Scope);
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Ground = SamusGround.Of(room.Definition);
         _player.GroundedSamusMovementEnabled = true;
         _attractSession.Input = new AttractDemoInput(scene);
+        return loaded;
     }
 
     /// <summary>Applies scene-specific scroll, Kraid timer, or defeated-boss setup.</summary>
-    private void ApplyAttractRoomSetup(AttractDemoRoomSetup roomSetup, RoomEnemySystem enemies)
+    private void ApplyAttractRoomSetup(AttractDemoRoomSetup roomSetup, RoomScope room)
     {
+        RoomEnemySystem enemies = room.Enemies;
         switch (roomSetup)
         {
             case AttractDemoRoomSetup.ChargeBeamScroll:
-                _room.LoadedCamera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
+                room.Camera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
                 break;
             case AttractDemoRoomSetup.KraidTimer:
                 enemies.AttractDemoHooks.StartKraidPhaseWait(AttractDemoDefinitions.KraidPhaseWaitUpdates);

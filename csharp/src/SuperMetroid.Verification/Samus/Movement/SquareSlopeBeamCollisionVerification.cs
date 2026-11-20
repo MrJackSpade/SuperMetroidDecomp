@@ -44,7 +44,7 @@ internal static class SquareSlopeBeamCollisionVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         RoomLevelData level = runtime.Room.LoadedLevelData;
         const int SlopeColumn = 40, BeamRow = 30, WallColumn = 44;

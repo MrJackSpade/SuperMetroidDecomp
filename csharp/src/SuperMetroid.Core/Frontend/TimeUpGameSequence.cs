@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
 /// <param name="gameplay">The main gameplay update, which runs behind the white-out.</param>
-internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePhases gameplay) : IGamePhase
+internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePhases gameplay) : IGameplayPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.TimeUp;
@@ -44,15 +44,15 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput)
+    public void Step(ControllerButton controllerInput, LoadedGameplay live)
     {
         switch (session.TimeUpStep)
         {
             case TimeUpStep.WhiteningOut:
-                WhiteOut(controllerInput);
+                WhiteOut(controllerInput, live);
                 break;
             case TimeUpStep.FadingToBlack:
-                FadeToBlack(controllerInput);
+                FadeToBlack(controllerInput, live);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {session.TimeUpStep}.");
@@ -60,27 +60,27 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
     }
 
     /// <summary>One update of gameplay while every colour whitens.</summary>
-    private void WhiteOut(ControllerButton controllerInput)
+    private void WhiteOut(ControllerButton controllerInput, LoadedGameplay live)
     {
         // The white-out runs the whole main-gameplay update, then advances every colour
         // toward the white target with denominator eight. It owns that update, so a Samus out of
         // health without reserves does not die behind it (#2509).
-        gameplay.RunMainGameplayUpdate(controllerInput, GameplayUpdateOwner.TimeUpWhiteOut);
-        if (session.GameplayRuntime.FadeOut.Step())
+        gameplay.RunMainGameplayUpdate(controllerInput, GameplayUpdateOwner.TimeUpWhiteOut, live);
+        if (live.Runtime.FadeOut.Step())
         {
             session.Enter(TimeUpStep.FadingToBlack);
             session.screenFade.StepEvery(1);
         }
-        session.display.PublishGameplay(session.GameplayRuntime);
+        session.display.PublishGameplay(live);
     }
 
     /// <summary>One update of the whitened screen fading to black.</summary>
-    private void FadeToBlack(ControllerButton controllerInput)
+    private void FadeToBlack(ControllerButton controllerInput, LoadedGameplay live)
     {
         // The time-up black-out runs no gameplay: it fades the whitened frame to black.
-        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        live.Runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         if (session.StepScreenFadeOut())
-            FinishTimeUpBlackOut();
+            FinishTimeUpBlackOut(live);
     }
 
     /// <summary>
@@ -88,19 +88,19 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
     /// timer and Ceres effects, silence all three sound libraries, then lose Samus with Ceres
     /// or, once the Zebes time bomb is set, cut straight to the death black-out.
     /// </summary>
-    private void FinishTimeUpBlackOut()
+    private void FinishTimeUpBlackOut(LoadedGameplay live)
     {
         session.screenFade.StepEvery(1);
-        session.GameplayRuntime.FadeOut.End();
-        session.GameplayRuntime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
-        session.GameplayRuntime.EscapeTimer.StopAtTimeUp();
+        live.Runtime.FadeOut.End();
+        live.Runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
+        live.Runtime.EscapeTimer.StopAtTimeUp();
         session.audio.QueueCancelSoundEffects(SoundRequestPriority.Essential);
         session.display.PublishBlack();
-        if (session.GameplayRuntime.System.HasEvent(StoryEvent.ZebesTimebombSet))
+        if (live.Runtime.System.HasEvent(StoryEvent.ZebesTimebombSet))
         {
             session.BeginBlackDeathBlackOut();
             return;
         }
-        session.BeginCeresDestruction(CeresDestructionOutcome.SamusAboard);
+        session.BeginCeresDestruction(CeresDestructionOutcome.SamusAboard, live.Runtime);
     }
 }

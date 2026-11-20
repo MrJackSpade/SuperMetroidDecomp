@@ -24,7 +24,7 @@ internal static class PostCeresLandingHandOffVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         ScrollBoundaryCamera ceresCamera = runtime.Room.LoadedCamera;
         ceresCamera.SetDoorTransitionPosition(ceresCamera.PixelPosition, FixedPosition<RoomPixels>.FromStoredParts(0, 0xa000, 0, 0x1234));

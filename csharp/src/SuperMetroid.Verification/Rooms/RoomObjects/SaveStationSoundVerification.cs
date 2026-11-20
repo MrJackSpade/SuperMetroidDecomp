@@ -31,7 +31,7 @@ internal static class SaveStationSoundVerification
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaSave);
         _ = runtime.Room.LevelData ?? throw new InvalidOperationException("The save room has no level data.");
         RoomObjectPlace station = runtime.Room.LoadedScope.RoomObjects.Places.InUpdateOrder.Single(place =>

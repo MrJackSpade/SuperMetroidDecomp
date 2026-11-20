@@ -19,11 +19,20 @@ internal abstract class RoomOccupancy
         private NoRoomLoaded() { }
     }
 
-    /// <summary>A room is loaded: the scope its load completed.</summary>
-    /// <param name="scope">The loaded room's scope.</param>
-    internal sealed class Loaded(RoomScope scope) : RoomOccupancy
+    /// <summary>
+    /// A room is loaded: the runtime's loaded room from its first completed load on, which each later load replaces with
+    /// the room it built. The code that runs in a loaded room holds this one state and reads the room it is in now.
+    /// </summary>
+    internal sealed class Loaded : RoomOccupancy
     {
-        /// <summary>The loaded room's scope.</summary>
-        internal RoomScope Scope { get; } = Ensure.NotNull(scope);
+        /// <summary>The runtime's loaded room, holding the room its first load built.</summary>
+        /// <param name="scope">The room the runtime's first load built.</param>
+        internal Loaded(RoomScope scope) => Scope = Ensure.NotNull(scope);
+
+        /// <summary>The room the runtime's last completed load built.</summary>
+        internal RoomScope Scope { get; private set; }
+
+        /// <summary>Makes <paramref name="scope"/>, which a later load built, the loaded room.</summary>
+        internal void Replace(RoomScope scope) => Scope = Ensure.NotNull(scope);
     }
 }

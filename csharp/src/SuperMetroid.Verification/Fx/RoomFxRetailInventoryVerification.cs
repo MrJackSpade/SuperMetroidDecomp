@@ -786,7 +786,7 @@ internal static class RoomFxRetailInventoryVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomThroughDoorForVerification(door);
         if (runtime.Player.Samus is null)
             throw new InvalidDataException("Room $02/$28 runtime load omitted Samus.");

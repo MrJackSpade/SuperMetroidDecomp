@@ -24,7 +24,7 @@ internal static class WaterfallRoomsVerification
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         foreach (ushort room in new ushort[] { 0xd72a, 0xd913 })
         {

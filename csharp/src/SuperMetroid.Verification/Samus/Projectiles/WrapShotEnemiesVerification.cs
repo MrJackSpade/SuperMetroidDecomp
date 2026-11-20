@@ -30,7 +30,7 @@ internal static class WrapShotEnemiesVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RedTower);
             var enemy = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Ripper);
             foreach (var other in runtime.Enemies.Places.InUpdateOrder) if (!ReferenceEquals(other, enemy)) other.Clear();

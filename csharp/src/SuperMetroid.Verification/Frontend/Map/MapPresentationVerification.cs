@@ -625,7 +625,7 @@ internal static class MapPresentationVerification
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         var room = runtime.Room.LoadedRoom;
         // The minimap's centre shows the map cell of the room screen Samus stands in.
         Position16<MapTiles> samusCell = room.MapPosition + new Offset16<MapTiles>(

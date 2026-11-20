@@ -17,7 +17,7 @@ internal static class ZebesEscapeFadeVerification
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
 
         game.Session.BeginZebesEscapeFade();
         AssertTrue(game.IsAt(EndingStep.LeavingZebes), "the takeoff publishes state $26");

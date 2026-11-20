@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The ending: the gunship leaves Zebes while the screen darkens, then Zebes's destruction, the results and the credits.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
+internal sealed class EndingGameSequence(FrontendSession session) : IGameplayPhase, IFrontendPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Ending;
@@ -39,29 +39,29 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
         session.EndingStep == EndingStep.Credits && session.ScreenAs<EndingCreditsState>()?.IsWaitingOutDisplayFrame == true;
 
     /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput)
+    public PhaseGameplayNeed Need => session.EndingStep switch
     {
-        switch (session.EndingStep)
-        {
-            case EndingStep.LeavingZebes:
-                LeaveZebes(controllerInput);
-                break;
-            case EndingStep.Credits:
-                RunCredits();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingStep)} {session.EndingStep}.");
-        }
-    }
+        EndingStep.LeavingZebes => PhaseGameplayNeed.LoadedRoom,
+        EndingStep.Credits => PhaseGameplayNeed.Nothing,
+        _ => throw new InvalidOperationException($"Undefined {nameof(EndingStep)} {session.EndingStep}."),
+    };
+
+    /// <inheritdoc/>
+    /// <remarks>Samus leaves Zebes in the loaded room.</remarks>
+    public void Step(ControllerButton controllerInput, LoadedGameplay live) => LeaveZebes(controllerInput, live);
+
+    /// <inheritdoc/>
+    /// <remarks>The credits run without gameplay.</remarks>
+    public void Step(ControllerButton controllerInput) => RunCredits();
 
     /// <summary>One update of the departing gunship's gameplay while the screen darkens, which starts the credits once black.</summary>
-    private void LeaveZebes(ControllerButton controllerInput)
+    private void LeaveZebes(ControllerButton controllerInput, LoadedGameplay live)
     {
         // Leaving Zebes runs the complete main-gameplay update before
         // the fade-out. The fleeing gunship, room animations, and sound publishers
         // therefore continue behind every darkening frame, and each counts the play time (#2517).
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.LeavingZebes });
-        session.display.PublishGameplay(session.GameplayRuntime);
+        live.Runtime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.LeavingZebes }, live.Room);
+        session.display.PublishGameplay(live);
         // The gunship's lift-off left the screen fade no wait between its steps, so the
         // brightness falls one step on every update.
         bool black = session.EscapeFade.Darken();
@@ -73,15 +73,15 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
             // perform their own setup on the following update.
             session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueCancelSoundEffects(SoundRequestPriority.Essential);
-            SamusState endingSamus = session.GameplayRuntime.Player.Samus;
-            session.Show(new EndingCreditsState(session.audio, new EndingCreditsSetup { GameTimeHours = session.Assists.EndingClearTimeMinutes is { } endingMinutes ? endingMinutes / 60 : session.GameplayRuntime.GameTime.Hours, GameTimeMinutes = session.Assists.EndingClearTimeMinutes is { } totalMinutes ? totalMinutes % 60 : session.GameplayRuntime.GameTime.Minutes, Inventory = new EndingInventorySnapshot(
+            SamusState endingSamus = live.Runtime.Player.Samus;
+            session.Show(new EndingCreditsState(session.audio, new EndingCreditsSetup { GameTimeHours = session.Assists.EndingClearTimeMinutes is { } endingMinutes ? endingMinutes / 60 : live.Runtime.GameTime.Hours, GameTimeMinutes = session.Assists.EndingClearTimeMinutes is { } totalMinutes ? totalMinutes % 60 : live.Runtime.GameTime.Minutes, Inventory = new EndingInventorySnapshot(
                     endingSamus.MaxHealth,
                     endingSamus.MaxReserveEnergy,
                     endingSamus.MaxMissiles,
                     endingSamus.MaxSuperMissiles,
                     endingSamus.MaxPowerBombs,
                     endingSamus.CollectedItems,
-                    endingSamus.CollectedBeams), JapaneseText = session.GameplayRuntime.JapaneseText, CrittersEscaped = session.GameplayRuntime.System.HasEvent(StoryEvent.CrittersEscaped) },
+                    endingSamus.CollectedBeams), JapaneseText = live.Runtime.JapaneseText, CrittersEscaped = live.Runtime.System.HasEvent(StoryEvent.CrittersEscaped) },
                 session.Artwork.ScreenContent.EndingText, session.Artwork.EndingBackdrops, session.Artwork.SpriteSheets));
             session.Enter(EndingStep.Credits);
             session.display.PublishBlack();

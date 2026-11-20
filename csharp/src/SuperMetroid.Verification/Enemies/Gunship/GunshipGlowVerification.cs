@@ -81,7 +81,7 @@ internal static class GunshipGlowVerification
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         RoomEnemyPlace[] pieces = [.. runtime.Enemies.Places.InUpdateOrder.Where(place => place.DefinitionId is EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance)];

@@ -27,7 +27,7 @@ internal static class BeamImpactSoundVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         RoomLevelData level = runtime.Room.LoadedLevelData;
         // A floored corridor ending in a solid column at block 44, inside the settled view.

@@ -29,7 +29,7 @@ internal static class CopiedCharacterIndexesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         int slots = 0;
         foreach (EnemyDefinitionId child in SuperMetroid.AssetExtraction.Enemies.EnemyCharacterBaseDefinitions.DrawsAtTilesOf.Keys)
         {

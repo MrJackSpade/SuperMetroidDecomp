@@ -37,7 +37,7 @@ internal static class HeroShotRuntimeVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
             var level = runtime.Room.LoadedLevelData;
             // Construct a finite corridor within the loaded room. Do not alter

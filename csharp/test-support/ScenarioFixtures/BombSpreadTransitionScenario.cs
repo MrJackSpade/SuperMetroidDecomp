@@ -52,7 +52,7 @@ internal sealed class BombSpreadTransitionScenario
         Delay = timingCase < 10 ? timingCase : timingCase + 30;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         var level = runtime.Room.LoadedLevelData;
         // Match the grounded technique clearing, extending it upward for the jump.

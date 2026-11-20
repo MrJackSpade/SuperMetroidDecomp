@@ -50,15 +50,7 @@ internal static class NullContractsVerification
         AssertThrows<InvalidOperationException>(() => constant.RequiredConstant<int>(), "RequiredConstant rejects a constant of another type");
         AssertTrue(RequiredReflection.TrustedPlatformAssemblies().Length > 0, "the host publishes trusted platform assemblies");
 
-        // Lifecycle state: absent until created, and a checked accessor fails rather than returning null.
-        var room = new ActiveRoomState();
-        AssertThrows<InvalidOperationException>(() => _ = room.LoadedLevelData, "room level data requires a loaded room");
-        AssertThrows<InvalidOperationException>(() => _ = room.LoadedCamera, "room camera requires a loaded room");
-
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
-        AssertThrows<InvalidOperationException>(() => _ = game.Session.GameplayRuntime, "the frontend has no gameplay runtime before a game loads");
-        Console.WriteLine("#623 null contracts: JSON, node, reflection and lifecycle wrappers return present values and fail with context when absent.");
+        Console.WriteLine("#623 null contracts: JSON, node and reflection wrappers return present values and fail with context when absent.");
     }
 
     /// <summary>Runs the focused null-contract checks from the CLI.</summary>

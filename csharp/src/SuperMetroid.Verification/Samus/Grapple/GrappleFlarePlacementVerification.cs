@@ -109,7 +109,7 @@ internal static class GrappleFlarePlacementVerification
         }
         AssertTrue(locked > 0, "Placement fixture exercises locked connections");
         var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         SamusGrappleState boundGrapple = runtime.Player.Samus.Grapple;
         var previousPresentation = (boundGrapple.FlarePlacement, boundGrapple.SwingFrames);

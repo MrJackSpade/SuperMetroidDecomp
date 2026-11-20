@@ -66,8 +66,9 @@ internal static class ActorColourContentIdentity
                 Span<RgbColor> frameColours = stackalloc RgbColor[WorkRobotPaletteDefinitions.ColorCount];
                 for (int frame = 0; frame < WorkRobotGlowAnimations.Cycle.Count; frame++)
                 {
+                    IReadOnlyList<RgbColor> shown = cycle.GlowColours(WorkRobotGlowAnimations.Cycle[frame]);
                     for (int color = 0; color < frameColours.Length; color++)
-                        frameColours[color] = cycle.Resolve(frame, color);
+                        frameColours[color] = shown[color];
                     content.AppendColors("row", frameColours);
                 }
             });

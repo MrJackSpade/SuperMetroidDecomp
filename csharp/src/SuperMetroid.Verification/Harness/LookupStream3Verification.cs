@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Menus;
@@ -1533,7 +1534,7 @@ internal static class LookupStream3Verification
             for (int frame = 0; frame < 6; frame++)
             {
                 for (int color = 0; color < 4; color++)
-                    AssertEqual(words[frame][color], cycle.Resolve(frame, color),
+                    AssertEqual(words[frame][color], cycle.GlowColours(WorkRobotGlowAnimations.Cycle[frame])[color],
                         "stream 3 Work Robot selected color");
             }
             string expectedIdentity = SelectedPresentationHash.Create("WorkRobotPaletteCycle-v1",
@@ -1543,12 +1544,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        foreach (int invalid in new[] { -1, 6, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(invalid, 0),
-                "stream 3 Work Robot frame bounds");
-        foreach (int invalid in new[] { -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(0, invalid),
-                "stream 3 Work Robot color bounds");
     }
 
     /// <summary>Checks Mother Brain's health tint from paint anchors without retaining native intermediate rows.</summary>

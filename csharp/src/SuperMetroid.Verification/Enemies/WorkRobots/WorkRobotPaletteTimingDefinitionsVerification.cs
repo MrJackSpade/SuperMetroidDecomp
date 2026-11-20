@@ -45,19 +45,12 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             int source = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
                 record * WorkRobotGlowDefinitions.RecordByteCount +
                 color * sizeof(ushort);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source), stock.Resolve(record, color),
-                $"Work Robot color record {record} slot {color} preserves ROM RGB5");
+            // Each record is the colouring of the place its step shows, so the way back passes the places between the ends
+            // again in the same colours and the glow installs four shades (#2393).
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source), stock.GlowColours(WorkRobotGlowAnimations.Cycle[record])[color],
+                $"Work Robot color record {record} slot {color} preserves ROM RGB5 as the colouring of the place it shows");
         }
-        // The way back passes the places between the ends again in the same colours: records 1 and 5, and 2 and 4, are one
-        // colouring each, so the glow installs four shades (#2393).
-        int[] shadeOfRecord = [0, 1, 2, 3, 2, 1];
         AssertEqual(4, WorkRobotGlowAnimations.Places.Count, "the Work Robot glow shows four places, one shade each");
-        for (int record = 0; record < WorkRobotGlowAnimations.Cycle.Count; record++)
-        for (int color = 0; color < WorkRobotPaletteDefinitions.ColorCount; color++)
-        {
-            AssertEqual(stock.Resolve(shadeOfRecord[record], color), stock.Resolve(record, color),
-                $"Work Robot color record {record} slot {color} matches the record of the place it shows");
-        }
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = stock })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // A powered robot's initialization restarts the glow; the glow shows on the robot it placed and on no other place

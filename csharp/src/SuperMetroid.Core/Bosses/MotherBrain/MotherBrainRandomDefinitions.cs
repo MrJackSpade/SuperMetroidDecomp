@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainRandomDefinitions
 {
-    /// <summary>The roll most of her chances read: the sample's lowest 4096-value field, 0 through 4095.</summary>
+    /// <summary>The roll most of her chances read.</summary>
     private static readonly RandomSampleField RollOf4096 = new(0, 12);
 
-    /// <summary>The roll her posture and phase-three attack chances read: the sample's lowest 256-value field, 0 through 255.</summary>
+    /// <summary>The roll her posture and phase-three attack chances read.</summary>
     private static readonly RandomSampleField RollOf256 = new(0, 8);
 
     /// <summary>The baby metroid's ambient cry on its way to Samus: the top 96 of the 4096 rolls, 4000 and over, cry.</summary>
@@ -113,38 +113,34 @@ internal static class MotherBrainRandomDefinitions
         new(64, MotherBrainSecondPhaseAttack.Bomb));
 
     /// <summary>
-    /// Her second phase's next move at 4500 health or more: the lowest 4096 of the 65536 samples, one in sixteen, try an
-    /// attack; the rest walk.
+    /// Her second phase's next move at 4500 health or more: one in sixteen tries an attack; the rest walk.
     /// </summary>
     internal static readonly RandomChance AttacksAtFullStrength = RandomChance.Lowest(4096, RandomSampleField.Whole);
 
-    /// <summary>Her second phase's next move below 4500 health: the lowest 8192 of the 65536 samples, one in eight, walk.</summary>
+    /// <summary>Her second phase's next move below 4500 health: one in eight walks.</summary>
     internal static readonly RandomChance WalksWhenWounded = RandomChance.Lowest(8192, RandomSampleField.Whole);
 
     /// <summary>
-    /// Her second phase's next move below 4500 health: the top 24576 of the 65536 samples, three in eight, try an attack;
-    /// the samples between walking and attacking fire the hand beam.
+    /// Her second phase's next move below 4500 health: three in eight try an attack; the rest that do not walk fire the
+    /// hand beam.
     /// </summary>
     internal static readonly RandomChance AttacksWhenWounded = RandomChance.Highest(24576, RandomSampleField.Whole);
 
-    /// <summary>Her bomb walk: the top 128 of the 65536 samples skip the walk back and go straight to the bomb.</summary>
+    /// <summary>Her bomb walk: one in 512 skips the walk back and goes straight to the bomb.</summary>
     internal static readonly RandomChance BombWalkStaysPut = RandomChance.Highest(128, RandomSampleField.Whole);
 
     /// <summary>
-    /// Her bomb walk's target: the lowest 24576 of the 65536 samples walk her back only to X 96; the rest of the samples that
-    /// walk take her back to X 64.
+    /// Her bomb walk's target: three in eight walk her back only to X 96; the rest that walk take her back to X 64.
     /// </summary>
     internal static readonly RandomChance BombWalkShortRetreat = RandomChance.Lowest(24576, RandomSampleField.Whole);
 
     /// <summary>
-    /// The first-phase fake death's tube dust: the lowest 16384 of the 65536 samples, a quarter, show smoke; the rest a small
-    /// explosion.
+    /// The first-phase fake death's tube dust: one in four shows smoke; the rest a small explosion.
     /// </summary>
     internal static readonly RandomChance FakeDeathDustSmokes = RandomChance.Lowest(16384, RandomSampleField.Whole);
 
     /// <summary>
-    /// The escape door's dust after her death: the lowest 16384 of the 65536 samples, a quarter, show smoke; the rest a small
-    /// explosion.
+    /// The escape door's dust after her death: one in four shows smoke; the rest a small explosion.
     /// </summary>
     internal static readonly RandomChance EscapeDoorDustSmokes = RandomChance.Lowest(16384, RandomSampleField.Whole);
 
@@ -159,7 +155,7 @@ internal static class MotherBrainRandomDefinitions
         new(5, MotherBrainDeathExplosionAnimation.Smoke),
         new(1, MotherBrainDeathExplosionAnimation.BigExplosion));
 
-    /// <summary>A fired hand beam's scatter turn, in 256ths of a turn: the sample's lowest 256-value field.</summary>
+    /// <summary>A fired hand beam's scatter turn, in steps of the turn.</summary>
     internal static readonly RandomSampleField HandBeamScatterTurn = new(0, 8);
 
     /// <summary>A turret's wait before it chooses another direction, raised to its minimum: 0 through 255 from the sample.</summary>

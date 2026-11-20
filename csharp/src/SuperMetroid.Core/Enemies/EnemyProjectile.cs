@@ -133,8 +133,8 @@ public sealed class EnemyProjectile
     public bool BlocksSamusProjectiles { get; internal set; }
     /// <summary>
     /// How Samus's shots that reach the projectile act on it: they play its shot animation, meet an indestructible dud, or are
-    /// not tested at all. This is deliberately separate from <see cref="BlocksSamusProjectiles"/>: Kago enables that
-    /// property only after its bug has moved far enough from the source shell, while still playing its shot animation.
+    /// not tested at all. It is apart from <see cref="BlocksSamusProjectiles"/>: Kago blocks Samus's shots only after
+    /// its bug has moved far enough from the source shell, while still playing its shot animation.
     /// </summary>
     public EnemyProjectileCollisionOption CollisionOption { get; internal set; }
 

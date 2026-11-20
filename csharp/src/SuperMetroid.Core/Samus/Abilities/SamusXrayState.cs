@@ -42,8 +42,7 @@ public sealed class SamusXrayState
     public bool OwnsSamusControl { get; private set; }
 
     /// <summary>
-    /// True when Reserve recovery cleared the shared freeze flag underneath X-Ray's
-    /// still-live finishing beam. The effect deliberately cannot clean itself up.
+    /// True when Reserve recovery let time run under X-Ray's still-live finishing beam, which then cannot end itself.
     /// </summary>
     private bool IsReserveMode => IsActive && !OwnsSamusControl && !TimeIsFrozen;
 
@@ -221,7 +220,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Installs the X-Ray pose and animation, replaces competing movement and colouring owners,
+    /// Gives Samus the X-Ray pose and animation, replaces competing movement and colouring owners,
     /// and requests the visor activation sound.
     /// </summary>
     private void InstallSamusControl(SamusState samus, SamusPoseId targetPose)

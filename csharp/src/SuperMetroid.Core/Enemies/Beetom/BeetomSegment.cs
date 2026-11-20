@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>
-/// The Beetom's crawl, hop and drain animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Beetom's crawl, hop and drain animations (#641).
 /// Their steps are <see cref="BeetomAnimations"/>.
 /// </summary>
 internal enum BeetomSegment

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>
-/// Boyon's idle and bouncing loops (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// Boyon's idle and bouncing loops (#641).
 /// Their steps are <see cref="BoyonAnimations"/>.
 /// </summary>
 internal enum BoyonSegment

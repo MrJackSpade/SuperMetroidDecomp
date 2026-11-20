@@ -549,7 +549,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         }
     }
 
-    /// <summary>Installs an animation and restarts its frame timer.</summary>
+    /// <summary>Starts an animation and restarts its frame timer.</summary>
     private static void StartNinjaPirateAnimation(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,

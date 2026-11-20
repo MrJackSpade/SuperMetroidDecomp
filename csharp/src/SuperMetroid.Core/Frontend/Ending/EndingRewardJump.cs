@@ -93,7 +93,7 @@ internal sealed class EndingRewardJump
     }
 
     /// <summary>
-    /// Places the active head and body as the supplied sprite entries: the jumping Samus's frames from
+    /// Places the active head and body as the supplied sprites: the jumping Samus's frames from
     /// <paramref name="jumpingArt"/>, and the falling Samus's, once she falls back, from <paramref name="fallingArt"/>.
     /// </summary>
     public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation jumpingArt, IIntroCinematicSpritePresentation fallingArt)

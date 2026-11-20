@@ -55,7 +55,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// installed flight's backdrop, which the engine flicker never recolours.
     /// </summary>
     internal RgbColor Backdrop { get; private set; }
-    /// <summary>The live actors' sprite entries, drawn from the scene's current sheet (#1358).</summary>
+    /// <summary>The live actors' sprites, drawn from the scene's current sheet (#1358).</summary>
     internal readonly ScreenSprites screenSprites;
     /// <summary>The installed backdrops and actor placements, bound when the game is bound to its installed content (#1616).</summary>
     private IntroCinematicArtwork Artwork { get; set; }
@@ -789,7 +789,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private ColourAddWindowLayer? CaptureStationExplosion() => stationExplosion.Capture();
 
     /// <summary>
-    /// Places live actors as sprite entries in the order they spawned, the Ceres scene's small asteroids and vortex after
+    /// Places live actors as sprites in the order they spawned, the Ceres scene's small asteroids and vortex after
     /// every other actor.
     /// </summary>
     private void PrepareRenderSprites()

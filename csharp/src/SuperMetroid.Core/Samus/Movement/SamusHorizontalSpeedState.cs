@@ -168,8 +168,8 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>
     /// Runs the dry-air portion of the extra run speed.
     /// Both routes accelerate by a sixteenth of a pixel an update. Ordinary Dash is held at two pixels an update;
-    /// equipped Speed Booster is held at seven and starts its boost counter at its first stage. Their shared momentum
-    /// flag survives release and jumps.
+    /// equipped Speed Booster is held at seven and starts its boost counter at its first stage. Their shared running
+    /// momentum survives release and jumps.
     /// </summary>
     [IndependentFlag("Speed Booster equipment and liquid impedance are independent facts about Samus.")]
     public void HandleExtraRunSpeed(
@@ -498,9 +498,8 @@ public sealed class SamusHorizontalSpeedState
             SuitShade.Show();
         }
 
-        // This block is intentionally outside the momentum test. Every movement can
-        // enter echo-departure mode even when the momentum flag was already clear. Later updates while
-        // the echoes are departing must *not* reset the velocities or restart the two bodies.
+        // Every movement can send the echoes departing, whether or not she has running momentum; later updates while
+        // the echoes depart do not reset their velocities or restart the two bodies.
         if (!SpeedEchoesDeparting)
         {
             SpeedEchoPhase = SpeedEchoPhase.Departing;

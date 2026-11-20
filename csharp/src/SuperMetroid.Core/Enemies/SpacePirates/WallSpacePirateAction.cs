@@ -12,6 +12,7 @@ public enum WallSpacePirateAction
     /// <summary>Holds on its wall while its attack animation fires and readies the jump to the other wall.</summary>
     Attacking,
 
-    /// <summary>Follow the game's sine/cosine arc from one wall to the other, its <see cref="WallSpacePirateEnemyState.Wall"/>.</summary>
+    /// <summary>Follow the shared trigonometry's arc from one wall to the other, its
+    /// <see cref="WallSpacePirateEnemyState.Wall"/>.</summary>
     WallJumping,
 }

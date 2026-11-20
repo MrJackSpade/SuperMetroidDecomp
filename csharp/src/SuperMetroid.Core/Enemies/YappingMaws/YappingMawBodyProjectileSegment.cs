@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>
-/// The Yapping Maw's body-link animations (#641): one segment per animation a spawn, branch or family step enters, in authored order.
+/// The Yapping Maw's body-link animations (#641).
 /// Their steps are <see cref="YappingMawBodyProjectileAnimations"/>.
 /// </summary>
 internal enum YappingMawBodyProjectileSegment

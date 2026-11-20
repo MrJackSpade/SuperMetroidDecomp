@@ -50,7 +50,7 @@ internal sealed class MotherBrainCombat
                     $"Mother Brain's body selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"} from " +
                     $"frame {c.Enemy.Frame}; every body rectangle's shot reaction is the dud shot.");
             }
-            // The common collision prelude still owns Super-Missile quake first.
+            // A Super Missile still shakes the room first.
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
             _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
             return true;

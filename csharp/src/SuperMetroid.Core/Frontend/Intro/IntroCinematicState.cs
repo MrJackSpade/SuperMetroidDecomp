@@ -115,7 +115,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private readonly AudioQueues audio;
     /// <summary>The narration text the intro shows across narration and flashback scenes (#1467).</summary>
     private readonly IntroNarrationText narrationText = new();
-    /// <summary>The cinematic actors' sprite entries over the intro sprite page (#1358).</summary>
+    /// <summary>The cinematic actors' sprites over the intro sprite page (#1358).</summary>
     internal readonly ScreenSprites screenSprites;
     /// <summary>Tracks the current physical button edges alongside scripted demo input.</summary>
     private readonly ControllerInputState controller = new();
@@ -496,9 +496,8 @@ public sealed class IntroCinematicState : IFrontendScreen
             StepMotherBrainFlashbackSamus();
         }
 
-        // The cinematic game state handles cinematic sprites after the active cinematic phase and
-        // after Samus/projectiles. Mother Brain can therefore consume a missile at its new
-        // position during this same frame, exactly as the game does.
+        // The cinematic's sprites update after the active cinematic phase and after Samus and her shots, so Mother
+        // Brain can take a missile at its new position this same update.
         if (CurrentFlashbackMotherBrain is not null)
         {
             CurrentFlashbackMotherBrain.RunBehavior(
@@ -662,8 +661,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         Phase = IntroCinematicPhase.PageCrossfade;
     }
 
-    /// <summary>Replaces the Mother Brain flashback with the discovery scene: the SR388 egg and baby, on the second
-    /// gameplay page.</summary>
+    /// <summary>Replaces the Mother Brain flashback with the discovery scene: the SR388 egg and baby.</summary>
     private void SetupBabyDiscoveryCrossfade()
     {
         Narration.HideCaret();

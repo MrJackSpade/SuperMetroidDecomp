@@ -19,7 +19,8 @@ public abstract class RoomMainBehavior
     public string Name { get; }
 
     /// <summary>Has the room <paramref name="scope"/> builds compose this main, with the state it keeps.</summary>
-    /// <param name="scope">The room being loaded: its door, its state and the working value the previous room's main left.</param>
+    /// <param name="scope">The room being loaded: its door, its state and what the previous room's main left the room
+    /// mains to share.</param>
     internal abstract void Compose(RoomScopeConstruction scope);
 
     /// <inheritdoc/>

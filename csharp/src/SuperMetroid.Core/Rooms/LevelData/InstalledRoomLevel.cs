@@ -13,7 +13,7 @@ public sealed class InstalledRoomLevel
     /// <param name="foreground">Each foreground block's terrain, row by row.</param>
     /// <param name="behaviors">Each foreground block's behaviour, row by row.</param>
     /// <param name="background">What each background block shows, row by row.</param>
-    /// <param name="following">The level data that followed the grid, read as terrain blocks.</param>
+    /// <param name="following">The terrain a probe past the grid finds.</param>
     /// <param name="beyondCount">How many blocks the room's level space holds past its grid; the rest past <paramref name="following"/> are solid.</param>
     /// <exception cref="InvalidDataException">A plane does not cover the grid, or the data past the grid exceeds its space.</exception>
     public InstalledRoomLevel(Extent16<RoomBlocks> size, ImmutableArray<RoomTerrainBlock> foreground,

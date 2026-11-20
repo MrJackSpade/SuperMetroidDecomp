@@ -22,8 +22,8 @@ public sealed class GameplayActionInput
 
     /// <summary>
     /// Temporarily publishes a demo's explicit held/edge pair in the player's place. Disposing restores the real
-    /// latched actions for the demo-cancellation check. This is deliberately not <see cref="Latch"/>: recorded edges
-    /// need not equal held-input changes.
+    /// latched actions for the demo-cancellation check. It does not <see cref="Latch"/>: recorded edges need not equal
+    /// held-input changes.
     /// </summary>
     internal IDisposable UseDemoInput(GameplayAction held, GameplayAction newlyPressed)
     {

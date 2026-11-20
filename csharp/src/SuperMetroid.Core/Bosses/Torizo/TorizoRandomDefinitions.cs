@@ -40,7 +40,7 @@ internal static class TorizoRandomDefinitions
     internal static readonly RandomSampleField DroolFacingSpread = new(0, 4);
 
     /// <summary>
-    /// Golden Torizo's eye-beam angle spread, 0 through 15 steps (256ths of a turn).
+    /// Golden Torizo's eye-beam angle spread, 0 through 15 steps of the turn.
     /// </summary>
     internal static readonly RandomSampleField EyeBeamSpread = new(1, 4);
 

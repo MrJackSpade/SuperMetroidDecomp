@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Skultera;
 
 /// <summary>
-/// Skultera's swimming and turning animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// Skultera's swimming and turning animations (#641).
 /// Their steps are <see cref="SkulteraAnimations"/>.
 /// </summary>
 internal enum SkulteraSegment

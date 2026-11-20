@@ -29,7 +29,7 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Whether the current room loaded the glass room object before head damage can update it.</summary>
     private bool MotherBrainGlassWasLoaded { get; set; }
 
-    /// <summary>Runs the glass setup against the place room population gave it.</summary>
+    /// <summary>Sets the glass up at its place in the room.</summary>
     internal void SetupMotherBrainGlass(RoomLevelData level, RoomObjectPlace place)
     {
         place.Become(new MotherBrainGlassObject(this));

@@ -1,8 +1,9 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// A Power Bomb's radius, or the change of radius one update of its blast makes, in whole pixels and 256ths of a pixel:
-/// from nothing up to one 256th of a pixel short of 256 pixels. Lengths add, subtract and compare as plain numbers.
+/// A Power Bomb's radius, or the change of radius one update of its blast makes, in whole pixels and fractions of a
+/// pixel: from nothing up to the finest fraction short of 256 pixels. Lengths add, subtract and compare as plain
+/// numbers.
 /// </summary>
 /// <remarks>
 /// No explosion leaves that range, so no wrap is kept and a length outside it is refused. The stages that grow a
@@ -14,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </remarks>
 public readonly record struct PowerBombRadius : IComparable<PowerBombRadius>
 {
-    /// <summary>The 256ths of a pixel in one pixel.</summary>
+    /// <summary>The fractions of a pixel in one pixel.</summary>
     private const int FractionsPerPixel = 256;
 
     /// <summary>The whole pixels no Power Bomb length reaches: those its blast's growth holds short of.</summary>
@@ -33,7 +34,8 @@ public readonly record struct PowerBombRadius : IComparable<PowerBombRadius>
     /// <summary>The whole pixels of the length, 0 through 255.</summary>
     public int WholePixels { get; }
 
-    /// <summary>The 256ths of a pixel past <see cref="WholePixels"/>, 0 through 255.</summary>
+    /// <summary>The fractions of a pixel past <see cref="WholePixels"/>, less than
+    /// <see cref="FractionsPerPixel"/>.</summary>
     public int Fraction { get; }
 
     /// <summary>
@@ -45,9 +47,10 @@ public readonly record struct PowerBombRadius : IComparable<PowerBombRadius>
     /// <summary>A zero radius or a stationary speed.</summary>
     public static PowerBombRadius Zero => default;
 
-    /// <summary>A length of <paramref name="wholePixels"/> and <paramref name="fraction"/> 256ths of a pixel.</summary>
-    /// <param name="wholePixels">The whole pixels, 0 through 255.</param>
-    /// <param name="fraction">The 256ths of a pixel, 0 through 255.</param>
+    /// <summary>A length of <paramref name="wholePixels"/> and <paramref name="fraction"/> fractions of a
+    /// pixel.</summary>
+    /// <param name="wholePixels">The whole pixels, less than 256.</param>
+    /// <param name="fraction">The fractions of a pixel, less than <see cref="FractionsPerPixel"/>.</param>
     /// <exception cref="ArgumentOutOfRangeException">A part is outside its range.</exception>
     private static PowerBombRadius FromPixels(int wholePixels, int fraction) =>
         new(Ensure.BetweenInclusive(0, UnreachedPixels - 1, wholePixels), Ensure.BetweenInclusive(0, FractionsPerPixel - 1, fraction));
@@ -101,10 +104,10 @@ public readonly record struct PowerBombRadius : IComparable<PowerBombRadius>
     /// <inheritdoc />
     public override string ToString() => $"{WholePixels} {Fraction}/256 px";
 
-    /// <summary>The length counted in 256ths of a pixel, the unit its arithmetic adds in.</summary>
+    /// <summary>The length counted in fractions of a pixel, the unit its arithmetic adds in.</summary>
     private int InFractions => WholePixels * FractionsPerPixel + Fraction;
 
-    /// <summary>The length of <paramref name="fractions"/> 256ths of a pixel.</summary>
+    /// <summary>The length of <paramref name="fractions"/> fractions of a pixel.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The length is negative or reaches 256 pixels.</exception>
     private static PowerBombRadius Of(int fractions)
     {

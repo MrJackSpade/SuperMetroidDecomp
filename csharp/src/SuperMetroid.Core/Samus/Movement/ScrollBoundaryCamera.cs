@@ -163,9 +163,8 @@ public sealed class ScrollBoundaryCamera
 
     /// <summary>
     /// Runs horizontal Samus tracking plus camera-speed calculation.
-    /// Integer movement follows the facing-dependent camera target;
-    /// an unchanged integer position goes on to autoscrolling exactly
-    /// as the game does (Samus moving within her pixel still affects speed).
+    /// Integer movement follows the facing-dependent camera target; an unchanged integer position goes on to
+    /// autoscrolling (Samus moving within her pixel still affects speed).
     /// </summary>
     public void TrackMovedSamusHorizontally(
         FixedPosition<RoomPixels> previous,
@@ -290,7 +289,7 @@ public sealed class ScrollBoundaryCamera
     /// <remarks>
     /// This step does not chase Samus. It gently pushes a camera that is sitting inside
     /// a closed scroll screen toward an open adjacent screen, or back from a closed screen on its
-    /// right. The extra two pixels are the game's, not an invented smoothing rule.
+    /// right, by the game's extra two pixels.
     /// </remarks>
     private void HandleHorizontalAutoscrolling(bool timeIsFrozen)
     {

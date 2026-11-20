@@ -186,8 +186,8 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Advances the animation-only core of the death animation's start. Unlike ordinary gameplay animation, this update deliberately skips the liquid's
-    /// extra animation delay, the neutral jump's held rise, and controller-dependent Dash interception.
+    /// Advances the animation-only core of the death animation's start: unlike ordinary gameplay animation, it skips
+    /// the liquid's extra animation delay, the neutral jump's held rise, and controller-dependent Dash interception.
     /// </summary>
     internal static void AnimateDeathFrame(SamusState samus)
     {

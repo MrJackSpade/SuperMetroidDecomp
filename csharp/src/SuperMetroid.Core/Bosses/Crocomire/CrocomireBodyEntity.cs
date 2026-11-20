@@ -7,8 +7,8 @@ using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's body (#2146): his fight, his frames' hitboxes, the normal bombs they take and the frames he shows on his
-/// boss body layer.
+/// Crocomire's body (#2146): his fight, his frames' hitboxes, the normal bombs they take and the frames he shows as his
+/// body's pictures.
 /// </summary>
 /// <param name="species">The Crocomire species owner.</param>
 /// <param name="place">The place the body occupies.</param>

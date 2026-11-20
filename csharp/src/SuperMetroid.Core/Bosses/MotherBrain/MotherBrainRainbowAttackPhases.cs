@@ -23,8 +23,8 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Rainbow-beam angular width: two steps of a 256-step turn when the beam starts, widening by one and a half steps up
-    /// to twelve and narrowing back to two as it shuts down.
+    /// The rainbow beam's width: two steps of the turn when the beam starts, widening by one and a half steps up to
+    /// twelve and narrowing back to two as it shuts down.
     /// </summary>
     public RotationAngle AngularWidth { get; private set; }
 

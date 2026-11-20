@@ -174,8 +174,8 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Runs the release. The release keeps extra run speed exactly as the game does,
-    /// but clears base X speed, all vertical velocity, bounce state, and acceleration mode.
+    /// Runs the release: it keeps her extra run speed but clears her base X speed, all vertical velocity, her bounce
+    /// and her acceleration mode.
     /// </summary>
     private static void LetGo(SamusState samus)
     {

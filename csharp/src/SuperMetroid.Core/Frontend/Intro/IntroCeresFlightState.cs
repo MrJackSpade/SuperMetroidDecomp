@@ -19,7 +19,7 @@ internal sealed class IntroCeresFlightState
     private readonly AudioQueues audio;
     /// <summary>The colour the flight shows behind every layer, the installed flight's backdrop (#1512).</summary>
     internal RgbColor Backdrop { get; private set; }
-    /// <summary>The front-star or rear-view actors' sprite entries over the flight sprite page (#1358).</summary>
+    /// <summary>The front-star or rear-view actors' sprites over the flight sprite page (#1358).</summary>
     internal readonly ScreenSprites screenSprites;
     /// <summary>The installed Ceres flight sheet the stars and rear-view actors draw from, rebound without restarting the scene.</summary>
     private SpriteSheet flightSprites;
@@ -237,7 +237,7 @@ internal sealed class IntroCeresFlightState
         ? PictureShading.Standard.With(ColourEffectShades.Of(CeresFlightSceneDefinitions.EngineColours, frame))
         : PictureShading.Standard;
 
-    /// <summary>Places the front stars or surviving rear-view actors as this frame's sprite entries.</summary>
+    /// <summary>Places the front stars or surviving rear-view actors as this frame's sprites.</summary>
     private void PrepareRenderSprites()
     {
         screenSprites.BeginFrame();

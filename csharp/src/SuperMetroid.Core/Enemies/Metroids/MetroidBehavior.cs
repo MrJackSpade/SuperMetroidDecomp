@@ -452,7 +452,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         BeforeGenericDeath = c => FinishMetroidDeath(c.Enemy, c.Samus),
     };
 
-    /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation after the shared projectile prelude.</summary>
+    /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation once the shot has marked its
+    /// hit.</summary>
     internal bool ResolveMetroidOrdinaryShot(in EnemyShotContext c)
     {
         RoomEnemyPlace enemy = c.Enemy;

@@ -57,7 +57,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// The room effect's liquid surface as Samus's physics sees it: none when the effect has no surface, or when a tide
-    /// carries it above the room, where the game's below-zero check finds no surface.
+    /// carries it above the room, where no surface shows.
     /// </summary>
     private static int? LiveSurface(RoomFxOverlayState fx) => fx.Surface is >= 0 ? fx.Surface : null;
 
@@ -218,14 +218,10 @@ public sealed class SamusLiquidPhysicsState
     /// lava/acid surface, without applying the Gravity Suit exemption.
     /// </summary>
     /// <remarks>
-    /// This is the exact environmental question asked by Samus's suit colouring.
-    /// It deliberately differs from
-    /// <see cref="DetermineMovementMedium"/>: the suit colouring checks for the Gravity
-    /// Suit first, then performs the raw bottom-boundary liquid test. Keeping those two
-    /// decisions separate lets the colouring reproduce both the submerged Power/Varia early
-    /// return and Gravity Suit's unconditional colour-animation bypass. Water whose surface
-    /// Samus ignores still reads as dry, while a room with no water surface goes on to test the
-    /// independent lava/acid surface exactly as the game does.
+    /// The question Samus's suit colouring asks, apart from <see cref="DetermineMovementMedium"/>: the suit colouring
+    /// checks for the Gravity Suit first, then tests her bottom boundary against the liquid, so a submerged Power or
+    /// Varia Suit and the Gravity Suit's colour animation each colour as the game shows them. Water whose surface Samus
+    /// ignores still reads as dry, while a room with no water surface goes on to test the lava or acid surface.
     /// </remarks>
     public bool IsBottomBoundarySubmerged(SamusState samus)
     {

@@ -55,9 +55,9 @@ internal sealed class SamusPoseTransitionPhase
         // The pose the animation's pose-transition cue left pending outranks every other transition at this seam.
         // The turn's cue leaves a turn-completion pose only if the input phase did not select one
         // of its four jump exceptions. When left pending, it still wins here.
-        // The hurt-expiry check samples hurt expiry before the pose update installs the animation's
-        // pending pose. That decision stands even if Shinespark setup
-        // clears the live knockback direction while installing the shinespark windup poses.
+        // The hurt-expiry check reads hurt expiry before the pose update takes the animation's pending pose. That
+        // decision stands even if the Shinespark's setup clears the live knockback direction while it sets up the
+        // shinespark windup poses.
         bool hitInterruptionExpiryPending =
             SamusKnockbackMovement.IsExpiredHitInterruptionPending(samus);
         bool transitionApplied =

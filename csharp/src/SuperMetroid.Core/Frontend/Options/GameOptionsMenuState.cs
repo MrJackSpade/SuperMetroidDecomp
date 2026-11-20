@@ -25,7 +25,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
     /// <summary>Receives the cursor and confirmation sounds.</summary>
     private readonly AudioQueues audio;
-    /// <summary>The menu screen the options menu draws: its artwork, pictures, colours and sprite entries.</summary>
+    /// <summary>The menu screen the options menu draws: its artwork, pictures, colours and sprites.</summary>
     private readonly MenuScreen screen;
     /// <summary>Derives newly pressed buttons from the held controller buttons.</summary>
     private readonly ControllerInputState controller = new();
@@ -225,7 +225,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             screen.PagePictures(ShownPage.Frames()), pageVerticalScroll, fade.Level);
     }
 
-    /// <summary>Draws the current page heading and animated cursor as sprite entries.</summary>
+    /// <summary>Draws the current page heading and animated cursor as sprites.</summary>
     private void PrepareRenderSprites()
     {
         ScreenSprites sprites = screen.Sprites;

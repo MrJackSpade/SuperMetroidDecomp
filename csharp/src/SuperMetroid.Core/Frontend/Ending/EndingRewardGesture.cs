@@ -34,7 +34,7 @@ internal sealed class EndingRewardGesture
         return jumps;
     }
 
-    /// <summary>Places current actors as the supplied sprite entries.</summary>
+    /// <summary>Places current actors as the supplied sprites.</summary>
     public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation installedArt)
     {
         Ensure.NotNull(destination);

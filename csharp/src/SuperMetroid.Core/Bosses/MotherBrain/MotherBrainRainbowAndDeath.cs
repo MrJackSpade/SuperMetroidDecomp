@@ -134,7 +134,7 @@ internal sealed class MotherBrainRainbowAndDeath
     {
         DustExplosionAnimation animation = MotherBrainDeathExplosionDefinitions.Animations[request.Animation];
         var projectile = _projectiles.AllocateEnemyProjectile();
-        if (projectile is null) return; // Shared-pool exhaustion drops the spawn.
+        if (projectile is null) return; // A room whose projectiles are all in flight spawns none.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion,
             _projectileAttacks.Projectile, graphics: default);
         projectile.StartAnimation(new DustExplosionProjectileAnimation(animation));

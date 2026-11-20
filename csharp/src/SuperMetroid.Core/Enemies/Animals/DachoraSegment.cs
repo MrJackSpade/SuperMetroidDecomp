@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The Dachora's run, idle, blink, shinespark charge, echo and fall animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Dachora's run, idle, blink, shinespark charge, echo and fall animations (#641).
 /// Their steps are <see cref="DachoraAnimations"/>.
 /// </summary>
 internal enum DachoraSegment

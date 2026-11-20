@@ -437,11 +437,8 @@ internal sealed class EnemyProjectileEngine
             axis);
         if (collision.Stops(level, new EnemyProjectileScannedMove(projectile, scan, movingNegative, movementEdge), out int? alignedPosition))
         {
-            // The horizontal and vertical block scans do not merely reject the
-            // attempted movement. They clear the fraction of a pixel and place the
-            // projectile flush against the 16-pixel block boundary it reached.
-            // Without this correction a fast downward projectile retains its last
-            // pre-collision coordinate and visibly hovers above the floor.
+            // The horizontal and vertical block scans stop the projectile flush against the block boundary it reached
+            // and clear its fraction of a pixel, so a fast downward projectile lands on the floor rather than above it.
             int snappedPosition = alignedPosition ?? (movingNegative
                 ? TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(movementEdge) + movementRadius + 1)
                 : TerrainScanEdges.Edge(RoomGridConversions.BlockStart(movementEdge) - movementRadius));
@@ -626,7 +623,7 @@ internal sealed class EnemyProjectileEngine
         return field;
     }
 
-    /// <summary>The width of the sample's lowest 256-value field, the only part of the sample a scatter's range reads.</summary>
+    /// <summary>The width of the part of the sample a scatter's range reads.</summary>
     private const int LowHalfBits = 8;
 
     /// <summary>

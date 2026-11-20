@@ -31,7 +31,7 @@ internal readonly record struct EnemyProjectileBlockScan
     /// <summary>The edge scanned: horizontal for a horizontal move, stepping down the column; vertical for a vertical one, stepping along the row.</summary>
     public Axis Edge { get; init; }
 
-    /// <summary>How many blocks the scan tests after the first, 0 through 4095.</summary>
+    /// <summary>How many blocks the scan tests after the first.</summary>
     public int ExtraBlocks { get; init; }
 
     /// <summary>The scan across a leading edge.</summary>

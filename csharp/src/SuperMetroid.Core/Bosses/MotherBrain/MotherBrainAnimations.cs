@@ -93,9 +93,8 @@ internal static class MotherBrainAnimations
 
     /// <summary>
     /// Each body animation, by the segment it starts at: every segment but the hand beam's charge and firing is played once,
-    /// then held. The red hand beam raises her arm, charges four times and fires; the arm drawn back shows twice running
-    /// before the beam fires: her body shows each new frame of its own on her body layer, so the second showing is a frame
-    /// of its own (#2318).
+    /// then held. The red hand beam raises her arm, charges four times and fires; the arm drawn back shows twice
+    /// running before the beam fires, each a frame of its own on her body (#2318).
     /// </summary>
     private static Dictionary<B, Animation<B>> BodyStartingAt { get; } = new Dictionary<B, Animation<B>>(
         Enum.GetValues<B>().Except([B.HandBeam, B.HandBeamCharge, B.HandBeamFire])

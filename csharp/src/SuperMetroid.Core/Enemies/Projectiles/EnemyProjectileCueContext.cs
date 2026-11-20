@@ -5,7 +5,8 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// What a projectile cue acts on: the projectile, Samus, the camera and short frame counter of the pass running it,
+/// What a projectile cue acts on: the projectile, Samus, the camera and the enemies' short update count of the pass
+/// running it,
 /// Samus's bombs, and the projectile engine running the pass, which carries out the shared cues (#2571).
 /// </summary>
 /// <param name="Projectile">The projectile whose animation published the cue.</param>

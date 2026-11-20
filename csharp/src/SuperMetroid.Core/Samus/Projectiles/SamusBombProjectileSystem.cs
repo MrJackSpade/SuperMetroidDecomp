@@ -894,8 +894,8 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
-            // Both bombable-air and bombable-solid reactions use the bomb-block reactions. An inert
-            // block returns early and therefore neither allocates a room object nor mutates terrain.
+            // Both bombable-air and bombable-solid reactions use the bomb-block reactions; an inert block neither
+            // spawns a room object nor changes the terrain.
             if (block.Behavior.Bombable == BombableReaction.Inert)
                 return;
             if (block.Behavior.Bombable is null)

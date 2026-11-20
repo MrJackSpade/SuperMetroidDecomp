@@ -71,9 +71,9 @@ internal sealed class SamusInputSnapshot
     }
 
     /// <summary>
-    /// Whether a jump held for <paramref name="heldUpdates"/> reads as below the auto-jump limit: the game compares the
-    /// hold with the limit by whether their difference is negative (<see cref="WrappingCounter.IsBehind"/>), so a jump held for
-    /// half the count's range past the limit counts as pressed again, until the count continues from zero.
+    /// Whether a jump held for <paramref name="heldUpdates"/> reads as below the auto-jump limit
+    /// (<see cref="WrappingCounter.IsBehind"/>), so a jump held for half the count's range past the limit counts as
+    /// pressed again, until the count continues from zero.
     /// </summary>
     private static bool JumpHoldReadsAsFresh(int heldUpdates) =>
         WrappingCounter.IsBehind(heldUpdates, SamusAutoJumpDefinitions.TimerComparisonLimit);

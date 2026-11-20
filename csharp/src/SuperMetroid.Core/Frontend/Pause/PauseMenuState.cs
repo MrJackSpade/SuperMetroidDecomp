@@ -61,7 +61,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private readonly MapRevealMode mapRevealMode;
     /// <summary>Installed map artwork, bound when the game is bound to its installed content.</summary>
     private InstalledScreenContent screenContent;
-    /// <summary>The pause screen: its artwork, pictures (including the retained gameplay HUD rows), colours and sprite entries (#1358).</summary>
+    /// <summary>The pause screen: its artwork, pictures (including the retained gameplay HUD rows), colours and sprites (#1358).</summary>
     private readonly PauseScreen screen;
     /// <summary>
     /// What the equipment page shows this frame (#1467, #1515): each label in its item's state now, the wireframe of the
@@ -102,7 +102,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>The equipment selector's installed animation, which restarts on each equipment-page entry.</summary>
     private readonly AnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue> itemSelector;
 
-    /// <summary>Creates the isolated pause display image and initial map/equipment state from live gameplay.</summary>
+    /// <summary>Creates the pause screen and its map and equipment state from live gameplay.</summary>
     public PauseMenuState(PauseMenuEntry entry)
     {
 
@@ -361,7 +361,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         SelectedControl = PauseEquipmentControls.ReserveMode;
     }
 
-    /// <summary>Builds the area map from installed presentation and exploration bits into the map page.</summary>
+    /// <summary>Builds the area map from installed presentation and the explored cells into the map page.</summary>
     [MemberNotNull(nameof(ShownMap))]
     private void LoadMapPage()
     {

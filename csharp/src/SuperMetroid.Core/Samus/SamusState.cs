@@ -35,9 +35,9 @@ public sealed class SamusState
 
     /// <summary>Samus's current pose.</summary>
     /// <remarks>
-    /// An ordinary write also models the pose setup, publishing the
-    /// pose's direction and movement type to <see cref="InitializedPose"/>. Only the
-    /// writes that skip that setup use <see cref="WritePoseWithoutInitialization"/>.
+    /// An ordinary write also sets the pose up, publishing the pose's direction and movement type to
+    /// <see cref="InitializedPose"/>. Only the writes that skip that setup use
+    /// <see cref="WritePoseWithoutInitialization"/>.
     /// </remarks>
     public SamusPoseId Pose
     {
@@ -155,9 +155,8 @@ public sealed class SamusState
     public SamusHorizontalSpeedState HorizontalSpeed { get; }
 
     /// <summary>
-    /// Live room-FX surface values and remembered liquid medium. Physics, animation, and
-    /// pose initialization intentionally share this object because the game shares
-    /// room-FX values across all three phases.
+    /// Live room-FX surface values and remembered liquid medium, which Samus's physics, animation and pose setup all
+    /// read.
     /// </summary>
     public SamusLiquidPhysicsState LiquidPhysics { get; }
 
@@ -351,11 +350,9 @@ public sealed class SamusState
     internal BeamChargeState BeamCharge { get; }
 
     /// <summary>
-    /// The shared bomb-spread charge timeout. The game clears this
-    /// timeout in the morphing-transition pose setup after a
-    /// successful Morph Ball item check, regardless of the humanoid movement family that
-    /// selected the transition. Keeping it separate from the beam flare counter prevents a
-    /// mid-air morph from accidentally cancelling ordinary arm-cannon charge state.
+    /// The shared bomb-spread charge timeout. The morphing-transition pose setup clears it after a successful Morph
+    /// Ball item check, whatever humanoid movement chose the transition; it is apart from the beam flare counter, so a
+    /// mid-air morph leaves the arm cannon's charge as it is.
     /// </summary>
     /// <remarks>
     /// The hold of Down while a spread is charged, lasting
@@ -770,21 +767,16 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Executes the unusual two-pass distance probe of the
-    /// changed-pose collision detection.
+    /// Runs the two-pass distance probe of the changed-pose collision detection.
     /// </summary>
     /// <remarks>
-    /// A pose expansion of eight pixels or more is not tested only at its final leading
-    /// boundary. The game first tests the signed displacement rounded to the intermediate
-    /// eight-pixel boundary and returns immediately if that scan collides, then tests the
-    /// complete displacement only when the intermediate scan was clear. That first scan is
-    /// observable on square half-blocks: an eleven-pixel compact-to-standing expansion can
-    /// cross from the solid lower quadrant into an air upper quadrant at its final boundary.
-    /// A single final-boundary scan therefore misses the floor, expands Samus downward, and
-    /// lets her fall through the platform. Each probe uses a separate kinematics copy because
-    /// the collision check publishes a distance without moving live Samus.
-    /// The probe carries the pose being installed: the pose setup writes it to Samus's pose
-    /// before the larger-radius check, so the elevator ride's standing-pose gate tests it.
+    /// A pose expansion of eight pixels or more is first tested at the intermediate eight-pixel boundary and stops
+    /// there if that scan collides; only a clear intermediate scan goes on to the complete displacement. On square
+    /// half-blocks an eleven-pixel compact-to-standing expansion can cross from the solid lower quadrant into an air
+    /// upper quadrant at its final boundary, and the first scan finds the floor there and keeps Samus on the platform.
+    /// Each probe tests a copy of Samus's movement, which publishes a distance without moving her. The probe carries
+    /// the pose being set up: the pose setup gives Samus the pose before the larger-radius check, so the elevator
+    /// ride's standing-pose gate tests it.
     /// </remarks>
     internal BlockMoveResult ProbeChangedPoseVertical(
         RoomLevelData level,
@@ -878,10 +870,9 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Records Samus's previous Y position as set by something such as
-    /// changed-pose collision correction or facing forward's lift. The previous
-    /// fraction is deliberately not changed: the game writes only the whole pixels, not the fraction.
-    /// The write is absolute, discarding any earlier bottom-alignment shift this frame.
+    /// Records Samus's previous Y position as set by something such as changed-pose collision correction or facing
+    /// forward's lift: only its whole pixels change, and its fraction stays. The write is absolute, discarding any
+    /// earlier bottom-alignment shift this update.
     /// </summary>
     internal void WritePreviousYPosition(int correctedY) => PreviousPositionCorrections.WriteY(correctedY);
 

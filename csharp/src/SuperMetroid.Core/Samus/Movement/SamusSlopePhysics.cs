@@ -20,7 +20,8 @@ public static class SamusSlopePhysics
     /// The slope block's behaviour: its profile and whether it is a ceiling slope.
     /// </param>
     /// <param name="displacement">The horizontal displacement.</param>
-    /// <param name="verticalSpeed">Samus's vertical speed. Any motion suppresses grounded slope scaling exactly as the game does.</param>
+    /// <param name="verticalSpeed">Samus's vertical speed; any vertical motion leaves the displacement
+    /// unscaled.</param>
     public static SignedSixteenSixteen ScaleGroundedHorizontalDisplacement(
         RoomBlockBehavior behavior,
         SignedSixteenSixteen displacement,

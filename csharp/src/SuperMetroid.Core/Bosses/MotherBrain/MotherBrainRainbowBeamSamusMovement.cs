@@ -82,8 +82,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>
-    /// Steps Samus's fall: ease horizontal speed toward zero by 2/256, add 24/256 vertical speed, then move her within
-    /// the arena's bounds.
+    /// Steps Samus's fall: her horizontal speed eases toward rest and her fall speeds up, as the fall's definitions
+    /// give, and she moves within the arena's bounds.
     /// </summary>
     /// <param name="samus">Samus, falling from the beam.</param>
     public MotherBrainForcedSamusMovementResult StepFallingAfterRainbowBeam(SamusState samus)

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>
-/// The Wrecked Ship Spark's flicker, active and emitter animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Wrecked Ship Spark's flicker, active and emitter animations (#641).
 /// Their steps are <see cref="SparkAnimations"/>.
 /// </summary>
 internal enum SparkSegment

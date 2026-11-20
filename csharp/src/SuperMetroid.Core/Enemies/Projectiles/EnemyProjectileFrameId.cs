@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <summary>
 /// The frames an enemy projectile shows: the compositions its segments select, then every installed animation frame. Each
 /// is named for what its picture shows: its owner, then the shape, turn, size or placement that tells it from the owner's
-/// other pictures, which its summary spells out; no animation that shows it and no place in one names it. One picture is
-/// one frame however many records store it. Its values are arbitrary and its installed name is its name in snake case.
+/// other pictures, which its summary spells out; no animation that shows it and no place in one names it. One picture
+/// is one frame. Its values are arbitrary and its installed name is its name in snake case.
 /// </summary>
 public enum EnemyProjectileFrameId
 {

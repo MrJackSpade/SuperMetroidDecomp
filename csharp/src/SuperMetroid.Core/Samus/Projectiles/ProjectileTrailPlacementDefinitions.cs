@@ -14,7 +14,7 @@ internal static class ProjectileTrailPlacementDefinitions
 {
     /// <summary>
     /// The family each choice names. Null is a choice that names no family, which draws no trail: a Spazer and Plasma
-    /// combination's, which the game authors none for (#1926).
+    /// combination's, which has none (#1926).
     /// </summary>
     internal static readonly FrozenDictionary<ProjectileTrailChoice, ProjectileTrailFamily?> Families =
         new Dictionary<ProjectileTrailChoice, ProjectileTrailFamily?>

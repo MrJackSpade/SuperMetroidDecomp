@@ -198,7 +198,7 @@ public static class SamusAerialMovement
 
         // If acceleration did not overshoot the cap, spin jump retains motion only while
         // turning (SamusAccelerationMode.Turning) or while the input matching the pose's facing direction is held.
-        // A speed the maximum capped bypasses this test exactly as the game does.
+        // A speed the maximum capped bypasses this test.
         bool forwardHeld = IsForwardHeld(samus, controllerInput);
         bool allowHorizontal = calculation.ReachedMaximum ||
             speed.AccelerationMode == SamusAccelerationMode.Turning ||

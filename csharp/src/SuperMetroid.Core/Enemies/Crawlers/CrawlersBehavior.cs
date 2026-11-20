@@ -76,8 +76,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void InitializeCrawler(RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
     {
-        // The population entry names the starting surface. The Viola's setup alone takes its block side
-        // instead, and a Viola's entry names no surface.
+        // The placement names the starting surface; the Viola alone takes its block side instead, and a Viola's
+        // placement names no surface.
         CrawlerSurfaceOrientation orientation;
         CrawlerSurfaceOrientation blockSide;
         SignedEightEight? crawlSpeed;

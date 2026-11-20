@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>
-/// The Evir body's and arms' facing loops and its projectile's spit and regeneration animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Evir body's and arms' facing loops and its projectile's spit and regeneration animations (#641).
 /// Their steps are <see cref="EvirAnimations"/>.
 /// </summary>
 internal enum EvirSegment

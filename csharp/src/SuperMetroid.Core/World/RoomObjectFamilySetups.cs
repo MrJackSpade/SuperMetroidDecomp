@@ -10,7 +10,8 @@ namespace SuperMetroid.Core.World;
 /// placement's own setup names its family and hands it what its placement decoded (#2481), the door, item or station it
 /// places among it.
 /// </summary>
-/// <param name="context">The room, the place the placement took, the area's boss flags and the families that keep state.</param>
+/// <param name="context">The room, the place the placement took, the area's defeated bosses and the families that keep
+/// state.</param>
 internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : IRoomObjectFamilySetups
 {
     /// <inheritdoc/>

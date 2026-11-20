@@ -54,7 +54,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
-        // The tube's pieces draw from the shared sheet in the crack colours the room's crack setup installs (#1512).
+        // The tube's pieces draw from the shared sheet in the tube's crack colours (#1512).
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, TubePieces, graphics: TubePieceGraphics);
 
         Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;

@@ -165,7 +165,7 @@ internal static class EndingCreditsPresentation
     internal static FramePaint Paint(EndingCreditsState ending) => new(ending.screen.Colours.Backdrop(ending.InstalledArtwork.SpaceBackdrops));
 
     /// <summary>
-    /// The backdrop with this frame's sprite entries, which the atmosphere's turning floor composes in its own glow (#1514).
+    /// The backdrop with this frame's sprites, which the atmosphere's turning floor composes in its own glow (#1514).
     /// </summary>
     private static FramePaint FloorGlowPaint(EndingCreditsState ending) =>
         new(ending.screen.Colours.Backdrop(ending.InstalledArtwork.SpaceBackdrops), PrepareSprites(ending).Draws);
@@ -183,7 +183,7 @@ internal static class EndingCreditsPresentation
         EndingCreditsPhaseGroups.PlanetEscape.Contains(ending.Phase) ? ending.Flyaway.WhiteWashShown : null;
 
     /// <summary>
-    /// Places the scene's sprite entries at the simulation display boundary without advancing sprite state, each actor's
+    /// Places the scene's sprites at the simulation display boundary without advancing sprite state, each actor's
     /// frames drawn from its own sheet (#1392, #1626), in the ending's colours under its colouring (#1512): those of
     /// <paramref name="only"/>'s sprite layer, or all of them when it is null (#1514).
     /// </summary>

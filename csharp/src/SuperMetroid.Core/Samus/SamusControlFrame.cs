@@ -178,7 +178,7 @@ internal sealed class SamusControlFrame
         DeceleratingFallbackHasMomentum = samus.HorizontalSpeed.HasBaseSpeed;
     }
 
-    /// <summary>Samples whether Samus movement is enabled as the input phase's head finishes.</summary>
+    /// <summary>Samples whether Samus's movement is enabled once her input has been read.</summary>
     internal void SampleMovementEnabled(bool enabled) => MovementEnabled = enabled;
 
     /// <summary>Samples whether the ordinary input phase's HUD, bomb and projectile owners run.</summary>

@@ -88,8 +88,8 @@ internal sealed class EnemyDrawList
                 .RelativeToCamera(camera);
 
             // The draw pass consumes one shake tick of an enemy it reaches while forming
-            // its origin. The enemy's own update count chooses one pixel left or right; this is deliberately not the
-            // room's background displacement. An earthquake that shakes the enemies, as Ceres's does
+            // its origin. The enemy's own update count chooses one pixel left or right, apart from the room's shake. An
+            // earthquake that shakes the enemies, as Ceres's does
             // (EarthquakeShake.ShakesEnemies), restarts the shake for every active enemy, which is why its door sprites
             // visibly move with the station instead of remaining pinned to host screen space.
             if (reached && place.Shake.IsRunning)

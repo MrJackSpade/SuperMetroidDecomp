@@ -613,10 +613,9 @@ internal sealed class SamusFramePhases
             return SamusMovementOwner.BombJump;
         // Crystal Flash moves her through its three phases and locks her pose input. Mother
         // Brain's rainbow-beam setup keeps that hold, but temporarily replaces the movement phase
-        // with a lock that moves her not at all. Once restoring Samus's control reinstalls the normal
-        // movement mode, Flash resumes under the drained pose. The Super Metroid never installs that
-        // movement lock, so its interruption continues Flash immediately. Model the physical movement
-        // owner, not merely the fact that a cinematic pose exists.
+        // with a lock that moves her not at all. Once Samus's control is restored to normal movement, Flash resumes
+        // under the drained pose. The Super Metroid never locks her movement so, and its interruption continues Flash
+        // at once.
         if (samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && samus.Control.InputLocked))
             return SamusMovementOwner.CrystalFlash;
@@ -625,9 +624,9 @@ internal sealed class SamusFramePhases
         // motionless while enemy AI controls pose/timing. This is reached only when Crystal Flash
         // no longer holds her. Controller zero changes only the pose, so a crashing spark keeps
         // its hold and finishes below; the drained-fall cue ends the spark itself.
-        // The rainbow-beam lock is the movement lock itself: once restoring Samus's control reinstalls
-        // the normal movement mode during enemy AI, this same frame's movement phase runs the knockback
-        // pose's knockback movement, as the pose's own movement does.
+        // The rainbow-beam lock is the movement lock itself: once Samus's control is restored to normal movement during
+        // the enemies' update, this update's movement runs the knockback pose's knockback movement, as the pose's own
+        // movement does.
         // The controller-held standing/crouching phases last only while Samus keeps a
         // drained body: a pose the movement installs (a wall jump out of a drained
         // spin) returns her to the ordinary movement and input. So does the landing of a drained fall that an

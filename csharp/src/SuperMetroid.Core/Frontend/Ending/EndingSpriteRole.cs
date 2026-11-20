@@ -45,6 +45,6 @@ internal enum EndingSpriteRole
     ClearTimeDigit,
     /// <summary>One body or head component of the selected post-credits reward.</summary>
     RewardSamus,
-    /// <summary>Animals' escape pod actor admitted by the saved escape flag.</summary>
+    /// <summary>The animals' escape pod actor, shown when the animals were saved.</summary>
     AnimalEscape,
 }

@@ -48,7 +48,7 @@ internal sealed class SuperMetroidRuntime
     internal LiquidWaveAndStatueDescentOrder LiquidWaveAndStatueDescentOrder { get; } = new();
 
     /// <summary>
-    /// How a door transition's scroll counts frames on the short frame counter; created with the runtime, whose room
+    /// How a door transition's scroll counts the enemies' short update count; created with the runtime, whose room
     /// loader starts and ends it.
     /// </summary>
     internal DoorTransitionFrameCounting DoorFrameCounting { get; } = new();
@@ -167,7 +167,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The installed artwork the runtime draws and colours from: rooms, skies, Samus, beams, the grapple beam and the map.</summary>
     private RuntimeArtwork Artwork { get; }
 
-    /// <summary>Creates the frame-steppable runtime under its assists, Samus in her starting shades.</summary>
+    /// <summary>Creates the runtime under its assists, Samus in her starting shades.</summary>
     /// <param name="assists">The assists the runtime plays under; <see cref="GameplayAssists.None"/> for the unassisted game.</param>
     /// <param name="artwork">
     /// The installed catalogs, every one required (#2049); their Samus overread services
@@ -1183,12 +1183,11 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Gameplay-frame state the remainder of a main-gameplay update reads after the room objects' step.
-    /// The message runs inside that step, so a room object that opens a box
-    /// suspends the frame; the model parks this state until the box closes.
+    /// Gameplay state the rest of a main-gameplay update reads after the room objects' step. A message box opens inside
+    /// that step, so a room object that opens one holds the update's rest until the box closes.
     /// </summary>
     /// <param name="Mode">The frame's installed input and movement modes.</param>
-    /// <param name="PreviousCameraPoint">Samus's camera point carried to the frame tail.</param>
+    /// <param name="PreviousCameraPoint">Samus's camera point carried to the rest of the update.</param>
     /// <param name="DeathStep">The frame's death-sequence step, which the tail draws, or null when death does not own Samus.</param>
     internal readonly record struct SuspendedGameplayFrameTail(
         SamusControlMode Mode,

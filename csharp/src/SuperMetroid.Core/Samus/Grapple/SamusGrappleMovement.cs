@@ -364,9 +364,9 @@ public static class SamusGrappleMovement
                 grapple.Phase);
         }
 
-        // Both release and block disconnection install the cancel. Mark the origin because
-        // firing cancellation coexists with ordinary movement, whereas a locked grappling
-        // body must own this movement phase until its pose-definition fallback is committed.
+        // Both release and block disconnection cancel the grapple. Mark the origin, because a firing cancel goes on
+        // beside ordinary movement, while a locked grapple holds this movement phase until her pose's no-input fallback
+        // takes effect.
         grapple.CancelFromConnectedPose = !samus.DraygonGrabbed.IsActive;
         grapple.Phase = GrapplePhase.CancelPending;
         return new GrappleMovementResult(

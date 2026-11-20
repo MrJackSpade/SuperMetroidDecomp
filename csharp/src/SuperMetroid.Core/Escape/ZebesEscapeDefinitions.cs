@@ -29,14 +29,12 @@ public static class ZebesEscapeDefinitions
         new(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, EarthquakeReach.ForegroundBackgroundAndEnemies);
 
     /// <summary>
-    /// The chance a lightly shaking room turns diagonal on an update (#1619): the lowest 512 of the 65536 random samples,
-    /// one update in 128.
+    /// The chance a lightly shaking room turns diagonal on an update (#1619): one update in 128.
     /// </summary>
     private static readonly RandomChance LightShakeTurnsDiagonal = RandomChance.Lowest(512, RandomSampleField.Whole);
 
     /// <summary>
-    /// The chance a medium shaking room turns diagonal on an update (#1619): the lowest 384 of the 65536 random samples,
-    /// three updates in 512.
+    /// The chance a medium shaking room turns diagonal on an update (#1619): three updates in 512.
     /// </summary>
     private static readonly RandomChance MediumShakeTurnsDiagonal = RandomChance.Lowest(384, RandomSampleField.Whole);
 

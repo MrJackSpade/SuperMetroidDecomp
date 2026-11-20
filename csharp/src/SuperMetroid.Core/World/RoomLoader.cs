@@ -61,7 +61,7 @@ internal sealed class RoomLoader
 
     /// <summary>The frame counters: the minimap reads the short one, and a door's scroll restarts it.</summary>
     private readonly FrameClock _clock;
-    /// <summary>Whether the door transition's scroll is restarting the short frame counter.</summary>
+    /// <summary>Whether the door transition's scroll is restarting the enemies' short update count.</summary>
     private readonly DoorTransitionFrameCounting _doorFrameCounting;
     /// <summary>Restores the saved controller and movement options.</summary>
     private readonly GameplayOptions _options;
@@ -412,7 +412,8 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Restarts the short frame counter on an update of the door scroll, from the update that places Samus for the destination's
+    /// Restarts the enemies' short update count on an update of the door scroll, from the update that places Samus for
+    /// the destination's
     /// loading on (<see cref="DoorTransitionFrameCounting"/>); enemies and projectiles that read the counter see the
     /// restart.
     /// </summary>
@@ -814,7 +815,7 @@ internal sealed class RoomLoader
 
 The destination's shots and bombs start fresh, before its pictures load, and its room objects are built with the
 population below. The held beam charge survives on the session; Samus's own echoes are cleared.
-        // The held beam charge survives on the session; Samus's own echo storage is cleared.
+        // The held beam charge survives on the session; Samus's own echoes are cleared.
         loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
         loadingSamus.Shinespark.ForgetCrashEchoes();
         var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.SamusArtwork);
@@ -1018,10 +1019,9 @@ population below. The held beam charge survives on the session; Samus's own echo
     /// Resolves a room selector against the live saved progress and Samus inventory.
     /// </summary>
     /// <remarks>
-    /// The fixed room definition still supplies the area needed to choose that
-    /// area's boss flags. The ordered state choice is application-owned definition data;
-    /// no production path executes selector data. Keeping this at the shared loader
-    /// boundary prevents doors, save stations, and attract scenes from choosing differently.
+    /// The fixed room definition supplies the area whose defeated bosses (DefeatedBosses) the choice reads, and the
+    /// ordered state choice is the room's definition data; every door, save station and attract scene chooses the same
+    /// way.
     /// </remarks>
     internal SelectedRoom LoadSelectedRoom(RoomDefinition room)
     {

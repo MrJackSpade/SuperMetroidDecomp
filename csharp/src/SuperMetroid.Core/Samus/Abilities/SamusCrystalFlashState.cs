@@ -14,11 +14,10 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// bubble phase, and the ending.
 /// </summary>
 /// <remarks>
-/// Crystal Flash is unusual even among Samus's scripted movement states. The game
-/// attempts it only when the power-bomb explosion centred on Samus finishes; successful
-/// initiation then takes both her pose input and her movement from her pose. Keeping that
-/// hold as <see cref="Phase"/> prevents <see cref="SamusPoseId.CrystalFlashRightPose"/> and <see cref="SamusPoseId.CrystalFlashLeftPose"/>
-/// from accidentally inheriting invented special-movement physics.
+/// Crystal Flash starts only when the power-bomb explosion centred on Samus finishes; once it starts, it takes both her
+/// pose input and her movement from her pose, and <see cref="Phase"/> holds them, so
+/// <see cref="SamusPoseId.CrystalFlashRightPose"/> and <see cref="SamusPoseId.CrystalFlashLeftPose"/> move only as
+/// Crystal Flash moves them.
 /// </remarks>
 public sealed class SamusCrystalFlashState
 {

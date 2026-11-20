@@ -27,7 +27,7 @@ internal static class EnemyMath
 
     /// <summary>
     /// The direction of an offset, as every enemy aims along one (#2555): zero points right and a quarter turn up, the
-    /// angle the game's sine and cosine take.
+    /// angle the shared trigonometry takes.
     /// </summary>
     internal static TrigonometryAngle CalculateAimAngle(Offset16<RoomPixels> delta)
     {

@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Samus's grounded movement types from her ordinary movement step.
 /// </summary>
 /// <remarks>
-/// This is deliberately not a generic platformer controller. The movements below
-/// correspond only to the standing, running, turning-on-ground, moonwalking and ran-into-wall movement types, with
-/// their speeds in air, water and lava (<see cref="SamusHorizontalSpeedDefinitions"/>), submerged Dash gating, and ordinary Dash and equipped-Speed-Booster accumulation and
+/// The movements below are the standing, running, turning-on-ground, moonwalking and ran-into-wall movement types, with
+/// their speeds in air, water and lava (<see cref="SamusHorizontalSpeedDefinitions"/>), submerged Dash gating, and
+/// ordinary Dash and equipped-Speed-Booster accumulation and
 /// staging. Solid enemies stop Samus through the shared block collision, conveyors carry her as inside-block reactions,
 /// knockback is <see cref="SamusKnockbackMovement"/>'s, and the boost's colours and echoes are drawn outside movement.
 /// </remarks>
@@ -23,11 +23,11 @@ public static class SamusGroundedMovement
     /// one-pixel downward block scan.
     /// </summary>
     /// <remarks>
-    /// <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/> and <see cref="SamusPoseId.ForwardFacingSuitedPose"/> share <see cref="SamusMovementType.Standing"/> movement with ordinary standing, but the game
-    /// returns before horizontal movement, speed cleanup, and the one-pixel grounding probe.
-    /// It clears her solid vertical collision result (<see cref="SamusState"/>) every update; while an elevator moves, it first
-    /// moves her one pixel down through the downward block collision. The elevator actor remains a separate producer of the status,
-    /// and of the platform art; this method holds the complete Samus-side consumer.
+    /// <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/> and <see cref="SamusPoseId.ForwardFacingSuitedPose"/> share
+    /// <see cref="SamusMovementType.Standing"/> movement with ordinary standing, but move neither horizontally nor by
+    /// the one-pixel grounding probe, and keep their speeds. Her solid vertical collision result
+    /// (<see cref="SamusState"/>) is cleared every update; while an elevator moves, she first moves one pixel down
+    /// through the downward block collision. The elevator itself says whether it moves and draws the platform.
     /// </remarks>
     /// <param name="level">The room's level the elevator carries her through.</param>
     /// <param name="samus">Samus, in a front-facing pose.</param>
@@ -53,10 +53,8 @@ public static class SamusGroundedMovement
 
         if (elevatorIsMoving)
         {
-            // A moving elevator carries Samus down one whole pixel through the downward mover; the collision direction
-            // the game sets first is read by nothing before the next move sets its own. That move deliberately skips
-            // solid-enemy collision but retains ordinary room-block and behaviour scanning and the
-            // alternating left/right order selected from the frame counter's parity.
+            // A moving elevator carries Samus down one whole pixel; that move meets no solid enemy but does meet the
+            // room's blocks and their behaviours, in the left or right order the update's parity picks.
             _ = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusMovementDefinitions.ElevatorCarry, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, DoorBlocks = doorBlocks });
         }
 
@@ -248,10 +246,9 @@ public static class SamusGroundedMovement
             frameCounter,
             roomObjects);
 
-        // The turn cancels the speed boost on every turn frame. This matters even
-        // without the Speed Booster item: the turn setup folded the numeric extra component but
-        // deliberately left the running-momentum flag set until this movement. Then the movement
-        // cancels that momentum and zeroes the extra run speed, each separately observable.
+        // The turn cancels the speed boost on every turn update, even without the Speed Booster: the turn's setup
+        // folded in her extra speed but left her running momentum until this movement, which cancels the momentum and
+        // stops the extra run speed, each separately.
         speed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         speed.ExtraRunSpeed = default;
         return new GroundedMovementResult(horizontal, vertical);

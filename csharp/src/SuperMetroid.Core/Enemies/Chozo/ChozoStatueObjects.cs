@@ -67,8 +67,8 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
 
         if (eligible)
         {
-            // Both trigger setups clear only the hand block's type before waking the statue (#2502). Its behaviour, picture
-            // and what it shows survive until the room object the statue then spawns runs.
+            // Both triggers turn the hand block to air before waking the statue (#2502); its behaviour, picture and
+            // what it shows survive until the room object the statue then spawns runs.
             level.SetCollision(block, RoomCollisionType.Air);
             _hands.ActivateChozoStatueHand(level);
         }

@@ -51,8 +51,6 @@ public static class SamusBodyArtworkFiles
     /// </summary>
     private const int FormatVersion = 17;
 
-    /// <summary>The lower group index with which the cartridge's frame names no lower half, the largest a selector holds.</summary>
-    private const int CartridgeNoBottomSet = byte.MaxValue;
     /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
     /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>
@@ -108,9 +106,8 @@ public static class SamusBodyArtworkFiles
         for (int index = 0; index < frames.Length; index++)
         {
             int address = SamusSourceDefinitions.BodyFrames.Value + index * 4;
-            int bottomSet = bus.ReadCartridgeByte(address + 2);
-            frames[index] = new SamusBodyFrameSelection(bus.ReadCartridgeByte(address),
-                bus.ReadCartridgeByte(address + 1), bottomSet == CartridgeNoBottomSet ? null : bottomSet, bus.ReadCartridgeByte(address + 3));
+            frames[index] = SamusBodyFrameSelection.FromCartridge(bus.ReadCartridgeByte(address),
+                bus.ReadCartridgeByte(address + 1), bus.ReadCartridgeByte(address + 2), bus.ReadCartridgeByte(address + 3));
         }
 
         ushort[] allPointers = topPointers.Concat(bottomPointers).OrderBy(value => value).ToArray();

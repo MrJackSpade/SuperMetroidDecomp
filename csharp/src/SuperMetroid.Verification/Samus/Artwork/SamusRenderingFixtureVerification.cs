@@ -104,7 +104,7 @@ internal static class SamusRenderingFixtureVerification
         for (int index = 0; index < frames.Length; index++)
         {
             int address = SamusBodySources.FirstFrameAddress + index * 4;
-            if (bus.HasSeededByte(address)) frames[index] = new(bus.ReadByte(address), bus.ReadByte(address + 1),
+            if (bus.HasSeededByte(address)) frames[index] = SamusBodyFrameSelection.FromCartridge(bus.ReadByte(address), bus.ReadByte(address + 1),
                 bus.ReadByte(address + 2), bus.ReadByte(address + 3));
         }
         SamusBodyTileTransfer[][] Groups(bool upper, ushort[] pointers)

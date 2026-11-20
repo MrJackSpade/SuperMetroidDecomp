@@ -444,7 +444,7 @@ internal static class LookupStream1Verification
         var upper = Groups(top); var lower = Groups(bottom);
         var template = CreateSamusIdentityFixture();
         SamusBodyFrameSelection[] Decode(byte[] data) => Enumerable.Range(0, count / 4).Select(index =>
-            new SamusBodyFrameSelection(data[index * 4], data[index * 4 + 1], data[index * 4 + 2] == byte.MaxValue ? null : data[index * 4 + 2],
+            SamusBodyFrameSelection.FromCartridge(data[index * 4], data[index * 4 + 1], data[index * 4 + 2],
                 data[index * 4 + 3])).ToArray();
         SamusBodySources Create(byte[] data) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(top), BottomSetStarts = SamusBodyNative.Records(bottom), PoseFirstFrames = SamusBodyNative.Frames(poses), Placements = template.Placements, Frames = Decode(data), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathSteps = template.DeathSteps, ArmCannon = template.ArmCannon }, upper, lower).Body;
         var stock = Create(native);

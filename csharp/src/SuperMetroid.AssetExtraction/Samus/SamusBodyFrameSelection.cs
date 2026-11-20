@@ -22,4 +22,18 @@ public readonly record struct SamusBodyFrameSelection(
     /// </summary>
     [JsonIgnore]
     public bool NamesBottom => BottomSet is not null;
+
+    /// <summary>The lower group index with which the cartridge's frame names no lower half, the largest a selector holds.</summary>
+    private const int CartridgeNoBottomSet = byte.MaxValue;
+
+    /// <summary>
+    /// The selection the cartridge's four selector bytes make (#2558): its lower group's largest index names no lower half,
+    /// which the selection holds as none.
+    /// </summary>
+    /// <param name="topSet">The upper group byte.</param>
+    /// <param name="topPosition">The upper definition byte.</param>
+    /// <param name="bottomSet">The lower group byte.</param>
+    /// <param name="bottomPosition">The lower definition byte.</param>
+    public static SamusBodyFrameSelection FromCartridge(int topSet, int topPosition, int bottomSet, int bottomPosition) =>
+        new(topSet, topPosition, bottomSet == CartridgeNoBottomSet ? null : bottomSet, bottomPosition);
 }

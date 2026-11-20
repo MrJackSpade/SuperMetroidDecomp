@@ -22,7 +22,8 @@ internal static class RoomObjectFrameImageFiles
     /// each shows, not by its place in its group (#1762). Revision 5 names the door caps', shot blocks', Grapple blocks', eye doors',
     /// stations', downward gate's and Samus Eaters' frames by what each shows, not by number (#1994). Revision 6 writes no
     /// block for a cell that shows nothing (#2100). Revision 7 names Draygon's cannon frames by what each shows, not by
-    /// letter (#2176).
+    /// letter (#2176). Revision 8 names Mother Brain's glass draws by what each shows and the mural's rows for the mural
+    /// (#2211). Revision 9 names Spore Spawn's ceiling crumble frames by what each shows (#2241).
     /// </remarks>
     internal const int FormatVersion = 9;
 

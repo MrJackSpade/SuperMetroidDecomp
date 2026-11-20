@@ -11,7 +11,7 @@ using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
+/// <summary>Draygon's four parts, his body, eye, tail and arms: their setup, animations and cues.</summary>
 [RoomLifetime]
 internal sealed class DraygonParts
 {
@@ -54,7 +54,6 @@ internal sealed class DraygonParts
     /// </summary>
     internal void InitializeDraygonBody(RoomEnemyPlace body)
     {
-        // His opening's colours are the import's shade of them, which his sprites draw in (#1512).
 
         body.AnimationClock.StepOnNextUpdate();
 
@@ -231,7 +230,7 @@ internal sealed class DraygonParts
     internal void RequestDraygonMusic(MusicRequest request) =>
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
-    /// <summary>Runs the eye direction partition.</summary>
+    /// <summary>The eye breathes its bubble and turns its look toward Samus.</summary>
     private void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)
     {
         RoomEnemyPlace eye = state.Eye;

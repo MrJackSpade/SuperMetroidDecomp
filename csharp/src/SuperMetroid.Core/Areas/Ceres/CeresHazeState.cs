@@ -27,7 +27,7 @@ public sealed class CeresHazeState
         /// <summary>Shows full strength and then each strength downward, one an update, falling after each, then stays at the faintest.</summary>
         FadingOut,
     }
-    /// <summary>Current haze phase, independent of its selected color channel.</summary>
+    /// <summary>Current haze phase.</summary>
     private Phase _phase;
     /// <summary>
     /// The fade running: one update a strength, its age the strength fading in shows next and its updates left the strength
@@ -56,7 +56,7 @@ public sealed class CeresHazeState
         _strength = immediateViewport ? CeresHazeDefinitions.FadeSteps - 1 : 0;
     }
 
-    /// <summary>One per-frame haze step while no door fade runs. Transition changes do not rewrite the selected channel.</summary>
+    /// <summary>One per-frame haze step while no door fade runs.</summary>
     public void Step() => Step(RoomFade.None);
 
     /// <summary>

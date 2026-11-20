@@ -315,7 +315,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Fake Kraid keeps where it stood before the common damage, then dies in its own explosion and scatters its
         // drops there. It never dies the generic death, whatever reaction a hitbox selects.
         RunsGenericDeath = false,
-        // Fake Kraid's shot reaction runs the common damage without the hit burst.
+        // The bomb's common damage shows no hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
         AfterCommon = c =>
         {

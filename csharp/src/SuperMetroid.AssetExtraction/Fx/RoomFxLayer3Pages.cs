@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// Editable BG3 tiles for the six room-FX pages, as their installed document places them. Only the import reads them: it
+/// Editable BG3 tiles for the six room-FX pages, as the import's document places them. Only the import reads them: it
 /// pictures each page once into the BG3 sheets (#1466), and the game names the page an effect shows (#1467).
 /// </summary>
 public sealed class RoomFxLayer3Pages

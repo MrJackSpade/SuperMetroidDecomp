@@ -17,26 +17,26 @@ internal static class LoadedRoomAccess
 {
     /// <summary>The runtime's loaded room, which a check reads only after the runtime's first load.</summary>
     /// <exception cref="InvalidOperationException">The check reads before the runtime loaded a room.</exception>
-    private static RoomOccupancy.Loaded LoadedOf(ActiveRoomState room) =>
-        Ensure.NotNull(room).Occupancy as RoomOccupancy.Loaded
+    private static RoomScope LoadedOf(ActiveRoomState room) =>
+        Ensure.NotNull(room).Scope
             ?? throw new InvalidOperationException("The check reads the loaded room before its runtime loaded one.");
 
     extension(ActiveRoomState room)
     {
         /// <summary>The runtime's loaded room.</summary>
-        internal RoomOccupancy.Loaded Loaded => LoadedOf(room);
+        internal RoomScope Loaded => LoadedOf(room);
 
         /// <summary>The loaded room's scope.</summary>
-        internal RoomScope LoadedScope => LoadedOf(room).Scope;
+        internal RoomScope LoadedScope => LoadedOf(room);
 
         /// <summary>The loaded room's definition.</summary>
-        internal SelectedRoom LoadedRoom => LoadedOf(room).Scope.Room;
+        internal SelectedRoom LoadedRoom => LoadedOf(room).Room;
 
         /// <summary>The loaded room's scroll camera.</summary>
-        internal ScrollBoundaryCamera LoadedCamera => LoadedOf(room).Scope.Camera;
+        internal ScrollBoundaryCamera LoadedCamera => LoadedOf(room).Camera;
 
         /// <summary>The loaded room's level data.</summary>
-        internal RoomLevelData LoadedLevelData => LoadedOf(room).Scope.LevelData;
+        internal RoomLevelData LoadedLevelData => LoadedOf(room).LevelData;
     }
 
     extension(SuperMetroidRuntime runtime)
@@ -49,7 +49,7 @@ internal static class LoadedRoomAccess
         internal GameplayDisplayFrame PublishDisplayFrame() => runtime.PublishDisplayFrame(LoadedOf(runtime.Room));
 
         /// <summary>The loaded room's last enemy pass's results.</summary>
-        internal IEnemyFrameResults EnemyFrameResults => LoadedOf(runtime.Room).Scope.Enemies;
+        internal IEnemyFrameResults EnemyFrameResults => LoadedOf(runtime.Room).Enemies;
     }
 
     extension(DoorTransitionState transition)
@@ -57,8 +57,8 @@ internal static class LoadedRoomAccess
         /// <summary>Begins a door transition from the runtime's loaded room through the door Samus entered there.</summary>
         internal void Begin(SuperMetroidRuntime runtime)
         {
-            RoomOccupancy.Loaded loaded = LoadedOf(runtime.Room);
-            transition.Enter(loaded.Scope.RoomObjects.DoorContacts.EnteredDoor
+            RoomScope loaded = LoadedOf(runtime.Room);
+            transition.Enter(loaded.RoomObjects.DoorContacts.EnteredDoor
                 ?? throw new InvalidOperationException("The fixture's door transition begins after Samus entered a door."));
             transition.Begin(runtime, loaded);
         }

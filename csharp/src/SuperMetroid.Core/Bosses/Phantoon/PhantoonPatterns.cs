@@ -656,12 +656,11 @@ internal sealed class PhantoonPatterns
     /// <param name="body">Phantoon's body.</param>
     internal bool SpawnPhantoonCasualFlame(RoomEnemyPlace body)
     {
-        EnemyProjectile? flame = AllocateDestroyableFlame(body, new PhantoonFlameKeeps.Casual());
+        EnemyProjectile? flame = AllocateDestroyableFlame(body, new PhantoonFlameKeeps.Casual(), PhantoonFlameSegment.CasualFallingKindling);
         if (flame is null)
             return false;
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFallingKindling));
 
         // The falling flame's step changes the spawn definition's harmful, shootable properties to harmless ones.
         // The falling flame therefore cannot hurt Samus and cannot be shot until
@@ -680,7 +679,7 @@ internal sealed class PhantoonPatterns
         EnemyProjectile? flame = AllocateDestroyableFlame(body, new PhantoonFlameKeeps.Orbit(new PhantoonOrbitingFlameState(phantoon, start.Angle)
         {
             TurnPerUpdate = PhantoonFlameSpawns.RageTurnPerUpdate(start),
-        }, PhantoonFlameMotion.RageOrbiting));
+        }, PhantoonFlameMotion.RageOrbiting), PhantoonFlameSegment.Burning);
         if (flame is null)
             return false;
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
@@ -693,7 +692,7 @@ internal sealed class PhantoonPatterns
     internal bool SpawnPhantoonSpiralFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
     {
         RoomEnemyPlace body = phantoon.Body;
-        EnemyProjectile? flame = AllocateDestroyableFlame(body, new PhantoonFlameKeeps.Orbit(new PhantoonOrbitingFlameState(phantoon, start), PhantoonFlameMotion.SpiralOrbiting));
+        EnemyProjectile? flame = AllocateDestroyableFlame(body, new PhantoonFlameKeeps.Orbit(new PhantoonOrbitingFlameState(phantoon, start), PhantoonFlameMotion.SpiralOrbiting), PhantoonFlameSegment.Burning);
         if (flame is null)
             return false;
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.FlameCircleCentre);
@@ -706,7 +705,7 @@ internal sealed class PhantoonPatterns
     /// <param name="hangUpdates">The updates from the flame's first to its fall, the flame hanging on every earlier one.</param>
     internal bool SpawnPhantoonRainFlame(RoomEnemyPlace body, int columnX, int hangUpdates)
     {
-        EnemyProjectile? flame = AllocateDestroyableFlame(body, new PhantoonFlameKeeps.Rain(new PhantoonRainFlameState(hangUpdates)));
+        EnemyProjectile? flame = AllocateDestroyableFlame(body, new PhantoonFlameKeeps.Rain(new PhantoonRainFlameState(hangUpdates)), PhantoonFlameSegment.Burning);
         if (flame is null)
             return false;
         flame.Position = flame.Position.WithWholeX(columnX);
@@ -714,20 +713,24 @@ internal sealed class PhantoonPatterns
         return true;
     }
 
-    /// <summary>Allocates a destroyable flame and gives it the idle animation and a still, whole-pixel start.</summary>
+    /// <summary>Allocates a destroyable flame and gives it the animation it starts with and a still, whole-pixel start.</summary>
+    /// <param name="body">Phantoon's body, whose sheet the flame draws from.</param>
+    /// <param name="keeps">What the flame keeps.</param>
+    /// <param name="start">The animation the flame starts with: the idle burn, or a casual flame's kindling.</param>
     /// <returns>The flame, or null when every enemy projectile place is in use.</returns>
-    private EnemyProjectile? AllocateDestroyableFlame(RoomEnemyPlace body, PhantoonFlameKeeps keeps)
+    private EnemyProjectile? AllocateDestroyableFlame(RoomEnemyPlace body, PhantoonFlameKeeps keeps, PhantoonFlameSegment start)
     {
         EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile();
         if (flame is null)
             return null;
 
+        PhantoonCombat.IPhantoonFlame behavior = _combat.DestroyableFlame(keeps);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             flame,
             RoomEnemyProjectileKind.PhantoonDestroyableFlame,
-            _combat.DestroyableFlame(keeps),
+            behavior.Behavior,
             SpriteGraphics.SpawnedBy(body));
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Burning));
+        flame.StartAnimation(new PhantoonFlameAnimation(start, behavior));
         flame.Position = flame.Position.WithoutFractions();
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.Zero);
         return flame;

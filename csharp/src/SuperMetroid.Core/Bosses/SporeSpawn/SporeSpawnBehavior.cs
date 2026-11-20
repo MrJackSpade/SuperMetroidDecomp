@@ -273,7 +273,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>A link of Spore Spawn's stalk (#1760): it holds still, and a shot one restarts its pose.</summary>
-    internal EnemyProjectileBehavior Stalk => field ??= new EnemyProjectileBehavior(shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
+    internal EnemyProjectileBehavior Stalk => field ??= new EnemyProjectileBehavior(shot: () => new SporeSpawnStalkAnimation());
 
     /// <summary>Runs SporeSpawn's main AI with the encounter his <paramref name="place"/> holds.</summary>
     internal void RunSporeSpawnMainAi(RoomEnemyPlace place, SporeSpawnEnemyState state) => RunSporeSpawnMain(place, state);
@@ -536,7 +536,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.SporeSpawnStalk,
             Stalk,
             SpriteGraphics.SpawnedBy(body));
-        stalk.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
+        stalk.StartAnimation(new SporeSpawnStalkAnimation());
         stalk.Position = stalk.Position.WithWhole(body.Position.Whole + segment);
         return stalk;
     }
@@ -548,12 +548,13 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         if (spawner is null)
             return;
 
+        var behavior = new SporeSpawnSpawnerBehavior(_room, _projectiles, _deathsAndDrops, new SporeSpawnEmitterState(state, emitter.Drift));
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spawner,
             RoomEnemyProjectileKind.SporeSpawnSpawner,
-            new SporeSpawnSpawnerBehavior(_room, _projectiles, _deathsAndDrops, new SporeSpawnEmitterState(state, emitter.Drift)),
+            behavior,
             SpriteGraphics.SpawnedBy(body));
-        spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
+        spawner.StartAnimation(new SporeSpawnSpawnerAnimation(SporeSpawnProjectileSegment.SpawnerClosed, behavior));
         spawner.Position = spawner.Position.WithWhole(emitter.Place);
     }
 

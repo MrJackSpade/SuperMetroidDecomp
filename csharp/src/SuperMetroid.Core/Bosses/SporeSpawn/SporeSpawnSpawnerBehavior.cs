@@ -13,9 +13,11 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <param name="emitter">What the spawner keeps: the Spore Spawn that set it up, the way its spores drift and its release wait.</param>
 internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyDeathsAndDrops deathsAndDrops,
     SporeSpawnEmitterState emitter)
-    : EnemyProjectileMotionBehavior<SporeSpawnSpawnerMotion>(SporeSpawnSpawnerMotion.Releasing, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed)),
-        IEnemyProjectileCues<SporeSpawnProjectileCue>
+    : EnemyProjectileMotionBehavior<SporeSpawnSpawnerMotion>(SporeSpawnSpawnerMotion.Releasing), IEnemyProjectileCues<SporeSpawnSpawnerCue>
 {
+    /// <inheritdoc/>
+    internal override EnemyProjectileAnimation ShotAnimation() => new SporeSpawnSpawnerAnimation(SporeSpawnProjectileSegment.SpawnerClosed, this);
+
     /// <summary>Releases spores on the spawner's random cadence while Spore Spawn lets it.</summary>
     /// <param name="context">The spawner and what its pass hands every motion.</param>
     /// <param name="motion">The spawner's motion, its releasing, which only a spawner's spawn starts.</param>
@@ -32,19 +34,16 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
     }
 
     /// <summary>Carries out a cue of the spawner's release: the spore it spawns.</summary>
-    public void RunCue(EnemyProjectileCueContext context, SporeSpawnProjectileCue cue)
+    public void RunCue(EnemyProjectileCueContext context, SporeSpawnSpawnerCue cue)
     {
         switch (cue)
         {
-            case SporeSpawnProjectileCue.SpawnSpore:
+            case SporeSpawnSpawnerCue.SpawnSpore:
                 // The spore takes the colours of the Spore Spawn that set the spawner up.
                 SpawnSporeSpawnSpore(context.Projectile.Position.Whole, emitter.Drift, emitter.SporeSpawn);
                 return;
-            case SporeSpawnProjectileCue.SetImpactProperties or SporeSpawnProjectileCue.QueueKilledSound or SporeSpawnProjectileCue.RequestDrop
-                or SporeSpawnProjectileCue.Delete:
-                throw new InvalidOperationException($"A ceiling spore spawner's animations publish no {cue}.");
             default:
-                throw new InvalidOperationException($"Undefined {nameof(SporeSpawnProjectileCue)} {cue}.");
+                throw new InvalidOperationException($"Undefined {nameof(SporeSpawnSpawnerCue)} {cue}.");
         }
     }
 
@@ -58,12 +57,13 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
         if (spore is null)
             return;
 
+        var behavior = new SporeSpawnSporeBehavior(deathsAndDrops, new SporeSpawnSporeState(drift));
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spore,
             RoomEnemyProjectileKind.SporeSpawnSpore,
-            new SporeSpawnSporeBehavior(deathsAndDrops, new SporeSpawnSporeState(drift)),
+            behavior,
             SpriteGraphics.SharedIn(Ensure.NotNull(sporeSpawn).Colours.Sprites));
-        spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Spore));
+        spore.StartAnimation(new SporeSpawnSporeAnimation(SporeSpawnProjectileSegment.Spore, behavior));
         spore.Position = spore.Position.WithWhole(position);
     }
 
@@ -75,7 +75,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
 
         if (emitter.ReleaseWait.IsZero)
         {
-            spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerRelease));
+            spawner.StartAnimation(new SporeSpawnSpawnerAnimation(SporeSpawnProjectileSegment.SpawnerRelease, this));
             emitter.ReleaseWait = WrappingCountdown.Start(room.Random.Next(SporeSpawnRandomDefinitions.SporeReleaseWait));
         }
         emitter.ReleaseWait = emitter.ReleaseWait.Decrement().Remaining;

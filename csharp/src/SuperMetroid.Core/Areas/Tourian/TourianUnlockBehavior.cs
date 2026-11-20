@@ -34,7 +34,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// <summary>Binds the unlock effects to the current room's projectile, audio, FX and statue owners.</summary>
     internal TourianUnlockBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio,
         TourianEntranceStatueBehavior statue, ITourianStatueRoom statueRoom)
-        : base(StartingMotions)
+        : base(initial: null)
     {
         _room = room;
         _statueRoom = Ensure.NotNull(statueRoom);
@@ -73,14 +73,14 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// <summary>Spawns the glow of a statue's <paramref name="eye"/> and lights the eye's colours.</summary>
     public void SpawnTourianEyeGlow(TourianStatueEye eye)
     {
-        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, TourianStatueProjectileSegment.EyeGlow, eye) is null) return;
+        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, TourianStatueProjectileSegment.EyeGlow, eye, moves: null) is null) return;
         _statue.ShowEyeGlow(eye.Glow);
     }
 
     /// <summary>Spawns a statue's released soul, rising from its <paramref name="eye"/>.</summary>
     public void SpawnTourianSoul(TourianStatueEye eye)
     {
-        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, TourianStatueProjectileSegment.Soul, eye) is not { } soul) return;
+        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, TourianStatueProjectileSegment.Soul, eye, TourianStatueEffectMotion.SoulRising) is not { } soul) return;
         soul.Velocity = soul.Velocity.WithY(TourianStatueSoulDefinitions.LaunchSpeed);
     }
 
@@ -88,14 +88,21 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// Allocates an unlock effect of <paramref name="kind"/>, starting its animation at <paramref name="start"/>, at a
     /// statue's <paramref name="eye"/>; null when the room already holds as many enemy projectiles as it can.
     /// </summary>
-    private EnemyProjectile? SpawnAtStatueEye(RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start, TourianStatueEye eye)
+    /// <param name="kind">What the effect is.</param>
+    /// <param name="start">The segment its animation starts at.</param>
+    /// <param name="eye">The statue's eye it spawns at.</param>
+    /// <param name="moves">How the effect moves from its spawn, or null when it holds still.</param>
+    private EnemyProjectile? SpawnAtStatueEye(RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start, TourianStatueEye eye,
+        TourianStatueEffectMotion? moves)
     {
         Ensure.NotNull(eye);
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return null;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
+        if (moves is { } motion)
+            StartMotion(projectile, motion);
         _statue.HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(start, this));
         projectile.Position = projectile.Position.WithWhole(eye.Position);
         return projectile;
     }
@@ -103,7 +110,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// <summary>Spawns the splash of <paramref name="parent"/>, a particle crossing the water surface, held at the surface.</summary>
     private void SpawnTourianSplash(EnemyProjectile parent)
     {
-        if (SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueSplash, TourianStatueProjectileSegment.Splash) is not { } splash)
+        if (SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueSplash, TourianStatueProjectileSegment.Splash, TourianStatueEffectMotion.SplashHolding) is not { } splash)
             return;
         splash.Position = splash.Position.WithWholeY(WaterSurface - TourianStatueParticleDefinitions.SplashHeightAboveSurface);
     }
@@ -111,7 +118,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// <summary>Spawns a particle thrown from <paramref name="parent"/> at a random angle.</summary>
     private void SpawnTourianParticle(EnemyProjectile parent)
     {
-        if (SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueParticle, TourianStatueProjectileSegment.Particle) is not { } particle)
+        if (SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueParticle, TourianStatueProjectileSegment.Particle, TourianStatueEffectMotion.ParticleFalling) is not { } particle)
             return;
         // A particle leaves within an eighth of a turn either side of the zero angle; one below zero lies near a full turn.
         TrigonometryAngle angle = TrigonometryAngle.Wrapped(
@@ -125,20 +132,27 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
 
     /// <summary>Spawns a tail behind <paramref name="parent"/>, which holds still where it spawned.</summary>
     private void SpawnTourianTail(EnemyProjectile parent) =>
-        _ = SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueTail, TourianStatueProjectileSegment.Tail);
+        _ = SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueTail, TourianStatueProjectileSegment.Tail, moves: null);
 
     /// <summary>
     /// Allocates an unlock effect of <paramref name="kind"/>, starting its animation at <paramref name="start"/>, at
     /// <paramref name="parent"/>; null when the room already holds as many enemy projectiles as it can.
     /// </summary>
-    private EnemyProjectile? SpawnAtParent(EnemyProjectile parent, RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start)
+    /// <param name="parent">The effect it spawns at.</param>
+    /// <param name="kind">What the effect is.</param>
+    /// <param name="start">The segment its animation starts at.</param>
+    /// <param name="moves">How the effect moves from its spawn, or null when it holds still.</param>
+    private EnemyProjectile? SpawnAtParent(EnemyProjectile parent, RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start,
+        TourianStatueEffectMotion? moves)
     {
         Ensure.NotNull(parent);
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return null;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
+        if (moves is { } motion)
+            StartMotion(projectile, motion);
         _statue.HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(start, this));
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         return projectile;
     }
@@ -184,16 +198,6 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// </summary>
     internal EnemyProjectileBehavior Effects => this;
 
-    /// <summary>A splash holds at the water, a particle falls and a soul rises from their spawn; the dust, the eye glows and the tails hold still.</summary>
-    private static readonly Dictionary<RoomEnemyProjectileKind, TourianStatueEffectMotion?> StartingMotions = new()
-    {
-        [RoomEnemyProjectileKind.TourianStatueSplash] = TourianStatueEffectMotion.SplashHolding,
-        [RoomEnemyProjectileKind.TourianStatueParticle] = TourianStatueEffectMotion.ParticleFalling,
-        [RoomEnemyProjectileKind.TourianStatueSoul] = TourianStatueEffectMotion.SoulRising,
-        [RoomEnemyProjectileKind.TourianStatueEyeGlow] = null,
-        [RoomEnemyProjectileKind.TourianStatueTail] = null,
-        [RoomEnemyProjectileKind.TourianStatueDescentDust] = null,
-    };
 
     /// <summary>Moves one of the unlock's effects: the splash's hold, the particle's fall and the soul's rise.</summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>

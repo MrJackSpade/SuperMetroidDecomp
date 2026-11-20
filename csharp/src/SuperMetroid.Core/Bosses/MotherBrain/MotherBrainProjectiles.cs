@@ -43,74 +43,87 @@ internal sealed class MotherBrainProjectiles
     /// </summary>
     internal MotherBrainProjectileBehavior Projectile => field ??= new MotherBrainProjectileBehavior(_behaviorDependencies, TurretBullet);
 
+    /// <summary>The glass shards her tank's breaking throws (#1760): they fly from their spawn, and their sparkles are her projectiles.</summary>
+    internal MotherBrainProjectileBehavior GlassShards => field ??= new MotherBrainProjectileBehavior(_behaviorDependencies, TurretBullet, Projectile,
+        initial: MotherBrainProjectileMotion.GlassShardFlying);
+
+    /// <summary>The escape subtitle (#1851): it holds its place on screen from its spawn.</summary>
+    internal MotherBrainProjectileBehavior EscapeSubtitle => field ??= new MotherBrainProjectileBehavior(_behaviorDependencies, TurretBullet, Projectile,
+        initial: MotherBrainProjectileMotion.SubtitleHeld);
+
     /// <summary>A projectile that keeps Mother Brain's encounter: a hand beam, her breath or her rainbow beam's charge (#1760).</summary>
     /// <param name="encounter">Her encounter.</param>
-    internal EnemyProjectileBehavior WithEncounter(MotherBrainProjectileState encounter) =>
-        new EncounterBehavior(_behaviorDependencies, TurretBullet, Projectile, encounter);
+    internal MotherBrainProjectileBehavior WithEncounter(MotherBrainProjectileState encounter, MotherBrainProjectileMotion? initial = null) =>
+        new EncounterBehavior(_behaviorDependencies, TurretBullet, Projectile, encounter, initial);
 
     /// <summary>One of her bombs (#1760), which keeps its bounces and its afterburns.</summary>
     /// <param name="bomb">What the bomb keeps.</param>
-    internal EnemyProjectileBehavior Bomb(MotherBrainBombState bomb) => new KeepingBehavior<MotherBrainBombState>(
-        _behaviorDependencies, TurretBullet, Projectile, touch: null, bomb, MotherBrainProjectileMotion.BombBouncing, (shared, context, kept) => shared.Bounce(context, kept));
+    internal MotherBrainProjectileBehavior Bomb(MotherBrainBombState bomb) => new KeepingBehavior<MotherBrainBombState>(
+        _behaviorDependencies, TurretBullet, Projectile, touchSegment: null, bomb, MotherBrainProjectileMotion.BombBouncing, (shared, context, kept) => shared.Bounce(context, kept));
 
     /// <summary>
     /// An onion ring (#1760), which keeps its wait at her mouth: touching Samus runs its typed impact animation, the animation
     /// its definition names.
     /// </summary>
     /// <param name="ring">What the ring keeps.</param>
-    internal EnemyProjectileBehavior OnionRing(MotherBrainOnionRingState ring) => new KeepingBehavior<MotherBrainOnionRingState>(
-        _behaviorDependencies, TurretBullet, Projectile, () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRingHit), ring,
+    internal MotherBrainProjectileBehavior OnionRing(MotherBrainOnionRingState ring) => new KeepingBehavior<MotherBrainOnionRingState>(
+        _behaviorDependencies, TurretBullet, Projectile, MotherBrainEffectSegment.OnionRingHit, ring,
         MotherBrainProjectileMotion.OnionRingFlying, (shared, context, kept) => shared.Fly(context, kept));
 
     /// <summary>Her drool (#1760), which keeps the mouth it hangs from.</summary>
     /// <param name="drool">What the drool keeps.</param>
-    internal EnemyProjectileBehavior Drool(MotherBrainDroolState drool) => new KeepingBehavior<MotherBrainDroolState>(
-        _behaviorDependencies, TurretBullet, Projectile, touch: null, drool, MotherBrainProjectileMotion.DroolHanging,
+    internal MotherBrainProjectileBehavior Drool(MotherBrainDroolState drool) => new KeepingBehavior<MotherBrainDroolState>(
+        _behaviorDependencies, TurretBullet, Projectile, touchSegment: null, drool, MotherBrainProjectileMotion.DroolHanging,
         (_, context, kept) => MotherBrainProjectileBehavior.HoldMotherBrainDroolAtMouth(context.Projectile, kept));
 
     /// <summary>A room turret (#1760), which keeps the way it points and its waits.</summary>
     /// <param name="turret">What the turret keeps.</param>
-    internal EnemyProjectileBehavior Turret(MotherBrainTurretState turret) => new KeepingBehavior<MotherBrainTurretState>(
-        _behaviorDependencies, TurretBullet, Projectile, touch: null, turret, MotherBrainProjectileMotion.TurretAiming,
+    internal MotherBrainProjectileBehavior Turret(MotherBrainTurretState turret) => new KeepingBehavior<MotherBrainTurretState>(
+        _behaviorDependencies, TurretBullet, Projectile, touchSegment: null, turret, MotherBrainProjectileMotion.TurretAiming,
         (shared, context, kept) => shared.Operate(context, kept));
 
     /// <summary>A falling top tube (#1760), which keeps whether its dust is still to come.</summary>
     /// <param name="tube">What the tube keeps.</param>
-    internal EnemyProjectileBehavior TopTube(MotherBrainTopTubeState tube) => new KeepingBehavior<MotherBrainTopTubeState>(
-        _behaviorDependencies, TurretBullet, Projectile, touch: null, tube, MotherBrainProjectileMotion.TubeFalling, (shared, context, kept) => shared.Drop(context, kept));
+    internal MotherBrainProjectileBehavior TopTube(MotherBrainTopTubeState tube) => new KeepingBehavior<MotherBrainTopTubeState>(
+        _behaviorDependencies, TurretBullet, Projectile, touchSegment: null, tube, MotherBrainProjectileMotion.TubeFalling, (shared, context, kept) => shared.Drop(context, kept));
 
     /// <summary>An explosion on her body as she dies (#1760), which keeps where on her body it bursts.</summary>
     /// <param name="explosion">What the explosion keeps.</param>
-    internal EnemyProjectileBehavior BodyExplosion(MotherBrainBodyExplosionState explosion) => new KeepingBehavior<MotherBrainBodyExplosionState>(
-        _behaviorDependencies, TurretBullet, Projectile, touch: null, explosion, MotherBrainProjectileMotion.DeathExplosionTracking,
+    internal MotherBrainProjectileBehavior BodyExplosion(MotherBrainBodyExplosionState explosion) => new KeepingBehavior<MotherBrainBodyExplosionState>(
+        _behaviorDependencies, TurretBullet, Projectile, touchSegment: null, explosion, MotherBrainProjectileMotion.DeathExplosionTracking,
         (_, context, kept) => MotherBrainProjectileBehavior.RunMotherBrainDeathExplosion(context.Projectile, kept));
 
     /// <summary>A fragment of the escape door (#1760), which keeps its lifetime.</summary>
     /// <param name="fragment">What the fragment keeps.</param>
-    internal EnemyProjectileBehavior DoorFragment(MotherBrainDoorFragmentState fragment) => new KeepingBehavior<MotherBrainDoorFragmentState>(
-        _behaviorDependencies, TurretBullet, Projectile, touch: null, fragment, MotherBrainProjectileMotion.DoorFragmentFalling,
+    internal MotherBrainProjectileBehavior DoorFragment(MotherBrainDoorFragmentState fragment) => new KeepingBehavior<MotherBrainDoorFragmentState>(
+        _behaviorDependencies, TurretBullet, Projectile, touchSegment: null, fragment, MotherBrainProjectileMotion.DoorFragmentFalling,
         (shared, context, kept) => shared.Drop(context, kept));
 
     /// <summary>An explosion that follows Samus as the rainbow beam strikes her (#1760), which keeps where on her it bursts.</summary>
     /// <param name="explosion">What the explosion keeps.</param>
-    internal EnemyProjectileBehavior FollowingExplosion(MotherBrainFollowingExplosionState explosion) => new KeepingBehavior<MotherBrainFollowingExplosionState>(
-        _behaviorDependencies, TurretBullet, Projectile, touch: null, explosion, MotherBrainProjectileMotion.RainbowImpactTracking,
+    internal MotherBrainProjectileBehavior FollowingExplosion(MotherBrainFollowingExplosionState explosion) => new KeepingBehavior<MotherBrainFollowingExplosionState>(
+        _behaviorDependencies, TurretBullet, Projectile, touchSegment: null, explosion, MotherBrainProjectileMotion.RainbowImpactTracking,
         (_, context, kept) => AdvanceMotherBrainRainbowExplosion(context.Projectile, kept, context.Samus));
 
     /// <summary>
     /// A room turret's bullet (#1760): its spawner starts its animation, and a shot or Samus's touch runs the turret
     /// family's smoke, the animation its definition names for both.
     /// </summary>
-    internal EnemyProjectileBehavior TurretBullet { get; } = new TurretBulletBehavior();
+    internal TurretBulletBehavior TurretBullet { get; } = new();
 
     /// <summary>
     /// A room turret's bullet: it flies, flickering its vulnerability, until it meets a solid block, and handles its turret
     /// animation's cues. It needs nothing of the encounter.
     /// </summary>
-    private sealed class TurretBulletBehavior()
-        : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving, shot: () => new MotherBrainTurretAnimation(MotherBrainTurretPose.BulletImpact), touch: () => new MotherBrainTurretAnimation(MotherBrainTurretPose.BulletImpact)),
-        IEnemyProjectileCues<MotherBrainTurretCue>
+    internal sealed class TurretBulletBehavior()
+        : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving), IEnemyProjectileCues<MotherBrainTurretCue>
     {
+        /// <inheritdoc/>
+        internal override EnemyProjectileAnimation ShotAnimation() => new MotherBrainTurretAnimation(MotherBrainTurretPose.BulletImpact, this);
+
+        /// <inheritdoc/>
+        internal override EnemyProjectileAnimation? TouchAnimation() => new MotherBrainTurretAnimation(MotherBrainTurretPose.BulletImpact, this);
+
         /// <summary>Flies the bullet, flickering its vulnerability, until it meets a solid block.</summary>
         /// <param name="context">The projectile and what its pass hands every motion.</param>
         /// <param name="motion">The bullet's one motion.</param>
@@ -147,10 +160,11 @@ internal sealed class MotherBrainProjectiles
     /// <param name="touch">The animation touching Samus starts, or null when the kind has none of its own.</param>
     internal class MotherBrainProjectileBehavior(
         MotherBrainProjectileDependencies dependencies,
-        EnemyProjectileBehavior turretBullet,
+        TurretBulletBehavior turretBullet,
         MotherBrainProjectileBehavior? spawned = null,
-        Func<EnemyProjectileAnimation>? touch = null)
-        : EnemyProjectileMotionBehavior<MotherBrainProjectileMotion>(StartingMotions, touch: touch),
+        MotherBrainEffectSegment? touchSegment = null,
+        MotherBrainProjectileMotion? initial = null)
+        : EnemyProjectileMotionBehavior<MotherBrainProjectileMotion>(initial),
         IEnemyProjectileCues<MotherBrainTurretCue>,
         IEnemyProjectileCues<MotherBrainGlassCue>,
         IEnemyProjectileCues<MotherBrainEffectCue>,
@@ -159,30 +173,9 @@ internal sealed class MotherBrainProjectiles
         /// <summary>The behaviour the glass sparkles and hand beams this spawns run: Mother Brain's own projectiles'.</summary>
         private MotherBrainProjectileBehavior Spawned => spawned ?? this;
 
-        /// <summary>The motion each of her projectiles starts with; the glass sparkles, hand beams and purple breath hold still.</summary>
-        private static readonly Dictionary<RoomEnemyProjectileKind, MotherBrainProjectileMotion?> StartingMotions = new()
-        {
-            [RoomEnemyProjectileKind.MotherBrainRoomTurret] = MotherBrainProjectileMotion.TurretAiming,
-            [RoomEnemyProjectileKind.MotherBrainGlassShard] = MotherBrainProjectileMotion.GlassShardFlying,
-            [RoomEnemyProjectileKind.MotherBrainBomb] = MotherBrainProjectileMotion.BombBouncing,
-            [RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging] = MotherBrainProjectileMotion.RainbowBeamCharging,
-            [RoomEnemyProjectileKind.MotherBrainDrool] = MotherBrainProjectileMotion.DroolHanging,
-            [RoomEnemyProjectileKind.MotherBrainDyingDrool] = MotherBrainProjectileMotion.DroolHanging,
-            [RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion] = MotherBrainProjectileMotion.RainbowImpactTracking,
-            [RoomEnemyProjectileKind.MotherBrainTopRightTube] = MotherBrainProjectileMotion.TubeFalling,
-            [RoomEnemyProjectileKind.MotherBrainTopLeftTube] = MotherBrainProjectileMotion.TubeFalling,
-            [RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube] = MotherBrainProjectileMotion.TubeFalling,
-            [RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube] = MotherBrainProjectileMotion.TubeFalling,
-            [RoomEnemyProjectileKind.MotherBrainDeathExplosion] = MotherBrainProjectileMotion.DeathExplosionTracking,
-            [RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment] = MotherBrainProjectileMotion.DoorFragmentFalling,
-            [RoomEnemyProjectileKind.MotherBrainEscapeSubtitle] = MotherBrainProjectileMotion.SubtitleHeld,
-            [RoomEnemyProjectileKind.MotherBrainOnionRing] = MotherBrainProjectileMotion.OnionRingFlying,
-            [RoomEnemyProjectileKind.MotherBrainGlassSparkle] = null,
-            [RoomEnemyProjectileKind.MotherBrainHandBeamCharging] = null,
-            [RoomEnemyProjectileKind.MotherBrainHandBeamFired] = null,
-            [RoomEnemyProjectileKind.MotherBrainPurpleBreathBig] = null,
-            [RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall] = null,
-        };
+        /// <inheritdoc/>
+        internal override EnemyProjectileAnimation? TouchAnimation() =>
+            touchSegment is { } segment ? new MotherBrainEffectAnimation(segment, this) : null;
 
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, MotherBrainProjectileMotion motion)
@@ -199,7 +192,7 @@ internal sealed class MotherBrainProjectiles
                     MoveMotherBrainGlassShard(projectile);
                     break;
                 case MotherBrainProjectileMotion.DroolFalling:
-                    DropMotherBrainDrool(projectile);
+                    DropMotherBrainDrool(projectile, this);
                     break;
                 case MotherBrainProjectileMotion.SubtitleHeld:
                     PinMotherBrainEscapeSubtitle(projectile);
@@ -259,7 +252,7 @@ internal sealed class MotherBrainProjectiles
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.EndSmallPurpleBreath }:
                     throw new InvalidDataException($"Mother Brain projectile {projectile.Kind} ran {cue}, which only her small breath keeping her encounter runs.");
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.ReleaseDrool }:
-                    projectile.StartMotion(MotherBrainProjectileMotion.DroolFalling);
+                    StartMotion(projectile, MotherBrainProjectileMotion.DroolFalling);
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.StopMoving }:
                     projectile.HoldStill();
@@ -442,7 +435,7 @@ internal sealed class MotherBrainProjectiles
                 RoomEnemyProjectileKind.MotherBrainGlassSparkle,
                 Spawned,
                 graphics: default);
-            sparkle.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassSegment.Sparkle));
+            sparkle.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassSegment.Sparkle, Spawned));
             // A shard near the top of the room may sparkle above it, so the sparkle's place is its shard's moved by its
             // offset, which continues past the room's edge as positions do.
             int sparkleX = dependencies.Room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - MotherBrainGlassShardDefinitions.SparkleOffsetCentre;
@@ -463,10 +456,11 @@ internal sealed class MotherBrainProjectiles
             if (beam is null)
                 return;
 
+            var fired = new EncounterBehavior(dependencies, turretBullet, Spawned, new MotherBrainProjectileState(state));
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 beam,
                 RoomEnemyProjectileKind.MotherBrainHandBeamFired,
-                new EncounterBehavior(dependencies, turretBullet, Spawned, new MotherBrainProjectileState(state)),
+                fired,
                 graphics: default);
             beam.Position = state.HandBeamNextPosition;
             beam.Velocity = state.HandBeamNextVelocity;
@@ -497,7 +491,7 @@ internal sealed class MotherBrainProjectiles
             }
 
             beam.Velocity = PixelVelocity<RoomPixels>.Zero;
-            beam.StartAnimation(new MotherBrainHandBeamAnimation());
+            beam.StartAnimation(new MotherBrainHandBeamAnimation(fired));
         }
 
         /// <summary>Holds Mother Brain's drool at its point on her mouth as her head moves.</summary>
@@ -622,7 +616,7 @@ internal sealed class MotherBrainProjectiles
             {
                 ResetMotherBrainTurretRotationTimer(turretState);
                 SelectNextMotherBrainTurretDirection(turretState);
-                turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(turretState.Direction)));
+                turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(turretState.Direction), this));
             }
 
             if (turretState.FiringWait.StepRunsOut())
@@ -664,7 +658,7 @@ internal sealed class MotherBrainProjectiles
             bullet.Velocity = definition.BulletVelocity;
             bullet.Position = bullet.Position.WithWhole(turret.Position.Whole + definition.BulletOffset);
             // The bullet animation's first cue jumps to the pose for this direction.
-            bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Bullet(direction)));
+            bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Bullet(direction), turretBullet));
         }
 
         /// <summary>Pins the charging effect to the head while the beam winds up.</summary>
@@ -701,9 +695,9 @@ internal sealed class MotherBrainProjectiles
     /// <param name="turretBullet">The behaviour a turret's bullet runs.</param>
     /// <param name="spawned">The behaviour the projectiles this one spawns run.</param>
     /// <param name="encounter">What the projectile keeps: her encounter.</param>
-    internal sealed class EncounterBehavior(MotherBrainProjectileDependencies dependencies, EnemyProjectileBehavior turretBullet,
-        MotherBrainProjectileBehavior spawned, MotherBrainProjectileState encounter)
-        : MotherBrainProjectileBehavior(dependencies, turretBullet, spawned)
+    internal sealed class EncounterBehavior(MotherBrainProjectileDependencies dependencies, TurretBulletBehavior turretBullet,
+        MotherBrainProjectileBehavior spawned, MotherBrainProjectileState encounter, MotherBrainProjectileMotion? initial = null)
+        : MotherBrainProjectileBehavior(dependencies, turretBullet, spawned, initial: initial)
     {
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, MotherBrainProjectileMotion motion)
@@ -742,10 +736,10 @@ internal sealed class MotherBrainProjectiles
     /// <param name="kept">What the projectile keeps.</param>
     /// <param name="motion">The motion that reads what it keeps.</param>
     /// <param name="move">Moves the projectile by that motion with what it keeps.</param>
-    internal sealed class KeepingBehavior<TState>(MotherBrainProjectileDependencies dependencies, EnemyProjectileBehavior turretBullet,
-        MotherBrainProjectileBehavior spawned, Func<EnemyProjectileAnimation>? touch, TState kept, MotherBrainProjectileMotion motion,
+    internal sealed class KeepingBehavior<TState>(MotherBrainProjectileDependencies dependencies, TurretBulletBehavior turretBullet,
+        MotherBrainProjectileBehavior spawned, MotherBrainEffectSegment? touchSegment, TState kept, MotherBrainProjectileMotion motion,
         Action<MotherBrainProjectileBehavior, EnemyProjectileMotionContext, TState> move)
-        : MotherBrainProjectileBehavior(dependencies, turretBullet, spawned, touch)
+        : MotherBrainProjectileBehavior(dependencies, turretBullet, spawned, touchSegment, motion)
         where TState : EnemyProjectileState
     {
         /// <inheritdoc/>
@@ -824,7 +818,7 @@ internal sealed class MotherBrainProjectiles
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             shard,
             RoomEnemyProjectileKind.MotherBrainGlassShard,
-            Projectile,
+            GlassShards,
             graphics: default);
 
         // The shard launches at a random angle, any step of the turn. It selects signed sine/cosine velocities and the
@@ -834,7 +828,7 @@ internal sealed class MotherBrainProjectiles
         // The vertical speed follows the negative cosine, the sine a quarter turn back.
         shard.Velocity = shard.Velocity.WithY(EnemyMath.SineVelocity(angle - TrigonometryAngle.QuarterTurn,
             MotherBrainGlassShardDefinitions.LaunchDownSpeed));
-        shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardAnimations.At(angle)));
+        shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardAnimations.At(angle), GlassShards));
         shard.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
 
         MotherBrainGlassShardPlacement placement =
@@ -866,8 +860,11 @@ internal sealed class MotherBrainProjectiles
     /// Moves the falling drool: it falls at its velocity, gains its gravity each update, and switches to its four-frame
     /// splash at the floor.
     /// </summary>
+    /// <param name="drool">The falling drool.</param>
+    /// <param name="cues">The drool's behaviour, which owns its animations' cues.</param>
     internal static void DropMotherBrainDrool(
-        EnemyProjectile drool)
+        EnemyProjectile drool,
+        IEnemyProjectileCues<MotherBrainEffectCue> cues)
     {
         // The drool splashes once it falls to the floor, so its speed stays a few pixels an update.
         drool.Velocity = drool.Velocity.WithY(drool.Velocity.Y + MotherBrainFightDefinitions.DroolGravity);
@@ -876,7 +873,7 @@ internal sealed class MotherBrainProjectiles
             return;
 
         drool.Position = drool.Position.WithWholeY(drool.Position.Y.Whole - MotherBrainFightDefinitions.DroolSplashRise);
-        drool.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.DroolHitFloor));
+        drool.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.DroolHitFloor, cues));
     }
 
     /// <summary>Positions an unlaunched ring at the moving head's mouth.</summary>

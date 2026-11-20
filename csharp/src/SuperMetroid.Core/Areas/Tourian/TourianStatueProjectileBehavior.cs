@@ -14,16 +14,9 @@ internal abstract class TourianStatueProjectileBehavior<TMotion>
     where TMotion : struct, Enum
 {
     /// <summary>Kinds that all start in <paramref name="initial"/>.</summary>
-    /// <param name="initial">The motion every kind of this behaviour starts with.</param>
-    private protected TourianStatueProjectileBehavior(TMotion initial)
+    /// <param name="initial">The motion every kind of this behaviour starts with, or null when its spawner starts its motion.</param>
+    private protected TourianStatueProjectileBehavior(TMotion? initial)
         : base(initial)
-    {
-    }
-
-    /// <summary>Kinds that start in the motions <paramref name="startingMotions"/> names for each.</summary>
-    /// <param name="startingMotions">Every kind this behaviour is bound to, with the motion it starts with, or null when it starts holding still.</param>
-    private protected TourianStatueProjectileBehavior(IReadOnlyDictionary<RoomEnemyProjectileKind, TMotion?> startingMotions)
-        : base(startingMotions)
     {
     }
 

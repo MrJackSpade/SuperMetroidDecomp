@@ -189,15 +189,16 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         RoomEnemyProjectileKind kind,
         TourianStatueProjectileSegment start,
         Position16<RoomPixels> position,
-        Func<Position16<RoomPixels>, EnemyProjectileBehavior> decorations)
+        Func<Position16<RoomPixels>, TourianStatueProjectileBehavior<TourianStatueDecorationMotion>> decorations)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, decorations(position), graphics: SceneGraphics);
+        TourianStatueProjectileBehavior<TourianStatueDecorationMotion> decoration = decorations(position);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, decoration, graphics: SceneGraphics);
         HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(start, decoration));
         projectile.Position = projectile.Position.WithWhole(position);
     }
 
@@ -209,7 +210,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// animations, and they follow the statue room's statue down.
     /// </summary>
     /// <param name="anchor">The decoration's authored spawn point, to which it stays tied as the statue descends.</param>
-    internal EnemyProjectileBehavior Decoration(Position16<RoomPixels> anchor) => new DecorationBehavior(StatueRoom.Animation, StatueRoom, anchor);
+    internal TourianStatueProjectileBehavior<TourianStatueDecorationMotion> Decoration(Position16<RoomPixels> anchor) =>
+        new DecorationBehavior(StatueRoom.Animation, StatueRoom, anchor);
 
     /// <summary>A decoration: it follows the statue's reveal and descent, and settles at its place.</summary>
     /// <param name="statue">The statues' shared animation state, whose rest finishes the statue's sinking.</param>
@@ -221,7 +223,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         /// <summary>The base decoration's animation starts it following the statue's reveal.</summary>
         /// <param name="projectile">The base decoration.</param>
         private protected override void FollowReveal(EnemyProjectile projectile) =>
-            projectile.StartMotion(TourianStatueDecorationMotion.FollowingReveal);
+            StartMotion(projectile, TourianStatueDecorationMotion.FollowingReveal);
 
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, TourianStatueDecorationMotion motion)
@@ -240,7 +242,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         /// <summary>Follows the statue down as it sinks and, for the base decoration, marks the sinking finished once the statues rest.</summary>
         private void PositionTourianEntranceStatueProjectile(EnemyProjectile projectile)
         {
-            if (projectile.Motion is TourianStatueDecorationMotion.FollowingReveal &&
+            if (MovesBy(projectile, TourianStatueDecorationMotion.FollowingReveal) &&
                 statue.AtRest)
             {
                 statue.FinishSinking();

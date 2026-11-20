@@ -306,10 +306,11 @@ internal sealed class MotherBrainBody
         if (beam is null)
             return;
 
+        var behavior = _projectileAttacks.WithEncounter(new MotherBrainProjectileState(state));
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
-            _projectileAttacks.WithEncounter(new MotherBrainProjectileState(state)),
+            behavior,
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         beam.Velocity = PixelVelocity<RoomPixels>.Zero;
         beam.Position = beam.Position.WithoutFractions();
@@ -324,7 +325,7 @@ internal sealed class MotherBrainBody
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle),
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
-        beam.StartAnimation(new MotherBrainHandBeamAnimation());
+        beam.StartAnimation(new MotherBrainHandBeamAnimation(behavior));
     }
 
     /// <summary>
@@ -362,14 +363,15 @@ internal sealed class MotherBrainBody
             return;
 
         var turretState = new MotherBrainTurretState(state, definition);
+        var behavior = _projectileAttacks.Turret(turretState);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             turret,
             RoomEnemyProjectileKind.MotherBrainRoomTurret,
-            _projectileAttacks.Turret(turretState),
+            behavior,
             MotherBrainTurretDefinitions.Graphics);
 
         turret.Position = turret.Position.WithWhole(definition.Position);
-        turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(definition.InitialDirection)));
+        turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(definition.InitialDirection), behavior));
 
         // A new turret draws a random number for each of its two waits, its turning wait first.
         _projectileAttacks.Projectile.ResetMotherBrainTurretRotationTimer(turretState);

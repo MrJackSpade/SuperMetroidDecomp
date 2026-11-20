@@ -68,7 +68,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
-        SporeSpawnEnemyState state = body.RequireSpeciesState<SporeSpawnEnemyState>();
+        SporeSpawnEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<SporeSpawnEntity>(body).State;
         // His live colour handlers name shades of his sprites and room (#1512); the import pre-colours each from the
         // installed colours.
         IReadOnlyList<SheetShade> sprites = SporeSpawnSheetShades.Sprites(stock.Bosses);

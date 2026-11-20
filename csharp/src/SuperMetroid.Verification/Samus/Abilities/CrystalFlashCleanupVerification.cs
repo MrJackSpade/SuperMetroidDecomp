@@ -114,7 +114,7 @@ internal static class CrystalFlashCleanupVerification
                 // Contact runs before AI publishes its first map. Seed that same
                 // authored map so this fixture tests contact on this exact frame.
                 contactEnemy.SpritemapPointer = RipperAnimationsConstants.Spritemaps(
-                    contactEnemy.RequireSpeciesState<RipperEnemyState>().Playback.Animation.Phases[0].Segment).First();
+                    SuperMetroid.Core.Enemies.EnemyPartners.Listed<RipperEntity>(contactEnemy).State.Playback.Animation.Phases[0].Segment).First();
                 // The gunship's glow belongs to the room's colour effects, which only the room's load clears (#1783): it
                 // outlives the population it was started by and keeps showing on the gunship that started it.
                 AssertTrue(runtime.RoomPaletteFx.IsRunning(GunshipLightDefinitions.Glow),

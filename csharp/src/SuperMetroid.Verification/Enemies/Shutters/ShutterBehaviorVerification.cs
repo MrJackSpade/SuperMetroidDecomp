@@ -40,8 +40,7 @@ internal static class ShutterBehaviorVerification
                 (enemies, place) =>
                 {
                     ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("Verification requires a bound shutter."))).Initialize();
-                    VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
-                        ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
+                    VerticalShutterEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<VerticalShutterEntity>(place).State;
                     AssertEqual(ShuttersBehavior.InitialAction(place.SpawnSettings<ShutterSpawnSettings>().TriggerMode), state.Action,
                         $"shutter {definition} starts in its trigger's initial action (#2075)");
                 },
@@ -191,8 +190,7 @@ internal static class ShutterBehaviorVerification
             place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
                 LittleEndianBytes.Word(speedIndex, primaryDirection), 0, 0, LittleEndianBytes.Word(0, travelDistance), 0));
             ShuttersBehavior.InitializeVerticalShutter(place, ShutterSegment.FullyGrown);
-            VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
-                ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
+            VerticalShutterEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<VerticalShutterEntity>(place).State;
             string context = $"primary direction {primaryDirection} at Y {spawnY}";
             AssertEqual(expectedUpperY, state.UpperEndpointY, $"{context}: upper endpoint");
             AssertEqual(expectedLowerY, state.LowerEndpointY, $"{context}: lower endpoint");

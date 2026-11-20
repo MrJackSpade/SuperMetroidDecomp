@@ -24,9 +24,9 @@ internal static class RioOwnedStateVerification
         enemies.GerutaBehavior.InitializeGerutaFollower(follower);
         // The placement builds the part's own entity (#2164): the parent a Rio, the follower its flames.
         AssertTrue(parent.EntityState<GerutaEntity, GerutaEnemyState>() is not null &&
-            parent.SpeciesState<GerutaFollowerState>() is null &&
+            SuperMetroid.Core.Enemies.EnemyPartners.Listed<GerutaFollowerEntity>(parent).State is null &&
             follower.EntityState<GerutaFollowerEntity, GerutaFollowerState>() is not null &&
-            follower.SpeciesState<GerutaEnemyState>() is null,
+            SuperMetroid.Core.Enemies.EnemyPartners.Listed<GerutaEntity>(follower).State is null,
             "parameter one's sign bit selects the follower, which keeps only its own follower state");
         Console.WriteLine("Rio owned state: the follower selection matches.");
     }

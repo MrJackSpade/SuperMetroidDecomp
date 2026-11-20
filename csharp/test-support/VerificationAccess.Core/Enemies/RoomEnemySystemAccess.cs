@@ -104,7 +104,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Per-place Evir states, indexed by enemy place.</summary>
         internal IReadOnlyList<EvirBodyState?> EvirStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<EvirBodyState>())];
+            [.. self.Places.InUpdateOrder.Select(place => SuperMetroid.Core.Enemies.EnemyPartners.Listed<EvirBodyEntity>(place).State)];
 
         /// <summary>The enemy drops waiting in the projectile pool: each drop an enemy makes takes a pickup's place there.</summary>
         internal int ActiveEnemyDropPickups =>
@@ -116,7 +116,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Dead Torizo corpse state indexed by physical enemy slot.</summary>
         internal IReadOnlyList<DeadTorizoEnemyState?> DeadTorizos =>
-            [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<DeadTorizoEnemyState>())];
+            [.. self.Places.InUpdateOrder.Select(place => SuperMetroid.Core.Enemies.EnemyPartners.Listed<DeadTorizoEntity>(place).State)];
 
         /// <summary>Typed state for every physical slot currently owned by a Skree.</summary>
         internal IReadOnlyList<SkreeEnemyState?> SkreeStates =>
@@ -171,7 +171,7 @@ internal static class RoomEnemySystemAccess
         /// non-null entries; every other room slot remains null.
         /// </summary>
         internal IReadOnlyList<ShaktoolSegmentState?> ShaktoolSegments =>
-            [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<ShaktoolSegmentState>())];
+            [.. self.Places.InUpdateOrder.Select(place => SuperMetroid.Core.Enemies.EnemyPartners.Listed<ShaktoolEntity>(place).State)];
 
         /// <summary>Typed state for every physical slot currently owned by a Mochtroid.</summary>
         internal IReadOnlyList<MochtroidEnemyState?> MochtroidStates =>
@@ -219,7 +219,7 @@ internal static class RoomEnemySystemAccess
         /// <summary>The live Spore Spawn extension, or null outside its room.</summary>
         /// <remarks>His body holds his encounter from its initialization (#2231), so the check finds it there.</remarks>
         internal SporeSpawnEnemyState? SporeSpawn =>
-            self.Places.InUpdateOrder.Select(place => place.SpeciesState<SporeSpawnEnemyState>()).FirstOrDefault(state => state is not null);
+            self.Places.InUpdateOrder.Select(place => SuperMetroid.Core.Enemies.EnemyPartners.Listed<SporeSpawnEntity>(place).State).FirstOrDefault(state => state is not null);
 
         /// <summary>The Boyon state of each physical slot's occupant, or null where no initialized Boyon occupies it.</summary>
         internal IReadOnlyList<BoyonEnemyState?> BoyonStates =>
@@ -326,19 +326,19 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>The Brinstar Pipe Bug state of each slot that holds a Zeb or Zebbo.</summary>
         internal IReadOnlyList<BrinstarPipeBugState?> BrinstarPipeBugStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<BrinstarPipeBugState>())];
+            [.. self.Places.InUpdateOrder.Select(place => SuperMetroid.Core.Enemies.EnemyPartners.Listed<BrinstarPipeBugEntity>(place).State)];
 
         /// <summary>The Norfair Pipe Bug state of each slot that holds a Gamet.</summary>
         internal IReadOnlyList<NorfairPipeBugState?> NorfairPipeBugStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<NorfairPipeBugState>())];
+            [.. self.Places.InUpdateOrder.Select(place => SuperMetroid.Core.Enemies.EnemyPartners.Listed<NorfairPipeBugEntity>(place).State)];
 
         /// <summary>The Ki-Hunter body state of each slot that holds a body.</summary>
         internal IReadOnlyList<KiHunterBodyState?> KiHunterBodyStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<KiHunterBodyState>())];
+            [.. self.Places.InUpdateOrder.Select(place => SuperMetroid.Core.Enemies.EnemyPartners.Listed<KiHunterBodyEntity>(place).State)];
 
         /// <summary>The Ki-Hunter wing state of each slot that holds wings.</summary>
         internal IReadOnlyList<KiHunterWingState?> KiHunterWingStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<KiHunterWingState>())];
+            [.. self.Places.InUpdateOrder.Select(place => SuperMetroid.Core.Enemies.EnemyPartners.Listed<KiHunterWingsEntity>(place).State)];
 
         /// <summary>Typed Choot state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<ChootEnemyState?> ChootStates =>
@@ -362,7 +362,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>The state the room's Torizo, Bomb or Golden, owns as its entity's species state, or null in a room without one.</summary>
         internal TorizoEnemyState? Torizo =>
-            self.Places.InUpdateOrder.Select(place => place.SpeciesState<TorizoEnemyState>()).OfType<TorizoEnemyState>().SingleOrDefault();
+            self.Places.InUpdateOrder.Select(place => SuperMetroid.Core.Enemies.EnemyPartners.Listed<TorizoEntity>(place).State).OfType<TorizoEnemyState>().SingleOrDefault();
 
         /// <summary>The room's Bomb Torizo's state, or null in a room without one.</summary>
         internal TorizoEnemyState? BombTorizo => self.Torizo is { Variant: BombTorizoVariant } torizo ? torizo : null;

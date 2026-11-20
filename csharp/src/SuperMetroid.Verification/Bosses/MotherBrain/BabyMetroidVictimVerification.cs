@@ -43,8 +43,8 @@ internal static class BabyMetroidVictimVerification
         int leftDoorCameraX = CoordinateAxis.Wrap(-16);
         BabyMetroidBehavior.InitializeBabyMetroid(places[0], 0);
         BabyMetroidBehavior.InitializeBabyMetroid(places[5], leftDoorCameraX);
-        AssertEqual(BabyMetroidAction.WaitForCamera, places[0].RequireSpeciesState<BabyMetroidEnemyState>().Action, "entering from the right leaves the first Shitroid waiting");
-        AssertEqual(BabyMetroidAction.Dormant, places[5].RequireSpeciesState<BabyMetroidEnemyState>().Action, "entering from the left leaves the second Shitroid dormant");
+        AssertEqual(BabyMetroidAction.WaitForCamera, SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidEntity>(places[0]).State.Action, "entering from the right leaves the first Shitroid waiting");
+        AssertEqual(BabyMetroidAction.Dormant, SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidEntity>(places[5]).State.Action, "entering from the left leaves the second Shitroid dormant");
         AssertTrue(!feeding.HasAlreadyFedOn(places[1]), "the victim after a waiting Shitroid is still there");
         AssertTrue(feeding.HasAlreadyFedOn(places[6]), "the victim after a dormant Shitroid is gone");
         AssertTrue(!feeding.HasAlreadyFedOn(places[0]), "the enemy placed first has no Shitroid feeding on it");

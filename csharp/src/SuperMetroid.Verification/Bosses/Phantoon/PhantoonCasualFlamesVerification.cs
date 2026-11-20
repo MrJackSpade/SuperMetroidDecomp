@@ -63,7 +63,7 @@ internal static class PhantoonCasualFlamesVerification
             for (int frame = 0; frame < 2048; frame++)
             {
                 // The mouth rests closed before each update; only the casual trigger installs its flame-spitting animation.
-                mouth.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.MouthInitial);
+                SuperMetroid.Core.Enemies.EnemyPartners.Listed<PhantoonEntity>(mouth).Part.Playback = PhantoonPart.Starting(PhantoonPartSegment.MouthInitial);
                 mouth.AnimationClock.HoldFor(RestingMouthHold);
                 bool draw = false;
                 timer = WrappingCounter.Decrement(timer).Value;
@@ -93,7 +93,7 @@ internal static class PhantoonCasualFlamesVerification
                 // mouth holds as no count (#1627).
                 AssertEqual(unchecked((short)count) < 0 ? null : unchecked((short)count), FlamesToCome(state),
                     "Actual casual frame remaining count");
-                AssertEqual(PhantoonPart.Starting(draw ? PhantoonPartSegment.MouthSpawnFlame : PhantoonPartSegment.MouthInitial), mouth.RequireSpeciesState<PhantoonPart>().Playback,
+                AssertEqual(PhantoonPart.Starting(draw ? PhantoonPartSegment.MouthSpawnFlame : PhantoonPartSegment.MouthInitial), SuperMetroid.Core.Enemies.EnemyPartners.Listed<PhantoonEntity>(mouth).Part.Playback,
                     "Exact casual mouth animation trigger frame");
                 AssertEqual(draw ? 1 : RestingMouthHold, mouth.AnimationClock.Hold, "Exact casual instruction timer reset, the resting hold kept otherwise");
             }

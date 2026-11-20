@@ -209,8 +209,7 @@ internal static class RidleyExplosionDefinitionsVerification
                     "Ridley breakup production instruction timer");
                 AssertEqual(state.Colours.SpriteShading(flashing: false), fragment.Shading,
                     "Ridley breakup production colours: the shades Ridley laid over his own sprites");
-                RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
-                    ?? throw new InvalidOperationException("The initialized fragment has no state.");
+                RidleyExplosionFragmentState fragmentState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<RidleyBreakupPieceEntity>(fragment).State;
                 AssertEqual(
                     rom.ReadCartridgeWord((0xa6c6ce + parameter)),
                     fragmentState.Lifetime.CartridgeCount,
@@ -229,7 +228,7 @@ internal static class RidleyExplosionDefinitionsVerification
                         ? rom.ReadCartridgeWord((0xa6c7ba + orientation * 2))
                         : rom.ReadCartridgeWord(TailBreakupInstructionAddresses
                                 [tailIndex]);
-                    AssertEqual(expectedInstruction, RidleyNativeProgramOracle.BreakupList(fragment.RequireSpeciesState<RidleyExplosionFragmentState>().Picture),
+                    AssertEqual(expectedInstruction, RidleyNativeProgramOracle.BreakupList(SuperMetroid.Core.Enemies.EnemyPartners.Listed<RidleyBreakupPieceEntity>(fragment).State.Picture),
                         $"Ridley breakup production tail instruction ${parameter:X2}/{orientation}");
                 }
                 else
@@ -246,7 +245,7 @@ internal static class RidleyExplosionDefinitionsVerification
                         $"Ridley breakup production body Y ${parameter:X2}/{facingIndex}");
                     AssertEqual(
                         rom.ReadCartridgeWord((instructionTables[bodyIndex] + facingIndex * 2)),
-                        RidleyNativeProgramOracle.BreakupList(fragment.RequireSpeciesState<RidleyExplosionFragmentState>().Picture),
+                        RidleyNativeProgramOracle.BreakupList(SuperMetroid.Core.Enemies.EnemyPartners.Listed<RidleyBreakupPieceEntity>(fragment).State.Picture),
                         $"Ridley breakup production body instruction ${parameter:X2}/{facingIndex}");
                 }
                 cases++;

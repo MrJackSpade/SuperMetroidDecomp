@@ -52,7 +52,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 initialize(actor);
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");
                 AssertEqual(native[1], actor.Position.Y.Whole, "Real Torizo initial Y");
-                TorizoEnemyState started = actor.RequireSpeciesState<TorizoEnemyState>();
+                TorizoEnemyState started = SuperMetroid.Core.Enemies.EnemyPartners.Listed<TorizoEntity>(actor).State;
                 AssertEqual(native[2], TorizoNativeListAddresses.Entry(TorizoAnimations.Playing(started.BodyPlayback)), "Real Torizo initial program selection");
                 AssertEqual(TorizoAnimations.Start(TorizoAnimations.Playing(started.BodyPlayback)), started.BodyPlayback, "Real Torizo starts its initial animation");
                 EnemyPropertyState initialized = EnemyPropertyWordCodec.Decode(properties | native[3], 0);

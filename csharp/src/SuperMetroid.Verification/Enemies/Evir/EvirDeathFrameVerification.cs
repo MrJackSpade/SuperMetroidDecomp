@@ -43,7 +43,7 @@ internal static class EvirDeathFrameVerification
         var body = enemies.Places.InUpdateOrder[6];
         var arms = enemies.Places.InUpdateOrder[7];
         var projectile = enemies.Places.InUpdateOrder[8];
-        AssertEqual(HorizontalDirection.Right, (enemies.Places.InUpdateOrder[6].SpeciesState<EvirBodyState>() ?? throw new InvalidOperationException("Verification requires place 6's Evir state.")).Facing, "live Evir initially faces right");
+        AssertEqual(HorizontalDirection.Right, (SuperMetroid.Core.Enemies.EnemyPartners.Listed<EvirBodyEntity>(enemies.Places.InUpdateOrder[6]).State).Facing, "live Evir initially faces right");
         // Contact kills the body after the real scheduler has selected all three places.
         // Arms and spit are marked deleted by the native contact tail but still receive
         // their already-scheduled calls before next frame's population pass removes them.

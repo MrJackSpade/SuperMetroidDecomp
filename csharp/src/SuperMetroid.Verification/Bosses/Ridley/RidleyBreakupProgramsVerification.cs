@@ -46,7 +46,7 @@ internal static class RidleyBreakupProgramsVerification
         AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
         var fragments = enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
-        AssertEqual(EnemyFrameId.RidleyTailTipPointingToward157, fragments[0].RequireSpeciesState<RidleyExplosionFragmentState>().Picture,
+        AssertEqual(EnemyFrameId.RidleyTailTipPointingToward157, SuperMetroid.Core.Enemies.EnemyPartners.Listed<RidleyBreakupPieceEntity>(fragments[0]).State.Picture,
             "reported tail orientation selects the second tip pose ($A6:CA9B)");
         foreach (var fragment in fragments)
         {
@@ -64,7 +64,7 @@ internal static class RidleyBreakupProgramsVerification
             ushort operand = (ushort)(RidleyNativeProgramOracle.BreakupList(frame) + 2);
             ushort expectedPointer = rom.ReadCartridgeWordFixedBank(RidleyNativeListAddresses.BodyBankNumber << 16 | operand);
             var fragment = fragments[0];
-            RidleyExplosionFragmentState spawned = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
+            RidleyExplosionFragmentState spawned = SuperMetroid.Core.Enemies.EnemyPartners.Listed<RidleyBreakupPieceEntity>(fragment).State;
             var copied = new RidleyExplosionFragmentState { Velocity = spawned.Velocity, Picture = frame };
             copied.Lifetime.SetCartridgeCount(spawned.Lifetime.CartridgeCount);
             fragment.SetSpeciesState(copied);
@@ -87,8 +87,7 @@ internal static class RidleyBreakupProgramsVerification
         }
         var expiring = fragments[0];
         ushort deathX = expiring.Position.X.Whole, deathY = expiring.Position.Y.Whole;
-        RidleyExplosionFragmentState expiringState = expiring.SpeciesState<RidleyExplosionFragmentState>()
-            ?? throw new InvalidOperationException("The spawned fragment has no state.");
+        RidleyExplosionFragmentState expiringState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<RidleyBreakupPieceEntity>(expiring).State;
         expiringState.Lifetime.LastFor(1);
         expiringState.Velocity = default;
         expiring.Position = expiring.Position.WithFractionX(0).WithFractionY(0);

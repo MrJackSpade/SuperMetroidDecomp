@@ -92,7 +92,7 @@ internal static class NativeSnapshotMotherBrainImport
         Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
         foreach (RoomEnemyPlace tube in runtime.Enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
         {
-            tube.RequireSpeciesState<MotherBrainFallingTubeState>().Playback = NativeEnemyAnimationOracle.PlaybackAt(
+            SuperMetroid.Core.Enemies.EnemyPartners.Listed<MotherBrainTubesEntity>(tube).State.Playback = NativeEnemyAnimationOracle.PlaybackAt(
                 tubes, MotherBrainNativeListAddresses.TubeEntries, MotherBrainTubeAnimations.StartingAt, AnimationScript(tube));
         }
         state.BrainShake.ShakeFor(W(MotherBrainMemory.BrainMainShakeTimer));

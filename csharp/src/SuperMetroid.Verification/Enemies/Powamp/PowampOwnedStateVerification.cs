@@ -32,11 +32,9 @@ internal static class PowampOwnedStateVerification
         enemies.PowampBehavior.InitializePowampBody(body);
 
         // Parameter one selects the balloon half, which has its own state (#1845).
-        PowampBalloonState balloonState = balloon.SpeciesState<PowampBalloonState>()
-            ?? throw new InvalidOperationException("Parameter one did not set up the balloon half.");
-        PowampBodyState bodyState = body.SpeciesState<PowampBodyState>()
-            ?? throw new InvalidOperationException("The body half has no body state.");
-        AssertEqual(null, balloon.SpeciesState<PowampBodyState>(), "the balloon holds no body state");
+        PowampBalloonState balloonState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<PowampBalloonEntity>(balloon).State;
+        PowampBodyState bodyState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<PowampBodyEntity>(body).State;
+        AssertEqual(null, SuperMetroid.Core.Enemies.EnemyPartners.Listed<PowampBodyEntity>(balloon).State, "the balloon holds no body state");
         AssertEqual(new Position16<RoomPixels>(0x0180, 0x0020), balloonState.Spawn, "the balloon keeps its spawn");
         AssertEqual(65535, balloon.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance, "the grapple rise keeps parameter two's full word");
         AssertEqual(new PowampBalloonInflation(PowampBalloonSequence.Sinking, 2), balloonState.Inflation,

@@ -13,6 +13,6 @@ internal static class DraygonRoomAccess
         /// Draygon body, as a defeated Draygon's room does.
         /// </summary>
         internal DraygonEnemyState? Draygon =>
-            enemies.Places.InUpdateOrder.Select(place => place.SpeciesState<DraygonEnemyState>()).FirstOrDefault(state => state is not null);
+            enemies.Places.InUpdateOrder.Select(place => SuperMetroid.Core.Enemies.EnemyPartners.Listed<DraygonBodyEntity>(place).State).FirstOrDefault(state => state is not null);
     }
 }

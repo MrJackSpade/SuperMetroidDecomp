@@ -29,7 +29,7 @@ internal static class KzanRiseStepVerification
         // The rising target lies on the room's top edge, so every height checked keeps rising.
         place.Position = place.Position.WithWhole(new(128, 0));
         KzanBehavior.InitializeKzanTop(place);
-        KzanEnemyState state = place.RequireSpeciesState<KzanEnemyState>();
+        KzanEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<KzanTopEntity>(place).State;
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));

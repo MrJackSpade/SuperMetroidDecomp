@@ -124,7 +124,7 @@ internal static class EnemySoundOrderVerification
         enemy.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
         enemy.Position = enemy.Position.WithWhole(new(256, 512));
         BoyonBehavior.InitializeBoyon(enemy);
-        BoyonEnemyState state = enemy.RequireSpeciesState<BoyonEnemyState>();
+        BoyonEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BoyonEntity>(enemy).State;
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         samus.Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole);
         BoyonBehavior.RunBoyonMain(enemy, state, samus);

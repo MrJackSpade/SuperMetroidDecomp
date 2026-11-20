@@ -228,10 +228,10 @@ internal static class LookupStream1Verification
                 _ => PowampSegment.BalloonStartSinking,
             };
             if (isBody)
-                body.RequireSpeciesState<PowampBodyState>().Playback = new(PowampAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+                SuperMetroid.Core.Enemies.EnemyPartners.Listed<PowampBodyEntity>(body).State.Playback = new(PowampAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             else
-                PowampBehavior.StartPowampBalloonAnimation(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), program);
-            var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampBalloonState>());
+                PowampBehavior.StartPowampBalloonAnimation(balloon, SuperMetroid.Core.Enemies.EnemyPartners.Listed<PowampBalloonEntity>(balloon).State, program);
+            var pair = new PowampBalloon(balloon, SuperMetroid.Core.Enemies.EnemyPartners.Listed<PowampBalloonEntity>(balloon).State);
             place.AnimationClock.StepOnNextUpdate();
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             int calls = 0;

@@ -1107,7 +1107,7 @@ internal static class LookupStream5Verification
                 new Action<RoomEnemyPlace>(enemies.MorphBallEyeBehavior.InitializeMorphBallEyeMount)(place);
                 AssertEqual(unchecked((ushort)(origin + expected.First)), place.Position.X.Whole, "Actual mount X with native wrap");
                 AssertEqual(unchecked((ushort)(origin + expected.Second)), place.Position.Y.Whole, "Actual mount Y with native wrap");
-                MorphBallEyeMountState mountState = enemies.Places.InUpdateOrder[0].SpeciesState<MorphBallEyeMountState>() ?? throw new InvalidOperationException("The mount has no state.");
+                MorphBallEyeMountState mountState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<MorphBallEyeMountEntity>(enemies.Places.InUpdateOrder[0]).State;
                 AssertEqual(new AnimationPlayback<MorphBallEyeSegment>(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation),
                     mountState.Playback,
                     "Actual directional mount program");
@@ -1119,7 +1119,7 @@ internal static class LookupStream5Verification
         body.SetSpawnSettings(new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
         body.Bind(EnemyDefinitionId.MorphBallEye, body.Definition);
         new Action<RoomEnemyPlace>(MorphBallEyeBehavior.InitializeMorphBallEyeBody)(body);
-        (body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.")).IsActivated = true;
+        (SuperMetroid.Core.Enemies.EnemyPartners.Listed<MorphBallEyeEntity>(body).State).IsActivated = true;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Body = body;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.NextColour = MorphBallEyeBeamColour.First;

@@ -81,8 +81,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             if (expectedProgram is not null)
             {
                 AssertEqual(new AnimationPlayback<ChozoStatueSegment>(ChozoStatueAnimations.StartingWith(expectedProgram.Value), AnimationPlace.StartOfAnimation),
-                    (statue.SpeciesState<ChozoStatueState>()
-                        ?? throw new InvalidOperationException($"{name} has no statue state.")).Playback,
+                    (SuperMetroid.Core.Enemies.EnemyPartners.Listed<ChozoStatueEntity>(statue).State).Playback,
                     $"{name} keeps native animation selection");
                 AssertTrue(enemies.ChozoStatueObjectRequests.Count != 0,
                     $"{name} still publishes its native PLM request");

@@ -23,7 +23,7 @@ internal static class MotherBrainTubeDescentVerification
         tube.SetSpeciesState(state);
         MotherBrainFakeDeath.InitializeMotherBrainFallingTube(tube);
         // The descent is traced from the update the main tube starts to fall: its wait runs out on its first update.
-        tube.RequireSpeciesState<MotherBrainFallingTubeState>().FallDelay.LastFor(1);
+        SuperMetroid.Core.Enemies.EnemyPartners.Listed<MotherBrainTubesEntity>(tube).State.FallDelay.LastFor(1);
         Action<RoomEnemyPlace> step = enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain;
         uint expectedPosition = SixteenSixteenWords.FromWhole(tube.Position.Y.Whole);
         int speed = 0, movingFramesBeforeHide = 0, hiddenFramesBeforeLanding = 0;

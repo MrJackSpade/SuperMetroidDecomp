@@ -70,7 +70,7 @@ internal static class CeresSteamAnimationsVerification
         vent.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)CeresSteamVariant.Up);
         vent.Bind(EnemyDefinitionId.CeresSteam, vent.Definition);
         ((IEnemyInitialization)(vent.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
-        AssertEqual(wait, vent.RequireSpeciesState<CeresSteamEnemyState>().UpdatesToActivation, "the vent draws its wait");
+        AssertEqual(wait, SuperMetroid.Core.Enemies.EnemyPartners.Listed<CeresSteamEntity>(vent).State.UpdatesToActivation, "the vent draws its wait");
 
         bool Hidden() => vent.Presence.HasAny(EnemyPresence.Hidden) && vent.Contact.HasAny(EnemyContact.IgnoresSamus);
         int update = 0;

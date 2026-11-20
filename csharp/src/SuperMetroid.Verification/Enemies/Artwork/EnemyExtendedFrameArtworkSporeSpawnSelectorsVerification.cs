@@ -142,7 +142,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     private static SporeSpawnProgramFrame CaptureSporeSpawnProgramFrame(
         RoomEnemySystem system, RoomEnemyPlace place, Dictionary<SporeSpawnBodySegment, NativeEnemyList<SporeSpawnBodySegment>> steps)
     {
-        SporeSpawnEnemyState state = place.RequireSpeciesState<SporeSpawnEnemyState>();
+        SporeSpawnEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<SporeSpawnEntity>(place).State;
         var properties = new SuperMetroid.AssetExtraction.Enemies.EnemyPropertyState(
             place.Contact, place.Processing, place.Presence, place.CollidesByFrameHitboxes, place.AnimationClock.ShowsNewFrame);
         return new SporeSpawnProgramFrame(

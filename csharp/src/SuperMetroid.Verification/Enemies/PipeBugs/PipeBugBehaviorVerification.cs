@@ -61,7 +61,7 @@ internal static class PipeBugBehaviorVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             Initialize(enemies, place, EnemyDefinitionId.Gamet, 0);
-            NorfairPipeBugState state = place.RequireSpeciesState<NorfairPipeBugState>();
+            NorfairPipeBugState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<NorfairPipeBugEntity>(place).State;
             state.Action = NorfairPipeBugAction.WaitForStagger;
             state.Role = new NorfairPipeBugRole(StaggerTarget: 72, Stagger: null);
             PrivateState.Set(state, nameof(NorfairPipeBugState.Departure), UpdateCountdownAccess.AtAge(72, before));
@@ -78,7 +78,7 @@ internal static class PipeBugBehaviorVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             Initialize(enemies, place, EnemyDefinitionId.Zeb, 0);
-            BrinstarPipeBugState state = place.RequireSpeciesState<BrinstarPipeBugState>();
+            BrinstarPipeBugState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BrinstarPipeBugEntity>(place).State;
             state.Action = BrinstarPipeBugAction.WaitForSamus;
             PipeBugsBehavior.RunBrinstarPipeBugMainAi(place, Frame(new(28, 78)));
             AssertEqual(HorizontalDirection.Left, state.Flight, "Brinstar Pipe Bug flies left of Samus on her left");
@@ -96,7 +96,7 @@ internal static class PipeBugBehaviorVerification
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             place.SetSpawnParameter2(EnemyDefinitionId.Geega, 24);
             Initialize(enemies, place, EnemyDefinitionId.Geega, 0);
-            YellowPipeBugState state = place.RequireSpeciesState<YellowPipeBugState>();
+            YellowPipeBugState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<YellowPipeBugEntity>(place).State;
             AssertEqual(SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2), place.SpawnSettings<YellowPipeBugSpawnSettings>().Speed, "yellow Pipe Bug speed record 24 is 1.5 pixels");
             // The arc goes the way the placement faces (#2474): parameter one's zero faces right.
             AssertEqual(HorizontalDirection.Right, place.SpawnSettings<YellowPipeBugSpawnSettings>().Facing, "yellow Pipe Bug placement faces right");
@@ -136,7 +136,7 @@ internal static class PipeBugBehaviorVerification
             RoomEnemyPlace slot = enemies.Places.InUpdateOrder[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             Initialize(enemies, slot, EnemyDefinitionId.Gamet, 0);
-            NorfairPipeBugState state = slot.RequireSpeciesState<NorfairPipeBugState>();
+            NorfairPipeBugState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<NorfairPipeBugEntity>(slot).State;
             NorfairPipeBugStagger stagger = role.Stagger ?? throw new InvalidOperationException("Every member but the leader staggers.");
             // The member's place in the formation, from where its rise ended: up is toward smaller Y (#2473).
             int offset = stagger.Direction == VerticalDirection.Up ? -stagger.Distance : stagger.Distance;

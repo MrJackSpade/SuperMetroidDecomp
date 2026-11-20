@@ -109,9 +109,9 @@ internal static class HoltzInstructionProgramDefinitionsVerification
         enemies.HoltzBehavior.InitializeHoltzFollower(follower);
         // The placement builds the part's own entity (#2164): the parent a Rio, the follower its flames.
         AssertTrue(parent.EntityState<HoltzEntity, HoltzEnemyState>() is not null &&
-            parent.SpeciesState<HoltzFollowerState>() is null &&
+            SuperMetroid.Core.Enemies.EnemyPartners.Listed<HoltzFollowerEntity>(parent).State is null &&
             follower.EntityState<HoltzFollowerEntity, HoltzFollowerState>() is not null &&
-            follower.SpeciesState<HoltzEnemyState>() is null,
+            SuperMetroid.Core.Enemies.EnemyPartners.Listed<HoltzEntity>(follower).State is null,
             "parameter one's sign bit selects the follower, which keeps only its own follower state");
         Console.WriteLine("Lower Norfair Rio owned state: the follower selection matches.");
     }

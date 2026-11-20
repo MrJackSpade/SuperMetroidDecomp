@@ -51,7 +51,7 @@ internal static class FirefleaBehaviorVerification
             place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
             place.Position = place.Position.WithWhole(new(128, 100));
             FirefleaBehavior.InitializeFireflea(place);
-            BobbingFirefleaState state = place.RequireSpeciesState<FirefleaEnemyState>().Flight as BobbingFirefleaState
+            BobbingFirefleaState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<FirefleaEntity>(place).State.Flight as BobbingFirefleaState
                 ?? throw new InvalidOperationException("Verification requires a bobbing Fireflea.");
             AssertEqual(92, state.MinimumY, "the upper extent is the spawn Y minus the radius");
             AssertEqual(108, state.MaximumY, "the lower extent is the spawn Y plus the radius");

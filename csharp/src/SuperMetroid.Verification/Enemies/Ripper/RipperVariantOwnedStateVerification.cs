@@ -22,8 +22,7 @@ internal static class RipperVariantOwnedStateVerification
         place.SetSpawnParameter1(EnemyDefinitionId.JetRipper, speedRecord);
         place.SetSpawnParameter2(EnemyDefinitionId.JetRipper, 0);
         RipperBehavior.InitializeJetRipper(place);
-        RipperEnemyState state = place.SpeciesState<RipperEnemyState>()
-            ?? throw new InvalidOperationException("The Ripper II has no state.");
+        RipperEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<RipperEntity>(place).State;
 
         SignedSixteenSixteen positive = EnemyLinearSpeedTable.Speed(speedRecord);
         SignedSixteenSixteen negative = -positive;

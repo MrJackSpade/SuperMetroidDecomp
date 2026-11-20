@@ -51,7 +51,7 @@ internal static class MamaTurtleOwnedStateVerification
         enemies.MamaTurtleBehavior.RunMamaTurtleMainAi(mama, new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), 0) with { Samus = samus },
             new FrameCounters(0)));
-        AssertEqual(MamaTurtleAction.Asleep, mama.RequireSpeciesState<MamaTurtleEnemyState>().Action,
+        AssertEqual(MamaTurtleAction.Asleep, SuperMetroid.Core.Enemies.EnemyPartners.Listed<MamaTurtleEntity>(mama).State.Action,
             "a Mama listed second links the four babies listed after her and falls asleep");
         Console.WriteLine("Mama Turtle owned state: the hover add, cap, wall reversal quirk and her babies' links match.");
     }

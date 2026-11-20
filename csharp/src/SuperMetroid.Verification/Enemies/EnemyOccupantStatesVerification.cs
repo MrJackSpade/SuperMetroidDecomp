@@ -24,23 +24,23 @@ internal static class EnemyOccupantStatesVerification
         place.Bind(EnemyDefinitionId.Dachora, place.Definition);
         var killed = new DachoraEnemyState(DachoraAction.WaitingForSamus);
         place.SetSpeciesState(killed);
-        AssertTrue(ReferenceEquals(killed, place.SpeciesState<DachoraEnemyState>()), "the occupant reads the state its species installed");
+        AssertTrue(ReferenceEquals(killed, SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEntity>(place).State), "the occupant reads the state its species installed");
         EnemyOccupantStates struck = place.OccupantStates;
         place.Clear();
-        AssertEqual<DachoraEnemyState?>(null, place.SpeciesState<DachoraEnemyState>(), "a kill takes the occupant's state with it");
-        AssertThrows<InvalidOperationException>(() => place.RequireSpeciesState<DachoraEnemyState>(),
+        AssertEqual<DachoraEnemyState?>(null, SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEntity>(place).State, "a kill takes the occupant's state with it");
+        AssertThrows<InvalidOperationException>(() => SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEntity>(place).State,
             "a read of a killed occupant's state fails");
         AssertTrue(ReferenceEquals(killed, struck.Find<DachoraEnemyState>()), "the struck occupant's own set still holds its state");
 
         place.Bind(EnemyDefinitionId.Dachora, place.Definition);
         place.SetSpeciesState(new DachoraEnemyState(DachoraAction.WaitingForSamus));
         place.Unbind();
-        AssertEqual<DachoraEnemyState?>(null, place.SpeciesState<DachoraEnemyState>(), "a deletion takes the occupant's state with it");
+        AssertEqual<DachoraEnemyState?>(null, SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEntity>(place).State, "a deletion takes the occupant's state with it");
 
         place.Bind(EnemyDefinitionId.Dachora, place.Definition);
         place.SetSpeciesState(new DachoraEnemyState(DachoraAction.WaitingForSamus));
         place.Bind(EnemyDefinitionId.Dachora, place.Definition);
-        AssertEqual<DachoraEnemyState?>(null, place.SpeciesState<DachoraEnemyState>(), "a new occupant starts without its predecessor's state");
+        AssertEqual<DachoraEnemyState?>(null, SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEntity>(place).State, "a new occupant starts without its predecessor's state");
         Console.WriteLine("Enemy occupant states: a kill, a deletion and a new occupant each end the previous occupant's state.");
     }
 

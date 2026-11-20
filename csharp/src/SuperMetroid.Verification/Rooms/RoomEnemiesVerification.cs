@@ -510,8 +510,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         Console.WriteLine("X-Plasma timer prerequisite: invincibility expires while movement/flash/Ice remain frozen.");
         return;
     }
-    RipperEnemyState ripperState = ripper.SpeciesState<RipperEnemyState>()
-        ?? throw new InvalidOperationException("The initialized Ripper has no state.");
+    RipperEnemyState ripperState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<RipperEntity>(ripper).State;
     AssertEqual(new AnimationPlayback<RipperSegment>(RipperAnimations.StartingWith(RipperSegment.RipperMovingRight), AnimationPlace.StartOfAnimation),
         ripperState.Playback, "Ripper init right animation");
     SignedSixteenSixteen ripperSpeed = ripper.SpawnSettings<RipperSpawnSettings>().Speed;

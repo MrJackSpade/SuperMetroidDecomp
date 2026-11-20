@@ -44,10 +44,9 @@ internal static class CeresSteamDefinitionsVerification
             place.Bind(EnemyDefinitionId.CeresSteam, place.Definition);
             ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
 
-            AssertEqual(new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), place.RequireSpeciesState<CeresSteamEnemyState>().Playback,
+            AssertEqual(new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), SuperMetroid.Core.Enemies.EnemyPartners.Listed<CeresSteamEntity>(place).State.Playback,
                 $"production Ceres steam {variant} program");
-            CeresSteamEnemyState steamState = place.SpeciesState<CeresSteamEnemyState>()
-                ?? throw new InvalidOperationException("The initialized vent has no state.");
+            CeresSteamEnemyState steamState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<CeresSteamEntity>(place).State;
             AssertEqual<CeresSteamMotion>(definition.Action == CeresSteamAction.ApplyRotatingElevatorOffset
                     ? new CeresSteamMotion.RidesShaftTurn(shaft)
                     : CeresSteamMotion.HoldsItsPlace.Instance,

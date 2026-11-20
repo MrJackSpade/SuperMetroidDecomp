@@ -228,10 +228,10 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         static void Install(RoomEnemyPlace place, KiHunterSegment program)
         {
             var playback = new AnimationPlayback<KiHunterSegment>(KiHunterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            if (place.SpeciesState<KiHunterWingState>() is { } wings)
+            if (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KiHunterWingsEntity>(place).State is { } wings)
                 wings.Playback = playback;
             else
-                place.RequireSpeciesState<KiHunterBodyState>().Playback = playback;
+                SuperMetroid.Core.Enemies.EnemyPartners.Listed<KiHunterBodyEntity>(place).State.Playback = playback;
             place.AnimationClock.Restart();
         }
 

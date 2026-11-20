@@ -64,7 +64,7 @@ internal static class EnemyTileArtworkBabyMetroidColorsVerification
         Type type = typeof(RoomEnemySystem);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         BabyMetroidBehavior.InitializeBabyMetroid(place, 0);
-        BabyMetroidEnemyState state = place.RequireSpeciesState<BabyMetroidEnemyState>();
+        BabyMetroidEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidEntity>(place).State;
         // The Baby Metroid draws in its entry's target colours, which the import pre-colours its sheets in (#1512); the drained
         // corpses' target is the corpses' own drained shade.
         AssertEqual(BabyMetroidShades.InTargetColours, place.Shading, "the Shitroid draws in its entry's target colours");

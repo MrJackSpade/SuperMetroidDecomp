@@ -82,7 +82,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
             AssertEqual(expected[index].X, rinkas[index].Position.X.Whole, $"Rinka {index} X follows the loader's camera");
             AssertEqual(expected[index].Y, rinkas[index].Position.Y.Whole, $"Rinka {index} Y follows the loader's camera");
             // The point a Rinka moves to becomes the spawn point it respawns at; its population entry is never rewritten (#2256).
-            RinkaSpawnPoint point = rinkas[index].SpeciesState<RinkaEnemyState>()?.SpawnPoint
+            RinkaSpawnPoint point = SuperMetroid.Core.Enemies.EnemyPartners.Listed<RinkaEntity>(rinkas[index]).State?.SpawnPoint
                 ?? throw new InvalidOperationException($"Special Rinka {index} holds no spawn point.");
             AssertEqual(rinkas[index].Position.Whole, RinkaSpawnReservations.Centre(point), $"Rinka {index} respawns at the point it moved to");
             AssertEqual(populated[index], rinkas[index].Spawn.Population.Position, $"Rinka {index}'s population entry keeps its placement");

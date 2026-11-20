@@ -48,7 +48,7 @@ internal static class PhantoonAnimationsVerification
     internal static PhantoonPartSegment PartProgram(RoomEnemySystem enemies, RoomEnemyPlace part)
     {
         _ = RequireState(enemies);
-        return part.RequireSpeciesState<PhantoonPart>().PlayingProgram();
+        return SuperMetroid.Core.Enemies.EnemyPartners.Listed<PhantoonEntity>(part).Part.PlayingProgram();
     }
 
     /// <summary>The system's Phantoon state.</summary>
@@ -104,7 +104,7 @@ internal static class PhantoonAnimationsVerification
         RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemyPlace eye = state.Eye;
-        eye.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.EyeOpen);
+        SuperMetroid.Core.Enemies.EnemyPartners.Listed<PhantoonEntity>(eye).Part.Playback = PhantoonPart.Starting(PhantoonPartSegment.EyeOpen);
         eye.AnimationClock.StepOnNextUpdate();
         for (int frame = 0; frame < 3; frame++)
         {
@@ -130,7 +130,7 @@ internal static class PhantoonAnimationsVerification
         RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemyPlace mouth = state.Mouth;
-        mouth.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.MouthSpawnFlame);
+        SuperMetroid.Core.Enemies.EnemyPartners.Listed<PhantoonEntity>(mouth).Part.Playback = PhantoonPart.Starting(PhantoonPartSegment.MouthSpawnFlame);
         Pass(mouth, forceExpiry: true);
         Pass(mouth, forceExpiry: true);
         AssertEqual(0, ActiveFlames(enemies), "the mouth opens before it spawns");

@@ -29,7 +29,7 @@ internal static class SporeSpawnStalkVerification
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
-        SporeSpawnEnemyState state = body.RequireSpeciesState<SporeSpawnEnemyState>();
+        SporeSpawnEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<SporeSpawnEntity>(body).State;
 
         AssertEqual(4, state.StalkLinks.Count, "Spore Spawn's stalk has four links");
         for (int link = 0; link < state.StalkLinks.Count; link++)

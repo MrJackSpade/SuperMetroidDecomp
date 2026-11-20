@@ -219,7 +219,7 @@ internal static class CoreAccess
             PrivateState.Field<ChozoStatueBehavior, List<RoomObjectSpawnRequest<ChozoStatueRoomObject>>>(enemies.ChozoStatueBehavior, "_objectRequests");
         /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
         internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
-            [.. enemies.Places.InUpdateOrder.Select(place => place.SpeciesState<ChozoStatueState>())];
+            [.. enemies.Places.InUpdateOrder.Select(place => SuperMetroid.Core.Enemies.EnemyPartners.Listed<ChozoStatueEntity>(place).State)];
         /// <summary>Per-slot ninja pirate states for native slot-index verification.</summary>
         internal IReadOnlyList<NinjaSpacePirateEnemyState?> NinjaSpacePirateStates =>
             [.. enemies.Places.InUpdateOrder.Select(place => place.EntityState<NinjaSpacePirateEntity, NinjaSpacePirateEnemyState>())];

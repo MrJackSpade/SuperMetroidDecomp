@@ -58,8 +58,7 @@ internal static class DeadTorizoCollisionVerification
             Require(!IsInteractive(), $"{trigger}: rotting corpse must leave the interaction list.");
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(90);
             Require(!Probe().Collided, $"{trigger}: the same movement must pass the rotting corpse.");
-            DeadTorizoEnemyState corpse = place.SpeciesState<DeadTorizoEnemyState>()
-                ?? throw new InvalidOperationException("The initialized corpse has no state.");
+            DeadTorizoEnemyState corpse = SuperMetroid.Core.Enemies.EnemyPartners.Listed<DeadTorizoEntity>(place).State;
             DeadTorizoPhase? phase = corpse.Phase;
             corpse.Phase = DeadTorizoPhase.Finished;
             DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(place);

@@ -53,7 +53,7 @@ internal static class BullBehaviorVerification
             StruckOccupant = bombed.OccupantStates,
         };
         (enemies.BullBehavior.BombReaction.AfterCommon ?? throw new InvalidOperationException("The Bull has no bomb recoil."))(context);
-        AssertEqual(BullMotion.ShotAngle(SamusProjectileDirection.UpFacingRight), bombed.RequireSpeciesState<BullEnemyState>().Angle,
+        AssertEqual(BullMotion.ShotAngle(SamusProjectileDirection.UpFacingRight), SuperMetroid.Core.Enemies.EnemyPartners.Listed<BullEntity>(bombed).State.Angle,
             "an unhurting bomb kicks the Bull straight up");
         Console.WriteLine("  Bull behavior: the normal loop, the five-repeat immune-shot reaction and the bomb's upward kick run as the cartridge does.");
     }
@@ -73,7 +73,7 @@ internal static class BullBehaviorVerification
         slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
         slot.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
         enemies.BullBehavior.InitializeBull(slot);
-        BullEnemyState state = slot.RequireSpeciesState<BullEnemyState>();
+        BullEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BullEntity>(slot).State;
         SignedEightEight brakingStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
 
         SignedEightEight fastestCap = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2815);

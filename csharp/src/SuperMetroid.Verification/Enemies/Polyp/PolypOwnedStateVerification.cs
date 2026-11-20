@@ -18,7 +18,7 @@ internal static class PolypOwnedStateVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Polyp, place.Definition);
         enemies.PolypBehavior.InitializePolyp(place);
-        PolypEnemyState state = place.RequireSpeciesState<PolypEnemyState>();
+        PolypEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<PolypEntity>(place).State;
         AssertEqual<PolypAction?>(PolypAction.WaitingForSamus, state.Action, "a new Polyp waits for Samus");
         AssertEqual(0, state.CooldownTimer.UpdatesLeft, "a new Polyp has no cooldown");
         Console.WriteLine("Polyp owned state: the initial behaviour matches.");

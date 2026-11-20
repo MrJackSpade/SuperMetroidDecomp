@@ -2170,8 +2170,7 @@ internal static class LookupStream4Verification
             {
                 RoomEnemyPlace fragment = enemies.Places.InUpdateOrder[index + 1];
                 AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.RidleyBreakupPiece, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(expected[index], 0)), fragment.Spawn.Population.SpawnSettings, "Actual breakup slot order follows original native spawn calls");
-                RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
-                    ?? throw new InvalidOperationException("A spawned fragment has no state.");
+                RidleyExplosionFragmentState fragmentState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<RidleyBreakupPieceEntity>(fragment).State;
                 AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
                 AssertEqual(rom.ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.CartridgeCount, "Actual breakup preserves each unresolved native lifetime");
             }

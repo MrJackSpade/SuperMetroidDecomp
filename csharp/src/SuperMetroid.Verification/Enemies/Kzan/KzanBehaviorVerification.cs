@@ -51,7 +51,7 @@ internal static class KzanBehaviorVerification
         place.SetSpawnParameter2(EnemyDefinitionId.KzanTop, 32 * 256);
         place.Position = place.Position.WithWhole(new(128, 128));
         KzanBehavior.InitializeKzanTop(place);
-        KzanEnemyState state = place.RequireSpeciesState<KzanEnemyState>();
+        KzanEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<KzanTopEntity>(place).State;
         AssertEqual(160, state.FallingTargetY, "the falling target is the spawn plus the fall");
         AssertEqual(128, state.RisingTargetY, "the rising target is the spawn position");
         var frame = new ClockedEnemyAiFrame(

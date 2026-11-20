@@ -55,7 +55,7 @@ internal static class BoulderBehaviorVerification
             place.Position = place.Position.WithWhole(new(256, 512));
             place.SetSpawnWords(EnemyDefinitionId.Boulder, words => words);
             BoulderBehavior.InitializeBoulder(place);
-            BoulderEnemyState state = place.RequireSpeciesState<BoulderEnemyState>();
+            BoulderEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BoulderEntity>(place).State;
             state.Action = BoulderAction.Rebound;
             state.BounceCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(start);
             var frame = new ClockedEnemyAiFrame(

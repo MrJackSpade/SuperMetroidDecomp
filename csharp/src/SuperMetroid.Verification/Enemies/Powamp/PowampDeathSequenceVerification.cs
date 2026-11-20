@@ -29,7 +29,7 @@ internal static class PowampDeathSequenceVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MtEverest);
         RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Powamp &&
             place.SpawnSettings<PowampSpawnSettings>().Part == PowampPart.Body);
-        var state = body.RequireSpeciesState<PowampBodyState>();
+        var state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<PowampBodyEntity>(body).State;
 
         body.Health = 0;
         state.Action = PowampAction.DeathSequence;

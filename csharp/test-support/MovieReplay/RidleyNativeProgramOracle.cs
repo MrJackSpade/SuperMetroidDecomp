@@ -208,7 +208,7 @@ internal static class RidleyNativeProgramOracle
     /// </summary>
     internal static ushort BreakupPointer(RoomEnemyPlace fragment)
     {
-        EnemyFrameId picture = Ensure.NotNull(fragment).RequireSpeciesState<RidleyExplosionFragmentState>().Picture;
+        EnemyFrameId picture = SuperMetroid.Core.Enemies.EnemyPartners.Listed<RidleyBreakupPieceEntity>(Ensure.NotNull(fragment)).State.Picture;
         return checked((ushort)(BreakupList(picture) + (fragment.Frame == picture ? 4 : 0)));
     }
 

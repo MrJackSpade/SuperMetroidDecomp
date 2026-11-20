@@ -22,7 +22,7 @@ internal static class KraidNailContourVerification
         var session = EnemySessionFixtures.WithInstalledServices();
         var enemies = EnemySystemFixtures.New(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
-        Func<RoomEnemyPlace, bool> reflect = place => enemies.KraidBehavior.Projectiles.KraidBodyContourReflectsNail(place, ((KraidNailState)place.RequireSpeciesState<KraidPartState>()));
+        Func<RoomEnemyPlace, bool> reflect = place => enemies.KraidBehavior.Projectiles.KraidBodyContourReflectsNail(place, (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)place).PartState));
         var body = enemies.Places.InUpdateOrder[0];
         var nail = enemies.Places.InUpdateOrder[6];
         nail.Radius = nail.Radius.WithX(4);
@@ -56,7 +56,7 @@ internal static class KraidNailContourVerification
             for (int delta = -1; delta <= 1; delta++)
             {
                 nail.Position = nail.Position.WithWholeX(edge - nail.Radius.X + delta);
-                ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity = ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.WithX(SignedSixteenSixteen.FromParts(unchecked((short)velocity), ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.X.Fraction));
+                (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).NailVelocity = (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).NailVelocity.WithX(SignedSixteenSixteen.FromParts(unchecked((short)velocity), (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).NailVelocity.X.Fraction));
                 bool expected = nail.Position.X.Whole + nail.Radius.X >= edge && (short)velocity >= 0;
                 AssertEqual(expected, reflect(nail), "Actual contour reflection retains signed edge and velocity gates");
             }

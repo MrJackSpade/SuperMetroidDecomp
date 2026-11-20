@@ -24,8 +24,7 @@ internal static class BabyMetroidPowerBombVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
             place.DefinitionId == EnemyDefinitionId.BabyMetroid);
-        BabyMetroidEnemyState state = babyMetroid.SpeciesState<BabyMetroidEnemyState>()
-            ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
+        BabyMetroidEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidEntity>(babyMetroid).State;
         state.Action = BabyMetroidAction.WaitForCamera;
 
         _ = runtime.Enemies.Collision.ResolveOrdinaryPowerBombHits(

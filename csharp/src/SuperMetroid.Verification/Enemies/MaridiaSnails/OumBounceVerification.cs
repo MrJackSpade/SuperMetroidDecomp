@@ -35,7 +35,7 @@ internal static class OumBounceVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.Oum, place.Definition);
             OumBehavior.InitializeOum();
-            OumEnemyState state = place.RequireSpeciesState<OumEnemyState>();
+            OumEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<OumEntity>(place).State;
             place.Radius = new(16, 16);
             // On the floor level the lowest pixel row already rests in the floor, so even a sub-pixel fall lands.
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(64, level == floor ? (ushort)49 : (ushort)48));

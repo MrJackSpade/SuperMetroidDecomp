@@ -73,7 +73,7 @@ internal static class OwtchPatrolStateVerification
         place.SetSpawnParameter2(EnemyDefinitionId.Owtch, 0);
         place.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64));
         OwtchBehavior.InitializeOwtch(place);
-        return new NewOwtchResult(enemies, place, place.RequireSpeciesState<OwtchEnemyState>());
+        return new NewOwtchResult(enemies, place, SuperMetroid.Core.Enemies.EnemyPartners.Listed<OwtchEntity>(place).State);
     }
 
     /// <summary>Runs the Owtch patrol-state check.</summary>

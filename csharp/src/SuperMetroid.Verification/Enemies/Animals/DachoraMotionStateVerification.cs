@@ -77,7 +77,7 @@ internal static class DachoraMotionStateVerification
         foreach ((int lifetime, ushort expected, bool invisible) in new VerifyDachoraEchoLifetimeCase[] { new VerifyDachoraEchoLifetimeCase(8, 7, false), new VerifyDachoraEchoLifetimeCase(1, 0, false), new VerifyDachoraEchoLifetimeCase(0, 0, true) })
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachoraPlace(parameter: ushort.MaxValue);
-            DachoraEchoState state = place.SpeciesState<DachoraEchoState>() ?? throw new InvalidOperationException("A negative parameter makes an echo.");
+            DachoraEchoState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEchoEntity>(place).State;
             state.Lifetime = UpdateCountdown.For(lifetime);
 
             DachoraBehavior.RunDachoraEchoMainAi(place, frame);
@@ -106,8 +106,8 @@ internal static class DachoraMotionStateVerification
         for (int slot = 0; slot < 5; slot++)
             InitializeThroughEntity(enemies.Places.InUpdateOrder[slot]);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        DachoraEnemyState state = body.RequireSpeciesState<DachoraEnemyState>();
-        DachoraEchoState[] echoes = [.. Enumerable.Range(1, 4).Select(slot => enemies.Places.InUpdateOrder[slot].RequireSpeciesState<DachoraEchoState>())];
+        DachoraEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEntity>(body).State;
+        DachoraEchoState[] echoes = [.. Enumerable.Range(1, 4).Select(slot => SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEchoEntity>(enemies.Places.InUpdateOrder[slot]).State)];
         foreach (DachoraEchoState echo in echoes)
             echo.Lifetime = UpdateCountdown.For(3);
         state.TrailTimer = UpdateCountdown.For(5);
@@ -139,7 +139,7 @@ internal static class DachoraMotionStateVerification
     private static NewDachoraResult NewDachora(ushort parameter)
     {
         (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachoraPlace(parameter);
-        return new NewDachoraResult(enemies, place, place.RequireSpeciesState<DachoraEnemyState>());
+        return new NewDachoraResult(enemies, place, SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEntity>(place).State);
     }
 
     /// <summary>An initialized Dachora body or echo with spawn parameter <paramref name="parameter"/> in the first slot of a fresh room.</summary>

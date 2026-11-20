@@ -29,8 +29,7 @@ internal static class BabyMetroidScrollPairVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
             place.DefinitionId == EnemyDefinitionId.BabyMetroid);
-        BabyMetroidEnemyState state = babyMetroid.SpeciesState<BabyMetroidEnemyState>()
-            ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
+        BabyMetroidEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidEntity>(babyMetroid).State;
         RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;
         AssertEqual(new Extent16<RoomScreens>(4, 1), scrolls.Size, "the Big Boy room is one row of four screens");
         var camera = new Position16<RoomPixels>(512, 0);

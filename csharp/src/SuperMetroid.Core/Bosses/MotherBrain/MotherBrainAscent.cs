@@ -43,7 +43,7 @@ internal sealed class MotherBrainAscent
         state.AscentPhase = MotherBrainAscentPhase.SetupPhase2Brain;
         // The transition reveals her body, its frame as her body last showed it, replacing the room's pipe background
         // before the articulated body becomes visible (#1356, #1466, #1515).
-        _presentation.RequireBossBody().Reveal();
+        state.BodyParts.Reveal();
     }
 
     /// <summary>Attaches the phase-two head and prepares its first animation and position.</summary>

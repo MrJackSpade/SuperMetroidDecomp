@@ -112,7 +112,7 @@ internal static class EnemyEffectMechanicsVerification
                     AssertEqual(call, fixture.MeltBandStep((call - 1) % bands), "each step shows the next band");
                 // His body shows the melt image, stored once, hiding what the steps its bands last showed have erased (#1652).
                 string meltImage = CrocomireMeltingFrameNames.Of(pass);
-                AssertTrue(fixture.Enemies.Presentation.RequireBossBody().Publish().Frames.Any(frame => frame.Name == meltImage && frame.Hidden is not null),
+                AssertTrue(((BossBodyParts)fixture.Enemies.Presentation.BossBodyDisplay!).Publish().Frames.Any(frame => frame.Name == meltImage && frame.Hidden is not null),
                     $"melt dissolve call {call} shows his body as {meltImage}, through the dissolve's hidden columns");
             }
             fixture.Call(c => c.Melting.FinishCrocomireMeltingPass);

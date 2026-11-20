@@ -65,6 +65,9 @@ internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyPl
     public bool AdmitsNormalBombs(bool collidesByFrameHitboxes) => Place.Definition.Shot is null && collidesByFrameHitboxes;
 
     /// <inheritdoc/>
+    public SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts => Encounter.BodyParts;
+
+    /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
         CrocomireBodyLayerFrameDefinitions.Frames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.Crocomire).Frame(selected) : null;
 }

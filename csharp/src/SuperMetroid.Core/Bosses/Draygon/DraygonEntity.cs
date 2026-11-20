@@ -56,6 +56,9 @@ internal abstract class DraygonEntity(DraygonBehavior species, RoomEnemyPlace pl
     public virtual EnemyReaction? SpeciesShot => null;
 
     /// <inheritdoc/>
+    public SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts => Encounter.BodyParts;
+
+    /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
         DraygonBodyLayerFrameDefinitions.Frames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.Draygon).Frame(selected) : null;
 }

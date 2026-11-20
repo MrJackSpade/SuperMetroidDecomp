@@ -36,12 +36,12 @@ internal static class MotherBrainTankBackgroundVerification
         // whatever Mother Brain's initialization stages for her own BG2.
         AssertTrue(RoomShowsPipeBackground(), "Mother Brain's room shows both pages of the actual pipe-room background");
         var state = runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidOperationException("Verification requires state.");
-        BossBodyParts image = runtime.Enemies.Presentation.RequireBossBody();
+        BossBodyParts image = ((BossBodyParts)runtime.Enemies.Presentation.BossBodyDisplay!);
         AssertTrue(!image.IsShown && Words(image.Publish()).All(word => word == 0x0338),
             "Initializer attaches her body showing nothing, which her room does not show yet");
         runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
         // Since #1356 her room shows her body from the transition (#1515), and the room's pipe background stays untouched.
-        AssertTrue(image.IsShown && ReferenceEquals(image, runtime.Enemies.Presentation.RequireBossBody())
+        AssertTrue(image.IsShown && ReferenceEquals(image, ((BossBodyParts)runtime.Enemies.Presentation.BossBodyDisplay!))
                 && Words(image.Publish())[..0x400].All(word => word == 0x0338),
             "Phase-two setup reveals Mother Brain's body as it stands");
         AssertTrue(RoomShowsPipeBackground(), "Phase-two setup leaves the room's library background as loaded");

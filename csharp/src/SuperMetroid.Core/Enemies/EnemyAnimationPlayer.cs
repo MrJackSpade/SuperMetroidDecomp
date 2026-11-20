@@ -33,11 +33,10 @@ internal sealed class EnemyAnimationPlayer
     /// </exception>
     internal void DrawBossBodyFrame(RoomEnemyPlace place, EnemyFrameId selected)
     {
-        if ((place.Entity as IBossBodyFrames)?.FindBodyFrame(selected) is not { } frame)
+        if (place.Entity is not IBossBodyFrames boss || boss.FindBodyFrame(selected) is not { } frame)
             return;
-        // Every boss that shows a body attaches it at initialization; Mother Brain's shows only once her second phase begins.
-        BossBodyParts body = _presentation.BossBody
-            ?? throw new InvalidOperationException("A boss body frame was shown before its owner attached the body it shows on.");
+        // Each part shows its frames on its own boss's body; Mother Brain's shows only once her second phase begins.
+        BossBodyParts body = boss.BodyParts;
         if (!place.AnimationClock.ShowsNewFrame && body.ShowsSelected(place.DefinitionId, selected))
             return;
         body.ShowSelected(place.DefinitionId, selected, frame);

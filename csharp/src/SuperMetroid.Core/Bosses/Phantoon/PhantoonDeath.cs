@@ -178,7 +178,7 @@ internal sealed class PhantoonDeath
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.PowerReturnDelayUpdates);
         state.BodyFade.Resume();
 
-        _presentation.RequireBossBody().Clear();
+        state.BodyParts.Clear();
     }
 
     /// <summary>Enables the cleared Wrecked Ship room and its post-boss state.</summary>

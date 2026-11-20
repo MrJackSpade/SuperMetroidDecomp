@@ -58,17 +58,17 @@ internal static class BossBodyLayeredPartsVerification
         int compared = 0;
         void Compare(string when)
         {
-            AssertLayered(enemies.Presentation.RequireBossBody().Publish(), BossBodyOwner.Crocomire, sources, area, $"Crocomire {when}");
+            AssertLayered(((BossBodyParts).Presentation.BossBodyDisplay!).Publish(), BossBodyOwner.Crocomire, sources, area, $"Crocomire {when}");
             compared++;
         }
 
-        enemies.CrocomireBehavior.BodyLayer.ShowCrocomireBodyFrame(sheets.Of(BossBodyOwner.Crocomire).Frame(EnemyFrameId.CrocomireBodyNearFootForwardArmBent));
+        ((BossBodyParts)enemies.Presentation.BossBodyDisplay!).Show(EnemyDefinitionId.Crocomire, sheets.Of(BossBodyOwner.Crocomire).Frame(EnemyFrameId.CrocomireBodyNearFootForwardArmBent));
         Compare("showing his body");
         CrocomireMelting melting = enemies.CrocomireBehavior.Melting;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             melting.ShowCrocomireMeltImage(state, pass);
-            AssertEqual(1, enemies.Presentation.RequireBossBody().Publish().Frames.Length, $"Crocomire's {pass} melt image replaces what his body showed");
+            AssertEqual(1, ((BossBodyParts).Presentation.BossBodyDisplay!).Publish().Frames.Length, $"Crocomire's {pass} melt image replaces what his body showed");
             Compare($"showing his {pass} melt image");
             melting.BeginCrocomireMeltPass(state, pass);
             for (int erased = 1; erased <= CrocomireMeltingDefinitions.ColumnCount; erased++)
@@ -82,7 +82,7 @@ internal static class BossBodyLayeredPartsVerification
         foreach (int row in new[] { 64, 40, 8 })
         {
             enemies.CrocomireBehavior.BodyLayer.HideCrocomireBodyBelow(state, state.Body.Position.Y.Whole + areaTop + row);
-            AssertEqual<int?>(areaTop + row, enemies.Presentation.RequireBossBody().Publish().ShownAbove, $"the acid hides Crocomire's body from row {row}");
+            AssertEqual<int?>(areaTop + row, ((BossBodyParts).Presentation.BossBodyDisplay!).Publish().ShownAbove, $"the acid hides Crocomire's body from row {row}");
             Compare($"hidden from row {row}");
         }
         return compared;

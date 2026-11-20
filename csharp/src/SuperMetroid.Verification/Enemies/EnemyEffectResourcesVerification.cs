@@ -35,7 +35,7 @@ internal static class EnemyEffectResourcesVerification
         var actual = new CrocomireEffectFixture(art);
         AssertThrows<InvalidDataException>(() => operation(actual), context + " fails loudly");
         AssertCrocomireEffectMechanics(expected, actual, context);
-        AssertTrue(BossBodyCanvasFixtures.ShowSame(expected.Enemies.Presentation.RequireBossBody(), actual.Enemies.Presentation.RequireBossBody()),
+        AssertTrue(BossBodyCanvasFixtures.ShowSame(((BossBodyParts)expected.Enemies.Presentation.BossBodyDisplay!), ((BossBodyParts)actual.Enemies.Presentation.BossBodyDisplay!)),
             context + " shown body unchanged");
         AssertTrue(expected.Vram.ImageEquals(actual.Vram), context + " VRAM unchanged");
     }

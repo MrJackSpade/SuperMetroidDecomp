@@ -70,11 +70,11 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         }
 
         /// <summary>The tilemap entry each cell of the body layer her body draws on shows, from the frames her artwork installs (#1466).</summary>
-        internal ushort[] Bg2Words => BossBodyWords.Of(Inner.Enemies.Presentation.RequireBossBody().Publish(), BossBodyOwner.MotherBrain,
+        internal ushort[] Bg2Words => BossBodyWords.Of(((BossBodyParts)Inner.Enemies.Presentation.BossBodyDisplay!).Publish(), BossBodyOwner.MotherBrain,
             bodies.Frames);
 
         /// <summary>Clears her body, which a later frame shown on it would replace (#1515).</summary>
-        internal void MarkBg2() => Inner.Enemies.Presentation.RequireBossBody().Clear();
+        internal void MarkBg2() => ((BossBodyParts)Inner.Enemies.Presentation.BossBodyDisplay!).Clear();
 
         /// <summary>The fixture's boss frames and the body sheets composed from them, which her body draws from.</summary>
         private readonly BossBodyArtworkFixture bodies;

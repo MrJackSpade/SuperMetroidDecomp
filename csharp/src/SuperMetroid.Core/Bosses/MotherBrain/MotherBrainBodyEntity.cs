@@ -58,6 +58,9 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
         : base.PowerBombReaction;
 
     /// <inheritdoc/>
+    public SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts => Encounter.BodyParts;
+
+    /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
         MotherBrainBodyVisualDefinitions.AnimationFrames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.MotherBrain).Frame(selected) : null;
 

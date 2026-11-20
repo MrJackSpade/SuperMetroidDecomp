@@ -47,6 +47,9 @@ internal abstract class PhantoonEntity(PhantoonBehavior species, RoomEnemyPlace 
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => PhantoonCombat.FindPhantoonHitboxReaction(Place, probe, out reaction);
 
     /// <inheritdoc/>
+    public SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts => Encounter.BodyParts;
+
+    /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
         PhantoonBodyLayerFrameDefinitions.Frames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.Phantoon).Frame(selected) : null;
 

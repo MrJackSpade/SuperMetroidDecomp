@@ -184,8 +184,8 @@ internal static class CrocomireMeltingDefinitionsVerification
         AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.SinkThroughBridge>(), state.DeathStage,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
         // His body shows the melt image alone, in place of his body frame.
-        ushort[] shown = BossBodyWords.Of(enemies.Presentation.RequireBossBody().Publish(), BossBodyOwner.Crocomire, artwork.Bosses);
-        AssertEqual(1, enemies.Presentation.RequireBossBody().Publish().Frames.Length,
+        ushort[] shown = BossBodyWords.Of(((BossBodyParts).Presentation.BossBodyDisplay!).Publish(), BossBodyOwner.Crocomire, artwork.Bosses);
+        AssertEqual(1, ((BossBodyParts).Presentation.BossBodyDisplay!).Publish().Frames.Length,
             $"installed Crocomire tilemap ${sourceAddress:X6} shows only the melt image");
         ushort[] result = shown[32..(32 + CrocomireMeltingArtworkFormat.TilemapCellCount)];
         for (int index = 0; index < result.Length; index++)

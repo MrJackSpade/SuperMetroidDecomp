@@ -51,18 +51,18 @@ internal sealed class CrocomireBodyLayer
     /// His body shows <paramref name="frame"/> from now on in place of whatever it showed (#1355, #1515, #1540), as a melt
     /// image replaces it: his body is the one part he draws on it.
     /// </summary>
-    internal void ShowCrocomireBodyFrame(BossBodyFrame frame) =>
-        _presentation.RequireBossBody().Show(EnemyDefinitionId.Crocomire, frame);
+    internal static void ShowCrocomireBodyFrame(CrocomireEnemyState state, BossBodyFrame frame) =>
+        state.BodyParts.Show(EnemyDefinitionId.Crocomire, frame);
 
     /// <summary>His body shows nothing from now on, until a frame is shown on it again (#1515).</summary>
-    internal void ClearCrocomireBody() => _presentation.RequireBossBody().Clear();
+    internal static void ClearCrocomireBody(CrocomireEnemyState state) => state.BodyParts.Clear();
 
     /// <summary>
     /// Hides his body from room row <paramref name="roomRow"/> down, until a frame is shown on it again (#1515, #2031): his
     /// body's picture shows only above that row, reckoned from where he lies.
     /// </summary>
     internal void HideCrocomireBodyBelow(CrocomireEnemyState state, int roomRow) =>
-        _presentation.RequireBossBody().ShowAbove(roomRow - state.Body.Position.Y.Whole);
+        state.BodyParts.ShowAbove(roomRow - state.Body.Position.Y.Whole);
 
     /// <summary>Levels the melt's stretch: every line shows his body as it lies now (#1468, #1802, #2031).</summary>
     internal static void LevelCrocomireMeltDistortion(CrocomireEnemyState state) =>

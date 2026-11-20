@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </summary>
 internal enum SamusNoTransitionSetup
 {
-    /// <summary>Nothing is set up: her pose and momentum stay as her movement left them.</summary>
-    None,
+    /// <summary>Nothing more is set up: her pose and momentum stay as her movement left them.</summary>
+    KeepsMomentum,
 
     /// <summary>A knockback kept as its fallback stops her momentum.</summary>
     StopKnockback,

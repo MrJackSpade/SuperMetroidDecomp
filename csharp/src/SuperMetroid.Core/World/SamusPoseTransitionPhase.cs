@@ -587,7 +587,7 @@ internal sealed class SamusPoseTransitionPhase
         SamusPoseId? fallback = _player.ProspectiveSamusFallbackPose;
         switch (SamusNoTransitionSetups.For(source, frame.MovementTypeAtFrameStart))
         {
-            case SamusNoTransitionSetup.None:
+            case SamusNoTransitionSetup.KeepsMomentum:
                 break;
             case SamusNoTransitionSetup.StopKnockback:
                 // The retained hurt pose still stops Samus's momentum.

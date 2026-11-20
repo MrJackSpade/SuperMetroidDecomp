@@ -29,4 +29,4 @@ internal sealed record SamusMovementTypeDefinition(
     GrappleFiringResponse GrappleFiring,
     SamusHudSelectionMode HudSelection,
     SamusKnockbackResponse Knockback,
-    SamusNoTransitionSetup NoTransitionSetup = SamusNoTransitionSetup.None);
+    SamusNoTransitionSetup NoTransitionSetup = SamusNoTransitionSetup.KeepsMomentum);

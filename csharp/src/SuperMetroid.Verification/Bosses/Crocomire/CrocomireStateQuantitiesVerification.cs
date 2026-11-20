@@ -131,7 +131,7 @@ internal static class CrocomireStateQuantitiesVerification
         for (int frame = 0; frame < 400; frame++)
         {
             bool moving = NativeSinkStep(ref acceleration, ref speed, ref subposition, ref y);
-            enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireSink(state, default);
+            CrocomireBridgeCollapse.RunCrocomireSink(state, default);
             if (!moving)
             {
                 AssertEqual(CrocomireDeathStages.Nth<CrocomireDeathStage.SubmergedPause>(2), state.DeathStage, $"{name}: ends on the native frame");
@@ -377,7 +377,7 @@ internal static class CrocomireStateQuantitiesVerification
 
         state.DeathStage = CrocomireDeathStages.Nth<CrocomireDeathStage.Sink>(1);
         body.Position = body.Position.WithWholeY(CrocomireBridgeCollapseDefinitions.SunkenY);
-        enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireSink(state, default);
+        CrocomireBridgeCollapse.RunCrocomireSink(state, default);
         AssertEqual(CrocomireDeathStages.Nth<CrocomireDeathStage.SubmergedPause>(2), state.DeathStage, "the sink ends at the acid's floor");
         for (int update = 1; update <= 48; update++)
         {

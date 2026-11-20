@@ -35,7 +35,7 @@ public static class SamusInsideBlockReactions
             // an upper trigger, without changing the room-object update order.
             if (centerPoint && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
                 !roomObjects.Scrolls.TryNotifyScrollTouch(block.At))
-                throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
+                throw new InvalidOperationException($"Inside scroll trigger block {block.At} has no active room-object owner.");
             // The conveyors carry Samus the same in every area; the reactions the area gives meaning
             // own sand and plants. Both are visited in the same bottom/center/top order.
             if (block.Behavior.SpecialAir is { } conveyed && ConveyorBlockDefinitions.Conveyors.TryGetValue(conveyed, out ConveyorBlock conveyor))

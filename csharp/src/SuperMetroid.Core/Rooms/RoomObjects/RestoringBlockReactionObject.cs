@@ -16,5 +16,5 @@ internal class RestoringBlockReactionObject(BlockReactionChange change, RoomTerr
 
     /// <inheritdoc/>
     private protected override void RestoreBlock(RoomObjectPlace place, RoomObjectStepContext context) =>
-        Ensure.NotNull(context).DrawSavedTerrain(place, SavedTerrain);
+        context.DrawSavedTerrain(place, SavedTerrain);
 }

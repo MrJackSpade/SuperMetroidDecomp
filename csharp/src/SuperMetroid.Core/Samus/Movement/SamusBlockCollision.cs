@@ -204,7 +204,7 @@ public static class SamusBlockCollision
                             !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At))
                         {
                             throw new InvalidOperationException(
-                                $"Scroll trigger block {block.Position} has no active scroll room-object owner; " +
+                                $"Scroll trigger block {block.At} has no active scroll room-object owner; " +
                                 $"live=[{string.Join(',', terrain.RoomObjects.Scrolls.TriggerBlocks)}].");
                         }
                         break;
@@ -230,7 +230,7 @@ public static class SamusBlockCollision
                         if (!terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(block.At))
                         {
                             throw new InvalidOperationException(
-                                $"Collectible block {block.Position} has no active item room-object owner.");
+                                $"Collectible block {block.At} has no active item room-object owner.");
                         }
                         break;
 
@@ -264,7 +264,7 @@ public static class SamusBlockCollision
                                  movingPositive: acceptedDisplacement.IsPositive))
                         {
                             throw new InvalidOperationException(
-                                $"Station access block {block.Position} behaviour ({block.Behavior}) " +
+                                $"Station access block {block.At} behaviour ({block.Behavior}) " +
                                 "has no active map/resource/save-station room-object owner.");
                         }
                         acceptedDisplacement = ClipHorizontalToSolid(
@@ -294,7 +294,7 @@ public static class SamusBlockCollision
                         if (!BombableReactions.IsBreak(block.Behavior.Bombable))
                         {
                             throw new InvalidDataException(
-                                $"Collision bomb block {block.Position} has invalid behaviour ({block.Behavior}).");
+                                $"Collision bomb block {block.At} has invalid behaviour ({block.Behavior}).");
                         }
                         // Every contact that breaks a bomb block starts its block reaction, which runs the breakup
                         // and grows the block back (#1582).
@@ -308,7 +308,7 @@ public static class SamusBlockCollision
                     case RoomCollisionType.VerticalExtension:
                     default:
                         throw new InvalidDataException(
-                            $"Block {block.Position} type {block.CollisionType} escaped the " +
+                            $"Block {block.At} type {block.CollisionType} escaped the " +
                             "complete horizontal collision check.");
                 }
 
@@ -541,7 +541,7 @@ public static class SamusBlockCollision
                         !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At))
                     {
                         throw new InvalidOperationException(
-                            $"Scroll trigger block {block.Position} has no active scroll room-object owner; " +
+                            $"Scroll trigger block {block.At} has no active scroll room-object owner; " +
                             $"live=[{string.Join(',', terrain.RoomObjects.Scrolls.TriggerBlocks)}].");
                     }
                     // Scroll wake-up itself lets Samus pass; sand has a separate
@@ -572,7 +572,7 @@ public static class SamusBlockCollision
                     if (!terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(block.At))
                     {
                         throw new InvalidOperationException(
-                            $"Collectible block {block.Position} has no active item room-object owner.");
+                            $"Collectible block {block.At} has no active item room-object owner.");
                     }
                     break;
 
@@ -626,7 +626,7 @@ public static class SamusBlockCollision
                              movingPositive: acceptedDisplacement.IsPositive))
                     {
                         throw new InvalidOperationException(
-                            $"Station access block {block.Position} behaviour ({block.Behavior}) " +
+                            $"Station access block {block.At} behaviour ({block.Behavior}) " +
                             "has no active map/resource/save-station room-object owner.");
                     }
                     acceptedDisplacement = ClipVerticalToSolid(
@@ -658,7 +658,7 @@ public static class SamusBlockCollision
                     if (!BombableReactions.IsBreak(block.Behavior.Bombable))
                     {
                         throw new InvalidDataException(
-                            $"Collision bomb block {block.Position} has invalid behaviour ({block.Behavior}).");
+                            $"Collision bomb block {block.At} has invalid behaviour ({block.Behavior}).");
                     }
                     terrain.RoomObjects.BlockReactions
                         .TrySpawnCollisionBombBlock(terrain.Level, block.At, block.Behavior);
@@ -668,7 +668,7 @@ public static class SamusBlockCollision
                 case RoomCollisionType.VerticalExtension:
                 default:
                     throw new InvalidDataException(
-                        $"Block {block.Position} type {block.CollisionType} escaped the " +
+                        $"Block {block.At} type {block.CollisionType} escaped the " +
                         "complete vertical collision check.");
             }
 

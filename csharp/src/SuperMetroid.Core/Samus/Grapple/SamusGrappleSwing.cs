@@ -479,7 +479,7 @@ public static class SamusGrappleSwing
 
             case RoomCollisionType.HorizontalExtension:
             case RoomCollisionType.VerticalExtension:
-                throw new InvalidOperationException($"Continuing block {block.Position} reached the grapple's swing in place of the block it stands for.");
+                throw new InvalidOperationException($"Continuing block {block.At} reached the grapple's swing in place of the block it stands for.");
 
             default:
                 throw new InvalidDataException(

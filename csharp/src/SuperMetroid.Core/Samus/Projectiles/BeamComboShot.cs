@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Which shot a special attack's particle takes its damage and animation from (#2554).</summary>

@@ -209,7 +209,7 @@ internal sealed class BlockReactionObjects
         // draws reconstruct linked extension blocks; a 1x1 block respawns with this exact restore block.
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent));
         // Only normal bombs skip the reaction sound: a normal bomb sets off the block's break directly.
-        place.Become(new BlockReactionObject(projectileFamily == SamusProjectileFamily.Bomb
+        place.Become(new RestoringBlockReactionObject(projectileFamily == SamusProjectileFamily.Bomb
             ? BlockReactionChanges.BombBreak(bombable)
             : BlockReactionChanges.ReactionBomb(bombable), restore));
 

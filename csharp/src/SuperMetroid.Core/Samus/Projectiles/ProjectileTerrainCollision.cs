@@ -413,7 +413,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         throw new InvalidOperationException(
-            $"Projectile hit resident-trigger block {block.Position} with no active room-object owner.");
+            $"Projectile hit resident-trigger block {block.At} with no active room-object owner.");
     }
 
     /// <summary>

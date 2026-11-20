@@ -861,7 +861,7 @@ public sealed class SamusBombProjectileSystem
             if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType))
             {
                 throw new InvalidOperationException(
-                    $"Bombed resident-trigger block {block.Position} has no active room-object owner.");
+                    $"Bombed resident-trigger block {block.At} has no active room-object owner.");
             }
             return;
         }
@@ -906,7 +906,7 @@ public sealed class SamusBombProjectileSystem
                 // A bombable block with no bomb reaction would make the game read unrelated data as a
                 // room-object definition; room data holds none, and the import refuses one.
                 throw new InvalidDataException(
-                    $"Bombable block {block.Position} has behaviour ({block.Behavior}) with no " +
+                    $"Bombable block {block.At} has behaviour ({block.Behavior}) with no " +
                     "bomb-block reaction.");
             }
             // Spawn is synchronous: an accepted bomb-block reaction applies its temporary solid-block
@@ -945,7 +945,7 @@ public sealed class SamusBombProjectileSystem
                 !ShotBlockReactions.IsWeaponReaction(block.Behavior.Shootable))
             {
                 throw new InvalidDataException(
-                    $"Shootable block {block.Position} has behaviour ({block.Behavior}) with no " +
+                    $"Shootable block {block.At} has behaviour ({block.Behavior}) with no " +
                     "reaction a bomb sets off.");
             }
             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(

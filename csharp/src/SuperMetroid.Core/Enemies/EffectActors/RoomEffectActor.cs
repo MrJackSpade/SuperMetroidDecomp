@@ -18,8 +18,9 @@ public sealed class RoomEffectActor
         Kind = kind;
         Position = FixedPosition<RoomPixels>.FromWhole(position);
         Graphics = graphics;
-        Playback = new(RoomEffectActorAnimations.StartingWith(kind), AnimationPlace.StartOfAnimation);
-        AdvanceAnimation();
+        var started = new AnimationPlayback<RoomEffectActorSegment>(RoomEffectActorAnimations.StartingWith(kind), AnimationPlace.StartOfAnimation);
+        Playback = started;
+        AdvanceAnimation(started);
     }
 
     /// <summary>What the object shows, as its spawner chose it, which is also the animation it plays.</summary>
@@ -105,7 +106,8 @@ public sealed class RoomEffectActor
     {
         if (!IsActive)
             throw new InvalidOperationException($"Effect actor {Kind} has ended and shows no frame.");
-        Playback = new(RoomEffectActorAnimations.StartingWith(Kind), AnimationPlace.StartOfAnimation);
-        AdvanceAnimation();
+        var restarted = new AnimationPlayback<RoomEffectActorSegment>(RoomEffectActorAnimations.StartingWith(Kind), AnimationPlace.StartOfAnimation);
+        Playback = restarted;
+        AdvanceAnimation(restarted);
     }
 }

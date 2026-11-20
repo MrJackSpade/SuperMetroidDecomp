@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
+
 namespace SuperMetroid.Core.Enemies.EffectActors;
 
 /// <summary>
@@ -6,11 +9,13 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// </summary>
 internal readonly record struct RoomEffectActorPicture
 {
-    /// <summary>A picture on one sheet or the other: the enemy sheet's frame, or Samus's hit-burst sprite.</summary>
-    private RoomEffectActorPicture(bool isHitBurst, EnemyFrameId enemyFrame, ProjectileSpriteId hitBurst)
+    /// <summary>The picture of the enemy sheet's frame <paramref name="enemyFrame"/>.</summary>
+    private RoomEffectActorPicture(EnemyFrameId enemyFrame) => this.enemyFrame = enemyFrame;
+
+    /// <summary>The picture of Samus's hit-burst sprite <paramref name="hitBurst"/>.</summary>
+    private RoomEffectActorPicture(ProjectileSpriteId hitBurst)
     {
-        this.isHitBurst = isHitBurst;
-        this.enemyFrame = enemyFrame;
+        isHitBurst = true;
         this.hitBurst = hitBurst;
     }
 
@@ -24,10 +29,10 @@ internal readonly record struct RoomEffectActorPicture
     private readonly ProjectileSpriteId hitBurst;
 
     /// <summary>The picture of enemy-sheet frame <paramref name="frame"/>.</summary>
-    internal static RoomEffectActorPicture OfEnemyFrame(EnemyFrameId frame) => new(isHitBurst: false, frame, default);
+    internal static RoomEffectActorPicture OfEnemyFrame(EnemyFrameId frame) => new(frame);
 
     /// <summary>The picture of Samus's hit-burst sprite <paramref name="sprite"/>.</summary>
-    internal static RoomEffectActorPicture OfHitBurst(ProjectileSpriteId sprite) => new(isHitBurst: true, default, sprite);
+    internal static RoomEffectActorPicture OfHitBurst(ProjectileSpriteId sprite) => new(sprite);
 
     /// <summary>
     /// What <paramref name="onEnemySheet"/> makes of the picture's enemy-sheet frame, or for a hit burst's picture what

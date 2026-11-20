@@ -407,7 +407,7 @@ internal static class SamusAnimationDelayDefinitions
     /// <summary>The animation <see cref="SamusPoseId.WallJumpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation WallJumpAnimation { get; } = new(SamusAnimationName.WallJump,
     [
-        new SamusCuedAnimationSegment(SamusAnimationSegmentName.Launch, [5, 5], new SamusAnimationWallJumpSelect(new SamusCuedAnimationSegment(SamusAnimationSegmentName.OrdinarySpin, 0), new SamusCuedAnimationSegment(SamusAnimationSegmentName.SpaceJumpSpin, 0), new SamusCuedAnimationSegment(SamusAnimationSegmentName.ScrewAttackSpin, 0))),
+        new SamusCuedAnimationSegment(SamusAnimationSegmentName.Launch, [5, 5], new SamusAnimationWallJumpSelect(new(SamusAnimationSegmentName.OrdinarySpin, 0), new(SamusAnimationSegmentName.SpaceJumpSpin, 0), new(SamusAnimationSegmentName.ScrewAttackSpin, 0))),
         new SamusCuedAnimationSegment(SamusAnimationSegmentName.OrdinarySpin, [3, 2, 3, 2, 3, 2, 3, 2], new SamusAnimationRepeat(SamusAnimationSegmentName.OrdinarySpin)),
         new SamusCuedAnimationSegment(SamusAnimationSegmentName.SpaceJumpSpin, [2, 1, 2, 1, 2, 1, 2, 1], new SamusAnimationRepeat(SamusAnimationSegmentName.SpaceJumpSpin)),
         new SamusCuedAnimationSegment(SamusAnimationSegmentName.ScrewAttackSpin, [.. Repeat(1, 24)], new SamusAnimationRepeat(SamusAnimationSegmentName.ScrewAttackSpin)),

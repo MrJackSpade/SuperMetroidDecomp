@@ -245,7 +245,7 @@ public sealed class RoomLevelData
         ContinuedBlocks.StoodFor(block, Size.Area, Continues, cell => cell.Behavior.EndsExtension,
             cell => GetCollisionBlock(TryGridBlockStepped(cell.At, cell.ExtensionLink, out Position16<RoomBlocks> reached) ? reached
                 : throw new InvalidDataException(
-                    $"Continuing block {cell.Position} type {cell.CollisionType}/behaviour ({cell.Behavior}) leads outside the room's grid.")));
+                    $"Continuing block {cell.At} type {cell.CollisionType}/behaviour ({cell.Behavior}) leads outside the room's grid.")));
 
     /// <summary>
     /// Replaces <paramref name="block"/> with the block it stands for (<see cref="BlockStoodFor"/>), returning false when it

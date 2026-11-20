@@ -100,7 +100,7 @@ internal static class DachoraMotionStateVerification
         {
             RoomEnemyPlace part = enemies.Places.InUpdateOrder[slot];
             part.SetSpawnParameter1(EnemyDefinitionId.Dachora, slot == 0 ? (ushort)1 : ushort.MaxValue);
-            part.Bind(EnemyDefinitionId.Dachora, part.Definition);
+            part.Bind(EnemyDefinitionId.Dachora, part.KeptDefinition);
             part.Radius = new(8, 8);
         }
         for (int slot = 0; slot < 5; slot++)
@@ -148,7 +148,7 @@ internal static class DachoraMotionStateVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.SetSpawnParameter1(EnemyDefinitionId.Dachora, parameter);
-        place.Bind(EnemyDefinitionId.Dachora, place.Definition);
+        place.Bind(EnemyDefinitionId.Dachora, place.KeptDefinition);
         place.Radius = new(8, 8);
         InitializeThroughEntity(place);
         return (enemies, place);

@@ -17,11 +17,11 @@ internal static class ArmCannonTileSources
         public ushort this[int index] => (uint)index < Count
             ? (ushort)(ArmCannonTileSourceDefinitions.FirstTileSource + index * TileSourceStride)
             : throw new ArgumentOutOfRangeException(nameof(index));
-        /// <summary>Finds the exact bank-relative native tile identity, returning its exported character index 0–11 or -1 if the position is absent or unaligned.</summary>
-        public int IndexOf(int source)
+        /// <summary>Finds the exact bank-relative native tile identity, returning its exported character index 0–11, or null if the position is absent or unaligned.</summary>
+        public int? IndexOf(int source)
         {
             int index = (source - ArmCannonTileSourceDefinitions.FirstTileSource) / TileSourceStride;
-            return (uint)index < Count && this[index] == source ? index : -1;
+            return (uint)index < Count && this[index] == source ? index : null;
         }
         /// <summary>Enumerates source identities in exported PNG character order, with the three frames of each native artwork orientation kept together.</summary>
         public IEnumerator<ushort> GetEnumerator()

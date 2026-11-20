@@ -69,7 +69,7 @@ internal sealed class EndingShootingStars
     }
 
     /// <summary>The pace <paramref name="definition"/>'s star flies at.</summary>
-    private static EndingShootingStarPace Pace(EndingShootingStarDefinition definition) => new(definition.Period);
+    private static EndingShootingStarPace Pace(EndingShootingStarDefinition definition) => definition.Pace;
 
     /// <summary>The star <paramref name="definition"/> authors at the shared origin, undelayed, at the start of its lead-in.</summary>
     private static EndingShootingStar Started(EndingShootingStarDefinition definition) => new()

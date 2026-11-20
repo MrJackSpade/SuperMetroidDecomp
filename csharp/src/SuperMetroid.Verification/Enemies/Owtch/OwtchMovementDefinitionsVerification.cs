@@ -21,9 +21,9 @@ internal static class OwtchMovementDefinitionsVerification
         Suite(nameof(VerifyOwtchUndergroundTimerAlgorithm), () => VerifyOwtchUndergroundTimerAlgorithm(rom));
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = OwtchBehavior.InitializeOwtch;
+        Action<RoomEnemyPlace> initialize = fixturePlace => OwtchBehavior.InitializeOwtch(fixturePlace.HeldOccupant(), fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Owtch, place.Definition);
+        place.Bind(EnemyDefinitionId.Owtch, place.KeptDefinition);
 
         // Spawn columns from the shipped placements' range: the left edge's nearest, a middle one and the farthest right.
         foreach (int spawnX in new[] { 64, 0x0100, 888 })

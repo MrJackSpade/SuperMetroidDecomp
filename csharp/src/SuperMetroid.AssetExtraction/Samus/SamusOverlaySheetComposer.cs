@@ -37,7 +37,7 @@ internal static class SamusOverlaySheetComposer
             {
                 frames.Add(new(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, frame),
                     SpritePartFrames.SmallObject(appearance, appearance.Character),
-                    cover.CoverTile(row, SamusArmCannonCoverFrameCodec.CartridgeFrame(frame))));
+                    cover.CoverTile(row, frame)));
             }
         }
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);

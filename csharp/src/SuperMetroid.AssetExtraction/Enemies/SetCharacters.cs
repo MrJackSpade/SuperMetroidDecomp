@@ -98,7 +98,7 @@ internal sealed class SetCharacters
                 // another family's artwork: it has none of its own to show, so it shows nothing (#1513), as Mother Brain's
                 // initial body frame, drawn only while her body is hidden, reads the head artwork her room loads where her
                 // legs never land.
-                if (own > 0 && !Writes(encounter.Looks[own], read))
+                if (own != EncounterLookSteps.RoomLoad && !Writes(encounter.Looks[own], read))
                     return new FramePictures(name, [], [], [name]);
             }
             int[] distinct = [.. drawn.Looks.DistinctBy(look => Shown(afterLook[encounter.Encounter][look], read))];
@@ -190,7 +190,7 @@ internal sealed class SetCharacters
     /// </summary>
     private byte[] Characters(IReadOnlyList<FrameLookPart> parts, int[] combination)
     {
-        if (combination.All(look => look == 0))
+        if (combination.All(look => look == EncounterLookSteps.RoomLoad))
             return table;
         var key = new EncounterLookCombination(parts, combination);
         if (lookTables.TryGetValue(key, out byte[]? known))

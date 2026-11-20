@@ -32,12 +32,12 @@ internal static class ShaktoolSegmentDefinitionsVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
+        Action<RoomEnemyPlace> initialize = fixturePlace => enemies.ShaktoolBehavior.InitializeShaktool(fixturePlace.HeldOccupant(), fixturePlace);
         for (int index = 0; index < definitions.Length; index++)
         {
             ShaktoolSegmentDefinition definition = definitions[index];
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
-            place.Bind(EnemyDefinitionId.Shaktool, place.Definition);
+            place.Bind(EnemyDefinitionId.Shaktool, place.KeptDefinition);
             place.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
             place.Contact = EnemyContact.BlocksPlasmaBeam;
             place.Processing = EnemyProcessing.None;

@@ -22,26 +22,26 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>One of Kraid's eight parts, each joining its own reference as it initializes (#1877, #2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Kraid definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Kraid)
-            return EnemyOccupant.Of(new KraidBodyEntity(this, place, common));
+            return EnemyOccupant.Of(new KraidBodyEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.KraidArm)
-            return EnemyOccupant.Of(new KraidArmEntity(this, place, common));
+            return EnemyOccupant.Of(new KraidArmEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.KraidFoot)
-            return EnemyOccupant.Of(new KraidFootEntity(this, place, common));
+            return EnemyOccupant.Of(new KraidFootEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.KraidLintTop)
-            return EnemyOccupant.Of(new KraidLintEntity(this, place, common, Parts.TopLintReference, KraidLintPart.Top));
+            return EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.TopLintReference, KraidLintPart.Top));
         if (definition == EnemyDefinitionId.KraidLintMiddle)
-            return EnemyOccupant.Of(new KraidLintEntity(this, place, common, Parts.MiddleLintReference, KraidLintPart.Middle));
+            return EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.MiddleLintReference, KraidLintPart.Middle));
         if (definition == EnemyDefinitionId.KraidLintBottom)
-            return EnemyOccupant.Of(new KraidLintEntity(this, place, common, Parts.BottomLintReference, KraidLintPart.Bottom));
+            return EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.BottomLintReference, KraidLintPart.Bottom));
         if (definition == EnemyDefinitionId.KraidFirstNail)
-            return EnemyOccupant.Of(new KraidNailEntity(this, place, common, Parts.FirstNailReference, KraidNailPart.First));
+            return EnemyOccupant.Of(new KraidNailEntity(this, occupant, place, common, Parts.FirstNailReference, KraidNailPart.First));
         if (definition == EnemyDefinitionId.KraidSecondNail)
-            return EnemyOccupant.Of(new KraidNailEntity(this, place, common, Parts.SecondNailReference, KraidNailPart.Second));
-        throw new InvalidOperationException($"The Kraid species creates no {place.DefinitionId}.");
+            return EnemyOccupant.Of(new KraidNailEntity(this, occupant, place, common, Parts.SecondNailReference, KraidNailPart.Second));
+        throw new InvalidOperationException($"The Kraid species creates no {occupant.DefinitionId}.");
     }
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
     private KraidBodyLayer BodyLayer { get; }
@@ -100,7 +100,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// before the death setup runs in this same update.
     /// </summary>
     private void RunKraidBodyMain(
-        RoomEnemyPlace body,
+        RoomEnemyOccupant kraid,
         KraidEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
@@ -108,18 +108,20 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusProjectileSystem samusProjectiles,
         SamusBombProjectileSystem samusBombs)
     {
+        RoomEnemyPlace body = kraid.Place;
         IReadOnlyList<KraidPassProjectile> tested = TestedByShotPasses(samusProjectiles, samusBombs);
-        Combat.ResolveKraidMouthProjectileHits(body, state, tested);
+        Combat.ResolveKraidMouthProjectileHits(kraid, state, tested);
         Head.RunKraidHurtColours(body, state);
         Combat.ResolveKraidBodyProjectileHits(body, state, tested);
-        Combat.ResolveKraidBodyContact(body, state, samus, pseudoScrew);
+        Combat.ResolveKraidBodyContact(kraid, state, samus, pseudoScrew);
         RunKraidBodyStage(body, state, camera.X, samus);
     }
 
     /// <summary>Runs Kraid's main AI for his body in <paramref name="place"/>.</summary>
-    internal void RunKraidMainAi(RoomEnemyPlace place, KraidEnemyState state, IEnemyAiFrame frame)
+    internal void RunKraidMainAi(RoomEnemyOccupant kraid, KraidEnemyState state, IEnemyAiFrame frame)
     {
-        RunKraidBodyMain(place, state, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SamusBombs);
+        RoomEnemyPlace place = kraid.Place;
+        RunKraidBodyMain(kraid, state, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SamusBombs);
     }
 
     /// <summary>
@@ -149,8 +151,13 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
         }
 
-        /// <summary>Reads the projectile's position, radius, type and damage.</summary>
-        public abstract KraidCollisionShot Read();
+        /// <summary>
+        /// Whether a projectile holds the tested place (#2558). A pass reaches the place past Samus's counted shots and her
+        /// first bomb whether or not either holds one; an empty place lies at rest at the room's origin with no extent,
+        /// which Kraid's mouth and body, standing in his room's lower half, never meet, so a pass skips it.
+        /// </summary>
+        /// <value>The position, radius, type and damage of the projectile holding the place, or null while none holds it.</value>
+        public abstract KraidCollisionShot? Held { get; }
 
         /// <summary>Marks the projectile as having collided with Kraid.</summary>
         public abstract void MarkCollision();
@@ -166,8 +173,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             internal Shot(SamusProjectile shot) => _shot = Ensure.NotNull(shot);
 
             /// <inheritdoc/>
-            public override KraidCollisionShot Read() =>
-                new(_shot.Position.Whole, _shot.Radius, _shot.Type, _shot.Damage, IsPlacedBomb: false);
+            public override KraidCollisionShot? Held => _shot.Occupant is { } held
+                ? new(_shot.Position.Whole, _shot.Radius, held.Type, held.Damage, IsPlacedBomb: false)
+                : null;
 
             /// <inheritdoc/>
             public override void MarkCollision() => _shot.Spend();
@@ -184,8 +192,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             internal Bomb(SamusBomb bomb) => _bomb = Ensure.NotNull(bomb);
 
             /// <inheritdoc/>
-            public override KraidCollisionShot Read() =>
-                new(_bomb.Position.Whole, _bomb.Radius, _bomb.Type, _bomb.Damage, IsPlacedBomb: !_bomb.IsBombSpread);
+            public override KraidCollisionShot? Held => _bomb.Occupant is { } placed
+                ? new(_bomb.Position.Whole, _bomb.Radius, placed.Type, placed.Damage, IsPlacedBomb: !_bomb.IsBombSpread)
+                : null;
 
             /// <inheritdoc/>
             public override void MarkCollision() => _bomb.Spend();

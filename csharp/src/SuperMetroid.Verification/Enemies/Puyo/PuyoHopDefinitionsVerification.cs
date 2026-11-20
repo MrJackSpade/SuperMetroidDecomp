@@ -67,9 +67,9 @@ internal static class PuyoHopDefinitionsVerification
             int nativeDrop = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa29a0b + PuyoNativeWords.HopRecordOffsets.Word(cut));
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Puyo, place.Definition);
+            place.Bind(EnemyDefinitionId.Puyo, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.Puyo, 5);
-            PuyoBehavior.InitializePuyo(place);
+            PuyoBehavior.InitializePuyo(place.HeldOccupant(), place);
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             place.Radius = RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.Puyo).Radius;
             PuyoEnemyState state = place.RequireSpeciesState<PuyoEnemyState>();
@@ -77,7 +77,7 @@ internal static class PuyoHopDefinitionsVerification
             state.AirborneMovement = PuyoAirborneMovement.Dropping;
             state.HopType = PuyoHopType.Dropping;
             state.CurrentHop = cut;
-            enemies.PuyoBehavior.RunPuyoMainAi(place, new ClockedEnemyAiFrame(
+            enemies.PuyoBehavior.RunPuyoMainAi(place.HeldOccupant(), place, new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with
                 {
                     Camera = Position16<RoomPixels>.Zero,

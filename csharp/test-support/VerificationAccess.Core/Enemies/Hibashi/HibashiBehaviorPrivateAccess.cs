@@ -20,7 +20,7 @@ internal static class HibashiBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Hibashi.HibashiBehavior)
     {
         /// <summary>The private method <c>RestHibashi</c>, invoked by name.</summary>
-        internal static void RestHibashi(global::SuperMetroid.Core.Enemies.RoomEnemyPlace flame, global::SuperMetroid.Core.Enemies.Hibashi.HibashiEnemyState state) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Hibashi.HibashiBehavior), "RestHibashi", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Hibashi.HibashiEnemyState)], new object?[] { flame, state });
+        internal static void RestHibashi(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.Hibashi.HibashiEnemyState state) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Hibashi.HibashiBehavior), "RestHibashi", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.Hibashi.HibashiEnemyState)], new object?[] { occupant, state });
     }
 }

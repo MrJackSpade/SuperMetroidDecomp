@@ -9,7 +9,6 @@ internal static class MapScrollDirectionKeys
     /// <summary>Each MapScrollDirection member's installed key.</summary>
     internal static InstalledKeys<MapScrollDirection> Installed { get; } = new(new Dictionary<MapScrollDirection, string>
     {
-        [MapScrollDirection.None] = "None",
         [MapScrollDirection.Left] = "Left",
         [MapScrollDirection.Right] = "Right",
         [MapScrollDirection.Up] = "Up",

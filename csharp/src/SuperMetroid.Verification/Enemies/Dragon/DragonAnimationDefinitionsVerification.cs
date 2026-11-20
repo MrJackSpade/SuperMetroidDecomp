@@ -78,17 +78,17 @@ internal static class DragonAnimationDefinitionsVerification
         bodyState.AttackCounter = 3;
         bodyState.Playback = playedOut;
 
-        enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
+        enemies.DragonBehavior.RunDragonAttacking(body.HeldOccupant(), body, bodyState);
         AssertEqual(2, bodyState.AttackCounter, "the finished attack spits a fireball");
         AssertEqual(playedOut, bodyState.Playback, "the attack rests on its last pose the update it spits");
         AssertEqual(DragonAction.RestartingAttack, bodyState.Action, "a fireball with shots left restarts the attack next");
 
-        enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
+        enemies.DragonBehavior.RunDragonAttacking(body.HeldOccupant(), body, bodyState);
         AssertDragonAnimationHandoff(body, bodyState, DragonSegment.AttackingFacingRight, "the attack after a fireball");
         AssertEqual(2, bodyState.AttackCounter, "the restarted attack spits nothing until it finishes again");
         AssertEqual(DragonAction.Attacking, bodyState.Action, "the restarted attack plays until it finishes");
 
-        enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
+        enemies.DragonBehavior.RunDragonAttacking(body.HeldOccupant(), body, bodyState);
         AssertEqual(new AnimationPlayback<DragonSegment>(attack, AnimationPlace.StartOfAnimation), bodyState.Playback,
             "the restarted attack asked for again plays on where it stands");
     }
@@ -148,7 +148,7 @@ internal static class DragonAnimationDefinitionsVerification
 
         bodyState.ActionTimer = UpdateCountdown.Ended();
         DragonBehavior.RunDragonRising(body, bodyState);
-        enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
+        enemies.DragonBehavior.RunDragonAttacking(body.HeldOccupant(), body, bodyState);
         DragonSegment attacking = facingLeft
             ? DragonSegment.AttackingFacingLeft
             : DragonSegment.AttackingFacingRight;
@@ -164,8 +164,8 @@ internal static class DragonAnimationDefinitionsVerification
     {
         body.SetSpawnParameter1(EnemyDefinitionId.Dragon, 0);
         wing.SetSpawnParameter1(EnemyDefinitionId.Dragon, 1);
-        body.Bind(EnemyDefinitionId.Dragon, body.Definition);
-        wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);
+        body.Bind(EnemyDefinitionId.Dragon, body.KeptDefinition);
+        wing.Bind(EnemyDefinitionId.Dragon, wing.KeptDefinition);
         enemies.DragonBehavior.InitializeDragonBody(body);
         enemies.DragonBehavior.InitializeDragonWing(wing);
     }

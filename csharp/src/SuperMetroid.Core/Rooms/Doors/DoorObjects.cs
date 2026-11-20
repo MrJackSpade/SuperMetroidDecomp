@@ -46,7 +46,9 @@ internal sealed class DoorObjects
         Ensure.NotNull(level);
         Ensure.NotNull(door);
 
-        Position16<RoomBlocks> block = level.GridBlock(door.RoomObjectBlock);
+        if (door.RoomObjectBlock is not { } closing)
+            return;
+        Position16<RoomBlocks> block = level.GridBlock(closing);
         foreach (RoomObjectPlace resident in _places.InUpdateOrder)
         {
             if (resident.Door is not { } standing || resident.Block != block)
@@ -69,7 +71,7 @@ internal sealed class DoorObjects
             return;
 
         place.Block = block;
-        place.Become(fallback.BlueCapFacing is { } facing
+        place.Become(fallback is DoorClosingObjectDefinition.BlueCap { Facing: var facing }
             ? BlueDoorCapObject.Closing(facing)
             : new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Closing));
         SetupPassableBlock(level, place);
@@ -135,9 +137,10 @@ internal sealed class DoorObjects
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
-        SamusProjectileType projectileType)
+        BlockStrike strike)
     {
         Ensure.NotNull(level);
+        Ensure.NotNull(strike);
         if (!behavior.TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation))
         {
             throw new ArgumentOutOfRangeException(
@@ -147,7 +150,7 @@ internal sealed class DoorObjects
         }
 
         // A Power Bomb opens no blue cap: the cap stays shut and no room object takes a place.
-        if (projectileType.Family == SamusProjectileFamily.PowerBomb)
+        if (strike.Family == SamusProjectileFamily.PowerBomb)
             return;
 
         if (_places.Spawn() is not { } place)

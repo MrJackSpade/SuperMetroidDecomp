@@ -20,7 +20,7 @@ internal static class EnemyCollisionPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.EnemyCollision)
     {
         /// <summary>The private method <c>ReadNormalShotVulnerability</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.Core.Enemies.EnemyCollision.NormalShotVulnerability ReadNormalShotVulnerability(global::SuperMetroid.Core.Enemies.RoomEnemyPlace enemy, global::SuperMetroid.Core.Progression.SamusProjectileType projectileType) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.Core.Enemies.EnemyCollision.NormalShotVulnerability>(typeof(global::SuperMetroid.Core.Enemies.EnemyCollision), "ReadNormalShotVulnerability", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Progression.SamusProjectileType)], new object?[] { enemy, projectileType });
+        internal static global::SuperMetroid.Core.Enemies.EnemyCollision.NormalShotVulnerability ReadNormalShotVulnerability(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant enemy, global::SuperMetroid.Core.Progression.SamusProjectileType projectileType) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.Enemies.EnemyCollision.NormalShotVulnerability>(typeof(global::SuperMetroid.Core.Enemies.EnemyCollision), "ReadNormalShotVulnerability", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Progression.SamusProjectileType)], new object?[] { enemy, projectileType });
     }
 }

@@ -3,21 +3,25 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// The enemy a death explosion or its drop came from, and whether that enemy respawns from its snapshot when the
 /// explosion's respawn cue runs (#1412). The enemy is its place, so the respawn rebuilds whatever the place's snapshot
-/// holds (#1542). A cleared projectile names no enemy and does not respawn.
+/// holds (#1542). A drop spawned directly came from no enemy, and has none.
 /// </summary>
-public readonly record struct KilledEnemy
+public sealed record KilledEnemy
 {
-    /// <summary>No killed enemy: a drop spawned directly rather than from a death.</summary>
-    public static KilledEnemy None => default;
+    /// <summary>Keeps the killed enemy's place and whether it respawns.</summary>
+    private KilledEnemy(PopulatedEnemyPlace enemy, bool respawns)
+    {
+        Enemy = enemy;
+        Respawns = respawns;
+    }
 
-    /// <summary>The enemy in <paramref name="place"/>, which respawns when the explosion ends if <paramref name="respawns"/>.</summary>
-    /// <param name="place">The killed enemy's place.</param>
+    /// <summary>The enemy killed in <paramref name="place"/>, which respawns when the explosion ends if <paramref name="respawns"/>.</summary>
+    /// <param name="place">The history of the killed enemy's place, which keeps the entry a respawn rebuilds it from.</param>
     /// <param name="respawns">Whether the explosion's respawn cue rebuilds the enemy from its snapshot.</param>
-    public static KilledEnemy Of(RoomEnemyPlace place, bool respawns) => new() { Enemy = Ensure.NotNull(place), Respawns = respawns };
+    public static KilledEnemy Of(PopulatedEnemyPlace place, bool respawns) => new(Ensure.NotNull(place), respawns);
 
-    /// <summary>The killed enemy's place; null for <see cref="None"/> and for a cleared projectile.</summary>
-    public RoomEnemyPlace? Enemy { get; private init; }
+    /// <summary>The history of the killed enemy's place.</summary>
+    public PopulatedEnemyPlace Enemy { get; }
 
     /// <summary>Whether the explosion's respawn cue rebuilds the enemy from its snapshot.</summary>
-    public bool Respawns { get; private init; }
+    public bool Respawns { get; }
 }

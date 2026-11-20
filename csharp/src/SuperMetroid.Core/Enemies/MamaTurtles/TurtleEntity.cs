@@ -6,10 +6,11 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// definitions leave shots to them.
 /// </summary>
 /// <param name="species">The mama turtle species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the turtle occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class TurtleEntity(MamaTurtleBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal abstract class TurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The mama turtle species owner.</summary>
     protected MamaTurtleBehavior Species => species;
@@ -28,27 +29,28 @@ internal abstract class TurtleEntity(MamaTurtleBehavior species, RoomEnemyPlace 
     protected abstract void ReactToOwnTouch(EnemyTouchContext context);
 
     /// <summary>Whether the turtle's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == TurtleReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the turtle's own touch where the definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (!LeavesTouchToSpecies)
+        if (Occupant.Definition.Touch != TurtleReactions.Touch)
             base.ReactToTouch(context);
         else
             ReactToOwnTouch(context);
     }
 
     /// <summary>The baby turtle's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.BabyTurtleShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == TurtleReactions.Shot ? species.BabyTurtleShotReaction : base.ShotReaction;
 
     /// <summary>The baby turtle's own stages around common bomb damage, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? species.BabyTurtleBombReaction : base.CommonBombDamageReaction(context);
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
+        context.SelectedShot == TurtleReactions.Shot ? species.BabyTurtleBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The baby turtle's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) =>
+        reaction == TurtleReactions.Shot && Occupant.Definition.Shot == TurtleReactions.Shot;
 }

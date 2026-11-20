@@ -289,7 +289,7 @@ public sealed class SamusBodySources
         if (!SamusPoseNumbers.CoversRecordedPoses(parts.PoseFirstFrames))
             throw new InvalidDataException("Samus body frame lists do not cover exactly the poses with records.");
         if (parts.Frames.Any(frame => !IsSelectorComponent(frame.TopSet) || !IsSelectorComponent(frame.TopPosition) ||
-                !IsSelectorComponent(frame.BottomSet) || !IsSelectorComponent(frame.BottomPosition)))
+                (frame.BottomSet is int bottomSet && !IsSelectorComponent(bottomSet)) || !IsSelectorComponent(frame.BottomPosition)))
             throw new InvalidDataException("Samus body frame selector components must be table indices from 0 through 255.");
         foreach (int firstFrame in parts.PoseFirstFrames.Values)
             if ((uint)firstFrame >= FrameCount)
@@ -305,11 +305,11 @@ public sealed class SamusBodySources
             selected = default;
             if (!placement.TryFrameRise(animationFrame, out frameRise) ||
                 !TryDefinitionRecord(parts.TopSetStarts, parts.BottomSetStarts, first, SamusBodyHalf.Top, selection.TopSet, selection.TopPosition, out int top) ||
-                (selection.NamesBottom && !TryDefinitionRecord(parts.TopSetStarts, parts.BottomSetStarts, first, SamusBodyHalf.Bottom,
-                    selection.BottomSet, selection.BottomPosition, out _)))
+                (selection.BottomSet is int lowerSet && !TryDefinitionRecord(parts.TopSetStarts, parts.BottomSetStarts, first, SamusBodyHalf.Bottom,
+                    lowerSet, selection.BottomPosition, out _)))
                 return false;
-            selected = new SamusBodyFramePictures(Picture(top), selection.NamesBottom
-                ? Picture(parts.BottomSetStarts[selection.BottomSet] + selection.BottomPosition) : null);
+            selected = new SamusBodyFramePictures(Picture(top), selection.BottomSet is int bottom
+                ? Picture(parts.BottomSetStarts[bottom] + selection.BottomPosition) : null);
             return true;
         }
         var pictures = new Dictionary<SamusPoseId, IReadOnlyList<SamusBodyFramePictures?>>();
@@ -348,7 +348,12 @@ public sealed class SamusBodySources
     private static bool TryDefinitionRecord(int[] topStarts, int[] bottomStarts, int firstRecord, SamusBodyHalf half, int set, int position, out int record)
     {
         int[] starts = half == SamusBodyHalf.Top ? topStarts : bottomStarts;
-        record = set >= 0 && set < starts.Length && IsSelectorComponent(position) ? starts[set] + position : -1;
+        if (set < 0 || set >= starts.Length || !IsSelectorComponent(position))
+        {
+            record = default;
+            return false;
+        }
+        record = starts[set] + position;
         return record >= firstRecord && record < RecordCount;
     }
 

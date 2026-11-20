@@ -23,7 +23,7 @@ internal static class BotwoonPositionHistoryVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Botwoon);
 
         RoomEnemyPlace head = runtime.Enemies.Places.InUpdateOrder.Single(place =>
-            place.DefinitionId == EnemyDefinitionId.Botwoon);
+            place.Holds(EnemyDefinitionId.Botwoon));
         BotwoonEnemyState state = head.RequireSpeciesState<BotwoonEnemyState>();
         AssertTrue(state.History.All(position => position == Position16<RoomPixels>.Zero),
             "Botwoon's position history starts as Initialise_Enemies' zeroed RAM");

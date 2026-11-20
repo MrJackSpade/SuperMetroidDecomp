@@ -6,19 +6,19 @@ internal static class EnemyDropSelectionDefinitions
     /// <summary>
     /// The minor drops, in the order the roll weighs them: their chances share the budget the offered major drops leave.
     /// </summary>
-    internal static IReadOnlyList<EnemyPickupKind> MinorDrops { get; } =
+    internal static IReadOnlyList<EnemyDropRoll> MinorDrops { get; } =
     [
-        EnemyPickupKind.SmallEnergy,
-        EnemyPickupKind.BigEnergy,
-        EnemyPickupKind.Missile,
-        EnemyPickupKind.NoDrop,
+        EnemyDropRoll.Pickup(EnemyPickupKind.SmallEnergy),
+        EnemyDropRoll.Pickup(EnemyPickupKind.BigEnergy),
+        EnemyDropRoll.Pickup(EnemyPickupKind.Missile),
+        EnemyDropRoll.Nothing,
     ];
 
     /// <summary>The major drops, in the order the roll weighs them after the minor drops: each keeps its own chance.</summary>
-    internal static IReadOnlyList<EnemyPickupKind> MajorDrops { get; } =
+    internal static IReadOnlyList<EnemyDropRoll> MajorDrops { get; } =
     [
-        EnemyPickupKind.SuperMissile,
-        EnemyPickupKind.PowerBomb,
+        EnemyDropRoll.Pickup(EnemyPickupKind.SuperMissile),
+        EnemyDropRoll.Pickup(EnemyPickupKind.PowerBomb),
     ];
 
     /// <summary>

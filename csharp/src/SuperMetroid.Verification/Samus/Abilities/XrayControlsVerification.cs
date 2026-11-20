@@ -63,7 +63,7 @@ internal static class XrayControlsVerification
             // Construct an already-placed bomb, far from Samus, to isolate the shared
             // ten-slot update gate. Its long instruction delay avoids consuming data.
             var pendingBomb = runtime.BombProjectiles.Bombs[0];
-            pendingBomb.Type = SamusBombProjectileSystem.NormalBombType;
+            pendingBomb.OccupyAsPlaced(SamusBombProjectileSystem.NormalBombType);
             pendingBomb.Animation = SuperMetroid.Verification.Samus.Projectiles.ProjectileFixturePlaybacks.StartingAfter(SamusProjectileSegment.Bomb, 100);
             // The runtime draws the installation's bindings, which the fixture installs.
             pendingBomb.SpritemapPointer = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.GameArtwork.ProjectileFrameBindings

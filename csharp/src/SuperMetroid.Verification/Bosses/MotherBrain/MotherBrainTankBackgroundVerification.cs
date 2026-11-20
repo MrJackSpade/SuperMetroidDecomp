@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -49,7 +50,7 @@ internal static class MotherBrainTankBackgroundVerification
         AssertTrue((artwork.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires Mother Brain's body BG2 frames.")).TryGet(0xa252, out var writes),
             "Crouched body BG2 artwork is installed");
         SuperMetroid.Core.PrivateState.Set(state.Body.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);
-        runtime.Enemies.AnimationPlayer.DrawBossBodyFrame(state.Body, EnemyFrameId.MotherBrainBodyCrouched);
+        runtime.Enemies.AnimationPlayer.DrawBossBodyFrame(state.Body, state.Body.HeldOccupant(), EnemyFrameId.MotherBrainBodyCrouched);
         var expectedImage = Enumerable.Repeat((ushort)0x0338, EnemyBg2FrameLayout.TilemapCellCount).ToArray();
         foreach (var write in writes.Span)
             write.Words.CopyTo(expectedImage.AsSpan(write.FirstCell));
@@ -60,7 +61,7 @@ internal static class MotherBrainTankBackgroundVerification
         return 0;
         bool RoomShowsPipeBackground() => runtime.Room.Scope is { BackgroundImage: RoomLibraryBackgroundPicture.Drawn { Image: { } shown } } scope
             && scope.Room.State.Background == LibraryBackgroundProgramDefinitions.Get(0xe48a).Background
-            && shown.Image.Name == RoomBackgroundImage.NameOf(LibraryBackgroundProgramDefinitions.Get(0xe48a).Background, null, scope.Assets.Tileset);
+            && shown.Image.Name == RoomBackgroundImage.NameOf(LibraryBackgroundProgramDefinitions.Get(0xe48a).Background, LibraryBackgroundPicture.Ordinary, scope.Assets.Tileset);
     }
 
     /// <summary>Runs the ascent mask capture using the initialized Mother Brain room.</summary>

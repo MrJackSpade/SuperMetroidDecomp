@@ -10,5 +10,5 @@ internal static class EnemyDeathsAndDropsConstants
     /// <param name="projectile">The pickup.</param>
     /// <param name="kind">What the pickup restores.</param>
     internal static void BeginEnemyPickup(EnemyDeathsAndDrops drops, EnemyProjectile projectile, EnemyPickupKind kind) =>
-        projectile.StartAnimation(new EnemyDeathAndDropAnimation(drops, drops.ConfigurePickup(projectile, kind, KilledEnemy.None)));
+        projectile.StartAnimation(new EnemyDeathAndDropAnimation(drops, drops.ConfigurePickup(projectile, kind)));
 }

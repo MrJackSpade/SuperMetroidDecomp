@@ -20,14 +20,14 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// states once Phantoon is defeated, so it always has power (#2455).
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no work robot definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.WorkRobot)
-            return EnemyOccupant.Of(new PoweredWorkRobotEntity(this, place, common));
+            return EnemyOccupant.Of(new PoweredWorkRobotEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
-            return EnemyOccupant.Of(new UnpoweredWorkRobotEntity(this, place, common));
-        throw new InvalidOperationException($"The work robot species creates no {place.DefinitionId}.");
+            return EnemyOccupant.Of(new UnpoweredWorkRobotEntity(this, occupant, place, common));
+        throw new InvalidOperationException($"The work robot species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Samples the room random number for laser timing.</summary>
@@ -103,11 +103,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     }
 
     /// <summary>Initializes an unpowered robot.</summary>
-    internal void InitializeUnpoweredWorkRobot(RoomEnemyPlace place)
+    internal void InitializeUnpoweredWorkRobot(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         // The placement names the unpowered pose the robot holds.
         var state = new UnpoweredWorkRobotEnemyState(
-            new(WorkRobotAnimations.StartingWith(place.SpawnSettings<WorkRobotSpawnSettings>().Pose), AnimationPlace.StartOfAnimation));
+            new(WorkRobotAnimations.StartingWith(occupant.SpawnSettings<WorkRobotSpawnSettings>().Pose), AnimationPlace.StartOfAnimation));
         place.SetSpeciesState(state);
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.AnimationClock.Restart();
@@ -352,17 +352,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
         WorkRobotLaser laser,
         Position16<RoomPixels> camera)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(laser.ProjectileKind(), Laser, SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
 
         // The laser takes its kind's radii, damage and contact (the diagonal and horizontal lasers differ), and draws
         // from the room's shared sheet in its standard colours.
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            laser.ProjectileKind(),
-            Laser,
-            SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare));
         projectile.Velocity = projectile.Velocity.WithX(WorkRobotLaserDefinitions.Speed.Toward(state.Facing));
         projectile.Velocity = projectile.Velocity.WithY(laser switch

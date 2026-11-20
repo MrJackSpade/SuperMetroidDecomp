@@ -82,11 +82,11 @@ internal static class KraidSinkScheduleVerification
             int code = 0xa70000 | entry.Value;
             bool empty = KraidSinkRockPlacementRomByte(rom, code) == 0x60;
             AssertEqual(empty ? 0 : 1, enemies.LastEnemyFrame.All<KraidRoomChange>().Count(), "Sinking callback mutation count");
-            AssertEqual(empty ? 0 : 1, enemies.Projectiles.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None),
+            AssertEqual(empty ? 0 : 1, enemies.Projectiles.EnemyProjectiles.Count(),
                 "Sinking callback rock count");
             if (empty) continue;
             ushort expectedX = LittleEndianBytes.Word(KraidSinkRockPlacementRomByte(rom, code + 1), KraidSinkRockPlacementRomByte(rom, code + 2));
-            AssertEqual(expectedX, enemies.Projectiles.ProjectileInPlace(17).Position.X.Whole, "Production sinking rock matches native immediate");
+            AssertEqual(expectedX, enemies.Projectiles.SpawnedInPlace(17).Position.X.Whole, "Production sinking rock matches native immediate");
         }
     }
 
@@ -127,7 +127,7 @@ internal static class KraidSinkScheduleVerification
             step(body);
             bool crumble = expected.HasValue && KraidNativeListAddresses.NativeSinkCallbacks[callback] is not null;
             AssertEqual(crumble ? 1 : 0, enemies.LastEnemyFrame.All<KraidRoomChange>().Count(), "Only native crumble callbacks mutate platforms");
-            AssertEqual(crumble ? 1 : 0, enemies.Projectiles.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None), "Exact native rock count");
+            AssertEqual(crumble ? 1 : 0, enemies.Projectiles.EnemyProjectiles.Count(), "Exact native rock count");
             if (!crumble) continue;
             int code = 0xa70000 | callback;
             AssertEqual(new Position16<RoomBlocks>(KraidSinkScheduleRomByte(rom, code + 17), KraidSinkScheduleRomByte(rom, code + 18)), enemies.LastEnemyFrame.All<KraidRoomChange>().First().Request.Block, "Native callback inline PLM block");

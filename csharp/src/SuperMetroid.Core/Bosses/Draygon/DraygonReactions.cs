@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonReactions
 {
     /// <summary>Draygon's touch reaction.</summary>
-    internal static EnemyReaction Touch { get; } = EnemyReaction.OfSpecies("Draygon.Touch");
+    internal static EnemyReaction Touch => SpeciesOwnReactions.DraygonTouch;
 
     /// <summary>Draygon's shot reaction.</summary>
-    internal static EnemyReaction Shot { get; } = EnemyReaction.OfSpecies("Draygon.Shot");
+    internal static EnemyReaction Shot => SpeciesOwnReactions.DraygonShot;
 }

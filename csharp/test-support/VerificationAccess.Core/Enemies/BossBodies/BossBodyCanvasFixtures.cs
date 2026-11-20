@@ -44,7 +44,7 @@ internal static class BossBodyCanvasFixtures
             return;
         foreach ((BossBodyOwner owner, ImmutableArray<EnemyDefinitionId> parts) in BossBodyPartDefinitions.DrawOrders)
         {
-            if (parts.Contains(part.DefinitionId))
+            if (parts.Any(part.Holds))
             {
                 enemies.Presentation.AttachBossBody(new BossBodyParts(owner));
                 return;

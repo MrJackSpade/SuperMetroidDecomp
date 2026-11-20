@@ -25,7 +25,7 @@ public static class GoldenTorizoHealthBandDefinitions
     private static GoldenTorizoHealthBand GravelyWounded { get; } = new(2048, "gravely-wounded");
 
     /// <summary>Golden Torizo in his lowest band, his most hurt colours.</summary>
-    public static GoldenTorizoHealthBand NearlyDead { get; } = new(null, "nearly-dead");
+    public static GoldenTorizoHealthBand NearlyDead { get; } = new(0, "nearly-dead");
 
     /// <summary>The bands, highest first: the order his health is tested against them.</summary>
     public static IReadOnlyList<GoldenTorizoHealthBand> HighestFirst { get; } =

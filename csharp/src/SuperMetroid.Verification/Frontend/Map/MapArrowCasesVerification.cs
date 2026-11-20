@@ -25,7 +25,7 @@ internal static class MapArrowCasesVerification
         Suite(nameof(VerifyMapArrowShapeCases), () => VerifyMapArrowShapeCases(rom));
         var document = RequiredJson.Deserialize<MapArrowDocument>(bytes,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        foreach (int invalid in new[] { int.MinValue, -1, 0, 5, 256, int.MaxValue })
+        foreach (int invalid in new[] { int.MinValue, -1, 4, 256, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => original.Get((MapScrollDirection)invalid), "invalid arrow direction");
         foreach (string name in document.Arrows.Keys)
         {
@@ -45,7 +45,7 @@ internal static class MapArrowCasesVerification
     {
         for (int index = 0; index < 4; index++)
             AssertEqual(ReadVerificationWord(rom, 0x81af32 + 10 * index),
-                presentation.Get((MapScrollDirection)(index + 1)).Position.X, "original arrow X selected by direction");
+                presentation.Get((MapScrollDirection)index).Position.X, "original arrow X selected by direction");
     }
 
     /// <summary>Compares arrow Y positions after the native one-pixel OAM bias.</summary>
@@ -53,7 +53,7 @@ internal static class MapArrowCasesVerification
     {
         for (int index = 0; index < 4; index++)
             AssertEqual((ushort)(ReadVerificationWord(rom, 0x81af34 + 10 * index) - 1),
-                presentation.Get((MapScrollDirection)(index + 1)).Position.Y, "original arrow Y selected by direction with native OAM bias");
+                presentation.Get((MapScrollDirection)index).Position.Y, "original arrow Y selected by direction with native OAM bias");
     }
 
     /// <summary>Checks each direction's sprite base through the native animation and variant tables.</summary>
@@ -64,9 +64,9 @@ internal static class MapArrowCasesVerification
             int animation = ReadVerificationWord(rom, 0x81af36 + 10 * index);
             int variants = ReadVerificationWord(rom, 0x82c1e4 + 2 * (animation - 1));
             AssertEqual(ReadVerificationWord(rom, 0x820000 | variants),
-                MapSpriteOrdinals.Spritemaps.Word(Ensure.Listed(MapArrowDefinitions.ArrowPictures, (MapScrollDirection)(index + 1))), "original direction shape selector");
+                MapSpriteOrdinals.Spritemaps.Word(Ensure.Listed(MapArrowDefinitions.ArrowPictures, (MapScrollDirection)index)), "original direction shape selector");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 0, 5, 256, int.MaxValue })
+        foreach (int invalid in new[] { int.MinValue, -1, 4, 256, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => Ensure.Listed(MapArrowDefinitions.ArrowPictures, (MapScrollDirection)invalid),
                 "unsupported arrow shape direction");
     }

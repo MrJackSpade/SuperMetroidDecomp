@@ -49,7 +49,7 @@ public static class SamusArmCannonArtworkFiles
                 // The closed frame uploads nothing; each opening frame names one installed cover tile.
                 if (sources[0] != 0)
                     throw new InvalidDataException($"Arm-cannon direction {direction} uploads a closed-cover tile.");
-                return sources[1..].Select(source => ArmCannonTileSources.CoverTileDmaSources.IndexOf(source) is int tile and >= 0
+                return sources[1..].Select(source => ArmCannonTileSources.CoverTileDmaSources.IndexOf(source) is int tile
                     ? tile
                     : throw new InvalidDataException($"Arm-cannon direction {direction} names cover source ${source:X4}, which is no installed tile.")).ToArray();
             }).ToArray();

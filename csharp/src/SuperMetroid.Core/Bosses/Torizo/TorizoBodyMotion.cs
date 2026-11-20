@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal enum TorizoBodyMotion
 {
+    /// <summary>Holds still: the body does not move itself, as the StopMoving cue and its setup leave it.</summary>
+    HoldingStill,
+
     /// <summary>
     /// Walks on: once its turn timer runs out the Torizo turns toward Samus, and while the ground under it has given way
     /// it starts to fall.

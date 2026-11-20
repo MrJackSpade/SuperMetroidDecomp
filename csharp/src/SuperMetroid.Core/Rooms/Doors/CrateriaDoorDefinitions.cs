@@ -5,13 +5,13 @@ public static class CrateriaDoorDefinitions
 {
 
     /// <summary>The door into the Landing Site room that the landing cutscene uses.</summary>
-    public static DoorDefinition LandingSiteLandingCutscene { get; } = new("LandingSiteLandingCutscene", RoomDefinitions.LandingSite, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(4, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition LandingSiteLandingCutscene { get; } = new("LandingSiteLandingCutscene", RoomDefinitions.LandingSite, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(4, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Landing Site room to the Parlor room.</summary>
     public static DoorDefinition LandingSiteToParlor { get; } = new("LandingSiteToParlor", RoomDefinitions.Parlor, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(78, 6), new(4, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Landing Site room to the Crateria Tube room.</summary>
-    public static DoorDefinition LandingSiteToCrateriaTube { get; } = new("LandingSiteToCrateriaTube", RoomDefinitions.CrateriaTube, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition LandingSiteToCrateriaTube { get; } = new("LandingSiteToCrateriaTube", RoomDefinitions.CrateriaTube, new(DoorDirection.Right, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Landing Site room to the Gauntlet Entrance room.</summary>
     public static DoorDefinition LandingSiteToGauntletEntrance { get; } = new("LandingSiteToGauntletEntrance", RoomDefinitions.GauntletEntrance, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(78, 6), new(4, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -77,7 +77,7 @@ public static class CrateriaDoorDefinitions
     public static DoorDefinition BowlingAlleyPathToPreBowling { get; } = new("BowlingAlleyPathToPreBowling", RoomDefinitions.PreBowling, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Crateria Kihunter room to the Crateria Tube room.</summary>
-    public static DoorDefinition CrateriaKihunterToCrateriaTube { get; } = new("CrateriaKihunterToCrateriaTube", RoomDefinitions.CrateriaTube, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition CrateriaKihunterToCrateriaTube { get; } = new("CrateriaKihunterToCrateriaTube", RoomDefinitions.CrateriaTube, new(DoorDirection.Left, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Crateria Kihunter room to the Moat room.</summary>
     public static DoorDefinition CrateriaKihunterToMoat { get; } = new("CrateriaKihunterToMoat", RoomDefinitions.Moat, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -89,7 +89,7 @@ public static class CrateriaDoorDefinitions
     public static DoorDefinition ForgottenHighwayElevatorToForgottenHighwayElbow { get; } = new("ForgottenHighwayElevatorToForgottenHighwayElbow", RoomDefinitions.ForgottenHighwayElbow, new(DoorDirection.Up, DoorClosingBehavior.BlueDoorCloses), new(6, 13), new(0, 0), DoorSamusSpeed.PixelsPerStep(1, 3, 4), DoorSetupDefinitions.None);
 
     /// <summary>The door from the Forgotten Highway Elevator room to the Maridia Elevator room.</summary>
-    public static DoorDefinition ForgottenHighwayElevatorToMaridiaElevator { get; } = new("ForgottenHighwayElevatorToMaridiaElevator", RoomDefinitions.MaridiaElevator, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition ForgottenHighwayElevatorToMaridiaElevator { get; } = new("ForgottenHighwayElevatorToMaridiaElevator", RoomDefinitions.MaridiaElevator, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
 
     /// <summary>The door from the East Ocean room to the Electric Death room.</summary>
     public static DoorDefinition EastOceanToElectricDeath { get; } = new("EastOceanToElectricDeath", RoomDefinitions.ElectricDeath, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -131,7 +131,7 @@ public static class CrateriaDoorDefinitions
     public static DoorDefinition RedBrinstarElevatorToCrateriaKihunter { get; } = new("RedBrinstarElevatorToCrateriaKihunter", RoomDefinitions.CrateriaKihunter, new(DoorDirection.Up, DoorClosingBehavior.BlueDoorCloses), new(22, 45), new(1, 2), DoorSamusSpeed.PixelsPerStep(1, 3, 4), DoorSetupDefinitions.CrateriaKihunterOpensScreens1x0And1x1);
 
     /// <summary>The door from the Red Brinstar Elevator room to the Caterpillar room.</summary>
-    public static DoorDefinition RedBrinstarElevatorToCaterpillar { get; } = new("RedBrinstarElevatorToCaterpillar", RoomDefinitions.Caterpillar, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.CaterpillarOpensScreen0x2);
+    public static DoorDefinition RedBrinstarElevatorToCaterpillar { get; } = new("RedBrinstarElevatorToCaterpillar", RoomDefinitions.Caterpillar, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.CaterpillarOpensScreen0x2);
 
     /// <summary>The door from the Gauntlet Energy Tank room to the Gauntlet Entrance room.</summary>
     public static DoorDefinition GauntletEnergyTankToGauntletEntrance { get; } = new("GauntletEnergyTankToGauntletEntrance", RoomDefinitions.GauntletEntrance, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -170,7 +170,7 @@ public static class CrateriaDoorDefinitions
     public static DoorDefinition ElevatorToBlueBrinstarToPit { get; } = new("ElevatorToBlueBrinstarToPit", RoomDefinitions.Pit, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(46, 6), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Elevator To Blue Brinstar room to the Morph Ball room.</summary>
-    public static DoorDefinition ElevatorToBlueBrinstarToMorphBall { get; } = new("ElevatorToBlueBrinstarToMorphBall", RoomDefinitions.MorphBall, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(5, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition ElevatorToBlueBrinstarToMorphBall { get; } = new("ElevatorToBlueBrinstarToMorphBall", RoomDefinitions.MorphBall, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(5, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Bomb Torizo room to the Flyway room.</summary>
     public static DoorDefinition BombTorizoToFlyway { get; } = new("BombTorizoToFlyway", RoomDefinitions.Flyway, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(46, 6), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -197,7 +197,7 @@ public static class CrateriaDoorDefinitions
     public static DoorDefinition GreenBrinstarElevatorToLowerMushrooms { get; } = new("GreenBrinstarElevatorToLowerMushrooms", RoomDefinitions.LowerMushrooms, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Green Brinstar Elevator room to the Green Brinstar Main Shaft room.</summary>
-    public static DoorDefinition GreenBrinstarElevatorToGreenBrinstarMainShaft { get; } = new("GreenBrinstarElevatorToGreenBrinstarMainShaft", RoomDefinitions.GreenBrinstarMainShaft, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.GreenBrinstarMainShaftOpensScreen1x7TopAligned);
+    public static DoorDefinition GreenBrinstarElevatorToGreenBrinstarMainShaft { get; } = new("GreenBrinstarElevatorToGreenBrinstarMainShaft", RoomDefinitions.GreenBrinstarMainShaft, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.GreenBrinstarMainShaftOpensScreen1x7TopAligned);
 
     /// <summary>The door from the Lower Mushrooms room to the Green Pirates Shaft room.</summary>
     public static DoorDefinition LowerMushroomsToGreenPiratesShaft { get; } = new("LowerMushroomsToGreenPiratesShaft", RoomDefinitions.GreenPiratesShaft, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 102), new(0, 6), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -245,5 +245,5 @@ public static class CrateriaDoorDefinitions
     public static DoorDefinition StatuesToStatuesHallway { get; } = new("StatuesToStatuesHallway", RoomDefinitions.StatuesHallway, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(78, 6), new(4, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Statues room to the Tourian First room.</summary>
-    public static DoorDefinition StatuesToTourianFirst { get; } = new("StatuesToTourianFirst", RoomDefinitions.TourianFirst, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition StatuesToTourianFirst { get; } = new("StatuesToTourianFirst", RoomDefinitions.TourianFirst, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
 }

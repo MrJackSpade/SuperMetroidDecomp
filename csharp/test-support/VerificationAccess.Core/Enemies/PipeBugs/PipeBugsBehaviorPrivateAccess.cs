@@ -12,8 +12,8 @@ internal static class PipeBugsBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.PipeBugs.PipeBugsBehavior self)
     {
         /// <summary>The private method <c>RunNorfairPipeBugSamusWait</c>, invoked by name.</summary>
-        internal void RunNorfairPipeBugSamusWait(global::SuperMetroid.Core.Enemies.RoomEnemyPlace leader, global::SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugState leaderState, global::SuperMetroid.Core.Samus.SamusState samus) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.PipeBugs.PipeBugsBehavior>(self, "RunNorfairPipeBugSamusWait", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { leader, leaderState, samus });
+        internal void RunNorfairPipeBugSamusWait(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace leader, global::SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugState leaderState, global::SuperMetroid.Core.Samus.SamusState samus) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.PipeBugs.PipeBugsBehavior>(self, "RunNorfairPipeBugSamusWait", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { occupant, leader, leaderState, samus });
     }
 
     /// <summary>The private static members checks name.</summary>

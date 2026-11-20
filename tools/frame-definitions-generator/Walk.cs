@@ -140,13 +140,13 @@ internal sealed class Walk
     /// EnemyFrameId members that draw nothing and are on no sheet: the empty frame, which the Norfair lava jumper's
     /// follower shows since #1823.
     /// </summary>
-    public static readonly string[] ExcludedEnemyFrames = ["Empty"];
+    public static readonly string[] ExcludedEnemyFrames = ["PointAtOrigin"];
 
     /// <summary>
     /// EnemyProjectileFrameId members that draw nothing and are on no sheet: the blank frame, which every beat that shows no
     /// picture shows (#2431).
     /// </summary>
-    public static readonly string[] ExcludedProjectileFrames = ["Blank"];
+    public static readonly string[] ExcludedProjectileFrames = [];
 
     /// <summary>
     /// RoomEffectActorKind members that are Samus's weapon effects and on no enemy sheet (#1713): the burst her hit shows

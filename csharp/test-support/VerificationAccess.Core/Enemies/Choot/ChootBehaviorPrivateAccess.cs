@@ -16,11 +16,11 @@ internal static class ChootBehaviorPrivateAccess
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Choot.ChootBehavior), "PrepareChootJump", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Choot.ChootEnemyState)], new object?[] { place, state });
 
         /// <summary>The private method <c>RunChootFall</c>, invoked by name.</summary>
-        internal static void RunChootFall(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Choot.ChootEnemyState state) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Choot.ChootBehavior), "RunChootFall", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Choot.ChootEnemyState)], new object?[] { place, state });
+        internal static void RunChootFall(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Choot.ChootEnemyState state) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Choot.ChootBehavior), "RunChootFall", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Choot.ChootEnemyState)], new object?[] { occupant, place, state });
 
         /// <summary>The private method <c>RunChootJump</c>, invoked by name.</summary>
-        internal static void RunChootJump(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Choot.ChootEnemyState state) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Choot.ChootBehavior), "RunChootJump", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Choot.ChootEnemyState)], new object?[] { place, state });
+        internal static void RunChootJump(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Choot.ChootEnemyState state) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Choot.ChootBehavior), "RunChootJump", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Choot.ChootEnemyState)], new object?[] { occupant, place, state });
     }
 }

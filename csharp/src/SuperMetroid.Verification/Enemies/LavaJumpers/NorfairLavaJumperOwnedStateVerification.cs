@@ -22,12 +22,12 @@ internal static class NorfairLavaJumperOwnedStateVerification
         enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        parent.Bind(EnemyDefinitionId.Squeept, parent.Definition);
+        parent.Bind(EnemyDefinitionId.Squeept, parent.KeptDefinition);
         parent.Health = 10;
         SqueeptBehavior.InitializeSqueept(parent);
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, EnemyParameterMasks.FollowerBit);
-        follower.Bind(EnemyDefinitionId.Squeept, follower.Definition);
+        follower.Bind(EnemyDefinitionId.Squeept, follower.KeptDefinition);
         enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower);
         SqueeptState parentState = enemies.SqueeptStates[0] ?? throw new InvalidOperationException("The parent has no state.");
         AssertTrue(enemies.NorfairLavaJumperFollowerStates[0] is null && enemies.NorfairLavaJumperFollowerStates[1] is not null,

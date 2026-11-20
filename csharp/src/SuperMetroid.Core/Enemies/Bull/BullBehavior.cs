@@ -11,7 +11,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Bull];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BullEntity(this, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BullEntity(this, occupant, place, common));
 
     /// <summary>Hands each new Bull the previous Bull in its place, whose shot-reaction guard it inherits.</summary>
     private readonly PlaceInheritance<BullEnemyState> _inheritance;
@@ -21,20 +21,20 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     internal BullBehavior(PlaceInheritance<BullEnemyState> inheritance) => _inheritance = inheritance;
 
     /// <summary>Initializes the Bull.</summary>
-    internal void InitializeBull(RoomEnemyPlace place)
+    internal void InitializeBull(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         BullEnemyState state = _inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous, BullAction.MovementDelay));
         place.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(place, BullAnimations.StartingWith(BullSegment.Idle));
 
-        BullSpawnSettings settings = place.SpawnSettings<BullSpawnSettings>();
+        BullSpawnSettings settings = occupant.SpawnSettings<BullSpawnSettings>();
         state.AccelerationIntervalTimer = UpdateCountdown.For(settings.Intervals.Acceleration);
         state.ActivationTimer = UpdateCountdown.For(BullMovementDefinitions.MovementDelay);
     }
 
     /// <summary>Runs a Bull for one update through all four of its actions.</summary>
-    internal static void RunBullMain(RoomEnemyPlace place, BullEnemyState state, SamusState samus)
+    internal static void RunBullMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, BullEnemyState state, SamusState samus)
     {
         // A kick's guard runs out on the update its countdown reaches zero.
         state.ShotReactionDisableTimer.Step();
@@ -57,8 +57,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BullAction.Accelerating:
-                if (state.IsBelow(place.SpawnSettings<BullSpawnSettings>().MaximumSpeed))
-                    AccelerateBull(place, state);
+                if (state.IsBelow(occupant.SpawnSettings<BullSpawnSettings>().MaximumSpeed))
+                    AccelerateBull(occupant, state);
                 MoveBull(place, state);
                 TriggerBullDecelerationIfOffTarget(place, state, samus);
                 return;
@@ -73,7 +73,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
                 MoveBull(place, state);
-                DecelerateBull(place, state);
+                DecelerateBull(occupant, state);
                 return;
 
             default:
@@ -94,22 +94,22 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole)))).ToAngle();
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
-    private static void AccelerateBull(RoomEnemyPlace place, BullEnemyState state)
+    private static void AccelerateBull(RoomEnemyOccupant occupant, BullEnemyState state)
     {
         if (!state.AccelerationIntervalTimer.StepEnds())
             return;
 
-        state.AccelerationIntervalTimer = UpdateCountdown.For(place.SpawnSettings<BullSpawnSettings>().Intervals.Acceleration);
+        state.AccelerationIntervalTimer = UpdateCountdown.For(occupant.SpawnSettings<BullSpawnSettings>().Intervals.Acceleration);
         state.Accelerate();
     }
 
     /// <summary>Reduces acceleration and speed on the configured deceleration cadence.</summary>
-    private static void DecelerateBull(RoomEnemyPlace place, BullEnemyState state)
+    private static void DecelerateBull(RoomEnemyOccupant occupant, BullEnemyState state)
     {
         if (!state.AccelerationIntervalTimer.StepEnds())
             return;
 
-        state.AccelerationIntervalTimer = UpdateCountdown.For(place.SpawnSettings<BullSpawnSettings>().Intervals.Deceleration);
+        state.AccelerationIntervalTimer = UpdateCountdown.For(occupant.SpawnSettings<BullSpawnSettings>().Intervals.Deceleration);
         state.Decelerate();
     }
 

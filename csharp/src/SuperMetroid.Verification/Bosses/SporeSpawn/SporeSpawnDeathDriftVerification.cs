@@ -31,14 +31,14 @@ internal static class SporeSpawnDeathDriftVerification
                 services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 1;
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
+            body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
             body.Position = body.Position.WithWhole(start);
             var state = new SporeSpawnEnemyState
             {
                 Movement = SporeSpawnMovement.SetupDeath,
                 MovementCenter = new(128, 624),
             };
-            state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body, segment))];
+            state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body.HeldOccupant(), body, segment))];
             body.SetSpeciesState(state);
 
             enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, state);

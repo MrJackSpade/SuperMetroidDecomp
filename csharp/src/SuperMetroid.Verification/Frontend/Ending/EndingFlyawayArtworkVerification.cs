@@ -72,12 +72,12 @@ internal static class EndingFlyawayArtworkVerification
             "floor-load fixture reaches the explosion's hold");
         for (int update = 0; update < EndingExplosionFadeDefinitions.HoldUpdates; update++)
         {
-            AssertEqual(EndingFloorShot.PlanetExplosion, EndingScreenFloor.ShotOf(restored.Phase),
+            AssertTrue(restored.Phase is IEndingFloorPhase { FloorShot: EndingFloorShot.PlanetExplosion },
                 $"the exploding planet's floor shows at hold update {update}");
             restored.Step();
             loadAudio.AdvanceFrame(default);
         }
-        AssertTrue(EndingScreenFloor.ShotOf(restored.Phase) == EndingFloorShot.Flyaway
+        AssertTrue(restored.Phase is IEndingFloorPhase { FloorShot: EndingFloorShot.Flyaway }
                 && restored.Phase == EndingCreditsPhase.ZebesExplosionAnimation,
             "the flyaway's floor is the one the phase shows as the hold ends and the finale begins");
         AssertEqual(0, loadGuard.ForbiddenReadAttempts,

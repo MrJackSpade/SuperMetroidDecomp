@@ -6,13 +6,15 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 internal enum EndingRewardJumpMotion
 {
+    /// <summary>Standing until the jump starts.</summary>
+    Standing,
 
     /// <summary>Rising on the jump until she passes above the screen.</summary>
-    Rising = 1,
+    Rising,
 
     /// <summary>Falling back until she lands.</summary>
-    Falling = 2,
+    Falling,
 
     /// <summary>Landed, where she stays and shoots.</summary>
-    Landed = 3,
+    Landed,
 }

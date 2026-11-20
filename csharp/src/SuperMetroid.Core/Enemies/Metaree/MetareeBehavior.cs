@@ -16,7 +16,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metaree];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MetareeEntity(this, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MetareeEntity(this, occupant, place, common));
 
     /// <summary>Creates the debris burst during burrow and death reactions.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -43,7 +43,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the idle, attack preparation, airborne dive or burrow phase with required Samus and room data.</summary>
     private void RunMetareeMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         MetareeEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -66,7 +66,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case MetareeAction.Burrowing:
-                RunMetareeBurrow(place, state);
+                RunMetareeBurrow(occupant, place, state);
                 return;
 
             default:
@@ -131,7 +131,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Moves down by <see cref="MetareeMotionDefinitions.BurrowSpeed"/> each burrow frame, emits debris at <see cref="MetareeMotionDefinitions.BurstCountdown"/>, then deletes the actor.</summary>
-    private void RunMetareeBurrow(RoomEnemyPlace place, MetareeEnemyState state)
+    private void RunMetareeBurrow(RoomEnemyOccupant occupant, RoomEnemyPlace place, MetareeEnemyState state)
     {
         if (state.BurrowTimer.StepEnds())
         {
@@ -140,7 +140,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         if (state.BurrowTimer.UpdatesLeft == MetareeMotionDefinitions.BurstCountdown)
-            SkreeMetareeParticles.SpawnBurst(_projectiles, place, SkreeMetareeParticleSegment.Metaree);
+            SkreeMetareeParticles.SpawnBurst(_projectiles, occupant, place, SkreeMetareeParticleSegment.Metaree);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + MetareeMotionDefinitions.BurrowSpeed);
     }
 
@@ -152,9 +152,9 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SkreeMetareeAnimations.StartingWith(animation));
 
     /// <summary>Runs Metaree's main AI.</summary>
-    internal void RunMetareeMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMetareeMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunMetareeMain(place, place.RequireSpeciesState<MetareeEnemyState>(), frame.Samus, frame.Level);
+        RunMetareeMain(occupant, place, place.RequireSpeciesState<MetareeEnemyState>(), frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Metaree's typed animation.</summary>
@@ -179,23 +179,25 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Spawns four metal debris actors in the dying Metaree's colours before common shot death clears them.</summary>
-    internal EnemyShotReaction MetareeShotReaction => field ??= new()
+    /// <param name="metaree">The Metaree the reaction is built for, whose sheet the objects it spawns draw from.</param>
+    internal EnemyShotReaction MetareeShotReaction(RoomEnemyOccupant metaree) => new()
     {
         BeforeGenericDeath = c =>
         {
-            SkreeMetareeParticles.SpawnBurst(_projectiles, c.Enemy, SkreeMetareeParticleSegment.Metaree);
+            SkreeMetareeParticles.SpawnBurst(_projectiles, metaree, c.Enemy, SkreeMetareeParticleSegment.Metaree);
             c.Enemy.Shading = PictureShading.Standard;
         },
     };
 
     /// <summary>After a lethal bomb, spawns the debris in the dying Metaree's colours, then shows the dead enemy, which keeps its place, in its standard shading.</summary>
-    internal EnemyBombReaction MetareeBombReaction => field ??= new()
+    /// <param name="metaree">The Metaree the reaction is built for, whose sheet the objects it spawns draw from.</param>
+    internal EnemyBombReaction MetareeBombReaction(RoomEnemyOccupant metaree) => new()
     {
         AfterCommon = c =>
         {
             if (c.Enemy.Health != 0)
                 return;
-            SkreeMetareeParticles.SpawnBurst(_projectiles, c.Enemy, SkreeMetareeParticleSegment.Metaree);
+            SkreeMetareeParticles.SpawnBurst(_projectiles, metaree, c.Enemy, SkreeMetareeParticleSegment.Metaree);
             c.Enemy.Shading = PictureShading.Standard;
         },
     };

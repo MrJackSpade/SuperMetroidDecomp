@@ -55,8 +55,8 @@ internal static class DachoraInstructionProgramDefinitionsVerification
                 animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program)
                 continue;
             (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(0);
-            place.Bind(EnemyDefinitionId.Dachora, place.Definition);
-            enemies.DachoraBehavior.InitializeDachora(place);
+            place.Bind(EnemyDefinitionId.Dachora, place.KeptDefinition);
+            enemies.DachoraBehavior.InitializeDachora(place.HeldOccupant(), place);
             DachoraEnemyState state = enemies.Places.InUpdateOrder[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             state.Playback = new(DachoraAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
@@ -72,8 +72,8 @@ internal static class DachoraInstructionProgramDefinitionsVerification
                  })
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(0);
-            place.Bind(EnemyDefinitionId.Dachora, place.Definition);
-            enemies.DachoraBehavior.InitializeDachora(place);
+            place.Bind(EnemyDefinitionId.Dachora, place.KeptDefinition);
+            enemies.DachoraBehavior.InitializeDachora(place.HeldOccupant(), place);
             DachoraEnemyState state = enemies.Places.InUpdateOrder[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(16, 16));
             // One $1000 subspeed step from just below each threshold lands exactly on whole speeds four and eight.
@@ -101,8 +101,8 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.SetSpawnParameter1(EnemyDefinitionId.Dachora, parameter);
-        place.Bind(EnemyDefinitionId.Dachora, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Dachora, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, place);
     }
 

@@ -10,19 +10,27 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed class KraidPartReference(string name)
 {
     /// <summary>The enemy that joined as the part, or none before it initialized.</summary>
-    private RoomEnemyPlace? _joined;
+    private PopulatedEnemyPlace? _joined;
 
     /// <summary>Joins <paramref name="place"/> as the part, as it initializes.</summary>
     /// <exception cref="InvalidDataException">Another enemy already initialized as the part.</exception>
-    internal void Join(RoomEnemyPlace place)
+    internal void Join(RoomEnemyOccupant occupant)
     {
-        Ensure.NotNull(place);
-        if (_joined is { } held && !ReferenceEquals(held, place))
-            throw new InvalidDataException($"Kraid's {name} initialized as enemy {place.Ordinal}, but enemy {held.Ordinal} already is.");
-        _joined = place;
+        RoomEnemyPlace place = Ensure.NotNull(occupant).Place;
+        if (_joined is { } held && !ReferenceEquals(held.Place, place))
+            throw new InvalidDataException($"Kraid's {name} initialized as enemy {place.Ordinal}, but enemy {held.Place.Ordinal} already is.");
+        _joined = occupant.History;
     }
 
     /// <summary>The enemy that joined as the part.</summary>
     /// <exception cref="InvalidOperationException">The part has not initialized.</exception>
-    internal RoomEnemyPlace Place => _joined ?? throw new InvalidOperationException($"Kraid's {name} is reached before it initialized.");
+    internal RoomEnemyPlace Place => Joined.Place;
+
+    /// <summary>The part last spawned in the place, which a death of Kraid kills whether it holds the place or has left it.</summary>
+    /// <exception cref="InvalidOperationException">The part has not initialized.</exception>
+    internal RoomEnemyOccupant LatestOccupant => Joined.LatestOccupant;
+
+    /// <summary>The history of the part's place, from the part's initialization on.</summary>
+    /// <exception cref="InvalidOperationException">The part has not initialized.</exception>
+    private PopulatedEnemyPlace Joined => _joined ?? throw new InvalidOperationException($"Kraid's {name} is reached before it initialized.");
 }

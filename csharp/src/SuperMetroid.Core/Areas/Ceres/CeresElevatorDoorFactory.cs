@@ -25,6 +25,6 @@ internal sealed class CeresElevatorDoorFactory(CeresDoorBehavior doors, RoomFloo
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresElevatorDoor];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        EnemyOccupant.Of(new CeresElevatorDoorEntity(_doors, Ensure.NotNull(place), common, _floor));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Of(new CeresElevatorDoorEntity(_doors, occupant, Ensure.NotNull(place), common, _floor));
 }

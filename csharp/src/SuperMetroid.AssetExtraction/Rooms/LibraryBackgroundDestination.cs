@@ -6,9 +6,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 public enum LibraryBackgroundDestination
 {
-    /// <summary>Nowhere: a clear command's pages are fixed by the command.</summary>
-    None,
-
     /// <summary>The tilemap staging a decompression fills, which later transfers read.</summary>
     TilemapStaging,
 

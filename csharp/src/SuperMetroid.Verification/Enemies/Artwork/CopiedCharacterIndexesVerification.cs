@@ -43,7 +43,7 @@ internal static class CopiedCharacterIndexesVerification
             runtime.LoadCartridgeRoomForDebug(room, state: state);
             // Some copy on their first main-AI frame, which runs before the room's enemies first draw.
             runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = default, TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus });
-            RoomEnemyPlace[] placed = [.. runtime.Enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == child)];
+            RoomEnemyPlace[] placed = [.. runtime.Enemies.Places.InUpdateOrder.Where(place => place.Occupant?.DefinitionId == child)];
             AssertTrue(placed.Length > 0, $"{room.Name} places {child}");
             foreach (RoomEnemyPlace place in placed)
             {

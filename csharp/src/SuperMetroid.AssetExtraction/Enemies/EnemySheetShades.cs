@@ -43,6 +43,12 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal sealed class EnemySheetShades
 {
+    /// <summary>
+    /// The palette row an enemy sheet draws a part in when neither the part nor its frame's draw chooses one: every
+    /// enemy sheet is laid in the first row, with its family's palette bits ORed in.
+    /// </summary>
+    internal const int SheetRow = 0;
+
     /// <summary>Each catalogued frame colouring by the sheet frame name its frame takes.</summary>
     private static readonly Lazy<Dictionary<string, FrameColouring>> FrameColourings = new(() => new Dictionary<string, FrameColouring>(
         FrameColouringDefinitions.Projectiles.Select(entry => KeyValuePair.Create(EnemySheetDefinitions.ProjectileFrameName(entry.Key), entry.Value))
@@ -179,7 +185,7 @@ internal sealed class EnemySheetShades
         var recolouredBy = new Dictionary<int, string>();
         foreach (FramePictures pictures in frames)
         {
-            HashSet<int> rows = [.. pictures.Sources.SelectMany(source => source.Frame.Parts.Select(part => (part.Palette ?? source.Palette ?? 0) | paletteBits))];
+            HashSet<int> rows = [.. pictures.Sources.SelectMany(source => source.Frame.Parts.Select(part => (part.Palette ?? source.Palette ?? SheetRow) | paletteBits))];
             if (FrameColourings.Value.TryGetValue(pictures.Name, out FrameColouring? colouring))
                 Lay([.. colouring.Shades.Select(name => EffectOf(colouring.Owner, name))], rows, $"frame {pictures.Name}'s family colouring");
             else if (CommonFrameColourings.Value.TryGetValue(pictures.Name, out CommonSpawnerShades common))
@@ -388,7 +394,7 @@ internal sealed class EnemySheetShades
                 }
                 break;
             }
-            case EnemyDefinitionId.None or EnemyDefinitionId.Boyon or EnemyDefinitionId.MamaTurtle
+            case EnemyDefinitionId.Boyon or EnemyDefinitionId.MamaTurtle
                 or EnemyDefinitionId.BabyTurtle or EnemyDefinitionId.Puyo or EnemyDefinitionId.Cacatac or EnemyDefinitionId.Owtch
                 or EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella
                 or EnemyDefinitionId.MaridiaFly or EnemyDefinitionId.Multiviola or EnemyDefinitionId.Polyp or EnemyDefinitionId.Rinka

@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal static class SporeSpawnReactions
 {
     /// <summary>Spore Spawn's touch reaction.</summary>
-    internal static EnemyReaction Touch { get; } = EnemyReaction.OfSpecies("SporeSpawn.Touch");
+    internal static EnemyReaction Touch => SpeciesOwnReactions.SporeSpawnTouch;
 
     /// <summary>Spore Spawn's shot reaction.</summary>
-    internal static EnemyReaction Shot { get; } = EnemyReaction.OfSpecies("SporeSpawn.Shot");
+    internal static EnemyReaction Shot => SpeciesOwnReactions.SporeSpawnShot;
 }

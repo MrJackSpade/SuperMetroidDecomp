@@ -28,13 +28,12 @@ internal static class MotherBrainRingBabyHealthVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
-        BabyMetroidCutsceneState babyMetroid = lateFight.Baby;
-        RoomEnemyPlace babyPlace = babyMetroid.Place ?? throw new InvalidOperationException("Verification requires the Baby's place.");
+        BabyMetroidCutsceneState babyMetroid = lateFight.Baby ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
+        RoomEnemyPlace babyPlace = babyMetroid.Place;
         AssertEqual(0x0c80, babyPlace.Health, "the Baby spawns with 3200 health");
 
         // The movie's hit: the ring reaches ($AE,$8C), exactly $24 above the Baby at ($CE,$B0).
-        EnemyProjectile ring = runtime.Enemies.Projectiles.ProjectileInPlace(16);
-        global::SuperMetroid.Core.PrivateState.Set(ring, "Kind", RoomEnemyProjectileKind.MotherBrainOnionRing);
+        EnemyProjectile ring = runtime.Enemies.Projectiles.Occupy(16, RoomEnemyProjectileKind.MotherBrainOnionRing);
         ring.Position = ring.Position.WithWhole(new(0x00ae, 0x008c));
         ring.Radius = new(1, 1);
         ring.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));

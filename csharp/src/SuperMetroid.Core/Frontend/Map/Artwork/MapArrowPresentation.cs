@@ -16,7 +16,6 @@ public sealed class MapArrowPresentation
         MapScrollDirection.Right => right,
         MapScrollDirection.Up => up,
         MapScrollDirection.Down => down,
-        MapScrollDirection.None => throw new ArgumentOutOfRangeException(nameof(direction)),
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
 }

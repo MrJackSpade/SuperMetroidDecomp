@@ -27,9 +27,9 @@ internal static class SamusBombProjectileSystemPrivateAccess
         internal static bool BombSpreadCollides(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level, global::SuperMetroid.Core.Samus.Projectiles.SamusBomb bomb) =>
             PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), "BombSpreadCollides", [typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBomb)], new object?[] { level, bomb });
 
-        /// <summary>The private method <c>InitializeBomb</c>, invoked by name.</summary>
-        internal static void InitializeBomb(global::SuperMetroid.Core.Samus.Projectiles.SamusBomb bomb) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), "InitializeBomb", [typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBomb)], new object?[] { bomb });
+        /// <summary>The private method <c>Place</c>, invoked by name.</summary>
+        internal static global::SuperMetroid.Core.Samus.Projectiles.SamusBombOccupant Place(global::SuperMetroid.Core.Samus.Projectiles.SamusBomb bomb, global::SuperMetroid.Core.Progression.SamusProjectileType type) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.Samus.Projectiles.SamusBombOccupant>(typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), "Place", [typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBomb), typeof(global::SuperMetroid.Core.Progression.SamusProjectileType)], new object?[] { bomb, type });
 
         /// <summary>The private method <c>PowerBombBoundaryBlocks</c>, invoked by name.</summary>
         internal static global::System.Collections.Generic.List<global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>> PowerBombBoundaryBlocks(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> explosion, global::SuperMetroid.Core.Samus.Projectiles.PowerBombRadius explosionRadius) =>

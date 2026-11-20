@@ -37,27 +37,27 @@ internal static class EnemyLinearSpeedsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new TestAddressSpace());
         // Only family-specific distance/timer data can be read. No speed bytes
         // are present; Ripper does not need any bus for its speed setup.
-        var cacatac = new Action<RoomEnemyPlace>(CacatacBehavior.InitializeCacatac);
-        var owtch = new Action<RoomEnemyPlace>(OwtchBehavior.InitializeOwtch);
+        var cacatac = new Action<RoomEnemyPlace>(fixturePlace => CacatacBehavior.InitializeCacatac(fixturePlace.HeldOccupant(), fixturePlace));
+        var owtch = new Action<RoomEnemyPlace>(fixturePlace => OwtchBehavior.InitializeOwtch(fixturePlace.HeldOccupant(), fixturePlace));
         var place = enemies.Places.InUpdateOrder[0];
         for (int index = 0; index < EnemyLinearSpeedTable.RowCount; index++)
         {
             (SignedSixteenSixteen positive, SignedSixteenSixteen negative) = EnemySpeedTableCodec.LinearRow(cartridge, EnemySpeedTableCodec.LinearTable, index);
             place.SetSpawnParameter1(EnemyDefinitionId.Cacatac, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.Cacatac, LittleEndianBytes.Word(0, unchecked((byte)index)));
-            place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
+            place.Bind(EnemyDefinitionId.Cacatac, place.KeptDefinition);
             cacatac(place);
-            SignedSixteenSixteen cacatacSpeed = place.SpawnSettings<CacatacSpawnSettings>().Speed;
+            SignedSixteenSixteen cacatacSpeed = place.HeldOccupant().SpawnSettings<CacatacSpawnSettings>().Speed;
             AssertEqual((positive, negative), (cacatacSpeed, -cacatacSpeed), "Cacatac spawn speed, negated for walking left");
             place.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)index);
-            place.Bind(EnemyDefinitionId.Owtch, place.Definition);
+            place.Bind(EnemyDefinitionId.Owtch, place.KeptDefinition);
             owtch(place);
-            SignedSixteenSixteen owtchSpeed = place.SpawnSettings<OwtchSpawnSettings>().Speed;
+            SignedSixteenSixteen owtchSpeed = place.HeldOccupant().SpawnSettings<OwtchSpawnSettings>().Speed;
             AssertEqual((positive, negative), (owtchSpeed, -owtchSpeed), "Owtch spawn speed, negated for moving left");
             // The Ripper flies its spawn speed toward its heading (#2450).
             place.SetSpawnSettings(new RipperSpawnSettings(EnemyLinearSpeedTable.Speed(index), HorizontalDirection.Right));
             var ripperState = new RipperEnemyState() { Heading = HorizontalDirection.Right };
-            SignedSixteenSixteen ripperSpeed = place.SpawnSettings<RipperSpawnSettings>().Speed;
+            SignedSixteenSixteen ripperSpeed = place.HeldOccupant().SpawnSettings<RipperSpawnSettings>().Speed;
             AssertEqual(positive, RipperBehavior.FlyingVelocity(ripperSpeed, ripperState.Heading), "Ripper right speed");
             RipperBehavior.Reverse(ripperState);
             AssertEqual(negative, RipperBehavior.FlyingVelocity(ripperSpeed, ripperState.Heading), "Ripper reversal speed");

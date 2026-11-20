@@ -152,7 +152,7 @@ internal static class FxOverlayFixtures
         var documents = frames.ToDictionary(frame => frame.Name,
             frame => WrittenPictureSheetComposer.Frame(canvas, frame.FirstRow, frame.Rows, SpriteImageColours.TwoBppBackground) with { Origin = frame.Origin },
             StringComparer.Ordinal);
-        ComposedSpriteSheet composed = canvas.ToSplitRoomSheet(colours, documents, SpriteImageColours.TwoBppBackground);
+        ComposedSpriteSheet composed = canvas.ToSplitRoomSheet(colours, documents, RoomTileCanvas.EveryFrame(documents), SpriteImageColours.TwoBppBackground);
         return SpriteSheetFileConstants.Load(composed.Manifest, "overlay-fixture", composed.Size, composed.Pixels, composed.PaletteIndices);
     }
 

@@ -672,8 +672,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// </summary>
     internal AffineFloor? Floor()
     {
-        EndingFloorShot shot = EndingScreenFloor.ShotOf(Phase);
-        return shot == EndingFloorShot.None ? null : EndingScreenFloor.Of(InstalledArtwork.Sheets, shot)
+        return Phase is not IEndingFloorPhase { FloorShot: var shot } ? null : EndingScreenFloor.Of(InstalledArtwork.Sheets, shot)
             .Shaded(screen.Colours.SceneryShading(EndingFloorDefinitions.Scenery[shot]));
     }
 

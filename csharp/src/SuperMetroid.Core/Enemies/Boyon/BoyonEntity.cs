@@ -6,17 +6,18 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// occupant of the same place never sees the previous one's values.
 /// </summary>
 /// <param name="species">The Boyon species owner, which publishes the bounce sound.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the Boyon occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize() => BoyonBehavior.InitializeBoyon(Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        BoyonBehavior.RunBoyonMain(Place, Place.RequireSpeciesState<BoyonEnemyState>(), frame.Samus);
+        BoyonBehavior.RunBoyonMain(Occupant, Place, Place.RequireSpeciesState<BoyonEnemyState>(), frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBoyonAnimation(Place);

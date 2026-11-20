@@ -80,10 +80,10 @@ public sealed class PhantoonPhase
     public static PhantoonPhase FadeOutDuringFlameRain { get; } = new(nameof(FadeOutDuringFlameRain), turn => turn.Phantoon.Patterns.RunPhantoonFlameRainFadeOut(turn.State));
 
     /// <summary>Schedules another flame rain while Phantoon is hidden.</summary>
-    public static PhantoonPhase SpawnFlameRain { get; } = new(nameof(SpawnFlameRain), turn => turn.Phantoon.Patterns.RunPhantoonHiddenFlameRain(turn.State.Body, turn.State));
+    public static PhantoonPhase SpawnFlameRain { get; } = new(nameof(SpawnFlameRain), turn => turn.Phantoon.Patterns.RunPhantoonHiddenFlameRain(turn.State.BodyOccupant, turn.State.Body, turn.State));
 
     /// <summary>Initializes the first flame rain while fading away from the preceding round.</summary>
-    public static PhantoonPhase FadeOutBeforeFirstFlameRain { get; } = new(nameof(FadeOutBeforeFirstFlameRain), turn => turn.Phantoon.Patterns.RunPhantoonInitialFlameRain(turn.State.Body, turn.State));
+    public static PhantoonPhase FadeOutBeforeFirstFlameRain { get; } = new(nameof(FadeOutBeforeFirstFlameRain), turn => turn.Phantoon.Patterns.RunPhantoonInitialFlameRain(turn.State.BodyOccupant, turn.State.Body, turn.State));
 
     /// <summary>Fades out before the enraged attack sequence.</summary>
     public static PhantoonPhase FadeOutBeforeRage { get; } = new(nameof(FadeOutBeforeRage), turn => turn.Phantoon.Patterns.RunPhantoonFadeOutBeforeRage(turn.State));

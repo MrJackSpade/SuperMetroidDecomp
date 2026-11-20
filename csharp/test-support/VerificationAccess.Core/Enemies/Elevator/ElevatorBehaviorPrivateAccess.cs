@@ -12,11 +12,11 @@ internal static class ElevatorBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Elevator.ElevatorBehavior self)
     {
         /// <summary>The private method <c>InitializeElevator</c>, invoked by name.</summary>
-        internal void InitializeElevator(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Samus.SamusState samus) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Elevator.ElevatorBehavior>(self, "InitializeElevator", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { place, samus });
+        internal void InitializeElevator(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Samus.SamusState samus) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Elevator.ElevatorBehavior>(self, "InitializeElevator", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { occupant, place, samus });
 
         /// <summary>The private method <c>WaitForElevatorDirectionInput</c>, invoked by name.</summary>
-        internal void WaitForElevatorDirectionInput(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Input.GameplayAction newlyPressedControllerInput, global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem samusProjectiles) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Elevator.ElevatorBehavior>(self, "WaitForElevatorDirectionInput", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Input.GameplayAction), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem)], new object?[] { place, samus, newlyPressedControllerInput, samusProjectiles });
+        internal void WaitForElevatorDirectionInput(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Input.GameplayAction newlyPressedControllerInput, global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem samusProjectiles) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Elevator.ElevatorBehavior>(self, "WaitForElevatorDirectionInput", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Input.GameplayAction), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem)], new object?[] { occupant, place, samus, newlyPressedControllerInput, samusProjectiles });
     }
 }

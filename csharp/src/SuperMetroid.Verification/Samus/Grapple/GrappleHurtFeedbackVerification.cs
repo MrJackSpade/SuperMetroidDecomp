@@ -45,16 +45,16 @@ internal static class GrappleHurtFeedbackVerification
         AssertEqual(0, samus.HurtFlash.Count, "undamaged hanging Samus has no hurt flash");
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "fixture is hanging from an attached grapple");
         var target = runtime.Enemies.Places.InUpdateOrder[0];
-        target.Bind(EnemyDefinitionId.Ripper, target.Definition);
-        target.Bind(target.DefinitionId, RoomEnemyDefinitionLookup.Get(target.DefinitionId));
+        target.Bind(EnemyDefinitionId.Ripper, target.KeptDefinition);
+        target.Bind(target.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(target.HeldOccupant().DefinitionId));
         target.Position = target.Position.WithWhole(samus.Position.Whole);
         target.Radius = new(8, 8);
         target.Frame = EnemyFrameId.RipperFlyingLeftEyeLit; // Contact admits only an enemy showing a frame.
-        var interactive = (List<RoomEnemyPlace>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
+        var interactive = (List<RoomEnemyOccupant>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
         interactive.Clear();
-        interactive.Add(target);
+        interactive.Add(target.HeldOccupant());
         int health = samus.Health;
-        runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), GameplayAction.Shoot, runtime.Room.LoadedLevelData, target, Position16<RoomPixels>.Zero);
+        runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), GameplayAction.Shoot, runtime.Room.LoadedLevelData, target.HeldOccupant(), Position16<RoomPixels>.Zero);
         AssertEqual((ushort)(health - target.Definition.Damage), samus.Health, "native contact reduces health");
         target.Clear();
         runtime.StepFrame(ControllerButton.X);

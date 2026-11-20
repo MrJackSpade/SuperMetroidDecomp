@@ -102,7 +102,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         // of creating a placeholder that runs nothing.
         const EnemyDefinitionId unowned = (EnemyDefinitionId)0x9000;
         InvalidOperationException unknownException = AssertThrows<InvalidOperationException>(
-            () => unknown.Bind(unowned, unknown.Definition),
+            () => unknown.Bind(unowned, unknown.KeptDefinition),
             "binding a definition no species owns fails");
         AssertTrue(
             unknownException.Message.Contains($"No enemy species owns definition {unowned}", StringComparison.Ordinal),
@@ -148,10 +148,9 @@ internal static class EnemyInstructionOwnerCoverageVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             // The placement's settings are recorded before the entity is bound, as a room load records them, so a species
             // that places several actors (the Ceres doors and walls) creates the one the placement names (#1953, #1999).
-            place.SetSpawnSettings(population.SpawnSettings);
             try
             {
-                place.Bind(definitionPointer, place.Definition);
+                place.BindPlaced(definitionPointer, population.SpawnSettings);
             }
             catch (InvalidOperationException exception) when (
                 exception.Message.StartsWith("No enemy species owns definition", StringComparison.Ordinal))
@@ -159,10 +158,10 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 // The registry refuses a definition no species owns; the audit records it and the caller asserts which.
                 return new DefinitionOutcome(false, false, [], WithoutSpecies: true);
             }
-            place.Bind(place.DefinitionId, definition);
+            place.Bind(place.HeldOccupant().DefinitionId, definition);
             place.Radius = new(definition.Radius.X, definition.Radius.Y);
             place.Health = definition.Health;
-            place.Position = place.Position.WithWhole(new(population.Position.X, population.Position.Y));
+            place.Position = population.Placing.Place(place.Position);
             place.Contact = population.Contact;
             place.Processing = population.Processing;
             place.Presence = population.Presence;

@@ -36,7 +36,10 @@ public sealed class ShaktoolSegmentState
     /// </summary>
     public ShaktoolSegmentMotion Motion { get; internal set; } = ShaktoolSegmentMotion.Idle;
 
-    /// <summary>Resets the orientation, curl progress and reversal, as the chain does when it starts over.</summary>
+    /// <summary>
+    /// Resets the orientation, curl progress and reversal, as the chain does when it starts over: a reset segment faces
+    /// up, a real direction it is drawn facing until the chain orients it.
+    /// </summary>
     internal void ResetOrientation()
     {
         Orientation = CompassDirection.Up;

@@ -31,13 +31,13 @@ internal static class RespawnedEnemyContactVerification
         samus.Control.Unlock();
 
         RoomEnemyPlace enemy = runtime.Enemies.Places.InUpdateOrder.Single(place =>
-            place.DefinitionId == respawningEnemy && place.Position.X.Whole == respawnX);
+            place.Occupant?.DefinitionId == respawningEnemy && place.Position.X.Whole == respawnX);
         AssertTrue(enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled),
             "the Hellway actor respawns when killed");
-        runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.Small, samus);
+        runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy.HeldOccupant(), EnemyDeathExplosion.Small, samus);
 
         StepUntil(
-            () => enemy.DefinitionId == respawningEnemy,
+            () => enemy.Occupant?.DefinitionId == respawningEnemy,
             _ => runtime.StepFrame(0),
             maximumFrames: 200,
             context: "Hellway enemy respawn");
@@ -47,10 +47,10 @@ internal static class RespawnedEnemyContactVerification
         // #1269: game state eight rebuilds the interactive list ($A0:8EB6) before Samus's
         // grapple runs. The list built during the respawn frame still excluded the $DAFF
         // placeholder; only the next frame's prologue admits the respawned actor.
-        AssertTrue(runtime.Enemies.GrappleBehavior.ResolveGrappleEndpoint(enemy.Position.Whole).Reaction == GrappleEnemyReaction.None,
+        AssertTrue(runtime.Enemies.GrappleBehavior.ResolveGrappleEndpoint(enemy.Position.Whole) is null,
             "the respawn frame's interactive list does not yet contain the respawned actor");
         runtime.Enemies.PrepareEnemyProcessingList(new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y));
-        AssertTrue(runtime.Enemies.GrappleBehavior.ResolveGrappleEndpoint(enemy.Position.Whole).Reaction != GrappleEnemyReaction.None,
+        AssertTrue(runtime.Enemies.GrappleBehavior.ResolveGrappleEndpoint(enemy.Position.Whole) is { Reaction: not GrappleEnemyReaction.None },
             "the next frame's prologue list lets the grapple reach the respawned actor");
         enemy.AiStates = EnemyAiStates.None;
         // $A0:A08C rejects Samus contact while this word is zero; the first instruction

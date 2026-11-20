@@ -6,13 +6,14 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// and its death scatters drops.
 /// </summary>
 /// <param name="species">The ninja Space Pirate species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : NinjaSpacePirateEntity(species, place, common)
+internal sealed class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : NinjaSpacePirateEntity(species, occupant, place, common)
 {
     /// <summary>The gold Ninja's own shot reaction where the definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.Walking.GoldNinjaShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SpacePirateReactions.Shot ? Species.Walking.GoldNinjaShotReaction : base.ShotReaction;
 
     /// <summary>
     /// Runs the gold Ninja's own reaction to a bomb its frames' hitboxes meet with one of the Pirates' own reactions, before
@@ -29,6 +30,6 @@ internal sealed class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior specie
 
     /// <summary>The gold Ninja's own stages around the common bomb damage every bomb that reaches it runs.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         WalkingSpacePirateBehavior.GoldNinjaBombReaction;
 }

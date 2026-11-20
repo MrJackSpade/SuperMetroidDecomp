@@ -74,9 +74,8 @@ internal static class GerutaInstructionProgramDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
-        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        parent.Bind(EnemyDefinitionId.Geruta, parent.Definition);
-        parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
+        parent.BindPlaced(EnemyDefinitionId.Geruta, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
+        parent.Bind(parent.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         GerutaBehavior.InitializeGeruta(parent);
         AssertEqual(new AnimationPlayback<GerutaSegment>(GerutaAnimations.StartingWith(GerutaSegment.Idle), AnimationPlace.StartOfAnimation),
             enemies.Places.InUpdateOrder[0].EntityState<GerutaEntity, GerutaEnemyState>()?.Playback,
@@ -84,8 +83,8 @@ internal static class GerutaInstructionProgramDefinitionsVerification
 
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, 0x8000);
-        follower.Bind(EnemyDefinitionId.Geruta, follower.Definition);
-        follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
+        follower.Bind(EnemyDefinitionId.Geruta, follower.KeptDefinition);
+        follower.Bind(follower.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemies.GerutaBehavior.InitializeGerutaFollower(follower);
         AssertEqual(new AnimationPlayback<GerutaSegment>(GerutaAnimations.StartingWith(GerutaSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
             enemies.Places.InUpdateOrder[1].EntityState<GerutaFollowerEntity, GerutaFollowerState>()?.Playback,
@@ -99,9 +98,9 @@ internal static class GerutaInstructionProgramDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art?.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        place.Bind(EnemyDefinitionId.Geruta, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.BindPlaced(EnemyDefinitionId.Geruta, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
+        place.Bind(EnemyDefinitionId.Geruta, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.AnimationClock.StepOnNextUpdate();
         var state = new GerutaEnemyState(GerutaAction.WaitForAttackOpportunity) { Playback = new(GerutaAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         place.SetSpeciesState(state);

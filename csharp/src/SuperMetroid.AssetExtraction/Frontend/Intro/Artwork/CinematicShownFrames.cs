@@ -28,10 +28,7 @@ internal sealed record CinematicShownFrames(CinematicSpriteFamily Family, IReadO
         foreach (TAnimation program in Ensure.NotNull(programs))
         {
             foreach (CinematicSpritePose pose in animations.Segments.FramesOf(animations.StartingWith(program)))
-            {
-                if (pose != CinematicSpritePose.Blank)
-                    shown.Add(pose);
-            }
+                shown.Add(pose);
         }
         return shown;
     }

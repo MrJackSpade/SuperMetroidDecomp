@@ -8,14 +8,15 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// before the ordinary passes, and the touch and bombs his definition leaves to him.
 /// </summary>
 /// <param name="species">The Phantoon species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : PhantoonEntity(species, place, common, bossArtwork), IEnemyContactHooks, IEnemyPrivateShotReaction
+internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+    : PhantoonEntity(species, occupant, place, common, bossArtwork), IEnemyContactHooks, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public override void Initialize() => Species.InitializePhantoonBody(Place);
+    public override void Initialize() => Species.InitializePhantoonBody(Occupant, Place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunPhantoonBodyMainAi(Encounter, frame);
@@ -33,12 +34,6 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlac
     /// <summary>Only Samus's contact meets the body's frames' hitboxes; its weapon collision is the encounter's own resolver.</summary>
     public override EnemyCapabilities Capabilities => EnemyCapabilities.SamusFrameHitboxes;
 
-    /// <summary>The body's touch reaction, which its definition leaves to it.</summary>
-    public override EnemyReaction? SpeciesTouch => PhantoonReactions.Touch;
-
-    /// <summary>The body's shot reaction, which its definition leaves to it.</summary>
-    public override EnemyReaction? SpeciesShot => PhantoonReactions.Shot;
-
     /// <summary>
     /// The body's hurt behaviour after a vulnerable-eye hit, which owns every Phantoon hurt frame: it alternates the
     /// body's colours between white and the new health band; body movement and main AI resume only after the common
@@ -52,13 +47,13 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlac
     }
 
     /// <summary>Whether the body's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == PhantoonReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the body's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Occupant.Definition.Touch == PhantoonReactions.Touch)
             Species.Combat.ReactToPhantoonBodyTouch(context);
         else
             base.ReactToTouch(context);
@@ -66,10 +61,10 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlac
 
     /// <summary>The body's own stages around common bomb damage, for a bomb that selects its shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot == PhantoonReactions.Shot ? Species.Combat.PhantoonBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The body's shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == PhantoonReactions.Shot;
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == PhantoonReactions.Shot;
 }

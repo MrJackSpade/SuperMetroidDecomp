@@ -59,12 +59,12 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(testCase.IsKamer
                 ? EnemyDefinitionId.SuspensorPlatform
-                : EnemyDefinitionId.Tripper, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+                : EnemyDefinitionId.Tripper, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter2(EnemyDefinitionId.Tripper, 0x0101);
-            place.SetSpawnSettings(place.SpawnSettings<PlatformSpawnSettings>() with { Movement = testCase.Direction });
+            place.SetSpawnSettings(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>() with { Movement = testCase.Direction });
             place.Position = place.Position.WithWholeY(0x0100);
-            PlatformsBehavior.InitializePlatform(place);
+            PlatformsBehavior.InitializePlatform(place.HeldOccupant(), place);
 
             PlatformEnemyState state = (enemies.PlatformStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PlatformStates[0]."));
             PlatformSegment expectedInitial = testCase.IsKamer

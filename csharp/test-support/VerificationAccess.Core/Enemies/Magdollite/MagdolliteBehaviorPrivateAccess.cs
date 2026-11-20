@@ -30,8 +30,8 @@ internal static class MagdolliteBehaviorPrivateAccess
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior>(self, "RunMagdolliteOverlayTrackingRise", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { overlay, state, samus });
 
         /// <summary>The private method <c>SpawnMagdolliteLava</c>, invoked by name.</summary>
-        internal void SpawnMagdolliteLava(global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Spatial.HorizontalDirection thrown) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior>(self, "SpawnMagdolliteLava", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection)], new object?[] { source, thrown });
+        internal void SpawnMagdolliteLava(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Spatial.HorizontalDirection thrown) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior>(self, "SpawnMagdolliteLava", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection)], new object?[] { occupant, source, thrown });
     }
 
     /// <summary>The private instance members checks read or call.</summary>

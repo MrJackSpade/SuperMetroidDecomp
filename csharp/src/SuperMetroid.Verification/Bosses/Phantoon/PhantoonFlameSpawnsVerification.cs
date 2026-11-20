@@ -58,7 +58,7 @@ internal static class PhantoonFlameSpawnsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             PhantoonPatterns patterns = enemies.PhantoonBehavior.Patterns;
             var body = enemies.Places.InUpdateOrder[0];
-            var phantoon = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+            var phantoon = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
             body.Position = body.Position.WithWhole(new(origin, origin));
             PhantoonFlameSpawnType type = PhantoonNativeWords.FlameSpawnTypes.Decode(
                 LittleEndianBytes.HighByte(parameter), "Phantoon flame spawn type");
@@ -68,13 +68,13 @@ internal static class PhantoonFlameSpawnsVerification
             switch (type)
             {
                 case PhantoonFlameSpawnType.Casual:
-                    patterns.SpawnPhantoonCasualFlame(body);
+                    patterns.SpawnPhantoonCasualFlame(body.HeldOccupant(), body);
                     break;
                 case PhantoonFlameSpawnType.Enraged:
                     patterns.SpawnPhantoonRageFlame(phantoon, RageStart(rom, index));
                     break;
                 case PhantoonFlameSpawnType.Rain:
-                    patterns.SpawnPhantoonRainFlame(body, PhantoonFlameSpawns.RainXs[index & 15], (index & 240) >> 1);
+                    patterns.SpawnPhantoonRainFlame(body.HeldOccupant(), body, PhantoonFlameSpawns.RainXs[index & 15], (index & 240) >> 1);
                     break;
                 case PhantoonFlameSpawnType.Spiral:
                     patterns.SpawnPhantoonSpiralFlame(phantoon, new TrigonometryAngle(rom.ReadCartridgeByte(SpiralAngleTable + index)));

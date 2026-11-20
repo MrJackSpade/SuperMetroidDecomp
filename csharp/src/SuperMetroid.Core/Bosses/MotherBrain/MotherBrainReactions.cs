@@ -9,11 +9,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainReactions
 {
     /// <summary>The body's shot reaction.</summary>
-    internal static EnemyReaction BodyShot { get; } = EnemyReaction.OfSpecies("MotherBrain.BodyShot");
+    internal static EnemyReaction BodyShot => SpeciesOwnReactions.MotherBrainBodyShot;
 
     /// <summary>The head's shot reaction.</summary>
-    internal static EnemyReaction HeadShot { get; } = EnemyReaction.OfSpecies("MotherBrain.HeadShot");
+    internal static EnemyReaction HeadShot => SpeciesOwnReactions.MotherBrainHeadShot;
 
     /// <summary>The head's touch reaction.</summary>
-    internal static EnemyReaction HeadTouch { get; } = EnemyReaction.OfSpecies("MotherBrain.HeadTouch");
+    internal static EnemyReaction HeadTouch => SpeciesOwnReactions.MotherBrainHeadTouch;
 }

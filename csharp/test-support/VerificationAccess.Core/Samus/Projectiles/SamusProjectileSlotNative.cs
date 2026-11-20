@@ -9,6 +9,14 @@ internal static class SamusProjectileSlotNative
         /// <summary>The bank-$93 instruction pointer the cursor stands for; zero marks the slot inactive.</summary>
         internal int InstructionPointer => SamusProjectileProgramAddresses.Address(slot.Playback);
 
+        /// <summary>
+        /// The type the native slot's type word records (#2558): the projectile's own while it holds its place, otherwise
+        /// the cleared word's, an uncharged Power beam's.
+        /// </summary>
+        internal SuperMetroid.Core.Progression.SamusProjectileType RecordedType => slot.IsOccupied
+            ? slot.HeldShot().Type
+            : SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false);
+
         /// <summary>Where the native snapshot's per-slot word arrays hold this projectile's place: twice its ordinal.</summary>
         internal int SlotTableOffset => slot.Place * sizeof(ushort);
 

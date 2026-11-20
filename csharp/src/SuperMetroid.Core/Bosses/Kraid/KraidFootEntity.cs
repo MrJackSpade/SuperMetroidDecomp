@@ -4,10 +4,11 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's foot (#2146): it follows his walk, with the limbs' own shot and bomb reactions.</summary>
 /// <param name="species">The Kraid species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the foot occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KraidFootEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : KraidLimbEntity(species, place, common, species.Parts.FootReference)
+internal sealed class KraidFootEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : KraidLimbEntity(species, occupant, place, common, species.Parts.FootReference)
 {
     /// <inheritdoc/>
     protected override void SetUp() => Species.Limbs.InitializeKraidFoot(Place);
@@ -16,8 +17,8 @@ internal sealed class KraidFootEntity(KraidBehavior species, RoomEnemyPlace plac
     protected override KraidAnimatedPartState Part => Encounter.FootState;
 
     /// <summary>The foot's hitboxes, which its pose places.</summary>
-    public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        KraidCombat.FindKraidFootHitboxReaction(Place, Part.Pose, probe, out reaction);
+    public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
+        KraidCombat.FindKraidFootHitboxReaction(Place, Part.Pose, probe);
 
     /// <summary>The foot's shot reaction.</summary>
     protected override EnemyShotReaction LimbShotReaction => KraidCombat.FootShotReaction;

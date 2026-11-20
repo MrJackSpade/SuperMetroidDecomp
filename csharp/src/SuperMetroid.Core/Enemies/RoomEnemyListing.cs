@@ -17,7 +17,7 @@ internal static class RoomEnemyListing
     /// <exception cref="InvalidDataException">No place is listed that far after <paramref name="part"/>.</exception>
     internal static RoomEnemyPlace ListedAfter(this EnemyPlaces enemies, RoomEnemyPlace part, int distance) =>
         enemies.ListedAfterOrNone(part, distance) ?? throw new InvalidDataException(
-            $"Enemy {part.Ordinal} ({part.DefinitionId}) has no place listed {distance} after it for its partner.");
+            $"Enemy {part.Ordinal} ({part.Occupant?.DefinitionId}) has no place listed {distance} after it for its partner.");
 
     /// <summary>
     /// The place the population lists <paramref name="distance"/> places after <paramref name="part"/>, or null when
@@ -34,6 +34,12 @@ internal static class RoomEnemyListing
         int place = part.Ordinal + distance;
         return place >= EnemyPlaceOrder.Capacity ? null : enemies.InUpdateOrder[place];
     }
+
+    /// <summary>Every place the population lists after <paramref name="part"/>, nearest first; none for the last place.</summary>
+    /// <param name="enemies">The room's enemy places.</param>
+    /// <param name="part">The part looking for its partners.</param>
+    internal static IEnumerable<RoomEnemyPlace> AllListedAfter(this EnemyPlaces enemies, RoomEnemyPlace part) =>
+        Ensure.NotNull(enemies).InUpdateOrder.Skip(Ensure.NotNull(part).Ordinal + 1);
 
     /// <summary>The <paramref name="count"/> places the population lists directly after <paramref name="part"/>, nearest first.</summary>
     /// <param name="enemies">The room's enemy places.</param>
@@ -56,7 +62,7 @@ internal static class RoomEnemyListing
     /// <exception cref="InvalidDataException">No place is listed that far before <paramref name="part"/>.</exception>
     internal static RoomEnemyPlace ListedBefore(this EnemyPlaces enemies, RoomEnemyPlace part, int distance) =>
         enemies.ListedBeforeOrNone(part, distance) ?? throw new InvalidDataException(
-            $"Enemy {part.Ordinal} ({part.DefinitionId}) has no place listed {distance} before it for its partner.");
+            $"Enemy {part.Ordinal} ({part.Occupant?.DefinitionId}) has no place listed {distance} before it for its partner.");
 
     /// <summary>
     /// The place the population lists <paramref name="distance"/> places before <paramref name="part"/>, or null when

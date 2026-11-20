@@ -12,7 +12,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Cacatac];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new CacatacEntity(this, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new CacatacEntity(this, occupant, place, common));
 
     /// <summary>Supplies shared room RNG for the spike attack gate (<see cref="CacatacAttackDefinitions.Attacks"/>).</summary>
     private readonly EnemyRoomBinding _room;
@@ -31,7 +31,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of Cacatac's animations.</summary>
-    private void ApplyCacatacCue(RoomEnemyPlace place, CacatacEnemyState state, CacatacCue cue)
+    private void ApplyCacatacCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, CacatacEnemyState state, CacatacCue cue)
     {
         switch (cue)
         {
@@ -42,7 +42,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
                 PlayCacatacSpikeSound();
                 break;
             case CacatacCue.SpawnSpike spike:
-                SpawnCacatacSpike(place, spike.Direction);
+                SpawnCacatacSpike(occupant, place, spike.Direction);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined Cacatac cue {cue}.");
@@ -50,11 +50,11 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Cacatac.</summary>
-    internal static void InitializeCacatac(RoomEnemyPlace place)
+    internal static void InitializeCacatac(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        CacatacSpawnSettings settings = place.SpawnSettings<CacatacSpawnSettings>();
+        CacatacSpawnSettings settings = occupant.SpawnSettings<CacatacSpawnSettings>();
         bool onFloor = settings.Mounting == CacatacMounting.Floor;
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
 
         int spawnX = place.Position.X.Whole;
         if (!Enum.IsDefined(settings.Direction))
@@ -76,13 +76,13 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a Cacatac for one update: its patrol, or it stays stopped.</summary>
-    private void RunCacatacMain(RoomEnemyPlace place, CacatacEnemyState state)
+    private void RunCacatacMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, CacatacEnemyState state)
     {
         switch (state.Action)
         {
             case CacatacAction.Patrolling:
-                MoveCacatac(place, state);
-                MaybeStartCacatacAttack(place, state);
+                MoveCacatac(occupant, place, state);
+                MaybeStartCacatacAttack(occupant, place, state);
                 return;
             case CacatacAction.Stopped:
                 return;
@@ -96,10 +96,10 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Moves the Cacatac along its patrol by its speed, then turns it once it passes the left limit or reaches or passes
     /// the right one.
     /// </summary>
-    private static void MoveCacatac(RoomEnemyPlace place, CacatacEnemyState state)
+    private static void MoveCacatac(RoomEnemyOccupant occupant, RoomEnemyPlace place, CacatacEnemyState state)
     {
         bool right = state.PatrolDirection == HorizontalDirection.Right;
-        SignedSixteenSixteen speed = place.SpawnSettings<CacatacSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = occupant.SpawnSettings<CacatacSpawnSettings>().Speed;
         place.Position = place.Position.AdvanceX(speed.Toward(state.PatrolDirection));
 
         if (!right)
@@ -114,13 +114,13 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The random attack gate (<see cref="CacatacAttackDefinitions.Attacks"/>).</summary>
-    private void MaybeStartCacatacAttack(RoomEnemyPlace place, CacatacEnemyState state)
+    private void MaybeStartCacatacAttack(RoomEnemyOccupant occupant, RoomEnemyPlace place, CacatacEnemyState state)
     {
         if (!CacatacAttackDefinitions.Attacks.IsTakenBy(_room.Random.Generate(), advancedBy: place.FrameCounter))
             return;
 
         state.Action = CacatacAction.Stopped;
-        SetCacatacAnimation(place, state, place.SpawnSettings<CacatacSpawnSettings>().Mounting == CacatacMounting.Floor ? CacatacSegment.OnFloorAttack : CacatacSegment.OnCeilingAttack);
+        SetCacatacAnimation(place, state, occupant.SpawnSettings<CacatacSpawnSettings>().Mounting == CacatacMounting.Floor ? CacatacSegment.OnFloorAttack : CacatacSegment.OnCeilingAttack);
     }
 
     /// <summary>Animation cue: restore patrol the way it last patrolled.</summary>
@@ -141,32 +141,27 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyCacatacSpike(context.Projectile, context.Camera));
 
     /// <summary>Runs Cacatac's main AI.</summary>
-    internal void RunCacatacMainAi(RoomEnemyPlace place)
+    internal void RunCacatacMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        RunCacatacMain(place, place.RequireSpeciesState<CacatacEnemyState>());
+        RunCacatacMain(occupant, place, place.RequireSpeciesState<CacatacEnemyState>());
     }
 
     /// <summary>Advances Cacatac's typed animation.</summary>
-    internal void AdvanceCacatacTypedAnimation(RoomEnemyPlace place) =>
+    internal void AdvanceCacatacTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place) =>
         EnemyAnimationPlayback.AdvanceApplyingCues(place, CacatacAnimations.Segments,
             static (CacatacEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (CacatacEnemyState state, CacatacCue cue) => ApplyCacatacCue(place, state, cue));
+            (CacatacEnemyState state, CacatacCue cue) => ApplyCacatacCue(occupant, place, state, cue));
 
     /// <summary>
     /// Spawns a spike projectile from the Cacatac and initializes it.
     /// The source actor supplies the origin's fractions of a pixel and the sheet and colours its spikes draw in.
     /// </summary>
-    private void SpawnCacatacSpike(RoomEnemyPlace source, CacatacSpikeDirection direction)
+    private void SpawnCacatacSpike(RoomEnemyOccupant occupant, RoomEnemyPlace source, CacatacSpikeDirection direction)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CacatacSpike, Spike, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.CacatacSpike,
-            Spike,
-            SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new CacatacProjectileAnimation(direction));
         projectile.Position = source.Position;
         projectile.Velocity = CacatacSpikes.Velocity(direction);

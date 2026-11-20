@@ -250,8 +250,8 @@ internal sealed class SpriteSheetLayout
         ImageColourGroups groups = ImageColourGroups.None;
         // Each shown pixel's ink, zero where no part shows one, in the frame's own rectangle.
         var inks = new byte[bound.Size.X * bound.Size.Y];
-        // Each shown pixel's depth, one up so that zero marks a pixel no part shows, in the frame's own rectangle.
-        var shownDepths = new int[inks.Length];
+        // Each shown pixel's depth, null where no part shows one, in the frame's own rectangle.
+        var shownDepths = new int?[inks.Length];
         // Back to front, so the first part ends in front.
         for (int partIndex = source.Frame.Parts.Length - 1; partIndex >= 0; partIndex--)
         {
@@ -272,7 +272,7 @@ internal sealed class SpriteSheetLayout
                     int ink = ownRow * RowColours + colour;
                     inks[at] = checked((byte)ink);
                     // Parts are laid back to front, so each pixel ends with the depth of the part in front.
-                    shownDepths[at] = 1 + (int)(part.Depth ?? depth);
+                    shownDepths[at] = (int)(part.Depth ?? depth);
                     // A part keeping its own row under a drawn row keeps its colours under every row shade.
                     if (part.Palette is null || !sources.PartsKeepOwnRows)
                         ShadeRows(ink);
@@ -332,19 +332,19 @@ internal sealed class SpriteSheetLayout
     private const int Depths = (int)ActorDepth.InFront + 1;
 
     /// <summary>
-    /// The depth a frame whose shown pixels hold <paramref name="shownDepths"/> (each depth one up, zero for none) is drawn
+    /// The depth a frame whose shown pixels hold <paramref name="shownDepths"/> (null for a pixel no part shows) is drawn
     /// at (#1514): the place among the room's layers most of its pixels show, the front one of a tie. The two depths behind
     /// the room are one place among the room's tiles, which only a turning floor splits (#2583): a frame lies behind the room
     /// where most of its pixels lie at either, and then at whichever of the two more of them show, the one in front of the
     /// floor on a tie.
     /// </summary>
-    private static ActorDepth? DepthOf(ReadOnlySpan<int> shownDepths)
+    private static ActorDepth? DepthOf(ReadOnlySpan<int?> shownDepths)
     {
         Span<int> counts = stackalloc int[Depths];
-        foreach (int shown in shownDepths)
+        foreach (int? shown in shownDepths)
         {
-            if (shown != 0)
-                counts[shown - 1]++;
+            if (shown is int shownDepth)
+                counts[shownDepth]++;
         }
         int behindFloor = counts[(int)ActorDepth.BehindRoom], inFrontOfFloor = counts[(int)ActorDepth.BehindRoomInFrontOfFloor];
         int behindRoom = behindFloor + inFrontOfFloor;

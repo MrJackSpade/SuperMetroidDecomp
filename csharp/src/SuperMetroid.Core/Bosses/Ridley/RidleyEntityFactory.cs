@@ -26,15 +26,15 @@ internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRi
 
     /// <summary>Lower Norfair Ridley, Ceres Ridley, or a piece of the breakup explosion (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Ridley definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Ridley)
-            return EnemyOccupant.Of(new NorfairRidleyEntity(Norfair, place, common));
+            return EnemyOccupant.Of(new NorfairRidleyEntity(Norfair, occupant, place, common));
         if (definition == EnemyDefinitionId.RidleyCeres)
-            return EnemyOccupant.Of(new CeresRidleyEntity(Ceres, escape, place, common));
+            return EnemyOccupant.Of(new CeresRidleyEntity(Ceres, escape, occupant, place, common));
         if (definition == EnemyDefinitionId.RidleyBreakupPiece)
-            return EnemyOccupant.Of(new RidleyBreakupPieceEntity(Norfair, place, common));
-        throw new InvalidOperationException($"The Ridley factory creates no {place.DefinitionId}.");
+            return EnemyOccupant.Of(new RidleyBreakupPieceEntity(Norfair, occupant, place, common));
+        throw new InvalidOperationException($"The Ridley factory creates no {occupant.DefinitionId}.");
     }
 }

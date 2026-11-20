@@ -175,8 +175,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < frames.Count; index++)
             {
                 EnemyProjectileFrameId programFrame = frames[index];
-                if (IsOnNoSheet(programFrame))
-                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, programFrame,
                     NewEnemyProjectileVisualGuard(bus), kind);
@@ -210,8 +208,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < frames.Count; index++)
             {
                 EnemyProjectileFrameId programFrame = frames[index];
-                if (IsOnNoSheet(programFrame))
-                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, programFrame,
                     NewEnemyProjectileVisualGuard(bus), kind);
@@ -230,8 +226,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < frames.Count; index++)
             {
                 EnemyProjectileFrameId programFrame = frames[index];
-                if (IsOnNoSheet(programFrame))
-                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, programFrame,
                     NewEnemyProjectileVisualGuard(bus), kind);
@@ -259,8 +253,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < frames.Count; index++)
             {
                 EnemyProjectileFrameId programFrame = frames[index];
-                if (IsOnNoSheet(programFrame))
-                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, programFrame,
                     NewEnemyProjectileVisualGuard(bus), kind);
@@ -281,8 +273,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < frames.Count; index++)
             {
                 EnemyProjectileFrameId programFrame = frames[index];
-                if (IsOnNoSheet(programFrame))
-                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, programFrame, NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(InstalledStandsFor(native, extracted, stock, programFrame, kind),
@@ -476,7 +466,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             EnemyDefinitionId spawner = BurstSpawner(program);
             bool skree = spawner == EnemyDefinitionId.Skree;
             RoomEnemySystem enemies = BurstSystem(artwork, spawner);
-            Action<RoomEnemyPlace> spawn = place => SuperMetroid.Core.Enemies.Skree.SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place,
+            Action<RoomEnemyPlace> spawn = place => SuperMetroid.Core.Enemies.Skree.SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place.HeldOccupant(), place,
                 skree ? SkreeMetareeParticleSegment.Skree : SkreeMetareeParticleSegment.Metaree);
             // The burst's spawner binds through the system's own registry, which owns its species (#2010).
             RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[0];
@@ -531,9 +521,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             Enumerable.Range(0, oam.NextByteOffset / 4).Select(record =>
                 $"({oam.LowTable[record * 4]:X2},{oam.LowTable[(record * 4) + 1]:X2},{oam.LowTable[(record * 4) + 2]:X2},{oam.LowTable[(record * 4) + 3]:X2})"));
 
-        // A frame on no sheet, so no set loads it (#1513): the blank frame draws nothing (#2431). Any other frame a spawn
-        // table lacks fails loudly in the set load, as a frame the game can draw must be on a sheet.
-        static bool IsOnNoSheet(EnemyProjectileFrameId frame) => frame == EnemyProjectileFrameId.Blank;
 
         static OamBuffer DrawReferenceProgramFrameWith(ushort operand, ISnesAddressSpace source, ushort word)
         {
@@ -594,7 +581,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         // The frame drawn from the loaded set's sheets under the spawner's graphics.
         static OamBuffer DrawSpawnerFrame(RoomEnemySystem enemies, EnemyProjectileFrameId frame, SpriteGraphics graphics)
         {
-            EnemyProjectile slot = enemies.Projectiles.ProjectileInPlace(0);
+            EnemyProjectile slot = enemies.Projectiles.Occupy(0, RoomEnemyProjectileKind.DustOrExplosion);
             // Spawned as production spawns a projectile: its kind, the behaviour bound to it and its graphics together.
             FamilyProjectileStarts.Initialize(enemies, slot, RoomEnemyProjectileKind.DustOrExplosion, graphics);
             slot.Position = slot.Position.WithWhole(new(128, 96));
@@ -633,7 +620,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static RoomEnemySystem PresentedSystem(ImportEnemyArtwork artwork, EnemyProjectileFrameId frame, RoomEnemyProjectileKind kind)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-            EnemyProjectile slot = enemies.Projectiles.ProjectileInPlace(0);
+            EnemyProjectile slot = enemies.Projectiles.Occupy(0, kind);
             // It draws from the sheets a set spawning it composes from this artwork, under the graphics that spawn gives it,
             // and is spawned as production spawns it: its kind, the behaviour bound to it and those graphics together.
             FamilyProjectileStarts.Initialize(enemies, slot, kind, SpawnedObjectFixtures.LoadSetSpawning(enemies, frame, SpawnedGraphics));
@@ -655,10 +642,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ISnesAddressSpace source)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-            EnemyProjectile slot = enemies.Projectiles.ProjectileInPlace(0);
             // The shard is spawned as the tube's spawner spawns it, bound to the tube pieces' behaviour that carries out its
             // cues (#1760). The first shard's animation opens on its flying loop, whose first beat is the reflecting flicker.
-            FamilyProjectileStarts.Initialize(enemies, slot, RoomEnemyProjectileKind.NoobTubeShard, SpawnedGraphics);
+            EnemyProjectile slot = FamilyProjectileStarts.Spawn(enemies, 0, RoomEnemyProjectileKind.NoobTubeShard, SpawnedGraphics);
             enemies.NoobTubeBehavior.TubePieces.Pieces.Start(slot, new NoobTubeDebrisState(column: 128));
             slot.Position = slot.Position.WithWhole(new(128, 96));
             enemies.Projectiles.AdvanceEnemyProjectileAnimations(slot, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);

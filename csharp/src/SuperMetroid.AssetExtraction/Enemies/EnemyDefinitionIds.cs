@@ -12,7 +12,7 @@ internal static class EnemyDefinitionIds
 
     /// <summary>
     /// The bank-$A0 header pointer of <paramref name="id"/>: its own, or the header it shares with the other actors the
-    /// cartridge places by it (<see cref="EnemyHeaderWords.SharedHeaders"/>); zero for the cleared slot.
+    /// cartridge places by it (<see cref="EnemyHeaderWords.SharedHeaders"/>).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not a member.</exception>
     internal static ushort HeaderPointer(EnemyDefinitionId id) =>

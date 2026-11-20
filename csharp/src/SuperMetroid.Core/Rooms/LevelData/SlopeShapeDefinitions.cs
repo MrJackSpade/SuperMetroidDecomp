@@ -3,8 +3,10 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <summary>
 /// Every slope shape (#1805), each with its surface's height under each pixel column, the share of a grounded horizontal
 /// move that crosses it (<see cref="SlopeSpeedDefinitions"/> names the families) and the share of a crawler's tangent
-/// speed that carries along it. Heights count pixels down from the block's top: the block's full height is a column with
-/// no surface in the block, and <see cref="SlopeShape.BelowBlockHeight"/> a surface below it. The coefficients are the game's authored tuning (#1165).
+/// speed that carries along it. Heights count pixels down from the block's top: the block's full height is a column whose
+/// surface is the block's bottom edge, with nothing solid in the block, and <see cref="SlopeShape.BelowBlockHeight"/> a
+/// surface below it. Both are distances the collision arithmetic subtracts from and compares like any other height, not
+/// markers standing for a missing surface (#2558). The coefficients are the game's authored tuning (#1165).
 /// </summary>
 public static class SlopeShapeDefinitions
 {

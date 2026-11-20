@@ -28,8 +28,8 @@ internal static class SamusBodyTransferContractChecks
         // last top group's position 1 with bottom group 0 position 0: the import resolves each to the picture of the
         // physical definition record it lands on, across group and half boundaries.
         SamusBodyFrameSelection[] crossing = new SamusBodyFrameSelection[SamusBodySources.FrameCount];
-        crossing[1] = new(0, 2, SamusBodyFrameSelection.NoBottomSet, 0);
-        crossing[2] = new(1, 0, SamusBodyFrameSelection.NoBottomSet, 0);
+        crossing[1] = new(0, 2, null, 0);
+        crossing[2] = new(1, 0, null, 0);
         crossing[3] = new(SamusBodySources.TopSetCount - 1, 1, 0, 0);
         SamusBodyCharacterArtwork characters = Body(shortFirstGroup: false, crossing);
         SamusBodySources pictures = characters.Body;

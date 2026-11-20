@@ -63,7 +63,6 @@ internal static class LibraryBackgroundOperandDecoding
         LibraryBackgroundSource.SkyPage sky => LibraryBackgroundOperands.SkyPageAddress(sky.Page),
         LibraryBackgroundSource.StatueGhostCharacters => RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters,
         LibraryBackgroundSource.HudCharacterSet => MapSourceDefinitions.Artwork.HudCharacters,
-        LibraryBackgroundSource.NothingRead => throw new ArgumentOutOfRangeException(nameof(source), source, "A clear command reads nothing."),
         _ => throw new ArgumentOutOfRangeException(nameof(source), source, "Unknown library-background source."),
     };
 

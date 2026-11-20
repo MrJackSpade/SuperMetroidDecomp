@@ -108,9 +108,9 @@ internal static class CrocomireAnimationsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
+        body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(576, 144));
-        var state = new CrocomireEnemyState(body);
+        var state = new CrocomireEnemyState(body.HeldOccupant(), body);
         body.SetSpeciesState(state);
         state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
@@ -234,7 +234,7 @@ internal static class CrocomireAnimationsVerification
         {
             (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
             RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
-            tongue.Bind(EnemyDefinitionId.CrocomireTongue, tongue.Definition);
+            tongue.Bind(EnemyDefinitionId.CrocomireTongue, tongue.KeptDefinition);
             tongue.SetSpeciesState(new CrocomireTongueState(state));
             state.JoinTongue(tongue);
             state.TonguePlayback = new AnimationPlayback<CrocomireTongueSegment>(CrocomireAnimations.TongueStartingWith(program), AnimationPlace.StartOfAnimation);

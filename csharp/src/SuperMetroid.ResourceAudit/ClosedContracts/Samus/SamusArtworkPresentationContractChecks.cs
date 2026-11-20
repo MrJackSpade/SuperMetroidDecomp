@@ -34,9 +34,9 @@ internal static class SamusArtworkPresentationContractChecks
                     arm.Descriptors.PoseDescriptor((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1));
                     arm.Descriptors.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount - 1);
                     arm.Descriptors.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount);
-                    arm.CoverTileIndex(9, 3);
-                    arm.CoverTileIndex(9, 4);
-                    arm.CoverTileIndex(10, 0);
+                    arm.CoverTileIndex(9, SamusArmCannonCoverFrame.FullyOpen);
+                    arm.CoverTileIndex(9, (SamusArmCannonCoverFrame)(-1));
+                    arm.CoverTileIndex(10, SamusArmCannonCoverFrame.SlightlyOpen);
                 }
             }
             """, path: "fixture-samus-art-consumer.cs");

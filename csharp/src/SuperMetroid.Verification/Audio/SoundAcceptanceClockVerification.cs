@@ -132,7 +132,7 @@ internal static class SoundAcceptanceClockVerification
                     expected.Add(new AudioEvent.SelectMusicTrack(play.Track));
                     break;
                 case AudioRequest.StopMusic:
-                    expected.Add(new AudioEvent.SelectMusicTrack(null));
+                    expected.Add(new AudioEvent.StopMusic());
                     break;
                 case AudioRequest.RequestSound sound:
                     ports.Request(sound.Sound.Library, sound.Sound);

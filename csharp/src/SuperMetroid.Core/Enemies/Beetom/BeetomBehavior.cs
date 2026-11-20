@@ -14,7 +14,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Beetom];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new BeetomEntity(this, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new BeetomEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared RNG seed and generation used by Beetom action choice.</summary>
     private readonly EnemyRoomBinding _room;
@@ -409,11 +409,12 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Beetom's own touch response.</summary>
     private void ResolveBeetomTouch(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant beetom,
         BeetomEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
+        RoomEnemyPlace place = beetom.Place;
         if (!state.AttachedToSamus)
         {
             state.Begin(BeetomAction.StartDraining, state.Facing);
@@ -423,7 +424,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
         {
-            _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
+            _collision.ResolveOrdinaryTouch(beetom, samus, pseudoScrew);
             samus.ClearHurtTimers();
             return;
         }
@@ -435,7 +436,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // cancels the invincibility and knockback that touch gives her.
         if (!BeetomCadenceDefinitions.DrainDamage.IsDue(place.FrameCounter))
             return;
-        SamusSuitDamage.Hurt(samus, place.Definition.Damage);
+        SamusSuitDamage.Hurt(samus, beetom.Definition.Damage);
         samus.ClearHurtTimers();
     }
 
@@ -494,5 +495,5 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Attaches Beetom to Samus on its selected custom contact reaction.</summary>
     internal void ReactToBeetomTouch(EnemyTouchContext context) =>
-        ResolveBeetomTouch(context.Place, context.Place.RequireSpeciesState<BeetomEnemyState>(), context.Samus, context.PseudoScrew);
+        ResolveBeetomTouch(context.Occupant, context.Place.RequireSpeciesState<BeetomEnemyState>(), context.Samus, context.PseudoScrew);
 }

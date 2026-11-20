@@ -39,8 +39,7 @@ internal static class DraygonGoopTouchOrderVerification
             samus.KnockbackHold = UpdateCountdown.For(5);
             samus.SlowdownLevel = 0;
             var enemies = runtime.Enemies;
-            var goop = enemies.Projectiles.ProjectileInPlace(17);
-            global::SuperMetroid.Core.PrivateState.Set(goop, "Kind", RoomEnemyProjectileKind.DraygonGoop);
+            var goop = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.DraygonGoop);
             global::SuperMetroid.Core.PrivateState.Set(goop, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(enemies, goop.Kind)));
             goop.StartMotion(enemies.DraygonBehavior.Shots.Goop.GoopFlying);
             goop.StartAnimation(new DraygonProjectileAnimation(enemies.DraygonBehavior.Shots.Goop, DraygonProjectileSegment.Goop));

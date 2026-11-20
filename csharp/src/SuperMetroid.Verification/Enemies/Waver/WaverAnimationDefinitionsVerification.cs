@@ -45,9 +45,9 @@ internal static class WaverAnimationDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Waver, place.Definition);
+            place.Bind(EnemyDefinitionId.Waver, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.Waver, parameter);
-            WaverBehavior.InitializeWaver(place);
+            WaverBehavior.InitializeWaver(place.HeldOccupant(), place);
             WaverSegment expected = WaverNativeWords.Animations.Decode(parameter, "Waver spawn facing");
             WaverEnemyState waver = enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].");
             AssertEqual(WaverAnimationChoicesConstants.Facing(expected), waver.Facing,

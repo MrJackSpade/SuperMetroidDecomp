@@ -5,10 +5,11 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// of the parent its room lists right before it, whose freeze, visibility and position it copies.
 /// </summary>
 /// <param name="species">The Holtz species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the follower occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class HoltzFollowerEntity(HoltzBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+internal sealed class HoltzFollowerEntity(HoltzBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize() => species.InitializeHoltzFollower(Place);

@@ -12,7 +12,7 @@ internal static class EnemyProjectileFrames
 {
     /// <summary>The frames that draw an installed bank-$8D composition, including the blank one, rather than a program frame.</summary>
     private static HashSet<EnemyProjectileFrameId> Compositions { get; } =
-        EnemyProjectileSpritemapDefinitions.FrameNames.Select(Identity).Append(EnemyProjectileFrameId.Blank).ToHashSet();
+        EnemyProjectileSpritemapDefinitions.FrameNames.Select(Identity).ToHashSet();
 
     /// <summary>The frame whose document name is installed frame <paramref name="name"/> (#2370), never its identity's name.</summary>
     internal static EnemyProjectileFrameId Identity(string name) => EnemyProjectileFrameSheetKeys.Named(name);

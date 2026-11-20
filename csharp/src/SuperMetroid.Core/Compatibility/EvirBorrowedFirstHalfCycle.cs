@@ -51,7 +51,7 @@ public static class EvirBorrowedFirstHalfCycle
         if (bobbingSpeed == SlowerSpeed)
         {
             TEnemy enemy = ListedAt(listed, SlowerLenderPlace);
-            return lender.IsEmpty(enemy) ? 0 : lender.DirectionChangePeriod(enemy) / 2;
+            return lender.DirectionChangePeriod(enemy) / 2;
         }
         if (bobbingSpeed == FasterSpeed)
         {

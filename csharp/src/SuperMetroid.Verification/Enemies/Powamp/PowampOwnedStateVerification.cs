@@ -21,12 +21,12 @@ internal static class PowampOwnedStateVerification
         RoomEnemyPlace balloon = enemies.Places.InUpdateOrder[0];
         balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
         balloon.SetSpawnParameter2(EnemyDefinitionId.Powamp, ushort.MaxValue);
-        balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
+        balloon.Bind(EnemyDefinitionId.Powamp, balloon.KeptDefinition);
         balloon.Position = balloon.Position.WithWhole(new(0x0180, 0x0020));
         PowampBehavior.InitializePowampBalloon(balloon);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
         body.SetSpawnSettings(new PowampBodySpawnSettings(PowampContact.Accepts));
-        body.Bind(EnemyDefinitionId.Powamp, body.Definition);
+        body.Bind(EnemyDefinitionId.Powamp, body.KeptDefinition);
         // The body rests below its balloon, inside the room.
         body.Position = body.Position.WithWhole(new(0x0180, 0x0040));
         enemies.PowampBehavior.InitializePowampBody(body);
@@ -38,14 +38,14 @@ internal static class PowampOwnedStateVerification
             ?? throw new InvalidOperationException("The body half has no body state.");
         AssertEqual(null, balloon.SpeciesState<PowampBodyState>(), "the balloon holds no body state");
         AssertEqual(new Position16<RoomPixels>(0x0180, 0x0020), balloonState.Spawn, "the balloon keeps its spawn");
-        AssertEqual(65535, balloon.SpawnSettings<PowampBalloonSpawnSettings>().GrappleTravelDistance, "the grapple rise keeps parameter two's full word");
+        AssertEqual(65535, balloon.HeldOccupant().SpawnSettings<PowampBalloonSpawnSettings>().GrappleTravelDistance, "the grapple rise keeps parameter two's full word");
         AssertEqual(new PowampBalloonInflation(PowampBalloonSequence.Sinking, 2), balloonState.Inflation,
             "the balloon starts deflated, at the end of its sinking sequence");
         AssertEqual(PowampAction.DeflatedResting, bodyState.Action, "the body starts resting");
 
         bodyState.Action = PowampAction.Inflating;
         bodyState.ActionTimer = UpdateCountdown.For(1);
-        enemies.PowampBehavior.RunPowampMain(body, bodyState, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, bodyState, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(PowampAction.InflatedRiseToTargetHeight, bodyState.Action, "inflation finishes");
         AssertEqual(SignedSixteenSixteen.FromParts(-1, 0x8000), bodyState.YVelocity, "the body rises half a pixel per update");
         Console.WriteLine("Powamp owned state: both halves' values match.");

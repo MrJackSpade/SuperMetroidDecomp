@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// planet escape starts, to the right and slowing each update, and it leaves at
 /// the handoff out of the explosion's last phase.
 /// </summary>
-/// <param name="motion">How the starfield starts moving with the flyaway, or null for one that does not yet wait for it.</param>
-internal sealed class EndingFlyawayStarsMotion(EndingStarsMotion? motion) : EndingActorMotion
+/// <param name="motion">How the starfield starts moving with the flyaway.</param>
+internal sealed class EndingFlyawayStarsMotion(EndingStarsMotion motion) : EndingActorMotion
 {
     /// <summary>The left starfield's motion: it waits for the flyaway from its spawn on.</summary>
     internal static EndingFlyawayStarsMotion WaitingFromSpawn() => new(EndingStarsMotion.WaitingForFlyaway);
@@ -17,10 +17,10 @@ internal sealed class EndingFlyawayStarsMotion(EndingStarsMotion? motion) : Endi
     /// The right starfield's motion: it waits for the flyaway only once its animation has it wait
     /// (<see cref="EndingSceneCue.WaitForFlyaway"/>).
     /// </summary>
-    internal static EndingFlyawayStarsMotion WaitingWhenCued() => new(null);
+    internal static EndingFlyawayStarsMotion WaitingWhenCued() => new(EndingStarsMotion.NotYetWaiting);
 
-    /// <summary>How the starfield moves with the flyaway, or null while it does not yet wait for it.</summary>
-    internal EndingStarsMotion? Motion { get; private set; } = motion;
+    /// <summary>How the starfield moves with the flyaway.</summary>
+    internal EndingStarsMotion Motion { get; private set; } = motion;
 
     /// <summary>The starfield's speed across the screen once the flyaway starts it.</summary>
     private SignedSixteenSixteen velocity;
@@ -38,7 +38,7 @@ internal sealed class EndingFlyawayStarsMotion(EndingStarsMotion? motion) : Endi
         Ensure.NotNull(scene);
         switch (Motion)
         {
-            case null:
+            case EndingStarsMotion.NotYetWaiting:
                 break;
             case EndingStarsMotion.WaitingForFlyaway:
                 if (scene.Phase == EndingCreditsPhase.PlanetEscapeFast)

@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal static class PhantoonReactions
 {
     /// <summary>Phantoon's body touch reaction.</summary>
-    internal static EnemyReaction Touch { get; } = EnemyReaction.OfSpecies("Phantoon.Touch");
+    internal static EnemyReaction Touch => SpeciesOwnReactions.PhantoonTouch;
 
     /// <summary>Phantoon's body shot reaction.</summary>
-    internal static EnemyReaction Shot { get; } = EnemyReaction.OfSpecies("Phantoon.Shot");
+    internal static EnemyReaction Shot => SpeciesOwnReactions.PhantoonShot;
 }

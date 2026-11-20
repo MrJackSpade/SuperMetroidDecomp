@@ -86,7 +86,7 @@ internal static class RoomEnemyFrameFixtures
         Samus = inputs.Samus,
         NewlyPressedControllerInput = GameplayAction.None,
         ControllerInput = GameplayAction.None,
-        SamusPreviousPositionCheckpoint = null,
+        SamusPreviousPositionCheckpoint = SuperMetroid.Core.Samus.Movement.SamusScrollCheckpoint.SincePlacement,
         Level = Ensure.NotNull(level),
         SamusProjectiles = inputs.Projectiles,
         SamusColours = inputs.Colours,
@@ -125,7 +125,7 @@ internal static class RoomEnemyFrameFixtures
         /// </summary>
         internal void ResolveShotsOnInteractiveEnemies(SamusProjectileSystem projectiles, SamusBombProjectileSystem samusBombs, AreaId roomArea, SamusState samus)
         {
-            foreach (RoomEnemyPlace enemy in self.ProcessingWindow.InteractiveEnemies)
+            foreach (RoomEnemyOccupant enemy in self.ProcessingWindow.InteractiveEnemies)
                 self.Collision.ResolveOrdinaryProjectileHit(projectiles, samusBombs, roomArea, samus, enemy, Position16<RoomPixels>.Zero);
         }
 
@@ -135,7 +135,7 @@ internal static class RoomEnemyFrameFixtures
         /// </summary>
         internal void ResolveBombsOnInteractiveEnemies(SamusBombProjectileSystem bombs, SamusProjectileSystem ordinaryProjectiles, SamusState samus)
         {
-            foreach (RoomEnemyPlace enemy in self.ProcessingWindow.InteractiveEnemies)
+            foreach (RoomEnemyOccupant enemy in self.ProcessingWindow.InteractiveEnemies)
                 self.Collision.ResolveOrdinaryBombHit(bombs, ordinaryProjectiles, samus, enemy, Position16<RoomPixels>.Zero);
         }
     }

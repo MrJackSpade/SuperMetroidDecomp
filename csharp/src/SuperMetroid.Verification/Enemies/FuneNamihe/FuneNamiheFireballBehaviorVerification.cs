@@ -32,7 +32,7 @@ internal static class FuneNamiheFireballBehaviorVerification
         {
             // Each species spits its own fireball.
             EnemyDefinitionId species = kind == RoomEnemyProjectileKind.FuneFireball ? EnemyDefinitionId.Fune : EnemyDefinitionId.Namihe;
-            source.Bind(species, source.Definition);
+            source.Bind(species, source.KeptDefinition);
             source.SetSpawnParameter1(species, species == EnemyDefinitionId.Namihe ? 1 : 0);
             source.SetSpawnParameter2(species, 0);
             FuneNamiheEnemyState spitter = species == EnemyDefinitionId.Namihe
@@ -42,7 +42,7 @@ internal static class FuneNamiheFireballBehaviorVerification
             {
                 foreach (EnemyProjectile candidate in enemies.Projectiles.EnemyProjectiles)
                     candidate.Delete();
-                enemies.FuneNamiheBehavior.SpawnFuneNamiheFireball(source, spitter, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, kind);
+                enemies.FuneNamiheBehavior.SpawnFuneNamiheFireball(source.HeldOccupant(), source, spitter, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, kind);
                 EnemyProjectile fireball = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == kind);
                 FuneNamiheFireballSegment program = movingRight ? FuneNamiheFireballSegment.Right : FuneNamiheFireballSegment.Left;
                 AssertTrue(fireball.Animation is FuneNamiheFireballAnimation animation && animation.PlayingSegment == program,

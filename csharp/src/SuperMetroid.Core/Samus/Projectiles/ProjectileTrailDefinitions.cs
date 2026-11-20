@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public static class ProjectileTrailDefinitions
 {
     /// <summary>The trail a missile or Super Missile leaves: the missile animation on the left, none on the right.</summary>
-    internal static readonly ProjectileTrailAnimations MissileTrail = new(Missile, Empty);
+    internal static readonly ProjectileTrailAnimations MissileTrail = new(Missile, EndsWithoutSparkle);
 
     /// <summary>The trail the Spazer special attack's trailing pair leaves: the left ice animation on both sides.</summary>
     internal static readonly ProjectileTrailAnimations SpazerAttackTrail = new(LeftIce, LeftIce);
@@ -20,22 +20,22 @@ public static class ProjectileTrailDefinitions
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, ProjectileTrailAnimations> UnchargedBeamTrails =
         new Dictionary<SamusBeamCombination, ProjectileTrailAnimations>
         {
-            [SamusBeamCombination.Power] = new(Empty, Empty),
-            [SamusBeamCombination.Wave] = new(Wave, Empty),
-            [SamusBeamCombination.Ice] = new(LeftIce, Empty),
-            [SamusBeamCombination.IceWave] = new(LeftIce, Empty),
-            [SamusBeamCombination.Spazer] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerWave] = new(Empty, Empty),
+            [SamusBeamCombination.Power] = new(EndsWithoutSparkle, EndsWithoutSparkle),
+            [SamusBeamCombination.Wave] = new(Wave, EndsWithoutSparkle),
+            [SamusBeamCombination.Ice] = new(LeftIce, EndsWithoutSparkle),
+            [SamusBeamCombination.IceWave] = new(LeftIce, EndsWithoutSparkle),
+            [SamusBeamCombination.Spazer] = new(EndsWithoutSparkle, EndsWithoutSparkle),
+            [SamusBeamCombination.SpazerWave] = new(EndsWithoutSparkle, EndsWithoutSparkle),
             [SamusBeamCombination.SpazerIce] = new(LeftIce, RightIce),
             [SamusBeamCombination.SpazerIceWave] = new(LeftIce, RightIce),
-            [SamusBeamCombination.Plasma] = new(Empty, Empty),
-            [SamusBeamCombination.PlasmaWave] = new(Empty, Empty),
-            [SamusBeamCombination.PlasmaIce] = new(LeftIce, Empty),
+            [SamusBeamCombination.Plasma] = new(EndsWithoutSparkle, EndsWithoutSparkle),
+            [SamusBeamCombination.PlasmaWave] = new(EndsWithoutSparkle, EndsWithoutSparkle),
+            [SamusBeamCombination.PlasmaIce] = new(LeftIce, EndsWithoutSparkle),
             [SamusBeamCombination.PlasmaIceWave] = new(LeftIce, RightIce),
-            [SamusBeamCombination.SpazerPlasma] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerPlasmaWave] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerPlasmaIce] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerPlasmaIceWave] = new(Empty, Empty),
+            [SamusBeamCombination.SpazerPlasma] = new(EndsWithoutSparkle, EndsWithoutSparkle),
+            [SamusBeamCombination.SpazerPlasmaWave] = new(EndsWithoutSparkle, EndsWithoutSparkle),
+            [SamusBeamCombination.SpazerPlasmaIce] = new(EndsWithoutSparkle, EndsWithoutSparkle),
+            [SamusBeamCombination.SpazerPlasmaIceWave] = new(EndsWithoutSparkle, EndsWithoutSparkle),
         };
 
     /// <summary>
@@ -46,21 +46,21 @@ public static class ProjectileTrailDefinitions
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, ProjectileTrailAnimations> ChargedBeamTrails =
         new Dictionary<SamusBeamCombination, ProjectileTrailAnimations>
         {
-            [SamusBeamCombination.Power] = new(LeftIce, Empty),
+            [SamusBeamCombination.Power] = new(LeftIce, EndsWithoutSparkle),
             [SamusBeamCombination.Wave] = new(Wave, Wave),
-            [SamusBeamCombination.Ice] = new(LeftIce, Empty),
+            [SamusBeamCombination.Ice] = new(LeftIce, EndsWithoutSparkle),
             [SamusBeamCombination.IceWave] = new(LeftIce, RightIce),
-            [SamusBeamCombination.Spazer] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerWave] = new(Empty, Empty),
+            [SamusBeamCombination.Spazer] = new(EndsWithoutSparkle, EndsWithoutSparkle),
+            [SamusBeamCombination.SpazerWave] = new(EndsWithoutSparkle, EndsWithoutSparkle),
             [SamusBeamCombination.SpazerIce] = new(LeftIce, RightIce),
             [SamusBeamCombination.SpazerIceWave] = new(LeftIce, RightIce),
-            [SamusBeamCombination.Plasma] = new(Empty, Empty),
-            [SamusBeamCombination.PlasmaWave] = new(Empty, Empty),
-            [SamusBeamCombination.PlasmaIce] = new(LeftIce, Empty),
+            [SamusBeamCombination.Plasma] = new(EndsWithoutSparkle, EndsWithoutSparkle),
+            [SamusBeamCombination.PlasmaWave] = new(EndsWithoutSparkle, EndsWithoutSparkle),
+            [SamusBeamCombination.PlasmaIce] = new(LeftIce, EndsWithoutSparkle),
             [SamusBeamCombination.PlasmaIceWave] = new(LeftIce, RightIce),
-            [SamusBeamCombination.SpazerPlasma] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerPlasmaWave] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerPlasmaIce] = new(Empty, Empty),
-            [SamusBeamCombination.SpazerPlasmaIceWave] = new(Empty, Empty),
+            [SamusBeamCombination.SpazerPlasma] = new(EndsWithoutSparkle, EndsWithoutSparkle),
+            [SamusBeamCombination.SpazerPlasmaWave] = new(EndsWithoutSparkle, EndsWithoutSparkle),
+            [SamusBeamCombination.SpazerPlasmaIce] = new(EndsWithoutSparkle, EndsWithoutSparkle),
+            [SamusBeamCombination.SpazerPlasmaIceWave] = new(EndsWithoutSparkle, EndsWithoutSparkle),
         };
 }

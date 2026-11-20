@@ -75,7 +75,7 @@ internal static class CeresRidleyColorsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(fixtureAssets.EnemyTiles.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: fixtureAssets.EnemyTiles.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         // Binding gives the place a fresh occupant, so the body is bound before it begins the encounter it holds (#2231).
-        place.Bind(EnemyDefinitionId.RidleyCeres, place.Definition);
+        place.Bind(EnemyDefinitionId.RidleyCeres, place.KeptDefinition);
         enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley(place);
         CheckCgram(enemies.CeresRidley() ?? throw new InvalidOperationException("Ceres Ridley initialization did not publish state."),
             document.Start.Length, CeresRidleyShadeDefinitionsConstants.StartCgramIndex,

@@ -52,8 +52,8 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace, ushort> spawnStalk = (stalkBody, stalkIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody, SporeSpawnProjectileDefinitions.StalkSegments[stalkIndex]);
-        Action<RoomEnemyPlace, ushort> spawnSpawner = (spawnerBody, spawnerIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody, new SporeSpawnEnemyState(), SporeSpawnProjectileDefinitions.Emitters[spawnerIndex]);
+        Action<RoomEnemyPlace, ushort> spawnStalk = (stalkBody, stalkIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody.BoundFor(EnemyDefinitionId.SporeSpawn), stalkBody, SporeSpawnProjectileDefinitions.StalkSegments[stalkIndex]);
+        Action<RoomEnemyPlace, ushort> spawnSpawner = (spawnerBody, spawnerIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody.HeldOccupant(), spawnerBody, new SporeSpawnEnemyState(), SporeSpawnProjectileDefinitions.Emitters[spawnerIndex]);
         Action<EnemyProjectile> move = enemies.SporeSpawnBehavior.Spore.DriftSpore;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(0x1234, 0x0200));
@@ -77,12 +77,11 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 $"Spore Spawn production emitter Y {index}");
         }
 
-        EnemyProjectile spore = enemies.Projectiles.ProjectileInPlace(0);
         for (int step = 0; step < 128; step++)
         for (int mirrored = 0; mirrored < 2; mirrored++)
         {
             int offset = step * 2;
-            global::SuperMetroid.Core.PrivateState.Set(spore, "Kind", RoomEnemyProjectileKind.SporeSpawnSpore);
+            EnemyProjectile spore = enemies.Projectiles.Occupy(0, RoomEnemyProjectileKind.SporeSpawnSpore);
             spore.Position = spore.Position.WithWhole(new(0x0200, 0x0200));
             enemies.SporeSpawnBehavior.Spore.Drifts.Start(spore, new SporeSpawnSporeState(mirrored != 0 ? HorizontalDirection.Left : HorizontalDirection.Right) { PathStep = ListStep<Offset16<RoomPixels>>.At(SporeSpawnProjectileDefinitions.Drift, step) });
             int x = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset));

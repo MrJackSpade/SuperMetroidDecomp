@@ -15,7 +15,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FakeKraid];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new FakeKraidEntity(this, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new FakeKraidEntity(this, occupant, place, common));
 
     /// <summary>Provides the existing random number sampled for Fake Kraid's action decisions.</summary>
     private readonly EnemyRoomBinding _room;
@@ -45,12 +45,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of Fake Kraid's animations. The action choice continues at the step or spit animation it
     /// selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemyPlace place, FakeKraidCue cue, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera)
+    private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, FakeKraidCue cue, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera)
     {
         switch (cue)
         {
             case FakeKraidCue.Spit spit:
-                SpawnFakeKraidSpitPair(place, spit.Direction);
+                SpawnFakeKraidSpitPair(occupant, place, spit.Direction);
                 return null;
             case FakeKraidCue.Move:
                 // Walk cue: advance one step unless its random reversal
@@ -108,7 +108,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Fake Kraid's main AI for one update.</summary>
     private void RunFakeKraidMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         FakeKraidEnemyState state,
         Position16<RoomPixels> camera)
     {
@@ -128,7 +128,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         spikeWait.LastFor(
             KraidRandomDefinitions.FakeKraidSpikeReloadSpread.Of(ReadFakeKraidRandomNumber()) +
             KraidRandomDefinitions.FakeKraidSpikeReloadBase);
-        if (SpawnFakeKraidSpike(place, state, row) &&
+        if (SpawnFakeKraidSpike(occupant, place, state, row) &&
             EnemyView.Contains(place.Position.Whole, camera))
         {
             RequestFakeKraidSound(KraidSoundDefinitions.FakeKraidSpikeLaunch);
@@ -195,12 +195,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Fake Kraid's left and right spit steps.</summary>
     private void SpawnFakeKraidSpitPair(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         HorizontalDirection direction)
     {
         int xOffset = FakeKraidProjectileDefinitions.SpitAheadPixels.Toward(direction);
         foreach (FakeKraidSpit spit in FakeKraidProjectileDefinitions.SpitsInLaunchOrder)
-            SpawnFakeKraidSpit(place, xOffset, FakeKraidProjectiles.SpitLaunch(direction, spit));
+            SpawnFakeKraidSpit(occupant, place, xOffset, FakeKraidProjectiles.SpitLaunch(direction, spit));
     }
 
     /// <summary>
@@ -208,19 +208,14 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// projectile pool spawns none.
     /// </summary>
     private void SpawnFakeKraidSpit(
-        RoomEnemyPlace source,
+        RoomEnemyOccupant occupant, RoomEnemyPlace source,
         int xOffset,
         PixelVelocity<RoomPixels> velocity)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FakeKraidSpit, SpitAndSpikes, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.FakeKraidSpit,
-            SpitAndSpikes,
-            SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FakeKraidProjectileAnimation(FakeKraidProjectilePose.Spit));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
             source.Position.Whole + new Offset16<RoomPixels>(xOffset, FakeKraidProjectileDefinitions.SpitYOffset));
@@ -230,19 +225,14 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Allocates a spike at an authored body row, flying the way Fake Kraid faces (#2278).</summary>
     /// <returns>False when the enemy projectile pool is full.</returns>
     private bool SpawnFakeKraidSpike(
-        RoomEnemyPlace source,
+        RoomEnemyOccupant occupant, RoomEnemyPlace source,
         FakeKraidEnemyState state,
         FakeKraidSpikeRow row)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FakeKraidSpike, SpitAndSpikes, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return false;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.FakeKraidSpike,
-            SpitAndSpikes,
-            SpriteGraphics.SpawnedBy(source));
         bool left = state.Facing == HorizontalDirection.Left;
         projectile.StartAnimation(new FakeKraidProjectileAnimation(left
             ? FakeKraidProjectilePose.SpikeLeft
@@ -292,10 +282,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// scatters its pickups from where the enemy stood before the shot struck.
     /// The explosion therefore takes the first free projectile place.
     /// </summary>
-    private void KillFakeKraid(RoomEnemyPlace place, SamusState samus)
+    private void KillFakeKraid(RoomEnemyOccupant fakeKraid, SamusState samus)
     {
+        RoomEnemyPlace place = fakeKraid.Place;
         Position16<RoomPixels> origin = place.Position.Whole;
-        _deathsAndDrops.StartGenericEnemyDeath(place, EnemyDeathExplosion.FakeKraid, samus);
+        _deathsAndDrops.StartGenericEnemyDeath(fakeKraid, EnemyDeathExplosion.FakeKraid, samus);
         SpawnFakeKraidDeathDrops(origin, samus);
     }
 
@@ -319,10 +310,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
         AfterCommon = c =>
         {
-            // The bomb selects the fake Kraid's own shot reaction, which its definition leaves to it, rather than the
-            // empty frame's ordinary one.
-            if (c.SelectedShot is null && c.HealthBefore != 0 && c.Enemy.Health == 0)
-                KillFakeKraid(c.Enemy, c.Samus);
+            // The bomb selects the fake Kraid's own shot reaction, which its definition names, rather than the empty
+            // frame's ordinary one.
+            if (c.SelectedShot == KraidReactions.FakeKraidShot && c.HealthBefore != 0 && c.Enemy.Health == 0)
+                KillFakeKraid(c.Occupant, c.Samus);
         },
     };
 
@@ -365,19 +356,19 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Fake Kraid's main AI.</summary>
-    internal void RunFakeKraidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunFakeKraidMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         RunFakeKraidMain(
-            place,
+            occupant, place,
             place.RequireSpeciesState<FakeKraidEnemyState>(),
             frame.Camera);
     }
 
     /// <summary>Advances Fake Kraid's typed animation.</summary>
-    internal void AdvanceFakeKraidTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
+    internal void AdvanceFakeKraidTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context) =>
         EnemyAnimationPlayback.Advance(place, FakeKraidAnimations.Segments,
             static (FakeKraidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (_, cue) => ApplyFakeKraidCue(place, cue, context.Samus, context.Level, context.Camera) is { } action
+            (_, cue) => ApplyFakeKraidCue(occupant, place, cue, context.Samus, context.Level, context.Camera) is { } action
                 ? new AnimationContinuation<FakeKraidSegment>(FakeKraidAnimations.StartingWith(action), AnimationPlace.StartOfAnimation)
                 : null);
 
@@ -386,7 +377,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Fake Kraid's private power-bomb reaction still owns its direct pickup explosions, spawned after its
         // death explosion.
-        ReplacesGenericDeath = c => KillFakeKraid(c.Enemy, c.Samus),
+        ReplacesGenericDeath = c => KillFakeKraid(c.Occupant, c.Samus),
     };
 
     /// <summary>Replaces ordinary projectile-shot death and preserves the pickup scatter on a lethal hit.</summary>
@@ -396,7 +387,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         ReplacesGenericDeath = c =>
         {
-            KillFakeKraid(c.Enemy, c.Samus);
+            KillFakeKraid(c.Occupant, c.Samus);
             return true;
         },
         AfterCommon = c =>
@@ -412,6 +403,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int healthBefore = context.Place.Health;
         _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
         if (healthBefore != 0 && context.Place.Health == 0)
-            KillFakeKraid(context.Place, context.Samus);
+            KillFakeKraid(context.Occupant, context.Samus);
     }
 }

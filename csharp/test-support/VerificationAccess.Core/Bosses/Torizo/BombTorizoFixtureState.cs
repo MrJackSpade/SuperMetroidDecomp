@@ -6,13 +6,15 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class BombTorizoFixtureState
 {
     /// <summary>
-    /// Installs a new Torizo state as <paramref name="torizo"/>'s species state, with the posture latches of the authored
-    /// <paramref name="parameter1"/> word.
+    /// Binds the Torizo of <paramref name="variant"/> in <paramref name="torizo"/> (#2558) and installs a new Torizo state as
+    /// its species state, with the posture latches of the authored <paramref name="parameter1"/> word.
     /// </summary>
     /// <returns>The bound state.</returns>
     internal static TorizoEnemyState BindTorizoFixtureState(this RoomEnemyPlace torizo, int parameter1, TorizoVariant? variant = null)
     {
-        var state = new TorizoEnemyState(variant ?? TorizoVariant.Bomb)
+        TorizoVariant bound = variant ?? TorizoVariant.Bomb;
+        torizo.Bind(bound == TorizoVariant.Golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.BombTorizo, torizo.KeptDefinition);
+        var state = new TorizoEnemyState(bound)
         {
             Posture = TorizoParameterFlagWords.PostureOf(parameter1),
         };

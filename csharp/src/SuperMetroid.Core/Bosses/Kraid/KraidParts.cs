@@ -105,6 +105,27 @@ internal sealed class KraidParts
         }
     }
 
+    /// <summary>The fingernails last spawned in their places, which Kraid's death kills.</summary>
+    internal IEnumerable<RoomEnemyOccupant> LatestNails
+    {
+        get
+        {
+            yield return FirstNailReference.LatestOccupant;
+            yield return SecondNailReference.LatestOccupant;
+        }
+    }
+
+    /// <summary>The lints last spawned in their places, which Kraid's death kills.</summary>
+    internal IEnumerable<RoomEnemyOccupant> LatestLints
+    {
+        get
+        {
+            yield return TopLintReference.LatestOccupant;
+            yield return MiddleLintReference.LatestOccupant;
+            yield return BottomLintReference.LatestOccupant;
+        }
+    }
+
     /// <summary>His body, arm, lints and foot, in running order: every part but the fingernails.</summary>
     internal IEnumerable<RoomEnemyPlace> AllButNails
     {

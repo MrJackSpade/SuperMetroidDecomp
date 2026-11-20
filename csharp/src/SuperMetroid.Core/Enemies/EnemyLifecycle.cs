@@ -35,13 +35,12 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         RoomEnemyPlacement population,
         RoomEnemyDefinition definition)
     {
-        // The placement is recorded before the entity is bound, so a species that places several actors creates the one
-        // the placement names (#1953).
-        place.Spawn = new RoomEnemySpawnSnapshot(population);
-        place.Bind(population.DefinitionId, definition);
+        // The occupant carries its placement into the entity its species creates, so a species that places several actors
+        // creates the one the placement names (#1953).
+        place.Bind(population, definition);
         place.Radius = new(definition.Radius.X, definition.Radius.Y);
         place.Health = definition.Health;
-        place.Position = place.Position.WithWhole(new(population.Position.X, population.Position.Y));
+        place.Position = population.Placing.Place(place.Position);
 
         place.Contact = population.Contact;
         place.Processing = population.Processing;
@@ -79,7 +78,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     /// <summary>The occupant <paramref name="place"/> holds.</summary>
     /// <exception cref="InvalidDataException">The place holds no entity.</exception>
     private static EnemyOccupant OccupantOf(RoomEnemyPlace place) =>
-        Ensure.NotNull(place).Occupant ?? throw new InvalidDataException($"Enemy {place.DefinitionId} has no entity to set up.");
+        Ensure.NotNull(place).BoundEntity ?? throw new InvalidDataException($"Enemy place {place.Ordinal} has no entity to set up.");
 
     /// <summary>Exposes setting up a listed enemy from its population entry to the enemy loader.</summary>
     void IEnemyLifecycle.InitializePlaceFromDefinition(
@@ -110,7 +109,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         SetUpSpawnedEnemy(place);
         // Spawning writes the empty frame after initialization, before the first animation tick.
         place.Frame = place.Processing.HasAny(EnemyProcessing.Animates)
-            ? EnemyFrameId.Empty
+            ? EnemyFrameId.PointAtOrigin
             : null;
         _places.CoverSpawn(place);
         return place;
@@ -121,12 +120,12 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         RunMainAi(place, frame);
 
     /// <summary>Exposes the enemies selected for Samus collision checks this frame.</summary>
-    IReadOnlyList<RoomEnemyPlace> IEnemyLifecycle.InteractiveEnemies => _processingWindow.InteractiveEnemies;
+    IReadOnlyList<RoomEnemyOccupant> IEnemyLifecycle.InteractiveEnemies => _processingWindow.InteractiveEnemies;
 
     /// <summary>
-    /// Runs the main AI the occupant of a loaded place carries, and nothing for one that has none, as a place awaiting its
-    /// enemy's respawn has none: the enemy pass still counts its update.
+    /// Runs the main AI the entity bound in a loaded place carries, and nothing for one that has none, as a place awaiting
+    /// its enemy's respawn has none: the enemy pass still counts its update.
     /// </summary>
     internal static void RunMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        Ensure.NotNull(place).Occupant?.MainAi?.RunMainAi(frame);
+        Ensure.NotNull(place).BoundEntity?.MainAi?.RunMainAi(frame);
 }

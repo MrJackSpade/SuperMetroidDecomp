@@ -130,7 +130,7 @@ internal static class RoomDoorBlockFiles
                 var blocks = new List<RoomDoorBlock>();
                 foreach ((string exitName, DoorBlockDocument[] positions) in exits)
                 {
-                    DoorBlockExit exit = exitsByName.TryGetValue(exitName, out DoorBlockExit found)
+                    DoorBlockExit exit = exitsByName.TryGetValue(exitName, out DoorBlockExit? found)
                         ? found
                         : throw new InvalidDataException($"Room door blocks {path} name unknown door '{exitName}' in {roomName}.");
                     blocks.AddRange(positions.Select(position => new RoomDoorBlock(position.Block(path), exit)));
@@ -144,7 +144,7 @@ internal static class RoomDoorBlockFiles
     }
 
     /// <summary>The name the document gives an exit: its door's, or the elevator ride's.</summary>
-    private static string NameOf(DoorBlockExit exit) => exit.Door?.Name ?? ElevatorRideName;
+    private static string NameOf(DoorBlockExit exit) => exit is DoorBlockExit.ThroughDoor { Door: var door } ? door.Name : ElevatorRideName;
 
     /// <summary>Each retail room's door blocks in each level its states use, by the room's, the level's and each exit's name.</summary>
     private sealed record RoomDoorBlocksDocument(int Version,

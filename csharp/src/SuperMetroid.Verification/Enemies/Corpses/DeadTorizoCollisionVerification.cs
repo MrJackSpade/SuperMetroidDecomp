@@ -21,7 +21,7 @@ internal static class DeadTorizoCollisionVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: InstalledFixtures.BossArtwork);
             enemies.VerificationServices().ReadRandom = () => 0;
             var place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.CorpseTorizo, place.Definition);
+            place.Bind(EnemyDefinitionId.CorpseTorizo, place.KeptDefinition);
             place.Position = place.Position.WithWhole(new(120, 100));
             place.Radius = new(16, 32);
             enemies.DeadTorizoBehavior.InitializeDeadTorizo(place);
@@ -69,7 +69,7 @@ internal static class DeadTorizoCollisionVerification
             bool IsInteractive()
             {
                 enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(Position16<RoomPixels>.Zero);
-                return enemies.ProcessingWindow.InteractiveEnemies.Contains(place);
+                return enemies.ProcessingWindow.InteractiveEnemies.Any(occupant => occupant.Place == place);
             }
             SolidEnemyCollisionResult Probe() => SamusSolidEnemyCollision.Probe(samus.Kinematics,
                 IsInteractive() ? [new SolidEnemyCollisionBody(place, place.Position.Whole, new(place.Radius.X, place.Radius.Y), place.Freeze.IsRunning || place.Contact.HasAny(EnemyContact.SolidToSamus))] : [],

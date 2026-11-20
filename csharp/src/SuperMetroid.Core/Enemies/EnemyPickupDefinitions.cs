@@ -9,8 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyPickupDefinitions
 {
     /// <summary>
-    /// Each pickup kind's drop animation. <see cref="EnemyPickupKind.NoDrop"/> has no entry; the dormant pickup path
-    /// handles it.
+    /// Each pickup kind's drop animation. A roll that drops nothing shows none; the dormant pickup path handles it.
     /// </summary>
     internal static readonly Dictionary<EnemyPickupKind, EnemyPickupAnimationDefinition> Animations = new()
     {

@@ -11,5 +11,5 @@ internal static class EnemyDefinitionIdsConstants2
     /// (<see cref="EnemyHeaderWords.SharedHeaders"/>) names none of them alone: its placement's parameters select the actor.
     /// </summary>
     internal static bool TryFromHeaderPointer(int pointer, out EnemyDefinitionId id) =>
-        EnemyHeaderWords.Headers.TryDecode(pointer, out id) && id != EnemyDefinitionId.None;
+        EnemyHeaderWords.Headers.TryDecode(pointer, out id);
 }

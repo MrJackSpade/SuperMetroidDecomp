@@ -43,12 +43,13 @@ internal static class RoomScopeVerification
         runtime.ColourEffectSession.PublishedHeatPhase = heatPhase;
         source.Enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(5), 4);
         runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyEscaped;
-        EnemyProjectile sourceProjectile = source.Enemies.Projectiles.AllocateEnemyProjectile() ??
+        EnemyProjectile sourceProjectile = source.Enemies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DustOrExplosion,
+                SuperMetroid.Core.Enemies.Projectiles.DustExplosionProjectileBehavior.Instance, SpriteGraphics.SharedStandard) ??
             throw new InvalidOperationException("The Landing Site holds every enemy-projectile place.");
         sourceProjectile.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0140, 0x1234, 0x0090, 0x5678);
         sourceProjectile.Velocity = new(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(-2));
         SamusProjectile sourceShot = source.Projectiles.Pool.Shots[2];
-        sourceShot.Damage = 1;
+        sourceShot.OccupyAsFired(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
         sourceShot.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0120, 0x4321, 0x0080, 0x8765);
 
         SelectedRoom parlor = runtime.RoomLoader.LoadSelectedRoom(RoomDefinitions.Parlor);

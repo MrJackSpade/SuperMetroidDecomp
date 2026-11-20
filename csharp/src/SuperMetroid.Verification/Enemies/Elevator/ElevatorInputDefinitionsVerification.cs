@@ -29,18 +29,18 @@ internal static class ElevatorInputDefinitionsVerification
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaBossDefeated = () => true;
-            Action<RoomEnemyPlace, SamusState> initialize = enemies.ElevatorBehavior.InitializeElevator;
+            Action<RoomEnemyPlace, SamusState> initialize = (fixturePlace, fixtureArg1) => enemies.ElevatorBehavior.InitializeElevator(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1);
             Action<RoomEnemyPlace, SamusState, GameplayAction,
-                    SamusProjectileSystem> wait = enemies.ElevatorBehavior.WaitForElevatorDirectionInput;
+                    SamusProjectileSystem> wait = (fixturePlace, fixtureArg1, fixtureArg2, fixtureArg3) => enemies.ElevatorBehavior.WaitForElevatorDirectionInput(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1, fixtureArg2, fixtureArg3);
 
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Elevator, place.Definition);
+            place.Bind(EnemyDefinitionId.Elevator, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.Elevator, direction);
             place.Position = place.Position.WithWhole(new(0x0100, 0x0180));
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             samus.BindBodyFixture(bodyArtwork);
             initialize(place, samus);
-            AssertEqual(travel, place.SpawnSettings<ElevatorSpawnSettings>().Direction,
+            AssertEqual(travel, place.HeldOccupant().SpawnSettings<ElevatorSpawnSettings>().Direction,
                 $"elevator parameter {direction} travels {travel}");
 
             GameplayAction opposite = GameplayActionWordCodec.FromJoypadWord(LittleEndianBytes.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))), "native opposite elevator mask");

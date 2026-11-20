@@ -66,7 +66,7 @@ internal static class TorizoProjectileAnimations
             Show(EnemyProjectileFrameId.TorizoExplosionFireCloudBreaking, 8),
             Show(EnemyProjectileFrameId.TorizoExplosionFireCloudEmbers, 8),
         ],
-        [P.DroolForming] = [Show(EnemyProjectileFrameId.Blank, 2)],
+        [P.DroolForming] = [Hide(2)],
         [P.DroolNoDelay] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StartDroolFall)),
@@ -201,7 +201,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EyeBeamFloorImpactWaiting] =
         [
-            Show(EnemyProjectileFrameId.Blank, 8),
+            Hide(8),
             Mark(K.FloorImpactWaited),
         ],
         [P.EyeBeamFloorFlames] =
@@ -436,6 +436,10 @@ internal static class TorizoProjectileAnimations
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue> Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>.Frame(frame, duration);
+
+    /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue> Hide(int duration) =>
+        new AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>.Hidden(duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue> Cue(TorizoProjectileCue cue) =>

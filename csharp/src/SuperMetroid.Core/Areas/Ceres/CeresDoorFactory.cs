@@ -24,12 +24,12 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
 
     /// <summary>The door or wall actor <paramref name="place"/>'s definition names, facing or standing where its placement says.</summary>
     /// <exception cref="InvalidDataException">The definition is no Ceres door or wall, or the placement names no facing or side.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId actor = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId actor = Ensure.NotNull(occupant).DefinitionId;
         if (actor == EnemyDefinitionId.CeresDoor)
         {
-            return EnemyOccupant.Of(new CeresDoorEntity(_doors, place, common, place.SpawnSettings<CeresDoorSpawnSettings>().Facing switch
+            return EnemyOccupant.Of(new CeresDoorEntity(_doors, occupant, place, common, occupant.SpawnSettings<CeresDoorSpawnSettings>().Facing switch
             {
                 HorizontalDirection.Right => CeresDoorSegment.DoorFacingRight,
                 HorizontalDirection.Left => CeresDoorSegment.DoorFacingLeft,
@@ -37,12 +37,12 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
             }));
         }
         if (actor == EnemyDefinitionId.CeresRidleyRoomDoor)
-            return EnemyOccupant.Of(new CeresRidleyRoomDoorEntity(_doors, place, common));
+            return EnemyOccupant.Of(new CeresRidleyRoomDoorEntity(_doors, occupant, place, common));
         if (actor == EnemyDefinitionId.CeresElevatorRoomWall)
-            return EnemyOccupant.Of(new CeresElevatorRoomWallEntity(_doors, place, common));
+            return EnemyOccupant.Of(new CeresElevatorRoomWallEntity(_doors, occupant, place, common));
         if (actor == EnemyDefinitionId.CeresGetawayChamberWall)
         {
-            return EnemyOccupant.Of(new CeresGetawayChamberWallEntity(_doors, place, common, place.SpawnSettings<CeresGetawayChamberWallSpawnSettings>().Side switch
+            return EnemyOccupant.Of(new CeresGetawayChamberWallEntity(_doors, occupant, place, common, occupant.SpawnSettings<CeresGetawayChamberWallSpawnSettings>().Side switch
             {
                 HorizontalDirection.Left => CeresDoorSegment.GetawayChamberLeftWall,
                 HorizontalDirection.Right => CeresDoorSegment.GetawayChamberRightWall,

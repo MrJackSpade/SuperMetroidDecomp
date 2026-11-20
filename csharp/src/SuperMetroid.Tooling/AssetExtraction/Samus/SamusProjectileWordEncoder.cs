@@ -18,21 +18,23 @@ public static class SamusProjectileWordEncoder
     /// The type word of a bomb slot's projectile, for tools that export bomb state beside the cartridge's: placed bombs
     /// and Power Bombs carry no live marker, spread bombs do, and a bomb that reacted to terrain sets bit zero.
     /// </summary>
-    /// <param name="type">The bomb slot's projectile.</param>
-    /// <param name="isBombSpread">Whether the bomb is one of a bomb spread's five.</param>
-    /// <param name="hasReactedToTerrain">Whether the bomb's explosion has reacted to the terrain around it.</param>
-    /// <returns>The type word; zero for <see cref="SamusProjectileType.None"/>.</returns>
-    public static int EncodeBombType(SamusProjectileType type, bool isBombSpread, bool hasReactedToTerrain)
+    /// <param name="bomb">The bomb slot.</param>
+    /// <returns>The type word; zero for a slot no bomb holds.</returns>
+    public static int EncodeBombType(SamusBomb bomb)
     {
-        if (type.IsNone)
-            return 0;
-        int word = FamilyRow(type.Family) << FamilyShift;
-        if (isBombSpread)
+        Ensure.NotNull(bomb);
+        if (bomb.Occupant is not { } placed)
+            return EmptySlotTypeWord;
+        int word = FamilyRow(placed.Type.Family) << FamilyShift;
+        if (bomb.IsBombSpread)
             word |= LiveMarker;
-        if (hasReactedToTerrain)
+        if (bomb.HasReactedToTerrain)
             word |= ReactedToTerrainBit;
         return word;
     }
+
+    /// <summary>The type word the cartridge clears a slot no projectile holds to.</summary>
+    private const int EmptySlotTypeWord = 0;
 
     /// <summary>The row a type word gives <paramref name="family"/>; rows four and six hold no family.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="family"/> is undefined.</exception>

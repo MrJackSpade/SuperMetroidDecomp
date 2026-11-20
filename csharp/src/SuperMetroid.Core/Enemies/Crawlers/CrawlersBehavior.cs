@@ -24,20 +24,20 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Zeela, Sova and both Zoomers in the shared family; or an orange Zoomer (#2146).
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no crawler definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Sciser)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Sciser));
+            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser));
         if (definition == EnemyDefinitionId.Zero)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Zero));
+            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero));
         if (definition == EnemyDefinitionId.Viola)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Viola));
+            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola));
         if (definition is EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Shared));
+            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared));
         if (definition == EnemyDefinitionId.OrangeZoomer)
-            return EnemyOccupant.Of(new OrangeZoomerEntity(this, place, common));
-        throw new InvalidOperationException($"The crawler species creates no {place.DefinitionId}.");
+            return EnemyOccupant.Of(new OrangeZoomerEntity(this, occupant, place, common));
+        throw new InvalidOperationException($"The crawler species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Performs wall, floor, and slope probes for attached crawlers and falling Zoomers.</summary>
@@ -74,7 +74,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Initializes a crawler of any species through the shared setup. Each species differs only by the family whose
     /// animations it shows on each surface and switches between at corners.
     /// </summary>
-    internal static void InitializeCrawler(RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
+    internal static void InitializeCrawler(RoomEnemyOccupant occupant, RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
     {
         // The placement names the starting surface; the Viola alone takes its block side instead, and a Viola's
         // placement names no surface.
@@ -83,14 +83,14 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedEightEight? crawlSpeed;
         if (animationFamily == CrawlerAnimationFamily.Viola)
         {
-            ViolaSpawnSettings viola = place.SpawnSettings<ViolaSpawnSettings>();
+            ViolaSpawnSettings viola = occupant.SpawnSettings<ViolaSpawnSettings>();
             orientation = viola.BlockSide;
             blockSide = viola.BlockSide;
             crawlSpeed = viola.CrawlSpeed;
         }
         else
         {
-            CrawlerSpawnSettings settings = place.SpawnSettings<CrawlerSpawnSettings>();
+            CrawlerSpawnSettings settings = occupant.SpawnSettings<CrawlerSpawnSettings>();
             orientation = settings.Orientation;
             blockSide = settings.BlockSide;
             crawlSpeed = settings.CrawlSpeed;
@@ -107,7 +107,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
             animationFamily, orientation)), AnimationPlace.StartOfAnimation);
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.StepOnNextUpdate();
 
         state.Velocity = ResetCrawlerVelocities(blockSide, crawlSpeed, state.Velocity);
@@ -138,9 +138,9 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
 
     /// <summary>Runs the separate orange-Zoomer setup.</summary>
-    internal static void InitializeOrangeZoomer(RoomEnemyPlace place)
+    internal static void InitializeOrangeZoomer(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        CrawlerSpawnSettings settings = place.SpawnSettings<CrawlerSpawnSettings>();
+        CrawlerSpawnSettings settings = occupant.SpawnSettings<CrawlerSpawnSettings>();
         SignedEightEight crawlSpeed = settings.CrawlSpeed ??
             throw new InvalidDataException("An orange Zoomer's placement keeps its velocity, which its setup has no speed for.");
 
@@ -153,7 +153,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         Bind(place, state);
         state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
             CrawlerAnimationFamily.Shared, orientation)), AnimationPlace.StartOfAnimation);
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.StepOnNextUpdate();
         state.Velocity = SignedForBlockSide(settings.BlockSide, new PixelVelocity<RoomPixels>(crawlSpeed, crawlSpeed));
     }

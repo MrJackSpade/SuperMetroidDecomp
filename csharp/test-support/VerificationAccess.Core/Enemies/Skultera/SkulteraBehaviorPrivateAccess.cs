@@ -16,7 +16,7 @@ internal static class SkulteraBehaviorPrivateAccess
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Skultera.SkulteraBehavior), "BeginSkulteraTurn", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Skultera.SkulteraEnemyState), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection)], new object?[] { place, state, swimming });
 
         /// <summary>The private method <c>SwimVelocity</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.Core.Spatial.SignedSixteenSixteen SwimVelocity(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Spatial.HorizontalDirection direction) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.Core.Spatial.SignedSixteenSixteen>(typeof(global::SuperMetroid.Core.Enemies.Skultera.SkulteraBehavior), "SwimVelocity", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection)], new object?[] { place, direction });
+        internal static global::SuperMetroid.Core.Spatial.SignedSixteenSixteen SwimVelocity(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Spatial.HorizontalDirection direction) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.Spatial.SignedSixteenSixteen>(typeof(global::SuperMetroid.Core.Enemies.Skultera.SkulteraBehavior), "SwimVelocity", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection)], new object?[] { occupant, direction });
     }
 }

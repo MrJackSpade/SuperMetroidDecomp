@@ -11,7 +11,6 @@ internal static class EnemyProjectileFrameNameDefinitions
     /// <summary>Each projectile frame's document name.</summary>
     internal static FrozenDictionary<EnemyProjectileFrameId, string> Names { get; } = new Dictionary<EnemyProjectileFrameId, string>
     {
-        [EnemyProjectileFrameId.Blank] = "blank",
         [EnemyProjectileFrameId.SkreeDebris] = "skree_debris",
         [EnemyProjectileFrameId.MetareeDebris] = "metaree_debris",
         [EnemyProjectileFrameId.DraygonGoopSpiky] = "draygon_goop_spiky",

@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// </summary>
 internal static class GunshipLiftoffDust
 {
-    /// <summary>The gunship's liftoff dust clouds (#1760): each holds still and leaves when its animation ends.</summary>
-
     /// <summary>
     /// Spawns one of the liftoff's six dust clouds, <paramref name="placement"/>, below <paramref name="samus"/> into
     /// <paramref name="projectiles"/>. A spawn that finds every place held spawns nothing.
@@ -19,15 +17,10 @@ internal static class GunshipLiftoffDust
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(samus);
-        EnemyProjectile? projectile = projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.GunshipLiftoffDustCloud, Ensure.NotNull(dust), graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
-            Ensure.NotNull(dust),
-            graphics: default);
         projectile.Position = projectile.Position.WithWhole(new(samus.Position.X.Whole + placement.XOffset, samus.Position.Y.Whole + GunshipDustDefinitions.YOffset));
         projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
         projectile.StartAnimation(new GunshipDustAnimation(dust, placement.Animation));

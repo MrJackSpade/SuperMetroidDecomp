@@ -18,18 +18,18 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Phantoon's body, eye, tentacles or mouth (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Phantoon definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.PhantoonBody)
-            return EnemyOccupant.Of(new PhantoonBodyEntity(this, place, common, _bossArtwork));
+            return EnemyOccupant.Of(new PhantoonBodyEntity(this, occupant, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.PhantoonEye)
-            return EnemyOccupant.Of(new PhantoonEyeEntity(this, place, common, _bossArtwork));
+            return EnemyOccupant.Of(new PhantoonEyeEntity(this, occupant, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.PhantoonTentacles)
-            return EnemyOccupant.Of(new PhantoonTentaclesEntity(this, place, common, _bossArtwork));
+            return EnemyOccupant.Of(new PhantoonTentaclesEntity(this, occupant, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.PhantoonMouth)
-            return EnemyOccupant.Of(new PhantoonMouthEntity(this, place, common, _bossArtwork));
-        throw new InvalidOperationException($"The Phantoon species creates no {place.DefinitionId}.");
+            return EnemyOccupant.Of(new PhantoonMouthEntity(this, occupant, place, common, _bossArtwork));
+        throw new InvalidOperationException($"The Phantoon species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
@@ -81,10 +81,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Sets Phantoon's body up when the room spawns it: it begins the encounter with his eye, tentacles and mouth, which
     /// his room lists right after his body (#2252), and holds its part of it.
     /// </summary>
-    internal void InitializePhantoonBody(RoomEnemyPlace body)
+    internal void InitializePhantoonBody(RoomEnemyOccupant occupant, RoomEnemyPlace body)
     {
         RoomEnemyPlace[] parts = _places.ListedRunAfter(body, PhantoonPartListingDefinitions.PartsAfterBody);
-        var state = new PhantoonEnemyState(body, eye: parts[0], tentacles: parts[1], mouth: parts[2]);
+        var state = new PhantoonEnemyState(occupant, body, eye: parts[0], tentacles: parts[1], mouth: parts[2]);
         // The room steps his body wave and visibility and its display latches them from the room from here (#2194).
         _encounters.Attach(state);
 
@@ -119,7 +119,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PhantoonEnemyState state = JoiningEncounter(eye, PhantoonPartListingDefinitions.EyePlacesAfterBody);
         StartPhantoonPart(state.EyePart);
-        state.Wave.Length = null;
+        state.Wave.End();
         JoinPhantoon(state.EyePart);
     }
 
@@ -149,7 +149,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartPhantoonPart(PhantoonPart part)
     {
         RoomEnemyPlace place = part.Place;
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.Restart();
         place.Shading = part.Phantoon.Body.Shading;
     }
@@ -244,7 +244,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case PhantoonPartCue.SpawnCasualFlame:
-                Patterns.SpawnPhantoonCasualFlame(state.Body);
+                Patterns.SpawnPhantoonCasualFlame(state.BodyOccupant, state.Body);
                 _audio.QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlamePriority);
                 return;
 

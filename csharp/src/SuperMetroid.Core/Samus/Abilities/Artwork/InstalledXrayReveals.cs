@@ -43,7 +43,16 @@ public sealed class InstalledXrayReveals
         }
 
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
-        foreach (BlockReaction? reaction in BlockReactionFamilies.ReadingsOf(type))
+        {
+            IReadOnlyList<BlockReaction> readings = BlockReactionFamilies.ReadingsOf(type);
+            // A kind that reads no reaction has one rule of its own, under no reaction.
+            if (readings.Count == 0)
+                RequireCovered(type, null);
+            foreach (BlockReaction reaction in readings)
+                RequireCovered(type, reaction);
+        }
+
+        void RequireCovered(RoomCollisionType type, BlockReaction? reaction)
         {
             bool drawable = XrayReveals.Find(type, reaction) is { } shape &&
                 IsDrawable(shape);
@@ -71,7 +80,9 @@ public sealed class InstalledXrayReveals
     }
 
     /// <summary>Whether <paramref name="reaction"/> is a reaction <paramref name="type"/> reads, or null for a kind that reads none.</summary>
-    private static bool IsReadingOf(RoomCollisionType type, BlockReaction? reaction) => BlockReactionFamilies.ReadingsOf(type).Contains(reaction);
+    private static bool IsReadingOf(RoomCollisionType type, BlockReaction? reaction) => reaction is { } read
+        ? BlockReactionFamilies.ReadingsOf(type).Contains(read)
+        : BlockReactionFamilies.ReadingsOf(type).Count == 0;
 
     /// <summary>Rejects a negative reveal block, as an appearance of it would; the tileset's sheet bounds the rest (#2100).</summary>
     private static void ValidateBlocks(XrayRevealVisualBlocks visual)

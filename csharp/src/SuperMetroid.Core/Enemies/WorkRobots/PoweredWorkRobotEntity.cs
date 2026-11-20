@@ -5,10 +5,11 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// power. It walks, fires its laser and falls where nothing holds it up, and a shot or bomb that reaches it recoils it.
 /// </summary>
 /// <param name="species">The work robot species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the robot occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class PoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : WorkRobotEntity(species, place, common)
+internal sealed class PoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : WorkRobotEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>
     public override void Initialize() => Species.InitializePoweredWorkRobot(Place);

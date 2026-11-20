@@ -109,12 +109,12 @@ public sealed class InstalledRoomArtwork
         HudPictures.TryGetValue(tileset, out HudPictureSheet? pictures) ? pictures : throw new InvalidDataException($"No HUD picture sheet is installed for {tileset}.");
 
     /// <summary>
-    /// The image of library background <paramref name="background"/> in a room of <paramref name="tileset"/>: the picture
-    /// <paramref name="door"/> shows when it is one of the background's picture doors, otherwise, for no door, the ordinary one.
+    /// The image of library background <paramref name="background"/>'s picture <paramref name="picture"/> in a room of
+    /// <paramref name="tileset"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">No such image is installed.</exception>
-    public RoomBackgroundImage Background(LibraryBackground background, DoorDefinition? door, TilesetDefinition tileset) =>
-        Named(RoomBackgroundImage.NameOf(background, door, tileset));
+    public RoomBackgroundImage Background(LibraryBackground background, LibraryBackgroundPicture picture, TilesetDefinition tileset) =>
+        Named(RoomBackgroundImage.NameOf(background, picture, tileset));
 
     /// <summary>The image of scrolling sky <paramref name="sky"/>'s rows in a room of <paramref name="tileset"/>.</summary>
     /// <exception cref="InvalidDataException">No such image is installed.</exception>

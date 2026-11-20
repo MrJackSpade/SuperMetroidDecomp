@@ -77,8 +77,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private PauseButtonHighlight ButtonHighlight { get; set; }
     /// <summary>How the map page shows the area map (#1466, #1467), as last loaded.</summary>
     private ShownAreaMap ShownMap { get; set; }
-    /// <summary>Current map/equipment fade or load phase.</summary>
-    private PauseMenuTransition Transition { get; set; }
+    /// <summary>Current map/equipment fade or load phase, or null while no page change is in progress.</summary>
+    private PauseMenuTransition? Transition { get; set; }
     /// <summary>
     /// The page transition's fade: one level darker every update on the way out, and one level brighter on alternate
     /// updates on the way in after the load.
@@ -161,11 +161,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
         AdvanceAnimations(frameCycle, PauseAnimationPhase.Stable);
-        if (ScreenMode == PauseScreenMode.Map && Transition == PauseMenuTransition.None)
+        if (ScreenMode == PauseScreenMode.Map && Transition is null)
             MapArrows.StepArrows(ActiveMapScroll.CanScroll);
         ControllerButton delayedPressed = delayedHeldInput;
         ControllerButton newlyPressed = newlyPressedInput;
-        if (Transition != PauseMenuTransition.None)
+        if (Transition is not null)
         {
             StepPageTransition();
             return false;
@@ -264,7 +264,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Back to front (#1514): the area's frame, the page inside it, the page's markers, cursors and labels, and the
         // retained HUD over the top band. Each picture and sprite is drawn whole at its layer's place, in its layer's order.
         DisplayLayer[] layers = [frame, page, screen.SpriteLayer(), hud];
-        return new(screen.Paint(), layers, Transition == PauseMenuTransition.None ? DisplayBrightness.Full : TransitionBrightness);
+        return new(screen.Paint(), layers, Transition is null ? DisplayBrightness.Full : TransitionBrightness);
     }
 
     /// <summary>Assembles map markers or equipment sprites in their page-specific order.</summary>
@@ -327,10 +327,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             case PauseMenuTransition.EquipmentToMapFadeIn:
                 // The load set the fade to wait one update before each brightness step.
                 if (transitionFade.Brighten())
-                    Transition = PauseMenuTransition.None;
+                    Transition = null;
                 return;
 
-            case PauseMenuTransition.None:
+            case null:
             default:
                 throw new InvalidDataException($"Invalid pause-page transition {Transition}.");
         }

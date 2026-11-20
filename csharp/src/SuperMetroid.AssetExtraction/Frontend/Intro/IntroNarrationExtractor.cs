@@ -48,7 +48,8 @@ public static class IntroNarrationExtractor
         cursor = Add(cursor, 6);
 
         var rows = new SortedDictionary<int, StringBuilder>();
-        int previousRow = -1;
+        // The row of the last tile placed, none before the first.
+        int? previousRow = null;
         int previousColumn = 0;
         for (int record = 0; record < IntroNarrationScriptDefinitions.MaximumRecords; record++)
         {

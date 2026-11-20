@@ -23,7 +23,7 @@ internal static class SparkMovementDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new TestAddressSpace(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().IsAreaBossDefeated = () => true;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Spark, place.Definition);
+        place.Bind(EnemyDefinitionId.Spark, place.KeptDefinition);
         for (ushort selector = 0; selector < 3; selector++)
         {
             ushort nativeList = CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.AnimationScriptTable + selector * 2);
@@ -36,7 +36,7 @@ internal static class SparkMovementDefinitionsVerification
 
             place.SetSpawnParameter1(EnemyDefinitionId.Spark, selector);
             place.SetSpawnParameter2(EnemyDefinitionId.Spark, 5);
-            SparkBehavior.InitializeSpark(place);
+            SparkBehavior.InitializeSpark(place.HeldOccupant(), place);
             SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
             AssertEqual(new AnimationPlayback<SparkSegment>(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation),
                 state.Playback, $"Spark production animation selector {selector}");
@@ -75,10 +75,10 @@ internal static class SparkMovementDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().IsAreaBossDefeated = () => true;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Spark, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Spark, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new SparkSpawnSettings(Start: SparkMovementDefinitions.AlwaysActive, BaseActionTime: 0));
-        SparkBehavior.InitializeSpark(place);
+        SparkBehavior.InitializeSpark(place.HeldOccupant(), place);
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
         state.Playback = new(SparkAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();

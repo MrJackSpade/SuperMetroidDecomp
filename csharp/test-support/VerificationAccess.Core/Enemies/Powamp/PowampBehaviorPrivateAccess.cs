@@ -12,8 +12,8 @@ internal static class PowampBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior self)
     {
         /// <summary>The private method <c>SpawnPowampSpikeBurst</c>, invoked by name.</summary>
-        internal int? SpawnPowampSpikeBurst(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Assets.PictureShading look) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior, int?>(self, "SpawnPowampSpikeBurst", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Assets.PictureShading)], new object?[] { body, look });
+        internal int? SpawnPowampSpikeBurst(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Assets.PictureShading look) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior, int?>(self, "SpawnPowampSpikeBurst", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Assets.PictureShading)], new object?[] { occupant, body, look });
     }
 
     /// <summary>The private static members checks name.</summary>

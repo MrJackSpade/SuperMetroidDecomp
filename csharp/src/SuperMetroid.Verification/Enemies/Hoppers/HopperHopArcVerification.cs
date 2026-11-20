@@ -34,7 +34,7 @@ internal static class HopperHopArcVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Sidehopper, place.Definition);
+            place.Bind(EnemyDefinitionId.Sidehopper, place.KeptDefinition);
             place.Position = place.Position.WithWhole(new(64, 48));
             place.Radius = new(8, 8);
             // The hopper reads its surface from its placement (#2474).
@@ -47,7 +47,7 @@ internal static class HopperHopArcVerification
             };
             place.SetSpeciesState(state);
 
-            enemies.HoppersBehavior.RunHoppersMainAi(place, frame);
+            enemies.HoppersBehavior.RunHoppersMainAi(place.HeldOccupant(), place, frame);
 
             string context = $"Hopper {(falling ? "returning" : "rising")} from record {start} by {step}";
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, context);

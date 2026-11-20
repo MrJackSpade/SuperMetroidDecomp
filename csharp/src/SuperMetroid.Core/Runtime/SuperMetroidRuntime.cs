@@ -635,7 +635,10 @@ internal sealed class SuperMetroidRuntime
             return null;
         bool lockedBeforeEnemyUpdate = samus.Control.InputLocked;
         EnemyFrameResult pass = EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared,
-            room.Camera.PreviousSamusPoint ?? context.SamusCameraPointAtFrameStart, room, samus);
+            // A camera placed since its last scroll takes the point Samus stood at as the frame began.
+            SamusScrollCheckpoint.At(room.Camera.PreviousSamusPoint is SamusScrolledCheckpoint { Point: var point }
+                ? point
+                : context.SamusCameraPointAtFrameStart), room, samus);
         frame.RecordEnemyUpdateReleasedInputLock(lockedBeforeEnemyUpdate && !samus.Control.InputLocked);
         return pass;
     }
@@ -647,7 +650,7 @@ internal sealed class SuperMetroidRuntime
         SamusControlFrame frame = context.Samus;
         SamusPhases.RunInputPhase(frame, RunningGameState, samus, context.SamusCameraPointAtFrameStart, room);
         EnemyFrameResult? pass = frame.MovementEnabled && !frame.EnemyUpdateRanFirst
-            ? EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared, frame.PreviousCameraPoint, room, samus)
+            ? EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared, SamusScrollCheckpoint.At(frame.PreviousCameraPoint), room, samus)
             : null;
         SamusPhases.RunPostEnemyUpdateResample(frame, samus, room);
         SamusPhases.RunMovementPhase(frame, samus, runsLowHealthCheck, room);
@@ -891,8 +894,8 @@ internal sealed class SuperMetroidRuntime
             room.Enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
                 room.Projectiles, room.BombProjectiles);
             // Every gameplay update resolves the power bomb's hits after the enemy-
-            // projectile passes. It reads the explosion's whole-pixel radius; a zero
-            // radius is its own inactive/pre-explosion guard.
+            // projectile passes. It reads the explosion's whole-pixel radius, a real size: an explosion whose radius has not
+            // grown from zero, before the blast or between blasts, reaches nothing, as the game's zero test skips it.
             // Invincibility timers inside the enemy pass prevent the persistent
             // expansion/afterglow radius from damaging one actor every frame.
             SamusPowerBombExplosionState powerBomb =

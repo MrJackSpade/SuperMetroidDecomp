@@ -394,8 +394,11 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         Drawing.Clear();
         ShakeWallJumpLaunchEnemy(frame.Samus);
 
-        foreach (RoomEnemyPlace place in ProcessingWindow.ActiveEnemies)
+        foreach (RoomEnemyOccupant occupant in ProcessingWindow.ActiveEnemies)
         {
+            // The pass reaches the enemy that held the place as its list was fixed, even after another enemy's turn
+            // emptied the place.
+            RoomEnemyPlace place = occupant.Place;
             // The enemy pass counts tangible actors' invincibility
             // before checking time freeze. X-ray therefore stops their movement but
             // not this wait. Remember whether it ran at entry: the update that ends it
@@ -414,13 +417,13 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 if (place.Entity is IEnemyContactHooks hooks)
                     hooks.ResolveBeforeOrdinaryHits(frame);
                 Collision.ResolveOrdinaryProjectileHit(frame.SamusProjectiles, frame.SamusBombs, Room.Area,
-                    frame.Samus, place, frame.Camera);
+                    frame.Samus, occupant, frame.Camera);
                 // Samus's input phase has already moved her bombs. The enemy pass checks
                 // them before this enemy's touch and AI, so an escape a bomb starts begins this update.
-                Collision.ResolveOrdinaryBombHit(frame.SamusBombs, frame.SamusProjectiles, frame.Samus, place, frame.Camera);
+                Collision.ResolveOrdinaryBombHit(frame.SamusBombs, frame.SamusProjectiles, frame.Samus, occupant, frame.Camera);
                 if (place.IsFree)
                     continue;
-                Collision.ResolveOrdinarySamusContact(frame.Samus, frame.PseudoScrew, frame.ControllerInput, frame.Level, place, frame.Camera);
+                Collision.ResolveOrdinarySamusContact(frame.Samus, frame.PseudoScrew, frame.ControllerInput, frame.Level, occupant, frame.Camera);
                 if (place.Entity is IEnemyAfterSamusContact contact)
                     contact.ResolveAfterSamusContact(frame.Samus, frame.PseudoScrew);
                 if (place.IsFree)
@@ -428,7 +431,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             }
             if (!frame.TimeIsFrozen)
             {
-                bool ranActorAi = GrappleBehavior.RunCommonGrappleAi(place, aiFrame);
+                bool ranActorAi = GrappleBehavior.RunCommonGrappleAi(occupant, aiFrame);
                 // The hurt behaviour replaces main AI while the enemy is hurt: the species' own, or the inert one its
                 // definition names. The grappled, hurt and frozen states are tried in that order, and the first one the
                 // enemy is in selects its behaviour even when that behaviour does nothing, so the hurt state delays
@@ -528,8 +531,9 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         // collision reads their live position and size, so publish bodies after AI has
         // had its chance to move multi-part enemies.
         _interactiveCollisionBodies.Clear();
-        foreach (RoomEnemyPlace place in ProcessingWindow.InteractiveEnemies)
+        foreach (RoomEnemyOccupant occupant in ProcessingWindow.InteractiveEnemies)
         {
+            RoomEnemyPlace place = occupant.Place;
             _interactiveCollisionBodies.Add(new SolidEnemyCollisionBody(
                 place,
                 place.Position.Whole,
@@ -565,8 +569,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         // on the following frame rather than retroactively changing already-emitted sprites.
         if (Earthquake.Advance(timeIsFrozen))
         {
-            foreach (RoomEnemyPlace place in ProcessingWindow.ActiveEnemies)
-                place.Shake.Restart(RoomEarthquakeDefinitions.EnemyShakeDuration);
+            foreach (RoomEnemyOccupant occupant in ProcessingWindow.ActiveEnemies)
+                occupant.Place.Shake.Restart(RoomEarthquakeDefinitions.EnemyShakeDuration);
         }
         return Earthquake.LastRoomShake;
     }

@@ -372,7 +372,7 @@ public sealed class ExtractedAudioAssetCatalog
         {
             AudioMusicTrackMetadata track = bank.MusicTracks[trackIndex];
             if (track.Track != trackIndex || track.Id != SpcMusicDefinitionCodec.TrackId(bank.DataIndex, trackIndex) ||
-                track.Address != bank.TrackPointers[trackIndex])
+                SpcMusicDefinitionCodec.DriverPointer(track) != bank.TrackPointers[trackIndex])
                 throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid track identity '{track.Id}'.");
             _ = SpcMusicDefinitionCodec.EncodeTrack(track, phrases);
         }

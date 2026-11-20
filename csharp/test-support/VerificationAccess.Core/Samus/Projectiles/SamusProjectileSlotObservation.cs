@@ -77,6 +77,6 @@ internal sealed class SamusProjectileSlotObservation
 
     /// <summary>Recognizes only active beam and missile explosion families as collision conversions.</summary>
     private static bool IsLiveExplosion(SamusProjectile slot) =>
-        slot.IsActive && slot.Type.Family is
+        slot.IsActive && slot.HeldShot().Type.Family is
             SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion;
 }

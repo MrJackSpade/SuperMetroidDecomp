@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.World;
 
 /// <summary>What one run of a room's main did that the gameplay update acts on (#2545).</summary>
-public enum RoomMainOutcome
+internal enum RoomMainOutcome
 {
     /// <summary>The main moved the game nowhere: the update goes on to its other transitions.</summary>
     None,

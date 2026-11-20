@@ -164,19 +164,19 @@ internal static class CeresEscapeHandoffVerification
             position: new(113, 75));
         CeresElevatorShaftRoomMainResult refused =
             trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false);
-        AssertTrue(refused.Outcome == SuperMetroid.Core.World.RoomMainOutcome.None, "non-gameplay dispatcher cannot trigger departure");
+        AssertTrue(refused.Outcome == CeresShaftOutcome.Nothing, "non-gameplay dispatcher cannot trigger departure");
         AssertTrue(!samus.Control.InputLocked, "a refused departure leaves Samus free");
 
         CeresElevatorShaftRoomMainResult requested =
             trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: true);
-        AssertTrue(requested.Outcome == SuperMetroid.Core.World.RoomMainOutcome.CeresElevatorTookSamus, "inclusive lower Y/exclusive lower X trigger admits Samus");
+        AssertTrue(requested.Outcome == CeresShaftOutcome.ElevatorTookSamus, "inclusive lower Y/exclusive lower X trigger admits Samus");
         AssertTrue(samus.Control.InputLocked, "departure trigger installs SamusCode_00 lock");
         AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "departure keeps right-facing standing pose");
 
         // The update that took Samus moved the game to the departure, whose own updates leave main gameplay (#2545).
         CeresElevatorShaftRoomMainResult departing =
             trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false);
-        AssertTrue(departing.Outcome == SuperMetroid.Core.World.RoomMainOutcome.None, "the departure's own updates do not take Samus again");
+        AssertTrue(departing.Outcome == CeresShaftOutcome.Nothing, "the departure's own updates do not take Samus again");
     }
 
     /// <summary>Checks the exact 60-call departure hold and 15 visible fade steps before forced blank renders black.</summary>

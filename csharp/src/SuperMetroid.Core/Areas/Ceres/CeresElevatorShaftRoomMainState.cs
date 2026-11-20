@@ -79,7 +79,7 @@ public sealed class CeresElevatorShaftRoomMainState
         // its escape status. In particular, the initial elevator descent stays level instead of prematurely consuming the
         // turn.
         if (!elevatorDoorDestroyed)
-            return new(Transform, TiltChanged: false, SuperMetroid.Core.World.RoomMainOutcome.None);
+            return new(Transform, TiltChanged: false, CeresShaftOutcome.Nothing);
 
         bool elevatorTookSamus = allowDeparture && IsInsideDepartureTrigger(samus);
         if (elevatorTookSamus)
@@ -99,7 +99,7 @@ public sealed class CeresElevatorShaftRoomMainState
         if (Hold.IsRunning)
         {
             Hold.Count();
-            return new(Transform, TiltChanged: false, elevatorTookSamus ? SuperMetroid.Core.World.RoomMainOutcome.CeresElevatorTookSamus : SuperMetroid.Core.World.RoomMainOutcome.None);
+            return new(Transform, TiltChanged: false, elevatorTookSamus ? CeresShaftOutcome.ElevatorTookSamus : CeresShaftOutcome.Nothing);
         }
 
         // Both sweeps show the current tilt.
@@ -129,7 +129,7 @@ public sealed class CeresElevatorShaftRoomMainState
         }
         LeaveTurnStep();
 
-        return new(Transform, TiltChanged: true, elevatorTookSamus ? SuperMetroid.Core.World.RoomMainOutcome.CeresElevatorTookSamus : SuperMetroid.Core.World.RoomMainOutcome.None);
+        return new(Transform, TiltChanged: true, elevatorTookSamus ? CeresShaftOutcome.ElevatorTookSamus : CeresShaftOutcome.Nothing);
     }
 
     /// <summary>

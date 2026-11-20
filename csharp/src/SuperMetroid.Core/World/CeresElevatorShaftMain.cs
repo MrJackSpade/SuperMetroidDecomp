@@ -24,6 +24,11 @@ internal sealed class CeresElevatorShaftMain(CeresElevatorShaftRoomMainState sha
             allowDeparture: update.AllowCeresElevatorDeparture);
         if (result.TiltChanged)
             update.Display.ActiveTurningFloor = result.Transform;
-        return result.Outcome;
+        return result.Outcome switch
+        {
+            CeresShaftOutcome.ElevatorTookSamus => RoomMainOutcome.CeresElevatorTookSamus,
+            CeresShaftOutcome.Nothing => RoomMainOutcome.None,
+            _ => throw new InvalidOperationException($"Undefined {nameof(CeresShaftOutcome)} {result.Outcome}."),
+        };
     }
 }

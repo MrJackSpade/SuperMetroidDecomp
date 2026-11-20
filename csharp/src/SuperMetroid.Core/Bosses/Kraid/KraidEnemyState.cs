@@ -255,7 +255,7 @@ public sealed class KraidEnemyState
     /// floor on or from the growth or death that shows it again in a room he was found in later, in front of the sprites once
     /// he has grown, hidden in a defeated room and once his death has sunk him.
     /// </summary>
-    internal KraidBodyShowing Body { get; private set; } = KraidBodyShowing.Hidden;
+    private KraidBodyShowing Body { get; set; } = KraidBodyShowing.Hidden;
 
     /// <summary>What his body layer shows of his body now.</summary>
     internal KraidBodyAppearance BodyAppearance => Body.Appearance;

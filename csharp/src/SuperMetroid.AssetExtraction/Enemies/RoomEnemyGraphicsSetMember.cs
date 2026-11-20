@@ -22,7 +22,7 @@ internal sealed record RoomEnemyGraphicsSetMember
     internal RoomEnemyGraphicsSetMember(UnplacedEnemyArtwork artwork) => Source = new GraphicsSetUnplacedArtwork(artwork);
 
     /// <summary>What the record loads: an enemy's artwork, or artwork for no enemy (#2560).</summary>
-    internal RoomEnemyGraphicsSetSource Source { get; }
+    private RoomEnemyGraphicsSetSource Source { get; }
 
     /// <summary>The member enemy; null for a record loading artwork for no enemy, which has none.</summary>
     internal EnemyDefinitionId? DefinitionId => Source is GraphicsSetEnemy enemy ? enemy.DefinitionId : null;

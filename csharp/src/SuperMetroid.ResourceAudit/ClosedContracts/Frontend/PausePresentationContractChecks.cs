@@ -36,7 +36,6 @@ internal static class PausePresentationContractChecks
                     backdrop.LoadTo(tilemap, (AreaId)99);
                     backdrop.CreateButtonTilemap();
                     wireframe.ApplyTo(page, new PauseWireframe(PauseWireframeSuit.VariaSuit, PauseWireframeBoots.HiJumpBoots));
-                    wireframe.ApplyTo(page, new PauseWireframe((PauseWireframeSuit)99, PauseWireframeBoots.RegularBoots));
                     labels.ApplyInventory(page, 0, 0, 0, 0, false);
                     selector.Draw(oam, sheet, PauseEquipmentControls.SpaceJump, look);
                     selector.Draw(oam, sheet, PauseEquipmentControls.Boots[^1], look);
@@ -67,9 +66,11 @@ internal static class PausePresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         FixtureConsumerBinding.Require(compilation, calls, "PausePresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 14, "fourteen calls must first reproduce the absent adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 10 && after.UnresolvedCount == 4 && after.MissingCount == 0 &&
-            after.Consumers.Count == 14, "complete resources qualify, while wrong area/kind/identity constants still fail (expected 10/4/0/14; " + after.Describe() + ")");
+        // A wireframe is its suit and boots (#2560), so no number names a wireframe outside the domain: the fixture's
+        // wrong constants are the area, the reserve tanks' visual and their index.
+        Require(before.UnresolvedCount == 13, "thirteen calls must first reproduce the absent adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 10 && after.UnresolvedCount == 3 && after.MissingCount == 0 &&
+            after.Consumers.Count == 13, "complete resources qualify, while wrong area/kind/identity constants still fail (expected 10/3/0/13; " + after.Describe() + ")");
         // A selector is placed for a named control (#1772), so no selector can borrow another column's anchor; its anchor is
         // the presentation's own, read only by its draw (#2570).
         Require(after.Findings.Count(item => item.Owner is "PauseSelectorPresentation.Draw") == 0,

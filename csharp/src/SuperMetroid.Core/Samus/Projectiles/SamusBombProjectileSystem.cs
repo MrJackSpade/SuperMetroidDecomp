@@ -849,11 +849,8 @@ public sealed class SamusBombProjectileSystem
         if (type is StandingCollisionType.SolidBlock or StandingCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
-            if (!terrain.RoomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType)))
-            {
-                throw new InvalidOperationException(
-                    $"Bombed resident-trigger block {block.Position} has no active room-object owner.");
-            }
+            // A block no object occupies hears nothing (ProjectileTriggerObjects.TryNotifyResidentProjectileHit).
+            _ = terrain.RoomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType));
             return;
         }
 

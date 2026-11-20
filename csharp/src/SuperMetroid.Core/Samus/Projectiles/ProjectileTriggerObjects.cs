@@ -22,7 +22,14 @@ internal sealed class ProjectileTriggerObjects
     /// active place at that block in update order takes the family the strike lands as, whatever room object it holds; the
     /// grapple beam's touch (<see cref="BlockStrike.GrappleTouch"/>) lands as a beam.
     /// </summary>
-    /// <returns>Whether an active place lies at <paramref name="block"/>.</returns>
+    /// <remarks>
+    /// A hit on a block no active place lies at changes nothing (#2553). The game's generic trigger ($84:C7E2) then finds
+    /// no object and leaves only the carry of its last compare, against the first room-object slot's stored block, and every
+    /// caller discards that carry: the shot, bomb and grapple reactions ($94:9E55-9EA5, $94:9D71-9DA3) set the shootable
+    /// block's collision and clear shootable air's after the spawn whatever the setup returned, and the trigger deletes
+    /// itself ($84:C840). The block's own collision decides whether the strike stops, as it does with an object there.
+    /// </remarks>
+    /// <returns>Whether an active place lies at <paramref name="block"/>, which no gameplay reaction reads.</returns>
     public bool TryNotifyResidentProjectileHit(
         Position16<RoomBlocks> block,
         BlockStrike strike)

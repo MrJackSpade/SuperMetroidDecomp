@@ -409,20 +409,15 @@ internal sealed class ProjectileTerrainCollision
         }
     }
 
-    /// <summary>Publishes the projectile type to the room object occupying a resident-trigger block and fails if none owns it.</summary>
+    /// <summary>
+    /// Publishes the projectile type to the room object occupying a resident-trigger block; a block no object occupies
+    /// hears nothing (<see cref="ProjectileTriggerObjects.TryNotifyResidentProjectileHit"/>).
+    /// </summary>
     private static void NotifyResidentProjectileHit(
         ISamusRoomObjects roomObjects,
         RoomCollisionBlock block,
-        SamusProjectileType projectileType)
-    {
-        if (roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType)))
-        {
-            return;
-        }
-
-        throw new InvalidOperationException(
-            $"Projectile hit resident-trigger block {block.Position} with no active room-object owner.");
-    }
+        SamusProjectileType projectileType) =>
+        _ = roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType));
 
     /// <summary>
     /// The horizontal velocity a shot fired straight left starts its first block scan with: the smallest leftward

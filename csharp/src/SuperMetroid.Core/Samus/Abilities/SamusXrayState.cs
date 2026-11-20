@@ -408,20 +408,23 @@ public sealed class SamusXrayState
         }
 
         bool holdingDash = (controllerInput & GameplayAction.Dash) != GameplayAction.None;
-        switch (BeamPhase)
+        StepBeamPhase();
+
+        void StepBeamPhase()
         {
-            case XrayBeamPhase.NoBeam:
+            if (BeamPhase == XrayBeamPhase.NoBeam)
+            {
                 if (holdingDash)
                     BeamPhase = XrayBeamPhase.Widening;
                 else
                     StartClosing();
-                break;
-
-            case XrayBeamPhase.Widening:
+            }
+            else if (BeamPhase == XrayBeamPhase.Widening)
+            {
                 if (!holdingDash)
                 {
                     StartClosing();
-                    break;
+                    return;
                 }
 
                 // The adds carry the fractions into whole steps exactly as the game does: the widening
@@ -434,13 +437,13 @@ public sealed class SamusXrayState
                     AngularHalfWidth = XrayScopeDefinitions.Cone.WidestHalfWidth;
                     BeamPhase = XrayBeamPhase.Full;
                 }
-                break;
-
-            case XrayBeamPhase.Full:
+            }
+            else if (BeamPhase == XrayBeamPhase.Full)
+            {
                 if (!holdingDash)
                 {
                     StartClosing();
-                    break;
+                    return;
                 }
 
                 // Aiming gives Up priority when opposite directions are both held, turning the beam one angle unit
@@ -449,25 +452,23 @@ public sealed class SamusXrayState
                     Angle = AimedUp(Angle, AngularWidth);
                 else if ((controllerInput & GameplayAction.Down) != GameplayAction.None)
                     Angle = AimedDown(Angle, AngularWidth);
-                break;
-
-            case XrayBeamPhase.Closing:
+            }
+            else if (BeamPhase == XrayBeamPhase.Closing)
+            {
                 // Each closing update keeps time frozen and Samus held; the update after the last releases her.
                 Closing = Closing.Spend();
                 if (Closing.IsOver)
                     BeamPhase = XrayBeamPhase.Finish;
-                break;
-
-            case XrayBeamPhase.Finish:
+            }
+            else
+            {
+                // The remaining member, XrayBeamPhase.Finish.
                 // The beam's last step performs every cleanup write only while the shared freeze
                 // flag is set. Automatic Reserve completion clears that flag first;
                 // the finishing beam then remains installed forever and produces greyout mode.
                 if (TimeIsFrozen)
                     Finish(samus);
-                break;
-
-            default:
-                throw new InvalidOperationException($"Unknown active X-ray beam phase {BeamPhase}.");
+            }
         }
 
         return SnapshotBeamStep(

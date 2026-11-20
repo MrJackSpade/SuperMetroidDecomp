@@ -118,78 +118,71 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         if (!IsEntryPhase)
             missile.Step();
-        switch (Phase)
+        StepPhase();
+
+        void StepPhase()
         {
-            case FileSelectPhase.EnterBlankScreen:
+            if (Phase == FileSelectPhase.EnterBlankScreen)
+            {
                 // Finish any fade-out, then blank the display and wait out one update.
                 if (!screenFade.Darken())
-                    break;
+                    return;
                 Phase = FileSelectPhase.EnterBlankScreenAfterFrameWait;
-                break;
-
-            case FileSelectPhase.EnterBlankScreenAfterFrameWait:
+            }
+            else if (Phase == FileSelectPhase.EnterBlankScreenAfterFrameWait)
+            {
                 Phase = FileSelectPhase.BlackHold;
-                break;
-
-            case FileSelectPhase.BlackHold:
+            }
+            else if (Phase == FileSelectPhase.BlackHold)
+            {
                 if (blackHold.StepEnds())
                     Phase = FileSelectPhase.InitializeMain;
-                break;
-
-            case FileSelectPhase.InitializeMain:
+            }
+            else if (Phase == FileSelectPhase.InitializeMain)
+            {
                 // The fades step at the menu's fade pace from here; the display then waits out one update.
                 screenFade.StepEvery(FileSelectLayout.FadeUpdatesPerStep);
                 Phase = FileSelectPhase.InitializeMainAfterFrameWait;
-                break;
-
-            case FileSelectPhase.InitializeMainAfterFrameWait:
+            }
+            else if (Phase == FileSelectPhase.InitializeMainAfterFrameWait)
+            {
                 Phase = FileSelectPhase.FadeIn;
-                break;
-
-            case FileSelectPhase.FadeIn:
+            }
+            else if (Phase == FileSelectPhase.FadeIn)
+            {
                 if (screenFade.Brighten())
                     Phase = FileSelectPhase.Main;
-                break;
-
-            case FileSelectPhase.Main:
+            }
+            else if (Phase == FileSelectPhase.Main)
+            {
                 StepMainMenu(pressed);
-                break;
-
-            case FileSelectPhase.FadeOutToCopy:
-            case FileSelectPhase.FadeOutToClear:
-            case FileSelectPhase.FadeOutToMain:
-            case FileSelectPhase.FadeInFromDataManagement:
+            }
+            else if (Phase == FileSelectPhase.FadeOutToCopy || Phase == FileSelectPhase.FadeOutToClear || Phase == FileSelectPhase.FadeOutToMain || Phase == FileSelectPhase.FadeInFromDataManagement)
+            {
                 StepDataManagementFade();
-                break;
-
-            case FileSelectPhase.CopySelectSource:
-            case FileSelectPhase.CopySelectDestination:
-            case FileSelectPhase.CopyConfirm:
-            case FileSelectPhase.CopyCompleted:
-            case FileSelectPhase.ClearSelectSlot:
-            case FileSelectPhase.ClearConfirm:
-            case FileSelectPhase.ClearCompleted:
+            }
+            else if (Phase == FileSelectPhase.CopySelectSource || Phase == FileSelectPhase.CopySelectDestination || Phase == FileSelectPhase.CopyConfirm || Phase == FileSelectPhase.CopyCompleted || Phase == FileSelectPhase.ClearSelectSlot || Phase == FileSelectPhase.ClearConfirm || Phase == FileSelectPhase.ClearCompleted)
+            {
                 saveChange = StepDataManagement(pressed);
-                break;
-
-            case FileSelectPhase.TurnSelectedHelmet:
+            }
+            else if (Phase == FileSelectPhase.TurnSelectedHelmet)
+            {
                 selectedHelmet.Step();
                 // Start/A ends the turn early; otherwise it ends once its last picture has shown for its whole hold.
                 if ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None || selectedHelmet.HasFinished)
                     Phase = FileSelectPhase.FadeOutToOptions;
-                break;
-
-            case FileSelectPhase.FadeOutToOptions:
+            }
+            else if (Phase == FileSelectPhase.FadeOutToOptions)
+            {
                 if (screenFade.Darken())
                     Outcome = FileSelectMenuOutcome.NewGame;
-                break;
-
-            case FileSelectPhase.FadeOutToTitle:
+            }
+            else
+            {
+                // The remaining member, FileSelectPhase.FadeOutToTitle.
                 if (screenFade.Darken())
                     Outcome = FileSelectMenuOutcome.Title;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(FileSelectPhase)} {Phase}.");
+            }
         }
         return saveChange;
     }

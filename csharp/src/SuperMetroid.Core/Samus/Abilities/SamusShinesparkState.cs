@@ -451,41 +451,34 @@ public sealed class SamusShinesparkState
         SamusState samus)
     {
         ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
-        switch (CrashOrbitStage)
+        if (CrashOrbitStage == ShinesparkCrashOrbitStage.Expanding)
         {
-            case ShinesparkCrashOrbitStage.Expanding:
+            // The crash tests the old radius against the orbit's start, after expanding.
+            // The transition frame therefore publishes the orbiting radius and the orbiting stage.
+            int oldRadius = CrashRadius;
+            CrashRadius += ShinesparkDefinitions.CrashRadiusStep;
+            if (oldRadius >= ShinesparkDefinitions.CrashOrbitStartRadius)
+                CrashOrbitStage = ShinesparkCrashOrbitStage.Orbiting;
+        }
+        else if (CrashOrbitStage == ShinesparkCrashOrbitStage.Orbiting)
+        {
+            FirstCrashEchoAngle = _crashOrbitTurn.Turn(FirstCrashEchoAngle);
+            SecondCrashEchoAngle = _crashOrbitTurn.Turn(SecondCrashEchoAngle);
+            if (_orbitTravel.Advance())
+                CrashOrbitStage = ShinesparkCrashOrbitStage.Contracting;
+        }
+        else
+        {
+            // The remaining member, ShinesparkCrashOrbitStage.Contracting.
+            CrashRadius -= ShinesparkDefinitions.CrashRadiusStep;
+            if (CrashRadius == 0)
             {
-                // The crash tests the old radius against the orbit's start, after expanding.
-                // The transition frame therefore publishes the orbiting radius and the orbiting stage.
-                int oldRadius = CrashRadius;
-                CrashRadius += ShinesparkDefinitions.CrashRadiusStep;
-                if (oldRadius >= ShinesparkDefinitions.CrashOrbitStartRadius)
-                    CrashOrbitStage = ShinesparkCrashOrbitStage.Orbiting;
-                break;
+                Phase = ShinesparkPhase.CrashHold;
+                CrashHoldCountdown = UpdateCountdown.For(ShinesparkDefinitions.CrashHoldFrames);
+                CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
+                FirstCrashEchoAngle = RotationAngle.Zero;
+                SecondCrashEchoAngle = RotationAngle.Zero;
             }
-
-            case ShinesparkCrashOrbitStage.Orbiting:
-                FirstCrashEchoAngle = _crashOrbitTurn.Turn(FirstCrashEchoAngle);
-                SecondCrashEchoAngle = _crashOrbitTurn.Turn(SecondCrashEchoAngle);
-                if (_orbitTravel.Advance())
-                    CrashOrbitStage = ShinesparkCrashOrbitStage.Contracting;
-                break;
-
-            case ShinesparkCrashOrbitStage.Contracting:
-                CrashRadius -= ShinesparkDefinitions.CrashRadiusStep;
-                if (CrashRadius == 0)
-                {
-                    Phase = ShinesparkPhase.CrashHold;
-                    CrashHoldCountdown = UpdateCountdown.For(ShinesparkDefinitions.CrashHoldFrames);
-                    CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
-                    FirstCrashEchoAngle = RotationAngle.Zero;
-                    SecondCrashEchoAngle = RotationAngle.Zero;
-                }
-                break;
-
-            default:
-                throw new InvalidOperationException(
-                    $"Shinespark crash orbit stage {CrashOrbitStage} is undefined.");
         }
 
         // The copies stand the crash radius from Samus along their angles; placing them past the room's edge

@@ -33,49 +33,52 @@ internal sealed class RidleyReveal
     internal void Run<TState>(RoomEnemyPlace place, TState ridley, IRidleyRevealEncounter<TState> encounter)
         where TState : RidleyEncounterState
     {
-        switch (ridley.RevealPhase)
+        if (ridley.RevealPhase == RidleyRevealPhase.WaitForDoorTransition)
         {
-            case RidleyRevealPhase.WaitForDoorTransition:
-                // The wait holds even though enemy animations run during the fade.
-                if (_doorPassage.IsUnderWay)
-                    return;
-                ridley.RevealPhase = RidleyRevealPhase.InitialDelay;
-                ridley.PhaseTimer.LastFor(encounter.InitialDelayUpdates);
-                TickInitialDelay(ridley);
+            // The wait holds even though enemy animations run during the fade.
+            if (_doorPassage.IsUnderWay)
                 return;
-
-            case RidleyRevealPhase.InitialDelay:
-                TickInitialDelay(ridley);
-                return;
-
-            case RidleyRevealPhase.FadeInEyes:
-                TickEyeFadeIn(ridley);
-                return;
-
-            case RidleyRevealPhase.FadeInBody:
-                TickBodyFadeIn(place, ridley);
-                return;
-
-            case RidleyRevealPhase.WaitBeforeRoar:
-                if (ridley.PhaseTimer.StepRunsOut())
-                {
-                    RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.OpeningRoar);
-                    encounter.BeginRoarHold(ridley);
-                    ridley.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;
-                }
-                return;
-
-            case RidleyRevealPhase.WaitBeforeLiftoff:
-                if (encounter.TakesOff(place, ridley))
-                    TakeOff(place, ridley);
-                return;
-
-            case RidleyRevealPhase.TakingOff:
-                ridley.Flight.Velocity = PixelVelocity<RoomPixels>.Zero;
-                return;
-
-            default:
-                throw new InvalidDataException($"Undefined {nameof(RidleyRevealPhase)} {ridley.RevealPhase}.");
+            ridley.RevealPhase = RidleyRevealPhase.InitialDelay;
+            ridley.PhaseTimer.LastFor(encounter.InitialDelayUpdates);
+            TickInitialDelay(ridley);
+            return;
+        }
+        else if (ridley.RevealPhase == RidleyRevealPhase.InitialDelay)
+        {
+            TickInitialDelay(ridley);
+            return;
+        }
+        else if (ridley.RevealPhase == RidleyRevealPhase.FadeInEyes)
+        {
+            TickEyeFadeIn(ridley);
+            return;
+        }
+        else if (ridley.RevealPhase == RidleyRevealPhase.FadeInBody)
+        {
+            TickBodyFadeIn(place, ridley);
+            return;
+        }
+        else if (ridley.RevealPhase == RidleyRevealPhase.WaitBeforeRoar)
+        {
+            if (ridley.PhaseTimer.StepRunsOut())
+            {
+                RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.OpeningRoar);
+                encounter.BeginRoarHold(ridley);
+                ridley.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;
+            }
+            return;
+        }
+        else if (ridley.RevealPhase == RidleyRevealPhase.WaitBeforeLiftoff)
+        {
+            if (encounter.TakesOff(place, ridley))
+                TakeOff(place, ridley);
+            return;
+        }
+        else
+        {
+            // The remaining member, RidleyRevealPhase.TakingOff.
+            ridley.Flight.Velocity = PixelVelocity<RoomPixels>.Zero;
+            return;
         }
     }
 

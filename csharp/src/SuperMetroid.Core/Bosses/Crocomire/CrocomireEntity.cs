@@ -61,7 +61,7 @@ internal abstract class CrocomireEntity(CrocomireBehavior species, RoomEnemyOccu
     }
 
     /// <summary>The shot reaction that routes the part's hitboxes' reactions where its definition leads to them, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => OwnsShot ? OwnShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => OwnsShot ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>The body's and tongue's contact and shots both meet their own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>

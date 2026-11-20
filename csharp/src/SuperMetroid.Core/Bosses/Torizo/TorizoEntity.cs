@@ -68,7 +68,7 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant o
     }
 
     /// <summary>The Torizo's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>The Torizo's own shot reaction (#2240).</summary>
     protected abstract EnemyShotReaction OwnShotReaction { get; }

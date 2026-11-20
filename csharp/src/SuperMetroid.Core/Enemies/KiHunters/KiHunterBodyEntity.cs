@@ -21,11 +21,11 @@ internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccu
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterBodyTypedAnimation(Occupant, Place);
 
     /// <summary>The Ki-Hunter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.KiHunterShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? species.KiHunterShotReaction : base.ShotReaction;
 
     /// <summary>The Ki-Hunter's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot is null ? species.KiHunterBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Ki-Hunter's own shot reaction, which a normal bomb triggers as it does the common one.</summary>

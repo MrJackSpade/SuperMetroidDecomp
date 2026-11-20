@@ -32,7 +32,7 @@ internal abstract class KraidLimbEntity(KraidBehavior species, RoomEnemyOccupant
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Part);
 
     /// <summary>The limb's own shot reaction: an arm's or a foot's hitboxes decide it behind its definition's ignoring one.</summary>
-    public override EnemyShotReaction? ShotReaction => LimbShotReaction;
+    public override EnemyShotReaction ShotReaction => LimbShotReaction;
 
     /// <summary>The limb's own shot reaction, which its hitboxes decide behind its definition's ignoring one (#2301).</summary>
     protected abstract EnemyShotReaction LimbShotReaction { get; }

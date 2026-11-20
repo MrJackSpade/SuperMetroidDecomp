@@ -44,11 +44,11 @@ internal sealed class WallSpacePirateEntity(WallSpacePirateBehavior species, Roo
     }
 
     /// <summary>The Pirates' own shot reaction where the definition leaves shots to them, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.Walking.SpacePirateShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? species.Walking.SpacePirateShotReaction : base.ShotReaction;
 
     /// <summary>The Pirates' own stages around the common bomb damage every bomb that reaches an ordinary Pirate runs.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         WalkingSpacePirateBehavior.SpacePirateBombReaction;
 
     /// <summary>The Pirate shot reactions, which a normal bomb triggers as it does the common one.</summary>

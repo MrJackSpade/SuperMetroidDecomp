@@ -53,7 +53,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyOccu
     }
 
     /// <summary>Spore Spawn's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>
     /// Spore Spawn's dud shot for a bomb whose hitbox selects it, in place of common bomb damage once the ignoring check has
@@ -70,7 +70,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyOccu
 
     /// <summary>Spore Spawn's own stages around common bomb damage, for a bomb that selects its shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot == SporeSpawnReactions.Shot ? OwnBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>Spore Spawn's contact and shots both meet its own frames' hitboxes.</summary>

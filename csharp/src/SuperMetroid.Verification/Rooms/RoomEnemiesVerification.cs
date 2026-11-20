@@ -185,7 +185,7 @@ internal static void VerifyRoomEnemyLoading()
     RoomEnemyDefinition definition = place.Definition;
     // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
     AssertEqual<SoundEffectId?>(EnemySound.Squeaks, definition.HurtSoundEffect, "definition hurt cry offset $0E");
-    AssertEqual<GrappleEnemyReaction?>(GrappleEnemyReaction.Cancel, definition.GrappleResponse, "definition grapple response offset $1A");
+    AssertEqual(GrappleEnemyReaction.Cancel, definition.GrappleResponse, "definition grapple response offset $1A");
     // Offset $28 names the species' own Power Bomb routine, which a definition leaves to the species (#1759).
     AssertEqual<EnemyReaction?>(null, definition.PowerBombReaction,
         "definition power-bomb reaction offset $28 names no shared reaction");
@@ -197,7 +197,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(0x0020),
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSetAt(bus, TestAddressSpace.FixtureHeaderPointer(specialDefinitionPointer)),
         "the import decodes the special definition's tile set size without its bit 15");
-    AssertEqual(EnemyHeaderTables.DropChances(bus, 0xf206), definition.DropChances,
+    AssertEqual(EnemyHeaderTables.Drops(bus, 0xf206), definition.Drops,
         "definition item-drop table offset $3A");
     AssertEqual(EnemyHeaderTables.Vulnerability(bus, 0xec48), definition.Vulnerability,
         "definition vulnerability table offset $3C");

@@ -67,7 +67,7 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyOccu
 
     /// <summary>The body's own stages around common bomb damage, for a bomb that selects its shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot == PhantoonReactions.Shot ? Species.Combat.PhantoonBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The body's shot reaction, which a normal bomb triggers as it does the common one.</summary>

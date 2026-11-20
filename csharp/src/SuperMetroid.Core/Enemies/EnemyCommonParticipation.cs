@@ -17,6 +17,9 @@ internal sealed class EnemyCommonParticipation(Func<EnemyCollision> collision)
     /// <summary>The Power Bomb reaction that ignores the blast: it replaces common damage with nothing.</summary>
     internal static EnemyPowerBombReaction IgnoringPowerBomb { get; } = new() { ReplacesCommon = static _ => { } };
 
+    /// <summary>The common Power Bomb reaction: the blast's common damage, with no stage of a species' own.</summary>
+    internal static EnemyPowerBombReaction CommonPowerBomb { get; } = new();
+
     /// <summary>Whether <paramref name="definition"/> names a shared touch reaction: the ordinary one or the ignoring one.</summary>
     /// <param name="definition">The occupant's definition.</param>
     internal static bool ReactsToTouch(RoomEnemyDefinition definition) =>
@@ -33,18 +36,21 @@ internal sealed class EnemyCommonParticipation(Func<EnemyCollision> collision)
             collision().ResolveOrdinaryTouch(context);
     }
 
-    /// <summary>The shared shot reaction <paramref name="definition"/> names, or null when it names none.</summary>
-    /// <param name="definition">The occupant's definition.</param>
-    internal static EnemyShotReaction? ShotReaction(RoomEnemyDefinition definition) =>
-        definition.Shot == EnemyReaction.Ignore || definition.Shot == EnemyReaction.OrdinaryShot ? CommonShot : null;
-
     /// <summary>
-    /// The shared Power Bomb reaction <paramref name="definition"/> names: the ignoring one, or null for common Power
-    /// Bomb damage.
+    /// The shared shot reaction <paramref name="definition"/> names, or the reaction of an enemy shots pass when it names
+    /// the species' own and the species has none.
     /// </summary>
     /// <param name="definition">The occupant's definition.</param>
-    internal static EnemyPowerBombReaction? PowerBombReaction(RoomEnemyDefinition definition) =>
-        definition.PowerBombReaction == EnemyReaction.Ignore ? IgnoringPowerBomb : null;
+    internal static EnemyShotReaction ShotReaction(RoomEnemyDefinition definition) =>
+        definition.Shot == EnemyReaction.Ignore || definition.Shot == EnemyReaction.OrdinaryShot ? CommonShot : EnemyShotReaction.ShotsPass;
+
+    /// <summary>
+    /// The shared Power Bomb reaction <paramref name="definition"/> names: the ignoring one, or the common Power Bomb
+    /// damage.
+    /// </summary>
+    /// <param name="definition">The occupant's definition.</param>
+    internal static EnemyPowerBombReaction PowerBombReaction(RoomEnemyDefinition definition) =>
+        definition.PowerBombReaction == EnemyReaction.Ignore ? IgnoringPowerBomb : CommonPowerBomb;
 
     /// <summary>Whether <paramref name="definition"/> names the inert hurt response, which runs in place of main AI and does nothing.</summary>
     /// <param name="definition">The occupant's definition.</param>

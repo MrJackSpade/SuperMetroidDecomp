@@ -34,15 +34,15 @@ internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occ
     }
 
     /// <summary>The Evir's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.EvirShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? species.EvirShotReaction : base.ShotReaction;
 
     /// <summary>The Evir's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot is null ? species.EvirBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Evir's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.EvirPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? species.EvirPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The Evir's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

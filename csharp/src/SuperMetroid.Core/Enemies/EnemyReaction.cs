@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// A reaction an enemy has to Samus's touch, to her shots and bombs, or to her Power Bombs. The engine shares four: the
 /// ordinary touch and shot reactions, the dud shot and the reaction that does nothing. A definition names one of them for
-/// each kind of contact, or names none and leaves the contact to its species' entity, which reacts in its own way or not
-/// at all (#1759). A species whose frames' hitboxes tell several of its own reactions apart declares them beside its
+/// each kind of contact, or names the species' own (<see cref="SpeciesOwn"/>, <see cref="CommonPowerBomb"/>) and leaves
+/// the contact to its species' entity, which reacts in its own way or not at all (#1759). A species whose frames' hitboxes tell several of its own reactions apart declares them beside its
 /// hitboxes (<see cref="OfSpecies"/>); only that species' code reads them. Each reaction is its own identity.
 /// </summary>
 public sealed class EnemyReaction
@@ -27,6 +27,18 @@ public sealed class EnemyReaction
     /// <see cref="EnemyHitboxScan"/>, not a property of this reaction.
     /// </summary>
     public static EnemyReaction Ignore { get; } = new(nameof(Ignore));
+
+    /// <summary>
+    /// The species' own touch or shot reaction (#2558): the definition names no shared one, and the enemy's species, or
+    /// the hitboxes of its frame, name the reaction it has.
+    /// </summary>
+    public static EnemyReaction SpeciesOwn { get; } = new(nameof(SpeciesOwn));
+
+    /// <summary>
+    /// The common Power Bomb reaction (#2558): the definition names no shared one, so the blast's common damage applies,
+    /// which the enemy's species may replace or add stages to.
+    /// </summary>
+    public static EnemyReaction CommonPowerBomb { get; } = new(nameof(CommonPowerBomb));
 
     /// <summary>The reaction's name, for diagnostics.</summary>
     public string Name { get; }

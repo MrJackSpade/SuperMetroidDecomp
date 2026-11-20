@@ -42,7 +42,7 @@ internal abstract class ShuttersEntity(ShuttersBehavior species, RoomEnemyOccupa
     }
 
     /// <summary>The vertical shutters' own Power Bomb reaction where the definition leaves the blast to them, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction =>
+    public override EnemyPowerBombReaction PowerBombReaction =>
         LeavesPowerBombToSpecies ? ownPowerBomb : base.PowerBombReaction;
 
     /// <summary>

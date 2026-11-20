@@ -22,11 +22,11 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemyOccupant occupan
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place);
 
     /// <summary>The Bull's own recoil reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.ShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? species.ShotReaction : base.ShotReaction;
 
     /// <summary>The Bull's own bomb recoil around common bomb damage, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot is null ? species.BombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Bull's own shot reaction, which a normal bomb triggers as it does the common one.</summary>

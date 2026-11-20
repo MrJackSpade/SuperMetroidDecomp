@@ -24,7 +24,7 @@ internal sealed class KraidBodyEntity(KraidBehavior species, RoomEnemyOccupant o
     /// loudly if a blast reaches him.
     /// </summary>
     /// <exception cref="InvalidDataException">The body's definition leaves the blast to the species.</exception>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies
+    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies
         ? throw new InvalidDataException($"Enemy {Place.Occupant?.DefinitionId} has no response to its own Power Bomb reaction.")
         : base.PowerBombReaction;
 

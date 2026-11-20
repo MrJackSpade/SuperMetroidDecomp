@@ -25,6 +25,9 @@ internal sealed class EnemyBombReaction
     /// <summary>The <see cref="ShowsHitBurst"/> of a reaction that runs the common damage without the burst.</summary>
     internal static Func<EnemyBombHitContext, bool> NeverShowsHitBurst { get; } = static _ => false;
 
+    /// <summary>The plain common bomb damage: no stage of a species' own, the hit burst shown and the generic death run.</summary>
+    internal static EnemyBombReaction PlainCommon { get; } = new();
+
     /// <summary>Runs immediately before common damage.</summary>
     internal Action<EnemyBombHitContext>? BeforeCommon { get; init; }
 

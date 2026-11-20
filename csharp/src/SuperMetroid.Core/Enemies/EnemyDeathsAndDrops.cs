@@ -224,7 +224,7 @@ internal sealed class EnemyDeathsAndDrops
             return null;
 
         pickup.Position = pickup.Position.WithWhole(position);
-        InitializeDirectEnemyPickup(pickup, _room.Definitions.ReadEnemyDefinition(definitionId).DropChances, samus);
+        InitializeDirectEnemyPickup(pickup, _room.Definitions.ReadEnemyDefinition(definitionId).Drops, samus);
         return pickup;
     }
 
@@ -242,7 +242,7 @@ internal sealed class EnemyDeathsAndDrops
             return null;
 
         pickup.Position = pickup.Position.WithWhole(position);
-        InitializeDirectEnemyPickup(pickup, dropChances, samus);
+        InitializeDirectEnemyPickup(pickup, EnemyDrops.Rolling(dropChances), samus);
         return pickup;
     }
 
@@ -250,9 +250,9 @@ internal sealed class EnemyDeathsAndDrops
     /// Rolls a direct drop's <paramref name="dropChances"/>, none when its enemy drops nothing, and either starts its
     /// pickup animation or the ending it plays when nothing drops.
     /// </summary>
-    private void InitializeDirectEnemyPickup(EnemyProjectile pickup, EnemyDropChances? dropChances, SamusState samus)
+    private void InitializeDirectEnemyPickup(EnemyProjectile pickup, EnemyDrops drops, SamusState samus)
     {
-        EnemyDropRoll roll = SelectRandomEnemyDrop(dropChances, samus);
+        EnemyDropRoll roll = SelectRandomEnemyDrop(drops, samus);
 
         // Unlike a finished death explosion, a direct drop becomes a pickup in any place for
         // an enemy projectile, the first included. The roll reads the drop's definition straight back from
@@ -273,7 +273,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         EnemyDeathExplosionState explosion = Explosions.Of(Ensure.NotNull(projectile));
         EnemyDropRoll roll = SelectRandomEnemyDrop(
-            explosion.Dropper is { } dropper ? _room.Definitions.ReadEnemyDefinition(dropper.DefinitionId).DropChances : null, samus);
+            explosion.Dropper is { } dropper ? _room.Definitions.ReadEnemyDefinition(dropper.DefinitionId).Drops : EnemyDrops.Nothing, samus);
         return FirstPlaceExplosionLeavesNoPickup.BecomesPickup(projectile.Place) && roll is EnemyDropRoll.PickupDrops drop
             ? ConfigurePickup(projectile, drop.Kind, explosion.KilledEnemy)
             : ConfigureDormantPickup(projectile);
@@ -326,12 +326,12 @@ internal sealed class EnemyDeathsAndDrops
     /// the <see cref="EnemyDropSelectionDefinitions.MajorDrops"/>, and the first whose accumulated chance reaches the random
     /// draw is chosen; the draw is read before anything else, as the game reads it.
     /// </summary>
-    /// <param name="dropChances">The chances rolled; none when the drop's enemy drops nothing.</param>
+    /// <param name="drops">What the drop's enemy drops: nothing, with no roll made, or the chances rolled.</param>
     /// <param name="samus">Samus, whose energy and ammunition decide which drops are offered.</param>
-    private EnemyDropRoll SelectRandomEnemyDrop(EnemyDropChances? dropChances, SamusState samus)
+    private EnemyDropRoll SelectRandomEnemyDrop(EnemyDrops drops, SamusState samus)
     {
         Ensure.NotNull(samus);
-        if (dropChances is not { } table)
+        if (drops is not EnemyDrops.Rolled { Chances: var table })
             return EnemyDropRoll.Nothing;
         // Every authored table's chances sum to the whole budget, so the pooled weights and the budget left for the major
         // drops stay within it (#1620).

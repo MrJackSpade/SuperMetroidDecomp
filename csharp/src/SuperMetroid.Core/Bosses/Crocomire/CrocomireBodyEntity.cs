@@ -55,7 +55,7 @@ internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOc
     }
 
     /// <summary>The body's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction =>
+    public override EnemyPowerBombReaction PowerBombReaction =>
         LeavesPowerBombToSpecies ? OwnPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The body's own Power Bomb reaction, which acts on the encounter the body set up.</summary>

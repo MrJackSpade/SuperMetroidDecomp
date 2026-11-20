@@ -81,25 +81,26 @@ internal static class EnemyInteractionCallbacks
             .ToFrozenDictionary(pair => pair.Key, pair => pair.Value);
 
     /// <summary>
-    /// The shared reaction a header's touch word names in <paramref name="bank"/>'s code, or null for a zero word or the
-    /// species' own routine.
+    /// The shared reaction a header's touch word names in <paramref name="bank"/>'s code, or the species' own
+    /// (<see cref="EnemyReaction.SpeciesOwn"/>) for a zero word or the species' own routine.
     /// </summary>
-    internal static EnemyReaction? DecodeTouch(int bank, int pointer) =>
-        DecodeHeader(bank, pointer, EnemyTouchCallbackDefinitions.LiteralNoOps);
+    internal static EnemyReaction DecodeTouch(int bank, int pointer) =>
+        DecodeHeader(bank, pointer, EnemyTouchCallbackDefinitions.LiteralNoOps) is { } shared ? shared : EnemyReaction.SpeciesOwn;
 
     /// <summary>
-    /// The shared reaction a header's shot word names in <paramref name="bank"/>'s code, or null for a zero word or the
-    /// species' own routine.
+    /// The shared reaction a header's shot word names in <paramref name="bank"/>'s code, or the species' own
+    /// (<see cref="EnemyReaction.SpeciesOwn"/>) for a zero word or the species' own routine.
     /// </summary>
-    internal static EnemyReaction? DecodeShot(int bank, int pointer) =>
-        DecodeHeader(bank, pointer, EnemyShotCallbackDefinitions.LiteralNoOps);
+    internal static EnemyReaction DecodeShot(int bank, int pointer) =>
+        DecodeHeader(bank, pointer, EnemyShotCallbackDefinitions.LiteralNoOps) is { } shared ? shared : EnemyReaction.SpeciesOwn;
 
     /// <summary>
-    /// The shared reaction a header's Power Bomb word names in <paramref name="bank"/>'s code, or null for a zero word,
-    /// which selects the common Power Bomb damage, or for the species' own routine.
+    /// The shared reaction a header's Power Bomb word names in <paramref name="bank"/>'s code, or the common Power Bomb
+    /// reaction (<see cref="EnemyReaction.CommonPowerBomb"/>) for a zero word, which selects the common Power Bomb damage,
+    /// or for the species' own routine.
     /// </summary>
-    internal static EnemyReaction? DecodePowerBomb(int bank, int pointer) =>
-        DecodeHeader(bank, pointer, EnemyPowerBombCallbackDefinitions.LiteralNoOps);
+    internal static EnemyReaction DecodePowerBomb(int bank, int pointer) =>
+        DecodeHeader(bank, pointer, EnemyPowerBombCallbackDefinitions.LiteralNoOps) is { } shared ? shared : EnemyReaction.CommonPowerBomb;
 
     /// <summary>The reaction a hitbox's touch word names in <paramref name="bank"/>'s code: shared, or its species' own.</summary>
     /// <exception cref="InvalidDataException">The word names a species routine no hitbox reaction is declared for.</exception>

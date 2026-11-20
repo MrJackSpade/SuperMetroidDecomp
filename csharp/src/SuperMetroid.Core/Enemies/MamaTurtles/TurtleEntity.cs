@@ -42,11 +42,11 @@ internal abstract class TurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupa
     }
 
     /// <summary>The baby turtle's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.BabyTurtleShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? species.BabyTurtleShotReaction : base.ShotReaction;
 
     /// <summary>The baby turtle's own stages around common bomb damage, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot is null ? species.BabyTurtleBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The baby turtle's own shot reaction, which a normal bomb triggers as it does the common one.</summary>

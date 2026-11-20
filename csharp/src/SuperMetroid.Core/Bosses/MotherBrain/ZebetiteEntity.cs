@@ -33,11 +33,11 @@ internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemyOccupant
     }
 
     /// <summary>The Zebetite's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.ZebetiteShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? species.ZebetiteShotReaction : base.ShotReaction;
 
     /// <summary>The Zebetite's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot is null ? species.ZebetiteBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Zebetite's own shot reaction, which a normal bomb triggers as it does the common one.</summary>

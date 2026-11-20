@@ -55,7 +55,7 @@ internal sealed class EnemyCollision
     /// null when neither names one.
     /// </summary>
     internal static EnemyReaction? TouchReactionOf(RoomEnemyPlace place) =>
-        place.Definition.Touch ?? (place.Entity as IEnemyFrameHitboxes)?.SpeciesTouch;
+        place.Definition.Touch != EnemyReaction.SpeciesOwn ? place.Definition.Touch : (place.Entity as IEnemyFrameHitboxes)?.SpeciesTouch;
 
     /// <summary>
     /// The shot reaction a shot or bomb selects when it meets <paramref name="place"/> by its radius: the shared one its
@@ -63,7 +63,7 @@ internal sealed class EnemyCollision
     /// null when neither names one.
     /// </summary>
     internal static EnemyReaction? ShotReactionOf(RoomEnemyPlace place) =>
-        place.Definition.Shot ?? (place.Entity as IEnemyFrameHitboxes)?.SpeciesShot;
+        place.Definition.Shot != EnemyReaction.SpeciesOwn ? place.Definition.Shot : (place.Entity as IEnemyFrameHitboxes)?.SpeciesShot;
 
     /// <summary>Runs the common radius-based touch between Samus and the enemy the enemy pass is processing.</summary>
     /// <param name="samus">Live player state receiving the touch reaction.</param>
@@ -189,7 +189,7 @@ internal sealed class EnemyCollision
             enemy.Invincibility.IsRunning ||
             enemy.Presence.HasAny(EnemyPresence.Deleted) ||
             enemy.Contact.HasAny(EnemyContact.IgnoresSamus) ||
-            (enemy.Entity as IEnemyShotReaction)?.ShotReaction is not { } reaction)
+            enemy.Entity is not IEnemyShotReaction { ShotReaction: var reaction })
         {
             return;
         }
@@ -557,20 +557,22 @@ internal sealed class EnemyCollision
             {
                 // A private reaction that rejects the bomb returns before common damage; the bomb pass has
                 // already marked the bomb, so rejection belongs here rather than in collision admission.
-                EnemyBombReaction? reaction = bombReactions?.CommonBombDamageReaction(bombContext);
-                if (reaction?.Rejects?.Invoke(bombContext) != true)
+                // An enemy with no bomb reaction of its own takes the plain common damage.
+                EnemyBombReaction reaction = bombReactions is { } own
+                    ? own.CommonBombDamageReaction(bombContext)
+                    : EnemyBombReaction.PlainCommon;
+                if (reaction.Rejects?.Invoke(bombContext) != true)
                 {
                     var hitBomb = new EnemyBombHitContext(bombContext, enemy.Health);
-                    reaction?.BeforeCommon?.Invoke(hitBomb);
+                    reaction.BeforeCommon?.Invoke(hitBomb);
                     NormalBombHit hit = HurtByNormalBomb(enemy, placed);
-                    if (hit == NormalBombHit.HurtUnfrozen &&
-                        (reaction?.ShowsHitBurst ?? EnemyBombReaction.AlwaysShowsHitBurst)(hitBomb))
+                    if (hit == NormalBombHit.HurtUnfrozen && reaction.ShowsHitBurst(hitBomb))
                     {
                         ShowHitBurst(enemy);
                     }
-                    if (hit != NormalBombHit.Dud && (reaction?.RunsGenericDeath ?? true))
+                    if (hit != NormalBombHit.Dud && reaction.RunsGenericDeath)
                         StartNormalBombDeathIfKilled(occupant, samus);
-                    reaction?.AfterCommon?.Invoke(hitBomb);
+                    reaction.AfterCommon?.Invoke(hitBomb);
                 }
             }
 
@@ -713,16 +715,18 @@ internal sealed class EnemyCollision
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
                 continue;
 
-            // A definition names only the ignoring reaction, which the entity answers, or none; an entity without a
+            // A definition names the ignoring reaction or the common one, which the entity answers; an entity without a
             // Power Bomb reaction takes the common damage.
-            EnemyPowerBombReaction? reaction = (enemy.Entity as IEnemyPowerBombReaction)?.PowerBombReaction;
-            if (reaction?.SkipsEnemy?.Invoke(enemy) == true)
+            EnemyPowerBombReaction reaction = enemy.Entity is IEnemyPowerBombReaction owner
+                ? owner.PowerBombReaction
+                : EnemyCommonParticipation.CommonPowerBomb;
+            if (reaction.SkipsEnemy?.Invoke(enemy) == true)
                 continue;
             var context = new EnemyPowerBombContext(occupant, samus, level, camera);
 
             // A reaction of the enemy's own replaces the common Power Bomb damage, and the
             // enemy still goes on updating off screen once the blast's ellipse reaches it.
-            if (reaction?.ReplacesCommon is { } privateReaction)
+            if (reaction.ReplacesCommon is { } privateReaction)
             {
                 privateReaction(context);
                 enemy.Processing = enemy.Processing.With(EnemyProcessing.OffScreen);
@@ -737,16 +741,16 @@ internal sealed class EnemyCollision
             enemy.Health = damage >= enemy.Health
                 ? 0
                 : enemy.Health - damage;
-            if (enemy.Health == 0 && reaction?.ExemptFromGenericDeath != true)
+            if (enemy.Health == 0 && !reaction.ExemptFromGenericDeath)
             {
-                reaction?.BeforeGenericDeath?.Invoke(context);
-                if (reaction?.ReplacesGenericDeath is { } replaceDeath)
+                reaction.BeforeGenericDeath?.Invoke(context);
+                if (reaction.ReplacesGenericDeath is { } replaceDeath)
                     replaceDeath(context);
                 else
                     _deathsAndDrops.StartGenericEnemyDeath(occupant, EnemyDeathExplosion.Small, samus);
             }
 
-            reaction?.AfterCommon?.Invoke(context);
+            reaction.AfterCommon?.Invoke(context);
 
             enemy.Processing = enemy.Processing.With(EnemyProcessing.OffScreen);
         }

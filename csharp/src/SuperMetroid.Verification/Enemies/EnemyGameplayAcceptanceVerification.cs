@@ -49,7 +49,7 @@ internal static class EnemyGameplayAcceptanceVerification
             RoomEnemyDefinition definition = RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer, out var auxiliary)
                 ? auxiliary : RoomEnemyDefinitionLookup.Get(pointer);
             AssertTrue(EnemyVulnerabilities.Of(definition) is not null, $"{pointer} resolves its vulnerabilities");
-            if (definition.DropChances is { } chances)
+            if (definition.Drops is EnemyDrops.Rolled { Chances: var chances })
             {
                 AssertEqual(byte.MaxValue, chances.SmallEnergy + chances.BigEnergy + chances.Missile + chances.Nothing +
                     chances.SuperMissile + chances.PowerBomb, $"{pointer}'s drop chances sum to 255");

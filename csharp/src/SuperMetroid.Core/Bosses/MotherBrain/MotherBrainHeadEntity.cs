@@ -45,7 +45,7 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     }
 
     /// <summary>The head's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.Combat.HeadShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? Species.Combat.HeadShotReaction : base.ShotReaction;
 
     /// <summary>Runs the head's own reaction to a bomb that selects its shot reaction, before the ignoring check.</summary>
     /// <param name="context">The bomb contact.</param>
@@ -62,7 +62,7 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     /// loudly if a blast reaches it.
     /// </summary>
     /// <exception cref="InvalidDataException">The head's definition leaves the blast to the species.</exception>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies
+    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies
         ? throw new InvalidDataException($"Enemy {Place.Occupant?.DefinitionId} has no response to its own Power Bomb reaction.")
         : base.PowerBombReaction;
 

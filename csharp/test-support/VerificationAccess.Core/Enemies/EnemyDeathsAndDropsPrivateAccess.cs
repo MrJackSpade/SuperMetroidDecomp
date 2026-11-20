@@ -16,8 +16,8 @@ internal static class EnemyDeathsAndDropsPrivateAccess
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.EnemyDeathsAndDrops, global::SuperMetroid.Core.Enemies.Deaths.EnemyDeathAndDropSegment>(self, "ConvertEnemyDeathExplosionToPickup", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { projectile, samus });
 
         /// <summary>The private method <c>SelectRandomEnemyDrop</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.EnemyDropRoll SelectRandomEnemyDrop(global::SuperMetroid.Core.Enemies.EnemyDropChances? dropChances, global::SuperMetroid.Core.Samus.SamusState samus) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.EnemyDeathsAndDrops, global::SuperMetroid.Core.Enemies.EnemyDropRoll>(self, "SelectRandomEnemyDrop", [typeof(global::SuperMetroid.Core.Enemies.EnemyDropChances?), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { dropChances, samus });
+        internal global::SuperMetroid.Core.Enemies.EnemyDropRoll SelectRandomEnemyDrop(global::SuperMetroid.Core.Enemies.EnemyDrops drops, global::SuperMetroid.Core.Samus.SamusState samus) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.EnemyDeathsAndDrops, global::SuperMetroid.Core.Enemies.EnemyDropRoll>(self, "SelectRandomEnemyDrop", [typeof(global::SuperMetroid.Core.Enemies.EnemyDrops), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { drops, samus });
 
         /// <summary>The private method <c>TendEnemyPickup</c>, invoked by name.</summary>
         internal void TendEnemyPickup(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Samus.SamusState samus) =>

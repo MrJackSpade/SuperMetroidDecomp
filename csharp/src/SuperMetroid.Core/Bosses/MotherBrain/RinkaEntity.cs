@@ -42,15 +42,15 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occup
     }
 
     /// <summary>Rinka's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? ownShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? ownShot : base.ShotReaction;
 
     /// <summary>Rinka's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot is null ? ownBomb : base.CommonBombDamageReaction(context);
 
     /// <summary>Rinka's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? ownPowerBomb : base.PowerBombReaction;
+    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? ownPowerBomb : base.PowerBombReaction;
 
     /// <summary>Runs a frozen Rinka's own step before the common thaw; true when it ended the turn.</summary>
     public override bool PreemptFrozenTurn() => species.ThawOrDieWhileFrozen(Occupant);

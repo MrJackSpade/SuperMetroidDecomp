@@ -13,6 +13,9 @@ internal sealed class EnemyShotReaction
     /// <summary>Whether the enemy currently ignores every shot before any projectile is examined.</summary>
     internal Func<RoomEnemyPlace, bool>? SkipsEnemy { get; init; }
 
+    /// <summary>The reaction of an enemy shots pass: it skips every enemy, so a shot meets none of its stages (#2558).</summary>
+    internal static EnemyShotReaction ShotsPass { get; } = new() { SkipsEnemy = static _ => true };
+
     /// <summary>Runs after the overlap is found, before the frame-hitbox Super Missile quake.</summary>
     internal EnemyShotStage? BeforeSuperMissileQuake { get; init; }
 

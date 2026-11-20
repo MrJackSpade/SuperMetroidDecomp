@@ -55,7 +55,7 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
     }
 
     /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.Combat.DraygonShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? Species.Combat.DraygonShotReaction : base.ShotReaction;
 
     /// <summary>
     /// The body's dud shot for a bomb whose hitbox selects it, in place of common bomb damage once the ignoring check has
@@ -72,11 +72,11 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
 
     /// <summary>The body's own stages around common bomb damage, for a bomb that selects its shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot == DraygonReactions.Shot ? Species.Combat.DraygonBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The body's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction =>
+    public override EnemyPowerBombReaction PowerBombReaction =>
         LeavesPowerBombToSpecies ? Species.Combat.DraygonPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The body's contact and shots meet its own frames' hitboxes.</summary>

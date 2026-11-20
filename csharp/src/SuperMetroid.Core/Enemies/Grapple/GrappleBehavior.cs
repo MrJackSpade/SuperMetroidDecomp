@@ -42,8 +42,9 @@ internal sealed class GrappleBehavior : IGrappleTargets
             // Grappling replaces any hurt or frozen state the enemy had, so its next update runs its grappled
             // reaction.
             enemy.AiStates = EnemyAiStates.Grappled;
-            GrappleEnemyReaction reaction = enemy.Definition.GrappleResponse ?? throw new InvalidDataException(
-                $"Enemy {enemy.Occupant?.DefinitionId} names no reaction to the grapple beam.");
+            GrappleEnemyReaction reaction = enemy.Definition.GrappleResponse;
+            if (reaction == GrappleEnemyReaction.Unreactive)
+                throw new InvalidDataException($"Enemy {enemy.Occupant?.DefinitionId} has no reaction to the grapple beam.");
             return new GrappleEnemyCollision(
                 reaction,
                 enemy.Position.Whole,
@@ -115,8 +116,8 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 
-            case null:
-                throw new InvalidDataException($"Enemy {enemy.Occupant?.DefinitionId} names no reaction to the grapple beam.");
+            case GrappleEnemyReaction.Unreactive:
+                throw new InvalidDataException($"Enemy {enemy.Occupant?.DefinitionId} has no reaction to the grapple beam.");
             default:
                 throw new InvalidDataException(
                     $"Enemy {enemy.Occupant?.DefinitionId} has no response to grapple reaction {enemy.Definition.GrappleResponse}.");

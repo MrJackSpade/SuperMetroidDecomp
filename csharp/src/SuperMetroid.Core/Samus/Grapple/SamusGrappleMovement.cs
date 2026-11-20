@@ -168,6 +168,9 @@ public static class SamusGrappleMovement
             case GrappleEnemyReaction.None:
             case GrappleEnemyReaction.Kill:
                 break;
+            // The collision never reports an enemy with no reaction to the beam: reaching one fails there.
+            case GrappleEnemyReaction.Unreactive:
+                throw new InvalidOperationException("The grapple collision reported an enemy with no reaction to the beam.");
             default:
                 throw new InvalidOperationException($"Undefined GrappleEnemyReaction {enemy.Reaction}.");
         }

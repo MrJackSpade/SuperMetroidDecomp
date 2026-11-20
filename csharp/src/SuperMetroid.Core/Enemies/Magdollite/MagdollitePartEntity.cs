@@ -37,15 +37,15 @@ internal abstract class MagdollitePartEntity(MagdolliteBehavior species, RoomEne
     }
 
     /// <summary>The Magdollite's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.MagdolliteShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? Species.MagdolliteShotReaction : base.ShotReaction;
 
     /// <summary>The Magdollite's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot is null ? Species.MagdolliteBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Magdollite's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? Species.MagdollitePowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? Species.MagdollitePowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The Magdollite's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

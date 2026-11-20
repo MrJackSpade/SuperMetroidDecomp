@@ -31,11 +31,11 @@ internal sealed class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant
     }
 
     /// <summary>Shaktool's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.ShaktoolShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? species.ShaktoolShotReaction : base.ShotReaction;
 
     /// <summary>Shaktool's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot is null ? species.ShaktoolBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>Shaktool's own shot reaction, which a normal bomb triggers as it does the common one.</summary>

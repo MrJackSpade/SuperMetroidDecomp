@@ -48,7 +48,7 @@ internal abstract class RidleyEntity(RidleyBody body, RoomEnemyOccupant occupant
     public EnemyReaction? SpeciesShot => RidleyReactions.Shot;
 
     /// <summary>Both Ridley bodies' own Power Bomb reaction where their definitions leave the blast to them, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction =>
+    public override EnemyPowerBombReaction PowerBombReaction =>
         LeavesPowerBombToSpecies ? RidleyInteractions.RidleyPowerBombReaction : base.PowerBombReaction;
 
     /// <inheritdoc/>

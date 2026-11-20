@@ -18,7 +18,7 @@ internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior 
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BlueBrinstarFaceBlockBehavior.AdvanceBlueBrinstarFaceBlockTypedAnimation(Place);
 
     /// <summary>The pass-through shot reaction where the face block's definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction =>
+    public override EnemyShotReaction ShotReaction =>
         LeavesShotToSpecies ? BlueBrinstarFaceBlockBehavior.PassThroughShot : base.ShotReaction;
 
     /// <summary>

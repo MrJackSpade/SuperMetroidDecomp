@@ -24,11 +24,11 @@ internal sealed class MetareeEntity(MetareeBehavior species, RoomEnemyOccupant o
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MetareeBehavior.AdvanceMetareeTypedAnimation(Place);
 
     /// <summary>The Metaree's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? ownShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? ownShot : base.ShotReaction;
 
     /// <summary>The Metaree's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot is null ? ownBomb : base.CommonBombDamageReaction(context);
 
     /// <summary>The Metaree's own shot reaction, which a normal bomb triggers as it does the common one.</summary>

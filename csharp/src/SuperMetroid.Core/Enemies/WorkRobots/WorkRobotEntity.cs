@@ -38,11 +38,11 @@ internal abstract class WorkRobotEntity(WorkRobotBehavior species, RoomEnemyOccu
     }
 
     /// <summary>The Work Robot's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>The Work Robot's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot is null ? OwnBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The robot's own stages around a bomb's common damage, as its power decides them.</summary>

@@ -44,11 +44,11 @@ internal sealed class OumEntity(OumBehavior species, RoomEnemyOccupant occupant,
     }
 
     /// <summary>The snail's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.OumShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? species.OumShotReaction : base.ShotReaction;
 
     /// <summary>The snail's own stages around common bomb damage, for a bomb that selects its shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot == OumReactions.Shot
             ? species.OumBombReaction
             : base.CommonBombDamageReaction(context);

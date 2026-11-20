@@ -13,7 +13,7 @@ internal sealed class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior specie
     : NinjaSpacePirateEntity(species, occupant, place, common)
 {
     /// <summary>The gold Ninja's own shot reaction where the definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.Walking.GoldNinjaShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? Species.Walking.GoldNinjaShotReaction : base.ShotReaction;
 
     /// <summary>
     /// Runs the gold Ninja's own reaction to a bomb its frames' hitboxes meet with one of the Pirates' own reactions, before
@@ -30,6 +30,6 @@ internal sealed class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior specie
 
     /// <summary>The gold Ninja's own stages around the common bomb damage every bomb that reaches it runs.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         WalkingSpacePirateBehavior.GoldNinjaBombReaction;
 }

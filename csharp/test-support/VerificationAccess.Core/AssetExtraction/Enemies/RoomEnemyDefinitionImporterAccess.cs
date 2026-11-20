@@ -50,7 +50,7 @@ internal static class RoomEnemyDefinitionImporterAccess
                 Shot: EnemyInteractionCallbacks.DecodeShot(bank, Word(50)),
                 TouchHitboxScan: EnemyInteractionCallbacks.HitboxScan(Word(48)),
                 ShotHitboxScan: EnemyInteractionCallbacks.HitboxScan(Word(50)),
-                DropChances: EnemyHeaderTables.DropChances(cartridge, Word(58)),
+                Drops: EnemyHeaderTables.Drops(cartridge, Word(58)),
                 Vulnerability: EnemyHeaderTables.Vulnerability(cartridge, Word(60)));
         }
     }

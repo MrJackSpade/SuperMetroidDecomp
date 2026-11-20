@@ -12,6 +12,11 @@ public abstract record SamusMissileIgnition
     {
     }
 
+    /// <summary>What a beam fired into the missile's place finds of its ignition (#2524).</summary>
+    /// <param name="reflectionHeadStart">The head start a reflected missile re-ignites with.</param>
+    /// <param name="linkPlace">The place a Super Missile names as its link, or null.</param>
+    internal abstract BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(SignedEightEight reflectionHeadStart, int? linkPlace);
+
     /// <summary>Whether the missile has ignited since it was fired or reflected.</summary>
     public bool HasIgnited => this is Ignited;
 
@@ -25,12 +30,24 @@ public abstract record SamusMissileIgnition
     }
 
     /// <summary>Fired and not yet ignited; it ignites at <see cref="SamusProjectileMotionDefinitions.MissileIgnitionSpeed"/>.</summary>
-    public sealed record Pending : Unignited;
+    public sealed record Pending : Unignited
+    {
+        /// <inheritdoc/>
+        internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(SignedEightEight reflectionHeadStart, int? linkPlace) => new BeamFiredOverLastShot.ReplacedShot.UnignitedMissile();
+    }
 
     /// <summary>Reflected by an enemy and not yet re-ignited; it re-ignites with the reflection's head start.</summary>
-    public sealed record PendingAfterReflection : Unignited;
+    public sealed record PendingAfterReflection : Unignited
+    {
+        /// <inheritdoc/>
+        internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(SignedEightEight reflectionHeadStart, int? linkPlace) => new BeamFiredOverLastShot.ReplacedShot.ReflectedMissile(reflectionHeadStart);
+    }
 
     /// <summary>Ignited at <paramref name="Speed"/>.</summary>
     /// <param name="Speed">The base speed it ignited at: <see cref="SamusProjectileMotionDefinitions.MissileIgnitionSpeed"/>, or <see cref="SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed"/> after a reflection's head start.</param>
-    public sealed record Ignited(SignedEightEight Speed) : SamusMissileIgnition;
+    public sealed record Ignited(SignedEightEight Speed) : SamusMissileIgnition
+    {
+        /// <inheritdoc/>
+        internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(SignedEightEight reflectionHeadStart, int? linkPlace) => new BeamFiredOverLastShot.ReplacedShot.IgnitedMissile(Speed, linkPlace);
+    }
 }

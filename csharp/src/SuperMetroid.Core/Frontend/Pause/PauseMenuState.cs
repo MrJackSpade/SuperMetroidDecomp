@@ -121,7 +121,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         itemSelector = AnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue>.StartShowing(
             selectors.Segments, selectors.Cycling, selectors.InitialDurationTicks);
         area = entry.Area;
-        _ = AreaIds.Require(entry.Area);
         this.roomMapPosition = entry.RoomMapPosition;
         this.mapRevealMode = entry.MapRevealMode;
 

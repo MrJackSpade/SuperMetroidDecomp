@@ -15,11 +15,6 @@ public static class AreaIds
     /// <summary>The six Zebes areas; Ceres, the prologue station, is not one of them.</summary>
     public static IReadOnlyList<AreaId> Zebes { get; } = [.. All.Where(area => area != AreaId.Ceres)];
 
-    /// <summary><paramref name="area"/>, checked to be one of the seven areas.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not an area.</exception>
-    public static AreaId Require(AreaId area) =>
-        All.Contains(area) ? area : throw new ArgumentOutOfRangeException(nameof(area), area, "Unknown area ID.");
-
     /// <summary>Whether <paramref name="area"/> is one of the six Zebes areas.</summary>
     public static bool IsZebes(AreaId area) => area != AreaId.Ceres;
 

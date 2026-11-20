@@ -51,7 +51,6 @@ public static class MapStationDiscoveryRules
     /// <exception cref="ArgumentOutOfRangeException">The area or station kind is not a supported identity.</exception>
     public static IEnumerable<MapStationDiscoveryRule> Get(AreaId area, MapStationKind kind)
     {
-        _ = AreaIds.Require(area);
         MapStationDiscoveryRule[] source = RulesByKind[kind];
         return source.Where(rule => rule.Area == area);
     }

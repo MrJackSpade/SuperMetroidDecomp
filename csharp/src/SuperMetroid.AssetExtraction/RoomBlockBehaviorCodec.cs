@@ -97,7 +97,7 @@ public static class RoomBlockBehaviorCodec
     /// <param name="value">The byte, 0 through 255.</param>
     /// <exception cref="ArgumentOutOfRangeException">The area is not a retail area, <paramref name="value"/> is not a byte, or no kept behaviour holds its readings.</exception>
     public static RoomBlockBehavior Decode(AreaId area, int value) =>
-        InAreas.Value[AreaIds.Require(area)][Ensure.BetweenInclusive(0, byte.MaxValue, value)];
+        InAreas.Value[area][Ensure.BetweenInclusive(0, byte.MaxValue, value)];
 
     /// <summary>The slope shape a slope's shape bits number.</summary>
     /// <param name="number">The shape bits, 0 through 31.</param>
@@ -134,7 +134,6 @@ public static class RoomBlockBehaviorCodec
     /// <exception cref="ArgumentOutOfRangeException">The area is not a retail area, or <paramref name="value"/> is not a byte.</exception>
     public static RoomBlockReadings ReadingsOf(AreaId area, int value)
     {
-        _ = AreaIds.Require(area);
         _ = Ensure.BetweenInclusive(0, byte.MaxValue, value);
         bool areaTable = (value & HighBit) != 0;
         int entry = value & EntryMask;

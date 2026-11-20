@@ -200,7 +200,6 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// </exception>
     public RoomBlockBehavior In(AreaId area)
     {
-        _ = AreaIds.Require(area);
         RoomBlockReadings readings = Readings;
         if (!UnresolvedOf.TryGetValue(readings, out RoomBlockReadings? unresolved))
             return this;

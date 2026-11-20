@@ -14,4 +14,7 @@ internal sealed class SuperMissileShotState(SamusMissileIgnition.Unignited ignit
     /// is created until it ignites with a link of its own; a reflection leaves it naming none until it re-ignites.
     /// </summary>
     internal int? LinkPlace { get; set; } = linkPlace;
+
+    /// <inheritdoc/>
+    private protected override int? LinkPlaceFound => LinkPlace;
 }

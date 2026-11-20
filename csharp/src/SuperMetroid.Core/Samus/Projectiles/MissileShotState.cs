@@ -10,6 +10,13 @@ internal class MissileShotState : SamusShotKindState
     /// <param name="ignition">Where the missile starts in its ignition: pending when fired, pending after a reflection when reflected.</param>
     internal MissileShotState(SamusMissileIgnition.Unignited ignition) => Ignition = Ensure.NotNull(ignition);
 
+    /// <inheritdoc/>
+    internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(SignedEightEight reflectionHeadStart) =>
+        Ignition.ReplacedByBeam(reflectionHeadStart, LinkPlaceFound);
+
+    /// <summary>The link place a beam finds the shot naming: a missile names none.</summary>
+    private protected virtual int? LinkPlaceFound => null;
+
     /// <summary>Where the missile is in its ignition, with the speed it ignited at once it has.</summary>
     internal SamusMissileIgnition Ignition { get; private set; }
 

@@ -42,9 +42,9 @@ public static class SamusGrappleMovement
         bool movingHeld = samus.Pose is SamusPoseId.DraygonGrabbedMovingLeftPose or
             SamusPoseId.DraygonGrabbedMovingRightPose;
         SamusProjectileDirection? aim = movingHeld ? ReadDraygonHeldDirection(samus.Pose, controllerInput) : SamusPoseMetadata.ReadAimDirection(samus);
-        if (aim is not { } direction)
+        if (aim is not { } direction || SamusPoseTraits.Of(samus.Pose) is not SamusArmedPoseDefinition armed)
         {
-            // A pose that aims nowhere (turning, or shooting disabled) cancels the grapple,
+            // A pose that aims nowhere (turning, or shooting disabled) or is drained cancels the grapple,
             // including a shot arriving while a permitted posture is transitioning.
             grapple.Phase = GrapplePhase.CancelPending;
             return;
@@ -65,8 +65,7 @@ public static class SamusGrappleMovement
         var origin = GrappleFiring.Origin(direction, useRunOffsets);
         var flare = ReadFlareOrigin(grapple, direction, useRunOffsets);
         int artOrigin = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingArtOrigin : SamusPoseMetadata.ReadArtOrigin(samus);
-        int physicalYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingArtOrigin :
-            SamusPoseTraits.Armed(samus.Pose).ProjectileHeight;
+        int physicalYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingArtOrigin : armed.ProjectileHeight;
 
         // The hand and flare offsets and the pose's offsets are a few pixels each, so their differences are ordinary.
         grapple.OriginOffset = new(origin.X, origin.Y - physicalYOffset);
@@ -948,23 +947,26 @@ public static class SamusGrappleMovement
     internal static void SettleFiringOrigins(SamusState samus)
     {
         SamusGrappleState grapple = Ensure.NotNull(samus).Grapple;
-        if (grapple.Phase == GrapplePhase.Firing && grapple.FlareStage != GrappleFlareStage.None)
-            RefreshFiringOrigins(samus, grapple);
+        // The rope starts at the projectile height of her final pose; nothing is fired from a drained one.
+        if (grapple.Phase == GrapplePhase.Firing && grapple.FlareStage != GrappleFlareStage.None &&
+            SamusPoseTraits.Of(samus.Pose) is SamusArmedPoseDefinition armed)
+            RefreshFiringOrigins(samus, armed, grapple);
     }
 
     /// <summary>
-    /// Recomputes a firing beam's rope start and flare from Samus's final pose and position, the rope start at her
-    /// projectile height and the flare at her picture's art origin.
+    /// Recomputes a firing beam's rope start and flare from Samus's final pose and position, the rope start at the
+    /// projectile height of <paramref name="pose"/>, her armed final pose, and the flare at her picture's art origin.
     /// </summary>
     internal static void RefreshFiringOrigins(
         SamusState samus,
+        SamusArmedPoseDefinition pose,
         SamusGrappleState grapple)
     {
         bool useRunOffsets = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running;
         var origin = GrappleFiring.Origin(grapple.FireDirection, useRunOffsets);
         var flare = ReadFlareOrigin(grapple, grapple.FireDirection, useRunOffsets);
         int artOrigin = SamusPoseMetadata.ReadArtOrigin(samus);
-        int physicalYOffset = SamusPoseTraits.Armed(samus.Pose).ProjectileHeight;
+        int physicalYOffset = pose.ProjectileHeight;
 
         // Recompute from the final pose/position, not cached launch offsets. The rope start and the flare remain separate
         // coordinate pairs.

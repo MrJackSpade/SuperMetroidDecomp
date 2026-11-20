@@ -8,9 +8,4 @@ internal static class SamusPoseTraits
     internal static SamusPoseDefinition Of(SamusPoseId pose) =>
         SamusPoseDefinitions.Poses.TryGetValue(pose, out SamusPoseDefinition? definition) ? definition
         : throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {pose}.");
-
-    /// <summary>The definition of armed <paramref name="pose"/>, from which shots and the Grapple start.</summary>
-    /// <exception cref="InvalidOperationException">The pose is undefined or drained, so nothing is fired from it.</exception>
-    internal static SamusArmedPoseDefinition Armed(SamusPoseId pose) =>
-        Of(pose) as SamusArmedPoseDefinition ?? throw new InvalidOperationException($"Nothing is fired from drained pose {pose}.");
 }

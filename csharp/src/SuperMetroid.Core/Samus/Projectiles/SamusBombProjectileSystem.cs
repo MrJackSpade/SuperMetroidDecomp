@@ -516,23 +516,24 @@ public sealed class SamusBombProjectileSystem
         return true;
     }
 
-    /// <summary>The lowest place no bomb holds.</summary>
-    /// <exception cref="InvalidOperationException">
-    /// Every place holds a bomb. The placing count admits a bomb only below the place count and counts every bomb until it
-    /// ends; only the drain's release clears it while bombs may be out (<see cref="DrainHoldsBombCount"/>), and none is
-    /// then. A full set of places therefore means the count fell out of step with the bombs, where the game would reuse
-    /// the last place.
-    /// </exception>
+    /// <summary>
+    /// The place a new bomb takes: the lowest place no bomb holds, or, with every place held, the last place, whose bomb the
+    /// new one replaces, as the game's search for a place ends on the last place (#2553).
+    /// </summary>
+    /// <remarks>
+    /// The placing count admits a bomb only below the place count and counts every bomb until it ends; only the drain's
+    /// release clears it while bombs may be out (<see cref="DrainHoldsBombCount"/>). A count out of step with the bombs
+    /// out therefore admits a bomb with every place held, which takes the last place.
+    /// </remarks>
     private int FindFreePlace()
     {
-        for (int place = 0; place < PlaceCount; place++)
+        for (int place = 0; place < PlaceCount - 1; place++)
         {
             if (!_bombs[place].IsOccupied)
                 return place;
         }
 
-        throw new InvalidOperationException(
-            $"A bomb was admitted with all {PlaceCount} places held: the placing count ({BombCounter}) is out of step with the bombs out.");
+        return PlaceCount - 1;
     }
 
     /// <summary>Takes <paramref name="bomb"/>'s place with a bomb of <paramref name="kind"/> and the damage its bomb definition gives.</summary>

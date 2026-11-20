@@ -29,10 +29,10 @@ internal sealed class FallingSparksBehavior
     }
 
     /// <summary>Allocates and initializes a falling spark projectile.</summary>
-    internal void SpawnFallingSpark(RoomEnemyOccupant occupant, RoomEnemyPlace source)
+    internal void SpawnFallingSpark(RoomEnemyPlace source)
     {
         var spark = new FallingSparkState(launch);
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FallingSpark, Spark(spark), SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FallingSpark, Spark(spark), SpriteGraphics.SpawnedBy(source));
         if (projectile is null)
             return;
 
@@ -56,7 +56,7 @@ internal sealed class FallingSparksBehavior
     internal EnemyProjectileBehavior Spark(FallingSparkState spark) =>
         new SingleMotionProjectileBehavior(context => FallFallingSpark(context.Projectile, spark, context.Level, context.ShortCounter));
 
-    private void FallFallingSpark(
+    internal void FallFallingSpark(
         EnemyProjectile projectile,
         FallingSparkState spark,
         RoomLevelData level,
@@ -73,12 +73,12 @@ internal sealed class FallingSparksBehavior
                 return;
             }
 
-            // Gravity adds to the speed's fraction; a fraction that passes a whole pixel raises the
+            // Gravity adds a quarter pixel to the speed's fraction; a fraction that passes a whole pixel raises the
             // whole speed by one.
             SignedSixteenSixteen accelerated = spark.VerticalSpeed + FallingSparkMotionDefinitions.Gravity;
 
-            // The whole speed stops rising once it would reach its terminal speed. The fraction still keeps its
-            // gravity's increment, giving the slightly asymmetric cap.
+            // The whole speed stops rising once it would reach four. The fraction still keeps its quarter-pixel
+            // increment, giving the slightly asymmetric cap.
             spark.VerticalSpeed = accelerated.WholePixels < FallingSparkMotionDefinitions.TerminalWholeSpeed
                 ? accelerated
                 : accelerated.WithWholePixels(spark.VerticalSpeed.WholePixels);
@@ -87,7 +87,7 @@ internal sealed class FallingSparksBehavior
         AddFallingSparkVerticalVelocity(projectile, spark);
         AddFallingSparkHorizontalVelocity(projectile, spark);
 
-        if (FallingSparkCadenceDefinitions.SparkTrail.IsDue(frameCycle))
+        if (FallingSparkCadenceDefinitions.TrailEveryFourthUpdate.IsDue(frameCycle))
             SpawnFallingSparkTrail(projectile);
     }
 
@@ -102,10 +102,10 @@ internal sealed class FallingSparksBehavior
         projectile.Position = projectile.Position.AdvanceX(spark.HorizontalStep);
 
     /// <summary>
-    /// Switches a falling spark to its floor-impact animation and scales its sideways drift, a fraction past a whole
-    /// pixel carrying into the whole pixels.
+    /// Switches a falling spark to its floor-impact animation and scales its stored
+    /// horizontal delta, the fraction's overflow passing into the whole.
     /// </summary>
-    private void BeginFallingSparkFloorImpact(EnemyProjectile projectile, FallingSparkState spark)
+    internal static void BeginFallingSparkFloorImpact(EnemyProjectile projectile, FallingSparkState spark)
     {
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.HitFloor));
 

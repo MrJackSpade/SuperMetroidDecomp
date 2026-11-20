@@ -51,7 +51,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
     /// Spawns one spore projectile and runs its setup. The spore shares <paramref name="sporeSpawn"/>'s body's colours as
     /// they show now (#1512).
     /// </summary>
-    private void SpawnSporeSpawnSpore(Position16<RoomPixels> position, HorizontalDirection drift, SporeSpawnEnemyState sporeSpawn)
+    internal void SpawnSporeSpawnSpore(Position16<RoomPixels> position, HorizontalDirection drift, SporeSpawnEnemyState sporeSpawn)
     {
         var behavior = new SporeSpawnSporeBehavior(deathsAndDrops, new SporeSpawnSporeState(drift));
         EnemyProjectile? spore = projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnSpore, behavior, SpriteGraphics.SharedIn(Ensure.NotNull(sporeSpawn).Colours.Sprites));
@@ -70,7 +70,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
 
         if (emitter.ReleaseWait.IsZero)
         {
-            spawner.StartAnimation(new SporeSpawnSpawnerAnimation(this, SporeSpawnProjectileSegment.SpawnerRelease, this));
+            spawner.StartAnimation(new SporeSpawnSpawnerAnimation(SporeSpawnProjectileSegment.SpawnerRelease, this));
             emitter.ReleaseWait = WrappingCountdown.Start(room.Random.Next(SporeSpawnRandomDefinitions.SporeReleaseWait));
         }
         emitter.ReleaseWait = emitter.ReleaseWait.Decrement().Remaining;

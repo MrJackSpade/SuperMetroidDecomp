@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 
 /// <summary>Falling spark's typed animation.</summary>
 internal sealed class FallingSparkAnimation(FallingSparkSegment segment)
-    : EnemyProjectileCommonFrameAnimation<FallingSparkSegment>(FallingSparkAnimations.StartingWith(segment), EnemyProjectileCueRunners.Common<FallingSparkSegment>())
+    : EnemyProjectileCommonFrameAnimation<FallingSparkSegment>(FallingSparkAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FallingSparkAnimations.Segments;

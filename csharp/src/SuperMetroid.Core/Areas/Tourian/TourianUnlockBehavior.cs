@@ -97,7 +97,7 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
         if (moves is { } motion)
             projectile.StartMotion(this, motion);
         _statue.HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(this, start, this));
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(start, this));
         projectile.Position = projectile.Position.WithWhole(eye.Position);
         return projectile;
     }
@@ -118,8 +118,8 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
         // A particle leaves within an eighth of a turn either side of the zero angle; one below zero lies near a full turn.
         TrigonometryAngle angle = TrigonometryAngle.Wrapped(
             _room.Random.Next(TourianStatueParticleDefinitions.LaunchAngle) - TourianStatueParticleDefinitions.LaunchAngleCentring);
-        // The particle flies its across speed at the angle's sine, and its vertical speed up or down at its negative cosine,
-        // the sine a quarter turn back.
+        // The particle flies one pixel an update across at the angle's sine, and four up or down at its negative cosine, the
+        // sine a quarter turn back.
         particle.Velocity = particle.Velocity.WithX(Trigonometry.SineVelocity(angle, TourianStatueParticleDefinitions.LaunchAcrossPixels));
         particle.Velocity = particle.Velocity.WithY(Trigonometry.SineVelocity(angle - TrigonometryAngle.QuarterTurn,
             TourianStatueParticleDefinitions.LaunchVerticalPixels));
@@ -146,7 +146,7 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
         if (moves is { } motion)
             projectile.StartMotion(this, motion);
         _statue.HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(this, start, this));
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(start, this));
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         return projectile;
     }
@@ -157,15 +157,15 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
 
     /// <summary>
     /// Raises a soul, accelerating upward, and ends it once it rises above the room's top (#2424): it leaves in its own
-    /// update, before its animation's step, and the velocity it leaves in its place for the next spawn there
-    /// (<see cref="Compatibility.EnemyProjectileHandOver"/>) already holds this update's acceleration.
+    /// update, before its animation's step, and the velocity it leaves behind for the next spawn in its place still gains
+    /// this update's acceleration.
     /// </summary>
     private static void RaiseTourianStatueSoul(EnemyProjectile projectile)
     {
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y - TourianStatueSoulDefinitions.RiseAcceleration);
         if (OffRoomPlaces.LiesBeforeRoom(projectile.Position.Y.Whole))
             projectile.Delete();
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y - TourianStatueSoulDefinitions.RiseAcceleration);
     }
 
     /// <summary>
@@ -190,7 +190,7 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
     /// The unlock's effects (#1760): the descending statue's dust, the eyes' glows, the released souls, particles and their
     /// tails, and the splashes. Their spawners start their animations.
     /// </summary>
-    private EnemyProjectileBehavior Effects => this;
+    internal EnemyProjectileBehavior Effects => this;
 
 
     /// <summary>Moves one of the unlock's effects: the splash's hold, the particle's fall and the soul's rise.</summary>

@@ -11,7 +11,7 @@ using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's four parts, his body, eye, tail and arms: their setup, animations and cues.</summary>
+/// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
 [RoomLifetime]
 internal sealed class DraygonParts
 {
@@ -52,14 +52,14 @@ internal sealed class DraygonParts
     /// Sets Draygon's body up when the room spawns it: it begins the encounter with his eye, tail and arms, which his room
     /// lists right after his body (#2298), each playing the animation its setup starts.
     /// </summary>
-    internal DraygonEnemyState InitializeDraygonBody(RoomEnemyOccupant occupant, IReadOnlyList<RoomEnemyPlace> parts)
+    internal DraygonEnemyState InitializeDraygonBody(RoomEnemyPlace body, IReadOnlyList<RoomEnemyPlace> parts)
     {
-        RoomEnemyPlace body = occupant.Place;
+        // His opening's colours are the import's shade of them, which his sprites draw in (#1512).
 
         body.AnimationClock.StepOnNextUpdate();
 
         _frameContext.RequestFullSweep();
-        var draygon = new DraygonEnemyState(occupant, eye: parts[0], tail: parts[1], arms: parts[2])
+        var draygon = new DraygonEnemyState(body, eye: parts[0], tail: parts[1], arms: parts[2])
         {
             Phase = new DraygonPhase.IntroInitialDelay(),
         };
@@ -237,13 +237,13 @@ internal sealed class DraygonParts
     internal void RequestDraygonMusic(MusicRequest request) =>
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
-    /// <summary>The eye breathes its bubble and turns its look toward Samus.</summary>
-    private void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)
+    /// <summary>Runs the eye direction partition.</summary>
+    internal void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)
     {
         RoomEnemyPlace eye = state.Eye;
         // The eye breathes its bubble on its cadence whether or not its gaze turns,
         // as one of the room's dust and explosion effects.
-        if (DraygonCadenceDefinitions.EyeBreathBubble.IsDue(eye.FrameCounter))
+        if (DraygonCadenceDefinitions.EyeBreathBubbleEvery128thUpdate.IsDue(eye.FrameCounter))
             _projectiles.SpawnDustOrExplosion(
                 new(OffRoomPlaces.Place(eye.Position.X.Whole + (DraygonEyeEffects.HorizontalOffset.Toward(facing))), OffRoomPlaces.Place(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
                 DraygonEyeEffects.DustVariant);
@@ -289,23 +289,23 @@ internal sealed class DraygonParts
         _effectActors.SpawnRoomEffectActor(
             state.Body.Position.Whole + scatter,
             kind,
-            graphics: SpriteGraphics.SharedStandard);
+            graphics: default);
     }
 
     /// <summary>Applies the tail whip's hit to grabbed Samus, including suit damage.</summary>
     private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState samus)
     {
         state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
-        SamusSuitDamage.Hurt(samus, state.BodyOccupant.Definition.Damage);
+        SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
 
-        // The tail hit also shakes the foreground strongly for its shake's updates, so the camera shows the hit as well as the
+        // The tail hit also shakes the foreground strongly for 32 updates, so the camera shows the hit as well as the
         // energy it costs.
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), DraygonArenaDefinitions.TailHitShakeUpdates);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), DraygonArenaDefinitions.TailHitShakeUpdates);
 
         _effectActors.SpawnRoomEffectActor(
             new(samus.Position.X.Whole, samus.Position.Y.Whole + DraygonArenaDefinitions.TailHitDustBelowSamus),
             RoomEffectActorKind.BigDustCloud,
-            graphics: SpriteGraphics.SharedStandard);
+            graphics: default);
     }
 
     /// <summary>
@@ -316,10 +316,10 @@ internal sealed class DraygonParts
         facing == HorizontalDirection.Right ? facingRight : facingRight.MirroredX();
 
     /// <summary>Spawns a goop as either of the body animation's two goop cues does.</summary>
-    private void SpawnDraygonGoop(DraygonEnemyState state, HorizontalDirection direction)
+    internal void SpawnDraygonGoop(DraygonEnemyState state, HorizontalDirection direction)
     {
-        DraygonShots.FlyingShotBehavior goopBehavior = _shots.Goop(_shots.Goop, AngledFlightState.Launch(angle, DraygonProjectileSpeeds.Goop));
-        EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonGoop, goopBehavior, graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
+        DraygonShots.FlyingShotBehavior goopBehavior = _shots.Goop(AngledFlightState.Launch(angle, DraygonProjectileSpeeds.Goop));
+        EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonGoop, goopBehavior, SpriteGraphics.SharedIn(DraygonColours.Goop));
         if (goop is null)
             return;
 

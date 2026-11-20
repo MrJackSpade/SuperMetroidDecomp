@@ -48,23 +48,23 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
         ]);
     }
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
-    private KraidBodyLayer BodyLayer { get; }
+    internal KraidBodyLayer BodyLayer { get; }
 
     /// <summary>Kraid's arrival: his room setup, the rise through the floor and his growth into the second phase.</summary>
     internal KraidRise Rise { get; }
 
     /// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
-    private KraidEncounterAccess Access { get; }
+    internal KraidEncounterAccess Access { get; }
 
 
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
-    private KraidBackground Background { get; }
+    internal KraidBackground Background { get; }
 
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health colours.</summary>
-    private KraidHead Head { get; }
+    internal KraidHead Head { get; }
 
     /// <summary>Kraid's death: the sink below the floor, hiding his body and the background fade.</summary>
-    private KraidDeath Death { get; }
+    internal KraidDeath Death { get; }
 
     /// <summary>Kraid's arm and foot: their setup, animations, lunges, retreats and walks.</summary>
     internal KraidLimbs Limbs { get; }
@@ -100,8 +100,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
     /// killing mouth hit therefore reaches colour handling, which settles his hurt flash on his health band's colours,
     /// before the death setup runs in this same update.
     /// </summary>
-    private void RunKraidBodyMain(
-        RoomEnemyOccupant kraid,
+    internal void RunKraidBodyMain(
+        RoomEnemyPlace body,
         KraidEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
@@ -109,20 +109,18 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
         SamusProjectileSystem samusProjectiles,
         SamusBombProjectileSystem samusBombs)
     {
-        RoomEnemyPlace body = kraid.Place;
         IReadOnlyList<KraidPassProjectile> tested = TestedByShotPasses(samusProjectiles, samusBombs);
-        Combat.ResolveKraidMouthProjectileHits(kraid, state, tested);
+        Combat.ResolveKraidMouthProjectileHits(body, state, tested);
         Head.RunKraidHurtColours(body, state);
         Combat.ResolveKraidBodyProjectileHits(body, state, tested);
-        Combat.ResolveKraidBodyContact(kraid, state, samus, pseudoScrew);
+        Combat.ResolveKraidBodyContact(body, state, samus, pseudoScrew);
         RunKraidBodyStage(body, state, camera.X, samus);
     }
 
     /// <summary>Runs Kraid's main AI for his body in <paramref name="place"/>.</summary>
-    internal void RunKraidMainAi(RoomEnemyOccupant kraid, KraidEnemyState state, IEnemyAiFrame frame)
+    internal void RunKraidMainAi(RoomEnemyPlace place, KraidEnemyState state, IEnemyAiFrame frame)
     {
-        _ = kraid.Place;
-        RunKraidBodyMain(kraid, state, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SamusBombs);
+        RunKraidBodyMain(place, state, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SamusBombs);
     }
 
     /// <summary>
@@ -132,7 +130,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
     /// </summary>
     /// <param name="projectiles">Samus's shots.</param>
     /// <param name="bombs">Samus's bombs.</param>
-    private static IReadOnlyList<KraidPassProjectile> TestedByShotPasses(
+    internal static IReadOnlyList<KraidPassProjectile> TestedByShotPasses(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem bombs)
     {
@@ -152,13 +150,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
         {
         }
 
-        /// <summary>
-        /// Whether a projectile holds the tested place (#2558). A pass reaches the place past Samus's counted shots and her
-        /// first bomb whether or not either holds one; an empty place lies at rest at the room's origin with no extent,
-        /// which Kraid's mouth and body, standing in his room's lower half, never meet, so a pass skips it.
-        /// </summary>
-        /// <value>The position, radius, type and damage of the projectile holding the place, or null while none holds it.</value>
-        public abstract KraidCollisionShot? Held { get; }
+        /// <summary>Reads the projectile's position, radius, type and damage.</summary>
+        public abstract KraidCollisionShot Read();
 
         /// <summary>Marks the projectile as having collided with Kraid.</summary>
         public abstract void MarkCollision();
@@ -174,9 +167,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
             internal Shot(SamusProjectile shot) => _shot = Ensure.NotNull(shot);
 
             /// <inheritdoc/>
-            public override KraidCollisionShot? Held => _shot.Occupant is { } held
-                ? new(_shot.Position.Whole, _shot.Radius, held.Type, held.Damage, IsPlacedBomb: false)
-                : null;
+            public override KraidCollisionShot Read() =>
+                new(_shot.Position.Whole, _shot.Radius, _shot.Type, _shot.Damage, IsPlacedBomb: false);
 
             /// <inheritdoc/>
             public override void MarkCollision() => _shot.Spend();
@@ -193,9 +185,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
             internal Bomb(SamusBomb bomb) => _bomb = Ensure.NotNull(bomb);
 
             /// <inheritdoc/>
-            public override KraidCollisionShot? Held => _bomb.Occupant is { } placed
-                ? new(_bomb.Position.Whole, _bomb.Radius, placed.Type, placed.Damage, IsPlacedBomb: !_bomb.IsBombSpread)
-                : null;
+            public override KraidCollisionShot Read() =>
+                new(_bomb.Position.Whole, _bomb.Radius, _bomb.Type, _bomb.Damage, IsPlacedBomb: !_bomb.IsBombSpread);
 
             /// <inheritdoc/>
             public override void MarkCollision() => _bomb.Spend();
@@ -212,7 +203,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
 
 
     /// <summary>Runs the phase of the stage the body is in: his rise, his fight, his growth or his death.</summary>
-    private void RunKraidBodyStage(
+    internal void RunKraidBodyStage(
         RoomEnemyPlace body,
         KraidEnemyState state,
         int cameraX,
@@ -276,7 +267,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
                 return;
 
             case KraidFightPhase.HeadAnimationBeforeGrowth:
-                Head.AdvanceKraidHeadAnimation(state);
+                _ = Head.AdvanceKraidHeadAnimation(state);
                 if (state.BodyState.PhaseWait.StepRunsOut())
                     state.BodyState.GrowthPhase = KraidGrowthPhase.ReleaseCamera;
                 return;

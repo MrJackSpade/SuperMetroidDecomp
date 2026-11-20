@@ -56,7 +56,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySettingsFactory<Hop
     /// <summary>Initializes the Hopper.</summary>
     internal HopperEnemyState InitializeHopper(RoomEnemyPlace place, HopperSpawnSettings settings)
     {
-        HopperKind kind = HopperAnimationChoices.KindOf(Ensure.NotNull(occupant).DefinitionId);
+        HopperKind kind = HopperAnimationChoices.KindOf(place.DefinitionId);
         // The placement's reseed is followed by a draw it never reads, which later consumers observe.
         _room.Random.Reseed(SpeciesRandomReseed.HopperPlacement);
         _room.Random.Generate();
@@ -72,7 +72,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySettingsFactory<Hop
 
     /// <summary>Runs the Hopper's current action.</summary>
     private void RunHopperMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place, HopperEnemyState state,
+        RoomEnemyPlace place, HopperEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
@@ -90,16 +90,16 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySettingsFactory<Hop
                 ChooseHopperDirection(place, state, samus);
                 return;
             case HopperAction.StartHop:
-                StartHopperJump(occupant, place, state);
+                StartHopperJump(place, state);
                 return;
             case HopperAction.Landed:
-                LandHopper(occupant, place, state);
+                LandHopper(place, state);
                 return;
             case HopperAction.HoppingAway:
-                RunHopperHopAway(occupant, place, state, level);
+                RunHopperHopAway(place, state, level);
                 return;
             case HopperAction.Returning:
-                RunHopperReturn(occupant, place, state, level);
+                RunHopperReturn(place, state, level);
                 return;
             case HopperAction.WaitToHop:
                 if (state.ReadyToHop)
@@ -138,15 +138,15 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySettingsFactory<Hop
         state.Action = HopperAction.StartHop;
     }
 
-    /// <summary>Starts the jumping animation and the hop along the chosen heading.</summary>
-    private static void StartHopperJump(RoomEnemyOccupant occupant, RoomEnemyPlace place, HopperEnemyState state)
+    /// <summary>Installs the jumping animation and starts the hop along the chosen heading.</summary>
+    internal static void StartHopperJump(RoomEnemyPlace place, HopperEnemyState state)
     {
         SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Jumping));
         state.Action = HopperAction.HoppingAway;
     }
 
     /// <summary>Starts the landed animation and returns the actor to its wait-for-hop action.</summary>
-    private static void LandHopper(RoomEnemyOccupant occupant, RoomEnemyPlace place, HopperEnemyState state)
+    internal static void LandHopper(RoomEnemyPlace place, HopperEnemyState state)
     {
         SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Landed));
         state.Action = HopperAction.WaitToHop;
@@ -157,7 +157,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySettingsFactory<Hop
     /// a wall, turns the hopper around and back toward its surface; passing the apex turns it back from the curve's start.
     /// </summary>
     private void RunHopperHopAway(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyPlace place,
         HopperEnemyState state,
         RoomLevelData level)
     {
@@ -196,7 +196,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySettingsFactory<Hop
     /// at once, and a wall only turns it around.
     /// </summary>
     private void RunHopperReturn(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyPlace place,
         HopperEnemyState state,
         RoomLevelData level)
     {
@@ -244,9 +244,9 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySettingsFactory<Hop
     }
 
     /// <summary>Runs the hoppers' main AI.</summary>
-    internal void RunHoppersMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, HopperEnemyState state, IEnemyAiFrame frame)
+    internal void RunHoppersMainAi(RoomEnemyPlace place, HopperEnemyState state, IEnemyAiFrame frame)
     {
-        RunHopperMain(occupant, place, state, frame.Samus, frame.Level);
+        RunHopperMain(place, state, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Hoppers's typed animation.</summary>

@@ -12,13 +12,13 @@ internal static class PirateHitboxShotActions
     /// (<see cref="SelectGoldNinjaHitboxShotAction"/>) gives the two Ninja body reactions special meaning: every other
     /// Pirate takes the ordinary shot reaction even when it shows one of the frames it shares with the Ninja (#2453).
     /// </summary>
-    internal static void RequirePirateShotReaction(EnemyReaction hitboxShot)
+    internal static void RequirePirateShotReaction(EnemyReaction? hitboxShot)
     {
         if (hitboxShot != SpacePirateReactions.Shot && hitboxShot != EnemyReaction.OrdinaryShot &&
             hitboxShot != SpacePirateReactions.GoldNinjaVulnerableHitboxShot && hitboxShot != SpacePirateReactions.GoldNinjaInvincibleHitboxShot)
         {
             throw new InvalidDataException(
-                $"Space Pirate has no response to shot reaction {hitboxShot}.");
+                $"Space Pirate has no response to shot reaction {hitboxShot?.ToString() ?? "(unnamed)"}.");
         }
     }
 
@@ -27,16 +27,15 @@ internal static class PirateHitboxShotActions
     /// the common and Pirate reactions run the ordinary shot reaction.
     /// </summary>
     internal static PirateHitboxShotAction SelectGoldNinjaHitboxShotAction(
-        RoomEnemyOccupant enemy,
-        SamusProjectileOccupant held,
-        EnemyReaction hitboxShot)
+        RoomEnemyPlace enemy,
+        SamusProjectile projectile,
+        EnemyReaction? hitboxShot)
     {
-        SamusProjectile projectile = held.Projectile;
         RequirePirateShotReaction(hitboxShot);
         if (hitboxShot == SpacePirateReactions.Shot || hitboxShot == EnemyReaction.OrdinaryShot)
             return PirateHitboxShotAction.Normal;
 
-        SamusProjectileFamily family = held.Type.Family;
+        SamusProjectileFamily family = projectile.Type.Family;
         if (hitboxShot == SpacePirateReactions.GoldNinjaInvincibleHitboxShot)
         {
             if (family == SamusProjectileFamily.SuperMissile &&
@@ -50,10 +49,10 @@ internal static class PirateHitboxShotActions
         if (!IsBeamOrMissile(family))
             return PirateHitboxShotAction.Ignore;
 
-        EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(Ensure.NotNull(enemy).Definition);
+        EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(enemy.Definition);
         EnemyWeaponVulnerability vulnerability = family switch
         {
-            SamusProjectileFamily.Beam => vulnerabilities.ForBeam(held.Type.BeamCombination),
+            SamusProjectileFamily.Beam => vulnerabilities.ForBeam(projectile.Type.BeamCombination),
             SamusProjectileFamily.Missile => vulnerabilities.Ordnance.Missile,
             SamusProjectileFamily.SuperMissile => vulnerabilities.Ordnance.SuperMissile,
             SamusProjectileFamily.PowerBomb or
@@ -74,12 +73,12 @@ internal static class PirateHitboxShotActions
     /// Fails for a reaction no Pirate hitbox gives a normal bomb: a Gold Ninja's body answers only a Power Bomb, so a normal
     /// bomb neither hurts it nor reflects from it.
     /// </summary>
-    internal static void RequireGoldNinjaNormalBombReaction(EnemyReaction hitboxShot)
+    internal static void RequireGoldNinjaNormalBombReaction(EnemyReaction? hitboxShot)
     {
         if (hitboxShot != SpacePirateReactions.Shot && hitboxShot != SpacePirateReactions.GoldNinjaVulnerableHitboxShot && hitboxShot != SpacePirateReactions.GoldNinjaInvincibleHitboxShot)
         {
             throw new InvalidDataException(
-                $"Space Pirate has no response to normal-bomb reaction {hitboxShot}.");
+                $"Space Pirate has no response to normal-bomb reaction {hitboxShot?.ToString() ?? "(unnamed)"}.");
         }
     }
 
@@ -89,7 +88,7 @@ internal static class PirateHitboxShotActions
     /// Pirates' own show it, while both Ninja body reactions run the Pirates' damage that shows none.
     /// </summary>
     /// <param name="reaction">The reaction the hit runs: its hitbox's, or the definition's when the Pirate collides by its radius.</param>
-    internal static bool ShowsHitBurst(EnemyReaction reaction) =>
+    internal static bool ShowsHitBurst(EnemyReaction? reaction) =>
         reaction == EnemyReaction.OrdinaryShot || reaction == SpacePirateReactions.Shot;
 
     /// <summary>
@@ -98,7 +97,7 @@ internal static class PirateHitboxShotActions
     /// both Ninja body reactions, runs the Pirates' damage that shows none.
     /// </summary>
     /// <param name="reaction">The reaction the hit runs: its hitbox's, or the definition's when the Ninja collides by its radius.</param>
-    internal static bool GoldNinjaShowsHitBurst(EnemyReaction reaction) => reaction == EnemyReaction.OrdinaryShot;
+    internal static bool GoldNinjaShowsHitBurst(EnemyReaction? reaction) => reaction == EnemyReaction.OrdinaryShot;
 
     /// <summary>Whether a shot is a beam, missile or Super Missile, the families the gold ninja reflects or is hurt by.</summary>
     private static bool IsBeamOrMissile(SamusProjectileFamily family) =>

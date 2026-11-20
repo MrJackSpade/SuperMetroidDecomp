@@ -26,18 +26,18 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     /// </summary>
     public void SpawnOldTourianEscapeShaftWallExplosion()
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion, WallExplosion, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion, WallExplosion, SpriteGraphics.SharedStandard);
         if (projectile is null)
             return; // Spawning fails when the room has no place left for an enemy projectile.
 
         // The wall's projectile draws from the room's own graphics.
-        projectile.StartAnimation(new OldTourianWallExplosionAnimation(WallExplosion, OldTourianWallExplosionSegment.Start, Explosion));
+        projectile.StartAnimation(new OldTourianWallExplosionAnimation(OldTourianWallExplosionSegment.Start, Explosion));
         projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionAnimationDefinitions.XPosition);
         projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionAnimationDefinitions.YPosition);
     }
 
     /// <summary>The fake wall's explosion (#1760): it holds still while its spawner's animation plays.</summary>
-    private WallExplosionBehavior WallExplosion => Explosion;
+    internal EnemyProjectileBehavior WallExplosion => Explosion;
 
     /// <summary>The fake wall's explosion's behaviour, which owns its animation's cues.</summary>
     private WallExplosionBehavior Explosion => field ??= new WallExplosionBehavior(_projectiles, _audio);
@@ -48,7 +48,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     /// </summary>
     /// <param name="projectiles">The enemy projectiles, which scatter the explosion.</param>
     /// <param name="audio">The enemy sound queue the explosion's sound joins.</param>
-    internal sealed class WallExplosionBehavior(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
+    private sealed class WallExplosionBehavior(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
         : EnemyProjectileBehavior, IEnemyProjectileCues<OldTourianWallExplosionCue>
     {
         /// <summary>Carries out one cue of the wall explosion's animation.</summary>

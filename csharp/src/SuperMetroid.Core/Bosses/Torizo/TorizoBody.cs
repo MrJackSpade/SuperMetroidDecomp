@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Bomb and Golden Torizo's body: it shows the Torizo's colouring, starts its body animation and drips its low-health drool.</summary>
+/// <summary>Bomb and Golden Torizo's body: its behaviour flags, colours, animation start and the low-health drool it triggers.</summary>
 [RoomLifetime]
 internal sealed class TorizoBody
 {
@@ -27,21 +27,21 @@ internal sealed class TorizoBody
         torizo.Shading = state.Colours.Shading;
     }
 
-    /// <summary>Uses the room RNG to emit drool only while a living Torizo is below its gut's blow-up health (<see cref="TorizoDecisionDefinitions.GutBlowUpHealth"/>).</summary>
-    internal void MaybeSpawnLowHealthDrool(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState state)
+    /// <summary>Uses the room RNG to emit drool only while a living Torizo is below the head-break threshold.</summary>
+    internal void MaybeSpawnLowHealthDrool(RoomEnemyPlace torizo, TorizoEnemyState state)
     {
         if (torizo.Health is 0 or >= TorizoDecisionDefinitions.GutBlowUpHealth)
             return;
         if (_room.Random.Read() is int random &&
             TorizoRandomDefinitions.LowHealthDrool.IsTakenBy(random))
         {
-            SpawnInitialDrool(occupant, torizo, state);
+            SpawnInitialDrool(torizo, state);
         }
     }
 
     /// <summary>Requests the drool he drips as he wakes, its position and fall speed jittered at random.</summary>
-    internal void SpawnInitialDrool(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState state) =>
-        _attacks.SpawnTorizoInitialDrool(occupant, torizo, state);
+    internal void SpawnInitialDrool(RoomEnemyPlace torizo, TorizoEnemyState state) =>
+        _attacks.SpawnTorizoInitialDrool(torizo, state);
 
     /// <summary>Installs a body playback; its play resumes on the next frame.</summary>
     internal static void StartTorizoBodyAnimation(RoomEnemyPlace torizo, TorizoEnemyState state, AnimationPlayback<TorizoBodySegment> playback)

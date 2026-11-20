@@ -2,9 +2,9 @@ using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>The animation of a dust cloud, explosion, smoke or bubbles.</summary>
+/// <summary>Misc dust's typed animation.</summary>
 internal sealed class DustExplosionProjectileAnimation(DustExplosionAnimation animation)
-    : EnemyProjectileCommonFrameAnimation<DustExplosionAnimation>(DustExplosionProjectileAnimations.StartingWith(animation), EnemyProjectileCueRunners.Common<DustExplosionAnimation>())
+    : EnemyProjectileCommonFrameAnimation<DustExplosionAnimation>(DustExplosionProjectileAnimations.StartingWith(animation))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DustExplosionProjectileAnimations.Segments;

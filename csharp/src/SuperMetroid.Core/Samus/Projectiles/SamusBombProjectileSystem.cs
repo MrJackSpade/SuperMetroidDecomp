@@ -32,7 +32,7 @@ public sealed class SamusBombProjectileSystem
     public static SamusProjectileType NormalBombType => SamusProjectileType.Of(SamusProjectileFamily.Bomb);
 
     /// <summary>A placed Power Bomb.</summary>
-    private static SamusProjectileType PowerBombType => SamusProjectileType.Of(SamusProjectileFamily.PowerBomb);
+    public static SamusProjectileType PowerBombType => SamusProjectileType.Of(SamusProjectileFamily.PowerBomb);
 
     /// <summary>Each bomb place's bomb, live or the last one that ended there, in place order.</summary>
     private readonly SamusBomb[] _bombs =
@@ -81,7 +81,7 @@ public sealed class SamusBombProjectileSystem
     public int BombCounter
     {
         get;
-        private set => field = Ensure.BetweenInclusive(0, PlaceCount, value);
+        internal set => field = Ensure.BetweenInclusive(0, PlaceCount, value);
     }
 
     /// <summary>Holds the bomb count full for one update of the Baby Metroid's drain (<see cref="DrainHoldsBombCount"/>).</summary>
@@ -127,7 +127,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>The update's audio requests the bombs' sounds join as they are made.</summary>
-    private GameplaySoundRequests AudioRequests { get; }
+    internal GameplaySoundRequests AudioRequests { get; }
 
     /// <summary>
     /// Advances the Power Bomb explosion's shape independently of Samus's input phase.
@@ -233,13 +233,13 @@ public sealed class SamusBombProjectileSystem
         {
             if (samus.Xray.TimeIsFrozen)
                 break;
-            if (bomb.Animation is not { } animation || bomb.Occupant is not { } placed)
+            if (bomb.Animation is not { } animation)
                 continue;
 
-            bool wasNormalBomb = placed.Type.Family == SamusProjectileFamily.Bomb;
+            bool wasNormalBomb = bomb.Type.Family == SamusProjectileFamily.Bomb;
             bool bombExplosionStarted = AdvanceBomb(
                 terrain.Level,
-                placed,
+                bomb,
                 animation,
                 terrain.RoomObjects,
                 samus.Kinematics);
@@ -255,7 +255,7 @@ public sealed class SamusBombProjectileSystem
             if (bomb.Animation is not { } shown)
                 continue;
 
-            AdvanceProjectileAnimation(bomb, shown);
+            _ = AdvanceProjectileAnimation(bomb, shown);
         }
 
         // Main gameplay runs the bomb overlap check after the input phase (which placed/updated the
@@ -291,11 +291,11 @@ public sealed class SamusBombProjectileSystem
         {
             // Bombs and Power Bombs show their animations' pictures; a Power Bomb's large flash is its blast's glowing
             // oval, drawn apart from them.
+            SamusProjectileFamily family = bomb.Type.Family;
             // A bomb shows its picture from the update its animation selects its first.
-            if (bomb.Animation is null || bomb.Sprite is not { } sprite || bomb.Occupant is not { } placed ||
-                placed.Type.Family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
+            if (bomb.Animation is null || bomb.Sprite is not { } sprite ||
+                family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
                 continue;
-            SamusProjectileFamily family = placed.Type.Family;
 
             // A Power Bomb's own picture disappears on the update its fuse runs out, as its blast begins; a bomb's
             // explosion goes on showing its pictures after its fuse has run out.
@@ -305,9 +305,9 @@ public sealed class SamusBombProjectileSystem
             // The bomb is published wherever it lies; the display clips it to the view (#1541).
             Offset16<ScreenPixels> place = bomb.Position.Whole.RelativeToCamera(cameraPosition);
 
-            // A frame showing no composition draws nothing (#2558), and so does a composition the sheet of the beams the bomb
-            // is pictured with holds as showing nothing (#1513, #1586).
-            if (bomb.Sprite is not { } sprite)
+            // The empty composition draws nothing, and so does a composition the sheet of the beams the bomb is pictured
+            // with holds as showing nothing (#1513, #1586).
+            if (sprite.DrawsNothing)
                 continue;
             SpriteSheet sheet = artwork.SheetOf(bomb.PicturedBeams);
             string frame = ProjectileSheetFrames.ProjectileFrame(sprite);
@@ -415,11 +415,11 @@ public sealed class SamusBombProjectileSystem
         }
 
         SamusBomb bomb = Occupy(FindFreePlace());
-        SamusBombOccupant placed = Place(bomb, placingPowerBomb ? PowerBombType : NormalBombType);
+        bomb.Type = placingPowerBomb ? PowerBombType : NormalBombType;
         bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
         bomb.Fuse = UpdateCountdown.Lasting(MorphBallBombDefinitions.InitialBombTimer);
-        InitializeBomb(placed);
+        InitializeBomb(bomb);
         _cooldown.Restart(placingPowerBomb
             ? MorphBallBombDefinitions.PowerBombCooldown
             : MorphBallBombDefinitions.NormalBombCooldown);
@@ -428,10 +428,10 @@ public sealed class SamusBombProjectileSystem
         {
             // The auto-cancel flag always wins. Otherwise consuming the last round clears
             // the Power Bomb selection so the next Shoot edge returns to the beam/normal-bomb path.
-            if (samus.AutoCancelledItem is not null)
+            if (samus.AutoCancelledItem != HudItem.Beam)
             {
                 samus.SelectedHudItem = HudItem.Beam;
-                samus.AutoCancelledItem = null;
+                samus.AutoCancelledItem = HudItem.Beam;
             }
             else if (samus.PowerBombs == 0)
             {
@@ -479,16 +479,16 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Installs five bombs with each place's own launch and clears Samus's stored charge.</summary>
-    private void SpawnBombSpread(SamusState samus)
+    internal void SpawnBombSpread(SamusState samus)
     {
         for (int place = 0; place < PlaceCount; place++)
         {
             SamusBomb bomb = Occupy(place);
-            SamusBombOccupant placed = Place(bomb, NormalBombType);
+            bomb.Type = NormalBombType;
             bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
             bomb.SpreadFlight = SamusBombSpreadLaunches.Launch(place, samus.BombSpreadCharge.Age);
             bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
-            InitializeBomb(placed);
+            InitializeBomb(bomb);
             bomb.Fuse = UpdateCountdown.For(SamusBombSpreadLaunches.ForPlace(place).FuseTimer);
         }
 
@@ -532,7 +532,7 @@ public sealed class SamusBombProjectileSystem
     {
         for (int place = 0; place < PlaceCount; place++)
         {
-            if (!_bombs[place].IsOccupied)
+            if (_bombs[place].Type.IsNone)
                 return place;
         }
 
@@ -540,16 +540,15 @@ public sealed class SamusBombProjectileSystem
             $"A bomb was admitted with all {PlaceCount} places held: the placing count ({BombCounter}) is out of step with the bombs out.");
     }
 
-    /// <summary>Takes <paramref name="bomb"/>'s place with a bomb of <paramref name="type"/> and the damage its family's bomb definition gives.</summary>
-    private static SamusBombOccupant Place(SamusBomb bomb, SamusProjectileType type) =>
-        bomb.Occupy(type, SamusProjectileDamage.Read(SamusProjectileSelection.NonBeam(type.Family)));
-
-    /// <summary>Starts a bomb's animation, from the bomb definition of its family.</summary>
-    private static void InitializeBomb(
-        SamusBombOccupant placed)
+    /// <summary>Starts a bomb: its damage and its animation, from the bomb definitions of its family.</summary>
+    internal static void InitializeBomb(
+        SamusBomb bomb)
     {
-        SamusProjectileKind kind = SamusProjectileSelection.NonBeam(placed.Type.Family);
-        placed.Bomb.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
+        SamusProjectileKind kind = SamusProjectileSelection.NonBeam(bomb.Type.Family);
+
+        bomb.Damage = SamusProjectileDamage.Read(kind);
+
+        bomb.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
     }
 
     /// <summary>
@@ -567,12 +566,11 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Advances one bomb fuse or spread trajectory, starts explosions and visits terrain on the trigger frame.</summary>
     private bool AdvanceBomb(
         RoomLevelData level,
-        SamusBombOccupant placed,
+        SamusBomb bomb,
         AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation,
         ISamusRoomObjects roomObjects,
         SamusKinematicsState samusKinematics)
     {
-        SamusBomb bomb = placed.Bomb;
         // A bomb that struck an enemy is cleared before its fuse runs.
         if (bomb.IsSpent)
         {
@@ -580,7 +578,7 @@ public sealed class SamusBombProjectileSystem
             return false;
         }
 
-        SamusProjectileFamily typeFamily = placed.Type.Family;
+        SamusProjectileFamily typeFamily = bomb.Type.Family;
         if (typeFamily is not (SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb))
         {
             // Bombs are only normal bombs and Power Bombs. No producer places another family;
@@ -638,7 +636,7 @@ public sealed class SamusBombProjectileSystem
             // As soon as a normal bomb's fuse reads zero its explosion reacts with the
             // five-block cross around it, exactly once.
             bomb.HasReactedToTerrain = true;
-            ReactToBombExplosionCross(level, placed, roomObjects);
+            ReactToBombExplosionCross(level, bomb, roomObjects);
         }
         else if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
@@ -651,7 +649,7 @@ public sealed class SamusBombProjectileSystem
                     PowerBombExplosion.Position,
                     PowerBombExplosion.Blast.ExplosionRadius,
                     roomObjects,
-                    placed.Type);
+                    bomb.Type);
             }
 
         }
@@ -704,7 +702,7 @@ public sealed class SamusBombProjectileSystem
     /// Tests the bomb center against room bounds, the block its cell stands for (<see cref="ContinuedBlocks"/>), solid blocks
     /// and the game's non-square slope heights.
     /// </summary>
-    private static bool BombSpreadCollides(
+    internal static bool BombSpreadCollides(
         RoomLevelData level,
         SamusBomb bomb)
     {
@@ -730,7 +728,8 @@ public sealed class SamusBombProjectileSystem
         if (!block.Behavior.Slope.IsNonSquare)
             return true;
 
-        // The bomb collides where it lies at or below the slope's surface, the surface mirrored with the slope.
+        // Non-square slope collision mirrors X before indexing the slope-height row, then compares the
+        // resulting height with Y within the block. Equality counts as collision.
         int xWithinBlock = RoomGridConversions.OffsetWithinBlock(bomb.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
         int yWithinBlock = RoomGridConversions.OffsetWithinBlock(bomb.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
         int height = block.Behavior.Slope.Shape.HeightAt(xWithinBlock);
@@ -759,7 +758,7 @@ public sealed class SamusBombProjectileSystem
     /// every corner is reached twice. The edges are those of the blast's reach clipped to the room, fixed before the first
     /// block reacts.
     /// </summary>
-    private static List<Position16<RoomBlocks>> PowerBombBoundaryBlocks(
+    internal static IReadOnlyList<Position16<RoomBlocks>> PowerBombBoundaryBlocks(
         RoomLevelData level,
         Position16<RoomPixels> explosion,
         PowerBombRadius explosionRadius)
@@ -767,10 +766,10 @@ public sealed class SamusBombProjectileSystem
         int horizontalRadius = explosionRadius.WholePixels;
         int verticalRadius = PowerBombBlastOval.VerticalRadius(horizontalRadius);
 
-        // The blast's reach is clipped to the room: before its first pixel and after its last block. A blast just left
-        // of or above the room reaches past the room's edge (CoordinateAxis states the wrap), so its far edge is first
-        // held to the last room coordinate a block can be read at; the room's own clip then leaves that edge before the
-        // near one. A blast both left of and above the room so visits no edge at all.
+        // The blast's reach is clipped to the room: before its first pixel and after its last block. A blast just left of
+        // or above the room holds a coordinate near 65535, and its far edge would pass 65535, which PixelToBlock rejects,
+        // so that edge is first held to the last room coordinate a block can be read at; the room's own clip then leaves
+        // that edge before the near one. A blast both left of and above the room so visits no edge at all.
         int left = RoomGridConversions.PixelToBlock(Math.Max(0, explosion.X - horizontalRadius));
         int right = Math.Min(
             level.Size.X - 1,
@@ -798,10 +797,9 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Visits the normal bomb's five-block cross in order when its fuse reaches zero.</summary>
     private static void ReactToBombExplosionCross(
         RoomLevelData level,
-        SamusBombOccupant placed,
+        SamusBomb bomb,
         ISamusRoomObjects roomObjects)
     {
-        SamusBomb bomb = placed.Bomb;
         int centerX = RoomGridConversions.PixelToBlock(bomb.Position.X.Whole);
         int centerY = RoomGridConversions.PixelToBlock(bomb.Position.Y.Whole);
         foreach (Offset16<RoomBlocks> member in MorphBallBombDefinitions.ExplosionCross)
@@ -822,7 +820,7 @@ public sealed class SamusBombProjectileSystem
                 level,
                 new Position16<RoomBlocks>(x, y),
                 roomObjects,
-                placed.Type);
+                bomb.Type);
         }
     }
 
@@ -830,7 +828,7 @@ public sealed class SamusBombProjectileSystem
     /// Reacts to the block a bombed cell stands for (<see cref="ContinuedBlocks"/>): its item, door, special-block or ordinary
     /// reaction, including synchronous room-object changes.
     /// </summary>
-    private static void ReactToBombedBlock(
+    internal static void ReactToBombedBlock(
         RoomLevelData level,
         Position16<RoomBlocks> bombedBlock,
         ISamusRoomObjects roomObjects,
@@ -850,7 +848,7 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType == RoomCollisionType.SpecialBlock && block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger ||
             block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
-            roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
+            _ = roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
             return;
         }
 
@@ -860,7 +858,7 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
-            if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType)))
+            if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType))
             {
                 throw new InvalidOperationException(
                     $"Bombed resident-trigger block {block.At} has no active room-object owner.");
@@ -874,11 +872,11 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetBlueDoorOrientation(out _))
         {
-            roomObjects.DoorObjects.SpawnBlueDoorOpening(
+            roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 level,
                 block.At,
                 block.Behavior,
-                BlockStrike.By(projectileType));
+                projectileType);
             return;
         }
 
@@ -899,20 +897,21 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
-            // Both bombable-air and bombable-solid reactions use the bomb-block reactions; an inert block neither
-            // spawns a room object nor changes the terrain.
+            // Both bombable-air and bombable-solid reactions use the bomb-block reactions. An inert
+            // block returns early and therefore neither allocates a room object nor mutates terrain.
             if (block.Behavior.Bombable == BombableReaction.Inert)
                 return;
             if (block.Behavior.BombableReading is BlockKindReading<BombableReaction>.NoReaction)
             {
-                // Every bombable block names its bomb reaction; the import refuses one that does not.
+                // A bombable block with no bomb reaction would make the game read unrelated data as a
+                // room-object definition; room data holds none, and the import refuses one.
                 throw new InvalidDataException(
                     $"Bombable block {block.At} has behaviour ({block.Behavior}) with no " +
                     "bomb-block reaction.");
             }
             // Spawn is synchronous: an accepted bomb-block reaction applies its temporary solid-block
             // or air collision before the bomb proceeds to its next border/cross member.
-            roomObjects.BlockReactions.SpawnBombReactionBlock(
+            roomObjects.BlockReactions.TrySpawnBombReactionBlock(
                 level,
                 block.At,
                 block.Behavior,
@@ -927,11 +926,11 @@ public sealed class SamusBombProjectileSystem
             if (block.CollisionType == RoomCollisionType.ShootableBlock &&
                 block.Behavior.TryGetDownwardGateTrigger(out _))
             {
-                roomObjects.Gates.SpawnDownwardGateTrigger(
+                roomObjects.Gates.TrySpawnDownwardGateTrigger(
                     level,
                     block.At,
                     block.Behavior,
-                    BlockStrike.By(projectileType));
+                    projectileType);
                 return;
             }
 
@@ -953,14 +952,14 @@ public sealed class SamusBombProjectileSystem
                 level,
                 block.At,
                 block.Behavior,
-                BlockStrike.By(projectileType),
+                projectileType,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
             return;
         }
 
         if (block.CollisionType == RoomCollisionType.SpecialBlock)
         {
-            roomObjects.BlockReactions.SpawnBombedSpecialBlock(
+            roomObjects.BlockReactions.TrySpawnBombedSpecialBlock(
                 level,
                 block.At,
                 block.Behavior,
@@ -979,10 +978,11 @@ public sealed class SamusBombProjectileSystem
     /// Plays the bomb's animation one update on: each frame it shows anew publishes its picture and radius, and an animation
     /// that ends deletes the bomb.
     /// </summary>
+    /// <returns>Whether the animation ended and deleted the bomb.</returns>
     /// <param name="bomb">The bomb.</param>
     /// <param name="animation">The animation the bomb plays.</param>
     /// <exception cref="InvalidDataException">The animation shows a still picture, which no bomb animation does.</exception>
-    private void AdvanceProjectileAnimation(
+    internal bool AdvanceProjectileAnimation(
         SamusBomb bomb,
         AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation)
     {
@@ -993,10 +993,12 @@ public sealed class SamusBombProjectileSystem
                 throw new InvalidDataException($"Bomb frame {frame} is a still picture.");
             bomb.Sprite = _artwork.ProjectileFrames.Resolve(frame);
             bomb.Radius = SamusProjectileFrameDefinitions.Radius(frame);
-            return;
+            return false;
         }
-        if (animation.HasStopped)
-            ClearProjectile(bomb);
+        if (!animation.HasStopped)
+            return false;
+        ClearProjectile(bomb);
+        return true;
     }
 
     /// <summary>Scans bombs from the first place up and publishes the last overlapping bomb's Samus launch direction.</summary>
@@ -1008,9 +1010,8 @@ public sealed class SamusBombProjectileSystem
         {
             SamusBomb bomb = _bombs[place];
             if (!bomb.IsActive ||
-                bomb.Occupant is not { } placed ||
                 bomb.IsBombSpread ||
-                placed.Type.Family.IsExplosion ||
+                bomb.Type.Family.IsExplosion ||
                 bomb.IsSpent)
             {
                 continue;
@@ -1026,7 +1027,7 @@ public sealed class SamusBombProjectileSystem
                 continue;
             }
 
-            SamusProjectileFamily typeFamily = placed.Type.Family;
+            SamusProjectileFamily typeFamily = bomb.Type.Family;
             if (typeFamily is not (
                     SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb) ||
                 bomb.Fuse.UpdatesLeft != MorphBallBombDefinitions.BombJumpExplosionCount)

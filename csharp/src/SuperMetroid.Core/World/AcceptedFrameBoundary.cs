@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -47,7 +47,7 @@ internal sealed class AcceptedFrameBoundary
     [NonSerialized]
     private HudPictures? _hudPictures;
     /// <summary>Supplies the loaded room, door, and scrolling sky whose scroll and display settings the accepted frame captures.</summary>
-    private readonly ActiveRoomState room;
+    internal readonly ActiveRoomState room;
 
     /// <summary>Supplies the suit pickup whose colour is latched.</summary>
     private readonly SamusSuitPickupState _suitPickup;
@@ -119,11 +119,14 @@ internal sealed class AcceptedFrameBoundary
             _backgroundScroll.BackgroundScroll,
             scope.Enemies.Earthquake.LastRoomShake);
         RoomFxOverlayRenderSnapshot? roomFxOverlay = scope.FxOverlay.CaptureForDisplay();
-        // Every displayed state the room keeps apart from its live state latches with the rest of the frame, whatever kind
-        // of frame the room shows: the enemies' and the room's own (#2571).
-        foreach (IDisplayLatch latch in scope.DisplayLatches)
-            latch.LatchDisplay();
-        MorphBallEyeBeamCone? eyeBeam = displays.LatchedBeamCone;
+        // Phantoon's wave and visibility, the statues' descent and the rainbow beam's colour latch with the rest of the
+        // frame, whatever kind of frame the room shows.
+        displays.Phantoon?.BodyWave.LatchDisplay();
+        if (displays.Phantoon is { } phantoonDisplay)
+            phantoonDisplay.BodyVisibility.LatchDisplay(phantoonDisplay.Death.PixelationSize);
+        scope.TourianStatues?.LatchDisplay();
+        displays.MotherBrain?.RainbowBeam.LatchDisplay();
+        MorphBallEyeBeamCone? eyeBeam = displays.MorphBallEyeBeam.LatchDisplay();
         GameplayLatchedScene scene = CaptureScene(scope);
         XrayRevealedBlocks? reveal = CaptureXrayReveal(scope, scene);
         // The room's pictures are named by what gameplay showed over its load, the frames its animations selected and, in
@@ -141,11 +144,11 @@ internal sealed class AcceptedFrameBoundary
         {
             // The floor Ceres Ridley's getaway flies over shows while he flies it (his room main computes it), with the
             // chamber's walls around it and the room's background plane in a band below it (#1545).
-            if (displays.FlownFloor is { } flown)
+            if (displays.CeresGetawayFloor is { } ridley)
             {
                 RoomLevelPlane band = level.BackgroundPlane;
                 return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, effectOverlay, eyeBeam, tints,
-                    CeresPerspectiveFloors.RidleyGetaway(flown, displays.FlownFloorWalls), floor.Publish(),
+                    CeresPerspectiveFloors.RidleyGetaway(ridley, displays.CeresGetawayChamberWalls), floor.Publish(),
                     new RoomBackgroundLayer(band.Cells, BlockPictures(scope, appearance, band, reveal)));
             }
             // The elevator shaft's floor shows while the shaft has its transform, which exists exactly while the room was
@@ -169,7 +172,7 @@ internal sealed class AcceptedFrameBoundary
             RoomBackgroundsOf(scope, appearance, new RoomBackgroundLayer(level.ForegroundPlane.Cells, pictures), background, bosses.Body),
             scene,
             bosses,
-            displays.WavingBody,
+            displays.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
             scope.FxOverlay.Fireflea is { } fireflea ? new LatchedFirefleaDarkness(fireflea.Tint) : null,
             // Only the statue room has statues, so only its frames carry a descent (#2385). The descent stops at its
             // authored distance, which holds the offset between minus that distance and zero (#1627).
@@ -227,21 +230,21 @@ internal sealed class AcceptedFrameBoundary
             : scope.BackgroundImage is RoomLibraryBackgroundPicture.Drawn { Image: var backgroundImage }
                 ? new LibraryImageBackground(backgroundImage.Resolve(appearance, RoomBackgroundImagePlacement.Whole(backgroundImage.Image)))
             : ShownRoomBackground.Nothing;
-        // The warning an escape shows in the room, as its sequence describes it (#1555, #2573): one at the background's depth,
-        // one at the foreground's, each drawn from the warning picture sheet's frames for the inputs they depend on (#1466).
-        // A room shows one escape's warning at most.
+        // The warning an escape shows in the room, as its sequence describes it (#1555, #2573): Zebes's at the background's
+        // depth, Ceres's at the foreground's, each drawn from the warning picture sheet's frames for the inputs they depend on
+        // (#1466). A room shows one escape's warning at most.
         // A room no enemy writes over shows neither (#2554).
-        ShownRoomWarning? backgroundWarning = null;
+        ShownRoomWarning? zebes = null;
         ShownRoomWarning? ceres = null;
         if (scope.WrittenPictures is RoomWrittenPictures.Sheet written)
         {
-            zebes = WarningOf(written, scope.Enemies.DisplaySources.BackgroundWarning, appearance, RoomWarningDepth.WithBackground);
-            foregroundWarning = WarningOf(written, scope.Enemies.DisplaySources.ForegroundWarning, appearance, RoomWarningDepth.WithForeground);
+            zebes = WarningOf(written, scope.Enemies.DisplaySources.ZebesWarning, appearance, RoomWarningDepth.WithBackground);
+            ceres = WarningOf(written, scope.Enemies.DisplaySources.CeresWarning, appearance, RoomWarningDepth.WithForeground);
         }
-        if (backgroundWarning is not null && foregroundWarning is not null)
-            throw new InvalidOperationException($"{scope.Room.Definition.Name} shows warnings at both the background's and the foreground's depths.");
+        if (zebes is not null && ceres is not null)
+            throw new InvalidOperationException($"{scope.Room.Definition.Name} shows both Zebes's and Ceres's warnings.");
         // The planes are shared until gameplay changes level data.
-        return new RoomBackgrounds(foreground, shown, room.DoorSourceBackground, backgroundWarning ?? foregroundWarning, scope.Floor?.Publish());
+        return new RoomBackgrounds(foreground, shown, room.DoorSourceBackground, zebes ?? ceres, scope.Floor?.Publish());
     }
 
     /// <summary>

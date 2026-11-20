@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>Alcoon fireball's typed animation.</summary>
 internal sealed class AlcoonFireballAnimation(AlcoonFireballSegment segment)
-    : EnemyProjectileCommonFrameAnimation<AlcoonFireballSegment>(AlcoonFireballAnimations.StartingWith(segment), EnemyProjectileCueRunners.Common<AlcoonFireballSegment>())
+    : EnemyProjectileCommonFrameAnimation<AlcoonFireballSegment>(AlcoonFireballAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<AlcoonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => AlcoonFireballAnimations.Segments;

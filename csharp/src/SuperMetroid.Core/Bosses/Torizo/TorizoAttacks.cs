@@ -476,7 +476,7 @@ internal sealed class TorizoAttacks
     /// <summary>Places a swipe explosion at the left-facing hand placement <paramref name="placement"/>, mirroring it for right-facing Torizo.</summary>
     internal void SpawnBombTorizoExplosiveSwipe(RoomEnemyPlace torizo, TorizoEnemyState state, Offset16<RoomPixels> placement)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoExplosiveSwipe, TorizoProjectiles, default);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoExplosiveSwipe, TorizoProjectiles, SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.ExplosiveSwipe, TorizoProjectiles));
@@ -495,7 +495,7 @@ internal sealed class TorizoAttacks
                 facing: state.Posture.Facing);
 
         var behavior = new ExplosionBehavior(_projectiles, _audio, torizo.Position.Whole + placement);
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoLowHealthExplosion, behavior, default);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoLowHealthExplosion, behavior, SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
         projectile.StartAnimation(new TorizoExplosionAnimation(TorizoExplosionSegment.LowHealthExplosion, behavior));
@@ -506,7 +506,7 @@ internal sealed class TorizoAttacks
     internal void SpawnDeathExplosion(RoomEnemyPlace torizo)
     {
         var behavior = new ExplosionBehavior(_projectiles, _audio, torizo.Position.Whole);
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoDeathExplosion, behavior, default);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoDeathExplosion, behavior, SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
         projectile.StartAnimation(new TorizoExplosionAnimation(TorizoExplosionSegment.DeathExplosion, behavior));
@@ -680,7 +680,7 @@ internal sealed class TorizoAttacks
     /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
     internal void SpawnLandingDust(RoomEnemyPlace torizo, HorizontalDirection foot)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoLandingDust, TorizoProjectiles, default);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoLandingDust, TorizoProjectiles, SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
         projectile.StartAnimation(new TorizoProjectileAnimation(foot == HorizontalDirection.Right ? TorizoProjectileSegment.LandingDustRightFoot : TorizoProjectileSegment.LandingDustLeftFoot, TorizoProjectiles));
@@ -936,7 +936,7 @@ internal sealed class TorizoAttacks
         BombTorizoStatueFragmentDefinition definition = BombTorizoStatueFragmentDefinitions.Fragments[request.Fragment];
 
         var behavior = new FragmentBehavior(_projectiles, _audio, new BombTorizoStatueFragmentState(definition.Acceleration));
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoStatueBreaking, behavior, default);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoStatueBreaking, behavior, SpriteGraphics.SharedStandard);
         if (projectile is null)
             return null; // Nothing spawns when the room has no place left for an enemy projectile.
 

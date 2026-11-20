@@ -4,27 +4,24 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// The pre-Phantoon room projectile's typed animation (#641, #1600): it shows nothing, hidden for good while the room's
+/// The pre-Phantoon room projectile's typed animation (#641, #1600): one blank frame, shown for good while the room's
 /// setup holds its projectile place; the hold itself is counted by the place (<see cref="PrePhantoonRoomHeldProjectilePlace"/>).
 /// </summary>
 internal sealed class PrePhantoonRoomAnimation()
-    : EnemyProjectileSilentAnimation<PrePhantoonRoomSegment, EnemyProjectileFrameId>(BlankHeld,
+    : EnemyProjectileTypedAnimation<PrePhantoonRoomSegment, PrePhantoonRoomFrame, NoAnimationCue>(BlankHeld,
         static (_, _, cue, _) => EnemyProjectileCuelessAnimations.Undefined<PrePhantoonRoomSegment>(cue))
 {
-    /// <summary>The updates the projectile's one hidden beat lasts before the animation holds it hidden for good.</summary>
-    private const int HiddenUpdates = 1;
-
-    /// <summary>The one update's hiding, after which the animation holds.</summary>
-    private static readonly AnimationSegments<PrePhantoonRoomSegment, EnemyProjectileFrameId, NoAnimationCue> RoomSegments = new(
-        new Dictionary<PrePhantoonRoomSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>[]>
+    /// <summary>The blank frame.</summary>
+    private static readonly AnimationSegments<PrePhantoonRoomSegment, PrePhantoonRoomFrame, NoAnimationCue> RoomSegments = new(
+        new Dictionary<PrePhantoonRoomSegment, AnimationBeat<PrePhantoonRoomFrame, NoAnimationCue>[]>
         {
             [PrePhantoonRoomSegment.Blank] =
             [
-                new AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.Hidden(HiddenUpdates),
+                new AnimationBeat<PrePhantoonRoomFrame, NoAnimationCue>.Frame(default, 1),
             ],
         });
 
-    /// <summary>The hiding, held once played.</summary>
+    /// <summary>The blank frame, held once shown.</summary>
     private static readonly Animation<PrePhantoonRoomSegment> BlankHeld =
         new([RoomSegments.Whole(PrePhantoonRoomSegment.Blank)], AnimationEnd.Holds);
 
@@ -35,11 +32,12 @@ internal sealed class PrePhantoonRoomAnimation()
     };
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<PrePhantoonRoomSegment, EnemyProjectileFrameId, NoAnimationCue> Segments => RoomSegments;
+    private protected override AnimationSegments<PrePhantoonRoomSegment, PrePhantoonRoomFrame, NoAnimationCue> Segments => RoomSegments;
 
     /// <inheritdoc/>
     private protected override IReadOnlyDictionary<PrePhantoonRoomSegment, Animation<PrePhantoonRoomSegment>> StartingAt => RoomStartingAt;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFrameId Present(EnemyProjectileFrameId frame) => frame;
+    private protected override EnemyProjectileFrameId Present(PrePhantoonRoomFrame frame) =>
+        EnemyProjectileFrameId.Blank;
 }

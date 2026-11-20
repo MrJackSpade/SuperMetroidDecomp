@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>The work robot species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<WorkRobotSpawnSettings>, IRoomGlow
+internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<WorkRobotSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.WorkRobot, EnemyDefinitionId.UnpoweredWorkRobot];
@@ -22,7 +22,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
     /// <exception cref="InvalidOperationException">The place holds no work robot definition.</exception>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WorkRobotSpawnSettings settings)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.WorkRobot)
             return new PoweredWorkRobotEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
@@ -55,7 +55,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
     /// The powered robots' glow (#2380): the place its step shows and the updates that step has left. A room starts it on
     /// its last step, stopped.
     /// </summary>
-    private readonly ShowingAnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> glow =
+    internal readonly ShowingAnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> glow =
         ShowingAnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue>.StartShowing(
             WorkRobotGlowAnimations.Segments, WorkRobotGlowAnimations.Restarted);
 
@@ -65,10 +65,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
     /// <summary>
     /// The place of the glow every powered robot shows (#2393); after the last step the cycle starts again at the first.
     /// </summary>
-    private WorkRobotGlowPlace GlowPlace => glow.Showing;
+    internal WorkRobotGlowPlace GlowPlace => glow.Showing;
 
     /// <summary>The glow every powered robot in the room shows now (#1512).</summary>
-    private PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowPlace));
+    internal PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowPlace));
 
     /// <summary>Initializes a powered robot.</summary>
     internal WorkRobotEnemyState InitializePoweredWorkRobot(RoomEnemyPlace place)
@@ -103,7 +103,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
     }
 
     /// <summary>Initializes an unpowered robot.</summary>
-    internal void InitializeUnpoweredWorkRobot(RoomEnemyOccupant occupant, RoomEnemyPlace place, WorkRobotSpawnSettings settings)
+    /// <returns>The robot's state, holding the pose its placement names.</returns>
+    internal UnpoweredWorkRobotEnemyState InitializeUnpoweredWorkRobot(RoomEnemyPlace place, WorkRobotSpawnSettings settings)
     {
         // The placement names the unpowered pose the robot holds.
         var state = new UnpoweredWorkRobotEnemyState(
@@ -114,6 +115,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
         // An unpowered robot stops the room's glow, an earlier powered robot's too: in a room placing both, the order
         // they are placed in decides whether the glow runs.
         GlowRuns = false;
+        return state;
     }
 
     /// <summary>
@@ -226,7 +228,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
         return firingSegment;
     }
 
-    /// <summary>Counts the laser cooldown down, stopping at zero.</summary>
+    /// <summary>Counts a nonzero laser cooldown down without unsigned wraparound.</summary>
     private static void DecrementWorkRobotLaserCooldown(WorkRobotEnemyState state)
     {
         state.LaserCooldown = state.LaserCooldown.DecrementToZero();
@@ -234,7 +236,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
 
     /// <summary>
     /// Runs the robot's custom touch. Work Robots are moving solids: body contact publishes a
-    /// external push away from their center (<see cref="WorkRobotMotionDefinitions.TouchPush"/>) and deliberately deals no touch damage.
+    /// four-pixel external push away from their center and deliberately deals no touch damage.
     /// </summary>
     private static void ResolveWorkRobotTouch(RoomEnemyPlace robot, SamusState samus)
     {
@@ -273,7 +275,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
     /// Plays the powered robots' glow on after the enemies' update unless it is stopped; when the step's time is up the
     /// glow shows its next step on every powered robot still in the place it set up and holds it for that step's hold.
     /// </summary>
-    public void StepGlow()
+    internal void StepGlow()
     {
         if (!GlowRuns)
             return;
@@ -307,7 +309,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
     internal EnemyShotReaction UnpoweredWorkRobotShotReaction { get; } = new();
 
     /// <summary>A Work Robot laser, whichever way it flies (#1760): it flies with room collision.</summary>
-    private static readonly EnemyProjectileBehavior Laser = new SingleMotionProjectileBehavior(
+    internal static readonly EnemyProjectileBehavior Laser = new SingleMotionProjectileBehavior(
         context => FlyWorkRobotLaser(context.Projectile, context.Level));
 
     /// <summary>Runs a powered robot's main AI.</summary>
@@ -337,7 +339,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
         AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, state, c.Samus),
     };
 
-    /// <summary>Routes robot contact to its external push without Samus damage.</summary>
+    /// <summary>Routes robot contact to its four-pixel external push without Samus damage.</summary>
     internal static void ReactToWorkRobotTouch(EnemyTouchContext context) =>
         ResolveWorkRobotTouch(context.Place, context.Samus);
 
@@ -345,7 +347,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
     /// Allocates a Work Robot laser: it flies ahead of the robot, the way it faces, and up, straight or down as
     /// <paramref name="laser"/> names, its velocity holding its way (#2278).
     /// </summary>
-    private void SpawnWorkRobotLaser(
+    internal void SpawnWorkRobotLaser(
         RoomEnemyPlace robot,
         WorkRobotEnemyState state,
         WorkRobotLaser laser,
@@ -355,8 +357,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
         if (projectile is null)
             return;
 
-        // The laser takes its kind's radii, damage and contact (the diagonal and horizontal lasers differ), and draws
-        // from the room's shared sheet in its standard colours.
+        // The enemy-projectile spawn copies the complete definition before the family's own setup: the diagonal and
+        // horizontal lasers do not share radii or damage, and the projectile kind's definition also supplies the blank first frame and all three contact
+        // properties. The laser's pictures carry their own
+        // colours, so it draws from the room's shared sheet in its standard colours: no picture of it shows before its
+        // first pass, so the robot's graphics its spawn briefly held never draw.
         projectile.StartAnimation(new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare));
         projectile.Velocity = projectile.Velocity.WithX(WorkRobotLaserDefinitions.Speed.Toward(state.Facing));
         projectile.Velocity = projectile.Velocity.WithY(laser switch

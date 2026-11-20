@@ -35,12 +35,12 @@ internal sealed class DraygonTurrets
         _shots = shots;
     }
 
-    /// <summary>Fires a wall turret on the turrets' cadence, drawing a random number each time.</summary>
+    /// <summary>Checks Draygon's frame cadence for turret and eye direction updates.</summary>
     internal void ObserveDraygonTurretCadence(
         SamusState samus,
         int frameCounter)
     {
-        if (!DraygonCadenceDefinitions.TurretTurn.IsDue(frameCounter))
+        if (!DraygonCadenceDefinitions.TurretTurnEverySixtyFourthUpdate.IsDue(frameCounter))
             return;
 
         // The turret cadence tests the frame counter, then advances the room RNG even when the
@@ -50,16 +50,15 @@ internal sealed class DraygonTurrets
     }
 
     /// <summary>Fires a wall turret and runs the wall turret projectile's setup.</summary>
-    private void SpawnDraygonWallTurret(
+    internal void SpawnDraygonWallTurret(
         SamusState samus,
         int random)
     {
-        if (DraygonCannonData.FiringCannon.Choose(random) is not DraygonTurretTurn.FiresFrom { Cannon: var cannon } ||
-            _disabledCannons.Contains(cannon))
+        if (DraygonCannonData.FiringCannon.Choose(random) is not { } cannon || _disabledCannons.Contains(cannon))
             return;
 
         DraygonShots.FlyingShotBehavior shot = _shots.WallTurretShot(AngledFlightState.Launch(flightAngle, DraygonProjectileSpeeds.WallTurret));
-        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonWallTurret, shot, graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
+        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonWallTurret, shot, SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
         if (turret is null)
             return;
 

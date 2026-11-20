@@ -48,7 +48,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySettingsFactory
     }
 
     /// <summary>Initializes either shipped statue.</summary>
-    internal ChozoStatueState InitializeChozoStatue(RoomEnemyOccupant occupant, RoomEnemyPlace statue, ChozoStatueSpawnSettings settings)
+    internal ChozoStatueState InitializeChozoStatue(RoomEnemyPlace statue, ChozoStatueSpawnSettings settings)
     {
         ChozoStatueSite site = Ensure.NotNull(settings).Site;
         if (!Enum.IsDefined(site))
@@ -57,13 +57,13 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySettingsFactory
         // The setup makes the statue solid to Samus and animates it, on screen or off.
         statue.Contact = statue.Contact.With(EnemyContact.SolidToSamus);
         statue.Processing = statue.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
-        statue.Frame = EnemyFrameId.PointAtOrigin;
+        statue.Frame = EnemyFrameId.Empty;
         statue.AnimationClock.Restart();
 
         // The statue shows its own colours, the shade of its site's statue, which no other enemy shows (#1512).
         statue.Shading = PictureShading.Shaded(site == ChozoStatueSite.WreckedShip ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
 
-        var state = new ChozoStatueState(settings) { Phase = ChozoStatuePhase.Placed, Site = site };
+        var state = new ChozoStatueState(settings) { Phase = ChozoStatuePhase.Placed };
         // The statue's hand is bound to it as the statue asks for it (#2554).
         var hand = new ChozoStatueHandTrigger(this, statue, state);
 
@@ -82,9 +82,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySettingsFactory
     }
 
     /// <summary>
-    /// Wakes the statue once Samus triggers its hand: the statue's wait moves on
-    /// (<see cref="ChozoStatueState.TriggerHand"/>), Samus's controls are taken and the site's room changes are made.
-    /// Which touches the hand admits and the hand block's collision are the room object's.
+    /// Represents the exact enemy-place side effect produced by the Chozo hand
+    /// trigger. Collision/pose/item admission and the hand block's terrain remain the room object's responsibility; once
+    /// admitted, both trigger setups advance the statue's wait (<see cref="ChozoStatueState.TriggerHand"/>) and disable
+    /// Samus controls.
     /// </summary>
     /// <param name="state">The statue whose hand Samus triggered.</param>
     /// <returns>The room objects the trigger asks its room for, in the order it asks, which the room spawns at once.</returns>
@@ -111,10 +112,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySettingsFactory
     }
 
     /// <summary>
-    /// Starts the statue's activation once Samus has triggered its hand while it waits for her; the Wrecked Ship's hand
-    /// admits her only once Phantoon is defeated. The animation does the rest.
+    /// Starts the statue's activation once Samus has triggered its hand while it waits for her. The Wrecked Ship's hand
+    /// admits her only once Phantoon is defeated, which the game's wait tests again and always finds so. The animation does
+    /// the rest.
     /// </summary>
-    internal static void RunChozoStatueMain(RoomEnemyOccupant occupant, RoomEnemyPlace statue, ChozoStatueState state)
+    internal static void RunChozoStatueMain(RoomEnemyPlace statue, ChozoStatueState state)
     {
         if (state.Phase != ChozoStatuePhase.HandTriggered)
             return;
@@ -130,7 +132,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySettingsFactory
     /// Carries out one cue of the Chozo statues' animations: every cue
     /// the four statue animations raise. Every cue runs on to the next step, so none redirects.
     /// </summary>
-    private void ApplyChozoStatueCue(
+    private ChozoStatueSegment? ApplyChozoStatueCue(
         RoomEnemyPlace statue, ChozoStatueState state,
         ChozoStatueCue cue,
         SamusState samus,
@@ -140,36 +142,36 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySettingsFactory
         {
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.AwaitHand }:
                 state.AwaitHand();
-                return;
+                return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StartLoweringAcid }:
                 // The cue writes the liquid motion values consumed by the liquid's step once, when
                 // it runs; the liquid owns them from then on.
                 _roomFx.FxOverlay.MoveLiquidAfter(ChozoStatueFxData.LoweringDelay, ChozoStatueFxData.LoweringVelocity);
-                return;
+                return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:
                 _roomFx.FxOverlay.SetLiquidLevel(ChozoStatueRoomDefinitions.LoweredAcidY);
-                return;
+                return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.UnlockSamus }:
                 EnableChozoStatueSamusControls();
-                return;
+                return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.PlayGrabSound }:
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoGrabsSamusSound, priority: SoundRequestPriority.Normal);
-                return;
+                return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.PlayFootstepSound }:
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoFootstepsSound, priority: SoundRequestPriority.Normal);
-                return;
+                return null;
 
             case ChozoStatueCue.Footstep footstep:
                 ProcessChozoStatueFootstep(
                     statue,
                     level,
                     footstep.OffsetX);
-                return;
+                return null;
 
             case ChozoStatueCue.Move move:
                 ProcessChozoStatueMovement(
@@ -177,11 +179,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySettingsFactory
                     samus,
                     level,
                     move.Step);
-                return;
+                return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.ReleaseSamus }:
                 FinishWreckedShipChozoSequence();
-                return;
+                return null;
 
             default:
                 throw new InvalidOperationException($"Undefined {nameof(ChozoStatueCueKind)} {cue}.");
@@ -189,7 +191,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySettingsFactory
     }
 
     /// <summary>Moves the statue through terrain, then places Samus at the authored carry offset from its accepted position.</summary>
-    private void ProcessChozoStatueMovement(
+    internal void ProcessChozoStatueMovement(
         RoomEnemyPlace statue,
         SamusState samus,
         RoomLevelData level,
@@ -210,11 +212,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySettingsFactory
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, statue);
 
         // The hand offset belongs to the same carry step as the velocity.
-        // Samus is placed at the hold from the statue's position after its terrain movement.
+        // Writing Samus after collision reproduces the cutscene's absolute ownership.
         samus.Position = samus.Position.WithWhole(new(statue.Position.X.Whole + motion.SamusOffset.X, statue.Position.Y.Whole + motion.SamusOffset.Y));
     }
 
-    /// <summary>Spawns the plug crumble and the spike-footstep dust when the block below the footstep is a spike block.</summary>
+    /// <summary>Spawns a plug-crumble room object and spike-footstep only when the offset floor block has the special type.</summary>
     private void ProcessChozoStatueFootstep(
         RoomEnemyPlace statue,
         RoomLevelData level,
@@ -234,7 +236,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySettingsFactory
     /// <summary>Places the Wrecked Ship footstep projectile beneath the statue at its signed horizontal offset.</summary>
     internal void SpawnWreckedShipChozoFootstep(RoomEnemyPlace statue, int footstepOffsetX)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, EnemyProjectileBehavior.Still, SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
 
@@ -279,7 +281,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySettingsFactory
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>
     internal void AdvanceChozoStatueTypedAnimation(RoomEnemyPlace place, ChozoStatueState chozoStatueState, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.AdvanceApplyingCues(place, chozoStatueState, ChozoStatueAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, chozoStatueState, ChozoStatueAnimations.Segments,
             static (ChozoStatueState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (ChozoStatueState _, ChozoStatueCue cue) => ApplyChozoStatueCue(place, chozoStatueState, cue, context.Samus, context.Level));
+            (state, cue) => ApplyChozoStatueCue(place, chozoStatueState, cue, context.Samus, context.Level) is { } target
+                ? new AnimationContinuation<ChozoStatueSegment>(ChozoStatueAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
 }

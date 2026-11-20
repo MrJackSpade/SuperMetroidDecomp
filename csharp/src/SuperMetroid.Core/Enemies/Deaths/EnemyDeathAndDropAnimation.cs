@@ -13,8 +13,8 @@ internal sealed class EnemyDeathAndDropAnimation(Animation<EnemyDeathAndDropSegm
     : EnemyProjectileFrameAnimation<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>(animation, cues)
 {
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal EnemyDeathAndDropAnimation(IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> owner, EnemyDeathAndDropSegment segment, IEnemyProjectileCues<EnemyDeathAndDropCue> cues)
-        : this(owner, EnemyDeathAndDropAnimations.StartingWith(segment), cues)
+    internal EnemyDeathAndDropAnimation(EnemyDeathAndDropSegment segment, IEnemyProjectileCues<EnemyDeathAndDropCue> cues)
+        : this(EnemyDeathAndDropAnimations.StartingWith(segment), cues)
     {
     }
 

@@ -39,7 +39,7 @@ internal sealed class EyeDoorBehavior
                 $"Undefined {nameof(EyeDoorProjectileDefinition)} {request.Definition}."),
         };
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, EnemyProjectileBehavior.Still, default);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, EnemyProjectileBehavior.Still, SpriteGraphics.SharedStandard);
         if (projectile is null)
             return; // Spawning fails when the room has no place left for an enemy projectile.
 
@@ -75,7 +75,7 @@ internal sealed class EyeDoorBehavior
     {
         Ensure.NotNull(system);
         var shot = new ShotBehavior(new EyeDoorShotState(request.Door, system));
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EyeDoorProjectile, shot, default);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EyeDoorProjectile, shot, SpriteGraphics.SharedStandard);
         if (projectile is null)
             return; // Spawning fails when the room has no place left for an enemy projectile.
 

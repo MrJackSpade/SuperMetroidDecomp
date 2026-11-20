@@ -42,7 +42,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the Polyp's main AI and its three actions.</summary>
     private void RunPolypMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyPlace place,
         PolypEnemyState state,
         SamusState samus)
     {
@@ -59,7 +59,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case PolypAction.ShootingRock:
-                ShootPolypRock(occupant, place, state);
+                ShootPolypRock(place, state);
                 return;
 
             case PolypAction.Cooldown:
@@ -74,12 +74,12 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Launches a rock with three independent random choices: its horizontal speed, its rise and the cooldown after it.</summary>
-    private void ShootPolypRock(RoomEnemyOccupant occupant, RoomEnemyPlace place, PolypEnemyState state)
+    private void ShootPolypRock(RoomEnemyPlace place, PolypEnemyState state)
     {
         SignedEightEight xVelocity = PolypLaunchDefinitions.XVelocity.Choose(_room.Random.Generate());
 
         QuadraticSpeedCurvePlace launchPlace = PolypLaunches.LaunchPlace(_room.Random.Generate());
-        SpawnPolypRock(occupant, place, launchPlace, xVelocity);
+        SpawnPolypRock(place, launchPlace, xVelocity);
 
         state.Action = PolypAction.Cooldown;
         state.CooldownTimer = UpdateCountdown.For(PolypLaunchDefinitions.Cooldown.Choose(_room.Random.Generate()));
@@ -95,27 +95,27 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Polyp's typed animation.</summary>
-    internal static void AdvancePolypTypedAnimation(RoomEnemyPlace place, PolypEnemyState polypEnemyState) =>
+    internal static void AdvancePolypTypedAnimation(RoomEnemyPlace place, PolypEnemyState polypEnemyState, EnemyAnimationCueContext _) =>
         EnemyAnimationPlayback.Advance(place, polypEnemyState, PolypAnimations.Segments,
             static (PolypEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Polyp's cue-free animation raised {cue}."));
 
     /// <summary>Runs Polyp's main AI.</summary>
-    internal void RunPolypMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, PolypEnemyState state, IEnemyAiFrame frame)
+    internal void RunPolypMainAi(RoomEnemyPlace place, PolypEnemyState state, IEnemyAiFrame frame)
     {
-        RunPolypMain(occupant, place, state, frame.Samus);
+        RunPolypMain(place, state, frame.Samus);
     }
 
     /// <summary>
     /// Spawns a lava rock from the Polyp and initializes it.
     /// The rock draws from the Polyp's spawned-object sheet in its colours and starts at the Polyp's position, fractions included.
     /// </summary>
-    private void SpawnPolypRock(
-        RoomEnemyOccupant occupant, RoomEnemyPlace source,
+    internal void SpawnPolypRock(
+        RoomEnemyPlace source,
         QuadraticSpeedCurvePlace launchPlace,
         SignedEightEight xVelocity)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PolypRock, RockBehavior(new PolypRockState(launchPlace)), SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PolypRock, RockBehavior(new PolypRockState(launchPlace)), SpriteGraphics.SpawnedBy(source));
         if (projectile is null)
             return;
 
@@ -130,7 +130,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         new SingleMotionProjectileBehavior(context => FlyPolypRock(context.Projectile, rock, context.Camera));
 
     /// <summary>Flies the rock for one update, rising or falling.</summary>
-    internal void FlyPolypRock(
+    internal static void FlyPolypRock(
         EnemyProjectile projectile,
         PolypRockState rock,
         Position16<RoomPixels> camera)
@@ -153,7 +153,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Integrates two upward quadratic samples unless the apex consumes this frame.</summary>
-    private void StepRisingPolypRock(EnemyProjectile projectile, PolypRockState rock)
+    private static void StepRisingPolypRock(EnemyProjectile projectile, PolypRockState rock)
     {
         rock.SpeedCurvePlace -= PolypLaunchDefinitions.RockFallStep;
         if (rock.SpeedCurvePlace.IsNegative)
@@ -174,7 +174,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Clamps downward speed and integrates two positive quadratic samples per frame.</summary>
-    private void StepFallingPolypRock(EnemyProjectile projectile, PolypRockState rock)
+    private static void StepFallingPolypRock(EnemyProjectile projectile, PolypRockState rock)
     {
         rock.SpeedCurvePlace += PolypLaunchDefinitions.RockFallStep;
         if (rock.SpeedCurvePlace >= PolypLaunchDefinitions.RockFastestFallPlace)
@@ -188,7 +188,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Adds one curve mark's speed toward <paramref name="direction"/>, the fraction first and then the whole pixels.
     /// </summary>
-    private static void AddPolypRockQuadraticStep(
+    internal static void AddPolypRockQuadraticStep(
         EnemyProjectile projectile,
         QuadraticSpeedCurvePlace place,
         VerticalDirection direction)

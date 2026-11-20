@@ -75,18 +75,18 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // Its animation is still live and shows its first visible frame on its first
         // scheduled turn; this update's list of running enemies was fixed before the Baby was placed.
         babyPlace.Frame = babyPlace.Processing.HasAny(EnemyProcessing.Animates)
-            ? EnemyFrameId.PointAtOrigin
+            ? EnemyFrameId.Empty
             : null;
         _places.CoverSpawn(babyPlace);
     }
 
-    /// <summary>Builds <paramref name="lateFight"/>'s Baby in <paramref name="place"/> and starts its first animation, showing its own colours as it arrives.</summary>
+    /// <summary>Builds <paramref name="lateFight"/>'s Baby in <paramref name="place"/> and starts its first animation and fifteen nontransparent colors.</summary>
     internal static BabyMetroidCutsceneState InitializeMotherBrainBabyMetroid(RoomEnemyPlace place, MotherBrainRainbowBeamAttackSequence lateFight)
     {
         Ensure.NotNull(lateFight);
         MotherBrainEnemyState state = lateFight.Encounter;
         // The place keeps its previous occupant's fractions, which the Baby starts from (BabyMetroidArrivalFractions).
-        BabyMetroidCutsceneState baby = lateFight.BabyArrives();
+        BabyMetroidCutsceneState baby = lateFight.BabyArrives(place);
         // The place owns the Baby's contact, processing and presence (#2310): initialization makes it block the Plasma
         // Beam and starts its animation; its population entry's presence stands.
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
@@ -101,12 +101,12 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         return baby;
     }
 
-    /// <summary>Shows the Baby's arrival colours.</summary>
-    private static void ShowBabyMetroidArrival(MotherBrainColours colours) =>
+    /// <summary>Lays the Baby's start colours, which leave the transparent colour untouched.</summary>
+    internal static void ShowBabyMetroidArrival(MotherBrainColours colours) =>
         Ensure.NotNull(colours).ShowBabyArrived();
 
     /// <summary>Advances the later Baby place, publishes cries/healing, and writes body and Baby animation changes for their next ordered enemy turns.</summary>
-    private void RunMotherBrainBabyMetroidMain(
+    internal void RunMotherBrainBabyMetroidMain(
         RoomEnemyPlace place, BabyMetroidCutsceneState baby,
         SamusState samus,
         Position16<RoomPixels> camera)
@@ -132,7 +132,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // Use the phase that ran, including its final full-health update.
         if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
             samus.Health >= MotherBrainHealthSounds.MinimumEnergy &&
-            MotherBrainCadenceDefinitions.BabyHealSound.IsDue(_frameContext.EnemyPassCount))
+            MotherBrainCadenceDefinitions.BabyHealSoundEveryEighthEnemyPass.IsDue(_frameContext.EnemyPassCount))
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
 
@@ -174,7 +174,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         place.Shading = baby.HurtFlashShown ? EnemyShades.HurtFlashLook : colours.BabyShading;
 
     /// <summary>Applies one step's music, sounds, dust, fade and recovery-light requests to room systems.</summary>
-    private void ApplyBabyMetroidFrameEffects(MotherBrainColours colours, BabyMetroidCutsceneStepResult step)
+    internal void ApplyBabyMetroidFrameEffects(MotherBrainColours colours, BabyMetroidCutsceneStepResult step)
     {
         Ensure.NotNull(colours);
         if (step.FatalBlowStarted)
@@ -214,7 +214,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>Shows <paramref name="image"/> of the Baby's fade to black from its installed colours.</summary>
     /// <exception cref="ArgumentException">The image is not one of the Baby's fade's.</exception>
-    private static void ShowBabyMetroidFade(MotherBrainColours colours, MotherBrainFadeImage image) =>
+    internal static void ShowBabyMetroidFade(MotherBrainColours colours, MotherBrainFadeImage image) =>
         Ensure.NotNull(colours).ShowBabyFade(image);
 
     /// <summary>Runs BabyMetroidCutscene's main AI.</summary>

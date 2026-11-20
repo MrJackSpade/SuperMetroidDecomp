@@ -22,13 +22,12 @@ internal sealed class GrappleBehavior : IGrappleTargets
     /// <summary>
     /// Resolves the grapple beam's endpoint against enemies. Extended hitboxes are
     /// intentionally ignored: the beam compares the endpoint with each ordinary radius
-    /// plus the beam point's radius and selects the first interactive place; none when the endpoint catches no enemy.
+    /// plus the beam point's radius and selects the first interactive place.
     /// </summary>
-    public GrappleEnemyCollision? ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
+    public GrappleEnemyCollision ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
     {
-        foreach (RoomEnemyOccupant grappled in _lifecycle.InteractiveEnemies)
+        foreach (RoomEnemyPlace enemy in _lifecycle.InteractiveEnemies)
         {
-            RoomEnemyPlace enemy = grappled.Place;
             if (enemy.Invincibility.IsRunning)
                 continue;
 
@@ -49,23 +48,22 @@ internal sealed class GrappleBehavior : IGrappleTargets
             return new GrappleEnemyCollision(
                 reaction,
                 enemy.Position.Whole,
-                grappled.Definition.Damage);
+                enemy.Definition.Damage);
         }
 
-        return null;
+        return default;
     }
 
     /// <summary>
     /// Moves the enemy the grapple beam holds, as the grappled state selects. Returning true tells the
     /// ordinary scheduler that this update replaced main AI for the current enemy frame.
     /// </summary>
-    internal bool RunCommonGrappleAi(RoomEnemyOccupant grappled, IEnemyAiFrame frame)
+    internal bool RunCommonGrappleAi(RoomEnemyPlace enemy, IEnemyAiFrame frame)
     {
-        RoomEnemyPlace enemy = Ensure.NotNull(grappled).Place;
         if ((enemy.AiStates & EnemyAiStates.Grappled) == EnemyAiStates.None)
             return false;
 
-        switch (grappled.Definition.GrappleResponse)
+        switch (enemy.Definition.GrappleResponse)
         {
             case GrappleEnemyReaction.None:
                 enemy.AiStates = EnemyAiStates.None;
@@ -89,7 +87,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
             case GrappleEnemyReaction.Kill:
                 // A grapple kill always ends in the small explosion. The shared death keeps the enemy's position, its drop
                 // and any respawn marker; deleting the enemy outright would skip the explosion.
-                _deathsAndDrops.StartGenericEnemyDeath(grappled, EnemyDeathExplosion.Small, frame.Samus);
+                _deathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.Small, frame.Samus);
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 
@@ -121,7 +119,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 throw new InvalidDataException($"Enemy {enemy.DefinitionId} names no reaction to the grapple beam.");
             default:
                 throw new InvalidDataException(
-                    $"Enemy {enemy.Occupant?.DefinitionId} has no response to grapple reaction {grappled.Definition.GrappleResponse}.");
+                    $"Enemy {enemy.DefinitionId} has no response to grapple reaction {enemy.Definition.GrappleResponse}.");
         }
     }
 }

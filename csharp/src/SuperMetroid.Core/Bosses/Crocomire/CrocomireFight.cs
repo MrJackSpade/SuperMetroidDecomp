@@ -60,12 +60,12 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Sets Crocomire up when the room spawns it.</summary>
-    internal CrocomireEnemyState InitializeCrocomire(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal CrocomireEnemyState InitializeCrocomire(RoomEnemyPlace place)
     {
         _roomStatus.Boss = AreaBoss.Crocomire;
-        var state = new CrocomireEnemyState(occupant, place, _places.ListedAfter(place, 1));
-        // Once attached, the room's shaking and his melt's display read his encounter from the room (#2194); his parts
-        // each hold the encounter from their own setup.
+        var state = new CrocomireEnemyState(place, _places.ListedAfter(place, 1));
+        // The room's shaking main and his melt's display read him from the room from here (#2194); his parts each hold
+        // the encounter from their own setup.
         _encounters.Attach(state);
         // Crocomire shows his body frames and his death's melt images on his body (#1355, #1466, #1515), nothing at first.
         _presentation.AttachBossBody(state.BodyParts);
@@ -95,7 +95,8 @@ internal sealed class CrocomireFight
         foreach (Position16<RoomScreens> screen in CrocomireCameraDefinitions.BehindWallScreens)
             _room.Services.RoomScroll.Write(screen, RoomScrollState.Closed);
 
-        // His wall, the bridge's fragments and his projectiles draw in their own shades (#1512).
+        // The wall's and the projectiles' colours his setup loads are the import's shades of them, which his wall,
+        // the bridge's fragments and his projectiles draw in (#1512).
         return state;
     }
 
@@ -126,19 +127,18 @@ internal sealed class CrocomireFight
 
     /// <summary>Runs the artificial left-side wall.</summary>
     internal void HandleCrocomireInvisibleWall(
-        RoomEnemyOccupant crocomire,
+        RoomEnemyPlace body,
         CrocomireEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
-        RoomEnemyPlace body = crocomire.Place;
         if (state.DeathStage.Entry is not CrocomireDeathStage.Fighting)
             return;
         int leftEdge = body.Position.X.Whole - body.Radius.X - samus.Kinematics.Radius.X;
         if (leftEdge >= samus.Position.X.Whole)
             return;
 
-        _collision.ResolveOrdinaryTouch(crocomire, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(body, samus, pseudoScrew);
         samus.Position = samus.Position.WithWholeX(leftEdge);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(CrocomireFightDefinitions.WallPush);
     }
@@ -297,7 +297,7 @@ internal sealed class CrocomireFight
                 _access.RequestCrocomireSound(CrocomireSoundDefinitions.SkeletonCollapse);
                 return null;
             case CrocomireBodyCueKind.ShakeScreen:
-                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), CrocomireFightDefinitions.StepShakeDuration);
+                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), CrocomireFightDefinitions.StepShakeDuration);
                 _access.RequestCrocomireSound(CrocomireSoundDefinitions.ScreenShake);
                 return null;
 
@@ -466,10 +466,10 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Spawns one of Crocomire's fight projectiles, fired along <paramref name="gradient"/>.</summary>
-    private void SpawnCrocomireProjectile(RoomEnemyPlace body, int gradient)
+    internal void SpawnCrocomireProjectile(RoomEnemyPlace body, int gradient)
     {
         CrocomireCombat.MouthShotBehavior shot = _combat.MouthShot(new CrocomireProjectileState(gradient));
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireProjectile, shot, graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireProjectile, shot, SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
         if (projectile is null)
             return;
 

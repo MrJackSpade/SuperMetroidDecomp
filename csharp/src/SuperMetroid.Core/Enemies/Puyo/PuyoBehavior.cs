@@ -35,10 +35,10 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySettingsFactory<PuyoSp
     }
 
     /// <summary>Initializes the Puyo.</summary>
-    internal static PuyoEnemyState InitializePuyo(RoomEnemyOccupant occupant, RoomEnemyPlace place, PuyoSpawnSettings settings)
+    internal static PuyoEnemyState InitializePuyo(RoomEnemyPlace place, PuyoSpawnSettings settings)
     {
         // The setup shows the common empty frame before starting the fast grounded animation.
-        place.Frame = EnemyFrameId.PointAtOrigin;
+        place.Frame = EnemyFrameId.Empty;
 
         var state = new PuyoEnemyState(PuyoAction.Grounded, settings)
         {
@@ -56,7 +56,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySettingsFactory<PuyoSp
 
     /// <summary>Runs a Puyo for one update and its top-level actions.</summary>
     private void RunPuyoMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyPlace place,
         PuyoEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -64,7 +64,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySettingsFactory<PuyoSp
         switch (state.Action)
         {
             case PuyoAction.Grounded:
-                RunGroundedPuyo(occupant, place, state, samus);
+                RunGroundedPuyo(place, state, samus);
                 return;
             case PuyoAction.Rising or PuyoAction.Falling:
                 RunAirbornePuyo(place, state, level);
@@ -76,7 +76,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySettingsFactory<PuyoSp
     }
 
     /// <summary>Runs the grounded Puyo.</summary>
-    private void RunGroundedPuyo(RoomEnemyOccupant occupant, RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
+    private void RunGroundedPuyo(RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
     {
         // A placement's cooldown of N keeps the Puyo grounded for N updates and it hops on the next, so a zero cooldown hops
         // at once.
@@ -90,7 +90,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySettingsFactory<PuyoSp
     }
 
     /// <summary>Starts a hop: chooses the hop type and its random selection.</summary>
-    private void InitiatePuyoHop(RoomEnemyOccupant occupant, RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
+    private void InitiatePuyoHop(RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
     {
         // Normal follow-up hops are promoted from the small hop to the big one when Samus is
         // strictly inside its horizontal hop distance. Giant/dropping/dropped types
@@ -103,8 +103,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySettingsFactory<PuyoSp
                 : PuyoHopType.NormalSmall;
         }
 
-        // Aim toward Samus unless the terrain collision before turned the Puyo back; a Puyo level with Samus aims
-        // right.
+        // Aim toward Samus unless the preceding terrain collision turned the Puyo back. Equality follows the game's
+        // non-negative path and therefore aims right.
         HorizontalDirection towardSamus = samus.Position.X.Whole < place.Position.X.Whole
             ? HorizontalDirection.Left
             : HorizontalDirection.Right;
@@ -134,7 +134,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySettingsFactory<PuyoSp
     /// nowhere is refused, and one that runs off the curve fails when its speed is read.
     /// </summary>
     /// <exception cref="InvalidDataException">The hop's search steps nowhere or runs off the curve.</exception>
-    private static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
+    internal static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
     {
         PuyoHopDefinition hop = Hop(state);
         if (hop.LaunchSearchStep <= QuadraticSpeedCurvePlace.Start)
@@ -292,7 +292,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySettingsFactory<PuyoSp
 
         // The hop moves sideways by the whole pixels of its horizontal speed only, so the giant hop's one and a quarter
         // moves exactly one pixel each update.
-        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(Hop(state).XPixels.Toward(state.Direction));
+        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(Hop(state).XSpeed.WholePixels.Toward(state.Direction));
 
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
@@ -353,21 +353,21 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySettingsFactory<PuyoSp
         SetPuyoAnimation(place, state, segment);
     }
 
-    /// <summary>Starts a selected pose or hop animation on this update.</summary>
+    /// <summary>Starts a selected pose or hop animation with a one-tick frame countdown.</summary>
     private static void SetPuyoAnimation(RoomEnemyPlace place, PuyoEnemyState state, PuyoSegment segment)
     {
         state.Playback = EnemyAnimationPlayback.Start(place, PuyoAnimations.StartingWith(segment));
     }
 
     /// <summary>Advances Puyo's typed animation.</summary>
-    internal static void AdvancePuyoTypedAnimation(RoomEnemyPlace place, PuyoEnemyState puyoEnemyState) =>
+    internal static void AdvancePuyoTypedAnimation(RoomEnemyPlace place, PuyoEnemyState puyoEnemyState, EnemyAnimationCueContext _) =>
         EnemyAnimationPlayback.Advance(place, puyoEnemyState, PuyoAnimations.Segments,
             static (PuyoEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Puyo's cue-free animation raised {cue}."));
 
     /// <summary>Runs Puyo's main AI.</summary>
-    internal void RunPuyoMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, PuyoEnemyState state, IEnemyAiFrame frame)
+    internal void RunPuyoMainAi(RoomEnemyPlace place, PuyoEnemyState state, IEnemyAiFrame frame)
     {
-        RunPuyoMain(occupant, place, state, frame.Samus, frame.Level);
+        RunPuyoMain(place, state, frame.Samus, frame.Level);
     }
 }

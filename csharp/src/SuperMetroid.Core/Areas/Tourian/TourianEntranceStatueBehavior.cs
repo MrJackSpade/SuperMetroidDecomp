@@ -66,7 +66,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySetti
     /// the last eye glow a released boss lit, and each released statue's blacked-out eyes and grey. The scene's
     /// placements and every projectile of the scene show it alike.
     /// </summary>
-    private PictureShading SceneShading { get; set; } = PictureShading.Standard;
+    internal PictureShading SceneShading { get; private set; } = PictureShading.Standard;
 
     /// <summary>The graphics a statue scene projectile spawns with: the shared sheet in the scene's look.</summary>
     internal SpriteGraphics SceneGraphics => SpriteGraphics.SharedIn(SceneShading);
@@ -192,12 +192,12 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySetti
         Func<Position16<RoomPixels>, DecorationBehavior> decorations)
     {
         DecorationBehavior decoration = decorations(position);
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, decoration, graphics: SceneGraphics);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, decoration, SceneGraphics);
         if (projectile is null)
             return;
 
         HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueDecorationAnimation(decorations, start, decoration));
+        projectile.StartAnimation(new TourianStatueDecorationAnimation(start, decoration));
         projectile.Position = projectile.Position.WithWhole(position);
     }
 

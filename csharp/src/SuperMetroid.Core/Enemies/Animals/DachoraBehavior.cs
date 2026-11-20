@@ -23,7 +23,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySettingsFactory<Dac
 
     /// <summary>Probes floors, walls, and ceiling during the run and shinespark arc.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>The room's enemy places, where the Dachora finds its echoes when it is placed.</summary>
+    /// <summary>The room's enemy places, where the Dachora finds its four echoes when it is placed.</summary>
     private readonly EnemyPlaces _places;
     /// <summary>
     /// The state each Dachora made, as it was placed, for each of the four speed-boost echoes its room lists right after it,
@@ -45,8 +45,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySettingsFactory<Dac
         _places = places;
     }
 
-    /// <summary>Initializes a speed-boost echo: it faces the way the body does; each trail placement later gives it its life (<see cref="DachoraTimingDefinitions.EchoLifetime"/>).</summary>
-    internal DachoraEchoState InitializeDachoraEcho(RoomEnemyOccupant occupant, RoomEnemyPlace place, DachoraSpawnSettings settings)
+    /// <summary>Initializes a speed-boost echo: it faces the way the body does; each trail placement later gives it an eight-update life.</summary>
+    internal DachoraEchoState InitializeDachoraEcho(RoomEnemyPlace place, DachoraSpawnSettings settings)
     {
         // The echo takes the state its body, listed before it, made for it as the body was placed.
         DachoraEchoState echo = _echoStates.Of(place);
@@ -57,10 +57,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySettingsFactory<Dac
         return echo;
     }
 
-    /// <summary>Initializes the Dachora's body, which finds the echoes its room lists right after it.</summary>
-    internal DachoraEnemyState InitializeDachora(RoomEnemyOccupant occupant, RoomEnemyPlace place, DachoraSpawnSettings settings)
+    /// <summary>Initializes the Dachora's body, which finds the four echoes its room lists right after it.</summary>
+    internal DachoraEnemyState InitializeDachora(RoomEnemyPlace place, DachoraSpawnSettings settings)
     {
-        DachoraEcho[] echoes = [.. _places.ListedRunAfter(occupant, DachoraTimingDefinitions.EchoCount).Select(echo => new DachoraEcho(echo, new DachoraEchoState()))];
+        DachoraEcho[] echoes = [.. _places.ListedRunAfter(place, DachoraTimingDefinitions.EchoCount).Select(echo => new DachoraEcho(echo, new DachoraEchoState()))];
         foreach (DachoraEcho echo in echoes)
             _echoStates.Place(echo.Place, echo.State);
         var state = new DachoraEnemyState(DachoraAction.WaitingForSamus, echoes)
@@ -81,7 +81,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySettingsFactory<Dac
     private static void PrepareDachoraPlace(RoomEnemyPlace place)
     {
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.Frame = EnemyFrameId.PointAtOrigin;
+        place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.Restart();
     }
 
@@ -222,10 +222,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySettingsFactory<Dac
 
     /// <summary>
     /// Accelerates the running Dachora. This intentionally retains the
-    /// speed glow's cycle (DachoraGlowCycle): once its last frame is reached, the game shows that brightest
-    /// speed glow frame again at each step instead of wrapping to frame zero.
+    /// speed glow's cycle (DachoraGlowCycle): after frame three is reached, the game shows that brightest
+    /// speed glow frame again every sixteen frames instead of wrapping to frame zero.
     /// </summary>
-    private SignedSixteenSixteen AccelerateDachora(
+    internal SignedSixteenSixteen AccelerateDachora(
         RoomEnemyPlace place,
         DachoraEnemyState state,
         RoomLevelData level)
@@ -246,7 +246,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySettingsFactory<Dac
         // The collision result is discarded; the probe keeps Dachora glued to room slopes.
         _terrain.MoveEnemyVertically(level, place, DachoraMotionDefinitions.RunningFloorPress);
 
-        // Every run starts from rest and gains its acceleration each update, so its speed lands exactly on the cap and
+        // Every run starts from rest and gains a sixteenth of a pixel an update, so its speed lands exactly on the cap and
         // stays there.
         if (state.Speed < DachoraMotionDefinitions.MaximumSpeed)
         {
@@ -270,7 +270,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySettingsFactory<Dac
             return;
 
         // The charge animation holds its crouch until the launch, which starts the right-facing echo animation the
-        // trails also show.
+        // four trails also show.
         StartDachoraAnimation(place, state, DachoraSegment.EchoRight);
         state.Action = DachoraAction.Shinesparking;
 
@@ -398,8 +398,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySettingsFactory<Dac
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
     }
 
-    /// <summary>Runs the shine glow.</summary>
-    private static void StepDachoraShineGlow(RoomEnemyPlace place, DachoraEnemyState state)
+    /// <summary>Runs the four-frame shine glow.</summary>
+    internal static void StepDachoraShineGlow(RoomEnemyPlace place, DachoraEnemyState state)
     {
         ShowDachoraColours(place, DachoraColourPhase.Shine, state.GlowFrame);
         state.AdvanceShineGlow();
@@ -410,7 +410,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySettingsFactory<Dac
     /// glow, which the import pre-coloured its pictures in. Only the Dachora shows it (#1544).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The phase has no such frame.</exception>
-    private static void ShowDachoraColours(
+    internal static void ShowDachoraColours(
         RoomEnemyPlace place, DachoraColourPhase phase, int frame)
     {
         int lastFrame = phase == DachoraColourPhase.Default ? 0 : DachoraColorDefinitions.AnimatedFrameCount - 1;
@@ -455,13 +455,13 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySettingsFactory<Dac
     private static SignedSixteenSixteen SamusGravity(SamusState samus) => samus.Kinematics.YAcceleration.AsDisplacement();
 
     /// <summary>Advances the Dachora body's cue-free typed animation.</summary>
-    internal static void AdvanceDachoraTypedAnimation(RoomEnemyPlace place, DachoraEnemyState dachoraEnemyState) =>
+    internal static void AdvanceDachoraTypedAnimation(RoomEnemyPlace place, DachoraEnemyState dachoraEnemyState, EnemyAnimationCueContext _) =>
         EnemyAnimationPlayback.Advance(place, dachoraEnemyState, DachoraAnimations.Segments,
             static (DachoraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora animation raised {cue}."));
 
     /// <summary>Advances a speed-boost echo's cue-free typed animation.</summary>
-    internal static void AdvanceDachoraEchoTypedAnimation(RoomEnemyPlace place, DachoraEchoState dachoraEchoState) =>
+    internal static void AdvanceDachoraEchoTypedAnimation(RoomEnemyPlace place, DachoraEchoState dachoraEchoState, EnemyAnimationCueContext _) =>
         EnemyAnimationPlayback.Advance(place, dachoraEchoState, DachoraAnimations.Segments,
             static (DachoraEchoState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora echo animation raised {cue}."));

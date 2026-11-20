@@ -33,7 +33,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.DachoraEscape)
             return new EscapeDachoraEntity(this, occupant, place, common);
-        throw new InvalidOperationException($"The escape animals species creates no {occupant.DefinitionId}.");
+        throw new InvalidOperationException($"The escape animals species creates no {place.DefinitionId}.");
     }
 
     /// <summary>Provides room events and live Samus state used by both escape-animal branches.</summary>
@@ -49,7 +49,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the escape Etecoon.</summary>
-    internal EscapeEtecoonEnemyState InitializeEscapeEtecoon(RoomEnemyOccupant occupant, RoomEnemyPlace place, EscapeEtecoonSpawnSettings settings)
+    internal EscapeEtecoonEnemyState InitializeEscapeEtecoon(RoomEnemyPlace place, EscapeEtecoonSpawnSettings settings)
     {
         EscapeEtecoonInitialization initialization =
             EscapeEtecoons.Initialization(settings.Role);
@@ -87,7 +87,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Dachora's placement already animates and keeps it from touching Samus; the setup makes it animate again.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.Frame = EnemyFrameId.PointAtOrigin;
+        place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.Restart();
         state.Playback =
             new(EscapeDachoraAnimations.RunningAroundLowTide, AnimationPlace.StartOfAnimation);
@@ -192,12 +192,12 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                 place.Position = place.Position.WithWholeX(place.Position.X.Whole + move.Offset);
                 return null;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonCue)} {cue}.");
+                throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonCueKind)} {cue}.");
         }
     }
 
     /// <summary>The run an escaping Etecoon starts the way it runs once the rising acid is high (#2167).</summary>
-    private static EscapeEtecoonSegment HighTideRun(HorizontalDirection running) =>
+    internal static EscapeEtecoonSegment HighTideRun(HorizontalDirection running) =>
         running == HorizontalDirection.Left ? EscapeEtecoonSegment.RunningLeftHighTide : EscapeEtecoonSegment.RunningRightHighTide;
 
     /// <summary>
@@ -224,22 +224,22 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Where the rising tide takes the escaping Dachora at the end of a low-tide lap the way <paramref name="lap"/> ran
     /// (#2167): the end of the high-tide lap that way, counting on the laps the low-tide run had left.
     /// </summary>
-    private static AnimationContinuation<EscapeDachoraSegment> RisingTideTakesOver(HorizontalDirection lap) =>
+    internal static AnimationContinuation<EscapeDachoraSegment> RisingTideTakesOver(HorizontalDirection lap) =>
         lap == HorizontalDirection.Left ? EscapeDachoraAnimations.HighTideLapsAfterLeftLap : EscapeDachoraAnimations.HighTideLapsAfterRightLap;
 
     /// <summary>
     /// Where the critters' escape takes the escaping Dachora at the end of a lap the way <paramref name="lap"/> ran (#2167):
     /// the run for the escape, from its pause after a lap to the left and from its acceleration after one to the right.
     /// </summary>
-    private static AnimationContinuation<EscapeDachoraSegment> EscapeTakesOver(HorizontalDirection lap) =>
+    internal static AnimationContinuation<EscapeDachoraSegment> EscapeTakesOver(HorizontalDirection lap) =>
         lap == HorizontalDirection.Left ? EscapeDachoraAnimations.EscapeAfterLeftLap : EscapeDachoraAnimations.EscapeAfterRightLap;
 
-    /// <summary>Whether the critters have escaped, which both escaping animals read.</summary>
+    /// <summary>Samples the critters-escaped event for Dachora's animation branch and room revisit handling.</summary>
     private bool HasCrittersEscaped() => _room.Services.Events.Has(StoryEvent.CrittersEscaped);
 
     /// <summary>
-    /// Whether the escaping animals find the acid low: at or below
-    /// <see cref="EscapeAnimalMotionDefinitions.LowAcidSurfaceY"/>, or absent from Samus's room.
+    /// Whether the acid-height branches find the acid low: at or below <see cref="EscapeAnimalMotionDefinitions.LowAcidSurfaceY"/>, or absent
+    /// from Samus's room.
     /// </summary>
     private static bool IsAcidLow(SamusState samus) =>
         samus.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalMotionDefinitions.LowAcidSurfaceY;

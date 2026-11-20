@@ -9,5 +9,5 @@ internal sealed class WaveSpecialAttackHoming(WaveParticleState state) : Special
 
     /// <inheritdoc/>
     private protected override SoundEffectId? Step(SamusShotUpdate update) =>
-        update.Shots.Combos.StepWaveCombo(update.Samus, update.Held, state, update.SamusBombs);
+        update.Shots.Combos.StepWaveCombo(update.Samus, update.Shot, state, update.SamusBombs);
 }

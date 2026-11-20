@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -21,12 +22,12 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySettingsFactory<Boyon
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, BoyonSpawnSettings settings) => new BoyonEntity(this, occupant, place, common, settings);
 
     /// <summary>Carries out one cue of Boyon's animations.</summary>
-    private void ApplyBoyonCue(RoomEnemyPlace place, BoyonEnemyState state, BoyonCue cue)
+    private BoyonSegment? ApplyBoyonCue(RoomEnemyPlace place, BoyonEnemyState state, BoyonCue cue)
     {
         switch (cue.Kind)
         {
-            case BoyonCueKind.PlayBounceSound:
-                PlayBoyonBounceSound(state);
+            case BoyonCueKind.StartBounce:
+                StartBoyonBounce(state);
                 break;
             case BoyonCueKind.ProcessOffScreen:
                 place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
@@ -37,6 +38,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySettingsFactory<Boyon
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BoyonCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Initializes the Boyon.</summary>
@@ -45,7 +47,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySettingsFactory<Boyon
 
         // The Boyon shows nothing until its idle animation shows its first frame on its first update; the room's
         // enemy load leaves it showing nothing too.
-        place.Frame = EnemyFrameId.PointAtOrigin;
+        place.Frame = EnemyFrameId.Empty;
 
         var state = new BoyonEnemyState(settings)
         {
@@ -58,7 +60,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySettingsFactory<Boyon
     }
 
     /// <summary>Runs the Boyon's main AI.</summary>
-    internal static void RunBoyonMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, BoyonEnemyState state, SamusState samus)
+    internal static void RunBoyonMain(RoomEnemyPlace place, BoyonEnemyState state, SamusState samus)
     {
         // The game spends Boyon's first active AI frame deriving the arc's baseline and
         // returns without moving or testing proximity. Preserving that frame is important:
@@ -70,7 +72,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySettingsFactory<Boyon
             return;
         }
 
-        if (IsBoyonSamusWithinHorizontalRange(occupant, place, state.Settings, samus))
+        if (IsBoyonSamusWithinHorizontalRange(place, state.Settings, samus))
         {
             // Proximity permits another bounce: a resting Boyon starts bouncing and a landed one bounces again, its
             // bouncing animation restarting; an arc already under way plays on. Every bounce starts with its rise.
@@ -95,10 +97,10 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySettingsFactory<Boyon
         switch (state.Phase)
         {
             case BoyonPhase.Falling:
-                MoveBoyonFalling(occupant, place, state);
+                MoveBoyonFalling(place, state);
                 break;
             case BoyonPhase.Rising:
-                MoveBoyonRising(occupant, place, state);
+                MoveBoyonRising(place, state);
                 break;
             case BoyonPhase.DerivingArc:
             case BoyonPhase.Resting:
@@ -121,7 +123,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySettingsFactory<Boyon
     /// Its spawn settings' arc height, 48 to 96 pixels for Boyons, compared plainly with the arc's distance (#2282).
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException">The arc is lower than nothing.</exception>
-    private static void DeriveBoyonArcBaseline(BoyonEnemyState state, int multiplier, SignedSixteenSixteen jumpHeight)
+    internal static void DeriveBoyonArcBaseline(BoyonEnemyState state, int multiplier, SignedSixteenSixteen jumpHeight)
     {
         if (jumpHeight.IsNegative)
             throw new ArgumentOutOfRangeException(nameof(jumpHeight), jumpHeight, "A Boyon's arc is no lower than nothing.");
@@ -138,7 +140,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySettingsFactory<Boyon
     }
 
     /// <summary>Runs falling movement.</summary>
-    private static void MoveBoyonFalling(RoomEnemyOccupant occupant, RoomEnemyPlace place, BoyonEnemyState state)
+    private static void MoveBoyonFalling(RoomEnemyPlace place, BoyonEnemyState state)
     {
         state.FallOneEntry();
         UnsignedSixteenSixteen speed = MultiplyBoyonCurveEntry(state, state.Settings.SpeedMultiplier);
@@ -153,7 +155,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySettingsFactory<Boyon
     }
 
     /// <summary>Runs rising movement.</summary>
-    private static void MoveBoyonRising(RoomEnemyOccupant occupant, RoomEnemyPlace place, BoyonEnemyState state)
+    private static void MoveBoyonRising(RoomEnemyPlace place, BoyonEnemyState state)
     {
         UnsignedSixteenSixteen speed = MultiplyBoyonCurveEntry(state, state.Settings.SpeedMultiplier);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole - speed.Whole);
@@ -162,20 +164,20 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySettingsFactory<Boyon
     }
 
     /// <summary>
-    /// The Boyon's speed at its place: the curve sample there scaled by its spawn settings'
-    /// <paramref name="multiplier"/>; past the curve's end it keeps the curve's last speed.
+    /// The Boyon's speed at its place: the curve sample there scaled by its spawn settings' <paramref name="multiplier"/>.
+    /// Entries after the stored curve use the explicit saturated sample rather than reading past it.
     /// </summary>
-    private static UnsignedSixteenSixteen MultiplyBoyonCurveEntry(BoyonEnemyState state, int multiplier) =>
+    internal static UnsignedSixteenSixteen MultiplyBoyonCurveEntry(BoyonEnemyState state, int multiplier) =>
         BoyonBounceCurve.Multiply(state.CurvePlace, multiplier);
 
     /// <summary>Whether Samus lies within Boyon's authored horizontal reach, in pixel columns, of the enemy.</summary>
-    private static bool IsBoyonSamusWithinHorizontalRange(RoomEnemyOccupant occupant, RoomEnemyPlace place, BoyonSpawnSettings settings, SamusState samus)
+    private static bool IsBoyonSamusWithinHorizontalRange(RoomEnemyPlace place, BoyonSpawnSettings settings, SamusState samus)
     {
         int distance = Math.Abs(samus.Position.X.Whole - place.Position.X.Whole);
         return distance < settings.TriggerDistance;
     }
 
-    /// <summary>Starts the idle or bouncing animation from its start.</summary>
+    /// <summary>Starts the idle or bounce animation and restarts its frame and auxiliary timers.</summary>
     private static void SetBoyonAnimation(RoomEnemyPlace place, BoyonEnemyState state, BoyonSegment segment)
     {
         state.Playback = EnemyAnimationPlayback.Start(place, BoyonAnimations.StartingWith(segment));
@@ -186,7 +188,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySettingsFactory<Boyon
     /// bouncing, so the arc it permits is already under way (#2432).
     /// </summary>
     /// <exception cref="InvalidOperationException">The Boyon is not bouncing.</exception>
-    private void PlayBoyonBounceSound(BoyonEnemyState state)
+    private void StartBoyonBounce(BoyonEnemyState state)
     {
         if (!state.IsBouncing)
             throw new InvalidOperationException($"A Boyon's bounce cue ran in its {state.Phase} phase.");
@@ -194,8 +196,10 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySettingsFactory<Boyon
     }
 
     /// <summary>Runs Boyon's idle and bouncing loops (#641).</summary>
-    internal void AdvanceBoyonAnimation(RoomEnemyPlace place, BoyonEnemyState boyonEnemyState) =>
-        EnemyAnimationPlayback.AdvanceApplyingCues(place, boyonEnemyState, BoyonAnimations.Segments,
+    internal void AdvanceBoyonAnimation(RoomEnemyPlace place, BoyonEnemyState boyonEnemyState, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, boyonEnemyState, BoyonAnimations.Segments,
             static (BoyonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (BoyonEnemyState state, BoyonCue cue) => ApplyBoyonCue(place, state, cue));
+            (state, cue) => ApplyBoyonCue(place, state, cue) is { } target
+                ? new AnimationContinuation<BoyonSegment>(BoyonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
 }

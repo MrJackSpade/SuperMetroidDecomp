@@ -34,7 +34,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
             InitializeKzanBottom(place);
             return bottom;
         }
-        throw new InvalidOperationException($"The Kzan species creates no {occupant.DefinitionId}.");
+        throw new InvalidOperationException($"The Kzan species creates no {place.DefinitionId}.");
     }
 
     /// <summary>The room's enemy places, where each bottom finds its top when it is placed.</summary>
@@ -53,7 +53,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     }
 
     /// <summary>Initializes the top's idle animation, fall speed, fall distance and wait timer from its spawn settings.</summary>
-    internal static KzanEnemyState InitializeKzanTop(RoomEnemyOccupant occupant, RoomEnemyPlace place, KzanSpawnSettings settings)
+    internal static KzanEnemyState InitializeKzanTop(RoomEnemyPlace place, KzanSpawnSettings settings)
     {
         var state = new KzanEnemyState(KzanAction.WaitingToFall, settings);
 
@@ -72,14 +72,14 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
         return state;
     }
 
-    /// <summary>Places the lower actor below the preceding top (<see cref="KzanMotionDefinitions.BottomBelowTop"/>) during setup.</summary>
+    /// <summary>Places the lower actor twelve pixels below the preceding top during setup.</summary>
     /// <exception cref="InvalidDataException">The enemy before the bottom is not a Kzan top.</exception>
     internal void InitializeKzanBottom(RoomEnemyPlace place)
     {
         // The bottom follows whatever enemy precedes it. Every room with Kzans (the Wasteland and the
         // Wrecked Ship's main shaft) places each bottom directly after its top, so that enemy is its top; any
         // other placement is refused rather than followed.
-        if (_places.ListedBeforeOrNone(place, 1) is not { Occupant.DefinitionId: EnemyDefinitionId.KzanTop } top)
+        if (_places.ListedBeforeOrNone(place, 1) is not { DefinitionId: EnemyDefinitionId.KzanTop } top)
         {
             throw new InvalidDataException(
                 $"Kzan bottom in place {place.Ordinal} does not directly follow a Kzan top, as every room with Kzans places it.");
@@ -101,9 +101,9 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
         bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, top.Position.Y.Whole + KzanMotionDefinitions.BottomBelowTop));
     }
 
-    /// <summary>Runs the top actor through fall wait, accelerated descent, rise wait, and slow ascent.</summary>
+    /// <summary>Runs the top actor through fall wait, accelerated descent, rise wait, and half-pixel ascent.</summary>
     private void RunKzanTopMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyPlace place,
         KzanEnemyState state,
         SamusState samus)
     {
@@ -173,7 +173,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
             state.Action = KzanAction.Rising;
     }
 
-    /// <summary>Rises by <see cref="KzanMotionDefinitions.RisingStep"/> each update, stops at the spawn height, and carries Samus by the whole-pixel step.</summary>
+    /// <summary>Subtracts one-half pixel per update, stops at the spawn height, and carries Samus by the whole-pixel step.</summary>
     private static void RunKzanRising(
         RoomEnemyPlace place,
         KzanEnemyState state,
@@ -181,7 +181,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     {
         int previousY = place.Position.Y.Whole;
 
-        // The Kzan rises by exactly its rising step each update.
+        // The Kzan rises by exactly half a pixel per update.
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(KzanMotionDefinitions.RisingStep));
         if (place.Position.Y.Whole < state.RisingTargetY)
         {
@@ -208,14 +208,14 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     }
 
     /// <summary>Advances Kzan's typed animation.</summary>
-    internal static void AdvanceKzanTypedAnimation(RoomEnemyPlace place, KzanEnemyState kzanEnemyState) =>
+    internal static void AdvanceKzanTypedAnimation(RoomEnemyPlace place, KzanEnemyState kzanEnemyState, EnemyAnimationCueContext _) =>
         EnemyAnimationPlayback.Advance(place, kzanEnemyState, KzanAnimations.Segments,
             static (KzanEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Kzan animation raised {cue}."));
 
     /// <summary>Runs KzanTop's main AI.</summary>
-    internal void RunKzanTopMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, KzanEnemyState state, IEnemyAiFrame frame)
+    internal void RunKzanTopMainAi(RoomEnemyPlace place, KzanEnemyState state, IEnemyAiFrame frame)
     {
-        RunKzanTopMain(occupant, place, state, frame.Samus);
+        RunKzanTopMain(place, state, frame.Samus);
     }
 }

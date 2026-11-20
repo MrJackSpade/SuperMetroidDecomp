@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -14,14 +15,14 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// larger piece reads the sixteen-wide grid from it.</param>
 /// <param name="Flip">The piece's own mirroring.</param>
 /// <param name="Palette">The piece's palette row, 0 through <see cref="MaximumPalette"/>.</param>
-/// <param name="Priority">The piece's priority against the backgrounds, 0 through <see cref="MaximumPriority"/>.</param>
+/// <param name="Depth">Where the piece draws among the room's layers.</param>
 public readonly record struct SpritePart(
     Offset16<ScreenPixels> Offset,
     bool Large,
     int Character,
     PictureFlip Flip,
     int Palette,
-    int Priority)
+    ActorDepth Depth)
 {
     /// <summary>The furthest left a piece may start, in pixels from the sprite origin.</summary>
     public const int MinimumX = -256;
@@ -35,8 +36,6 @@ public readonly record struct SpritePart(
     public const int MaximumCharacter = 511;
     /// <summary>The last of the eight sprite palette rows.</summary>
     public const int MaximumPalette = 7;
-    /// <summary>The highest of the four priorities against the backgrounds.</summary>
-    public const int MaximumPriority = 3;
     /// <summary>The width of the horizontal plane sprites are placed on: the screen and the hidden band beside it.</summary>
     public const int PlaneWidth = MaximumX - MinimumX + 1;
 
@@ -46,30 +45,31 @@ public readonly record struct SpritePart(
     /// <param name="large">Whether the piece draws at the screen's large sprite size.</param>
     /// <param name="character">First character on the sheet, 0 through <see cref="MaximumCharacter"/>.</param>
     /// <param name="palette">Palette row, 0 through <see cref="MaximumPalette"/>.</param>
-    /// <param name="priority">Priority against the backgrounds, 0 through <see cref="MaximumPriority"/>.</param>
+    /// <param name="depth">Where the piece draws among the room's layers.</param>
     /// <param name="flip">The piece's own mirroring.</param>
     /// <exception cref="ArgumentOutOfRangeException">A field is outside its range.</exception>
-    public static SpritePart Create(Offset16<ScreenPixels> offset, bool large, int character, int palette, int priority,
+    public static SpritePart Create(Offset16<ScreenPixels> offset, bool large, int character, int palette, ActorDepth depth,
         PictureFlip flip = PictureFlip.None)
     {
         Ensure.BetweenInclusive(MinimumX, MaximumX, offset.X);
         Ensure.BetweenInclusive(MinimumY, MaximumY, offset.Y);
         Ensure.BetweenInclusive(0, MaximumCharacter, character);
         Ensure.BetweenInclusive(0, MaximumPalette, palette);
-        Ensure.BetweenInclusive(0, MaximumPriority, priority);
+        if (!Enum.IsDefined(depth))
+            throw new ArgumentOutOfRangeException(nameof(depth));
         if ((flip & ~(PictureFlip.Horizontal | PictureFlip.Vertical)) != PictureFlip.None)
             throw new ArgumentOutOfRangeException(nameof(flip));
-        return new(offset, large, character, flip, palette, priority);
+        return new(offset, large, character, flip, palette, depth);
     }
 
     /// <summary>A single small piece at the sprite origin.</summary>
     /// <param name="character">The piece's character on the sheet, 0 through <see cref="MaximumCharacter"/>.</param>
     /// <param name="palette">Palette row, 0 through <see cref="MaximumPalette"/>.</param>
-    /// <param name="priority">Priority against the backgrounds, 0 through <see cref="MaximumPriority"/>.</param>
+    /// <param name="depth">Where the piece draws among the room's layers.</param>
     /// <param name="flip">The piece's own mirroring.</param>
     /// <exception cref="ArgumentOutOfRangeException">A field is outside its range.</exception>
-    public static SpritePart Single(int character, int palette, int priority, PictureFlip flip = PictureFlip.None) =>
-        Create(Offset16<ScreenPixels>.Zero, false, character, palette, priority, flip);
+    public static SpritePart Single(int character, int palette, ActorDepth depth, PictureFlip flip = PictureFlip.None) =>
+        Create(Offset16<ScreenPixels>.Zero, false, character, palette, depth, flip);
 
     /// <summary>Whether the piece's pixels are drawn in reverse horizontal order.</summary>
     public bool FlipsHorizontally => (Flip & PictureFlip.Horizontal) != PictureFlip.None;
@@ -86,7 +86,7 @@ public readonly record struct SpritePart(
     /// <param name="inheritPalette">Whether the part takes the draw's palette instead of its own.</param>
     public SpriteFramePart ToFramePart(int firstCharacter, ScreenObjectSizes sizes, bool inheritPalette = false) =>
         new(Offset, Large ? sizes.Large : sizes.Small, Character - firstCharacter, Flip,
-            inheritPalette ? null : Palette, Priority);
+            inheritPalette ? null : Palette, Depth);
 
     /// <summary>Hashes the piece's visual fields in a fixed order.</summary>
     internal void AppendIdentity(SelectedPresentationHash content)
@@ -98,6 +98,6 @@ public readonly record struct SpritePart(
         content.Append("flip-horizontal", FlipsHorizontally ? 1 : 0);
         content.Append("flip-vertical", FlipsVertically ? 1 : 0);
         content.Append("palette", Palette);
-        content.Append("priority", Priority);
+        content.Append("depth", (int)Depth);
     }
 }

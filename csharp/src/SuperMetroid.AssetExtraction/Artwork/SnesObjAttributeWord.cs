@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
@@ -29,6 +30,16 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     public int PaletteIndex => (Raw >> PaletteShift) & ThreeBitMask;
     /// <summary>Gets the two-bit OBJ priority tier, from 0 through 3.</summary>
     public int Priority => (Raw >> PriorityShift) & TwoBitMask;
+    /// <summary>
+    /// Where the object draws among the room's layers: tiers zero and one behind the whole room, tier two between its back
+    /// and front tiles, tier three in front of it.
+    /// </summary>
+    public ActorDepth Depth => Priority switch
+    {
+        0 or 1 => ActorDepth.BehindRoom,
+        2 => ActorDepth.BehindFrontParts,
+        _ => ActorDepth.InFront,
+    };
     /// <summary>Gets only the palette field in its packed bit positions, suitable for native palette composition.</summary>
     public ushort PaletteBits => unchecked((ushort)(Raw & PaletteFieldMask));
     /// <summary>Gets both reflection flags without including tile, palette, or priority bits.</summary>
@@ -66,6 +77,18 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     }
 
     /// <summary>
+    /// Encodes a word whose object draws at <paramref name="depth"/>, written with the lowest tier that draws there.
+    /// </summary>
+    public static SnesObjAttributeWord Create(int tileNumber, int paletteIndex, ActorDepth depth, PictureFlip flips = PictureFlip.None) =>
+        Create(tileNumber, paletteIndex, depth switch
+        {
+            ActorDepth.BehindRoom => 0,
+            ActorDepth.BehindFrontParts => 2,
+            ActorDepth.InFront => 3,
+            _ => throw new ArgumentOutOfRangeException(nameof(depth)),
+        }, flips);
+
+    /// <summary>
     /// Adds a native base-tile value to the complete packed word. Enemy spritemap writers
     /// deliberately allow tile-number overflow to carry into the adjacent attribute bits.
     /// </summary>
@@ -88,11 +111,11 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
             throw new ArgumentOutOfRangeException(nameof(flips));
     }
 
-    /// <summary>The word that stores <paramref name="part"/>'s character, palette row, priority and mirroring.</summary>
-    public static SnesObjAttributeWord From(SpritePart part) => Create(part.Character, part.Palette, part.Priority, part.Flip);
+    /// <summary>The word that stores <paramref name="part"/>'s character, palette row, depth and mirroring.</summary>
+    public static SnesObjAttributeWord From(SpritePart part) => Create(part.Character, part.Palette, part.Depth, part.Flip);
 
     /// <summary>The single small piece at the origin this word describes.</summary>
-    public SpritePart ToSinglePart() => SpritePart.Single(TileNumber, PaletteIndex, Priority, FlipFlags);
+    public SpritePart ToSinglePart() => SpritePart.Single(TileNumber, PaletteIndex, Depth, FlipFlags);
 
     /// <summary>Wraps an existing low-OAM attribute word without changing its bit pattern.</summary>
     public static implicit operator SnesObjAttributeWord(ushort raw) => new(raw);

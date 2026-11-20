@@ -120,7 +120,7 @@ internal static class LookupStream2Verification
                 {
                     OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadCartridgeByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
                     TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
-                    Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                    Palette = attributes.PaletteIndex, Depth = attributes.Depth,
                     FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
                 };
             }).ToArray();
@@ -635,7 +635,7 @@ internal static class LookupStream2Verification
         // The artwork fixture needs a display composition; staging copies the corpse rows whatever it holds.
         var displayParts = new Dictionary<EnemyFrameId, EnemySpritemapParts>
         {
-            [EnemyFrameId.DeadTorizoStanding] = EnemySpritemapParts.FromOwnedArray([SpritePart.Create(Offset16<ScreenPixels>.Of(70, 33), large: false, character: 0, palette: 7, priority: 3,
+            [EnemyFrameId.DeadTorizoStanding] = EnemySpritemapParts.FromOwnedArray([SpritePart.Create(Offset16<ScreenPixels>.Of(70, 33), large: false, character: 0, palette: 7, depth: SuperMetroid.Core.Assets.ActorDepth.InFront,
                 PictureFlip.Horizontal)]),
         };
         var displayBindings = new Dictionary<EnemyFrameId, EnemyFrameId> { [EnemyFrameId.DeadTorizoStanding] = EnemyFrameId.DeadTorizoStanding };
@@ -1561,7 +1561,7 @@ internal static class LookupStream2Verification
                     {
                         OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadCartridgeByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
                         TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
-                        Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                        Palette = attributes.PaletteIndex, Depth = attributes.Depth,
                         FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
                     };
                 }).ToArray();

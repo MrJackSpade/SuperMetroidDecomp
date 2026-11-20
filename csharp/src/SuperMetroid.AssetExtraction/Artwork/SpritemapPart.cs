@@ -11,10 +11,10 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <param name="Attributes">The tile number and sprite attributes.</param>
 public readonly record struct SpritemapPart(SnesSpritemapXWord X, SnesSpritemapYByte Y, SnesObjAttributeWord Attributes)
 {
-    /// <summary>The piece the record describes: its signed offsets, size, character, palette row, priority and mirroring.</summary>
+    /// <summary>The piece the record describes: its signed offsets, size, character, palette row, depth and mirroring.</summary>
     public SpritePart ToPart() =>
         new(Offset16<ScreenPixels>.Of(X.SignedOffset, Y.SignedOffset), X.IsLarge, Attributes.TileNumber, Attributes.FlipFlags,
-            Attributes.PaletteIndex, Attributes.Priority);
+            Attributes.PaletteIndex, Attributes.Depth);
 
     /// <summary>The record that stores <paramref name="part"/>.</summary>
     public static SpritemapPart From(SpritePart part) =>

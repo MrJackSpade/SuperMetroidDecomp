@@ -796,7 +796,7 @@ internal static class LookupStream1Verification
             hash.Append("drawing data", value.DrawingData.Select(item => (byte)item).ToArray());
             foreach (SpriteVisualPart appearance in value.CoverAppearances)
                 AppendCanonicalSpritePart(hash, CannonCoverAppearance(appearance.TileRow, appearance.TileColumn,
-                    appearance.Palette ?? 0, appearance.Priority, appearance.FlipX, appearance.FlipY));
+                    appearance.Palette ?? 0, appearance.Depth, appearance.FlipX, appearance.FlipY));
             foreach (int[] direction in value.CoverTiles)
                 foreach (int tile in direction) hash.Append("cover tile", tile);
         });
@@ -1419,12 +1419,12 @@ internal static class LookupStream1Verification
         content.Append("flip-horizontal", part.FlipsHorizontally ? 1 : 0);
         content.Append("flip-vertical", part.FlipsVertically ? 1 : 0);
         content.Append("palette", part.Palette);
-        content.Append("priority", part.Priority);
+        content.Append("depth", (int)part.Depth);
     }
 
     /// <summary>A cover appearance's single small piece at the origin, from its document fields.</summary>
-    private static SpritePart CannonCoverAppearance(int tileRow, int tileColumn, int palette, int priority, bool flipHorizontally, bool flipVertically) =>
-        SpritePart.Single(tileRow * SpriteArtwork.CharactersPerRow + tileColumn, palette, priority,
+    private static SpritePart CannonCoverAppearance(int tileRow, int tileColumn, int palette, SuperMetroid.Core.Assets.ActorDepth depth, bool flipHorizontally, bool flipVertically) =>
+        SpritePart.Single(tileRow * SpriteArtwork.CharactersPerRow + tileColumn, palette, depth,
             (flipHorizontally ? PictureFlip.Horizontal : PictureFlip.None) | (flipVertically ? PictureFlip.Vertical : PictureFlip.None));
     /// <summary>Checks arm-cannon drawing commands and extracted placement through native OAM results.</summary>
     internal static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)

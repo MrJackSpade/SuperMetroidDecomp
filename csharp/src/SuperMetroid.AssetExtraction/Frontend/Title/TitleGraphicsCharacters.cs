@@ -198,14 +198,14 @@ public sealed class TitleGraphicsCharacters
         {
             SpriteVisualPart part = editable[index];
             if (part is null || part.OffsetX is < -256 or > 255 || part.OffsetY is < -128 or > 127 ||
-                part.Size is not (8 or 16) || part.Priority is < 0 or > 3 || part.Palette is not null ||
+                part.Size is not (8 or 16) || part.Palette is not null ||
                 part.TileColumn < 0 || part.TileColumn >= TitleGraphicsFormat.ObjectTileColumns ||
                 part.TileRow < 0 || part.TileRow >= TitleGraphicsFormat.ObjectTileRows ||
                 part.TileColumn % 16 > 16 - part.Size / 8 ||
                 part.TileRow > TitleGraphicsFormat.ObjectTileRows - part.Size / 8)
                 throw new InvalidDataException($"Title frame {frame} part {index} is invalid.");
             int tile = part.TileRow * TitleGraphicsFormat.ObjectTileColumns + part.TileColumn;
-            parts[index] = new(SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16, tile, 0, part.Priority,
+            parts[index] = new(SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16, tile, 0, part.Depth,
                 (part.FlipX ? PictureFlip.Horizontal : 0) |
                 (part.FlipY ? PictureFlip.Vertical : 0)), InheritPalette: true);
         }

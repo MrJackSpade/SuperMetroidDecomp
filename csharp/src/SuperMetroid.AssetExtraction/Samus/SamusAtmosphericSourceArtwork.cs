@@ -50,7 +50,7 @@ public sealed class SamusAtmosphericSourceArtwork
     /// <summary>Immutable four-frame view of AtmosphericGraphics_SpriteTileNumberAttribute_4_6_7_LavaDust ($90:8C17), shared by types 4, 6, and 7.</summary>
     public IReadOnlyList<SpritePart> SharedTypeFour { get; }
 
-    /// <summary>Resolves one single-piece appearance: character, palette, priority and mirroring.</summary>
+    /// <summary>Resolves one single-piece appearance: character, palette, depth and mirroring.</summary>
     /// <param name="type">Native atmospheric type: 1 for footsteps, or 4, 6, or 7 for shared lava/dust. Type 2's mirrored-WRAM words and spritemap-based effects are not catalog entries.</param>
     /// <param name="frame">Animation-frame index 0..3; does not select an animation duration.</param>
     /// <param name="attributes">Selected appearance on success; the default piece on failure.</param>

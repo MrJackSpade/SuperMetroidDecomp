@@ -9,7 +9,7 @@ internal static class MenuSpriteCompiler
 {
     /// <summary>
     /// Validates each part against the indexed menu OBJ sheet and SNES OAM limits, then
-    /// packs tile, palette, priority, flip, size, and signed offsets into a composition.
+    /// packs tile, palette, depth, flip, size, and signed offsets into a composition.
     /// </summary>
     public static SpriteComposition Compile(SpriteVisualPart[] parts, string name)
     {
@@ -20,13 +20,13 @@ internal static class MenuSpriteCompiler
         {
             var part = parts[index];
             if (part is null || part.OffsetX is < -256 or > 255 || part.OffsetY is < -128 or > 127 ||
-                part.Size is not (8 or 16) || (uint)part.Priority > 3 || part.Palette is < 0 or > 7 ||
+                part.Size is not (8 or 16) || part.Palette is < 0 or > 7 ||
                 part.TileColumn < 0 || part.TileRow < 0 || part.TileColumn > MapSpriteFormat.TileColumns - part.Size / 8 ||
                 part.TileRow > MapSpriteFormat.TileRows - part.Size / 8)
-                throw new InvalidDataException($"Menu sprite {name} part {index} has an invalid offset, region, size, priority or palette.");
+                throw new InvalidDataException($"Menu sprite {name} part {index} has an invalid offset, region, size or palette.");
             var piece = SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16,
                 part.TileRow * MapSpriteFormat.TileColumns + part.TileColumn,
-                part.Palette ?? 0, part.Priority, (part.FlipX ? PictureFlip.Horizontal : 0) | (part.FlipY ? PictureFlip.Vertical : 0));
+                part.Palette ?? 0, part.Depth, (part.FlipX ? PictureFlip.Horizontal : 0) | (part.FlipY ? PictureFlip.Vertical : 0));
             compiled[index] = new(piece, part.Palette is null);
         }
         return new(compiled);

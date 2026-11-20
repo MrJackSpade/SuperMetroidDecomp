@@ -55,7 +55,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
                 RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId is { } member && IsNinja(member)));
             EnemySheetSource source = EnemySheetComposer.Sources(inputs, set).Enemies.First(sheet => IsNinja(sheet.Enemy));
-            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
+            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
             return (sheet.Manifest.Shades ?? throw new InvalidOperationException("The ninja's sheet installs its shades."))
                 [NinjaSpacePirateShades.GoldWall.Key];
         }

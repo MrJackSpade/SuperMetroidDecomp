@@ -213,7 +213,7 @@ internal static class NativeSnapshotMotherBrainImport
         switch (MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat])
         {
             case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame frame:
-                brain.Playback = playback with { Place = playback.Place with { Beat = playback.Place.Beat + 1 } };
+                brain.Playback = playback with { Place = new AnimationPlace(playback.Place.Phase, playback.Place.Beat + 1).WithPlaysLeft(playback.Place.PlaysLeft) };
                 brain.ShownFrame = frame.Shown;
                 // The frame moves on at the draw its count passes its list's duration: its updates less the draws shown.
                 brain.Clock.HoldFor(frame.Duration - drawsShown + 1);

@@ -514,7 +514,7 @@ internal static class NativeEnemyAnimationOracle
         if (place.HasNotEntered || playback.Animation.Phases.Count == 0)
             return playback;
         AnimationPhase<TSegment> phase = playback.Animation.Phases[place.Phase];
-        if (!phase.IsRepeated || place.Beat > phase.BeatCount)
+        if (!phase.IsRepeated || place.IsHolding)
             return playback;
         if (counter < 1 || counter > phase.Plays)
             throw new InvalidDataException($"A native loop counter of {counter} stands outside the {phase.Plays} plays of repeated phase {place.Phase} ({phase.Segment}).");
@@ -540,7 +540,7 @@ internal static class NativeEnemyAnimationOracle
         if (place.HasNotEntered || playback.Animation.Phases.Count == 0)
             return null;
         AnimationPhase<TSegment> phase = playback.Animation.Phases[place.Phase];
-        return phase.IsRepeated && place.Beat <= phase.BeatCount ? place.PlaysLeft : null;
+        return phase.IsRepeated && !place.IsHolding ? place.PlaysLeft : null;
     }
 
     /// <summary>

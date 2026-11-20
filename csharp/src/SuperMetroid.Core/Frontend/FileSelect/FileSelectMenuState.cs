@@ -59,7 +59,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private FileSelectPage selectedPage = FileSelectPage.MainEmpty;
     /// <summary>The page shown, with its slots' fields and the slots its prompt names (#1467).</summary>
     internal ShownFileSelectPage ShownPage { get; private set; } = new(FileSelectPage.MainEmpty,
-        SaveSlots.All.ToImmutableDictionary(slot => slot, _ => (ShownFileSelectSave?)null), null, null);
+        SaveSlots.All.ToImmutableDictionary(slot => slot, _ => (ShownFileSelectSave?)null), FileSelectSlotChoice.Unchosen);
 
     /// <summary>Performs the menu's first three steps, including every artwork load.</summary>
     public FileSelectMenuState(SaveSlotStore saves, AudioQueues audio,
@@ -256,18 +256,17 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private FileSelectPhase phaseAfterFadeIn;
     /// <summary>Selected slot or Exit row in source, destination, and clear menus.</summary>
     private FileSelectItem submenuSelection;
-    /// <summary>Source slot retained while choosing a copy destination or confirming a clear; none until one is chosen.</summary>
-    private SaveSlot? operationSourceSlot;
-    /// <summary>Copy target retained through confirmation and completion pages; none until one is chosen.</summary>
-    private SaveSlot? copyTargetSlot;
+    /// <summary>
+    /// The slots the copy or clear has chosen: the source retained while choosing a copy destination or confirming a clear,
+    /// and the copy target retained through confirmation and completion pages.
+    /// </summary>
+    private FileSelectSlotChoice slotChoice = FileSelectSlotChoice.Unchosen;
 
     /// <summary>The chosen source slot, which the pages after choosing it read.</summary>
-    /// <exception cref="InvalidOperationException">No source slot has been chosen.</exception>
-    private SaveSlot ChosenSource => operationSourceSlot ?? throw new InvalidOperationException("File select names no source slot yet.");
+    private SaveSlot ChosenSource => slotChoice.ChosenSource;
 
     /// <summary>The chosen copy target, which the pages after choosing it read.</summary>
-    /// <exception cref="InvalidOperationException">No copy target has been chosen.</exception>
-    private SaveSlot ChosenTarget => copyTargetSlot ?? throw new InvalidOperationException("File select names no copy target yet.");
+    private SaveSlot ChosenTarget => slotChoice.ChosenTarget;
     /// <summary>Yes or No row selected on the copy or clear confirmation page.</summary>
     private YesNoChoice confirmationSelection;
     /// <summary>The wait before the copy arrow rotates its colors; over while the glow is stopped.</summary>
@@ -388,8 +387,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private void InitializeDataManagementScreen(FileSelectDataMode mode)
     {
         submenuSelection = FileSelectItemRows.ForSaveSlot(FindFirstNonemptySlot());
-        operationSourceSlot = null;
-        copyTargetSlot = null;
+        slotChoice = FileSelectSlotChoice.Unchosen;
         confirmationSelection = YesNoChoice.Yes;
         if (mode == FileSelectDataMode.Copy)
         {
@@ -468,10 +466,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             return;
 
         QueueCursorSound();
-        operationSourceSlot = FileSelectItemRows.SaveSlotOf(submenuSelection);
+        slotChoice = new FileSelectSourceChosen(FileSelectItemRows.SaveSlotOf(submenuSelection));
         if (mode == FileSelectDataMode.Copy)
         {
-            submenuSelection = FileSelectItemRows.ForSaveSlot(SaveSlots.All.First(slot => slot != operationSourceSlot));
+            submenuSelection = FileSelectItemRows.ForSaveSlot(SaveSlots.All.First(slot => slot != ChosenSource));
             ShowPage(FileSelectPage.CopyDestination);
             Phase = FileSelectPhase.CopySelectDestination;
         }
@@ -504,7 +502,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = FileSelectPhase.FadeOutToMain;
             return;
         }
-        copyTargetSlot = FileSelectItemRows.SaveSlotOf(submenuSelection);
+        slotChoice = new FileSelectCopyChosen(ChosenSource, FileSelectItemRows.SaveSlotOf(submenuSelection));
         confirmationSelection = YesNoChoice.Yes;
         copyArrowGlow.Restart(FileCopyArrowDefinitions.InitialGlowDelay);
         ShowPage(FileSelectPage.CopyConfirm);
@@ -629,5 +627,5 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private void RefreshShownPage() =>
         ShownPage = new ShownFileSelectPage(selectedPage,
             SaveSlots.All.ToImmutableDictionary(slot => slot, slot => saveSlots[slot] is { } save ? ShownFileSelectSave.Of(save) : null),
-            operationSourceSlot, copyTargetSlot);
+            slotChoice);
 }

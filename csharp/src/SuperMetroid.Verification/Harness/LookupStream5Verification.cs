@@ -826,7 +826,7 @@ internal static class LookupStream5Verification
                 int delta = tick >= 4 ? 8 : 0;
                 AssertEqual(startX + (selected == 0 ? -delta : selected == 1 ? delta : 0), (int)stock.Scroll.X, "Horizontal pulse");
                 AssertEqual(startY + (selected == 2 ? -delta : selected == 3 ? delta : 0), (int)stock.Scroll.Y, "Vertical pulse");
-                AssertEqual(tick == 8 ? null : (MapScrollDirection?)(MapScrollDirection)selected, stock.Direction, "Accepted direction survives release");
+                AssertEqual(tick == 8 ? null : (MapScrollDirection?)(MapScrollDirection)selected, stock.StepUnderWay?.Direction, "Accepted direction survives release");
             }
         }
         var priority = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, state), new(240, 128));

@@ -12,9 +12,8 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </summary>
 /// <param name="Page">The page.</param>
 /// <param name="Slots">Each slot's field, or none where the slot holds no save.</param>
-/// <param name="OperationSource">The slot a copy or clear names first, or none before one is chosen.</param>
-/// <param name="CopyTarget">The slot a copy names as its destination, or none before one is chosen.</param>
-internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDictionary<SaveSlot, ShownFileSelectSave?> Slots, SaveSlot? OperationSource, SaveSlot? CopyTarget)
+/// <param name="SlotChoice">The slots the copy or clear has chosen, which its prompts name.</param>
+internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDictionary<SaveSlot, ShownFileSelectSave?> Slots, FileSelectSlotChoice SlotChoice)
 {
     /// <summary>Whether the page lays its slots out as the main menu does, rather than as copy and clear do.</summary>
     internal bool Main => Page is FileSelectPage.MainWithData or FileSelectPage.MainEmpty;
@@ -36,17 +35,13 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDiction
             yield return new PlacedFrame(FileSelectParts.LetterFrame(letter.Slot), presentation.DynamicAnchor(letter.Anchor));
     }
 
-    /// <summary>The slot a prompt of the page names.</summary>
-    /// <exception cref="InvalidOperationException">The page names a slot not yet chosen.</exception>
-    private SaveSlot Named(SaveSlot? slot) => slot ?? throw new InvalidOperationException($"File-select page {Page} names a slot not yet chosen.");
-
     /// <summary>The slot letters the page names and where.</summary>
     private FileSelectPromptLetter[] Letters() => Page switch
     {
-        FileSelectPage.CopyDestination => [new(FileSelectAnchor.CopyDestinationSource, Named(OperationSource))],
+        FileSelectPage.CopyDestination => [new(FileSelectAnchor.CopyDestinationSource, SlotChoice.ChosenSource)],
         FileSelectPage.CopyConfirm or FileSelectPage.CopyCompleted =>
-            [new(FileSelectAnchor.CopyConfirmSource, Named(OperationSource)), new(FileSelectAnchor.CopyConfirmDestination, Named(CopyTarget))],
-        FileSelectPage.ClearConfirm or FileSelectPage.ClearCompleted => [new(FileSelectAnchor.ClearConfirmSource, Named(OperationSource))],
+            [new(FileSelectAnchor.CopyConfirmSource, SlotChoice.ChosenSource), new(FileSelectAnchor.CopyConfirmDestination, SlotChoice.ChosenTarget)],
+        FileSelectPage.ClearConfirm or FileSelectPage.ClearCompleted => [new(FileSelectAnchor.ClearConfirmSource, SlotChoice.ChosenSource)],
         FileSelectPage.MainWithData or FileSelectPage.MainEmpty or FileSelectPage.CopySource or FileSelectPage.ClearSelection => [],
         _ => throw new InvalidOperationException($"Undefined file-select page {Page}."),
     };

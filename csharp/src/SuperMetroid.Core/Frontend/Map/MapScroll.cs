@@ -15,9 +15,6 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// </remarks>
 public sealed class MapScroll
 {
-    /// <summary>The accepted eight-update step, counted once each update it runs: its age moves the map at its pulse.</summary>
-    private readonly UpdateCountdown step = UpdateCountdown.Lasting(MapScrollDefinitions.StepTicks);
-
     /// <summary>The scroll at <paramref name="scroll"/> on a screen framed by <paramref name="framing"/>.</summary>
     /// <param name="framing">How the screen frames the map.</param>
     /// <param name="limits">How far the map's revealed cells reach.</param>
@@ -38,8 +35,8 @@ public sealed class MapScroll
     /// <summary>The screen's top-left corner as an offset from the map's corner, negative left of or above it.</summary>
     public Offset16<MapPixels> Scroll { get; private set; }
 
-    /// <summary>The direction of the accepted eight-update scroll step, or null while no step is under way.</summary>
-    public MapScrollDirection? Direction { get; private set; }
+    /// <summary>The accepted eight-update scroll step under way, or null while none is.</summary>
+    public MapScrollStep? StepUnderWay { get; private set; }
 
     /// <summary>
     /// The scroll a screen opens on: the revealed reach centred on the screen, the centring offset rounded down to whole
@@ -92,21 +89,21 @@ public sealed class MapScroll
     /// <param name="heldInput">The controller buttons held.</param>
     public bool Step(ControllerButton heldInput)
     {
-        Direction ??= MapScrollControls.Directions.Cast<MapScrollDirection?>().FirstOrDefault(direction =>
-            direction is { } held && CanScroll(held) && (heldInput & MapScrollControls.ButtonFor(held)) != ControllerButton.None);
+        if (StepUnderWay is null && MapScrollControls.Directions.Any(direction => StartsStep(direction, heldInput)))
+            StepUnderWay = new MapScrollStep(MapScrollControls.Directions.First(direction => StartsStep(direction, heldInput)));
         // The game cancels a step under way only at the lower limit.
-        if (Direction == MapScrollDirection.Down && !CanScroll(MapScrollDirection.Down))
-        {
-            Direction = null;
-            step.Restart(MapScrollDefinitions.StepTicks);
-        }
-        if (Direction is not { } moving) return false;
-        bool stepped = step.Count();
-        if (step.Age == MapScrollDefinitions.PulseTick)
-            Scroll += MapScrollControls.StepOffset(moving);
+        if (StepUnderWay is { Direction: MapScrollDirection.Down } && !CanScroll(MapScrollDirection.Down))
+            StepUnderWay = null;
+        if (StepUnderWay is not { } moving) return false;
+        bool stepped = moving.Updates.Count();
+        if (moving.Updates.Age == MapScrollDefinitions.PulseTick)
+            Scroll += MapScrollControls.StepOffset(moving.Direction);
         if (!stepped) return false;
-        step.Restart(MapScrollDefinitions.StepTicks);
-        Direction = null;
+        StepUnderWay = null;
         return true;
     }
+
+    /// <summary>Whether <paramref name="direction"/>'s arrow is held and another step that way fits the screen's edges.</summary>
+    private bool StartsStep(MapScrollDirection direction, ControllerButton heldInput) =>
+        CanScroll(direction) && (heldInput & MapScrollControls.ButtonFor(direction)) != ControllerButton.None;
 }

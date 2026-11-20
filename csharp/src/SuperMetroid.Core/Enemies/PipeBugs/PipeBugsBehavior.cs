@@ -287,7 +287,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         NorfairPipeBugFormation formation = _formations.Of(place);
         if (formation.Members.All(static member =>
-                member.Place.FoundState<NorfairPipeBugState>() is { Action: NorfairPipeBugAction.WaitForFormation }))
+                member.Place.FoundEntity is NorfairPipeBugEntity { State.Action: NorfairPipeBugAction.WaitForFormation }))
         {
             state.Action = NorfairPipeBugAction.WaitForSamus;
         }
@@ -314,7 +314,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // A member killed since the formation armed has nothing to launch: it respawns waiting, as a new bug.
         foreach (NorfairPipeBugMember member in formation.Members)
         {
-            if (member.Place.SpeciesState<NorfairPipeBugState>() is not { } memberState)
+            if (member.Place.Entity is not NorfairPipeBugEntity { State: var memberState })
                 continue;
             memberState.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(samusIsRight
                 ? PipeBugSegment.GametRisingRight

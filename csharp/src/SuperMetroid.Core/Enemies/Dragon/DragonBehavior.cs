@@ -64,6 +64,20 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <returns>The state the enemy holds from its setup.</returns>
     internal DragonWingState InitializeDragonWing(RoomEnemyPlace place)
     {
+        var wing = InitializeDragonWingState(place);
+        _wingStates.Place(place, wing);
+        return wing;
+    }
+
+    /// <summary>The state of the wing in <paramref name="wing"/>, which it holds from its setup.</summary>
+    internal DragonWingState WingStateOf(RoomEnemyPlace wing) => _wingStates.Of(wing);
+
+    /// <summary>Each Dragon wing's state, under its place, linked as the wing is set up (#2554).</summary>
+    private readonly EnemyPartLinks<DragonWingState> _wingStates = new();
+
+    /// <summary>The wing's state as its setup starts it, which the body reads through the wing's place (#2554).</summary>
+    private DragonWingState InitializeDragonWingState(RoomEnemyPlace place)
+    {
         // Every part finds the enemy its follow-up to a hit reaches.
         PlaceFollowUpRecipient(place);
         // The cosmetic wing ignores Samus, so it is never touched or shot.

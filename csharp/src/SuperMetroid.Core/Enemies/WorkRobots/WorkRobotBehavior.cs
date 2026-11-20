@@ -290,7 +290,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
         foreach (RoomEnemyPlace robot in _poweredRobots)
         {
             // A place whose robot has left it, and any enemy that took the place since, shows no glow.
-            if (robot.SpeciesState<WorkRobotEnemyState>() is not null)
+            if (robot.Entity is PoweredWorkRobotEntity)
                 robot.Shading = glow;
         }
     }

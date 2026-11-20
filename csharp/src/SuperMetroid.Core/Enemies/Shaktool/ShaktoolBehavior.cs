@@ -12,7 +12,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Shaktool];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ShaktoolEntity(this, occupant, place, common, occupant.SpawnSettings<ShaktoolSpawnSettings>()));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ShaktoolEntity(this, occupant, place, common, occupant.SpawnSettings<ShaktoolSpawnSettings>()));
 
     /// <summary>Checks terrain collisions along each segment's orbit and attack path.</summary>
     private readonly EnemyTerrain _terrain;
@@ -36,11 +36,11 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         (angle + RotationAngle.HalfTurn).WholeStep;
 
     /// <summary>Initializes the Shaktool, establishing the segment's orbit and its place in its chain.</summary>
-    internal void InitializeShaktool(RoomEnemyOccupant occupant, ShaktoolSpawnSettings settings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal ShaktoolSegmentState InitializeShaktool(RoomEnemyOccupant occupant, ShaktoolSpawnSettings settings, RoomEnemyPlace place)
     {
         ShaktoolSegmentDefinition definition = settings.Segment;
         var state = new ShaktoolSegmentState();
-        place.SetSpeciesState(state);
 
         place.AnimationClock.Restart();
         state.ResetOrientation();
@@ -73,6 +73,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // unrelated center.
         if (definition != ShaktoolSegmentDefinitions.LeadingSaw)
             PositionShaktoolAroundPreviousSegment(place, state);
+        return state;
     }
 
     /// <summary>
@@ -372,7 +373,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         foreach (ShaktoolChainSegment segment in group)
         {
             // The chain keeps moving through the rest of the update that kills a segment, reaching the killed segment's cleared state.
-            if (segment.Place.FoundOrClearedState<ShaktoolSegmentState>() is null)
+            if (FoundShaktoolState(segment.Place) is null)
             {
                 throw new InvalidDataException(
                     $"Shaktool group rooted at place {group[0].Place.Ordinal} is missing its segment at place {segment.Place.Ordinal}.");
@@ -392,8 +393,15 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// (<see cref="RoomEnemyPlace.FoundOrClearedState{T}"/>, <see cref="RemovedEnemyLeftovers{TStates}"/>).
     /// </summary>
     private static ShaktoolSegmentState RequireShaktoolState(RoomEnemyPlace place) =>
-        place.FoundOrClearedState<ShaktoolSegmentState>() ?? throw new InvalidOperationException(
+        FoundShaktoolState(place) ?? throw new InvalidOperationException(
             $"Enemy place {place.Ordinal} has no initialized Shaktool state.");
+
+    /// <summary>
+    /// The state a segment finds in <paramref name="place"/>: the state of the segment holding it or a deletion left there,
+    /// the emptied record a kill cleared there, or null when the place holds neither.
+    /// </summary>
+    private static ShaktoolSegmentState? FoundShaktoolState(RoomEnemyPlace place) =>
+        place.FoundEntity is ShaktoolEntity { State: var found } ? found : place.ClearedByKill<ShaktoolSegmentState>();
 
     /// <summary>Carries out one cue of a Shaktool segment's animation.</summary>
     private void ApplyShaktoolCue(RoomEnemyPlace place, ShaktoolCue cue)

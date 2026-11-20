@@ -330,13 +330,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Resolves a power bomb reaching the dead Sidehopper.</summary>
-    private void ResolveDeadSidehopperPowerBomb(EnemyPowerBombContext context)
+    private void ResolveDeadSidehopperPowerBomb(EnemyPowerBombContext context, DeadSidehopperEnemyState state)
     {
         RoomEnemyPlace place = context.Enemy;
-        DeadSidehopperEnemyState state = place.RequireSpeciesState<DeadSidehopperEnemyState>();
         if (state.IsDrained)
         {
-            ResolveDeadSidehopperShot(place, place.RequireSpeciesState<DeadSidehopperEnemyState>());
+            ResolveDeadSidehopperShot(place, state);
             return;
         }
 
@@ -409,9 +408,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Uses the private power-bomb reaction in place of common enemy damage handling.</summary>
-    internal EnemyPowerBombReaction DeadSidehopperPowerBombReaction => field ??= new()
+    /// <param name="state">The state of the corpse the reaction is built for.</param>
+    internal EnemyPowerBombReaction DeadSidehopperPowerBombReaction(DeadSidehopperEnemyState state) => new()
     {
-        ReplacesCommon = ResolveDeadSidehopperPowerBomb,
+        ReplacesCommon = c => ResolveDeadSidehopperPowerBomb(c, state),
     };
 
     /// <summary>Marks projectile collision while withholding damage until the transformed corpse can decay.</summary>

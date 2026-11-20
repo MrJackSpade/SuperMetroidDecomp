@@ -631,7 +631,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
             state.ShotActivated = true;
         }
 
-        if (place.FoundState<VerticalShutterEnemyState>() is { Action: VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown })
+        if (place.FoundEntity is VerticalShutterEntity { State.Action: VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown })
             return;
 
         state.Action = MovingToward(state.ReactionDirection);

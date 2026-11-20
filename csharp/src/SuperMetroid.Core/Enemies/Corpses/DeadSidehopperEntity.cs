@@ -55,7 +55,10 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     }
 
     /// <summary>The dead Sidehopper's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? species.DeadSidehopperPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? OwnPowerBomb : base.PowerBombReaction;
+
+    /// <summary>The corpse's own Power Bomb reaction, built once for this corpse with its state (#2554).</summary>
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= species.DeadSidehopperPowerBombReaction(State);
 
     /// <summary>The dead Sidehopper's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

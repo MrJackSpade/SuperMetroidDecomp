@@ -18,8 +18,18 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>A Dachora's body, or one of the speed-boost echoes its placement names (#2283).</summary>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<DachoraSpawnSettings>().Role == DachoraRole.SpeedBoostEcho
-            ? EnemyOccupant.Running(new DachoraEchoEntity(occupant, place, common, occupant.SpawnSettings<DachoraSpawnSettings>()))
+            ? EnemyOccupant.Running(LinkEcho(new DachoraEchoEntity(occupant, place, common, occupant.SpawnSettings<DachoraSpawnSettings>())))
             : EnemyOccupant.Running(new DachoraEntity(this, occupant, place, common, occupant.SpawnSettings<DachoraSpawnSettings>()));
+
+    /// <summary>Each speed-boost echo's state, under its place, linked as the echo is built (#2554).</summary>
+    private readonly EnemyPartLinks<DachoraEchoState> _echoStates = new();
+
+    /// <summary>Links <paramref name="echo"/>'s state to its place, where its Dachora reads it, as the echo is built.</summary>
+    private DachoraEchoEntity LinkEcho(DachoraEchoEntity echo)
+    {
+        _echoStates.Place(echo.Place, echo.State);
+        return echo;
+    }
 
     /// <summary>Probes floors, walls, and ceiling during the run and shinespark arc.</summary>
     private readonly EnemyTerrain _terrain;
@@ -273,7 +283,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace[] echoes = _echoes.Of(place);
         state.TrailTimer = UpdateCountdown.Ended();
         foreach (RoomEnemyPlace echo in echoes)
-            echo.RequireSpeciesState<DachoraEchoState>().Lifetime = UpdateCountdown.Ended();
+            _echoStates.Of(echo).Lifetime = UpdateCountdown.Ended();
         state.VerticalAcceleration = SignedSixteenSixteen.Zero;
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole - DachoraMotionDefinitions.ChargeCrouchDepth);
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DachoraLaunchSound, priority: SoundRequestPriority.Normal);
@@ -282,7 +292,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? DachoraSegment.EchoRight
             : DachoraSegment.EchoLeft;
         foreach (RoomEnemyPlace echo in echoes)
-            echo.RequireSpeciesState<DachoraEchoState>().Playback = StartedDachoraAnimation(echo, echoList);
+            _echoStates.Of(echo).Playback = StartedDachoraAnimation(echo, echoList);
     }
 
     /// <summary>Runs upward acceleration, trail placement, and ceiling collision.</summary>
@@ -364,7 +374,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int trailPlace = 0; trailPlace < echoes.Length; trailPlace++)
         {
             RoomEnemyPlace echo = echoes[trailPlace];
-            DachoraEchoState echoState = echo.RequireSpeciesState<DachoraEchoState>();
+            DachoraEchoState echoState = _echoStates.Of(echo);
             if (echoState.Lifetime.IsRunning)
                 continue;
 

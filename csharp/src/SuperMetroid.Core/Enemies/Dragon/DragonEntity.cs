@@ -15,7 +15,7 @@ internal sealed class DragonEntity(DragonBehavior species, RoomEnemyOccupant occ
     internal DragonEnemyState State { get; } = species.InitializeDragonBody(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunDragonMain(Occupant, Place, State, State.Wing.RequireSpeciesState<DragonWingState>(), frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDragonMain(Occupant, Place, State, species.WingStateOf(State.Wing), frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DragonBehavior.AdvanceDragonBodyTypedAnimation(Place, State);

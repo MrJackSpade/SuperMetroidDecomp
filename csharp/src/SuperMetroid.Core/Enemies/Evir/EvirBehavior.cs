@@ -160,7 +160,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidDataException">The population places no Evir body there.</exception>
     private static void RequirePlacedBody(RoomEnemyPlace body, RoomEnemyPlace part, string partName)
     {
-        if (body.SpeciesState<EvirBodyState>() is null)
+        if (body.Entity is not EvirBodyEntity)
             throw new InvalidDataException($"Evir {partName} of enemy {part.Ordinal} follows {body.Occupant?.DefinitionId}, not an Evir body.");
     }
 
@@ -171,7 +171,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // During regeneration the mouth, arms, and projectile retain their launch facing. The body reads its spit's place
         // whatever it holds: a spit a power bomb's follow-up deleted (FollowUpAfterStruckPart) as it left itself, and a
         // killed spit's cleared place as not regenerating.
-        if (state.Spit.FoundState<EvirSpitState>() is not { Action: EvirSpitAction.Regenerating })
+        if (state.Spit.FoundEntity is not EvirSpitEntity { State.Action: EvirSpitAction.Regenerating })
             SetEvirBodyFacing(place, state, samus);
         place.Position = place.Position.AdvanceY(state.BobbingVelocity(settings.Speed));
 
@@ -358,7 +358,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// spawned (#2145).
     /// </summary>
     private static bool EvirBodyFacesRight(EvirSpitState spit) =>
-        spit.Body.FoundState<EvirBodyState>() is { ShowsSpawnAnimation: false, Facing: HorizontalDirection.Right };
+        spit.Body.FoundEntity is EvirBodyEntity { State: { ShowsSpawnAnimation: false, Facing: HorizontalDirection.Right } };
 
     /// <summary>
     /// The facing an arms or spit reads from its body in <paramref name="bodyPlace"/>: the living body's own, a deleted
@@ -367,7 +367,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// (<see cref="RoomEnemyPlace.FoundState{T}"/>).
     /// </summary>
     private static HorizontalDirection BodyFacingOf(RoomEnemyPlace bodyPlace) =>
-        bodyPlace.FoundState<EvirBodyState>()?.Facing ?? HorizontalDirection.Left;
+        bodyPlace.FoundEntity is EvirBodyEntity body ? body.State.Facing : HorizontalDirection.Left;
 
     /// <summary>Animation cue: finishes regeneration.</summary>
     private static void FinishEvirRegeneration(EvirSpitState state) => state.Action = EvirSpitAction.Idle;
@@ -416,7 +416,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         firstRelative.AiStates = firstRelative.AiStates | EnemyAiStates.Frozen;
         // The game compares the action of the enemy listed two places on with the moving spit's. In the
         // Evir rooms that place holds an Evir or nothing, never another species.
-        if (secondRelative.SpeciesState<EvirSpitState>()?.Action != EvirSpitAction.Moving)
+        if (secondRelative.Entity is not EvirSpitEntity { State.Action: EvirSpitAction.Moving })
         {
             secondRelative.Freeze.Restart(actor.Freeze.UpdatesLeft);
             secondRelative.AiStates = secondRelative.AiStates | EnemyAiStates.Frozen;

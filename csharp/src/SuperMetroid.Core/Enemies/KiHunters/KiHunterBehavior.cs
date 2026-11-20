@@ -548,10 +548,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveKiHunterShotAfterCommon(RoomEnemyPlace body, KiHunterBodyState bodyState)
     {
         RoomEnemyPlace wings = GetKiHunterWings(body);
-        bool wingsInPlace = WingsInPlace(wings) is not null;
+        KiHunterWingState? wingsInPlace = WingsInPlace(wings);
         if (body.Health == 0)
         {
-            if (!wingsInPlace)
+            if (wingsInPlace is null)
                 return;
             // Killing the body removes its wings outright: they stop updating and keep none of their placement's properties.
             wings.Contact = EnemyContact.None;
@@ -561,10 +561,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         if (body.Health <= _wingSettingsOfBody.Of(body).DetachHealth)
         {
-            if (bodyState.Flies)
+            // A body that still flies still has its wings in place.
+            if (bodyState.Flies && wingsInPlace is { } wingState)
             {
-                // A body that still flies still has its wings in place.
-                KiHunterWingState wingState = wings.RequireSpeciesState<KiHunterWingState>();
                 bodyState.Action = KiHunterAction.FallingAfterWingLoss;
                 bodyState.VerticalVelocity = KiHunterMotionDefinitions.WinglessFallStartVelocity;
                 if (wingState.Action != KiHunterWingAction.Detached)
@@ -700,7 +699,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// wings are deleted as they are set up, and detached wings are deleted where they land. A body whose wings are
     /// gone has none to keep in step with its flight.
     /// </summary>
-    private static KiHunterWingState? WingsInPlace(RoomEnemyPlace wings) => wings.SpeciesState<KiHunterWingState>();
+    private static KiHunterWingState? WingsInPlace(RoomEnemyPlace wings) => wings.Entity is KiHunterWingsEntity held ? held.State : null;
 
     /// <summary>
     /// The wings the body found when it was placed, which its room lists right after it. They may already be gone, as a

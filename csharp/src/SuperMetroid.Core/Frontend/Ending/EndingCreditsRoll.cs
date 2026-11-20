@@ -75,12 +75,12 @@ internal sealed class EndingCreditsRoll
     /// <summary>Crossfades waiting colors into the selected non-armored reward colours by <paramref name="fade"/>.</summary>
     private void ShowRewardFade(PacedFadeSteps fade)
     {
-        if (_stage.EndingReward == EndingReward.Armored) return;
+        EndingRewardDefinition reward = EndingRewardDefinitions.Rewards[_stage.EndingReward];
+        if (!reward.CrossfadesReveal) return;
         int step = fade.Taken;
         FadeWaitingBackdrop(EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps - step);
-        screen.Colours.Fade(EndingFade.SuitlessSamus, step);
-        if (_stage.EndingReward == EndingReward.Helmetless)
-            screen.Colours.Fade(EndingFade.SuitedSamus, step);
+        foreach (EndingFade colours in reward.RevealFades)
+            screen.Colours.Fade(colours, step);
         // The fade brightens toward the post-credits colours in its steps: each step shows each colour at that step's share
         // of its brightness, rounded down, the level the import pre-colours (#1512).
     }

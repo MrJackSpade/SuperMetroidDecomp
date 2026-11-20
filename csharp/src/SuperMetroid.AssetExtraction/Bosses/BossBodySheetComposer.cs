@@ -48,6 +48,16 @@ internal static class BossBodySheetComposer
     /// <summary>The first row of the bottom-left screen of Kraid's layer, where his lower body is written.</summary>
     internal const int LowerPageTopRow = 64;
 
+    /// <summary>
+    /// The bosses whose body layer gameplay also shades from the room and the menus' colours, with those shades: Mother
+    /// Brain's body layer; every other body has only the shades of its own colours.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<BossBodyOwner, Func<RoomBlockSheetInputs, IReadOnlyList<SheetShade>>> LayerShades =
+        new Dictionary<BossBodyOwner, Func<RoomBlockSheetInputs, IReadOnlyList<SheetShade>>>
+        {
+            [BossBodyOwner.MotherBrain] = inputs => MotherBrainSheetShades.BodyLayer(inputs.Maps, inputs.Bosses),
+        };
+
     /// <summary>The enemy whose rooms each boss's body is drawn in.</summary>
     private static readonly Dictionary<BossBodyOwner, EnemyDefinitionId> Enemies = new()
     {
@@ -112,7 +122,7 @@ internal static class BossBodySheetComposer
         // The body is pre-coloured in the shades the boss's colour state names (#1512).
         return composed with { Sheet = ShadedSheets.With(composed.Sheet,
             [.. BossSheetShades.Body(owner, inputs.Bosses, composed.Sheet.PaletteIndices, colours),
-                .. owner == BossBodyOwner.MotherBrain ? MotherBrainSheetShades.BodyLayer(inputs.Maps, inputs.Bosses) : []]) };
+                .. LayerShades.TryGetValue(owner, out Func<RoomBlockSheetInputs, IReadOnlyList<SheetShade>>? layer) ? layer(inputs) : []]) };
     }
 
     /// <summary>The installed sheet name of <paramref name="owner"/>'s body sheet.</summary>

@@ -23,7 +23,7 @@ internal static class EscapeTimerTileAtlasAccess
                 return false;
 
             InstalledArtworkId asset = EscapeTimerTilePages.AssetOf(page);
-            if (EscapeTimerTilePageTransfers.Resolve(self, asset).Length != byteCount)
+            if (EscapeTimerTilePageTransfers.Resolve(self, page).Length != byteCount)
                 throw new InvalidDataException($"Escape timer {page} page no longer matches its native transfer record.");
             uploads.RecordUpload(VramDmaDestination.FromNative(destinationWord), byteCount, new InstalledArtworkUploadSource(asset));
             return true;
@@ -33,7 +33,7 @@ internal static class EscapeTimerTileAtlasAccess
         {
             if (EscapeTimerTilePagesConstants.TryMatch(sourceAddress, byteCount, out EscapeTimerTilePage page))
             {
-                data = EscapeTimerTilePageTransfers.Resolve(self, EscapeTimerTilePages.AssetOf(page));
+                data = EscapeTimerTilePageTransfers.Resolve(self, page);
                 return true;
             }
             data = default;

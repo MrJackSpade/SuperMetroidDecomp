@@ -12,8 +12,8 @@ internal static class SpcSoundEffectDefinitions
     /// <summary>The first library's effects, from command one.</summary>
     internal static readonly SpcSoundEffectDefinition<SpcLibrary1Policy>[] Library1 =
     [
-        new(SpcSoundStreamDefinitions.Library1.Sound01PowerBombExplosion, SpcLibrary1Policy.PowerBombFourVoices),
-        new(SpcSoundStreamDefinitions.Library1.Sound02Silence, SpcLibrary1Policy.OneVoiceLowPriority),
+        new(SpcSoundStreamDefinitions.Library1.Sound01PowerBombExplosion, SpcLibrary1Policy.PowerBombFourVoices, SpcSoundRequestAdmission.PriorityExempt),
+        new(SpcSoundStreamDefinitions.Library1.Sound02Silence, SpcLibrary1Policy.OneVoiceLowPriority, SpcSoundRequestAdmission.PriorityExempt),
         new(SpcSoundStreamDefinitions.Library1.Sound03Missile, SpcLibrary1Policy.OneVoiceLowPriority),
         new(SpcSoundStreamDefinitions.Library1.Sound04SuperMissile, SpcLibrary1Policy.OneVoiceLowPriority),
         new(SpcSoundStreamDefinitions.Library1.Sound05GrappleStart, SpcLibrary1Policy.OneVoiceLowPriority),
@@ -195,7 +195,7 @@ internal static class SpcSoundEffectDefinitions
         new(SpcSoundStreamDefinitions.Library2.Sound6EShotMotherBrainPhase1, SpcLibrary2Policy.TwoVoicesHighPriority),
         new(SpcSoundStreamDefinitions.Library2.Sound6FMotherBrainSCryLowPitch, SpcLibrary2Policy.TwoVoicesHighPriority),
         new(SpcSoundStreamDefinitions.Library2.Sound70, SpcLibrary2Policy.OneVoiceLowPriority),
-        new(SpcSoundStreamDefinitions.Library2.Sound71Silence, SpcLibrary2Policy.OneVoiceLowPriority),
+        new(SpcSoundStreamDefinitions.Library2.Sound71Silence, SpcLibrary2Policy.OneVoiceLowPriority, SpcSoundRequestAdmission.PriorityExempt),
         new(SpcSoundStreamDefinitions.Library2.Sound72, SpcLibrary2Policy.TwoVoicesHighPriority),
         new(SpcSoundStreamDefinitions.Library2.Sound73, SpcLibrary2Policy.TwoVoicesHighPriority),
         new(SpcSoundStreamDefinitions.Library2.Sound74, SpcLibrary2Policy.TwoVoicesHighPriority),
@@ -208,15 +208,15 @@ internal static class SpcSoundEffectDefinitions
         new(SpcSoundStreamDefinitions.Library2.Sound7B, SpcLibrary2Policy.TwoVoicesLowPriority),
         new(SpcSoundStreamDefinitions.Library2.Sound7C, SpcLibrary2Policy.OneVoiceHighPriority),
         new(SpcSoundStreamDefinitions.Library2.Sound7D, SpcLibrary2Policy.OneVoiceHighPriority),
-        new(SpcSoundStreamDefinitions.Library2.Sound7EMotherBrainSCryHighPitch, SpcLibrary2Policy.OneVoiceHighPriority),
+        new(SpcSoundStreamDefinitions.Library2.Sound7EMotherBrainSCryHighPitch, SpcLibrary2Policy.OneVoiceHighPriority, SpcSoundRequestAdmission.PriorityExempt),
         new(SpcSoundStreamDefinitions.Library2.Sound7FMotherBrainChargingHerRainbow, SpcLibrary2Policy.TwoVoicesLowPriority),
     ];
 
     /// <summary>The third library's effects, from command one.</summary>
     internal static readonly SpcSoundEffectDefinition<SpcLibrary3Policy>[] Library3 =
     [
-        new(SpcSoundStreamDefinitions.Library3.Sound01Silence, SpcLibrary3Policy.CancelAndClearLowHealthMode),
-        new(SpcSoundStreamDefinitions.Library3.Sound02LowHealthBeep, SpcLibrary3Policy.LowHealthModePreservePriority),
+        new(SpcSoundStreamDefinitions.Library3.Sound01Silence, SpcLibrary3Policy.CancelAndClearLowHealthMode, SpcSoundRequestAdmission.Clearing),
+        new(SpcSoundStreamDefinitions.Library3.Sound02LowHealthBeep, SpcLibrary3Policy.LowHealthModePreservePriority, SpcSoundRequestAdmission.PriorityExempt),
         new(SpcSoundStreamDefinitions.Library3.Sound03SpeedBooster, SpcLibrary3Policy.OneVoiceLowPriority),
         new(SpcSoundStreamDefinitions.Library3.Sound04SamusLandedHard, SpcLibrary3Policy.TwoVoicesLowPriority),
         new(SpcSoundStreamDefinitions.Library3.Sound05SamusLandedWallJumped, SpcLibrary3Policy.TwoVoicesLowPriority),

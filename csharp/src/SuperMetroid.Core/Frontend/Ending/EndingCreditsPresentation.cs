@@ -146,7 +146,7 @@ internal static class EndingCreditsPresentation
         && ending.Phase != EndingCreditsPhase.PostCreditsFadeIn
         && ending.Phase != EndingCreditsPhase.PostCreditsGesture
         && ending.Phase != EndingCreditsPhase.PostCreditsJump
-        && !(ending.Phase == EndingCreditsPhase.PostCreditsReward && ending.Stage.EndingReward == EndingReward.Armored);
+        && !(ending.Phase == EndingCreditsPhase.PostCreditsReward && !EndingRewardDefinitions.Rewards[ending.Stage.EndingReward].CrossfadesReveal);
     /// <summary>Whether to show the waiting scene's background.</summary>
     private static bool UsesWaitingBackground(EndingCreditsPhase phase) => !EndingCreditsPhaseGroups.FromWaitingSamus.Contains(phase)
         || phase == EndingCreditsPhase.PostCreditsReward;
@@ -155,7 +155,7 @@ internal static class EndingCreditsPresentation
     /// stars and an unarmoured reward.
     /// </summary>
     private static bool RewardSpritesGlow(EndingCreditsState ending) => (ending.Phase == EndingCreditsPhase.FadeInZebesExplosion || ending.Phase == EndingCreditsPhase.ZebesExplosionCrossfade || ending.Phase == EndingCreditsPhase.PostCreditsShootingStars)
-        || (ending.Phase == EndingCreditsPhase.PostCreditsReward && ending.Stage.EndingReward != EndingReward.Armored);
+        || (ending.Phase == EndingCreditsPhase.PostCreditsReward && EndingRewardDefinitions.Rewards[ending.Stage.EndingReward].CrossfadesReveal);
 
     /// <summary>The post-credits background: the waiting backdrop, or the post-credits text, each one unscrolled screen.</summary>
     private static PicturedPlaneLayer PostCreditsLayer(EndingCreditsState ending) =>

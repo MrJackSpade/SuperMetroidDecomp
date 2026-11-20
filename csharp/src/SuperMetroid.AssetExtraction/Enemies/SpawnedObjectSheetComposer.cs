@@ -37,6 +37,16 @@ internal static class SpawnedObjectSheetComposer
     private const int ProjectilePageCharacters = 256;
 
     /// <summary>
+    /// The spawners whose objects draw from a sheet of characters of their own, whatever the spawner's, with that sheet and
+    /// the character it begins at: Mother Brain's body, whose tank glass draws from its own characters (#1435).
+    /// </summary>
+    private static readonly IReadOnlyDictionary<EnemyDefinitionId, (SpawnedObjectOwner Sheet, int FirstCharacter)> OwnCharacterSheets =
+        new Dictionary<EnemyDefinitionId, (SpawnedObjectOwner Sheet, int FirstCharacter)>
+        {
+            [EnemyDefinitionId.MotherBrainBody] = (SpawnedObjectOwner.MotherBrainTankGlass, EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters),
+        };
+
+    /// <summary>
     /// The spawned-object sheets of a set laid out as <paramref name="layout"/>, drawing <paramref name="drawn"/>, each enemy
     /// in the row <paramref name="rowOf"/> gives: the shared sheet, holding every spawner's objects at character zero with
     /// those of the <paramref name="common"/> spawners the set's rooms run, then each spawner's own sheet and Mother Brain's
@@ -73,10 +83,12 @@ internal static class SpawnedObjectSheetComposer
         }
         // Mother Brain's tank glass draws from characters of its own, whatever its spawner's (#1435), and holds only what
         // draws from that sheet (#1513).
-        if (drawn.Contains(EnemyDefinitionId.MotherBrainBody) && SpawnedObjectFrameDefinitions.BySheet.ContainsKey(SpawnedObjectOwner.MotherBrainTankGlass))
-            plans.Add(new SpawnedObjectSheetPlan(SpawnedObjectOwner.MotherBrainTankGlass,
-                EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters, EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters,
-                rowOf(EnemyDefinitionId.MotherBrainBody), [EnemyDefinitionId.MotherBrainBody], [], [], []));
+        foreach (EnemyDefinitionId spawner in drawn.Where(OwnCharacterSheets.ContainsKey).Distinct())
+        {
+            (SpawnedObjectOwner sheet, int firstCharacter) = OwnCharacterSheets[spawner];
+            if (SpawnedObjectFrameDefinitions.BySheet.ContainsKey(sheet))
+                plans.Add(new SpawnedObjectSheetPlan(sheet, firstCharacter, firstCharacter, rowOf(spawner), [spawner], [], [], []));
+        }
         return plans;
     }
 

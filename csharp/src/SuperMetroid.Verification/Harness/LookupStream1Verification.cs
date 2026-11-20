@@ -400,8 +400,8 @@ internal static class LookupStream1Verification
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
         byte[] native = Enumerable.Range(0, 800).Select(index => LookupStream1TimerGlyphsRomByte(rom, 0xb0c000 + index)).ToArray();
         var stock = EscapeTimerCharacters.Read(new MemoryStream(png));
-        byte[] Transfer(EscapeTimerCharacters value) => EscapeTimerTilePageTransfers.Resolve(value, InstalledArtworkId.EscapeTimerFirstTiles).Span
-            .ConcatToArray(EscapeTimerTilePageTransfers.Resolve(value, InstalledArtworkId.EscapeTimerSecondTiles).Span);
+        byte[] Transfer(EscapeTimerCharacters value) => EscapeTimerTilePageTransfers.Resolve(value, EscapeTimerTilePage.First).Span
+            .ConcatToArray(EscapeTimerTilePageTransfers.Resolve(value, EscapeTimerTilePage.Second).Span);
         AssertTrue(Transfer(stock).SequenceEqual(native), "Both reconstructed timer pages match all800 native planar bytes");
         var queue = new VramWriteQueue(); stock.QueueTo(queue);
         AssertEqual(2, queue.Entries.Count, "Original two-page queue count");

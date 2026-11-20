@@ -27,13 +27,27 @@ internal static class CeresEscapeOverlayPages
     internal static ImmutableArray<CeresEscapeWarningPicture> All { get; } =
         [Emergency, JapaneseSelfDestructLine, JapaneseEscapeLine];
 
+    /// <summary>The eight-pixel rows the English title's glyphs stand.</summary>
+    private const int TitleGlyphRows = 1;
+
+    /// <summary>The eight-pixel rows a Japanese subtitle line's sixteen-pixel glyphs stand: an upper and a lower row.</summary>
+    private const int SubtitleGlyphRows = 2;
+
+    /// <summary>
+    /// Each overlay's wording and the eight-pixel rows its glyphs stand: one for the title, two for a subtitle line, whose
+    /// sixteen-pixel glyphs are an upper and a lower row.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<CeresEscapeWarningPicture, (string Text, int GlyphRows)> Wordings =
+        new Dictionary<CeresEscapeWarningPicture, (string Text, int GlyphRows)>
+        {
+            [Emergency] = (EmergencyText, TitleGlyphRows),
+            [JapaneseSelfDestructLine] = (JapaneseSelfDestructText, SubtitleGlyphRows),
+            [JapaneseEscapeLine] = (JapaneseEscapeText, SubtitleGlyphRows),
+        };
+
     /// <summary>The authored wording one page spells: the title, or a subtitle line.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="page"/> is not one of the overlays.</exception>
-    internal static string Text(CeresEscapeWarningPicture page) =>
-        page == Emergency ? EmergencyText
-        : page == JapaneseSelfDestructLine ? JapaneseSelfDestructText
-        : page == JapaneseEscapeLine ? JapaneseEscapeText
-        : throw new ArgumentOutOfRangeException(nameof(page), $"{page.Name} is not a Ceres escape overlay.");
+    /// <exception cref="KeyNotFoundException"><paramref name="page"/> is not one of the overlays.</exception>
+    internal static string Text(CeresEscapeWarningPicture page) => Wordings[page].Text;
 
     /// <summary>The words of a Ceres warning page: rows of words, each one word per character of its wording.</summary>
     extension(CeresEscapeWarningPicture page)
@@ -45,7 +59,7 @@ internal static class CeresEscapeOverlayPages
         /// The eight-pixel rows of words the page spans: one for the title, two for a subtitle line, whose sixteen-pixel
         /// glyphs are an upper and a lower row.
         /// </summary>
-        internal int RowCount => JapaneseSubtitle.Contains(page) ? 2 : 1;
+        internal int RowCount => Wordings[page].GlyphRows;
 
         /// <summary>The page's words, row by row from the top.</summary>
         internal int WordCount => page.Width * page.RowCount;

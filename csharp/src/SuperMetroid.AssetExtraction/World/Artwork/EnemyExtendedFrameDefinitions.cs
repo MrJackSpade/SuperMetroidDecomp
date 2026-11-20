@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
@@ -89,6 +91,9 @@ internal static class EnemyExtendedFrameDefinitions
     /// <summary>Indexed view spanning the complete schema-ordered visual catalog.</summary>
     internal static EnemyExtendedFrameSequence Frames => new(0, ExpectedFrameCount);
 
+    /// <summary>$10: the high byte of Ceres steam's spritemap headers, cartridge drawing metadata after the component count (#1415).</summary>
+    private const int CeresSteamHeaderHighByte = 16;
+
     /// <summary>The document's frames as runs of one enemy family each, in the document's order (#1623).</summary>
     internal static ImmutableArray<EnemyExtendedFrameRun> FamilyRuns { get; } =
     [
@@ -98,10 +103,10 @@ internal static class EnemyExtendedFrameDefinitions
         new(EnemyExtendedFrameFamily.RidleyBody, BossSpriteFrameDefinitions.RidleyFrameCount),
         new(EnemyExtendedFrameFamily.Draygon, BossSpriteFrameDefinitions.DraygonSpriteFrameCount),
         new(EnemyExtendedFrameFamily.SporeSpawn, BossSpriteFrameDefinitions.SporeSpawnSpriteFrameCount),
-        new(EnemyExtendedFrameFamily.CeresSteam, CeresSteamFrameCount),
+        new(EnemyExtendedFrameFamily.CeresSteam, CeresSteamFrameCount, HeaderHighByte: CeresSteamHeaderHighByte),
         new(EnemyExtendedFrameFamily.Oum, OumFrameCount),
         new(EnemyExtendedFrameFamily.CrocomireTongue, CrocomireSpriteFrameCount),
-        new(EnemyExtendedFrameFamily.CrocomireBody, CrocomireBodyFrameCount),
+        new(EnemyExtendedFrameFamily.CrocomireBody, CrocomireBodyFrameCount, EnemyExtendedFrameLayers.SpritesBesideBg2),
         new(EnemyExtendedFrameFamily.BombTorizo, BombTorizoDormantFrameCount),
         new(EnemyExtendedFrameFamily.GoldenTorizo, TorizoFacingLeftStandingUpThirdFrameCount),
         new(EnemyExtendedFrameFamily.KraidArm, KraidArmFrameCount),
@@ -113,10 +118,12 @@ internal static class EnemyExtendedFrameDefinitions
         new(EnemyExtendedFrameFamily.TorizoJumpBack, TorizoJumpBackLeftNewFrameCount),
         new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoLeftOrbFrameCount),
         new(EnemyExtendedFrameFamily.TorizoCombat, CompleteTorizoAdditionalFrameCount),
-        new(EnemyExtendedFrameFamily.MotherBrainBody, MotherBrainBodyFrameDefinitions.FrameCount),
-        new(EnemyExtendedFrameFamily.Phantoon, PhantoonBg2FrameCount),
-        new(EnemyExtendedFrameFamily.Draygon, DraygonBg2FrameCount),
-        new(EnemyExtendedFrameFamily.CrocomireSkeleton, CrocomireSkeletonVisualDefinitions.FrameCount),
+        new(EnemyExtendedFrameFamily.MotherBrainBody, MotherBrainBodyFrameDefinitions.FrameCount, EnemyExtendedFrameLayers.SpritesBesideBg2,
+            MotherBrainBodyBg2FrameDefinitions.MaximumComponents),
+        new(EnemyExtendedFrameFamily.Phantoon, PhantoonBg2FrameCount, EnemyExtendedFrameLayers.Bg2Only, PhantoonBg2FrameDefinitions.MaximumComponents),
+        new(EnemyExtendedFrameFamily.Draygon, DraygonBg2FrameCount, EnemyExtendedFrameLayers.Bg2Only, DraygonBg2FrameDefinitions.MaximumComponents),
+        new(EnemyExtendedFrameFamily.CrocomireSkeleton, CrocomireSkeletonVisualDefinitions.FrameCount,
+            MaximumComponents: CrocomireSkeletonVisualDefinitions.MaximumComponents),
         new(EnemyExtendedFrameFamily.KraidFoot, KraidFootVisualDefinitions.FrameCount),
     ];
 }

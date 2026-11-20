@@ -17,7 +17,7 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <param name="standardObjects">The standard OBJ sheet the runtime's room loads show first.</param>
 /// <param name="enemyTiles">The import's enemy artwork the runtime's enemy sheets and frame displays were installed from.</param>
 internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCharacterAtlas standardObjects, EnemyTileSourceArtwork enemyTiles)
-    : IInstalledArtworkContent, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
+    : IInstalledEncounterArtwork
 {
     /// <summary>The artwork bound into <paramref name="runtime"/>, with the installation's standard OBJ sheet and enemy artwork.</summary>
     internal static RuntimeArtworkContent Of(SuperMetroidRuntime runtime) => Of(runtime, InstalledFixtures.EnemyTiles);

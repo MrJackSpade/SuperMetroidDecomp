@@ -37,9 +37,12 @@ internal static class EndingScreenImage
                 ExecutePostShotPart(vram, part.Part, artwork);
                 break;
             case EndingRewardCharactersTransfer reward:
-                ReadOnlySpan<byte> rewardCharacters = reward.Reward == EndingReward.Suitless
-                    ? Objects(artwork).SuitlessSamus.Characters.Span
-                    : Objects(artwork).WaitingSamus.Characters.Span;
+                ReadOnlySpan<byte> rewardCharacters = EndingRewardDefinitions.Rewards[reward.Reward].Dress switch
+                {
+                    EndingRewardDress.Suitless => Objects(artwork).SuitlessSamus.Characters.Span,
+                    EndingRewardDress.Suited => Objects(artwork).WaitingSamus.Characters.Span,
+                    _ => throw new InvalidDataException($"Undefined {nameof(EndingRewardDress)} for {reward.Reward}."),
+                };
                 ending.RewardCharacters.Load(rewardCharacters[..EndingArtworkExtentDefinitions.FloorBytes]);
                 break;
             default:

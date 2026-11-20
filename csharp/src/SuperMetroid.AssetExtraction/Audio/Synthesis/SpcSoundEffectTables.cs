@@ -37,6 +37,23 @@ internal static class SpcSoundEffectTables
         _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
     };
 
+    /// <summary>How library <paramref name="libraryIndex"/>'s handler admits a changed request for one-based <paramref name="command"/>.</summary>
+    internal static SpcSoundRequestAdmission Admission(int libraryIndex, int command) => libraryIndex switch
+    {
+        0 => Effect(SpcSoundEffectDefinitions.Library1, command).Admission,
+        1 => Effect(SpcSoundEffectDefinitions.Library2, command).Admission,
+        2 => Effect(SpcSoundEffectDefinitions.Library3, command).Admission,
+        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
+    };
+
+    /// <summary>Whether library <paramref name="libraryIndex"/> keeps the low-health mode, which refuses its requests but the clearing one.</summary>
+    internal static bool HasLowHealthMode(int libraryIndex) => libraryIndex switch
+    {
+        0 or 1 => false,
+        2 => true,
+        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
+    };
+
     /// <summary>The effect a one-based <paramref name="command"/> selects in <paramref name="library"/>.</summary>
     private static SpcSoundEffectDefinition<TPolicy> Effect<TPolicy>(SpcSoundEffectDefinition<TPolicy>[] library, int command)
         where TPolicy : struct, Enum =>

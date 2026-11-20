@@ -12,4 +12,11 @@ public static class EscapeTimerTilePages
         EscapeTimerTilePage.Second => InstalledArtworkId.EscapeTimerSecondTiles,
         _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {page}."),
     };
+
+    /// <summary>Each timer page, by the typed tile asset installed for it.</summary>
+    private static readonly IReadOnlyDictionary<InstalledArtworkId, EscapeTimerTilePage> PagesByAsset =
+        Enum.GetValues<EscapeTimerTilePage>().ToDictionary(AssetOf);
+
+    /// <summary>The timer page <paramref name="asset"/> is installed for, when it is one.</summary>
+    public static bool TryPageOf(InstalledArtworkId asset, out EscapeTimerTilePage page) => PagesByAsset.TryGetValue(asset, out page);
 }

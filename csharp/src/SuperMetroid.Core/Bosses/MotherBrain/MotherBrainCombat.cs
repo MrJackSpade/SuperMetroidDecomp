@@ -82,19 +82,20 @@ internal sealed class MotherBrainCombat
     };
 
     /// <summary>
-    /// Reacts to a shot at the head in Mother Brain's first form. The glass encounter
-    /// accepts only missile families; beams pass through without being converted into an
-    /// impact, while every accepted missile increments the glass room object's hit count before common
-    /// vulnerability damage is applied, which never deletes the head.
+    /// Runs her brain's shot reaction for a shot on the brain's rectangle of <paramref name="struck"/>, her head or, before
+    /// its first animation, her body (#2220). The glass encounter accepts only missile families; beams pass through
+    /// without being converted into an impact, while every accepted missile increments the glass room object's hit count
+    /// and flashes her head, whichever part was struck, before common vulnerability damage is applied to the struck part,
+    /// which never deletes it.
     /// </summary>
     private void ResolveMotherBrainHeadShot(
-        RoomEnemyOccupant brain,
+        RoomEnemyOccupant struck,
         SamusProjectileOccupant held,
         SamusProjectileSystem projectiles,
         SamusProjectileType projectileType,
         int projectileDamage)
     {
-        RoomEnemyPlace head = brain.Place;
+        RoomEnemyPlace head = struck.Place;
         SamusProjectile projectile = held.Projectile;
         MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head);
         SamusProjectileFamily family = projectileType.Family;
@@ -102,7 +103,7 @@ internal sealed class MotherBrainCombat
         {
             ResolveMotherBrainLaterFormHeadShot(
                 state,
-                brain,
+                struck,
                 held,
                 projectiles,
                 projectileType,
@@ -123,13 +124,15 @@ internal sealed class MotherBrainCombat
         _room.Services.MotherBrain.CountHeadShotOnGlass();
         _audio.QueueEnemySound(EnemySound.ShotMotherBrain, priority: SoundRequestPriority.Normal);
 
-        // A second hit during a flash keeps the flash white or plain as it was. The common damage of a shot that does
-        // not kill (#2255) then takes her health and starts her hurt reaction for its authored duration.
-        head.HurtFlash.Restart(head.HurtFlash.IsRunning && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.HurtFlash.UpdatesLeft)
+        // Her head flashes, whichever part's brain rectangle was struck; a second hit during a flash keeps the flash white
+        // or plain as it was. The common damage of a shot that does not kill (#2255) then takes the struck part's health
+        // and starts its hurt reaction for its authored duration.
+        UpdateCountdown flash = state.Head.HurtFlash;
+        flash.Restart(flash.IsRunning && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(flash.UpdatesLeft)
             ? MotherBrainFightDefinitions.HurtFlashKeepingPhase
             : MotherBrainFightDefinitions.HurtFlash);
 
-        _ = _collision.ApplyNormalShotDamage(brain, projectile, projectileType, projectileDamage, _room.Area);
+        _ = _collision.ApplyNormalShotDamage(struck, projectile, projectileType, projectileDamage, _room.Area);
     }
 
     /// <summary>

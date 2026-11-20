@@ -199,6 +199,33 @@ internal enum SamusPoseFamily
     /// </summary>
     FramesSelectedDirectly,
 
+    /// <summary>The spring ball's jumps, facing right and left.</summary>
+    SpringBallJump,
+
+    /// <summary>The crouches with the arm cannon forward, facing right and left, which a crouch jump lifts from.</summary>
+    PlainCrouching,
+
+    /// <summary>The poses Grapple's wall contact holds Samus in, either side.</summary>
+    GrappleWallContact,
+
+    /// <summary>The moonwalks aiming up, which fire from the running muzzle origins.</summary>
+    MoonwalkAimUp,
+
+    /// <summary>The still grounded balls, morph and spring, facing right and left.</summary>
+    StationaryBall,
+
+    /// <summary>The grounded balls a Chozo statue's hand admits: the morph ball facing right and the spring balls, but the morph ball facing left.</summary>
+    ChozoHandBall,
+
+    /// <summary>The jumps a left-facing damage boost turns into.</summary>
+    DamageBoostJumpLeft,
+
+    /// <summary>The jumps a right-facing damage boost turns into.</summary>
+    DamageBoostJumpRight,
+
+    /// <summary>The falls with the arm cannon forward, facing right and left.</summary>
+    PlainFallingOnly,
+
     /// <summary>
     /// The grounded balls a Torizo behind Samus sits down for: the grounded morph and spring balls, but the left-facing
     /// still morph ball, which the cartridge's list leaves out, so a Torizo never sits for it.

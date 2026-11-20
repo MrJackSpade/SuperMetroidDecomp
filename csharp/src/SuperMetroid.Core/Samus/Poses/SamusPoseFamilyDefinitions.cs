@@ -91,6 +91,13 @@ internal static class SamusPoseFamilyDefinitions
         [SamusPoseId.StandingTransitionAimDiagonalDownLeftPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
     };
 
+    /// <summary>Each damage boost, with the family of jumps it turns into: the left-named boost's left jumps, the right-named's right.</summary>
+    internal static readonly IReadOnlyDictionary<SamusPoseId, SamusPoseFamily> DamageBoostJumps = new Dictionary<SamusPoseId, SamusPoseFamily>
+    {
+        [SamusPoseId.DamageBoostLeftPose] = SamusPoseFamily.DamageBoostJumpLeft,
+        [SamusPoseId.DamageBoostRightPose] = SamusPoseFamily.DamageBoostJumpRight,
+    };
+
     /// <summary>The poses each family holds (<see cref="SamusPoseFamily"/>).</summary>
     internal static readonly IReadOnlyDictionary<SamusPoseFamily, SamusPoseId[]> Members = new Dictionary<SamusPoseFamily, SamusPoseId[]>
     {
@@ -466,6 +473,54 @@ internal static class SamusPoseFamilyDefinitions
         [SamusPoseFamily.HeldInPlaceStandUp] =
         [
             SamusPoseId.DraygonHeldStandingUpLeftPose,
+        ],
+        [SamusPoseFamily.SpringBallJump] =
+        [
+            SamusPoseId.SpringBallJumpRightPose,
+            SamusPoseId.SpringBallJumpLeftPose,
+        ],
+        [SamusPoseFamily.PlainCrouching] =
+        [
+            SamusPoseId.CrouchingRightPose,
+            SamusPoseId.CrouchingLeftPose,
+        ],
+        [SamusPoseFamily.GrappleWallContact] =
+        [
+            SamusPoseId.GrappleWallContactLeftPose,
+            SamusPoseId.GrappleWallContactRightPose,
+        ],
+        [SamusPoseFamily.MoonwalkAimUp] =
+        [
+            SamusPoseId.MoonwalkAimUpLeftPose,
+            SamusPoseId.MoonwalkAimUpRightPose,
+        ],
+        [SamusPoseFamily.StationaryBall] =
+        [
+            SamusPoseId.MorphBallGroundRightPose,
+            SamusPoseId.MorphBallGroundLeftPose,
+            SamusPoseId.SpringBallGroundRightPose,
+            SamusPoseId.SpringBallGroundLeftPose,
+        ],
+        [SamusPoseFamily.ChozoHandBall] =
+        [
+            SamusPoseId.MorphBallGroundRightPose,
+            SamusPoseId.SpringBallGroundRightPose,
+            SamusPoseId.SpringBallGroundLeftPose,
+        ],
+        [SamusPoseFamily.DamageBoostJumpLeft] =
+        [
+            SamusPoseId.NeutralJumpLeftPose,
+            SamusPoseId.NormalJumpForwardLeftPose,
+        ],
+        [SamusPoseFamily.DamageBoostJumpRight] =
+        [
+            SamusPoseId.NeutralJumpRightPose,
+            SamusPoseId.NormalJumpForwardRightPose,
+        ],
+        [SamusPoseFamily.PlainFallingOnly] =
+        [
+            SamusPoseId.FallingRightPose,
+            SamusPoseId.FallingLeftPose,
         ],
         [SamusPoseFamily.GenericSpinJump] =
         [

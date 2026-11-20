@@ -52,9 +52,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
             return;
         // The hand block is solid whether or not the touch is admitted. Samus morphed facing left is not admitted; only
         // these three poses are.
-        bool eligible = movingDown && collisionPose is
-            (SamusPoseId.MorphBallGroundRightPose or
-             SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose);
+        bool eligible = movingDown && SamusPoseTraits.IsIn(collisionPose, SamusPoseFamily.ChozoHandBall);
         eligible &= site.Admission switch
         {
             ChozoHandAdmission.AreaBossDefeated => _system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss),

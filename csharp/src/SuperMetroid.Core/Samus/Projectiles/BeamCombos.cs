@@ -291,13 +291,15 @@ internal sealed class BeamCombos
     });
 
     /// <summary>The Plasma ring update: the ring grows, shrinks and grows again by its phase.</summary>
+    /// <param name="samus">Samus, whom the ring surrounds.</param>
+    /// <param name="held">The ring's shot.</param>
+    /// <param name="ring">The ring's state, which its behaviour hands over (<see cref="PlasmaSpecialAttackRing"/>).</param>
+    /// <param name="shared">The bombs, whose shared cooldown the ring holds.</param>
+    /// <param name="camera">The camera's room position.</param>
     internal void StepPlasmaCombo(SamusState samus,
-        SamusProjectileOccupant held, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
+        SamusProjectileOccupant held, PlasmaParticleState ring, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
         SamusProjectile shot = held.Projectile;
-        if (shot.Behavior is not PlasmaSpecialAttackRing)
-            throw new InvalidOperationException("Plasma update requires its own behaviour.");
-        PlasmaParticleState ring = shot.KindStateAs<PlasmaParticleState>();
         if (shot.IsSpent)
         {
             _animation.ClearProjectile(shot);
@@ -460,13 +462,14 @@ internal sealed class BeamCombos
     /// <summary>
     /// Runs one update of a Wave special attack particle, which swings back and forth through Samus as it homes on her.
     /// </summary>
+    /// <param name="samus">Samus, on whom the particle homes.</param>
+    /// <param name="held">The particle's shot.</param>
+    /// <param name="wave">The particle's state, which its behaviour hands over (<see cref="WaveSpecialAttackHoming"/>).</param>
+    /// <param name="shared">The bombs, whose shared cooldown the particle holds.</param>
     internal SoundEffectId? StepWaveCombo(SamusState samus,
-        SamusProjectileOccupant held, SamusBombProjectileSystem shared)
+        SamusProjectileOccupant held, WaveParticleState wave, SamusBombProjectileSystem shared)
     {
         SamusProjectile shot = held.Projectile;
-        if (shot.Behavior is not WaveSpecialAttackHoming)
-            throw new InvalidOperationException("Wave update requires its own behaviour.");
-        WaveParticleState wave = shot.KindStateAs<WaveParticleState>();
         // A hit skips even the lifetime decrement. Expiry and collision both queue
         // the terminal sound, unlike Ice's silent outward-phase removal.
         if (shot.IsSpent)

@@ -604,12 +604,4 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 ? new AnimationContinuation<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 
-    /// <summary>Accepts gold ninja extended-hitbox bomb overlaps without damage or generic death.</summary>
-    internal static void ReactToGoldNinjaPirateBomb(EnemyBombContext c)
-    {
-        PirateHitboxShotActions.RequireGoldNinjaNormalBombReaction(c.SelectedShot);
-        // Both of the Gold Ninja's body reactions answer only a Power Bomb. The bomb's overlap with the Ninja's hitbox has
-        // already been counted, so the bomb touches it without damage, an impact, a reflection or the Gold Ninja's
-        // special-drop death.
-    }
 }

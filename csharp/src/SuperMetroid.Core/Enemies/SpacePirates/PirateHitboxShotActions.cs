@@ -7,24 +7,10 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class PirateHitboxShotActions
 {
     /// <summary>
-    /// Fails for a reaction no Pirate hitbox names. The empty frame still has a real point hitbox for a pirate, whose
-    /// common reaction bypasses the Ninja-specific armor tests; it is not rejected as unknown. Only the gold Ninja
-    /// (<see cref="SelectGoldNinjaHitboxShotAction"/>) gives the two Ninja body reactions special meaning: every other
-    /// Pirate takes the ordinary shot reaction even when it shows one of the frames it shares with the Ninja (#2453).
-    /// </summary>
-    internal static void RequirePirateShotReaction(EnemyReaction hitboxShot)
-    {
-        if (hitboxShot != SpacePirateReactions.Shot && hitboxShot != EnemyReaction.OrdinaryShot &&
-            hitboxShot != SpacePirateReactions.GoldNinjaVulnerableHitboxShot && hitboxShot != SpacePirateReactions.GoldNinjaInvincibleHitboxShot)
-        {
-            throw new InvalidDataException(
-                $"Space Pirate has no response to shot reaction {hitboxShot}.");
-        }
-    }
-
-    /// <summary>
     /// Runs the gold Ninja's hitbox shot reactions: its two body reactions reflect or ignore what does it no damage, and
-    /// the common and Pirate reactions run the ordinary shot reaction.
+    /// the common and Pirate reactions, the only others a Pirate hitbox names (<see cref="SpacePirateHitboxes"/>), run the
+    /// ordinary shot reaction. Only the gold Ninja gives the two Ninja body reactions special meaning: every other Pirate
+    /// takes the ordinary shot reaction even when it shows one of the frames it shares with the Ninja (#2453).
     /// </summary>
     internal static PirateHitboxShotAction SelectGoldNinjaHitboxShotAction(
         RoomEnemyOccupant enemy,
@@ -32,7 +18,6 @@ internal static class PirateHitboxShotActions
         EnemyReaction hitboxShot)
     {
         SamusProjectile projectile = held.Projectile;
-        RequirePirateShotReaction(hitboxShot);
         if (hitboxShot == SpacePirateReactions.Shot || hitboxShot == EnemyReaction.OrdinaryShot)
             return PirateHitboxShotAction.Normal;
 
@@ -58,18 +43,6 @@ internal static class PirateHitboxShotActions
             : PirateHitboxShotAction.Reflect;
     }
 
-    /// <summary>
-    /// Fails for a reaction no Pirate hitbox gives a normal bomb: a Gold Ninja's body answers only a Power Bomb, so a normal
-    /// bomb neither hurts it nor reflects from it.
-    /// </summary>
-    internal static void RequireGoldNinjaNormalBombReaction(EnemyReaction hitboxShot)
-    {
-        if (hitboxShot != SpacePirateReactions.Shot && hitboxShot != SpacePirateReactions.GoldNinjaVulnerableHitboxShot && hitboxShot != SpacePirateReactions.GoldNinjaInvincibleHitboxShot)
-        {
-            throw new InvalidDataException(
-                $"Space Pirate has no response to normal-bomb reaction {hitboxShot}.");
-        }
-    }
 
     /// <summary>
     /// Whether a shot or bomb whose hit runs through <paramref name="reaction"/> and hurts a Pirate other than the gold

@@ -527,13 +527,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     internal EnemyShotReaction SpacePirateShotReaction => field ??= new()
     {
         // Every Pirate but the gold Ninja goes on to its normal shot reaction from every hitbox, the Ninja's body reactions
-        // included; the stage only refuses a reaction no Pirate hitbox names.
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            if (c.UsesFrameHitboxes)
-                PirateHitboxShotActions.RequirePirateShotReaction(c.HitboxShot);
-            return false;
-        },
+        // included.
+        AfterSuperMissileQuake = (in EnemyShotContext c) => false,
         ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.HitboxShot),
         ReplacesGenericDeath = c =>
         {

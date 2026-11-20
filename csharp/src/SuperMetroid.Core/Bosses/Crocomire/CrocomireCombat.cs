@@ -205,7 +205,7 @@ internal sealed class CrocomireCombat
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                if (c.HitboxShot == EnemyReaction.OrdinaryShot)
+                if (c.HitboxShot.IsOrdinary)
                     return false;
                 if (!c.UsesFrameHitboxes)
                     throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
@@ -215,6 +215,20 @@ internal sealed class CrocomireCombat
             },
         };
     }
+
+    /// <summary>The touch reactions that push Samus back as well as hurting her, with the push: his claws'.</summary>
+    private static readonly IReadOnlyDictionary<EnemyReaction, int> TouchPushes = new Dictionary<EnemyReaction, int>
+    {
+        [CrocomireReactions.ClawTouch] = CrocomireFightDefinitions.ClawPush,
+    };
+
+    /// <summary>The steps a weapon striking his mouth on screen pushes him back by; a weapon not listed pushes nothing.</summary>
+    private static readonly IReadOnlyDictionary<SamusProjectileFamily, int> MouthPushSteps = new Dictionary<SamusProjectileFamily, int>
+    {
+        [SamusProjectileFamily.Beam] = CrocomireFightDefinitions.ChargedBeamSteps,
+        [SamusProjectileFamily.Missile] = CrocomireFightDefinitions.MissileSteps,
+        [SamusProjectileFamily.SuperMissile] = CrocomireFightDefinitions.SuperMissileSteps,
+    };
 
     /// <summary>Runs Crocomire's component contact, including normal enemy touch damage.</summary>
     internal void ReactToCrocomireTouch(EnemyTouchContext context)
@@ -231,8 +245,8 @@ internal sealed class CrocomireCombat
 
         _collision.ResolveOrdinaryTouch(context);
         // A claw's touch also pushes Samus back.
-        if (context.HitboxTouch == CrocomireReactions.ClawTouch)
-            context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWholeX(CrocomireFightDefinitions.ClawPush);
+        if (TouchPushes.TryGetValue(context.HitboxTouch, out int push))
+            context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWholeX(push);
     }
 
     /// <summary>
@@ -246,31 +260,28 @@ internal sealed class CrocomireCombat
         EnemyReaction reaction,
         Position16<RoomPixels> camera)
     {
-        RoomEnemyPlace body = state.Body;
-
-        // A shot on his raised or high mouth or his lower body is absorbed: it neither hurts him nor raises dust.
-        if (reaction == CrocomireReactions.AbsorbedShot)
-            return;
-
-        if (reaction == CrocomireReactions.DustShot)
-        {
-            SpawnCrocomireShotDust(projectileType, projectile);
-            return;
-        }
-
-        if (reaction == CrocomireReactions.MouthShot)
-        {
-            ResolveCrocomireMouthShot(
-                state,
-                body,
-                projectileType,
-                projectile,
-                camera);
-            return;
-        }
-
-        throw new InvalidOperationException($"Crocomire has no response to shot reaction {reaction}.");
+        if (!HitboxShotResponses.TryGetValue(reaction, out CrocomireHitboxShotResponse? response))
+            throw new InvalidOperationException($"Crocomire has no response to shot reaction {reaction}.");
+        response(state, projectileType, projectile, camera);
     }
+
+    /// <summary>What a shot meeting one of his hitboxes' own reactions does to him.</summary>
+    private delegate void CrocomireHitboxShotResponse(CrocomireEnemyState state, SamusProjectileType projectileType,
+        Position16<RoomPixels> projectile, Position16<RoomPixels> camera);
+
+    /// <summary>
+    /// Each of his hitboxes' own shot reactions with what a shot meeting it does: a shot on his raised or high mouth or
+    /// his lower body is absorbed, neither hurting him nor raising dust; a dust hitbox raises dust; his mouth runs its
+    /// reaction.
+    /// </summary>
+    private IReadOnlyDictionary<EnemyReaction, CrocomireHitboxShotResponse> HitboxShotResponses => field ??=
+        new Dictionary<EnemyReaction, CrocomireHitboxShotResponse>
+        {
+            [CrocomireReactions.AbsorbedShot] = (_, _, _, _) => { },
+            [CrocomireReactions.DustShot] = (_, projectileType, projectile, _) => SpawnCrocomireShotDust(projectileType, projectile),
+            [CrocomireReactions.MouthShot] = (state, projectileType, projectile, camera) =>
+                ResolveCrocomireMouthShot(state, state.Body, projectileType, projectile, camera),
+        };
 
     /// <summary>
     /// Resolves Crocomire's mouth reaction. Whether his body's left edge is on screen reads <paramref name="camera"/>, the
@@ -300,10 +311,7 @@ internal sealed class CrocomireCombat
                 SpawnCrocomireShotDust(projectileType, projectile);
                 return;
             }
-            pushedSteps = family == SamusProjectileFamily.Beam ? CrocomireFightDefinitions.ChargedBeamSteps
-                : family == SamusProjectileFamily.Missile ? CrocomireFightDefinitions.MissileSteps
-                : family == SamusProjectileFamily.SuperMissile ? CrocomireFightDefinitions.SuperMissileSteps
-                : null;
+            pushedSteps = MouthPushSteps.TryGetValue(family, out int weaponSteps) ? weaponSteps : null;
         }
 
         if (pushedSteps is int steps)

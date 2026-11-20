@@ -30,4 +30,7 @@ internal static class CrocomireReactions
     /// run, so a shot or bomb that meets him by his radius has no response of his.
     /// </summary>
     internal static EnemyReaction Shot => SpeciesOwnReactions.CrocomireShot;
+
+    /// <summary>His hitboxes' own shot reactions: the absorbing, the dust-raising and the mouth's.</summary>
+    internal static IReadOnlyList<EnemyReaction> OwnShots { get; } = [AbsorbedShot, DustShot, MouthShot];
 }

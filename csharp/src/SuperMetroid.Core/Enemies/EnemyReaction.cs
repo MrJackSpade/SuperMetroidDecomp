@@ -10,17 +10,21 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public sealed class EnemyReaction
 {
-    /// <summary>Creates the reaction named <paramref name="name"/>.</summary>
-    private EnemyReaction(string name) => Name = name;
+    /// <summary>Creates the reaction named <paramref name="name"/>, ordinary or a dud as <paramref name="kind"/> says.</summary>
+    private EnemyReaction(string name, EnemyReactionKind kind = EnemyReactionKind.Own)
+    {
+        Name = name;
+        Kind = kind;
+    }
 
     /// <summary>The ordinary contact reaction: Samus takes the definition's damage, or her contact attack damages the enemy.</summary>
-    public static EnemyReaction OrdinaryTouch { get; } = new(nameof(OrdinaryTouch));
+    public static EnemyReaction OrdinaryTouch { get; } = new(nameof(OrdinaryTouch), EnemyReactionKind.Ordinary);
 
     /// <summary>The ordinary shot reaction: the enemy takes the weapon's damage by its vulnerabilities.</summary>
-    public static EnemyReaction OrdinaryShot { get; } = new(nameof(OrdinaryShot));
+    public static EnemyReaction OrdinaryShot { get; } = new(nameof(OrdinaryShot), EnemyReactionKind.Ordinary);
 
     /// <summary>The shot glances off as a dud.</summary>
-    public static EnemyReaction DudShot { get; } = new(nameof(DudShot));
+    public static EnemyReaction DudShot { get; } = new(nameof(DudShot), EnemyReactionKind.Dud);
 
     /// <summary>
     /// The reaction that does nothing, whichever enemy names it; whether the engine still tests an enemy's extended
@@ -36,6 +40,28 @@ public sealed class EnemyReaction
 
     /// <summary>The reaction's name, for diagnostics.</summary>
     public string Name { get; }
+
+    /// <summary>Whether the reaction is an ordinary one: Samus's contact or the weapon's damage by the enemy's vulnerabilities.</summary>
+    public bool IsOrdinary => Kind == EnemyReactionKind.Ordinary;
+
+    /// <summary>Whether a shot meeting the reaction glances off as a dud.</summary>
+    public bool IsDud => Kind == EnemyReactionKind.Dud;
+
+    /// <summary>What sort of reaction this is: ordinary, a dud, or the reaction's own.</summary>
+    private EnemyReactionKind Kind { get; }
+
+    /// <summary>What sort of reaction one is.</summary>
+    private enum EnemyReactionKind
+    {
+        /// <summary>A reaction answered in its own way: a species' own, ignoring, or the common Power Bomb damage.</summary>
+        Own,
+
+        /// <summary>The ordinary contact or shot reaction.</summary>
+        Ordinary,
+
+        /// <summary>The dud shot.</summary>
+        Dud,
+    }
 
     /// <summary>
     /// A reaction of one species' own that its definition or its frames' hitboxes name, which only that species' handlers

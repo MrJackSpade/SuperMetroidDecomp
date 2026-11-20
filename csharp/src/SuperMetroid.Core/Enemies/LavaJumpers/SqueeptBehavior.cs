@@ -39,12 +39,13 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Every room with it places this cosmetic second half immediately after its moving parent, which it
         // finds when it is placed and follows from then on; a population that places anything else there is refused.
+        _parents.Place(place, _places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader));
+        SqueeptState parent = ValidateSqueeptParent(place);
         var state = new NorfairLavaJumperFollowerState
         {
+            Parent = parent,
             Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
         };
-        _parents.Place(place, _places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader));
-        ValidateSqueeptParent(place);
         return state;
     }
 
@@ -65,10 +66,10 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs the follower's main behaviour. Main advances the shared random numbers once for the follower as for the
     /// parent; the follower discards the number, which still affects later room actors.
     /// </summary>
-    internal void RunNorfairLavaJumperFollowerMain(RoomEnemyPlace follower)
+    internal void RunNorfairLavaJumperFollowerMain(RoomEnemyPlace follower, NorfairLavaJumperFollowerState followerState)
     {
         _room.Random.Generate();
-        FollowSqueeptParent(follower);
+        FollowSqueeptParent(follower, followerState);
     }
 
     /// <summary>
@@ -156,7 +157,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Shows the cosmetic follower at the preceding parent's height while the parent rises and is not frozen, and hides
     /// it otherwise.
     /// </summary>
-    private void FollowSqueeptParent(RoomEnemyPlace follower)
+    private void FollowSqueeptParent(RoomEnemyPlace follower, NorfairLavaJumperFollowerState followerState)
     {
         RoomEnemyPlace parent = GetPrecedingSqueeptPlace(follower);
 
@@ -170,8 +171,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The pair is checked when the follower is placed, not on every update.
-        SqueeptState parentState = parent.FoundState<SqueeptState>() ?? throw new InvalidOperationException(
-            $"Lava jumper follower {follower.Ordinal} finds no lava jumper in its parent's place {parent.Ordinal}.");
+        SqueeptState parentState = followerState.Parent;
         if (parent.Freeze.IsRunning || !parentState.YVelocity.IsNegative)
         {
             // The second half appears only while the parent is travelling upward. At the
@@ -188,10 +188,10 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     private RoomEnemyPlace GetPrecedingSqueeptPlace(RoomEnemyPlace follower) => _parents.Of(follower);
 
     /// <summary>Rejects a follower population entry without a same-species parent directly before it.</summary>
-    private void ValidateSqueeptParent(RoomEnemyPlace follower)
+    private SqueeptState ValidateSqueeptParent(RoomEnemyPlace follower)
     {
         RoomEnemyPlace parent = GetPrecedingSqueeptPlace(follower);
-        if (parent.Entity is not SqueeptEntity)
+        if (parent.Entity is not SqueeptEntity parentEntity)
         {
             throw new InvalidDataException(
                 $"Norfair lava-jumping follower in place {follower.Ordinal} must immediately follow " +
@@ -199,6 +199,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Preceding place: definition={parent.Occupant?.DefinitionId}, " +
                 $"health={parent.Health}, spawn={parent.Occupant?.Spawn.SpawnSettings}, contact={parent.Contact}, processing={parent.Processing}, presence={parent.Presence}.");
         }
+        return parentEntity.State;
     }
 
     /// <summary>Moves the jumper up or down by one update of its vertical speed.</summary>

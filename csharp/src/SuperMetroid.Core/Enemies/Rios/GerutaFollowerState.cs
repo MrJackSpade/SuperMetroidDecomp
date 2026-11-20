@@ -9,4 +9,7 @@ public sealed class GerutaFollowerState
 {
     /// <summary>The animation the follower plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<GerutaSegment> Playback { get; set; }
+
+    /// <summary>The state of the parent the follower found as it was placed, which it holds from its setup (#2554).</summary>
+    internal required GerutaEnemyState Parent { get; init; }
 }

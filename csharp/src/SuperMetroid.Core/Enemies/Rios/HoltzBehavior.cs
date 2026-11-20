@@ -44,9 +44,10 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     internal HoltzFollowerState InitializeHoltzFollower(RoomEnemyPlace place)
     {
         _parents.Place(place, _places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader));
-        ValidateHoltzParent(place);
+        HoltzEnemyState parent = ValidateHoltzParent(place);
         var state = new HoltzFollowerState
         {
+            Parent = parent,
             Playback = new(HoltzAnimations.StartingWith(HoltzSegment.Flames), AnimationPlace.StartOfAnimation),
         };
         return state;
@@ -190,7 +191,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Mirrors the preceding parent's freeze and visibility, placing live flames their drop below it.</summary>
-    private void FollowHoltzParent(RoomEnemyPlace follower)
+    private void FollowHoltzParent(RoomEnemyPlace follower, HoltzFollowerState followerState)
     {
         RoomEnemyPlace parent = GetPrecedingHoltzPlace(follower);
         if (parent.Health == 0)
@@ -199,7 +200,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        HoltzEnemyState parentState = parent.RequireSpeciesState<HoltzEnemyState>();
+        HoltzEnemyState parentState = followerState.Parent;
         follower.Freeze.Restart(parent.Freeze.UpdatesLeft);
         if (parent.Freeze.IsRunning || !parentState.FollowerVisible)
         {
@@ -261,25 +262,26 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     private RoomEnemyPlace GetPrecedingHoltzPlace(RoomEnemyPlace follower) => _parents.Of(follower);
 
     /// <summary>Requires the preceding place to hold an unfollowing Holtz parent.</summary>
-    private void ValidateHoltzParent(RoomEnemyPlace follower)
+    private HoltzEnemyState ValidateHoltzParent(RoomEnemyPlace follower)
     {
         RoomEnemyPlace parent = GetPrecedingHoltzPlace(follower);
-        if (parent.Entity is not HoltzEntity)
+        if (parent.Entity is not HoltzEntity parentEntity)
         {
             throw new InvalidDataException(
                 $"Lower Norfair Rio follower in place {follower.Ordinal} must immediately " +
                 "follow a parent of the same definition.");
         }
+        return parentEntity.State;
     }
 
     /// <summary>
     /// Runs a Holtz flame follower's main AI: it advances the shared enemy RNG, as every parent does, then
     /// follows its parent.
     /// </summary>
-    internal void RunHoltzFollowerMainAi(RoomEnemyPlace place)
+    internal void RunHoltzFollowerMainAi(RoomEnemyPlace place, HoltzFollowerState followerState)
     {
         _room.Random.Generate();
-        FollowHoltzParent(place);
+        FollowHoltzParent(place, followerState);
     }
 
     /// <summary>Runs a Holtz parent's main AI.</summary>

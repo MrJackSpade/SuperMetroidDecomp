@@ -44,9 +44,10 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal GerutaFollowerState InitializeGerutaFollower(RoomEnemyPlace place)
     {
         _parents.Place(place, _places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader));
-        ValidateGerutaParent(place);
+        GerutaEnemyState parent = ValidateGerutaParent(place);
         var state = new GerutaFollowerState
         {
+            Parent = parent,
             Playback = new(GerutaAnimations.StartingWith(GerutaSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
         };
         return state;
@@ -194,8 +195,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         // The pair is checked when the follower is placed; a parent deleted without a kill is read as it left its place and
         // its animation (RoomEnemyPlace.FoundState).
-        GerutaEnemyState parentState = parent.FoundState<GerutaEnemyState>() ?? throw new InvalidOperationException(
-            $"Rio flame follower {follower.Ordinal} finds no Rio in its parent's place {parent.Ordinal}.");
+        GerutaEnemyState parentState = followerState.Parent;
         follower.Freeze.Restart(parent.Freeze.UpdatesLeft);
         if (parent.Freeze.IsRunning || parentState.Idles)
         {
@@ -269,15 +269,16 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     private RoomEnemyPlace GetPrecedingGerutaPlace(RoomEnemyPlace follower) => _parents.Of(follower);
 
     /// <summary>Requires a flame follower to come right after its parent Rio among the room's enemies.</summary>
-    private void ValidateGerutaParent(RoomEnemyPlace follower)
+    private GerutaEnemyState ValidateGerutaParent(RoomEnemyPlace follower)
     {
         RoomEnemyPlace parent = GetPrecedingGerutaPlace(follower);
-        if (parent.Entity is not GerutaEntity)
+        if (parent.Entity is not GerutaEntity parentEntity)
         {
             throw new InvalidDataException(
                 $"Norfair Rio follower in place {follower.Ordinal} must immediately follow " +
                 "a parent of the same definition.");
         }
+        return parentEntity.State;
     }
 
     /// <summary>Runs a Geruta flame follower's main AI: it advances the shared enemy RNG, as every parent does, then follows its parent.</summary>

@@ -183,7 +183,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// Empties the place of its occupant, its entity and its species states, leaving its other values and what earlier
     /// occupants left: a deletion and a kill go on from here, and a recorded state's free place is imported by it.
     /// </summary>
-    internal void Vacate()
+    private void Vacate()
     {
         if (History is PopulatedEnemyPlace populated)
             populated.Vacate();

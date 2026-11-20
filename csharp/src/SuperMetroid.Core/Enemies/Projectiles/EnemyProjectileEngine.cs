@@ -341,7 +341,7 @@ internal sealed class EnemyProjectileEngine
     /// <param name="kind">What the projectile is, which names its definition.</param>
     /// <param name="behavior">What the projectile's kind does, bound to it for its life (#1760), which starts its motion (#1843).</param>
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
-    internal static void InitializeEnemyProjectileFromDefinition(
+    private static void InitializeEnemyProjectileFromDefinition(
         EnemyProjectile projectile,
         RoomEnemyProjectileKind kind,
         EnemyProjectileBehavior behavior,

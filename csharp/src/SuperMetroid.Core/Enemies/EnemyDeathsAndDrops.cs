@@ -287,7 +287,7 @@ internal sealed class EnemyDeathsAndDrops
         ConfigurePickup(projectile, kind, new EnemyKilledEnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, killedEnemy));
 
     /// <summary>Gives the projectile a directly spawned pickup's identity, which came from no enemy, as the other overload does.</summary>
-    internal EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind) =>
+    private EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind) =>
         ConfigurePickup(projectile, kind, new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime));
 
     /// <summary>Gives the projectile the pickup <paramref name="state"/> of <paramref name="kind"/> and its animation.</summary>

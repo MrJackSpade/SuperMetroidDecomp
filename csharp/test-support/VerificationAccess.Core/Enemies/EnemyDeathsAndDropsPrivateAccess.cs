@@ -50,4 +50,12 @@ internal static class EnemyDeathsAndDropsPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Enemies.EnemyDeathsAndDrops, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileStates<global::SuperMetroid.Core.Enemies.EnemyPickupState>>(self, "Pickups");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.EnemyDeathsAndDrops self)
+    {
+        /// <summary>The private method <c>ConfigurePickup</c>, invoked by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Deaths.EnemyDeathAndDropSegment ConfigurePickup(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Enemies.EnemyPickupKind kind) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.EnemyDeathsAndDrops, global::SuperMetroid.Core.Enemies.Deaths.EnemyDeathAndDropSegment>(self, "ConfigurePickup", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Enemies.EnemyPickupKind)], new object?[] { projectile, kind });
+    }
 }

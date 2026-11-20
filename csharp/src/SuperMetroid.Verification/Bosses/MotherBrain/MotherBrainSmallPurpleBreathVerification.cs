@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hardware;

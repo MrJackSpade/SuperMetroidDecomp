@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;

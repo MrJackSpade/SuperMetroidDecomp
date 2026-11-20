@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using SuperMetroid.Core.Enemies.Deaths;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Areas.Ceres.PostCeresLandingHandOffVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

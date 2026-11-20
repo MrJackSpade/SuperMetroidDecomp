@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Fx;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

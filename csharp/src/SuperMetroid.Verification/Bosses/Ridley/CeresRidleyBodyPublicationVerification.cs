@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Hud;

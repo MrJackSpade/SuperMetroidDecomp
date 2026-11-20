@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;

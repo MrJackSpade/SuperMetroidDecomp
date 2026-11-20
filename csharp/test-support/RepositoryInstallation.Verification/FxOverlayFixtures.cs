@@ -53,7 +53,7 @@ internal static class FxOverlayFixtures
         if (!RoomFxTypes.ShowsLiquid(type))
         {
             int first = RoomEffectTransferCuts.AtmosphereFirstRow(transfer);
-            return new FxOverlayArtwork(new AtmosphereArtwork(Picture(transfer[(first * columns)..], image, palette, characterWord)));
+            return new FxOverlayArtwork(new AtmosphereArtwork((ShownLayeredPicture)Picture(transfer[(first * columns)..], image, palette, characterWord)));
         }
         // The strip and the body share one sheet, as an installed overlay sheet holds both.
         LiquidTransferRows cut = liquidCut ?? RoomEffectTransferCuts.Liquid(transfer);
@@ -102,10 +102,10 @@ internal static class FxOverlayFixtures
     /// <paramref name="firstRow"/>, repeating down and the plane's width repeating across, as the original game's plane
     /// showed a window of its rows: the plane's parts cut to those rows.
     /// </summary>
-    internal static AtmosphereArtwork Rows(LayeredPicture plane, int firstRow, int rows)
+    internal static AtmosphereArtwork Rows(ShownLayeredPicture plane, int firstRow, int rows)
     {
         Ensure.NotNull(plane);
-        Extent16<ImagePixels> pictured = plane.Size ?? throw new InvalidOperationException("An overlay fixture's plane installs neither part.");
+        Extent16<ImagePixels> pictured = plane.Size;
         var offset = new Offset16<ImagePixels>(0, firstRow * TilePixels);
         var size = new Extent16<ImagePixels>(pictured.X, checked((ushort)(rows * TilePixels)));
         if (offset.Y + size.Y > pictured.Y)

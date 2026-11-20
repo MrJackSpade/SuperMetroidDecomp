@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Drawing;

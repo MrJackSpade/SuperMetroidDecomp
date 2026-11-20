@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Verification.Harness;

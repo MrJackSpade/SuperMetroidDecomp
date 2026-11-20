@@ -63,7 +63,7 @@ internal static class HudAtlasVerification
             RgbColor[] colours = new RgbColor[256];
             for (int i = 0; i < 32; i++)
                 colours[i] = RgbColor.FromWord((ushort)(i * 0x421));
-            SuperMetroid.Core.Assets.LayeredPicture plane = FxOverlayFixtures.Picture(runtime.FrameBoundary.CaptureFxOverlayPlane().WordsIn(InstalledFixtures.ImportMaps.RoomFxPages), runtime.ComposedVram(),
+            var plane = (SuperMetroid.Core.Assets.ShownLayeredPicture)FxOverlayFixtures.Picture(runtime.FrameBoundary.CaptureFxOverlayPlane().WordsIn(InstalledFixtures.ImportMaps.RoomFxPages), runtime.ComposedVram(),
                 colours);
             var layer = new OverlayBlendLayer(new AtmosphereOverlay(FxOverlayFixtures.Rows(plane, 0, FxOverlayPlaneConstants.Rows), ScrollBands.Uniform(0)), 0,
                 BlendOperation.Add, ScrollBands.Uniform(0));

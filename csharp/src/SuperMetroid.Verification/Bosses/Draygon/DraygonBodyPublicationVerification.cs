@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Assets;

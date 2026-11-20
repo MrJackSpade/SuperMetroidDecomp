@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Hud;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;

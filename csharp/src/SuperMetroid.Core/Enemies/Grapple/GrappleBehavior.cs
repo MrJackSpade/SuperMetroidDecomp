@@ -22,9 +22,9 @@ internal sealed class GrappleBehavior : IGrappleTargets
     /// <summary>
     /// Resolves the grapple beam's endpoint against enemies. Extended hitboxes are
     /// intentionally ignored: the beam compares the endpoint with each ordinary radius
-    /// plus the beam point's radius and selects the first interactive place.
+    /// plus the beam point's radius and selects the first interactive place; none when the endpoint catches no enemy.
     /// </summary>
-    public GrappleEnemyCollision ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
+    public GrappleEnemyCollision? ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
     {
         foreach (RoomEnemyPlace enemy in _lifecycle.InteractiveEnemies)
         {
@@ -50,7 +50,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 enemy.Definition.Damage);
         }
 
-        return default;
+        return null;
     }
 
     /// <summary>

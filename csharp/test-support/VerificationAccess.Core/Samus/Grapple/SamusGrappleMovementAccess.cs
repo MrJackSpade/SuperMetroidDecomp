@@ -113,7 +113,7 @@ internal static class SamusGrappleMovementAccess
             SamusState samus,
             GameplayAction controllerInput,
             ISamusRoomObjects roomObjects,
-            Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+            Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
         {
             GrappleMovementResult step = SamusGrappleMovement.StepFiring(level, samus, controllerInput, roomObjects, enemyCollision);
             step.CommitPendingPose(samus, level, frameCounter: 0, roomObjects);
@@ -130,7 +130,7 @@ internal static class SamusGrappleMovementAccess
             GameplayAction controllerInput,
             GameplayAction newlyPressedInput,
             int frameCounter,
-            Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+            Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
         {
             GrappleMovementResult step = SamusGrappleMovement.Step(terrain, samus, controllerInput, newlyPressedInput, enemyCollision);
             step.CommitPendingPose(samus, terrain.Level, frameCounter, terrain.RoomObjects);

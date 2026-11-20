@@ -45,8 +45,8 @@ internal static class GrappleEnemyDeathVerification
         enemy.Radius = new(8, 8);
         enemy.Health = 500;
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus });
-        var contact = fixture.System.GrappleBehavior.ResolveGrappleEndpoint(new(100, 100));
-        AssertEqual(GrappleEnemyReaction.Kill, contact.Reaction, "header selects grapple kill independently of enemy health");
+        GrappleEnemyCollision? contact = fixture.System.GrappleBehavior.ResolveGrappleEndpoint(new(100, 100));
+        AssertEqual<GrappleEnemyReaction?>(GrappleEnemyReaction.Kill, contact?.Reaction, "header selects grapple kill independently of enemy health");
         samus.Grapple.Phase = GrapplePhase.Firing;
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         var explosion = fixture.System.Projectiles.EnemyProjectiles.Single(p => p.IsActive);

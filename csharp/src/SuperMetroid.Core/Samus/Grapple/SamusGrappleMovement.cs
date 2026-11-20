@@ -114,7 +114,7 @@ public static class SamusGrappleMovement
         SamusState samus,
         GameplayAction controllerInput,
         ISamusRoomObjects roomObjects,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
@@ -143,7 +143,8 @@ public static class SamusGrappleMovement
         // enemy's grapple reaction; firing acts only on the definition's
         // seven common reactions. Kill and no interaction deliberately go on to the room's blocks, exactly like an
         // enemy with no grapple reaction.
-        GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
+        // An endpoint that catches no enemy goes on to the room's blocks, as Kill and no interaction do.
+        if (enemyCollision(grapple.Anchor) is { } enemy)
         switch (enemy.Reaction)
         {
             case GrappleEnemyReaction.Attach:
@@ -243,7 +244,7 @@ public static class SamusGrappleMovement
     /// a fresh press of Up or Down adjusts the rope's length.
     /// A release or drop leaves its pose for the frame's pose update to commit.
     /// </summary>
-    internal static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction newlyPressedInput, Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+    internal static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction newlyPressedInput, Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
@@ -349,7 +350,7 @@ public static class SamusGrappleMovement
         SamusTerrain terrain,
         SamusState samus,
         GameplayAction controllerInput,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
 
@@ -394,10 +395,9 @@ public static class SamusGrappleMovement
     /// </summary>
     private static bool TryRetainEnemyAnchor(
         SamusGrappleState grapple,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
-        GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
-        if (enemy.Reaction == GrappleEnemyReaction.None)
+        if (enemyCollision(grapple.Anchor) is not { Reaction: not GrappleEnemyReaction.None } enemy)
             return false;
 
         if (enemy.Attaches)
@@ -436,7 +436,7 @@ public static class SamusGrappleMovement
         SamusTerrain terrain,
         SamusState samus,
         GameplayAction controllerInput,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
         bool shootHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;

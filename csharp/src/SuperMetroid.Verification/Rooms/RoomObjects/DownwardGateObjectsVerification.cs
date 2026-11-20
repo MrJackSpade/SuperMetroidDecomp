@@ -186,7 +186,7 @@ internal static class DownwardGateObjectsVerification
             "compiled initial gate draw installs the second solid column word");
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
                 DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, Resting: true } restingGate &&
-                restingGate.Animation.Shown == DownwardGateMovementDefinitions.Closed,
+                restingGate.RestingImage == DownwardGateMovementDefinitions.Closed,
             "a gate that has not moved rests on its closed image, not on an image of a movement (#1627)");
         roomObjects.Gates.SpawnDownwardGateTrigger(
                 level,

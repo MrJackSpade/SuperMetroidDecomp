@@ -27,13 +27,13 @@ internal static class SamusArtworkPresentationContractChecks
                     body.ArtOrigin(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
                     body.ArtOrigin((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1));
                     body.OriginRise(0, default(SuperMetroid.Core.Samus.Poses.SamusAnimationFrame));
-                    compositions.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Top, 0), out _);
-                    compositions.TryGetComposition(new SamusBodyHalfFrame((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1), SamusBodyHalf.Top, 0), out _);
+                    compositions.TryGetFrame(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Top, 0), out _);
+                    compositions.TryGetFrame(new SamusBodyHalfFrame((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1), SamusBodyHalf.Top, 0), out _);
                     atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);
-                    arm.PoseDescriptor(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
-                    arm.PoseDescriptor((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1));
-                    arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount - 1);
-                    arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount);
+                    arm.Descriptors.PoseDescriptor(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
+                    arm.Descriptors.PoseDescriptor((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1));
+                    arm.Descriptors.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount - 1);
+                    arm.Descriptors.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount);
                     arm.CoverTileIndex(9, 3);
                     arm.CoverTileIndex(9, 4);
                     arm.CoverTileIndex(10, 0);
@@ -69,7 +69,8 @@ internal static class SamusArtworkPresentationContractChecks
             AuditReport revoked = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText(external,
                 path: "fixture-external-arm.cs"))), true);
             Require(revoked.Classifications.Count == 3 && revoked.UnresolvedCount == 10 &&
-                revoked.Findings.Count(item => item.Owner.StartsWith("SamusArmCannonSourceArtwork.", StringComparison.Ordinal) &&
+                revoked.Findings.Count(item => (item.Owner.StartsWith("SamusArmCannonSourceArtwork.", StringComparison.Ordinal) ||
+                    item.Owner.StartsWith("SamusArmCannonDescriptors.", StringComparison.Ordinal)) &&
                     item.Message.Contains("stale", StringComparison.Ordinal)) == 7,
                 "unvalidated placement construction must revoke the arm proof" + " (" + revoked.Describe() + ")");
         }

@@ -479,7 +479,7 @@ internal static void VerifySamusArmCannon()
     for (int index = 0; index < drawing.Length; index++)
         document.Required("drawingData")[index] = drawing[index];
     // Direction two's cover keeps its installed appearance, the retail $281F: tile $1F, palette four, priority two.
-    document.Required("coverTiles")[2] = new System.Text.Json.Nodes.JsonArray(0, 1, 2);
+    document.Required("coverOrientations")["Right"] = "Vertical";
     using var placement = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString()));
     // The cover characters are import data no installation holds (#1636): the cartridge-derived extraction's are bound.
     using var tiles = File.OpenRead(Path.Combine(CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.SamusBodyDirectoryName),

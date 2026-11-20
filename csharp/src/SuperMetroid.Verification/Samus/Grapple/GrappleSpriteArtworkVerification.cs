@@ -59,7 +59,7 @@ internal static class GrappleSpriteArtworkVerification
             var invalid = RequiredJson.Parse(json); invalid.Required("endpoint")[field] = value;
             AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid.ToJsonString()))), "Invalid Grapple style field: " + field);
         }
-        var incomplete = RequiredJson.Parse(json); incomplete.Required("endpoint").AsObject().Remove("priority");
+        var incomplete = RequiredJson.Parse(json); incomplete.Required("endpoint").AsObject().Remove("depth");
         AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(incomplete.ToJsonString()))), "Missing visual field rejected");
         Console.WriteLine($"Grapple sprite JSON: native appearances extracted and {cases} grapple sheet frames composed from them; invalid documents rejected.");
     }

@@ -13,6 +13,12 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks Samus's typed pose animation programs against the cartridge's (#1473).</summary>
 internal static class SamusAnimationDelayDefinitionsVerification
 {
+    /// <summary>The animation an installed document names by <paramref name="key"/>, its installed key.</summary>
+    /// <exception cref="InvalidDataException">No animation has the key.</exception>
+    private static SamusAnimationName AnimationKeyed(string key) => SamusAnimationNameKeys.Installed.TryParse(key, out SamusAnimationName name)
+        ? name
+        : throw new InvalidDataException($"No animation has the installed key {key}.");
+
     /// <summary>
     /// Decodes every pose record's program from the cartridge and requires the typed animation the record plays, its pose's
     /// or, for a record no pose names, the one a read past an earlier animation reaches (#2048), to hold the same runs: each
@@ -108,11 +114,11 @@ internal static class SamusAnimationDelayDefinitionsVerification
         int reads = 0;
         foreach ((string animationName, IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast> frames) in SamusAnimationLayout.Read(cartridge).ReadsPast())
         {
-            SamusAnimationName name = Enum.Parse<SamusAnimationName>(animationName);
+            SamusAnimationName name = AnimationKeyed(animationName);
             SamusPoseAnimation animation = SamusAnimationDelays.AnimationNamed(name);
             foreach ((string frameName, SamusOverreadDocument.ReadPast read) in frames)
             {
-                SamusAnimationName reached = Enum.Parse<SamusAnimationName>(read.Animation);
+                SamusAnimationName reached = AnimationKeyed(read.Animation);
                 SamusPoseAnimation readAnimation = SamusAnimationDelays.AnimationNamed(reached);
                 int shift = starts[reached] - starts[name];
                 AssertTrue(shift > 0, $"the {name} animation at {frameName} reads a program laid out after its own");
@@ -130,7 +136,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
             SamusAnimationPlace place = places[placeName];
             foreach ((string animationName, string frameName) in landings)
             {
-                SamusPoseAnimation animation = SamusAnimationDelays.AnimationNamed(Enum.Parse<SamusAnimationName>(animationName));
+                SamusPoseAnimation animation = SamusAnimationDelays.AnimationNamed(AnimationKeyed(animationName));
                 AssertEqual(SamusAnimationNumbers.Number(place.Animation, place.Frame), SamusAnimationNumbers.Number(animation, animation.FrameNamed(frameName)),
                     $"place {placeName} lands in the {animationName} animation on the frame its native number names");
             }
